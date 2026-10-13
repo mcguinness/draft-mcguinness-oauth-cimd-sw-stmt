@@ -330,7 +330,7 @@ On receiving a presentation, the authorization server proceeds as follows, rejec
 
 ## Sender Constraint {#sender-constraint}
 
-A runtime presentation MUST be sender-constrained by a key the statement attests or, under {{public-client-presentation}}, by the key the presenter binds through `dpop_jkt`. The presenter proves possession of that key through the applicable client authentication method or a DPoP proof {{RFC9449}}. The proof MUST be bound to the current request and validated with the replay protections of that mechanism.
+A runtime presentation MUST be sender-constrained by a key the statement attests or, under {{public-client-presentation}}, by the key the presenter binds through `dpop_jkt`. The presenter proves possession of that key through the applicable client authentication method or a DPoP proof {{RFC9449}}; where a request carries both, the key its client authentication proves is the proven key. The proof MUST be bound to the current request and validated with the replay protections of that mechanism.
 
 Except as {{public-client-presentation}} provides, the proven key MUST appear in the `jwks` or at the `jwks_uri` of the reviewed document ({{effective-metadata}}). Where the reviewed document specifies a client authentication method, the presenter MUST use it. The authorization server MUST reject a presentation without such a proof, or whose proven key the reviewed document does not carry. A document carrying a redirection URI another application could claim is presented review-only whatever its authentication method ({{public-client-presentation}}).
 
