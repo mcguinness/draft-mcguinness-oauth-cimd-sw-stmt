@@ -397,7 +397,7 @@ Expiry after presentation does not by itself invalidate an establishment already
 
 ### Refresh {#refresh}
 
-On refresh-token use the authorization server MUST verify possession of the establishment's proven key under the same sender-constraint mechanism. It MAY, by local policy, additionally require a current unexpired statement, and SHOULD require one once the establishment's recorded statement has expired ({{enforcement-bounds}}). The recorded statement satisfies that requirement while it is unexpired and no refusal record covers it, even after a later statement has raised the `iat` floor of {{multi-instance}}; a replacement is needed only once the recorded statement expires or a refusal record covers it.
+On refresh-token use the authorization server MUST verify possession of the establishment's proven key under the same sender-constraint mechanism. Except for an establishment created under {{public-client-presentation}}, it MUST also verify that the document currently served at the establishment's `sub` still carries that key, in its `jwks` or at its `jwks_uri`, within the reuse bounds of {{sender-constraint}}, and rejects the refresh with `invalid_grant` where it does not, so that a key the publisher removes stops continuing grants as well as opening them. It MAY, by local policy, additionally require a current unexpired statement, and SHOULD require one once the establishment's recorded statement has expired ({{enforcement-bounds}}). The recorded statement satisfies that requirement while it is unexpired and no refusal record covers it, even after a later statement has raised the `iat` floor of {{multi-instance}}; a replacement is needed only once the recorded statement expires or a refusal record covers it.
 
 Where the authorization server holds a refusal record for the establishment's recorded statement, it MUST reject a refresh without a presented or pulled replacement satisfying this section, whatever its policy on currency otherwise: a withdrawal ends grant continuation at once rather than waiting on local policy. A server that uses a withdrawal mechanism for the recorded statement's issuer SHOULD consult it for that statement at each refresh, so that a withdrawal reaches open grants and not only new ones.
 
@@ -447,6 +447,7 @@ A statement records that a named party reviewed software, not that a particular 
 | --- | --- | --- |
 | Malformed, or failing signature or claim validation | `invalid_client` | `statement_required` |
 | Failing the sender constraint ({{sender-constraint}}), or on refresh the proof of the proven key | `invalid_client` | `invalid_client` |
+| Proven key no longer carried by the client's document ({{refresh}}) | n/a | `invalid_grant` |
 | Valid but not acceptable here: issuer not configured, `aud` excludes this server, `sub` outside the issuer's scope, `aud_tenant` not this request's tenant or absent where required, `statement_uses` excludes this use | `invalid_client` | `statement_required` |
 | Expired, refused by a refusal record ({{withdrawal}}), or superseded under the `iat` floor of {{multi-instance}} | `statement_required` | `statement_required` |
 | Required statement absent, including one from an issuer required for the tenant ({{issuer-trust}}) | `statement_required` | `statement_required` |
@@ -592,7 +593,7 @@ A retrieval failure leaves the relevant metadata or proof unverified, so the aut
 
 ## Statement Lifetime {#enforcement-bounds}
 
-Expiry and withdrawal ({{withdrawal}}) govern new admissions; neither revokes an issued access token. Unless the server requires a current statement on refresh or holds a refusal record ({{refresh}}), a grant opened by a statement lasts for the life of its refresh tokens, whatever the statement's lifetime. A narrowed review takes effect when the client publishes the narrower document and obtains a statement over it. Short lifetimes tighten an issuer's control and increase renewal traffic; at a server implementing the registration-validity model of {{REGISTRATION}}, the lifetime also sets the registration's renewal cadence. A fleet of statements issued together expires together, so issuers SHOULD stagger expiries or renew ahead of the boundary to avoid synchronized lapses.
+Expiry and withdrawal ({{withdrawal}}) govern new admissions; neither revokes an issued access token. Unless the server requires a current statement on refresh, holds a refusal record, or finds the proven key gone from the client's document ({{refresh}}), a grant opened by a statement lasts for the life of its refresh tokens, whatever the statement's lifetime. A narrowed review takes effect when the client publishes the narrower document and obtains a statement over it. Short lifetimes tighten an issuer's control and increase renewal traffic; at a server implementing the registration-validity model of {{REGISTRATION}}, the lifetime also sets the registration's renewal cadence. A fleet of statements issued together expires together, so issuers SHOULD stagger expiries or renew ahead of the boundary to avoid synchronized lapses.
 
 ## Observable State {#oracle-considerations}
 
