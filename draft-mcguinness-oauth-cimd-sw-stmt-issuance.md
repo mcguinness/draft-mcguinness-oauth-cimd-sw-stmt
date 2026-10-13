@@ -123,7 +123,7 @@ Originating Request:
 : A request that can produce a software statement: a software statement code redemption ({{software-statement-code-redemption}}) or a token exchange ({{token-exchange-profile}}). Each yields a statement, a terminal denial, or, at a deferred issuer, a deferral.
 
 Metadata Snapshot:
-: The validated canonical metadata bound to a request, as defined in {{metadata-snapshot}}.
+: The exact retrieved octets of a validated Client ID Metadata Document, and their metadata digest, bound to a request, as defined in {{metadata-snapshot}}.
 
 # Protocol Overview
 
@@ -210,7 +210,7 @@ A public client binds its requests with DPoP {{RFC9449}}: in the redirect flow t
 
 ## Metadata Snapshot {#metadata-snapshot}
 
-Client metadata documents can change while a request is pending. Before returning a software statement code or a deferral code, the authorization server MUST bind it to the validated canonical metadata. The bound values constitute the metadata snapshot for the request.
+Client metadata documents can change while a request is pending. Before returning a software statement code or a deferral code, the authorization server MUST bind it to the exact octets of the document it retrieved and validated, and to their metadata digest ({{STATEMENT}}). The bound octets constitute the metadata snapshot for the request.
 
 The authorization server MAY retrieve the document again before issuing the software statement. If it does so and the digest differs, it MUST either re-evaluate the request under the new document, binding it as the snapshot, or reject the request. This applies even if the change touches no member its policy examines, since a statement over a superseded snapshot fails at registration ({{REGISTRATION}}). It MUST NOT silently combine values from different document versions.
 
@@ -623,7 +623,7 @@ Authorization servers SHOULD keep an audit record that binds each decision, whet
 
 # Privacy Considerations
 
-The authorization server learns the client identifier URL, the canonical metadata document, and information about the party interacting with the authorization endpoint. It SHOULD collect and retain only the information required for issuance, security monitoring, and audit obligations.
+The authorization server learns the client identifier URL, the client's metadata document, and information about the party interacting with the authorization endpoint. It SHOULD collect and retain only the information required for issuance, security monitoring, and audit obligations.
 
 An `aud` claim reveals which authorization servers the client plans to establish relationships with. {{STATEMENT}} weighs that disclosure against omitting the claim and recommends that an issuer name an audience, which an issuer does by requiring one in the request ({{authorization-request}}).
 
