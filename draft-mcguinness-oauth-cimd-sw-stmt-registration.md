@@ -99,7 +99,7 @@ An authorization server that advertises `software_statement_registration_validit
 
 * It MUST record the governing statement's `iss`, `jti`, `sub`, and `iat`, and any claim by which a withdrawal mechanism locates it, such as `status`, with the registration, and the registration's effective expiry, which is the governing statement's effective expiry ({{STATEMENT}}). The effective expiry is what a renewal extends and what `registration_expires_at` reports.
 * The registration is valid until that effective expiry.
-* Once the effective expiry passes without a replacement ({{revalidation}}), it MUST reject requests under the registration, other than the revalidation requests {{revalidation}} permits: with `invalid_client` at the token and pushed authorization request endpoints, because the registration rather than the grant has lapsed, and with `statement_required` at the authorization endpoint ({{STATEMENT}}).
+* Once the effective expiry passes without a replacement ({{revalidation}}), it MUST reject requests under the registration, other than the revalidation requests {{revalidation}} permits, with `statement_required` ({{STATEMENT}}), since the remedy is a replacement statement. At the token and pushed authorization request endpoints it first authenticates the client against the retained registration, and rejects a request that fails that authentication with `invalid_client`, as for an unknown client.
 * It SHOULD retain the expired record so that it can process a later authenticated revalidation ({{oracle-considerations}}); since a valid replacement restores the registration ({{revalidation}}), no grace period is needed.
 
 The effective expiry is an upper bound. Where the server holds a refusal record for the governing statement ({{STATEMENT}}), the registration ceases to be valid as it does at its effective expiry, and {{revalidation}} is the recovery path; the client learns of the withdrawal only from the rejection. The disposition of outstanding grants is local policy.
@@ -197,7 +197,7 @@ client-assertion-type%3Ajwt-bearer
 &software_statement=eyJ0eXAiOiJzb2Z0d2FyZS1zdGF0ZW1l...
 ~~~
 
-The authorization server validates the replacement, matches its `iss` and `sub` to the governing statement, re-derives the registration's metadata, and atomically extends the registration's validity, returning the new boundary in the `registration_expires_at` member of the token response. After expiry, the same request without a replacement would fail with `invalid_client` ({{registration-validity}}).
+The authorization server validates the replacement, matches its `iss` and `sub` to the governing statement, re-derives the registration's metadata, and atomically extends the registration's validity, returning the new boundary in the `registration_expires_at` member of the token response. After expiry, the same request without a replacement would fail with `statement_required` ({{registration-validity}}).
 
 # Authorization Server Metadata {#authorization-server-metadata}
 
