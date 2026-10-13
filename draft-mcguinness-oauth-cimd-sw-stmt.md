@@ -407,7 +407,7 @@ When a replacement is needed, the client presents it in the `software_statement`
 
 The refreshed access MUST fall within the metadata of the document the replacement names.
 
-On success, the establishment's statement identity, `iat`, effective expiry, reviewed metadata, and trust decision are replaced in a single atomic update, and concurrent replacements resolve to the most recently issued statement. A refresh that fails these requirements, or omits a replacement that is needed, is rejected with `statement_required` and leaves the establishment unchanged. Refresh never rotates the establishment's key; a client that needs a new key performs a new presentation.
+On success, the establishment's statement identity, `iat`, effective expiry, reviewed metadata, and trust decision are replaced in a single atomic update, and concurrent replacements resolve to the most recently issued statement. A refresh that fails these requirements, or omits a replacement that is needed, is rejected with `statement_required`, or with `temporarily_unavailable` where a retrieval needed to check the replacement did not complete, and leaves the establishment unchanged. Refresh never rotates the establishment's key; a client that needs a new key performs a new presentation.
 
 # Repeated Consumption of One Statement {#multi-instance}
 
@@ -439,24 +439,25 @@ A statement records that a named party reviewed software, not that a particular 
 
 {{REGISTRATION}} defines rejections at a registration endpoint. A rejected presentation or replacement uses the error responses of {{RFC6749}} for the endpoint at which it was presented, with the error codes in the following table. This specification defines one code, `statement_required`: a current statement is required and none was supplied, or the one supplied is expired or refused, so the client recovers by obtaining a newer statement and re-sending the same one cannot succeed. Wherever this specification requires a current statement on a refresh-token request, `statement_required` replaces `invalid_grant`, so that a client does not read the rejection as an invalid refresh token ({{RFC9700}}).
 
-| Condition | Pushed authorization request | Token, including refresh |
+| Condition | Pushed authorization request or token | Refresh |
 | --- | --- | --- |
-| Malformed, failing signature or claim validation, or failing the sender constraint ({{sender-constraint}}) | `invalid_client` | `invalid_client` |
-| Valid but not acceptable here: issuer not configured, `aud` excludes this server, `sub` outside the issuer's scope, `aud_tenant` not this request's tenant or absent where required, `statement_uses` excludes this use | `invalid_client` | `invalid_client` |
+| Malformed, or failing signature or claim validation | `invalid_client` | `statement_required` |
+| Failing the sender constraint ({{sender-constraint}}), or on refresh the proof of the proven key | `invalid_client` | `invalid_client` |
+| Valid but not acceptable here: issuer not configured, `aud` excludes this server, `sub` outside the issuer's scope, `aud_tenant` not this request's tenant or absent where required, `statement_uses` excludes this use | `invalid_client` | `statement_required` |
 | Expired, refused by a refusal record ({{withdrawal}}), or superseded under the `iat` floor of {{multi-instance}} | `statement_required` | `statement_required` |
 | Required statement absent, including one from an issuer required for the tenant ({{issuer-trust}}) | `statement_required` | `statement_required` |
-| Digest does not match the retrieved document | see {{effective-metadata}} | see {{effective-metadata}} |
+| Digest does not match the retrieved document | see {{effective-metadata}} | `statement_required` |
 | Document carries metadata this server's policy refuses | `unauthorized_client` or `invalid_scope` | `unauthorized_client` or `invalid_scope` |
 | Request exceeds the reviewed document's grant types or response types ({{effective-metadata}}) | `unauthorized_client` | `unauthorized_client` |
 | Request exceeds the reviewed document's scope ({{effective-metadata}}) | `invalid_scope` | `invalid_scope` |
 | Retrieval did not complete | `temporarily_unavailable` | `temporarily_unavailable` |
-| Document exceeds the server's size bound ({{metadata-digest}}) | `invalid_client` | `invalid_client` |
-| Review-only client where reviewed software is required ({{public-client-presentation}}) | `unauthorized_client` | `unauthorized_client` |
+| Document exceeds the server's size bound ({{metadata-digest}}) | `invalid_client` | `statement_required` |
+| Review-only client where reviewed software is required ({{public-client-presentation}}) | `unauthorized_client` | `statement_required` |
 | Any other rejection, including `software_statement` in a request that may not carry it, such as a redemption or an issuance request ({{runtime-presentation}}, {{grant-lifecycle}}) | `invalid_request` | `invalid_request` |
 
 An authorization server SHOULD use HTTP status code 503 with `temporarily_unavailable` and 400 with the others, so that a client can distinguish a retrieval worth retrying from a condition that needs a new statement.
 
-At the pushed authorization request endpoint, these codes are carried in the error response of {{RFC9126}}. On refresh-token use, {{refresh}} takes precedence, and registration validity is reported as {{REGISTRATION}} defines; neither rejection indicates refresh-token replay ({{RFC9700}}).
+At the pushed authorization request endpoint, these codes are carried in the error response of {{RFC9126}}. Registration validity is reported as {{REGISTRATION}} defines. Neither a rejection in the Refresh column nor one reporting registration validity indicates refresh-token replay ({{RFC9700}}).
 
 A statement is never presented at the authorization endpoint ({{authorization-requests}}), though one may be pulled there ({{pulled-statements}}). There, a review-only client is rejected with `unauthorized_client`, and a client whose pulled statements could not be retrieved is rejected with `temporarily_unavailable`, in each case where reviewed software is required ({{public-client-presentation}}, {{pulled-statements}}).
 
