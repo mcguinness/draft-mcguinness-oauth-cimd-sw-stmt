@@ -254,9 +254,10 @@ Table of Contents
    A client whose reviewed document declares token_endpoint_auth_method
    of none cannot authenticate a token or pushed authorization request,
    so it renews only through [RFC7592].  An authorization server
-   advertising this model that does not offer such a client registration
-   management MUST reject its registration with invalid_client_metadata,
-   rather than create a registration the client cannot renew.
+   advertising this model that does not offer registration management to
+   such a client MUST reject its registration with
+   invalid_client_metadata, rather than create a registration the client
+   cannot renew.
 
    A server applying this model MUST return a registration_expires_at
    member, a NumericDate giving the latest time the registration remains
@@ -379,9 +380,10 @@ Table of Contents
    it.  A registration request can therefore carry a DPoP proof
    [RFC9449] for the registration request, signed with a key the
    reviewed document carries.  A server applying the default SHOULD let
-   a request whose proof verifies, as Section 4.3 of [RFC9449]
-   describes, replace a registration whose own request carried no such
-   proof.
+   a request whose proof verifies as Section 4.3 of [RFC9449] describes,
+   and whose proof key the reviewed document carries, replace a
+   registration whose own request carried no such proof; the replaced
+   registration ends as an [RFC7592] deletion would end it.
 
 6.  Error Responses
 

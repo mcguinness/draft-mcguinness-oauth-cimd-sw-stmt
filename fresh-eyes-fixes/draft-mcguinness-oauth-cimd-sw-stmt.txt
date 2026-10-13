@@ -401,8 +401,8 @@ Table of Contents
    A trusting authorization server that hosts more than one tenant MUST
    evaluate every tenant-specific check, such as aud_tenant and a
    required issuer (Section 4), against the tenant that scopes what it
-   issues on the statement, and selects neither tenant by a value the
-   client chooses.
+   issues on the statement, never selected by a value the client
+   chooses.
 
    A trusting authorization server MUST reject a statement for which it
    holds a refusal record (Section 3.3).  The rejection uses the
@@ -1527,16 +1527,17 @@ Table of Contents
 
    Expiry and withdrawal (Section 3.3) govern new admissions; neither
    revokes an issued access token.  Unless the server requires a current
-   statement on refresh or holds a refusal record (Section 5.6.1), a
-   grant opened by a statement lasts for the life of its refresh tokens,
-   whatever the statement's lifetime.  A narrowed review takes effect
-   when the client publishes the narrower document and obtains a
-   statement over it.  Short lifetimes tighten an issuer's control and
-   increase renewal traffic; at a server implementing the registration-
-   validity model of [REGISTRATION], the lifetime also sets the
-   registration's renewal cadence.  A fleet of statements issued
-   together expires together, so issuers SHOULD stagger expiries or
-   renew ahead of the boundary to avoid synchronized lapses.
+   statement on refresh, holds a refusal record, or finds the proven key
+   gone from the client's document (Section 5.6.1), a grant opened by a
+   statement lasts for the life of its refresh tokens, whatever the
+   statement's lifetime.  A narrowed review takes effect when the client
+   publishes the narrower document and obtains a statement over it.
+   Short lifetimes tighten an issuer's control and increase renewal
+   traffic; at a server implementing the registration-validity model of
+   [REGISTRATION], the lifetime also sets the registration's renewal
+   cadence.  A fleet of statements issued together expires together, so
+   issuers SHOULD stagger expiries or renew ahead of the boundary to
+   avoid synchronized lapses.
 
 12.7.  Observable State
 
