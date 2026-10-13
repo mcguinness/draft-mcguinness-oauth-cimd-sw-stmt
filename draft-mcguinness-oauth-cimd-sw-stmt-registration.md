@@ -150,7 +150,7 @@ A registration request without an {{RFC7592}} registration access token creates 
 
 A client already established at an authorization server, whether registered through {{RFC7591}} or under its Client ID Metadata Document URL as its `client_id`, can still carry a statement. Runtime presentation ({{STATEMENT}}) establishes clients the server does not have and does not reopen metadata for one it has. A statement from an issuer the server does not accept for that client is rejected as {{errors}} defines.
 
-For a statement-governed registration, a statement from the governing issuer is a delivery under {{revalidation}}. Where the registration is still valid and the server requires a current statement, a refresh-token request that omits one is rejected with `statement_required`.
+For a statement-governed registration, a statement from the governing issuer is a delivery under {{revalidation}}. While the registration is valid, its governing statement is current, even after a later statement has raised the `iat` floor of {{STATEMENT}}, and satisfies any requirement the server has for a current statement on refresh.
 
 Where the registration is not statement-governed, a statement neither renews nor alters it; the server applies a reviewed change, if at all, through its own registration policy or {{RFC7592}}.
 
