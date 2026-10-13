@@ -128,6 +128,28 @@ The event reports that the issuer has changed the published status of one or mor
 
 The event does not say what the new status is, and a receiver MUST NOT infer one from it; a receiver that resolves a status of `VALID` after an event has applied the event correctly.
 
+The following non-normative example shows the payload of a SET carrying this event for one statement:
+
+~~~ json
+{
+  "iss": "https://issuer.example",
+  "jti": "4d3559ec67504aaba65d40b0363faad8",
+  "iat": 1767225600,
+  "aud": "https://as.example",
+  "sub_id": {
+    "format": "uri",
+    "uri": "https://client.example/app"
+  },
+  "events": {
+"urn:ietf:params:oauth:event-type:software-statement-status-changed":
+    {
+      "event_timestamp": 1767225590,
+      "software_statement_jti": "c2a907b34d28"
+    }
+  }
+}
+~~~
+
 # Receiver Processing {#processing}
 
 A trusting authorization server that receives an event defined here MUST:
