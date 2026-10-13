@@ -1052,7 +1052,7 @@ svg {
 </tr></thead>
 <tfoot><tr>
 <td class="left">McGuinness</td>
-<td class="center">Expires 13 April 2027</td>
+<td class="center">Expires 16 April 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1065,12 +1065,12 @@ svg {
 <dd class="internet-draft">draft-mcguinness-oauth-cimd-sw-stmt-issuance-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-10-10" class="published">10 October 2026</time>
+<time datetime="2026-10-13" class="published">13 October 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2027-04-13">13 April 2027</time></dd>
+<dd class="expires"><time datetime="2027-04-16">16 April 2027</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1106,7 +1106,7 @@ svg {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 13 April 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 16 April 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1196,7 +1196,7 @@ svg {
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
-            <p id="section-toc.1-1.11.1"><a href="#section-11" class="auto internal xref">11</a>. <a href="#name-status-publication" class="internal xref">Status Publication</a></p>
+            <p id="section-toc.1-1.11.1"><a href="#section-11" class="auto internal xref">11</a>. <a href="#name-withdrawal" class="internal xref">Withdrawal</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
             <p id="section-toc.1-1.12.1"><a href="#section-12" class="auto internal xref">12</a>. <a href="#name-authorization-server-metada" class="internal xref">Authorization Server Metadata</a></p>
@@ -1283,7 +1283,7 @@ svg {
 <a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
       </h2>
 <p id="section-1-1">Section 2.3 of <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> defines a software statement: a JWT asserting client metadata, presented to a registration endpoint, whose signature identifies who attested to the metadata. <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> standardizes its consumption, but not its issuance. Issuance today relies on manual provisioning, deployment-specific portals, or proprietary processes; the UK Open Banking Directory <span>[<a href="#UK-OPEN-BANKING" class="cite xref">UK-OPEN-BANKING</a>]</span> and the Australian Consumer Data Right Register <span>[<a href="#AU-CDR" class="cite xref">AU-CDR</a>]</span> each built a central issuer, yet a client needs a separate integration for each.<a href="#section-1-1" class="pilcrow">¶</a></p>
-<p id="section-1-2"><span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> defines the statement, its claims, its validation, and its consumption; this document defines how a client obtains one. A client identified by its <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> URL obtains a statement through OAuth token exchange (<a href="#token-exchange-profile" class="auto internal xref">Section 5</a>) or a redirect flow (<a href="#authorization-request" class="auto internal xref">Section 6</a>) that uses <code>response_type=software_statement_code</code> and the <code>urn:ietf:params:oauth:grant-type:software-statement</code> redemption grant. An issuer whose review outlives a request can defer it under <span>[<a href="#DTR" class="cite xref">DTR</a>]</span>.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-2"><span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> profiles that statement to carry no client metadata and instead vouch for the exact octets of a Client ID Metadata Document, and defines its validation and consumption; this document defines how a client obtains one. A client identified by its <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> URL obtains a statement through OAuth token exchange (<a href="#token-exchange-profile" class="auto internal xref">Section 5</a>) or a redirect flow (<a href="#authorization-request" class="auto internal xref">Section 6</a>) that uses <code>response_type=software_statement_code</code> and the <code>urn:ietf:params:oauth:grant-type:software-statement</code> redemption grant. An issuer whose review outlives a request can defer it under <span>[<a href="#DTR" class="cite xref">DTR</a>]</span>.<a href="#section-1-2" class="pilcrow">¶</a></p>
 <p id="section-1-3">A statement makes one issuer's decision portable to the authorization servers in its audience that trust the issuer (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). Where the trust decision is local to one authorization server, an initial access token <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>, pre-registration <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>, or approval-based registration <span>[<a href="#APPROVAL-DCR" class="cite xref">APPROVAL-DCR</a>]</span> can establish the client directly.<a href="#section-1-3" class="pilcrow">¶</a></p>
 <p id="section-1-4">Approval workflow, approver identity, external approval integration, acceptance of any particular issuer, and issuer discovery are out of scope.<a href="#section-1-4" class="pilcrow">¶</a></p>
 </section>
@@ -1317,7 +1317,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         <dd class="break"></dd>
 <dt id="section-2-4.7">Metadata Snapshot:</dt>
         <dd style="margin-left: 1.5em" id="section-2-4.8">
-          <p id="section-2-4.8.1">The validated canonical metadata bound to a request, as defined in <a href="#metadata-snapshot" class="auto internal xref">Section 4.1</a>.<a href="#section-2-4.8.1" class="pilcrow">¶</a></p>
+          <p id="section-2-4.8.1">The exact retrieved octets of a validated Client ID Metadata Document, and their metadata digest, bound to a request, as defined in <a href="#metadata-snapshot" class="auto internal xref">Section 4.1</a>.<a href="#section-2-4.8.1" class="pilcrow">¶</a></p>
 </dd>
       <dd class="break"></dd>
 </dl>
@@ -1424,11 +1424,11 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         <h3 id="name-metadata-snapshot">
 <a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-metadata-snapshot" class="section-name selfRef">Metadata Snapshot</a>
         </h3>
-<p id="section-4.1-1">Client metadata documents can change while a request is pending. Before returning a software statement code or a deferral code, the authorization server <span class="bcp14">MUST</span> bind it to the validated canonical metadata. The bound values constitute the metadata snapshot for the request.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+<p id="section-4.1-1">Client metadata documents can change while a request is pending. Before returning a software statement code or a deferral code, the authorization server <span class="bcp14">MUST</span> bind it to the exact octets of the document it retrieved and validated, and to their metadata digest (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). The bound octets constitute the metadata snapshot for the request.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
 <p id="section-4.1-2">The authorization server <span class="bcp14">MAY</span> retrieve the document again before issuing the software statement. If it does so and the digest differs, it <span class="bcp14">MUST</span> either re-evaluate the request under the new document, binding it as the snapshot, or reject the request. This applies even if the change touches no member its policy examines, since a statement over a superseded snapshot fails at registration (<span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>). It <span class="bcp14">MUST NOT</span> silently combine values from different document versions.<a href="#section-4.1-2" class="pilcrow">¶</a></p>
 <p id="section-4.1-3">An approval recorded against a superseded snapshot does not carry forward without a fresh issuance-policy decision. Replacing the snapshot does not alter the sender-constraint context fixed for a deferral at origination (<a href="#deferred-processing" class="auto internal xref">Section 9</a>). If a replacement snapshot no longer authorizes the key material behind that context, for example because the client-authentication key is absent from the new document, the authorization server <span class="bcp14">MUST</span> invalidate the deferral; the client makes a new request under its current keys.<a href="#section-4.1-3" class="pilcrow">¶</a></p>
 <p id="section-4.1-4">The digest is the metadata digest of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, and a changed digest marks a new trust state for the same client identifier. The authorization server <span class="bcp14">MUST</span> reject duplicate object member names, because parsers can interpret them differently despite an identical digest.<a href="#section-4.1-4" class="pilcrow">¶</a></p>
-<p id="section-4.1-5">A client <span class="bcp14">SHOULD</span> publish its keys in its document by reference through <code>jwks_uri</code> rather than inline through <code>jwks</code>, since inline rotation changes the digest and requires a new statement. The digest then binds only the key location; <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> weighs that trade-off, and an issuer serving theft-sensitive deployments can require <code>jwks</code> inline instead.<a href="#section-4.1-5" class="pilcrow">¶</a></p>
+<p id="section-4.1-5">A client publishes its keys in its document either inline through <code>jwks</code>, which the digest binds so that rotation requires a new statement, or by reference through <code>jwks_uri</code>, which the digest binds only as a location. <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> weighs that trade-off, and an issuer can require either.<a href="#section-4.1-5" class="pilcrow">¶</a></p>
 <p id="section-4.1-6"><span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> permits a document to carry a <code>software_statement</code> member. An issuing authorization server evaluates the document as served and <span class="bcp14">MUST NOT</span> refuse a document because it carries the member; consumers ignore a statement embedded there (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), and refusing would leave a client that published its statement unable to renew it.<a href="#section-4.1-6" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1546,8 +1546,8 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         </ul>
 <p id="section-5.1-3">That authentication is the holder binding: a statement is otherwise a bearer artifact, and without it whoever held a copy could renew. To check the reviewed document's keys, an issuer offering renewal retains the octets of each document it issues a statement over.<a href="#section-5.1-3" class="pilcrow">¶</a></p>
 <p id="section-5.1-4">A client rotating keys inline renews while its document carries both the old and the new key; for a document naming <code>jwks_uri</code>, the binding is to whatever that location serves. A public client holds no such key and obtains a replacement through the redirect flow (<a href="#authorization-request" class="auto internal xref">Section 6</a>).<a href="#section-5.1-4" class="pilcrow">¶</a></p>
-<p id="section-5.1-5">A replacement carries the subject statement's <code>aud_tenant</code> while the decision is confined to that tenant, and is matched to the statement it replaces by <code>iss</code> and <code>sub</code> (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-5.1-5" class="pilcrow">¶</a></p>
-<p id="section-5.1-6">An issuer that publishes status <span class="bcp14">MUST NOT</span> accept as subject token a statement whose own published status is other than <code>VALID</code>. Renewing a statement it has withdrawn would reissue the decision that withdrawal ended.<a href="#section-5.1-6" class="pilcrow">¶</a></p>
+<p id="section-5.1-5">A replacement carries the subject statement's <code>aud_tenant</code> while the decision is confined to that tenant, and the uses the subject statement permits unless issuance policy narrows them; it <span class="bcp14">MUST NOT</span> permit a use the subject statement does not. It is matched to the statement it replaces by <code>iss</code> and <code>sub</code> (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-5.1-5" class="pilcrow">¶</a></p>
+<p id="section-5.1-6">An issuer <span class="bcp14">MUST NOT</span> accept as subject token a statement it has withdrawn (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), including one whose status it publishes under <span>[<a href="#STATUS" class="cite xref">STATUS</a>]</span> as other than <code>VALID</code>, since renewing it would reissue the decision that withdrawal ended.<a href="#section-5.1-6" class="pilcrow">¶</a></p>
 <p id="section-5.1-7">The authorization server <span class="bcp14">MAY</span> accept a statement that has expired, and <span class="bcp14">SHOULD</span> bound how long after expiry it will do so, since a client absent for an extended period is asking to be re-established rather than renewed.<a href="#section-5.1-7" class="pilcrow">¶</a></p>
 <p id="section-5.1-8">Where the current document's digest equals the subject statement's <code>cimd_digest</code>, whether renewal requires fresh review is issuer policy. Where the digests differ, the issuer <span class="bcp14">MUST</span> apply the decision it would apply to a first issuance for that document, and <span class="bcp14">MUST NOT</span> renew on the strength of the prior statement alone, since otherwise whoever can change the document could obtain the issuer's signature over an unreviewed change.<a href="#section-5.1-8" class="pilcrow">¶</a></p>
 </section>
@@ -1576,7 +1576,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <dt id="section-6-2.5">
 <code>redirect_uri</code>:</dt>
         <dd style="margin-left: 1.5em" id="section-6-2.6">
-          <p id="section-6-2.6.1"><span class="bcp14">REQUIRED</span>. The value <span class="bcp14">MUST</span> exactly match one of the redirection URIs in the Client ID Metadata Document, subject to the redirect URI rules of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>. A public client <span class="bcp14">MUST</span> use an HTTPS redirection URI and <span class="bcp14">MUST NOT</span> use a private-use URI scheme or a loopback interface redirection URI in a software statement request. A confidential client <span class="bcp14">MAY</span> use a loopback or private-use redirection URI (<a href="#authorization-response-security" class="auto internal xref">Section 13.4</a>).<a href="#section-6-2.6.1" class="pilcrow">¶</a></p>
+          <p id="section-6-2.6.1"><span class="bcp14">REQUIRED</span>. The value <span class="bcp14">MUST</span> exactly match one of the redirection URIs in the Client ID Metadata Document, subject to the redirect URI rules of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>, and <span class="bcp14">MUST NOT</span> be a redirection URI that another application on the same device could claim, as the public-client presentation rules of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> define, whatever authentication method the document declares (<a href="#authorization-response-security" class="auto internal xref">Section 13.4</a>).<a href="#section-6-2.6.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 <dt id="section-6-2.7">
@@ -1618,7 +1618,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <dt id="section-6-2.19">
 <code>dpop_jkt</code>:</dt>
         <dd style="margin-left: 1.5em" id="section-6-2.20">
-          <p id="section-6-2.20.1"><span class="bcp14">REQUIRED</span> for a public client, and for a confidential client whose <code>redirect_uri</code> is a loopback or private-use URI; <span class="bcp14">OPTIONAL</span> otherwise. A declared confidential method proves key possession, not that the key is absent from distributed software, which is why the confidential-client exception for loopback and private-use redirection URIs carries this condition. The parameter has the semantics of Section 10 of <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>.<a href="#section-6-2.20.1" class="pilcrow">¶</a></p>
+          <p id="section-6-2.20.1"><span class="bcp14">REQUIRED</span> for a public client; <span class="bcp14">OPTIONAL</span> otherwise. The parameter has the semantics of Section 10 of <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>.<a href="#section-6-2.20.1" class="pilcrow">¶</a></p>
 </dd>
       <dd class="break"></dd>
 </dl>
@@ -1851,7 +1851,7 @@ client-assertion-type%3Ajwt-bearer
         <dt id="section-10-2.1">
 <code>access_token</code>:</dt>
         <dd style="margin-left: 1.5em" id="section-10-2.2">
-          <p id="section-10-2.2.1"><span class="bcp14">REQUIRED</span>. The software statement issued by the authorization server. It <span class="bcp14">MUST</span> conform to <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, with <code>cimd_digest</code> the digest of the bound metadata snapshot and <code>aud</code> the selected audience where one is restricted.<a href="#section-10-2.2.1" class="pilcrow">¶</a></p>
+          <p id="section-10-2.2.1"><span class="bcp14">REQUIRED</span>. The software statement issued by the authorization server. It <span class="bcp14">MUST</span> conform to <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, with <code>cimd_digest</code> the digest of the bound metadata snapshot, <code>aud</code> the selected audience where one is restricted, and <code>statement_uses</code> the uses issuance policy permits.<a href="#section-10-2.2.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 <dt id="section-10-2.3">
@@ -1907,10 +1907,10 @@ Pragma: no-cache
 </div>
 <div id="status-publication">
 <section id="section-11">
-      <h2 id="name-status-publication">
-<a href="#section-11" class="section-number selfRef">11. </a><a href="#name-status-publication" class="section-name selfRef">Status Publication</a>
+      <h2 id="name-withdrawal">
+<a href="#section-11" class="section-number selfRef">11. </a><a href="#name-withdrawal" class="section-name selfRef">Withdrawal</a>
       </h2>
-<p id="section-11-1">An issuing authorization server that ends decisions before their expiry publishes statement status as <span>[<a href="#STATUSLIST" class="cite xref">STATUSLIST</a>]</span> defines, and carries the <code>status</code> claim in the statements it issues, as <span>[<a href="#STATUS" class="cite xref">STATUS</a>]</span> defines. Withdrawing a statement does not withdraw a replacement obtained through <a href="#renewal" class="auto internal xref">Section 5.1</a>, and withdrawing a replacement does not restore its predecessor.<a href="#section-11-1" class="pilcrow">¶</a></p>
+<p id="section-11-1">An issuing authorization server that ends decisions before their expiry does so through a withdrawal mechanism (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), such as the Token Status List binding of <span>[<a href="#STATUS" class="cite xref">STATUS</a>]</span>. Withdrawing a statement does not withdraw a replacement obtained through <a href="#renewal" class="auto internal xref">Section 5.1</a>, and withdrawing a replacement does not restore its predecessor.<a href="#section-11-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="authorization-server-metadata">
@@ -1955,8 +1955,8 @@ Pragma: no-cache
         <h3 id="name-client-establishment-is-not">
 <a href="#section-13.1" class="section-number selfRef">13.1. </a><a href="#name-client-establishment-is-not" class="section-name selfRef">Client Establishment Is Not an Access Grant</a>
         </h3>
-<p id="section-13.1-1">A software statement attests client metadata; it grants no resource access or consent on behalf of the software's users. A software statement returned in the <code>access_token</code> member (<a href="#software-statement-response" class="auto internal xref">Section 10</a>) <span class="bcp14">MUST NOT</span> be accepted as an access token at a protected resource.<a href="#section-13.1-1" class="pilcrow">¶</a></p>
-<p id="section-13.1-2">When an approval interface is shown, it <span class="bcp14">SHOULD</span> state that the decision concerns attestation to client metadata. It <span class="bcp14">MUST NOT</span> imply that the approver is granting the client access to resources.<a href="#section-13.1-2" class="pilcrow">¶</a></p>
+<p id="section-13.1-1">A software statement vouches for a client's metadata document; it grants no resource access or consent on behalf of the software's users. A software statement returned in the <code>access_token</code> member (<a href="#software-statement-response" class="auto internal xref">Section 10</a>) <span class="bcp14">MUST NOT</span> be accepted as an access token at a protected resource.<a href="#section-13.1-1" class="pilcrow">¶</a></p>
+<p id="section-13.1-2">When an approval interface is shown, it <span class="bcp14">SHOULD</span> state that the decision vouches for the client's metadata document. It <span class="bcp14">MUST NOT</span> imply that the approver is granting the client access to resources.<a href="#section-13.1-2" class="pilcrow">¶</a></p>
 <p id="section-13.1-3">An erroneous approval affects every authorization server in the statement's audience until expiry. The approval interface therefore <span class="bcp14">SHOULD</span> present:<a href="#section-13.1-3" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-13.1-4.1">
@@ -2001,8 +2001,8 @@ Pragma: no-cache
         </h3>
 <p id="section-13.4-1">The software statement is a signed credential and can contain sensitive deployment information, which is why it is never returned in an authorization response (<a href="#authorization-response" class="auto internal xref">Section 7</a>).<a href="#section-13.4-1" class="pilcrow">¶</a></p>
 <p id="section-13.4-2">Before redeeming a software statement code, the client <span class="bcp14">MUST</span> verify <code>state</code> and <span class="bcp14">MUST</span> validate the authorization response <code>iss</code> parameter according to <span>[<a href="#RFC9207" class="cite xref">RFC9207</a>]</span>.<a href="#section-13.4-2" class="pilcrow">¶</a></p>
-<p id="section-13.4-3">A public client presents no client authentication, so its association with the software depends on delivery to a metadata-listed redirection endpoint. Another application can claim a private-use or loopback endpoint (<span>[<a href="#RFC8252" class="cite xref">RFC8252</a>]</span>); PKCE and DPoP bind the code to the initiator but cannot stop an attacker from initiating under another party's <code>client_id</code>. Only HTTPS demonstrates control of the publisher's origin, which is why <a href="#authorization-request" class="auto internal xref">Section 6</a> requires it of a public client. A native public client can host such an endpoint or use the token exchange profile (<a href="#token-exchange-profile" class="auto internal xref">Section 5</a>).<a href="#section-13.4-3" class="pilcrow">¶</a></p>
-<p id="section-13.4-4">A confidential client's authentication protects redemption, which is why <a href="#authorization-request" class="auto internal xref">Section 6</a> permits it a loopback or private-use redirection URI. An authorization server <span class="bcp14">SHOULD</span> additionally relate the redirection URI's origin to the client identifier URL or the metadata document's <code>client_uri</code> according to policy. Endpoint or key control informs issuance policy but does not determine issuance.<a href="#section-13.4-4" class="pilcrow">¶</a></p>
+<p id="section-13.4-3">A public client presents no client authentication, so its association with the software depends on delivery to a metadata-listed redirection endpoint. Another application can claim a private-use or loopback endpoint (<span>[<a href="#RFC8252" class="cite xref">RFC8252</a>]</span>); PKCE and DPoP bind the code to the initiator but cannot stop an attacker from initiating under another party's <code>client_id</code>. Only an <code>https</code> endpoint no other application can claim demonstrates control of the publisher's origin, which is why <a href="#authorization-request" class="auto internal xref">Section 6</a> requires one. A native public client can host such an endpoint or use the token exchange profile (<a href="#token-exchange-profile" class="auto internal xref">Section 5</a>).<a href="#section-13.4-3" class="pilcrow">¶</a></p>
+<p id="section-13.4-4">A confidential client's authentication proves possession of a key, not that the key is absent from software distributed to end users, so the requirement applies to it as well; a statement over a document listing such an endpoint is in any case review-only at a trusting authorization server (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). An authorization server <span class="bcp14">SHOULD</span> additionally relate the redirection URI's origin to the client identifier URL or the metadata document's <code>client_uri</code> according to policy. Endpoint or key control informs issuance policy but does not determine issuance.<a href="#section-13.4-4" class="pilcrow">¶</a></p>
 <p id="section-13.4-5">A software statement code in a URL is visible to browser history, referrer fields, logs, and other observers. It is short lived, single use, and unredeemable without the PKCE verifier and, where one was bound, the <code>dpop_jkt</code> key; <code>form_post</code> (<a href="#software-statement-code-response" class="auto internal xref">Section 7.1</a>) keeps it out of URLs.<a href="#section-13.4-5" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -2057,7 +2057,7 @@ Pragma: no-cache
       <h2 id="name-privacy-considerations">
 <a href="#section-14" class="section-number selfRef">14. </a><a href="#name-privacy-considerations" class="section-name selfRef">Privacy Considerations</a>
       </h2>
-<p id="section-14-1">The authorization server learns the client identifier URL, the canonical metadata document, and information about the party interacting with the authorization endpoint. It <span class="bcp14">SHOULD</span> collect and retain only the information required for issuance, security monitoring, and audit obligations.<a href="#section-14-1" class="pilcrow">¶</a></p>
+<p id="section-14-1">The authorization server learns the client identifier URL, the client's metadata document, and information about the party interacting with the authorization endpoint. It <span class="bcp14">SHOULD</span> collect and retain only the information required for issuance, security monitoring, and audit obligations.<a href="#section-14-1" class="pilcrow">¶</a></p>
 <p id="section-14-2">An <code>aud</code> claim reveals which authorization servers the client plans to establish relationships with. <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> weighs that disclosure against omitting the claim and recommends that an issuer name an audience, which an issuer does by requiring one in the request (<a href="#authorization-request" class="auto internal xref">Section 6</a>).<a href="#section-14-2" class="pilcrow">¶</a></p>
 <p id="section-14-3">Clients <span class="bcp14">SHOULD NOT</span> present statements outside their intended deployment context, and a redirect-flow client <span class="bcp14">SHOULD</span> use Pushed Authorization Requests <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span> where the relationship is sensitive.<a href="#section-14-3" class="pilcrow">¶</a></p>
 <p id="section-14-4">Approval records can link a person to a client and deployment. Such records <span class="bcp14">SHOULD</span> be access-controlled and retained only as long as required.<a href="#section-14-4" class="pilcrow">¶</a></p>
@@ -2275,11 +2275,11 @@ Pragma: no-cache
 <dl class="references">
 <dt id="CIMD">[CIMD]</dt>
         <dd>
-<span class="refTitle">"OAuth Client ID Metadata Document"</span>, <span>n.d.</span>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-ietf-oauth-client-id-metadata-document">https://datatracker.ietf.org/doc/draft-ietf-oauth-client-id-metadata-document</a>&gt;</span>. </dd>
+<span class="refAuthor">Parecki, A.</span> and <span class="refAuthor">E. Smith</span>, <span class="refTitle">"OAuth Client ID Metadata Document"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-client-id-metadata-document-02</span>, <time datetime="2026-07-06" class="refDate">6 July 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-02">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-02</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="DTR">[DTR]</dt>
         <dd>
-<span class="refTitle">"Deferred Token Response"</span>, <span>n.d.</span>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-ietf-oauth-deferred-token-response">https://datatracker.ietf.org/doc/draft-ietf-oauth-deferred-token-response</a>&gt;</span>. </dd>
+<span class="refAuthor">Jacobsen, F. K.</span>, <span class="refAuthor">de Oliveira Niero, G.</span>, and <span class="refAuthor">M. Gerber</span>, <span class="refTitle">"Deferred Token Response"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-deferred-token-response-00</span>, <time datetime="2026-09-16" class="refDate">16 September 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-deferred-token-response-00">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-deferred-token-response-00</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="FORM-POST">[FORM-POST]</dt>
         <dd>
@@ -2350,12 +2350,8 @@ Pragma: no-cache
 <span class="refAuthor">Lodderstedt, T.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Labunets, A.</span>, and <span class="refAuthor">D. Fett</span>, <span class="refTitle">"Best Current Practice for OAuth 2.0 Security"</span>, <span class="seriesInfo">BCP 240</span>, <span class="seriesInfo">RFC 9700</span>, <span class="seriesInfo">DOI 10.17487/RFC9700</span>, <time datetime="2025-01" class="refDate">January 2025</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9700">https://www.rfc-editor.org/rfc/rfc9700</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="STATEMENT">[STATEMENT]</dt>
-        <dd>
-<span class="refTitle">"CIMD Software Statement"</span>, <span>n.d.</span>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt">https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="STATUSLIST">[STATUSLIST]</dt>
       <dd>
-<span class="refTitle">"Token Status List"</span>, <span>n.d.</span>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list">https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list</a>&gt;</span>. </dd>
+<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"CIMD Software Statement"</span>, <span>n.d.</span>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt">https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
@@ -2368,7 +2364,7 @@ Pragma: no-cache
 <dl class="references">
 <dt id="APPROVAL-DCR">[APPROVAL-DCR]</dt>
         <dd>
-<span class="refTitle">"OAuth 2.0 Approval-Based Dynamic Client Registration"</span>, <span>n.d.</span>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-dellaert-oauth-approval-based-dcr">https://datatracker.ietf.org/doc/draft-dellaert-oauth-approval-based-dcr</a>&gt;</span>. </dd>
+<span class="refAuthor">Dellaert, P.</span>, <span class="refTitle">"OAuth 2.0 Approval-Based Dynamic Client Registration"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-dellaert-oauth-approval-based-dcr-00</span>, <time datetime="2026-07-19" class="refDate">19 July 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-dellaert-oauth-approval-based-dcr-00">https://datatracker.ietf.org/doc/html/draft-dellaert-oauth-approval-based-dcr-00</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="AU-CDR">[AU-CDR]</dt>
         <dd>
@@ -2376,7 +2372,7 @@ Pragma: no-cache
 <dd class="break"></dd>
 <dt id="CLIENT-INSTANCE">[CLIENT-INSTANCE]</dt>
         <dd>
-<span class="refTitle">"OAuth 2.0 Client Instance Assertion"</span>, <span>n.d.</span>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-mcguinness-oauth-client-instance-assertion">https://datatracker.ietf.org/doc/draft-mcguinness-oauth-client-instance-assertion</a>&gt;</span>. </dd>
+<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"OAuth 2.0 Client Instance Assertion"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-mcguinness-oauth-client-instance-assertion-01</span>, <time datetime="2026-06-24" class="refDate">24 June 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-mcguinness-oauth-client-instance-assertion-01">https://datatracker.ietf.org/doc/html/draft-mcguinness-oauth-client-instance-assertion-01</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="OPENID-FED">[OPENID-FED]</dt>
         <dd>
@@ -2384,7 +2380,7 @@ Pragma: no-cache
 <dd class="break"></dd>
 <dt id="REGISTRATION">[REGISTRATION]</dt>
         <dd>
-<span class="refTitle">"CIMD Software Statement Registration"</span>, <span>n.d.</span>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration">https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration</a>&gt;</span>. </dd>
+<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"CIMD Software Statement Registration"</span>, <span>n.d.</span>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration">https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC8252">[RFC8252]</dt>
         <dd>
@@ -2400,7 +2396,7 @@ Pragma: no-cache
 <dd class="break"></dd>
 <dt id="STATUS">[STATUS]</dt>
         <dd>
-<span class="refTitle">"CIMD Software Statement Status"</span>, <span>n.d.</span>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-status">https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-status</a>&gt;</span>. </dd>
+<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"CIMD Software Statement Status"</span>, <span>n.d.</span>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-status">https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-status</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="UK-OPEN-BANKING">[UK-OPEN-BANKING]</dt>
       <dd>

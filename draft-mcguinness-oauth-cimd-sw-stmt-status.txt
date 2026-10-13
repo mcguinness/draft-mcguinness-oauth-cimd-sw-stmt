@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         10 October 2026
-Expires: 13 April 2027
+Intended status: Standards Track                         13 October 2026
+Expires: 16 April 2027
 
 
                      CIMD Software Statement Status
@@ -38,7 +38,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 13 April 2027.
+   This Internet-Draft will expire on 16 April 2027.
 
 Copyright Notice
 
@@ -170,9 +170,10 @@ Table of Contents
    Where the statement carries status and the trusting authorization
    server resolves statuses for that issuer, it MUST reject a statement
    whose status is INVALID, and MUST apply its configured policy for
-   that issuer to a statement whose status is SUSPENDED.  A status of
-   INVALID, or of SUSPENDED where that policy refuses the statement, is
-   a withdrawal: the server holds a refusal record ([STATEMENT]).  Token
+   that issuer to a statement whose status is SUSPENDED or any other
+   value except VALID and INVALID.  A status of INVALID, or any other
+   status except VALID where that policy refuses the statement, is a
+   withdrawal: the server holds a refusal record ([STATEMENT]).  Token
    Status List defines no expiry for a withdrawal, so the refusal ends
    only when a later resolution returns a status that no longer refuses
    the statement.
@@ -261,6 +262,27 @@ Table of Contents
    The event does not say what the new status is, and a receiver MUST
    NOT infer one from it; a receiver that resolves a status of VALID
    after an event has applied the event correctly.
+
+   The following non-normative example shows the payload of a SET
+   carrying this event for one statement:
+
+   {
+     "iss": "https://issuer.example",
+     "jti": "4d3559ec67504aaba65d40b0363faad8",
+     "iat": 1767225600,
+     "aud": "https://as.example",
+     "sub_id": {
+       "format": "uri",
+       "uri": "https://client.example/app"
+     },
+     "events": {
+   "urn:ietf:params:oauth:event-type:software-statement-status-changed":
+       {
+         "event_timestamp": 1767225590,
+         "software_statement_jti": "c2a907b34d28"
+       }
+     }
+   }
 
 7.  Receiver Processing
 
@@ -433,9 +455,11 @@ Table of Contents
    [CAEP]     "OpenID Continuous Access Evaluation Profile 1.0", n.d.,
               <https://openid.net/specs/openid-caep-1_0.html>.
 
-   [CIMD]     "OAuth Client ID Metadata Document", n.d.,
-              <https://datatracker.ietf.org/doc/draft-ietf-oauth-client-
-              id-metadata-document>.
+   [CIMD]     Parecki, A. and E. Smith, "OAuth Client ID Metadata
+              Document", Work in Progress, Internet-Draft, draft-ietf-
+              oauth-client-id-metadata-document-02, 6 July 2026,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
+              client-id-metadata-document-02>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -480,14 +504,16 @@ Table of Contents
               1_0.html>.
 
    [STATEMENT]
-              "CIMD Software Statement", n.d.,
+              McGuinness, K., "CIMD Software Statement", n.d.,
               <https://datatracker.ietf.org/doc/draft-mcguinness-oauth-
               cimd-sw-stmt>.
 
    [STATUSLIST]
-              "Token Status List", n.d.,
-              <https://datatracker.ietf.org/doc/draft-ietf-oauth-status-
-              list>.
+              Looker, T., Bastian, P., and C. Bormann, "Token Status
+              List (TSL)", Work in Progress, Internet-Draft, draft-ietf-
+              oauth-status-list-21, 21 June 2026,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
+              status-list-21>.
 
 Acknowledgments
 

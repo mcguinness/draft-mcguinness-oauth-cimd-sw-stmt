@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         10 October 2026
-Expires: 13 April 2027
+Intended status: Standards Track                         13 October 2026
+Expires: 16 April 2027
 
 
                   CIMD Software Statement Registration
@@ -38,7 +38,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 13 April 2027.
+   This Internet-Draft will expire on 16 April 2027.
 
 Copyright Notice
 
@@ -62,7 +62,7 @@ Table of Contents
    3.  Consumption at Registration
      3.1.  Registration Validity
      3.2.  Revalidation
-   4.  Statements from an Established Client
+   4.  Statements from a Registered or Admitted Client
    5.  Repeated Registration
    6.  Error Responses
    7.  Example
@@ -135,7 +135,8 @@ Table of Contents
    OAuth terminology is defined by [RFC6749].  Client metadata and
    software statement terminology is defined by [RFC7591].  Client ID
    Metadata Document terminology is defined by [CIMD].  Runtime
-   Presentation and Refusal Record are defined by [STATEMENT].
+   Presentation, Effective Expiry, and Refusal Record are defined by
+   [STATEMENT].
 
    This specification defines the following term.
 
@@ -218,21 +219,20 @@ Table of Contents
    *  It MUST record the governing statement's iss, jti, sub, and iat,
       and any claim by which a withdrawal mechanism locates it, such as
       status, with the registration, and the registration's effective
-      expiry: the earlier of the statement's exp and its iat plus the
-      maximum statement lifetime the server records for that issuer in
-      its issuer trust configuration ([STATEMENT]).  The effective
-      expiry is what a renewal extends and what registration_expires_at
-      reports.
+      expiry, which is the governing statement's effective expiry
+      ([STATEMENT]).  The effective expiry is what a renewal extends and
+      what registration_expires_at reports.
 
    *  The registration is valid until that effective expiry.
 
    *  Once the effective expiry passes without a replacement
       (Section 3.2), it MUST reject requests under the registration,
-      other than the revalidation requests Section 3.2 permits: with
-      invalid_client at the token and pushed authorization request
-      endpoints, because the registration rather than the grant has
-      lapsed, and with statement_required at the authorization endpoint
-      ([STATEMENT]).
+      other than the revalidation requests Section 3.2 permits, with
+      statement_required ([STATEMENT]), since the remedy is a
+      replacement statement.  At the token and pushed authorization
+      request endpoints it first authenticates the client against the
+      retained registration, and rejects a request that fails that
+      authentication with invalid_client, as for an unknown client.
 
    *  It SHOULD retain the expired record so that it can process a later
       authenticated revalidation (Section 9.4); since a valid
@@ -246,18 +246,18 @@ Table of Contents
    withdrawal only from the rejection.  The disposition of outstanding
    grants is local policy.
 
-   If [CIMD] defines an expiry that a document asserts for its own
-   client identifier, that value MAY only shorten the effective expiry
-   and MUST NOT extend it, so that an issuer cannot lengthen the life of
-   a client identifier its subject has declared ephemeral.  A statement-
-   governed registration is bounded by the earliest of the statement's
-   exp, the maximum statement lifetime the server honors for the issuer,
-   and any expiry the reviewed document asserts.
-
    An authorization server advertising this model MUST publish
    pushed_authorization_request_endpoint, since Section 3.2 otherwise
    leaves a client whose only grant type is the authorization code, and
    which holds no refresh token, with no way to renew.
+
+   A client whose reviewed document declares token_endpoint_auth_method
+   of none cannot authenticate a token or pushed authorization request,
+   so it renews only through [RFC7592].  An authorization server
+   advertising this model that does not offer registration management to
+   such a client MUST reject its registration with
+   invalid_client_metadata, rather than create a registration the client
+   cannot renew.
 
    A server applying this model MUST return a registration_expires_at
    member, a NumericDate giving the latest time the registration remains
@@ -343,20 +343,21 @@ Table of Contents
    A registration request without an [RFC7592] registration access token
    creates a new registration and never renews an existing one.
 
-4.  Statements from an Established Client
+4.  Statements from a Registered or Admitted Client
 
-   A client already established at an authorization server, whether
-   registered through [RFC7591] or under its Client ID Metadata Document
+   A client an authorization server already has, whether registered
+   through [RFC7591] or admitted under its Client ID Metadata Document
    URL as its client_id, can still carry a statement.  Runtime
-   presentation ([STATEMENT]) establishes clients the server does not
-   have and does not reopen metadata for one it has.  A statement from
-   an issuer the server does not accept for that client is rejected as
+   presentation ([STATEMENT]) admits clients the server does not have
+   and does not reopen metadata for one it has.  A statement from an
+   issuer the server does not accept for that client is rejected as
    Section 6 defines.
 
    For a statement-governed registration, a statement from the governing
-   issuer is a delivery under Section 3.2.  Where the registration is
-   still valid and the server requires a current statement, a refresh-
-   token request that omits one is rejected with statement_required.
+   issuer is a delivery under Section 3.2.  While the registration is
+   valid, its governing statement is current, even after a later
+   statement has raised the iat floor of [STATEMENT], and satisfies any
+   requirement the server has for a current statement on refresh.
 
    Where the registration is not statement-governed, a statement neither
    renews nor alters it; the server applies a reviewed change, if at
@@ -373,6 +374,16 @@ Table of Contents
    registration's credentials, such as its registration_access_token,
    since a repeated request can come from any holder of a copy of the
    statement.
+
+   Under the one-registration default, whoever first registers with a
+   copy of the statement holds the slot, and [RFC7592] management keeps
+   it.  A registration request can therefore carry a DPoP proof
+   [RFC9449] for the registration request, signed with a key the
+   reviewed document carries.  A server applying the default SHOULD let
+   a request whose proof verifies as Section 4.3 of [RFC9449] describes,
+   and whose proof key the reviewed document carries, replace a
+   registration whose own request carried no such proof; the replaced
+   registration ends as an [RFC7592] deletion would end it.
 
 6.  Error Responses
 
@@ -404,6 +415,9 @@ Table of Contents
    | Digest does not match the        | invalid_software_statement    |
    | retrieved document               |                               |
    +----------------------------------+-------------------------------+
+   | Document contains duplicate      | invalid_client_metadata       |
+   | member names ([STATEMENT])       |                               |
+   +----------------------------------+-------------------------------+
    | Document carries metadata this   | invalid_client_metadata       |
    | server's policy refuses          |                               |
    +----------------------------------+-------------------------------+
@@ -416,6 +430,12 @@ Table of Contents
    | Document with a redirection URI  | invalid_client_metadata       |
    | another application could claim  |                               |
    | (Section 3)                      |                               |
+   +----------------------------------+-------------------------------+
+   | Public client, where the server  | invalid_client_metadata       |
+   | advertises statement-governed    |                               |
+   | registration validity and offers |                               |
+   | it no registration management    |                               |
+   | (Section 3.1)                    |                               |
    +----------------------------------+-------------------------------+
 
                                  Table 1
@@ -452,7 +472,7 @@ Table of Contents
    metadata, and atomically extends the registration's validity,
    returning the new boundary in the registration_expires_at member of
    the token response.  After expiry, the same request without a
-   replacement would fail with invalid_client (Section 3.1).
+   replacement would fail with statement_required (Section 3.1).
 
 8.  Authorization Server Metadata
 
@@ -600,9 +620,11 @@ Table of Contents
 
 12.1.  Normative References
 
-   [CIMD]     "OAuth Client ID Metadata Document", n.d.,
-              <https://datatracker.ietf.org/doc/draft-ietf-oauth-client-
-              id-metadata-document>.
+   [CIMD]     Parecki, A. and E. Smith, "OAuth Client ID Metadata
+              Document", Work in Progress, Internet-Draft, draft-ietf-
+              oauth-client-id-metadata-document-02, 6 July 2026,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
+              client-id-metadata-document-02>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -632,13 +654,18 @@ Table of Contents
               RFC 9126, DOI 10.17487/RFC9126, September 2021,
               <https://www.rfc-editor.org/rfc/rfc9126>.
 
+   [RFC9449]  Fett, D., Campbell, B., Bradley, J., Lodderstedt, T.,
+              Jones, M., and D. Waite, "OAuth 2.0 Demonstrating Proof of
+              Possession (DPoP)", RFC 9449, DOI 10.17487/RFC9449,
+              September 2023, <https://www.rfc-editor.org/rfc/rfc9449>.
+
    [RFC9700]  Lodderstedt, T., Bradley, J., Labunets, A., and D. Fett,
               "Best Current Practice for OAuth 2.0 Security", BCP 240,
               RFC 9700, DOI 10.17487/RFC9700, January 2025,
               <https://www.rfc-editor.org/rfc/rfc9700>.
 
    [STATEMENT]
-              "CIMD Software Statement", n.d.,
+              McGuinness, K., "CIMD Software Statement", n.d.,
               <https://datatracker.ietf.org/doc/draft-mcguinness-oauth-
               cimd-sw-stmt>.
 

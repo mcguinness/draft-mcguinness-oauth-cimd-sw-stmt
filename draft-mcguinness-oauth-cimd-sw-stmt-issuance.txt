@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         10 October 2026
-Expires: 13 April 2027
+Intended status: Standards Track                         13 October 2026
+Expires: 16 April 2027
 
 
                     CIMD Software Statement Issuance
@@ -47,7 +47,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 13 April 2027.
+   This Internet-Draft will expire on 16 April 2027.
 
 Copyright Notice
 
@@ -81,7 +81,7 @@ Table of Contents
    9.  Deferred Processing
    10. Software Statement Token Response
      10.1.  Terminal Denial
-   11. Status Publication
+   11. Withdrawal
    12. Authorization Server Metadata
    13. Security Considerations
      13.1.  Client Establishment Is Not an Access Grant
@@ -118,13 +118,15 @@ Table of Contents
    [AU-CDR] each built a central issuer, yet a client needs a separate
    integration for each.
 
-   [STATEMENT] defines the statement, its claims, its validation, and
-   its consumption; this document defines how a client obtains one.  A
-   client identified by its [CIMD] URL obtains a statement through OAuth
-   token exchange (Section 5) or a redirect flow (Section 6) that uses
-   response_type=software_statement_code and the
-   urn:ietf:params:oauth:grant-type:software-statement redemption grant.
-   An issuer whose review outlives a request can defer it under [DTR].
+   [STATEMENT] profiles that statement to carry no client metadata and
+   instead vouch for the exact octets of a Client ID Metadata Document,
+   and defines its validation and consumption; this document defines how
+   a client obtains one.  A client identified by its [CIMD] URL obtains
+   a statement through OAuth token exchange (Section 5) or a redirect
+   flow (Section 6) that uses response_type=software_statement_code and
+   the urn:ietf:params:oauth:grant-type:software-statement redemption
+   grant.  An issuer whose review outlives a request can defer it under
+   [DTR].
 
    A statement makes one issuer's decision portable to the authorization
    servers in its audience that trust the issuer ([STATEMENT]).  Where
@@ -163,7 +165,8 @@ Table of Contents
       token exchange (Section 5).  Each yields a statement, a terminal
       denial, or, at a deferred issuer, a deferral.
 
-   Metadata Snapshot:  The validated canonical metadata bound to a
+   Metadata Snapshot:  The exact retrieved octets of a validated Client
+      ID Metadata Document, and their metadata digest, bound to a
       request, as defined in Section 4.1.
 
 3.  Protocol Overview
@@ -297,9 +300,10 @@ Table of Contents
 
    Client metadata documents can change while a request is pending.
    Before returning a software statement code or a deferral code, the
-   authorization server MUST bind it to the validated canonical
-   metadata.  The bound values constitute the metadata snapshot for the
-   request.
+   authorization server MUST bind it to the exact octets of the document
+   it retrieved and validated, and to their metadata digest
+   ([STATEMENT]).  The bound octets constitute the metadata snapshot for
+   the request.
 
    The authorization server MAY retrieve the document again before
    issuing the software statement.  If it does so and the digest
@@ -325,12 +329,11 @@ Table of Contents
    because parsers can interpret them differently despite an identical
    digest.
 
-   A client SHOULD publish its keys in its document by reference through
-   jwks_uri rather than inline through jwks, since inline rotation
-   changes the digest and requires a new statement.  The digest then
-   binds only the key location; [STATEMENT] weighs that trade-off, and
-   an issuer serving theft-sensitive deployments can require jwks inline
-   instead.
+   A client publishes its keys in its document either inline through
+   jwks, which the digest binds so that rotation requires a new
+   statement, or by reference through jwks_uri, which the digest binds
+   only as a location.  [STATEMENT] weighs that trade-off, and an issuer
+   can require either.
 
    [CIMD] permits a document to carry a software_statement member.  An
    issuing authorization server evaluates the document as served and
@@ -471,13 +474,15 @@ Table of Contents
    key and obtains a replacement through the redirect flow (Section 6).
 
    A replacement carries the subject statement's aud_tenant while the
-   decision is confined to that tenant, and is matched to the statement
-   it replaces by iss and sub ([STATEMENT]).
+   decision is confined to that tenant, and the uses the subject
+   statement permits unless issuance policy narrows them; it MUST NOT
+   permit a use the subject statement does not.  It is matched to the
+   statement it replaces by iss and sub ([STATEMENT]).
 
-   An issuer that publishes status MUST NOT accept as subject token a
-   statement whose own published status is other than VALID.  Renewing a
-   statement it has withdrawn would reissue the decision that withdrawal
-   ended.
+   An issuer MUST NOT accept as subject token a statement it has
+   withdrawn ([STATEMENT]), including one whose status it publishes
+   under [STATUS] as other than VALID, since renewing it would reissue
+   the decision that withdrawal ended.
 
    The authorization server MAY accept a statement that has expired, and
    SHOULD bound how long after expiry it will do so, since a client
@@ -504,11 +509,11 @@ Table of Contents
 
    redirect_uri:  REQUIRED.  The value MUST exactly match one of the
       redirection URIs in the Client ID Metadata Document, subject to
-      the redirect URI rules of [CIMD].  A public client MUST use an
-      HTTPS redirection URI and MUST NOT use a private-use URI scheme or
-      a loopback interface redirection URI in a software statement
-      request.  A confidential client MAY use a loopback or private-use
-      redirection URI (Section 13.4).
+      the redirect URI rules of [CIMD], and MUST NOT be a redirection
+      URI that another application on the same device could claim, as
+      the public-client presentation rules of [STATEMENT] define,
+      whatever authentication method the document declares
+      (Section 13.4).
 
    state:  REQUIRED.  An opaque value used by the client to bind the
       authorization response to its request.
@@ -532,12 +537,7 @@ Table of Contents
    completion_mode:  OPTIONAL.  A value that includes deferred, sent as
       the advance hint of Section 4.2 of [DTR].
 
-   dpop_jkt:  REQUIRED for a public client, and for a confidential
-      client whose redirect_uri is a loopback or private-use URI;
-      OPTIONAL otherwise.  A declared confidential method proves key
-      possession, not that the key is absent from distributed software,
-      which is why the confidential-client exception for loopback and
-      private-use redirection URIs carries this condition.  The
+   dpop_jkt:  REQUIRED for a public client; OPTIONAL otherwise.  The
       parameter has the semantics of Section 10 of [RFC9449].
 
    The authorization server selects the final audience according to
@@ -788,8 +788,9 @@ Table of Contents
 
    access_token:  REQUIRED.  The software statement issued by the
       authorization server.  It MUST conform to [STATEMENT], with
-      cimd_digest the digest of the bound metadata snapshot and aud the
-      selected audience where one is restricted.
+      cimd_digest the digest of the bound metadata snapshot, aud the
+      selected audience where one is restricted, and statement_uses the
+      uses issuance policy permits.
 
    issued_token_type:  REQUIRED.  The value MUST be
       urn:ietf:params:oauth:token-type:software-statement.
@@ -850,14 +851,13 @@ Table of Contents
    not preclude a later issuance request; whether to accept one is
    issuance policy.
 
-11.  Status Publication
+11.  Withdrawal
 
    An issuing authorization server that ends decisions before their
-   expiry publishes statement status as [STATUSLIST] defines, and
-   carries the status claim in the statements it issues, as [STATUS]
-   defines.  Withdrawing a statement does not withdraw a replacement
-   obtained through Section 5.1, and withdrawing a replacement does not
-   restore its predecessor.
+   expiry does so through a withdrawal mechanism ([STATEMENT]), such as
+   the Token Status List binding of [STATUS].  Withdrawing a statement
+   does not withdraw a replacement obtained through Section 5.1, and
+   withdrawing a replacement does not restore its predecessor.
 
 12.  Authorization Server Metadata
 
@@ -913,14 +913,15 @@ Table of Contents
 
 13.1.  Client Establishment Is Not an Access Grant
 
-   A software statement attests client metadata; it grants no resource
-   access or consent on behalf of the software's users.  A software
-   statement returned in the access_token member (Section 10) MUST NOT
-   be accepted as an access token at a protected resource.
+   A software statement vouches for a client's metadata document; it
+   grants no resource access or consent on behalf of the software's
+   users.  A software statement returned in the access_token member
+   (Section 10) MUST NOT be accepted as an access token at a protected
+   resource.
 
    When an approval interface is shown, it SHOULD state that the
-   decision concerns attestation to client metadata.  It MUST NOT imply
-   that the approver is granting the client access to resources.
+   decision vouches for the client's metadata document.  It MUST NOT
+   imply that the approver is granting the client access to resources.
 
    An erroneous approval affects every authorization server in the
    statement's audience until expiry.  The approval interface therefore
@@ -978,17 +979,20 @@ Table of Contents
    redirection endpoint.  Another application can claim a private-use or
    loopback endpoint ([RFC8252]); PKCE and DPoP bind the code to the
    initiator but cannot stop an attacker from initiating under another
-   party's client_id.  Only HTTPS demonstrates control of the
-   publisher's origin, which is why Section 6 requires it of a public
-   client.  A native public client can host such an endpoint or use the
-   token exchange profile (Section 5).
+   party's client_id.  Only an https endpoint no other application can
+   claim demonstrates control of the publisher's origin, which is why
+   Section 6 requires one.  A native public client can host such an
+   endpoint or use the token exchange profile (Section 5).
 
-   A confidential client's authentication protects redemption, which is
-   why Section 6 permits it a loopback or private-use redirection URI.
-   An authorization server SHOULD additionally relate the redirection
-   URI's origin to the client identifier URL or the metadata document's
-   client_uri according to policy.  Endpoint or key control informs
-   issuance policy but does not determine issuance.
+   A confidential client's authentication proves possession of a key,
+   not that the key is absent from software distributed to end users, so
+   the requirement applies to it as well; a statement over a document
+   listing such an endpoint is in any case review-only at a trusting
+   authorization server ([STATEMENT]).  An authorization server SHOULD
+   additionally relate the redirection URI's origin to the client
+   identifier URL or the metadata document's client_uri according to
+   policy.  Endpoint or key control informs issuance policy but does not
+   determine issuance.
 
    A software statement code in a URL is visible to browser history,
    referrer fields, logs, and other observers.  It is short lived,
@@ -1074,7 +1078,7 @@ Table of Contents
 14.  Privacy Considerations
 
    The authorization server learns the client identifier URL, the
-   canonical metadata document, and information about the party
+   client's metadata document, and information about the party
    interacting with the authorization endpoint.  It SHOULD collect and
    retain only the information required for issuance, security
    monitoring, and audit obligations.
@@ -1204,13 +1208,17 @@ Table of Contents
 
 16.1.  Normative References
 
-   [CIMD]     "OAuth Client ID Metadata Document", n.d.,
-              <https://datatracker.ietf.org/doc/draft-ietf-oauth-client-
-              id-metadata-document>.
+   [CIMD]     Parecki, A. and E. Smith, "OAuth Client ID Metadata
+              Document", Work in Progress, Internet-Draft, draft-ietf-
+              oauth-client-id-metadata-document-02, 6 July 2026,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
+              client-id-metadata-document-02>.
 
-   [DTR]      "Deferred Token Response", n.d.,
-              <https://datatracker.ietf.org/doc/draft-ietf-oauth-
-              deferred-token-response>.
+   [DTR]      Jacobsen, F. K., de Oliveira Niero, G., and M. Gerber,
+              "Deferred Token Response", Work in Progress, Internet-
+              Draft, draft-ietf-oauth-deferred-token-response-00, 16
+              September 2026, <https://datatracker.ietf.org/doc/html/
+              draft-ietf-oauth-deferred-token-response-00>.
 
    [FORM-POST]
               "OAuth 2.0 Form Post Response Mode", n.d.,
@@ -1295,39 +1303,38 @@ Table of Contents
               <https://www.rfc-editor.org/rfc/rfc9700>.
 
    [STATEMENT]
-              "CIMD Software Statement", n.d.,
+              McGuinness, K., "CIMD Software Statement", n.d.,
               <https://datatracker.ietf.org/doc/draft-mcguinness-oauth-
               cimd-sw-stmt>.
-
-   [STATUSLIST]
-              "Token Status List", n.d.,
-              <https://datatracker.ietf.org/doc/draft-ietf-oauth-status-
-              list>.
 
 16.2.  Informative References
 
    [APPROVAL-DCR]
-              "OAuth 2.0 Approval-Based Dynamic Client Registration",
-              n.d., <https://datatracker.ietf.org/doc/draft-dellaert-
-              oauth-approval-based-dcr>.
+              Dellaert, P., "OAuth 2.0 Approval-Based Dynamic Client
+              Registration", Work in Progress, Internet-Draft, draft-
+              dellaert-oauth-approval-based-dcr-00, 19 July 2026,
+              <https://datatracker.ietf.org/doc/html/draft-dellaert-
+              oauth-approval-based-dcr-00>.
 
    [AU-CDR]   "Consumer Data Standards (Australia)", n.d.,
               <https://consumerdatastandardsaustralia.github.io/
               standards/>.
 
    [CLIENT-INSTANCE]
-              "OAuth 2.0 Client Instance Assertion", n.d.,
-              <https://datatracker.ietf.org/doc/draft-mcguinness-oauth-
-              client-instance-assertion>.
+              McGuinness, K., "OAuth 2.0 Client Instance Assertion",
+              Work in Progress, Internet-Draft, draft-mcguinness-oauth-
+              client-instance-assertion-01, 24 June 2026,
+              <https://datatracker.ietf.org/doc/html/draft-mcguinness-
+              oauth-client-instance-assertion-01>.
 
    [OPENID-FED]
               "OpenID Federation 1.0", n.d.,
               <https://openid.net/specs/openid-federation-1_0.html>.
 
    [REGISTRATION]
-              "CIMD Software Statement Registration", n.d.,
-              <https://datatracker.ietf.org/doc/draft-mcguinness-oauth-
-              cimd-sw-stmt-registration>.
+              McGuinness, K., "CIMD Software Statement Registration",
+              n.d., <https://datatracker.ietf.org/doc/draft-mcguinness-
+              oauth-cimd-sw-stmt-registration>.
 
    [RFC8252]  Denniss, W. and J. Bradley, "OAuth 2.0 for Native Apps",
               BCP 212, RFC 8252, DOI 10.17487/RFC8252, October 2017,
@@ -1343,7 +1350,7 @@ Table of Contents
               RFC 9126, DOI 10.17487/RFC9126, September 2021,
               <https://www.rfc-editor.org/rfc/rfc9126>.
 
-   [STATUS]   "CIMD Software Statement Status", n.d.,
+   [STATUS]   McGuinness, K., "CIMD Software Statement Status", n.d.,
               <https://datatracker.ietf.org/doc/draft-mcguinness-oauth-
               cimd-sw-stmt-status>.
 

@@ -1050,7 +1050,7 @@ svg {
 </tr></thead>
 <tfoot><tr>
 <td class="left">McGuinness</td>
-<td class="center">Expires 13 April 2027</td>
+<td class="center">Expires 16 April 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1063,12 +1063,12 @@ svg {
 <dd class="internet-draft">draft-mcguinness-oauth-cimd-sw-stmt-status-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-10-10" class="published">10 October 2026</time>
+<time datetime="2026-10-13" class="published">13 October 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2027-04-13">13 April 2027</time></dd>
+<dd class="expires"><time datetime="2027-04-16">16 April 2027</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1102,7 +1102,7 @@ svg {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 13 April 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 16 April 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1271,7 +1271,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         <h3 id="name-status-resolution">
 <a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-status-resolution" class="section-name selfRef">Status Resolution</a>
         </h3>
-<p id="section-3.2-1">Where the statement carries <code>status</code> and the trusting authorization server resolves statuses for that issuer, it <span class="bcp14">MUST</span> reject a statement whose status is <code>INVALID</code>, and <span class="bcp14">MUST</span> apply its configured policy for that issuer to a statement whose status is <code>SUSPENDED</code>. A status of <code>INVALID</code>, or of <code>SUSPENDED</code> where that policy refuses the statement, is a withdrawal: the server holds a refusal record (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). Token Status List defines no expiry for a withdrawal, so the refusal ends only when a later resolution returns a status that no longer refuses the statement.<a href="#section-3.2-1" class="pilcrow">¶</a></p>
+<p id="section-3.2-1">Where the statement carries <code>status</code> and the trusting authorization server resolves statuses for that issuer, it <span class="bcp14">MUST</span> reject a statement whose status is <code>INVALID</code>, and <span class="bcp14">MUST</span> apply its configured policy for that issuer to a statement whose status is <code>SUSPENDED</code> or any other value except <code>VALID</code> and <code>INVALID</code>. A status of <code>INVALID</code>, or any other status except <code>VALID</code> where that policy refuses the statement, is a withdrawal: the server holds a refusal record (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). Token Status List defines no expiry for a withdrawal, so the refusal ends only when a later resolution returns a status that no longer refuses the statement.<a href="#section-3.2-1" class="pilcrow">¶</a></p>
 <p id="section-3.2-2">Resolution follows <span>[<a href="#STATUSLIST" class="cite xref">STATUSLIST</a>]</span>, including its requirement to reject where the referenced index lies outside the list, a rejection that also uses the refusal-record row of the error responses of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, and its caching rules, which also apply when the server checks a recorded statement at refresh (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>); a statement whose status the server cannot resolve is bounded by <code>exp</code>, as <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> provides. A server <span class="bcp14">MUST NOT</span> replace a Status List Token it holds with one whose <code>iat</code> is earlier, and <span class="bcp14">MUST</span> treat one whose <code>iat</code> is equal but whose contents differ as a resolution failure, since a host serving an older token could otherwise restore a status the issuer has withdrawn.<a href="#section-3.2-2" class="pilcrow">¶</a></p>
 <p id="section-3.2-3">A server <span class="bcp14">MUST</span> obtain a Status List Token's verification keys from the <code>jwks_uri</code> of the issuer's authorization server metadata <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span>, reached from the configured <code>iss</code>, never from the list itself.<a href="#section-3.2-3" class="pilcrow">¶</a></p>
 </section>
@@ -1331,6 +1331,28 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <p id="section-6.1-1">The event type identifier is <code>urn:ietf:params:oauth:event-type:software-statement-status-changed</code> (<a href="#iana-event-type" class="auto internal xref">Section 11.1</a>).<a href="#section-6.1-1" class="pilcrow">¶</a></p>
 <p id="section-6.1-2">The event reports that the issuer has changed the published status of one or more statements for the subject. A transmitter <span class="bcp14">MUST NOT</span> transmit the event until a Status List Token reflecting the change is retrievable at the status list URI, including through any caching layer it operates, since a receiver resolving earlier would fetch the state the event exists to correct.<a href="#section-6.1-2" class="pilcrow">¶</a></p>
 <p id="section-6.1-3">The event does not say what the new status is, and a receiver <span class="bcp14">MUST NOT</span> infer one from it; a receiver that resolves a status of <code>VALID</code> after an event has applied the event correctly.<a href="#section-6.1-3" class="pilcrow">¶</a></p>
+<p id="section-6.1-4">The following non-normative example shows the payload of a SET carrying this event for one statement:<a href="#section-6.1-4" class="pilcrow">¶</a></p>
+<div class="lang-json sourcecode" id="section-6.1-5">
+<pre>
+{
+  "iss": "https://issuer.example",
+  "jti": "4d3559ec67504aaba65d40b0363faad8",
+  "iat": 1767225600,
+  "aud": "https://as.example",
+  "sub_id": {
+    "format": "uri",
+    "uri": "https://client.example/app"
+  },
+  "events": {
+"urn:ietf:params:oauth:event-type:software-statement-status-changed":
+    {
+      "event_timestamp": 1767225590,
+      "software_statement_jti": "c2a907b34d28"
+    }
+  }
+}
+</pre><a href="#section-6.1-5" class="pilcrow">¶</a>
+</div>
 </section>
 </div>
 </section>
@@ -1487,7 +1509,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <dd class="break"></dd>
 <dt id="CIMD">[CIMD]</dt>
       <dd>
-<span class="refTitle">"OAuth Client ID Metadata Document"</span>, <span>n.d.</span>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-ietf-oauth-client-id-metadata-document">https://datatracker.ietf.org/doc/draft-ietf-oauth-client-id-metadata-document</a>&gt;</span>. </dd>
+<span class="refAuthor">Parecki, A.</span> and <span class="refAuthor">E. Smith</span>, <span class="refTitle">"OAuth Client ID Metadata Document"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-client-id-metadata-document-02</span>, <time datetime="2026-07-06" class="refDate">6 July 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-02">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-02</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC2119">[RFC2119]</dt>
       <dd>
@@ -1527,11 +1549,11 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <dd class="break"></dd>
 <dt id="STATEMENT">[STATEMENT]</dt>
       <dd>
-<span class="refTitle">"CIMD Software Statement"</span>, <span>n.d.</span>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt">https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt</a>&gt;</span>. </dd>
+<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"CIMD Software Statement"</span>, <span>n.d.</span>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt">https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="STATUSLIST">[STATUSLIST]</dt>
     <dd>
-<span class="refTitle">"Token Status List"</span>, <span>n.d.</span>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list">https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list</a>&gt;</span>. </dd>
+<span class="refAuthor">Looker, T.</span>, <span class="refAuthor">Bastian, P.</span>, and <span class="refAuthor">C. Bormann</span>, <span class="refTitle">"Token Status List (TSL)"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-status-list-21</span>, <time datetime="2026-06-21" class="refDate">21 June 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-status-list-21">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-status-list-21</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
