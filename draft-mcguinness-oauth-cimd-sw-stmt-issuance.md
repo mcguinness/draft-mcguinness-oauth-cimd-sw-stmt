@@ -43,9 +43,6 @@ normative:
   RFC9396:
   RFC9449:
   RFC9700:
-  STATUSLIST:
-    target: https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list
-    title: "Token Status List"
   DTR:
     target: https://datatracker.ietf.org/doc/draft-ietf-oauth-deferred-token-response
     title: "Deferred Token Response"
@@ -293,7 +290,7 @@ A client rotating keys inline renews while its document carries both the old and
 
 A replacement carries the subject statement's `aud_tenant` while the decision is confined to that tenant, and the uses the subject statement permits unless issuance policy narrows them; it MUST NOT permit a use the subject statement does not. It is matched to the statement it replaces by `iss` and `sub` ({{STATEMENT}}).
 
-An issuer that publishes status MUST NOT accept as subject token a statement whose own published status is other than `VALID`. Renewing a statement it has withdrawn would reissue the decision that withdrawal ended.
+An issuer MUST NOT accept as subject token a statement it has withdrawn ({{STATEMENT}}), including one whose status it publishes under {{STATUS}} as other than `VALID`, since renewing it would reissue the decision that withdrawal ended.
 
 The authorization server MAY accept a statement that has expired, and SHOULD bound how long after expiry it will do so, since a client absent for an extended period is asking to be re-established rather than renewed.
 
@@ -531,9 +528,9 @@ When the authorization server decides not to issue the requested software statem
 
 The denial is terminal for the request; a denied deferral behaves as {{DTR}} specifies for a request resolved with an error. A denial does not preclude a later issuance request; whether to accept one is issuance policy.
 
-# Status Publication {#status-publication}
+# Withdrawal {#status-publication}
 
-An issuing authorization server that ends decisions before their expiry publishes statement status as {{STATUSLIST}} defines, and carries the `status` claim in the statements it issues, as {{STATUS}} defines. Withdrawing a statement does not withdraw a replacement obtained through {{renewal}}, and withdrawing a replacement does not restore its predecessor.
+An issuing authorization server that ends decisions before their expiry does so through a withdrawal mechanism ({{STATEMENT}}), such as the Token Status List binding of {{STATUS}}. Withdrawing a statement does not withdraw a replacement obtained through {{renewal}}, and withdrawing a replacement does not restore its predecessor.
 
 # Authorization Server Metadata {#authorization-server-metadata}
 
