@@ -110,6 +110,9 @@ Establishment:
 Proven Key:
 : The key for which the presenter demonstrates possession during runtime presentation ({{sender-constraint}}).
 
+Effective Expiry:
+: The earlier of a statement's `exp` and its `iat` plus the maximum statement lifetime the trusting authorization server honors for its issuer ({{issuer-trust}}). A statement is expired once its effective expiry has passed.
+
 Refusal Record:
 : State an authorization server holds when it has learned that a statement ceased to be acceptable before its expiry, whether from a withdrawal mechanism it uses for the issuer ({{withdrawal}}) or from its own operator. Wherever this specification requires a statement to be current, a statement matching a refusal record is not current. A refusal derived from a withdrawal mechanism lasts until a later authoritative result from that mechanism supersedes it, or until an expiry the mechanism itself defines for the withdrawal, and a server MUST NOT retain such a refusal once it is superseded or expired in that way. A failure to consult the mechanism, or cached evidence that has lapsed, neither supersedes nor expires a refusal. A refusal its operator entered persists on the operator's own terms.
 
@@ -214,7 +217,7 @@ For each trusted issuer, a trusting authorization server records at least:
 * the signing algorithms it will accept from the issuer;
 * the client identifier namespaces the issuer may attest through `sub`;
 * the audience identifiers the issuer may name;
-* the maximum statement lifetime it will honor, which also caps registration validity where the server implements the registration-validity model of {{REGISTRATION}};
+* the maximum statement lifetime it will honor, which sets each statement's effective expiry and so also caps registration validity where the server implements the registration-validity model of {{REGISTRATION}};
 * its policy on repeated and multiple registration ({{multi-instance}}).
 
 These inputs, not the signature alone, define acceptance. A trusting authorization server MUST derive trust from this local configuration and MUST NOT derive it from an `iss`, `jku`, `x5u`, or other key-location value carried in a presented statement.
@@ -368,7 +371,7 @@ A presentation refused because the bound on establishments of {{multi-instance}}
 A successful presentation creates an establishment, the state a server persists for the grant, comprising:
 
 * the validated `sub`;
-* the statement identity, its `iss`, `jti`, `iat`, and expiry, and any claim by which a withdrawal mechanism locates it, such as `status`;
+* the statement identity, its `iss`, `jti`, `iat`, and effective expiry, and any claim by which a withdrawal mechanism locates it, such as `status`;
 * the authorization server's own tenant the grant was opened for, where it hosts more than one;
 * the reviewed metadata and the digest it matched ({{effective-metadata}});
 * the issuer trust decision; and
@@ -404,7 +407,7 @@ When a replacement is needed, the client presents it in the `software_statement`
 
 The refreshed access MUST fall within the metadata of the document the replacement names.
 
-On success, the establishment's statement identity, `iat`, expiry, reviewed metadata, and trust decision are replaced in a single atomic update, and concurrent replacements resolve to the most recently issued statement. A refresh that fails these requirements, or omits a replacement that is needed, is rejected with `statement_required` and leaves the establishment unchanged. Refresh never rotates the establishment's key; a client that needs a new key performs a new presentation.
+On success, the establishment's statement identity, `iat`, effective expiry, reviewed metadata, and trust decision are replaced in a single atomic update, and concurrent replacements resolve to the most recently issued statement. A refresh that fails these requirements, or omits a replacement that is needed, is rejected with `statement_required` and leaves the establishment unchanged. Refresh never rotates the establishment's key; a client that needs a new key performs a new presentation.
 
 # Repeated Consumption of One Statement {#multi-instance}
 

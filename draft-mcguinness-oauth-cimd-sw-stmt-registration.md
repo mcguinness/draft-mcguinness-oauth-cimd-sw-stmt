@@ -66,7 +66,7 @@ The following non-normative sequence summarizes a statement-governed registratio
 
 {::boilerplate bcp14-tagged}
 
-OAuth terminology is defined by {{RFC6749}}. Client metadata and software statement terminology is defined by {{RFC7591}}. Client ID Metadata Document terminology is defined by {{CIMD}}. Runtime Presentation and Refusal Record are defined by {{STATEMENT}}.
+OAuth terminology is defined by {{RFC6749}}. Client metadata and software statement terminology is defined by {{RFC7591}}. Client ID Metadata Document terminology is defined by {{CIMD}}. Runtime Presentation, Effective Expiry, and Refusal Record are defined by {{STATEMENT}}.
 
 This specification defines the following term.
 
@@ -97,7 +97,7 @@ The retrieval is client-controlled and reachable before any client is registered
 
 An authorization server that advertises `software_statement_registration_validity_supported` as `true` MUST apply the following validity model to every registration it creates from a validated software statement, whichever issuer signed it, so that a client can rely on the signal ({{authorization-server-metadata}}) before it registers:
 
-* It MUST record the governing statement's `iss`, `jti`, `sub`, and `iat`, and any claim by which a withdrawal mechanism locates it, such as `status`, with the registration, and the registration's effective expiry: the earlier of the statement's `exp` and its `iat` plus the maximum statement lifetime the server records for that issuer in its issuer trust configuration ({{STATEMENT}}). The effective expiry is what a renewal extends and what `registration_expires_at` reports.
+* It MUST record the governing statement's `iss`, `jti`, `sub`, and `iat`, and any claim by which a withdrawal mechanism locates it, such as `status`, with the registration, and the registration's effective expiry, which is the governing statement's effective expiry ({{STATEMENT}}). The effective expiry is what a renewal extends and what `registration_expires_at` reports.
 * The registration is valid until that effective expiry.
 * Once the effective expiry passes without a replacement ({{revalidation}}), it MUST reject requests under the registration, other than the revalidation requests {{revalidation}} permits: with `invalid_client` at the token and pushed authorization request endpoints, because the registration rather than the grant has lapsed, and with `statement_required` at the authorization endpoint ({{STATEMENT}}).
 * It SHOULD retain the expired record so that it can process a later authenticated revalidation ({{oracle-considerations}}); since a valid replacement restores the registration ({{revalidation}}), no grace period is needed.
