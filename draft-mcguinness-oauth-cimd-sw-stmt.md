@@ -184,6 +184,8 @@ Before accepting a statement, a trusting authorization server MUST:
 * reject a statement carrying any claim registered in the IANA "OAuth Dynamic Client Registration Metadata" registry, which {{profiles}} forbids, and ignore any other claim it does not recognize; and
 * apply the JWT validation guidance in {{RFC8725}}.
 
+A trusting authorization server that hosts more than one tenant MUST evaluate every tenant-specific check, such as `aud_tenant` and a required issuer ({{issuer-trust}}), against the tenant that scopes what it issues on the statement, never selected by a value the client chooses.
+
 A trusting authorization server MUST reject a statement for which it holds a refusal record ({{withdrawal}}). The rejection uses the refusal-record row of {{errors}}, because re-presenting the same statement cannot succeed while the refusal stands.
 
 A trusting authorization server resolving the reviewed document MUST reject a document containing duplicate object member names, since parsers interpret them differently despite an identical digest.
@@ -569,7 +571,7 @@ A party holding a copied statement for a public client can open a pushed authori
 
 ## Tenant Confusion at a Multi-Tenant Consumer {#tenant-confusion}
 
-Where a trusting authorization server serves several tenants and evaluates anything tenant-specific, the tenant it decides against and the tenant that scopes what it issues MUST be the same. Neither may be selected by a value the client chooses; a tenant asserted in a signed assertion the server has validated, such as an identity assertion authorization grant {{IDJAG}}, is the server's own resolution. A server that derives the tenant one way to check a decision and another way to scope a token lets a client reach one tenant's resources on another tenant's decision. The `aud_tenant` claim makes that failure detectable: a statement naming a tenant cannot be used in another.
+{{validation}} requires a trusting authorization server that serves several tenants to decide against the tenant that scopes what it issues, selected by no value the client chooses; a tenant asserted in a signed assertion the server has validated, such as an identity assertion authorization grant {{IDJAG}}, is the server's own resolution. A server that derives the tenant one way to check a decision and another way to scope a token lets a client reach one tenant's resources on another tenant's decision. The `aud_tenant` claim makes that failure detectable: a statement naming a tenant cannot be used in another.
 
 Tenant resolution remains the server's responsibility. This specification defines no tenant parameter, and a Client ID Metadata Document URL is the same `client_id` in every tenant, so neither a client nor an issuer can verify that a server honored this rule.
 
