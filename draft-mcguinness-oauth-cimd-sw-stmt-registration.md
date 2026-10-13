@@ -105,8 +105,6 @@ An authorization server that advertises `software_statement_registration_validit
 
 The effective expiry is an upper bound. Where the server holds a refusal record for the governing statement ({{STATEMENT}}), the registration ceases to be valid as it does at its effective expiry, and {{revalidation}} is the recovery path; the client learns of the withdrawal only from the rejection. The disposition of outstanding grants is local policy.
 
-If {{CIMD}} defines an expiry that a document asserts for its own client identifier, that value MAY only shorten the effective expiry and MUST NOT extend it, so that an issuer cannot lengthen the life of a client identifier its subject has declared ephemeral. A statement-governed registration is bounded by the earliest of the statement's `exp`, the maximum statement lifetime the server honors for the issuer, and any expiry the reviewed document asserts.
-
 An authorization server advertising this model MUST publish `pushed_authorization_request_endpoint`, since {{revalidation}} otherwise leaves a client whose only grant type is the authorization code, and which holds no refresh token, with no way to renew.
 
 A client whose reviewed document declares `token_endpoint_auth_method` of `none` cannot authenticate a token or pushed authorization request, so it renews only through {{RFC7592}}. An authorization server advertising this model that does not offer registration management to such a client MUST reject its registration with `invalid_client_metadata`, rather than create a registration the client cannot renew.
