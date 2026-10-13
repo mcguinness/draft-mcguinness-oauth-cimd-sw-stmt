@@ -368,7 +368,7 @@ A match means the served document is the reviewed one, and its members are the c
 
 The request is evaluated against that metadata as against any client's registered metadata ({{RFC6749}}, {{CIMD}}): any requested grant type, response type, or scope MUST fall within it. A document that omits `scope` sets no ceiling on scope beyond the server's own policy.
 
-A presentation refused because the bound on establishments of {{multi-instance}} is reached is rejected with `invalid_client`; its statement and proof are sound, so the authorization server SHOULD say so in `error_description`, and the client can retry once earlier establishments are released.
+A request refused because the bound on establishments of {{multi-instance}} is reached is rejected with `invalid_client`; its statement and proof are sound, so the authorization server SHOULD say so in `error_description`, and the client can retry once earlier establishments are released.
 
 ## Grant Lifecycle {#grant-lifecycle}
 
@@ -423,7 +423,7 @@ A trusting authorization server MUST retain, per `iss` and `sub`, the `iat` of t
 
 For the same reason, the first presentation of a replacement that establishes the client retires its predecessor for new admissions by every instance of the software at that server, so instances need the current statement from a source they share, such as an endpoint the publisher operates, rather than a copy fixed when each was built or installed. Grants the predecessor already opened continue under {{refresh}}.
 
-A trusting authorization server SHOULD bound the number of establishments, and any registrations ({{REGISTRATION}}), derived from one issuer's statements about one piece of software, identified by `iss` and `sub`. An establishment counts toward a bound only once an access token has been issued from it (in a redirect flow, once its authorization code is redeemed). State created by a pushed authorization request does not count, even where its code was issued but never redeemed, since anyone holding a copy of a public client's statement can create such state and approve it with their own account. A bound is counted across replacements; one keyed on `jti` would reset at every renewal.
+A trusting authorization server SHOULD bound the number of establishments, and any registrations ({{REGISTRATION}}), derived from one issuer's statements about one piece of software, identified by `iss` and `sub`. An establishment counts toward a bound from the time an access token is first issued from it (in a redirect flow, once its authorization code is redeemed) until the server discards it ({{grant-lifecycle}}), and the server checks the bound before issuing that first token. State created by a pushed authorization request does not count, even where its code was issued but never redeemed, since anyone holding a copy of a public client's statement can create such state and approve it with their own account. A bound is counted across replacements; one keyed on `jti` would reset at every renewal.
 
 Software whose instances hold their own keys can neither prove nor register those keys ({{sender-constraint}}, {{REGISTRATION}}) and depends on the endorsement extension of {{extensions}}.
 
