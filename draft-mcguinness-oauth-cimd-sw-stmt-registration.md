@@ -35,9 +35,9 @@ normative:
   STATEMENT:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt
     title: "CIMD Software Statement"
-  CIMD:
-    target: https://datatracker.ietf.org/doc/draft-ietf-oauth-client-id-metadata-document
-    title: "OAuth Client ID Metadata Document"
+    author:
+      - fullname: Karl McGuinness
+  CIMD: I-D.ietf-oauth-client-id-metadata-document
 
 informative:
   RFC7592:

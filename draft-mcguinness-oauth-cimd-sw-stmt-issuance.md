@@ -30,6 +30,8 @@ normative:
   STATEMENT:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt
     title: "CIMD Software Statement"
+    author:
+      - fullname: Karl McGuinness
   RFC6749:
   RFC7521:
   RFC7523:
@@ -43,12 +45,8 @@ normative:
   RFC9396:
   RFC9449:
   RFC9700:
-  DTR:
-    target: https://datatracker.ietf.org/doc/draft-ietf-oauth-deferred-token-response
-    title: "Deferred Token Response"
-  CIMD:
-    target: https://datatracker.ietf.org/doc/draft-ietf-oauth-client-id-metadata-document
-    title: "OAuth Client ID Metadata Document"
+  DTR: I-D.ietf-oauth-deferred-token-response
+  CIMD: I-D.ietf-oauth-client-id-metadata-document
   OAUTH-MRT:
     target: https://openid.net/specs/oauth-v2-multiple-response-types-1_0.html
     title: "OAuth 2.0 Multiple Response Type Encoding Practices"
@@ -60,18 +58,18 @@ informative:
   STATUS:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-status
     title: "CIMD Software Statement Status"
+    author:
+      - fullname: Karl McGuinness
   REGISTRATION:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration
     title: "CIMD Software Statement Registration"
+    author:
+      - fullname: Karl McGuinness
   RFC8628:
   RFC9126:
-  CLIENT-INSTANCE:
-    target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-client-instance-assertion
-    title: "OAuth 2.0 Client Instance Assertion"
+  CLIENT-INSTANCE: I-D.mcguinness-oauth-client-instance-assertion
   RFC8252:
-  APPROVAL-DCR:
-    target: https://datatracker.ietf.org/doc/draft-dellaert-oauth-approval-based-dcr
-    title: "OAuth 2.0 Approval-Based Dynamic Client Registration"
+  APPROVAL-DCR: I-D.dellaert-oauth-approval-based-dcr
   AU-CDR:
     target: https://consumerdatastandardsaustralia.github.io/standards/
     title: "Consumer Data Standards (Australia)"

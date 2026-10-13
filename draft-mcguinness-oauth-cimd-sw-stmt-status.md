@@ -33,15 +33,13 @@ normative:
   RFC8414:
   RFC8417:
   RFC9493:
-  CIMD:
-    target: https://datatracker.ietf.org/doc/draft-ietf-oauth-client-id-metadata-document
-    title: "OAuth Client ID Metadata Document"
+  CIMD: I-D.ietf-oauth-client-id-metadata-document
   STATEMENT:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt
     title: "CIMD Software Statement"
-  STATUSLIST:
-    target: https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list
-    title: "Token Status List"
+    author:
+      - fullname: Karl McGuinness
+  STATUSLIST: I-D.ietf-oauth-status-list
   SSF:
     target: https://openid.net/specs/openid-sharedsignals-framework-1_0.html
     title: "OpenID Shared Signals Framework Specification 1.0"

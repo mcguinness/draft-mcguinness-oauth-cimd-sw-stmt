@@ -41,29 +41,21 @@ normative:
   RFC9449:
   RFC9700:
   RFC9110:
-  CIMD:
-    target: https://datatracker.ietf.org/doc/draft-ietf-oauth-client-id-metadata-document
-    title: "OAuth Client ID Metadata Document"
-  IDJAG:
-    target: https://datatracker.ietf.org/doc/draft-ietf-oauth-identity-assertion-authz-grant
-    title: "Identity Assertion Authorization Grant"
+  CIMD: I-D.ietf-oauth-client-id-metadata-document
+  IDJAG: I-D.ietf-oauth-identity-assertion-authz-grant
 
 informative:
-  STATUSLIST:
-    target: https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list
-    title: "Token Status List"
+  STATUSLIST: I-D.ietf-oauth-status-list
   REGISTRATION:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration
     title: "CIMD Software Statement Registration"
-  ABCA:
-    target: https://datatracker.ietf.org/doc/draft-ietf-oauth-attestation-based-client-auth
-    title: "OAuth 2.0 Attestation-Based Client Authentication"
+    author:
+      - fullname: Karl McGuinness
+  ABCA: I-D.ietf-oauth-attestation-based-client-auth
   OPENID-FED:
     target: https://openid.net/specs/openid-federation-1_0.html
     title: "OpenID Federation 1.0"
-  CLIENT-INSTANCE:
-    target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-client-instance-assertion
-    title: "OAuth 2.0 Client Instance Assertion"
+  CLIENT-INSTANCE: I-D.mcguinness-oauth-client-instance-assertion
 
 --- abstract
 
