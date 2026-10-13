@@ -309,7 +309,7 @@ Where its trust configuration requires an issuer for this client ({{issuer-trust
 The presenter of a pulled statement is bound as for a presented statement ({{sender-constraint}}), at the point the request allows:
 
 * At the token endpoint, the request's client authentication or DPoP proof binds it, as for a presentation there.
-* At the authorization endpoint, binding completes at code redemption, before any token is issued. A confidential client authenticates there with a key carried by the octets the server digested, not one that only a later retrieval of the document carries, and that key becomes the establishment's proven key. A public client's authorization request is subject to {{public-client-presentation}}, including PKCE and `dpop_jkt`, and redemption proves the `dpop_jkt` key.
+* At the authorization endpoint, binding completes at code redemption, before any token is issued. A confidential client authenticates there with a key carried by the octets the server digested, not one that only a later retrieval of the document carries, and that key becomes the establishment's proven key. A public client's authorization request is subject to {{public-client-presentation}}, including PKCE and the key binding, and redemption proves the bound key.
 * A public client opening a new grant at the token endpoint has nothing to bind, so a statement pulled for it is review-only ({{public-client-presentation}}), as is one pulled for a document whose redirection URIs that section does not accept. Code redemption and refresh continue an establishment and keep the binding it already has ({{grant-lifecycle}}, {{refresh}}).
 
 Where retrieval does not complete or no statement remains, the server applies its policy for Client ID Metadata Document clients it has not reviewed. Where that policy requires reviewed software, it rejects the request with `temporarily_unavailable` if retrieval did not complete and with `statement_required` if no statement remains. A retrieval failure is never a withdrawal.
@@ -330,7 +330,7 @@ On receiving a presentation, the authorization server proceeds as follows, rejec
 
 ## Sender Constraint {#sender-constraint}
 
-A runtime presentation MUST be sender-constrained by a key the statement attests or, under {{public-client-presentation}}, by the key the presenter binds through `dpop_jkt`. The presenter proves possession of that key through the applicable client authentication method or a DPoP proof {{RFC9449}}; where a request carries both, the key its client authentication proves is the proven key. The proof MUST be bound to the current request and validated with the replay protections of that mechanism.
+A runtime presentation MUST be sender-constrained by a key the statement attests or, under {{public-client-presentation}}, by the key the presenter binds there. The presenter proves possession of that key through the applicable client authentication method or a DPoP proof {{RFC9449}}; where a request carries both, the key its client authentication proves is the proven key. The proof MUST be bound to the current request and validated with the replay protections of that mechanism.
 
 Except as {{public-client-presentation}} provides, the proven key MUST appear in the `jwks` or at the `jwks_uri` of the reviewed document ({{effective-metadata}}). Where the reviewed document specifies a client authentication method, the presenter MUST use it. The authorization server MUST reject a presentation without such a proof, or whose proven key the reviewed document does not carry. A document carrying a redirection URI another application could claim is presented review-only whatever its authentication method ({{public-client-presentation}}).
 
@@ -345,7 +345,7 @@ Software distributed to end users cannot hold a key its reviewed document carrie
 A presentation at the pushed authorization request endpoint, or a pulled statement at the authorization endpoint ({{pulled-statements}}), is bound instead by its reviewed redirection URIs where the client's reviewed document declares `token_endpoint_auth_method` of `none` and none of its redirection URIs is one another application could claim (see below). For such a presentation, the authorization server:
 
 * MUST require PKCE {{RFC7636}} with the `S256` method;
-* MUST require the presenter to bind a key it holds, through the `dpop_jkt` parameter {{RFC9449}}, and records that key as the proven key of the establishment ({{grant-lifecycle}}); and
+* MUST require the presenter to bind a key it holds, through the `dpop_jkt` parameter or, at the pushed authorization request endpoint, a DPoP proof (Section 10.1 of {{RFC9449}}), and records that key as the proven key of the establishment ({{grant-lifecycle}}); and
 * MUST NOT require that key to appear in the reviewed document.
 
 The reviewed document, not the proven key, admits the statement here: an authorization code opened by such a presentation is delivered only to a redirection URI the issuer reviewed, so a holder of a copied statement cannot receive the code ({{public-client-security}}). The proven key identifies the installation the grant belongs to; code redemption and refresh demonstrate possession of that same key ({{grant-lifecycle}}, {{refresh}}).
