@@ -942,10 +942,9 @@ Table of Contents
    *  the intended lifetime.
 
    The interface SHOULD make narrowing visible when the client requested
-   a different or broader audience.  A document naming instance-
-   attestation authorities ([CLIENT-INSTANCE]) endorses those
-   authorities for the software under review and deserves particular
-   scrutiny.
+   a different or broader audience.  A document naming attesters in
+   client_attesters ([ATTESTERS]) endorses those attesters for the
+   software under review and deserves particular scrutiny.
 
 13.2.  What Issuance Attests
 
@@ -1316,16 +1315,16 @@ Table of Contents
               <https://datatracker.ietf.org/doc/html/draft-dellaert-
               oauth-approval-based-dcr-00>.
 
+   [ATTESTERS]
+              McGuinness, K., "OAuth 2.0 Client Attester Endorsement",
+              Work in Progress, Internet-Draft, draft-mcguinness-oauth-
+              client-attesters-00, 28 September 2026,
+              <https://datatracker.ietf.org/doc/html/draft-mcguinness-
+              oauth-client-attesters-00>.
+
    [AU-CDR]   "Consumer Data Standards (Australia)", n.d.,
               <https://consumerdatastandardsaustralia.github.io/
               standards/>.
-
-   [CLIENT-INSTANCE]
-              McGuinness, K., "OAuth 2.0 Client Instance Assertion",
-              Work in Progress, Internet-Draft, draft-mcguinness-oauth-
-              client-instance-assertion-01, 24 June 2026,
-              <https://datatracker.ietf.org/doc/html/draft-mcguinness-
-              oauth-client-instance-assertion-01>.
 
    [OPENID-FED]
               "OpenID Federation 1.0", n.d.,

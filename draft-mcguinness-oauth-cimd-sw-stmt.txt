@@ -1075,19 +1075,18 @@ Table of Contents
 
 7.1.  Client Attestation
 
-   A software statement and a client attestation [ABCA] or client
-   instance assertion [CLIENT-INSTANCE] are all signed third-party
-   assertions, but they attest different things.  A statement attests
-   client software and the metadata a reviewer evaluated; it is signed
-   by a review authority scoped to a set of client identifiers and
-   accepted at every authorization server that trusts that authority.  A
-   client attestation attests a running instance and the key it holds,
-   and is presented with a proof bound to the request.  A statement says
-   what was reviewed and an attestation says what is running; neither
-   grants access or substitutes for the other, which is why runtime
-   presentation always requires a sender constraint (Section 5.4).
-   Binding a presenter attestation defined elsewhere is an extension
-   (Section 11).
+   A software statement and a client attestation [ABCA] are both signed
+   third-party assertions, but they attest different things.  A
+   statement attests client software and the metadata a reviewer
+   evaluated; it is signed by a review authority scoped to a set of
+   client identifiers and accepted at every authorization server that
+   trusts that authority.  A client attestation attests a running
+   instance and the key it holds, and is presented with a proof bound to
+   the request.  A statement says what was reviewed and an attestation
+   says what is running; neither grants access or substitutes for the
+   other, which is why runtime presentation always requires a sender
+   constraint (Section 5.4).  Binding a presenter attestation defined
+   elsewhere is an extension (Section 11).
 
 7.2.  Identity Assertions
 
@@ -1397,11 +1396,11 @@ Table of Contents
 
    The following extensions are left to separate specifications:
 
-   *  Endorsed keys: a client attestation [ABCA], or an assertion from
-      an issuer named by an instance_issuers delegation in the reviewed
-      document [CLIENT-INSTANCE], vouching for a key that document does
-      not carry.  This extension would admit software whose instances
-      hold their own keys.
+   *  Endorsed keys: a client attestation [ABCA], including one from an
+      attester the reviewed document endorses through client_attesters
+      [ATTESTERS], vouching for a key that document does not carry.
+      This extension would admit software whose instances hold their own
+      keys.
 
    *  Statement conveyance within a client attestation, rather than as a
       request parameter.
@@ -1480,8 +1479,7 @@ Table of Contents
    there on behalf of every customer it serves, and any of them can
    direct it at another's tenant.  A statement attests software and
    cannot prevent this; a deployment that needs a customer-to-tenant
-   binding records it at the trusting authorization server or carries
-   the customer as instance identity ([CLIENT-INSTANCE]).
+   binding records it at the trusting authorization server.
 
 12.5.  External Retrieval and Resource Exhaustion
 
@@ -1886,12 +1884,12 @@ Table of Contents
               <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
               attestation-based-client-auth-12>.
 
-   [CLIENT-INSTANCE]
-              McGuinness, K., "OAuth 2.0 Client Instance Assertion",
+   [ATTESTERS]
+              McGuinness, K., "OAuth 2.0 Client Attester Endorsement",
               Work in Progress, Internet-Draft, draft-mcguinness-oauth-
-              client-instance-assertion-01, 24 June 2026,
+              client-attesters-00, 28 September 2026,
               <https://datatracker.ietf.org/doc/html/draft-mcguinness-
-              oauth-client-instance-assertion-01>.
+              oauth-client-attesters-00>.
 
    [OPENID-FED]
               "OpenID Federation 1.0", n.d.,
