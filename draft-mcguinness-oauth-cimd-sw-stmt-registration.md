@@ -30,6 +30,7 @@ normative:
   RFC7591:
   RFC8414:
   RFC9126:
+  RFC9449:
   RFC9700:
   STATEMENT:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt
@@ -157,6 +158,8 @@ Where the registration is not statement-governed, a statement neither renews nor
 # Repeated Registration {#repeated-registration}
 
 One unexpired statement can be consumed more than once, within the bounds of {{STATEMENT}}; the safe default is one registration per (`iss`, `sub`) at one authorization server. On repeated consumption, local policy can reject the request, treat it as idempotent, or create another registration; {{RFC7591}} defines no duplicate-registration protocol. An idempotent response MUST NOT return the existing registration's credentials, such as its `registration_access_token`, since a repeated request can come from any holder of a copy of the statement.
+
+Under the one-registration default, whoever first registers with a copy of the statement holds the slot, and {{RFC7592}} management keeps it. A registration request can therefore carry a DPoP proof {{RFC9449}} for the registration request, signed with a key the reviewed document carries. A server applying the default SHOULD let a request whose proof verifies as Section 4.3 of {{RFC9449}} describes, and whose proof key the reviewed document carries, replace a registration whose own request carried no such proof; the replaced registration ends as an {{RFC7592}} deletion would end it.
 
 # Error Responses {#errors}
 
