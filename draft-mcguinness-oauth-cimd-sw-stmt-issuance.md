@@ -215,7 +215,7 @@ An approval recorded against a superseded snapshot does not carry forward withou
 
 The digest is the metadata digest of {{STATEMENT}}, and a changed digest marks a new trust state for the same client identifier. The authorization server MUST reject duplicate object member names, because parsers can interpret them differently despite an identical digest.
 
-A client SHOULD publish its keys in its document by reference through `jwks_uri` rather than inline through `jwks`, since inline rotation changes the digest and requires a new statement. The digest then binds only the key location; {{STATEMENT}} weighs that trade-off, and an issuer serving theft-sensitive deployments can require `jwks` inline instead.
+A client publishes its keys in its document either inline through `jwks`, which the digest binds so that rotation requires a new statement, or by reference through `jwks_uri`, which the digest binds only as a location. {{STATEMENT}} weighs that trade-off, and an issuer can require either.
 
 {{CIMD}} permits a document to carry a `software_statement` member. An issuing authorization server evaluates the document as served and MUST NOT refuse a document because it carries the member; consumers ignore a statement embedded there ({{STATEMENT}}), and refusing would leave a client that published its statement unable to renew it.
 
