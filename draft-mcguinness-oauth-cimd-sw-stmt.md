@@ -58,6 +58,9 @@ informative:
   ABCA:
     target: https://datatracker.ietf.org/doc/draft-ietf-oauth-attestation-based-client-auth
     title: "OAuth 2.0 Attestation-Based Client Authentication"
+  OPENID-FED:
+    target: https://openid.net/specs/openid-federation-1_0.html
+    title: "OpenID Federation 1.0"
   CLIENT-INSTANCE:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-client-instance-assertion
     title: "OAuth 2.0 Client Instance Assertion"
@@ -438,6 +441,10 @@ A software statement and a client attestation {{ABCA}} or client instance assert
 ## Identity Assertions {#identity-assertions}
 
 A statement records that a named party reviewed software, not that a particular customer currently permits that software to act in its tenant. A tenant-scoped decision (`aud_tenant`) constrains where a review applies but authorizes no particular user or transaction. Where a customer's identity provider mediates a grant, as with a cross-domain identity assertion {{IDJAG}}, it already answers the customer's question per grant by issuing assertions only for clients the customer permits. A statement serves where the reviewer is not in the request path: a publisher program vouching to servers it will never see, a provider admitting software it has never registered, or a customer that wants a portable record of what its review covered.
+
+## OpenID Federation {#relationship-federation}
+
+A trust mark {{OPENID-FED}} is also a signed third-party assertion about an entity, but it is resolved through a federation that supplies key discovery, policy, and delegation, and in which both parties enroll. A statement needs no federation: a trusting authorization server configures its issuer directly ({{issuer-trust}}), and the statement binds the exact octets of the client's own document rather than metadata the federation resolves.
 
 # Error Responses {#errors}
 
