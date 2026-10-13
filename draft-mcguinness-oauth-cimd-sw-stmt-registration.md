@@ -169,6 +169,7 @@ Rejections at a registration endpoint use the error response of Section 3.2.2 of
 | Expired, refused by a refusal record, or superseded under the `iat` floor of {{STATEMENT}} | `invalid_software_statement` |
 | Required statement absent | `unapproved_software_statement` |
 | Digest does not match the retrieved document | `invalid_software_statement` |
+| Document contains duplicate member names ({{STATEMENT}}) | `invalid_client_metadata` |
 | Document carries metadata this server's policy refuses | `invalid_client_metadata` |
 | Retrieval did not complete | `temporarily_unavailable` |
 | Document exceeds the server's size bound ({{STATEMENT}}), so that retrying cannot succeed | `invalid_client_metadata` |

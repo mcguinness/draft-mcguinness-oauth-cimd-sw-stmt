@@ -447,6 +447,7 @@ A statement records that a named party reviewed software, not that a particular 
 | Expired, refused by a refusal record ({{withdrawal}}), or superseded under the `iat` floor of {{multi-instance}} | `statement_required` | `statement_required` |
 | Required statement absent, including one from an issuer required for the tenant ({{issuer-trust}}) | `statement_required` | `statement_required` |
 | Digest does not match the retrieved document | see {{effective-metadata}} | `statement_required` |
+| Document contains duplicate member names ({{validation}}) | `invalid_client` | `statement_required` |
 | Document carries metadata this server's policy refuses | `unauthorized_client` or `invalid_scope` | `unauthorized_client` or `invalid_scope` |
 | Request exceeds the reviewed document's grant types or response types ({{effective-metadata}}) | `unauthorized_client` | `unauthorized_client` |
 | Request exceeds the reviewed document's scope ({{effective-metadata}}) | `invalid_scope` | `invalid_scope` |
