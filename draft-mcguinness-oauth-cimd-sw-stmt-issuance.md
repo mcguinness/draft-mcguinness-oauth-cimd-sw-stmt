@@ -310,7 +310,7 @@ The client sends an authorization request as described in Section 4.1.1 of {{RFC
 : REQUIRED. The client identifier URL described in {{client-identity}}.
 
 `redirect_uri`:
-: REQUIRED. The value MUST exactly match one of the redirection URIs in the Client ID Metadata Document, subject to the redirect URI rules of {{CIMD}}. A public client MUST use an HTTPS redirection URI and MUST NOT use a private-use URI scheme or a loopback interface redirection URI in a software statement request. A confidential client MAY use a loopback or private-use redirection URI ({{authorization-response-security}}).
+: REQUIRED. The value MUST exactly match one of the redirection URIs in the Client ID Metadata Document, subject to the redirect URI rules of {{CIMD}}, and MUST NOT be a redirection URI that another application on the same device could claim, as the public-client presentation rules of {{STATEMENT}} define, whatever authentication method the document declares ({{authorization-response-security}}).
 
 `state`:
 : REQUIRED. An opaque value used by the client to bind the authorization response to its request.
@@ -331,7 +331,7 @@ The client sends an authorization request as described in Section 4.1.1 of {{RFC
 : OPTIONAL. A value that includes `deferred`, sent as the advance hint of Section 4.2 of {{DTR}}.
 
 `dpop_jkt`:
-: REQUIRED for a public client, and for a confidential client whose `redirect_uri` is a loopback or private-use URI; OPTIONAL otherwise. A declared confidential method proves key possession, not that the key is absent from distributed software, which is why the confidential-client exception for loopback and private-use redirection URIs carries this condition. The parameter has the semantics of Section 10 of {{RFC9449}}.
+: REQUIRED for a public client; OPTIONAL otherwise. The parameter has the semantics of Section 10 of {{RFC9449}}.
 
 The authorization server selects the final audience according to policy. It MUST NOT place in the statement's `aud` claim any value the request did not carry, except that a renewal request carrying no `audience` counts as carrying the subject statement's `aud` ({{token-exchange-profile}}); an issuer narrows a requested audience and never widens it. Where no requested audience is acceptable, the authorization server MUST reject the request with `invalid_target` {{RFC8707}}. An authorization server whose policy requires a restricted audience rejects a request carrying none with the same error. These semantics apply only to software statement requests and do not affect proprietary uses of `audience` for access-token targeting.
 
@@ -588,9 +588,9 @@ The software statement is a signed credential and can contain sensitive deployme
 
 Before redeeming a software statement code, the client MUST verify `state` and MUST validate the authorization response `iss` parameter according to {{RFC9207}}.
 
-A public client presents no client authentication, so its association with the software depends on delivery to a metadata-listed redirection endpoint. Another application can claim a private-use or loopback endpoint ({{RFC8252}}); PKCE and DPoP bind the code to the initiator but cannot stop an attacker from initiating under another party's `client_id`. Only HTTPS demonstrates control of the publisher's origin, which is why {{authorization-request}} requires it of a public client. A native public client can host such an endpoint or use the token exchange profile ({{token-exchange-profile}}).
+A public client presents no client authentication, so its association with the software depends on delivery to a metadata-listed redirection endpoint. Another application can claim a private-use or loopback endpoint ({{RFC8252}}); PKCE and DPoP bind the code to the initiator but cannot stop an attacker from initiating under another party's `client_id`. Only an `https` endpoint no other application can claim demonstrates control of the publisher's origin, which is why {{authorization-request}} requires one. A native public client can host such an endpoint or use the token exchange profile ({{token-exchange-profile}}).
 
-A confidential client's authentication protects redemption, which is why {{authorization-request}} permits it a loopback or private-use redirection URI. An authorization server SHOULD additionally relate the redirection URI's origin to the client identifier URL or the metadata document's `client_uri` according to policy. Endpoint or key control informs issuance policy but does not determine issuance.
+A confidential client's authentication proves possession of a key, not that the key is absent from software distributed to end users, so the requirement applies to it as well; a statement over a document listing such an endpoint is in any case review-only at a trusting authorization server ({{STATEMENT}}). An authorization server SHOULD additionally relate the redirection URI's origin to the client identifier URL or the metadata document's `client_uri` according to policy. Endpoint or key control informs issuance policy but does not determine issuance.
 
 A software statement code in a URL is visible to browser history, referrer fields, logs, and other observers. It is short lived, single use, and unredeemable without the PKCE verifier and, where one was bound, the `dpop_jkt` key; `form_post` ({{software-statement-code-response}}) keeps it out of URLs.
 
