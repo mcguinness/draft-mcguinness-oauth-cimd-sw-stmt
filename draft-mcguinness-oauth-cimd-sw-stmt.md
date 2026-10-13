@@ -235,6 +235,8 @@ An authorization server that issued a statement already holds the decision that 
 Such a server MUST apply the conditions it would apply to a presented statement, since a decision it made is not a document it has re-read:
 
 * the recorded decision is unexpired, and so is the registration where the validity model of {{REGISTRATION}} governs it;
+* the decision's audience, tenant, and permitted uses admit this server, the request's tenant, and this use, as {{validation}} requires of `aud`, `aud_tenant`, and `statement_uses`;
+* the decision is not superseded under the `iat` floor of {{multi-instance}}, which admission on it advances as acceptance of a statement would;
 * the server has not withdrawn the decision ({{withdrawal}});
 * the document at `sub` has been obtained; and
 * that document's digest equals the one recorded ({{metadata-digest}}).
