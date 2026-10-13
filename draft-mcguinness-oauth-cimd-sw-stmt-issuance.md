@@ -67,7 +67,7 @@ informative:
       - fullname: Karl McGuinness
   RFC8628:
   RFC9126:
-  CLIENT-INSTANCE: I-D.mcguinness-oauth-client-instance-assertion
+  ATTESTERS: I-D.mcguinness-oauth-client-attesters
   RFC8252:
   APPROVAL-DCR: I-D.dellaert-oauth-approval-based-dcr
   AU-CDR:
@@ -567,7 +567,7 @@ An erroneous approval affects every authorization server in the statement's audi
 * the tenant the decision is confined to, where the statement will carry `aud_tenant` ({{STATEMENT}}); and
 * the intended lifetime.
 
-The interface SHOULD make narrowing visible when the client requested a different or broader audience. A document naming instance-attestation authorities ({{CLIENT-INSTANCE}}) endorses those authorities for the software under review and deserves particular scrutiny.
+The interface SHOULD make narrowing visible when the client requested a different or broader audience. A document naming attesters in `client_attesters` ({{ATTESTERS}}) endorses those attesters for the software under review and deserves particular scrutiny.
 
 ## What Issuance Attests {#what-issuance-attests}
 

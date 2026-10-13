@@ -52,7 +52,7 @@ Dependencies:
 Related work:
 
 * [OAuth 2.0 Attestation-Based Client Authentication](https://datatracker.ietf.org/doc/draft-ietf-oauth-attestation-based-client-auth/), which attests a running client instance and composes with a statement
-* [OAuth 2.0 Client Instance Assertion](https://datatracker.ietf.org/doc/draft-mcguinness-oauth-client-instance-assertion/), which identifies instances within one client
+* [Client Instance Identification for Attestation-Based Client Authentication](https://datatracker.ietf.org/doc/draft-mcguinness-oauth-client-instance-id/), which identifies instances within one client
 * [OpenID Federation 1.0](https://openid.net/specs/openid-federation-1_0.html), sketched above
 * [OAuth Identity Assertion Trust Framework](https://datatracker.ietf.org/doc/draft-mcguinness-oauth-id-assertion-framework/), which generalizes issuer trust
 

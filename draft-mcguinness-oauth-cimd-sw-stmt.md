@@ -55,7 +55,7 @@ informative:
   OPENID-FED:
     target: https://openid.net/specs/openid-federation-1_0.html
     title: "OpenID Federation 1.0"
-  CLIENT-INSTANCE: I-D.mcguinness-oauth-client-instance-assertion
+  ATTESTERS: I-D.mcguinness-oauth-client-attesters
 
 --- abstract
 
@@ -428,7 +428,7 @@ This section is non-normative.
 
 ## Client Attestation {#relationship-attestation}
 
-A software statement and a client attestation {{ABCA}} or client instance assertion {{CLIENT-INSTANCE}} are all signed third-party assertions, but they attest different things. A statement attests client software and the metadata a reviewer evaluated; it is signed by a review authority scoped to a set of client identifiers and accepted at every authorization server that trusts that authority. A client attestation attests a running instance and the key it holds, and is presented with a proof bound to the request. A statement says what was reviewed and an attestation says what is running; neither grants access or substitutes for the other, which is why runtime presentation always requires a sender constraint ({{sender-constraint}}). Binding a presenter attestation defined elsewhere is an extension ({{extensions}}).
+A software statement and a client attestation {{ABCA}} are both signed third-party assertions, but they attest different things. A statement attests client software and the metadata a reviewer evaluated; it is signed by a review authority scoped to a set of client identifiers and accepted at every authorization server that trusts that authority. A client attestation attests a running instance and the key it holds, and is presented with a proof bound to the request. A statement says what was reviewed and an attestation says what is running; neither grants access or substitutes for the other, which is why runtime presentation always requires a sender constraint ({{sender-constraint}}). Binding a presenter attestation defined elsewhere is an extension ({{extensions}}).
 
 ## Identity Assertions {#identity-assertions}
 
@@ -548,7 +548,7 @@ This specification defines the following authorization server metadata {{RFC8414
 
 The following extensions are left to separate specifications:
 
-* Endorsed keys: a client attestation {{ABCA}}, or an assertion from an issuer named by an `instance_issuers` delegation in the reviewed document {{CLIENT-INSTANCE}}, vouching for a key that document does not carry. This extension would admit software whose instances hold their own keys.
+* Endorsed keys: a client attestation {{ABCA}}, including one from an attester the reviewed document endorses through `client_attesters` {{ATTESTERS}}, vouching for a key that document does not carry. This extension would admit software whose instances hold their own keys.
 * Statement conveyance within a client attestation, rather than as a request parameter.
 * Partial review, by which an issuer vouches for particular members rather than a whole document ({{profiles}}).
 * Withdrawal mechanisms, such as Token Status List {{STATUSLIST}}, by which an issuer ends a decision before its expiry ({{withdrawal}}).
@@ -575,7 +575,7 @@ A party holding a copied statement for a public client can open a pushed authori
 
 Tenant resolution remains the server's responsibility. This specification defines no tenant parameter, and a Client ID Metadata Document URL is the same `client_id` in every tenant, so neither a client nor an issuer can verify that a server honored this rule.
 
-The `aud_tenant` claim confines a decision to a tenant at the trusting authorization server; it does not identify which of the client's own customers is asking. Software that acts for many customers under one client identifier and key presents the same statement and key for each. A statement naming a tenant therefore admits the software there on behalf of every customer it serves, and any of them can direct it at another's tenant. A statement attests software and cannot prevent this; a deployment that needs a customer-to-tenant binding records it at the trusting authorization server or carries the customer as instance identity ({{CLIENT-INSTANCE}}).
+The `aud_tenant` claim confines a decision to a tenant at the trusting authorization server; it does not identify which of the client's own customers is asking. Software that acts for many customers under one client identifier and key presents the same statement and key for each. A statement naming a tenant therefore admits the software there on behalf of every customer it serves, and any of them can direct it at another's tenant. A statement attests software and cannot prevent this; a deployment that needs a customer-to-tenant binding records it at the trusting authorization server.
 
 ## External Retrieval and Resource Exhaustion {#external-retrieval}
 
