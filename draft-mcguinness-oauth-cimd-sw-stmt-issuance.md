@@ -96,7 +96,7 @@ The client presents the statement at registration or at runtime, or publishes it
 
 Section 2.3 of {{RFC7591}} defines a software statement: a JWT asserting client metadata, presented to a registration endpoint, whose signature identifies who attested to the metadata. {{RFC7591}} standardizes its consumption, but not its issuance. Issuance today relies on manual provisioning, deployment-specific portals, or proprietary processes; the UK Open Banking Directory {{UK-OPEN-BANKING}} and the Australian Consumer Data Right Register {{AU-CDR}} each built a central issuer, yet a client needs a separate integration for each.
 
-{{STATEMENT}} defines the statement, its claims, its validation, and its consumption; this document defines how a client obtains one. A client identified by its {{CIMD}} URL obtains a statement through OAuth token exchange ({{token-exchange-profile}}) or a redirect flow ({{authorization-request}}) that uses `response_type=software_statement_code` and the `urn:ietf:params:oauth:grant-type:software-statement` redemption grant. An issuer whose review outlives a request can defer it under {{DTR}}.
+{{STATEMENT}} profiles that statement to carry no client metadata and instead vouch for the exact octets of a Client ID Metadata Document, and defines its validation and consumption; this document defines how a client obtains one. A client identified by its {{CIMD}} URL obtains a statement through OAuth token exchange ({{token-exchange-profile}}) or a redirect flow ({{authorization-request}}) that uses `response_type=software_statement_code` and the `urn:ietf:params:oauth:grant-type:software-statement` redemption grant. An issuer whose review outlives a request can defer it under {{DTR}}.
 
 A statement makes one issuer's decision portable to the authorization servers in its audience that trust the issuer ({{STATEMENT}}). Where the trust decision is local to one authorization server, an initial access token {{RFC7591}}, pre-registration {{CIMD}}, or approval-based registration {{APPROVAL-DCR}} can establish the client directly.
 
@@ -557,9 +557,9 @@ This specification defines the following additional authorization server metadat
 
 ## Client Establishment Is Not an Access Grant
 
-A software statement attests client metadata; it grants no resource access or consent on behalf of the software's users. A software statement returned in the `access_token` member ({{software-statement-response}}) MUST NOT be accepted as an access token at a protected resource.
+A software statement vouches for a client's metadata document; it grants no resource access or consent on behalf of the software's users. A software statement returned in the `access_token` member ({{software-statement-response}}) MUST NOT be accepted as an access token at a protected resource.
 
-When an approval interface is shown, it SHOULD state that the decision concerns attestation to client metadata. It MUST NOT imply that the approver is granting the client access to resources.
+When an approval interface is shown, it SHOULD state that the decision vouches for the client's metadata document. It MUST NOT imply that the approver is granting the client access to resources.
 
 An erroneous approval affects every authorization server in the statement's audience until expiry. The approval interface therefore SHOULD present:
 
