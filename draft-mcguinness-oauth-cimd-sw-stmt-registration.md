@@ -109,6 +109,8 @@ If {{CIMD}} defines an expiry that a document asserts for its own client identif
 
 An authorization server advertising this model MUST publish `pushed_authorization_request_endpoint`, since {{revalidation}} otherwise leaves a client whose only grant type is the authorization code, and which holds no refresh token, with no way to renew.
 
+A client whose reviewed document declares `token_endpoint_auth_method` of `none` cannot authenticate a token or pushed authorization request, so it renews only through {{RFC7592}}. An authorization server advertising this model that does not offer registration management to such a client MUST reject its registration with `invalid_client_metadata`, rather than create a registration the client cannot renew.
+
 A server applying this model MUST return a `registration_expires_at` member, a NumericDate giving the latest time the registration remains valid, in the {{RFC7591}} registration response and in the response to any request that renews the registration ({{revalidation}}), and SHOULD return it in any {{RFC7592}} read or update response it supports. A client cannot compute this boundary from the statement alone, because the server can cap the lifetime it honors for the issuer ({{STATEMENT}}).
 
 A server that omits the signal or advertises `false` does not bound registrations by statement expiry but still consumes the statement as {{dcr-presentation}} requires.
@@ -177,6 +179,7 @@ Rejections at a registration endpoint use the error response of Section 3.2.2 of
 | Retrieval did not complete | `temporarily_unavailable` |
 | Document exceeds the server's size bound ({{STATEMENT}}), so that retrying cannot succeed | `invalid_client_metadata` |
 | Document with a redirection URI another application could claim ({{dcr-presentation}}) | `invalid_client_metadata` |
+| Public client at a server that offers it no registration management ({{registration-validity}}) | `invalid_client_metadata` |
 
 A registration management request ({{RFC7592}}) carrying a failing replacement uses the same codes. Registration expiry is reported as {{registration-validity}} defines. An authorization server SHOULD use HTTP status code 503 with `temporarily_unavailable` and 400 with the others.
 
