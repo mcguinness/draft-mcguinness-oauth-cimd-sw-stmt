@@ -431,9 +431,11 @@ Table of Contents
    | another application could claim  |                               |
    | (Section 3)                      |                               |
    +----------------------------------+-------------------------------+
-   | Public client at a server that   | invalid_client_metadata       |
-   | offers it no registration        |                               |
-   | management (Section 3.1)         |                               |
+   | Public client, where the server  | invalid_client_metadata       |
+   | advertises statement-governed    |                               |
+   | registration validity and offers |                               |
+   | it no registration management    |                               |
+   | (Section 3.1)                    |                               |
    +----------------------------------+-------------------------------+
 
                                  Table 1
