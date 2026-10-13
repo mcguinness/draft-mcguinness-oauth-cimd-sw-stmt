@@ -291,7 +291,7 @@ That authentication is the holder binding: a statement is otherwise a bearer art
 
 A client rotating keys inline renews while its document carries both the old and the new key; for a document naming `jwks_uri`, the binding is to whatever that location serves. A public client holds no such key and obtains a replacement through the redirect flow ({{authorization-request}}).
 
-A replacement carries the subject statement's `aud_tenant` while the decision is confined to that tenant, and is matched to the statement it replaces by `iss` and `sub` ({{STATEMENT}}).
+A replacement carries the subject statement's `aud_tenant` while the decision is confined to that tenant, and the uses the subject statement permits unless issuance policy narrows them; it MUST NOT permit a use the subject statement does not. It is matched to the statement it replaces by `iss` and `sub` ({{STATEMENT}}).
 
 An issuer that publishes status MUST NOT accept as subject token a statement whose own published status is other than `VALID`. Renewing a statement it has withdrawn would reissue the decision that withdrawal ended.
 
@@ -490,7 +490,7 @@ client-assertion-type%3Ajwt-bearer
 A successful response has HTTP status code 200, a media type of `application/json`, and the following members:
 
 `access_token`:
-: REQUIRED. The software statement issued by the authorization server. It MUST conform to {{STATEMENT}}, with `cimd_digest` the digest of the bound metadata snapshot and `aud` the selected audience where one is restricted.
+: REQUIRED. The software statement issued by the authorization server. It MUST conform to {{STATEMENT}}, with `cimd_digest` the digest of the bound metadata snapshot, `aud` the selected audience where one is restricted, and `statement_uses` the uses issuance policy permits.
 
 `issued_token_type`:
 : REQUIRED. The value MUST be `urn:ietf:params:oauth:token-type:software-statement`.
