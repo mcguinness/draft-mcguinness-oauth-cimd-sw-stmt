@@ -177,7 +177,7 @@ Rejections at a registration endpoint use the error response of Section 3.2.2 of
 | Retrieval did not complete | `temporarily_unavailable` |
 | Document exceeds the server's size bound ({{STATEMENT}}), so that retrying cannot succeed | `invalid_client_metadata` |
 | Document with a redirection URI another application could claim ({{dcr-presentation}}) | `invalid_client_metadata` |
-| Public client at a server that offers it no registration management ({{registration-validity}}) | `invalid_client_metadata` |
+| Public client, where the server advertises statement-governed registration validity and offers it no registration management ({{registration-validity}}) | `invalid_client_metadata` |
 
 A registration management request ({{RFC7592}}) carrying a failing replacement uses the same codes. Registration expiry is reported as {{registration-validity}} defines. An authorization server SHOULD use HTTP status code 503 with `temporarily_unavailable` and 400 with the others.
 
