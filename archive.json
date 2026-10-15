@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-10-13T05:41:34.414629+00:00",
+  "timestamp": "2026-10-15T03:26:32.102417+00:00",
   "repo": "mcguinness/draft-mcguinness-oauth-software-statement-issuance",
   "labels": [
     {
@@ -551,6 +551,62 @@
       "mergedBy": "mcguinness",
       "mergeCommit": {
         "oid": "6e72221b900c05253e2ff03894a70ace563bc488"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 19,
+      "id": "PR_kwDOTdw2S88AAAABIN1HNw",
+      "title": "Fresh-eyes review fixes across the family",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-software-statement-issuance/pull/19",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Fixes from a fresh-eyes review of the family by three cold readers (working-group reviewer, security reviewer, implementer), with the author's decisions on the design questions. One commit per finding, so any one can be dropped alone.\n\n## Statement draft\n\n**New or tightened requirements**\n- **Effective expiry** (new term): the earlier of `exp` and `iat` plus the issuer's maximum lifetime. \"Expired\" now means past it everywhere, so the per-issuer cap applies at runtime, not only to registrations.\n- **Refresh rechecks the proven key.** For a client bound by a document key, refresh checks that the current document still carries the key, and rejects with `invalid_grant` if it does not. A key removed after a compromise now stops open grants, not only new ones.\n- **Same-server admission** now applies the audience, tenant, `statement_uses`, and `iat`-floor checks. Admitting on the record advances the floor.\n- **`aud_tenant`** requires exactly one `aud` value.\n- **`iat`** must be an integer.\n- **Omitted `token_endpoint_auth_method`:** the document declares neither a client authentication method nor a public client. A presentation under it is rejected, and a statement pulled for it is review-only.\n- **Public clients:** add a SHOULD to bound establishments per resource owner, alongside the per-`iss`/`sub` bound. A per-proven-key bound would limit nothing, since every installation brings a fresh key.\n- **Tenant consistency:** the MUST moved from Security Considerations into Validation.\n\n**Clarifications**\n- **Superseded statements:** a replacement retires its predecessor for new admissions. Grants the predecessor already opened continue under Refresh.\n- **Proven key:** when a request carries both client authentication and DPoP, the client-authentication key is the proven key.\n- **PAR binding:** a public client may bind its key at the PAR endpoint with a DPoP proof (RFC 9449 Section 10.1), not only with `dpop_jkt`.\n- **Establishment bound:** an establishment counts from its first access token until the server discards it, and the server checks the bound before issuing that token.\n- **Wording:** \"establish\" now refers only to establishments.\n- **Citation:** RFC 9110 is now cited at Section 8.8.3.2 (strong comparison). It previously cited 13.1.2 (If-None-Match), which uses weak comparison.\n\n**Error codes**\n- **Refresh column:** refresh has its own column, matching the Refresh section, so statement failures return `statement_required`. A replacement check whose retrieval did not complete returns `temporarily_unavailable`, as the old \"Token, including refresh\" column said.\n- **Merged columns:** the PAR and token columns were identical in every row, so they are merged and the table fits the page.\n- **Duplicate member names:** now map to `invalid_client`, or `statement_required` on refresh. Before, they fell to `invalid_request`.\n\n**Non-normative**\n- **OpenID Federation:** a two-sentence comparison with trust marks, in Relationship to Other Work.\n\n## Registration draft\n- **Lapsed registration:** rejected with `statement_required`, after the server authenticates the client against the retained registration. A failed authentication still returns `invalid_client`, so unauthenticated callers still cannot detect a retained expired registration.\n- **Squatting:** a registration request may carry a DPoP proof signed with a key from the reviewed document. Under the one-registration default, a server SHOULD let such a request replace a registration whose request had no proof. The server checks the proof key against the reviewed document itself, since RFC 9449 checks only the key embedded in the proof. The replaced registration ends as an RFC 7592 deletion would end it.\n- **Public clients (`none`):** they renew only through RFC 7592. A server that doesn't offer them registration management rejects their registration with `invalid_client_metadata`.\n- **CIMD-asserted expiry:** the conditional rule is removed. CIMD -02 defines no such member, only a TBD.\n- **Governing statement:** while the registration is valid, its governing statement counts as current at refresh.\n- **Effective expiry and duplicate members:** effective expiry now points to the statement draft's definition. Duplicate member names map to `invalid_client_metadata`.\n\n## Issuance draft (unsubmitted)\n- **Metadata snapshot:** it is now the exact retrieved octets, not \"canonical metadata\", which would have produced unmatchable digests.\n- **Claimable redirect URIs:** no client, confidential included, may use a redirection URI another application could claim. Any statement over a document carrying one is review-only anyway. `dpop_jkt` is required only of public clients.\n- **`statement_uses`:** issuance policy sets it. Renewal carries it forward and never widens it.\n- **Withdrawal:** status publication is one withdrawal option, not a requirement. Renewal refuses any statement the issuer has withdrawn. Token Status List is no longer a normative reference here.\n- **Keys and wording:** the SHOULD preferring `jwks_uri` over inline keys is gone, and the statement is now described as vouching for a document.\n\n## Status draft (unsubmitted)\n- **Other status values:** any status other than `VALID` and `INVALID` goes to configured policy, as `SUSPENDED` did.\n- **Example:** an example status-changed SET is added.\n\n## References\n- **I-D references:** drafts on the datatracker now resolve through I-D references, so the rendered entries carry authors, dates, and revisions. `{{...}}` labels are unchanged. The family's own unsubmitted drafts keep manual entries, now with an author.\n\n## Not changed, by decision\n- **Refresh after expiry:** stays a SHOULD.\n- **Rejected review findings:**\n  - an explicit list of forbidden claims (the IANA registry reference is intentional);\n  - a `crit` header;\n  - subject-level withdrawal, a per-use watermark, and a \"require status\" policy (status-draft follow-ups);\n  - splitting out pull.\n- **Not in this PR:** moving registration-conditional text out of the statement draft. That would be a separate pass.\n\n## Size\n- **Statement draft:** 38 to 40 pages. About one page is the fuller I-D reference entries; the body grew about 4%.\n- **Registration draft:** 13 to 15 pages.\n- **Issuance draft:** unchanged at 30 pages.\n- **Status draft:** 10 to 11 pages, for the example.\n",
+      "createdAt": "2026-10-13T16:32:13Z",
+      "updatedAt": "2026-10-13T17:00:28Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-software-statement-issuance",
+      "baseRefName": "main",
+      "baseRefOid": "6e72221b900c05253e2ff03894a70ace563bc488",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-software-statement-issuance",
+      "headRefName": "fresh-eyes-fixes",
+      "headRefOid": "ec5b0e4d93170163f14d79277820031f7c4cff83",
+      "closedAt": "2026-10-13T17:00:27Z",
+      "mergedAt": "2026-10-13T17:00:27Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "ec5b0e4d93170163f14d79277820031f7c4cff83"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 20,
+      "id": "PR_kwDOTdw2S88AAAABIRLhXQ",
+      "title": "Cite the current instance and attester endorsement drafts",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-software-statement-issuance/pull/20",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Pre-submission fix. idnits flags the statement draft's reference to `draft-mcguinness-oauth-client-instance-assertion-01`, which was replaced by `draft-mcguinness-oauth-client-instance-id-00`. Changing the reference name is not enough, because three sentences described things the replacement no longer has.\n\n| Where | Before | After | Why |\n|---|---|---|---|\n| Statement draft, comparison with client attestations | \"a client attestation or client instance assertion\" | \"a client attestation\" | The instance identifier now goes inside the client attestation (client-instance-id-00, Section 1), so there is no separate instance assertion. |\n| Statement draft, Extensions: endorsed keys | an issuer named by an `instance_issuers` delegation | an attester the reviewed document endorses through `client_attesters` | `instance_issuers` is gone. Endorsing attesters moved to `draft-mcguinness-oauth-client-attesters-00` (Section 3), as client metadata. |\n| Statement draft, Tenant Confusion | \"or carries the customer as instance identity\" | removed | An instance is an installation or an execution unit (client-instance-id-00, Section 2). Nothing in the draft carries a customer. |\n| Issuance draft, approval interface | \"instance-attestation authorities\" | \"attesters in `client_attesters`\" | Same move. |\n| README | Client Instance Assertion link | Client Instance Identification link | Replaced draft. |\n\nThe statement and issuance drafts now cite `I-D.mcguinness-oauth-client-attesters` (informative) instead of the instance draft. No BCP 14 keyword changes in any draft. After this, idnits finds nothing on the statement draft that needs action. The registration draft is unchanged.\n",
+      "createdAt": "2026-10-13T21:42:21Z",
+      "updatedAt": "2026-10-13T23:57:36Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-software-statement-issuance",
+      "baseRefName": "main",
+      "baseRefOid": "ec5b0e4d93170163f14d79277820031f7c4cff83",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-software-statement-issuance",
+      "headRefName": "fix-instance-refs",
+      "headRefOid": "ac950dde024ba504b4d5e8c31c0fe5288a0fb96d",
+      "closedAt": "2026-10-13T23:57:25Z",
+      "mergedAt": "2026-10-13T23:57:25Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "ac950dde024ba504b4d5e8c31c0fe5288a0fb96d"
       },
       "comments": [],
       "reviews": []
