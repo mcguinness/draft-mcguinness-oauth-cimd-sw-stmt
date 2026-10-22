@@ -83,7 +83,7 @@ In {{RFC7591}}, values in a software statement take precedence over those in the
 * MUST resolve the Client ID Metadata Document at the statement's `sub`, rejecting the registration where retrieval does not complete;
 * MUST validate the document as {{CIMD}} requires, including that its `client_id` member matches the client identifier URL it is held for, which is the statement's `sub`;
 * MUST verify that the digest of the retrieved representation equals `cimd_digest`, rejecting the registration where it does not, and MUST derive the registered metadata by parsing the same octets it digested, not a second retrieval or a cached copy it has not digested;
-* MUST take every client metadata value from that document, and MUST NOT take any client metadata value from the registration request, whether or not the document carries that member. A request MAY carry metadata, as {{RFC7591}} clients do; it does not contribute to the registration. The registered `client_id` is assigned as {{RFC7591}} provides, and the document's own `client_id` member is the URL recorded as `sub`;
+* MUST take every client metadata value from that document, and MUST NOT take any client metadata value from the registration request, or from any {{RFC7592}} update request for the registration it creates, whether or not the document carries that member. The registration's metadata changes only by re-derivation from the document a replacement statement reviews ({{revalidation}}). A request MAY carry metadata, as {{RFC7591}} clients do; it does not contribute to the registration. The registered `client_id` is assigned as {{RFC7591}} provides, and the document's own `client_id` member is the URL recorded as `sub`;
 * MUST reject the registration with `invalid_client_metadata` where the document omits `token_endpoint_auth_method`, since the {{RFC7591}} default is a shared-secret method that {{CIMD}} forbids, and registering under it would issue a client secret to any holder of a copy of the statement; and
 * MUST reject the registration with `invalid_client_metadata` where any of the document's redirection URIs could be claimed by another application on the same device (see the public-client presentation rules of {{STATEMENT}}), whatever authentication method the document declares.
 
@@ -124,7 +124,7 @@ A client renews a statement-governed registration by delivering a replacement st
 * the `software_statement` parameter of an authenticated pushed authorization request {{RFC9126}} under the registration; or
 * the `software_statement` member of an authenticated {{RFC7592}} update request, where the deployment offers registration management.
 
-The update request carries the complete client metadata that {{RFC7592}} requires, but that metadata is not authoritative: the renewed record is derived from the reviewed document.
+The update request carries the complete client metadata that {{RFC7592}} requires, which the server does not take ({{dcr-presentation}}); the renewed record is derived from the reviewed document.
 
 A statement with the governing statement's `iss` and `jti` is not a replacement. A client offers one in an ordinary {{RFC7592}} update request, which repeats the statement the registration response returned unmodified (Section 3.2.1 of {{RFC7591}}), and may offer one again after losing the response to the request that made it governing. The authorization server leaves the registration unchanged and treats the request as carrying no replacement: the request proceeds while the registration is valid and is rejected as {{registration-validity}} provides once it is not.
 
@@ -158,7 +158,7 @@ A client an authorization server already has, whether registered through {{RFC75
 
 For a statement-governed registration, a statement from the governing issuer is a delivery under {{revalidation}}. While the registration is valid, its governing statement is current, even after a later statement has raised the `iat` floor of {{STATEMENT}}, and satisfies any requirement the server has for a current statement on refresh.
 
-Where the registration is not statement-governed, a statement neither renews nor alters it; the server applies a reviewed change, if at all, through its own registration policy or {{RFC7592}}.
+Where the registration is not statement-governed, a statement neither renews nor alters it; the server applies a reviewed change, if at all, through its own registration policy, deriving metadata only from a reviewed document ({{dcr-presentation}}).
 
 # Repeated Registration {#repeated-registration}
 
