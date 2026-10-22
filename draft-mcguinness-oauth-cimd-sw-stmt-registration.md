@@ -59,8 +59,8 @@ RFC 7591 does not define how long a registration based on a software statement r
 The following non-normative sequence summarizes a statement-governed registration:
 
 1. The client registers through {{RFC7591}}, carrying a statement in the `software_statement` member.
-2. The authorization server derives the registration's metadata from the reviewed document and records the statement's identity and `exp`; the registration is valid until that expiry, or earlier where the server caps statement lifetime ({{registration-validity}}).
-3. The client delivers a replacement statement in an authenticated token or pushed authorization request or, where supported, an {{RFC7592}} update request, extending the registration's validity to the replacement's `exp` under the same cap.
+2. The authorization server derives the registration's metadata from the reviewed document and records the statement's identity and effective expiry; the registration is valid until that effective expiry ({{registration-validity}}).
+3. The client delivers a replacement statement in an authenticated token or pushed authorization request or, where supported, an {{RFC7592}} update request, extending the registration's validity to the replacement's effective expiry.
 4. If no replacement arrives, the registration expires and requests under it fail.
 
 # Conventions and Definitions
@@ -72,7 +72,7 @@ OAuth terminology is defined by {{RFC6749}}. Client metadata and software statem
 This specification defines the following term.
 
 Statement-Governed Registration:
-: An {{RFC7591}} client registration, at a server advertising `software_statement_registration_validity_supported` with a value of `true`, whose validity is bound to a software statement's `exp` and renewed by replacement statements ({{registration-validity}}).
+: An {{RFC7591}} client registration, at a server advertising `software_statement_registration_validity_supported` with a value of `true`, whose validity is bound to a software statement's effective expiry and renewed by replacement statements ({{registration-validity}}).
 
 # Consumption at Registration {#dcr-presentation}
 
@@ -142,7 +142,7 @@ For a replacement, the authorization server MUST:
 
 Renewing on the statement alone would leave the registration carrying metadata the new review never covered, so a removed key, redirection URI, or scope would survive its own withdrawal.
 
-On success, the replacement becomes the governing statement: the authorization server MUST replace the recorded identity, `iat`, `exp`, and derived metadata with the replacement's in a single atomic update, and concurrent deliveries resolve to the most recently issued statement.
+On success, the replacement becomes the governing statement: the authorization server MUST replace the recorded identity, `iat`, effective expiry, and derived metadata with the replacement's in a single atomic update, and concurrent deliveries resolve to the most recently issued statement.
 
 When a request under an expired registration contains a replacement, the authorization server MUST authenticate the client against the retained registration and evaluate the replacement before applying the expiry rejection. A valid replacement therefore restores the registration; an omitted or invalid replacement does not.
 
