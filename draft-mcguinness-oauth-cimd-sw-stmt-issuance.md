@@ -524,7 +524,7 @@ The `access_token` member is a security-token container ({{RFC8693}}), not an OA
 
 When the authorization server decides not to issue the requested software statement, it returns a token error response as defined in Section 5.2 of {{RFC6749}} with the error code `access_denied` and HTTP status code 400, and MUST include the `Cache-Control: no-store` response header field. This applies to both originating requests, including where the decision completes during deferral and the denial answers a polling request ({{deferred-processing}}).
 
-The denial is terminal for the request; a denied deferral behaves as {{DTR}} specifies for a request resolved with an error. A denial does not preclude a later issuance request; whether to accept one is issuance policy.
+The denial is terminal for the request; a denied deferral behaves as {{DTR}} specifies for a request resolved with an error, and a client that receives `access_denied` in response to a polling request MUST NOT send another polling request with that `deferral_code`. A denial does not preclude a later issuance request; whether to accept one is issuance policy.
 
 # Withdrawal {#status-publication}
 
