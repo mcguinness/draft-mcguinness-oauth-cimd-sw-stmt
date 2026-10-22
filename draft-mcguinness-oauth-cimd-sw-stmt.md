@@ -232,11 +232,11 @@ An authorization server that issued a statement already holds the decision that 
 
 Such a server MUST apply the conditions it would apply to a presented statement, since a decision it made is not a document it has re-read:
 
-* the decision's issuer is one this server accepts for the request's tenant and for the decision's `sub`, as {{validation}} requires of `iss` and `sub` ({{issuer-trust}});
+* the decision's issuer is one this server accepts for the request's tenant and for the decision's `sub`, as {{validation}} requires of `iss` and `sub` ({{issuer-trust}}), and, where this server records a required issuer for that tenant and `sub` ({{issuer-trust}}), is that issuer;
 * the effective expiry the decision's statement would have at this server has not passed, and the registration has not expired where the validity model of {{REGISTRATION}} governs it;
 * the decision's audience, tenant, and permitted uses admit this server, the request's tenant, and this use, as {{validation}} requires of `aud`, `aud_tenant`, and `statement_uses`;
 * the decision is not superseded under the `iat` floor of {{multi-instance}}, which admission on it advances as acceptance of a statement would;
-* the server has not withdrawn the decision ({{withdrawal}});
+* the server has not withdrawn the decision and holds no refusal record for its statement ({{withdrawal}});
 * the document at `sub` has been obtained and contains no duplicate member names ({{validation}}); and
 * that document's digest equals the one recorded ({{metadata-digest}}).
 
