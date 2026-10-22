@@ -446,7 +446,7 @@ A trust mark {{OPENID-FED}} is also a signed third-party assertion about an enti
 | Condition | Pushed authorization request or token | Refresh |
 | --- | --- | --- |
 | Malformed, or failing signature or claim validation | `invalid_client` | `statement_required` |
-| Failing the sender constraint ({{sender-constraint}}), or on refresh the proof of the proven key | `invalid_client` | `invalid_client` |
+| Failing the sender constraint ({{sender-constraint}}), or on refresh not proving the establishment's proven key | `invalid_client` | `invalid_grant` |
 | Proven key no longer carried by the client's document ({{refresh}}) | n/a | `invalid_grant` |
 | Valid but not acceptable here: issuer not configured, `aud` excludes this server, `sub` outside the issuer's scope, `aud_tenant` not this request's tenant or absent where required, `statement_uses` excludes this use | `invalid_client` | `statement_required` |
 | Expired, refused by a refusal record ({{withdrawal}}), or superseded under the `iat` floor of {{multi-instance}} | `statement_required` | `statement_required` |
