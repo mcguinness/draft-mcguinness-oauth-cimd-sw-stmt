@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         13 October 2026
-Expires: 16 April 2027
+Intended status: Standards Track                         22 October 2026
+Expires: 25 April 2027
 
 
                         CIMD Software Statement
@@ -41,7 +41,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 16 April 2027.
+   This Internet-Draft will expire on 25 April 2027.
 
 Copyright Notice
 
@@ -128,13 +128,16 @@ Table of Contents
    This specification profiles the software statement (Section 2.3 of
    [RFC7591]) for that purpose.  A statement names the client by its
    document URL and binds the review to the document's exact octets by a
-   digest (Section 3.1).  An authorization server that trusts the
-   statement's issuer admits the client at request time on the reviewed
-   document, and no other, without creating a registration (Section 5).
-   The document remains the metadata and the statement records the
-   decision, so one review is portable across every authorization server
-   in the statement's audience, each of which keeps its own issuer
-   trust, grant policy, and token lifetime.
+   digest (Section 3.1).  A statement carried inside the document, as
+   Section 4.3 of [CIMD] permits, could not do this, since the digest
+   would have to cover the statement's own bytes (Section 3).  An
+   authorization server that trusts the statement's issuer admits the
+   client at request time on the reviewed document, and no other,
+   without creating a registration (Section 5).  The document remains
+   the metadata and the statement records the decision, so one review is
+   portable across every authorization server in the statement's
+   audience, each of which keeps its own issuer trust, grant policy, and
+   token lifetime.
 
    A statement vouches for metadata, not for its presenter.  Possession
    of a statement alone admits nothing: the presenter proves a key the
@@ -429,13 +432,14 @@ Table of Contents
 
    A withdrawal constrains and never relaxes.  A statement for which no
    withdrawal mechanism reports a withdrawal, or for which the server
-   cannot consult the mechanism it uses, is bounded by exp as it would
-   be otherwise, and a server MUST NOT treat any withdrawal mechanism as
-   grounds to accept a statement past exp.  What a server does when it
-   cannot consult a mechanism it relies on is local policy.  Refusing
-   makes issuer availability a precondition for every request the
-   statement governs; proceeding leaves a withdrawn statement acceptable
-   for the rest of its lifetime.
+   cannot consult the mechanism it uses, is bounded by its effective
+   expiry as it would be otherwise, and a server MUST NOT treat any
+   withdrawal mechanism as grounds to accept a statement past its
+   effective expiry.  What a server does when it cannot consult a
+   mechanism it relies on is local policy.  Refusing makes issuer
+   availability a precondition for every request the statement governs;
+   proceeding leaves a withdrawn statement acceptable for the rest of
+   its lifetime.
 
    An issuer that uses a withdrawal mechanism and issues a replacement
    narrower than the statement it replaces SHOULD withdraw the earlier
@@ -532,8 +536,13 @@ Table of Contents
    Such a server MUST apply the conditions it would apply to a presented
    statement, since a decision it made is not a document it has re-read:
 
-   *  the recorded decision is unexpired, and so is the registration
-      where the validity model of [REGISTRATION] governs it;
+   *  the decision's issuer is one this server accepts for the request's
+      tenant and for the decision's sub, as Section 3.2 requires of iss
+      and sub (Section 4);
+
+   *  the effective expiry the decision's statement would have at this
+      server has not passed, and the registration has not expired where
+      the validity model of [REGISTRATION] governs it;
 
    *  the decision's audience, tenant, and permitted uses admit this
       server, the request's tenant, and this use, as Section 3.2
@@ -544,7 +553,8 @@ Table of Contents
 
    *  the server has not withdrawn the decision (Section 3.3);
 
-   *  the document at sub has been obtained; and
+   *  the document at sub has been obtained and contains no duplicate
+      member names (Section 3.2); and
 
    *  that document's digest equals the one recorded (Section 3.1).
 
@@ -598,13 +608,10 @@ Table of Contents
    At the token endpoint, a runtime presentation is valid on a request
    using:
 
-   *  the client_credentials grant;
+   *  the client_credentials grant; or
 
-   *  the JWT or SAML assertion grants of [RFC7521]; or
-
-   *  another grant an authorization server names in
-      software_statement_presentation_grant_types_supported
-      (Section 10).
+   *  the JWT and SAML 2.0 assertion grants (Section 2.1 of [RFC7523]
+      and Section 2.1 of [RFC7522]).
 
    Authorization-code redemption and refresh-token use continue an
    existing grant (Section 5.6, Section 5.6.1).  A request that asks an
@@ -779,16 +786,18 @@ Table of Contents
    reject a presentation under it, and treats a statement pulled for it
    as review-only (Section 5.4.1).  A document carrying a redirection
    URI another application could claim is presented review-only whatever
-   its authentication method (Section 5.4.1).
+   its authentication method (Section 5.4.1); where this section or
+   Section 5.4.1 also requires the authorization server to reject the
+   presentation, the rejection applies.
 
    A statement whose reviewed document carries no key material can be
    consumed at registration where its statement_uses claim permits
    ([REGISTRATION]).  Where the document declares
    token_endpoint_auth_method of none, such a statement can also be
    consumed at the pushed authorization request endpoint under
-   Section 5.4.1.  Endorsement of a key the statement does not name, by
-   a client attester or by an issuer the statement delegates to, is left
-   to extensions (Section 11).
+   Section 5.4.1.  Endorsement of a key the reviewed document does not
+   carry, such as by a client attester, is left to extensions
+   (Section 11).
 
    A key at the document's jwks_uri is retrieved at presentation time;
    if retrieval fails, the key is unverified and the presentation is
@@ -1252,26 +1261,29 @@ Table of Contents
 
    Apart from those two cases, at the authorization endpoint, where this
    server requires a statement for a client it has not admitted on one,
-   or where the client's statement-governed registration has expired
-   without a replacement ([REGISTRATION]), the authorization server MUST
-   return statement_required in the authorization error response
-   [RFC6749].  The code tells the client to obtain a statement and
-   return through the pushed authorization request endpoint; without the
-   code, a client cannot tell a missing review from a policy it will
-   never satisfy.
+   the authorization server MUST return statement_required in the
+   authorization error response [RFC6749].  The code tells the client to
+   obtain a statement and return through the pushed authorization
+   request endpoint; without the code, a client cannot tell a missing
+   review from a policy it will never satisfy.
 
    The authorization server redirects with the error only after
-   resolving the client's Client ID Metadata Document, or for an expired
-   registration consulting the retained registration ([REGISTRATION]),
-   and validating the request's redirect_uri against it.  Where it
-   cannot resolve the document or, for an expired registration, the
-   retained registration, and so cannot validate the redirection URI,
-   the authorization server MUST NOT redirect and reports the error to
-   the resource owner instead.
+   resolving the client's Client ID Metadata Document and validating the
+   request's redirect_uri against it.  Where it cannot resolve the
+   document, and so cannot validate the redirection URI, the
+   authorization server MUST NOT redirect and reports the error to the
+   resource owner instead.
 
-   Where the proof mechanism defines a recoverable error of its own,
-   such as a DPoP nonce challenge [RFC9449], that error takes precedence
-   over the generic errors above.
+   Where the proof mechanism defines an error of its own for a proof it
+   does not accept, such as invalid_dpop_proof for a DPoP proof that
+   fails the checks of Section 4.3 of [RFC9449] or use_dpop_nonce for a
+   nonce challenge (Section 8 of [RFC9449]), that error takes precedence
+   over the codes above.  A proof that its mechanism accepts but that
+   proves a key other than the one this specification requires, such as
+   a key the reviewed document does not carry or not the establishment's
+   proven key, is not an invalid proof: it fails the sender constraint,
+   and is rejected with the code this section or Section 5.6 assigns to
+   that failure.
 
    These codes do not tell a client whether to seek a corrected
    statement or a different issuer.  The authorization server MAY return
@@ -1380,11 +1392,6 @@ Table of Contents
       local policy.  An authorization server advertising
       pushed_authorization_request MUST publish
       pushed_authorization_request_endpoint.
-
-   software_statement_presentation_grant_types_supported:  OPTIONAL.  A
-      JSON array of grant type identifiers on which the authorization
-      server accepts a runtime presentation, in addition to those
-      Section 5.1 names.  Omission means only those.
 
    software_statement_pull_supported:  OPTIONAL.  Boolean value
       indicating whether the authorization server retrieves statements
@@ -1743,16 +1750,6 @@ Table of Contents
 
    Specification Document(s):  This specification, Section 10
 
-   Metadata Name:  software_statement_presentation_grant_types_supported
-
-   Metadata Description:  JSON array of grant type identifiers on which
-      the authorization server accepts a runtime presentation, beyond
-      those the specification names.
-
-   Change Controller:  IESG
-
-   Specification Document(s):  This specification, Section 10
-
    Metadata Name:  software_statement_signing_alg_values_supported
 
    Metadata Description:  JSON array containing the asymmetric JWS
@@ -1826,10 +1823,16 @@ Table of Contents
               (JWT)", RFC 7519, DOI 10.17487/RFC7519, May 2015,
               <https://www.rfc-editor.org/rfc/rfc7519>.
 
-   [RFC7521]  Campbell, B., Mortimore, C., Jones, M., and Y. Goland,
-              "Assertion Framework for OAuth 2.0 Client Authentication
-              and Authorization Grants", RFC 7521, DOI 10.17487/RFC7521,
-              May 2015, <https://www.rfc-editor.org/rfc/rfc7521>.
+   [RFC7522]  Campbell, B., Mortimore, C., and M. Jones, "Security
+              Assertion Markup Language (SAML) 2.0 Profile for OAuth 2.0
+              Client Authentication and Authorization Grants", RFC 7522,
+              DOI 10.17487/RFC7522, May 2015,
+              <https://www.rfc-editor.org/rfc/rfc7522>.
+
+   [RFC7523]  Jones, M., Campbell, B., and C. Mortimore, "JSON Web Token
+              (JWT) Profile for OAuth 2.0 Client Authentication and
+              Authorization Grants", RFC 7523, DOI 10.17487/RFC7523, May
+              2015, <https://www.rfc-editor.org/rfc/rfc7523>.
 
    [RFC7591]  Richer, J., Ed., Jones, M., Bradley, J., Machulak, M., and
               P. Hunt, "OAuth 2.0 Dynamic Client Registration Protocol",

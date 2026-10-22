@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         13 October 2026
-Expires: 16 April 2027
+Intended status: Standards Track                         22 October 2026
+Expires: 25 April 2027
 
 
                     CIMD Software Statement Issuance
@@ -47,7 +47,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 16 April 2027.
+   This Internet-Draft will expire on 25 April 2027.
 
 Copyright Notice
 
@@ -847,7 +847,9 @@ Table of Contents
    answers a polling request (Section 9).
 
    The denial is terminal for the request; a denied deferral behaves as
-   [DTR] specifies for a request resolved with an error.  A denial does
+   [DTR] specifies for a request resolved with an error, and a client
+   that receives access_denied in response to a polling request MUST NOT
+   send another polling request with that deferral_code.  A denial does
    not preclude a later issuance request; whether to accept one is
    issuance policy.
 

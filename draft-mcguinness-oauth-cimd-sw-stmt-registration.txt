@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         13 October 2026
-Expires: 16 April 2027
+Intended status: Standards Track                         22 October 2026
+Expires: 25 April 2027
 
 
                   CIMD Software Statement Registration
@@ -38,7 +38,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 16 April 2027.
+   This Internet-Draft will expire on 25 April 2027.
 
 Copyright Notice
 
@@ -113,13 +113,13 @@ Table of Contents
 
    2.  The authorization server derives the registration's metadata from
        the reviewed document and records the statement's identity and
-       exp; the registration is valid until that expiry, or earlier
-       where the server caps statement lifetime (Section 3.1).
+       effective expiry; the registration is valid until that effective
+       expiry (Section 3.1).
 
    3.  The client delivers a replacement statement in an authenticated
        token or pushed authorization request or, where supported, an
        [RFC7592] update request, extending the registration's validity
-       to the replacement's exp under the same cap.
+       to the replacement's effective expiry.
 
    4.  If no replacement arrives, the registration expires and requests
        under it fail.
@@ -143,8 +143,8 @@ Table of Contents
    Statement-Governed Registration:  An [RFC7591] client registration,
       at a server advertising
       software_statement_registration_validity_supported with a value of
-      true, whose validity is bound to a software statement's exp and
-      renewed by replacement statements (Section 3.1).
+      true, whose validity is bound to a software statement's effective
+      expiry and renewed by replacement statements (Section 3.1).
 
 3.  Consumption at Registration
 
@@ -173,11 +173,20 @@ Table of Contents
 
    *  MUST take every client metadata value from that document, and MUST
       NOT take any client metadata value from the registration request,
-      whether or not the document carries that member.  A request MAY
-      carry metadata, as [RFC7591] clients do; it does not contribute to
-      the registration.  The registered client_id is assigned as
-      [RFC7591] provides, and the document's own client_id member is the
-      URL recorded as sub; and
+      or from any [RFC7592] update request for the registration it
+      creates, whether or not the document carries that member.  The
+      registration's metadata changes only by re-derivation from the
+      document a replacement statement reviews (Section 3.2).  A request
+      MAY carry metadata, as [RFC7591] clients do; it does not
+      contribute to the registration.  The registered client_id is
+      assigned as [RFC7591] provides, and the document's own client_id
+      member is the URL recorded as sub;
+
+   *  MUST reject the registration with invalid_client_metadata where
+      the document omits token_endpoint_auth_method, since the [RFC7591]
+      default is a shared-secret method that [CIMD] forbids, and
+      registering under it would issue a client secret to any holder of
+      a copy of the statement; and
 
    *  MUST reject the registration with invalid_client_metadata where
       any of the document's redirection URIs could be claimed by another
@@ -227,17 +236,32 @@ Table of Contents
 
    *  Once the effective expiry passes without a replacement
       (Section 3.2), it MUST reject requests under the registration,
-      other than the revalidation requests Section 3.2 permits, with
-      statement_required ([STATEMENT]), since the remedy is a
-      replacement statement.  At the token and pushed authorization
-      request endpoints it first authenticates the client against the
-      retained registration, and rejects a request that fails that
-      authentication with invalid_client, as for an unknown client.
+      other than the revalidation requests Section 3.2 permits and
+      [RFC7592] read and delete requests, since the remedy is a
+      replacement statement.  It rejects them with statement_required
+      ([STATEMENT]), except at the registration management endpoint,
+      which uses the codes of Section 6.  Read and delete remain
+      available so that a client can learn its registration's state and
+      end it.  At the token and pushed authorization request endpoints
+      it first authenticates the client against the retained
+      registration, and rejects a request that fails that authentication
+      with invalid_client, as for an unknown client.
 
    *  It SHOULD retain the expired record so that it can process a later
       authenticated revalidation (Section 9.4); since a valid
       replacement restores the registration (Section 3.2), no grace
       period is needed.
+
+   At the authorization endpoint, the rejection is returned in the
+   authorization error response [RFC6749], so that a client can tell a
+   lapsed registration from a policy it will never satisfy.  The
+   authorization server redirects with it only after validating the
+   request's redirect_uri against the retained registration; where it
+   cannot, it MUST NOT redirect and reports the error to the resource
+   owner instead.  The client then delivers a replacement (Section 3.2)
+   in a pushed authorization request or, where its reviewed document
+   declares token_endpoint_auth_method of none, in an [RFC7592] update
+   request.
 
    The effective expiry is an upper bound.  Where the server holds a
    refusal record for the governing statement ([STATEMENT]), the
@@ -288,8 +312,18 @@ Table of Contents
       request, where the deployment offers registration management.
 
    The update request carries the complete client metadata that
-   [RFC7592] requires, but that metadata is not authoritative: the
+   [RFC7592] requires, which the server does not take (Section 3); the
    renewed record is derived from the reviewed document.
+
+   A statement with the governing statement's iss and jti is not a
+   replacement.  A client offers one in an ordinary [RFC7592] update
+   request, which repeats the statement the registration response
+   returned unmodified (Section 3.2.1 of [RFC7591]), and may offer one
+   again after losing the response to the request that made it
+   governing.  The authorization server leaves the registration
+   unchanged and treats the request as carrying no replacement: the
+   request proceeds while the registration is valid and is rejected as
+   Section 3.1 provides once it is not.
 
    The replacement MUST:
 
@@ -316,10 +350,10 @@ Table of Contents
    URI, or scope would survive its own withdrawal.
 
    On success, the replacement becomes the governing statement: the
-   authorization server MUST replace the recorded identity, iat, exp,
-   and derived metadata with the replacement's in a single atomic
-   update, and concurrent deliveries resolve to the most recently issued
-   statement.
+   authorization server MUST replace the recorded identity, iat,
+   effective expiry, and derived metadata with the replacement's in a
+   single atomic update, and concurrent deliveries resolve to the most
+   recently issued statement.
 
    When a request under an expired registration contains a replacement,
    the authorization server MUST authenticate the client against the
@@ -334,11 +368,12 @@ Table of Contents
 
    A request whose replacement fails the rules above is rejected,
    whether or not the registration has expired, with statement_required
-   at the token and pushed authorization request endpoints and with the
-   codes of Section 6 at the registration management endpoint, so that
-   the client learns of the failure at once and can tell a bad
-   replacement from a missing one.  A rejected delivery leaves the
-   governing statement unchanged.
+   at the token and pushed authorization request endpoints, or with
+   temporarily_unavailable there where a retrieval needed to check the
+   replacement did not complete, and with the codes of Section 6 at the
+   registration management endpoint, so that the client learns of the
+   failure at once and can tell a bad replacement from a missing one.  A
+   rejected delivery leaves the governing statement unchanged.
 
    A registration request without an [RFC7592] registration access token
    creates a new registration and never renews an existing one.
@@ -361,29 +396,49 @@ Table of Contents
 
    Where the registration is not statement-governed, a statement neither
    renews nor alters it; the server applies a reviewed change, if at
-   all, through its own registration policy or [RFC7592].
+   all, through its own registration policy, deriving metadata only from
+   a reviewed document (Section 3).
 
 5.  Repeated Registration
 
    One unexpired statement can be consumed more than once, within the
-   bounds of [STATEMENT]; the safe default is one registration per (iss,
-   sub) at one authorization server.  On repeated consumption, local
-   policy can reject the request, treat it as idempotent, or create
-   another registration; [RFC7591] defines no duplicate-registration
-   protocol.  An idempotent response MUST NOT return the existing
-   registration's credentials, such as its registration_access_token,
-   since a repeated request can come from any holder of a copy of the
-   statement.
+   bounds of [STATEMENT]; for a reviewed document that carries key
+   material, the safe default is one registration per (iss, sub) at one
+   authorization server.  On repeated consumption, local policy can
+   reject the request, treat it as idempotent, or create another
+   registration; [RFC7591] defines no duplicate-registration protocol.
+   An idempotent response MUST NOT return the existing registration's
+   credentials, such as its registration_access_token, since a repeated
+   request can come from any holder of a copy of the statement.
+
+   A reviewed document that carries no key material, such as one
+   declaring token_endpoint_auth_method of none, gives no installation a
+   key with which to displace another's registration (see below), and a
+   client declaring none renews only through its own registration
+   management (Section 3.1).  Under the one-registration default, the
+   first holder of a copy of the statement would therefore hold the only
+   registration for every installation.  For such a document, the
+   authorization server MAY create a registration for each request,
+   counted against the bounds of [STATEMENT].
 
    Under the one-registration default, whoever first registers with a
    copy of the statement holds the slot, and [RFC7592] management keeps
    it.  A registration request can therefore carry a DPoP proof
    [RFC9449] for the registration request, signed with a key the
-   reviewed document carries.  A server applying the default SHOULD let
-   a request whose proof verifies as Section 4.3 of [RFC9449] describes,
-   and whose proof key the reviewed document carries, replace a
-   registration whose own request carried no such proof; the replaced
-   registration ends as an [RFC7592] deletion would end it.
+   reviewed document carries, and the authorization server records that
+   key with the registration it creates.  A server applying the default
+   SHOULD let a request whose proof verifies as Section 4.3 of [RFC9449]
+   describes, and whose proof key the reviewed document carries, replace
+   an existing registration unless that document also carries the key
+   recorded with the existing registration; the replaced registration
+   ends as an [RFC7592] deletion would end it.  Comparing against the
+   current document, rather than against the existing registration's
+   request, lets a publisher reclaim the registration from a holder of a
+   key it has since removed.  A server that lets a proof replace a
+   registration MUST reject a proof whose jti it has already seen at its
+   registration endpoint within the period in which it would accept that
+   proof (Section 11.1 of [RFC9449]), whether or not the request that
+   carried it succeeded.
 
 6.  Error Responses
 
@@ -426,6 +481,10 @@ Table of Contents
    | Document exceeds the server's    | invalid_client_metadata       |
    | size bound ([STATEMENT]), so     |                               |
    | that retrying cannot succeed     |                               |
+   +----------------------------------+-------------------------------+
+   | Document omits                   | invalid_client_metadata       |
+   | token_endpoint_auth_method       |                               |
+   | (Section 3)                      |                               |
    +----------------------------------+-------------------------------+
    | Document with a redirection URI  | invalid_client_metadata       |
    | another application could claim  |                               |
@@ -533,14 +592,26 @@ Table of Contents
 
    A retained expired registration is distinguishable from an unknown
    client, because recovery requires the server to authenticate the
-   registration and evaluate a replacement before rejecting.  Only a
-   requester that authenticates as the registration's client can observe
-   this, and what it learns is the state it must act on.  Servers
+   registration and evaluate a replacement before rejecting.  At the
+   token and pushed authorization request endpoints, only a requester
+   that authenticates as the registration's client can observe this, and
+   what it learns is the state it must act on; a client whose reviewed
+   document declares token_endpoint_auth_method of none authenticates
+   with its client_id alone, so anyone holding that identifier can
+   observe the same.  At the authorization endpoint, the
+   statement_required redirection (Section 3.1) tells anyone who can see
+   it that the registration has lapsed.  Where an observer knows the
+   governing statement's exp, a lapse before it shows that the server
+   either holds a refusal record for the statement or caps the lifetime
+   it honors for the issuer.  These disclosures are accepted for the
+   reason [STATEMENT] gives for its own statement_required refusal: a
+   client that cannot learn why it was refused cannot act.  Servers
    publishing software_statement_registration_validity_supported also
    disclose that statement-derived registrations expire there, which a
-   client needs to know before registering.  Neither disclosure reveals
-   issuer trust, subject scope, or attester policy, which [STATEMENT]
-   keeps from unauthenticated requesters.
+   client needs to know before registering.  Beyond a lapse and its
+   timing, these disclosures reveal no issuer trust, subject scope, or
+   attester policy, which [STATEMENT] keeps from unauthenticated
+   requesters.
 
 10.  Privacy Considerations
 
