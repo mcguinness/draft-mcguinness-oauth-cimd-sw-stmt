@@ -265,8 +265,9 @@ The request carries the proof that {{sender-constraint}} requires. A successful 
 
 At the token endpoint, a runtime presentation is valid on a request using:
 
-* the `client_credentials` grant; or
-* the JWT and SAML 2.0 assertion grants (Section 2.1 of {{RFC7523}} and Section 2.1 of {{RFC7522}}).
+* the `client_credentials` grant;
+* the JWT and SAML 2.0 assertion grants (Section 2.1 of {{RFC7523}} and Section 2.1 of {{RFC7522}}); or
+* another grant whose specification provides for runtime presentation under this specification.
 
 Authorization-code redemption and refresh-token use continue an existing grant ({{grant-lifecycle}}, {{refresh}}). A request that asks an authorization server to issue a software statement, rather than to consume one, MUST NOT carry the `software_statement` parameter.
 
@@ -548,6 +549,7 @@ The following extensions are left to separate specifications:
 
 * Endorsed keys: a client attestation {{ABCA}}, including one from an attester the reviewed document endorses through `client_attesters` {{ATTESTERS}}, vouching for a key that document does not carry. This extension would admit software whose instances hold their own keys.
 * Statement conveyance within a client attestation, rather than as a request parameter.
+* Runtime presentation on grants other than those {{runtime-presentation}} names, such as token exchange.
 * Partial review, by which an issuer vouches for particular members rather than a whole document ({{profiles}}).
 * Withdrawal mechanisms, such as Token Status List {{STATUSLIST}}, by which an issuer ends a decision before its expiry ({{withdrawal}}).
 
