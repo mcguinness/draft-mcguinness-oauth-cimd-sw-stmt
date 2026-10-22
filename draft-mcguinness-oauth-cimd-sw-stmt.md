@@ -264,9 +264,8 @@ The request carries the proof that {{sender-constraint}} requires. A successful 
 
 At the token endpoint, a runtime presentation is valid on a request using:
 
-* the `client_credentials` grant;
-* the JWT or SAML assertion grants of {{RFC7521}}; or
-* another grant an authorization server names in `software_statement_presentation_grant_types_supported` ({{authorization-server-metadata}}).
+* the `client_credentials` grant; or
+* the JWT or SAML assertion grants of {{RFC7521}}.
 
 Authorization-code redemption and refresh-token use continue an existing grant ({{grant-lifecycle}}, {{refresh}}). A request that asks an authorization server to issue a software statement, rather than to consume one, MUST NOT carry the `software_statement` parameter.
 
@@ -539,9 +538,6 @@ This specification defines the following authorization server metadata {{RFC8414
 `software_statement_presentation_supported`:
 : OPTIONAL. A JSON array naming the endpoints at which the authorization server accepts a software statement presented at runtime ({{runtime-presentation}}): `token` and `pushed_authorization_request`. A client ignores a value it does not recognize. Omission, or an empty array, means runtime presentation is not offered. The member implies neither acceptance of any particular issuer or subject namespace nor support for statement-governed registrations ({{REGISTRATION}}), and admitting a public client's presentation ({{public-client-presentation}}) remains local policy. An authorization server advertising `pushed_authorization_request` MUST publish `pushed_authorization_request_endpoint`.
 
-`software_statement_presentation_grant_types_supported`:
-: OPTIONAL. A JSON array of grant type identifiers on which the authorization server accepts a runtime presentation, in addition to those {{runtime-presentation}} names. Omission means only those.
-
 `software_statement_pull_supported`:
 : OPTIONAL. Boolean value indicating whether the authorization server retrieves statements from a client's `software_statements_uri` when admitting a client that presented none ({{pulled-statements}}). If omitted, the default value is false. It tells a client whether it also needs to present.
 
@@ -777,18 +773,6 @@ Metadata Name:
 
 Metadata Description:
 : JSON array of endpoint names at which the authorization server accepts a software statement presented at runtime.
-
-Change Controller:
-: IESG
-
-Specification Document(s):
-: This specification, {{authorization-server-metadata}}
-
-Metadata Name:
-: `software_statement_presentation_grant_types_supported`
-
-Metadata Description:
-: JSON array of grant type identifiers on which the authorization server accepts a runtime presentation, beyond those the specification names.
 
 Change Controller:
 : IESG
