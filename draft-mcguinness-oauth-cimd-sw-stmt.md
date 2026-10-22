@@ -33,7 +33,8 @@ normative:
   RFC7515:
   RFC7519:
   RFC8725:
-  RFC7521:
+  RFC7522:
+  RFC7523:
   RFC7591:
   RFC8414:
   RFC9126:
@@ -265,7 +266,7 @@ The request carries the proof that {{sender-constraint}} requires. A successful 
 At the token endpoint, a runtime presentation is valid on a request using:
 
 * the `client_credentials` grant; or
-* the JWT or SAML assertion grants of {{RFC7521}}.
+* the JWT and SAML 2.0 assertion grants (Section 2.1 of {{RFC7523}} and Section 2.1 of {{RFC7522}}).
 
 Authorization-code redemption and refresh-token use continue an existing grant ({{grant-lifecycle}}, {{refresh}}). A request that asks an authorization server to issue a software statement, rather than to consume one, MUST NOT carry the `software_statement` parameter.
 
