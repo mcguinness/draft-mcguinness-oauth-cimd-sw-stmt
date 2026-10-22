@@ -113,7 +113,7 @@ An authorization server advertising this model MUST publish `pushed_authorizatio
 
 A client whose reviewed document declares `token_endpoint_auth_method` of `none` cannot authenticate a token or pushed authorization request, so it renews only through {{RFC7592}}. An authorization server advertising this model that does not offer registration management to such a client MUST reject its registration with `invalid_client_metadata`, rather than create a registration the client cannot renew.
 
-A server applying this model MUST return a `registration_expires_at` member, a NumericDate giving the latest time the registration remains valid, in the {{RFC7591}} registration response and in the response to any request that renews the registration ({{revalidation}}), and SHOULD return it in any {{RFC7592}} read or update response it supports. For a registration that has ceased to be valid, the value is the time it ceased. A client cannot compute this boundary from the statement alone, because the server can cap the lifetime it honors for the issuer ({{STATEMENT}}).
+A server applying this model MUST return a `registration_expires_at` member, a NumericDate giving the latest time the registration remains valid, in the {{RFC7591}} registration response and in the response to any request that renews the registration or carries its governing statement ({{revalidation}}), and SHOULD return it in any {{RFC7592}} read or update response it supports. For a registration that has ceased to be valid, the value is the time it ceased. A client cannot compute this boundary from the statement alone, because the server can cap the lifetime it honors for the issuer ({{STATEMENT}}).
 
 A server that omits the signal or advertises `false` does not bound registrations by statement expiry but still consumes the statement as {{dcr-presentation}} requires.
 
@@ -127,7 +127,7 @@ A client renews a statement-governed registration by delivering a replacement st
 
 The update request carries the complete client metadata that {{RFC7592}} requires, which the server does not take ({{dcr-presentation}}); the renewed record is derived from the reviewed document.
 
-A statement with the governing statement's `iss` and `jti` is not a replacement. A client offers one in an ordinary {{RFC7592}} update request, which repeats the statement the registration response returned unmodified (Section 3.2.1 of {{RFC7591}}), and may offer one again after losing the response to the request that made it governing. The authorization server leaves the registration unchanged and treats the request as carrying no replacement: the request proceeds while the registration is valid and is rejected as {{registration-validity}} provides once it is not.
+A statement with the governing statement's `iss` and `sub` and an `iat` no later than the governing statement's `iat`, such as the governing statement itself, is not a replacement. A client offers one in an ordinary {{RFC7592}} update request, which repeats the statement a registration, read, or update response returned unmodified (Section 3.2.1 of {{RFC7591}}), even after a token or pushed authorization request has renewed the registration, and may offer the governing statement again after losing the response to the request that made it governing. The authorization server leaves the registration unchanged and treats the request as carrying no replacement: the request proceeds while the registration is valid and is rejected as {{registration-validity}} provides once it is not. An {{RFC7592}} read or update response returns the governing statement as its `software_statement` member.
 
 The replacement MUST:
 
@@ -256,7 +256,7 @@ Client Metadata Name:
 : `registration_expires_at`
 
 Client Metadata Description:
-: Latest time at which a statement-governed registration remains valid, as a NumericDate. A withdrawal can end it earlier. Returned in a client registration response, in a registration management response, and in the token or pushed authorization request response to a request that renews the registration.
+: Latest time at which a statement-governed registration remains valid, as a NumericDate. A withdrawal can end it earlier. Returned in a client registration response, in a registration management response, and in the token or pushed authorization request response to a request that renews the registration or carries its governing statement.
 
 Change Controller:
 : IESG
@@ -266,7 +266,7 @@ Specification Document(s):
 
 ## OAuth Parameters Registry
 
-This specification requests registration of the following parameter in the IANA "OAuth Parameters" registry established by {{RFC6749}}, for the responses that renew a statement-governed registration:
+This specification requests registration of the following parameter in the IANA "OAuth Parameters" registry established by {{RFC6749}}, for the responses to requests that renew a statement-governed registration or carry its governing statement:
 
 Parameter Name:
 : `registration_expires_at`
