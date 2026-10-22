@@ -148,7 +148,7 @@ When a request under an expired registration contains a replacement, the authori
 
 The rejection of a request under an expired registration that carries no replacement ({{registration-validity}}) MUST NOT by itself trigger the refresh-token family revocation of {{RFC9700}}; the client recovers by delivering a valid replacement.
 
-A request whose replacement fails the rules above is rejected, whether or not the registration has expired, with `statement_required` at the token and pushed authorization request endpoints and with the codes of {{errors}} at the registration management endpoint, so that the client learns of the failure at once and can tell a bad replacement from a missing one. A rejected delivery leaves the governing statement unchanged.
+A request whose replacement fails the rules above is rejected, whether or not the registration has expired, with `statement_required` at the token and pushed authorization request endpoints, or with `temporarily_unavailable` there where a retrieval needed to check the replacement did not complete, and with the codes of {{errors}} at the registration management endpoint, so that the client learns of the failure at once and can tell a bad replacement from a missing one. A rejected delivery leaves the governing statement unchanged.
 
 A registration request without an {{RFC7592}} registration access token creates a new registration and never renews an existing one.
 
