@@ -408,7 +408,7 @@ When a replacement is needed, the client presents it in the `software_statement`
 
 The refreshed access MUST fall within the metadata of the document the replacement names.
 
-On success, the establishment's statement identity, `iat`, effective expiry, reviewed metadata, and trust decision are replaced in a single atomic update, and concurrent replacements resolve to the most recently issued statement. A refresh that fails these requirements, or omits a replacement that is needed, is rejected with `statement_required`, or with `temporarily_unavailable` where a retrieval needed to check the replacement did not complete, and leaves the establishment unchanged. Refresh never rotates the establishment's key; a client that needs a new key performs a new presentation.
+On success, the establishment's statement identity, `iat`, effective expiry, reviewed metadata, and trust decision are replaced in a single atomic update, and concurrent replacements resolve to the most recently issued statement. A refresh that fails these requirements, or omits a replacement that is needed, is rejected with `statement_required`, or with `temporarily_unavailable` where a retrieval needed to check the replacement did not complete for a reason other than the size bound of {{metadata-digest}}, and leaves the establishment unchanged. Refresh never rotates the establishment's key; a client that needs a new key performs a new presentation.
 
 # Repeated Consumption of One Statement {#multi-instance}
 
