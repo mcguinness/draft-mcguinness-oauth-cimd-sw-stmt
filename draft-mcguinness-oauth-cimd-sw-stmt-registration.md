@@ -83,7 +83,8 @@ In {{RFC7591}}, values in a software statement take precedence over those in the
 * MUST resolve the Client ID Metadata Document at the statement's `sub`, rejecting the registration where retrieval does not complete;
 * MUST validate the document as {{CIMD}} requires, including that its `client_id` member matches the client identifier URL it is held for, which is the statement's `sub`;
 * MUST verify that the digest of the retrieved representation equals `cimd_digest`, rejecting the registration where it does not, and MUST derive the registered metadata by parsing the same octets it digested, not a second retrieval or a cached copy it has not digested;
-* MUST take every client metadata value from that document, and MUST NOT take any client metadata value from the registration request, whether or not the document carries that member. A request MAY carry metadata, as {{RFC7591}} clients do; it does not contribute to the registration. The registered `client_id` is assigned as {{RFC7591}} provides, and the document's own `client_id` member is the URL recorded as `sub`; and
+* MUST take every client metadata value from that document, and MUST NOT take any client metadata value from the registration request, whether or not the document carries that member. A request MAY carry metadata, as {{RFC7591}} clients do; it does not contribute to the registration. The registered `client_id` is assigned as {{RFC7591}} provides, and the document's own `client_id` member is the URL recorded as `sub`;
+* MUST reject the registration with `invalid_client_metadata` where the document omits `token_endpoint_auth_method`, since the {{RFC7591}} default is a shared-secret method that {{CIMD}} forbids, and registering under it would issue a client secret to any holder of a copy of the statement; and
 * MUST reject the registration with `invalid_client_metadata` where any of the document's redirection URIs could be claimed by another application on the same device (see the public-client presentation rules of {{STATEMENT}}), whatever authentication method the document declares.
 
 Registration has no review-only form, as runtime presentation does ({{STATEMENT}}), because the registration is the admission.
@@ -180,6 +181,7 @@ Rejections at a registration endpoint use the error response of Section 3.2.2 of
 | Document carries metadata this server's policy refuses | `invalid_client_metadata` |
 | Retrieval did not complete | `temporarily_unavailable` |
 | Document exceeds the server's size bound ({{STATEMENT}}), so that retrying cannot succeed | `invalid_client_metadata` |
+| Document omits `token_endpoint_auth_method` ({{dcr-presentation}}) | `invalid_client_metadata` |
 | Document with a redirection URI another application could claim ({{dcr-presentation}}) | `invalid_client_metadata` |
 | Public client, where the server advertises statement-governed registration validity and offers it no registration management ({{registration-validity}}) | `invalid_client_metadata` |
 
