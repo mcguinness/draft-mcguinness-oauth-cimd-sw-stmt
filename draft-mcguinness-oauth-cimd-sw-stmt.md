@@ -565,7 +565,7 @@ Both examples are non-normative.
 
 ## Presenting at the Token Endpoint
 
-The following example shows a client presenting an already-issued statement at the token endpoint of a server holding no record for it. The reviewed document, which the statement's digest covers, names a `jwks_uri` and the `private_key_jwt` authentication method, so the client authenticates with a key that document carries. The `client_id` is the Client ID Metadata Document URL named by the statement's `sub` (line breaks are for display purposes only).
+The following example shows a client presenting an already-issued statement at the token endpoint of a server holding no record for it. The reviewed document, which the statement's digest covers, names a `jwks_uri`, the `private_key_jwt` authentication method, and the `client_credentials` grant type, so the client authenticates with a key that document carries. The `client_id` is the Client ID Metadata Document URL named by the statement's `sub` (line breaks are for display purposes only).
 
 ~~~ http
 POST /token HTTP/1.1
