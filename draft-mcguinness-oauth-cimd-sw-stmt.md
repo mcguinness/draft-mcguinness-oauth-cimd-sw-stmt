@@ -169,7 +169,7 @@ Retrieval for digest purposes follows {{CIMD}} and MUST NOT use content negotiat
 
 A trusting authorization server MUST treat a response exceeding its configured size bound (Section 8.7 of {{CIMD}}) as a retrieval failure rather than digesting what it read. For a runtime presentation, retrying cannot succeed, so the request is rejected with `invalid_client` rather than `temporarily_unavailable` ({{errors}}), except on refresh-token use, where {{refresh}} takes precedence. {{REGISTRATION}} defines the rejection at a registration endpoint.
 
-A server MUST NOT compare a digest against any representation other than one it retrieved itself, stored under this section, or retained as {{REGISTRATION}} permits, since a shared cache may hold a variant selected for another request. A `304 Not Modified` response shows that stored octets, and their digest, are still current only where it carries a strong entity tag that matches the one stored with them under strong comparison (Section 8.8.3.2 of {{RFC9110}}); otherwise the server retrieves the body again.
+A server MUST NOT compare a digest against any representation other than one it retrieved itself or stored under this section, since a shared cache may hold a variant selected for another request. A `304 Not Modified` response shows that stored octets, and their digest, are still current only where it carries a strong entity tag that matches the one stored with them under strong comparison (Section 8.8.3.2 of {{RFC9110}}); otherwise the server retrieves the body again.
 
 ## Validating a Statement {#validation}
 

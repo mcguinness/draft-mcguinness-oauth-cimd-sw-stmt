@@ -94,8 +94,6 @@ Registration has no review-only form, as runtime presentation does ({{STATEMENT}
 
 Taking every value from the document prevents metadata substitution. At registration a statement is a bearer artifact, so a request-supplied value for a member the document omits, such as a `jwks` beside a document naming only `jwks_uri`, would give any holder of a copy a registration with reviewed branding and its own key.
 
-An authorization server that pre-registers a client identifier URL, as {{CIMD}} permits, can retain the exact octets it digested when it onboarded that URL. Such a server MAY satisfy the resolution requirement above by comparing `cimd_digest` against the digest of the retained octets, and MUST retrieve the document afresh where that comparison fails. It SHOULD revalidate retained octets on the schedule the document's caching directives allow, for example with a conditional request, since otherwise a statement over an older document keeps matching bytes the publisher no longer serves.
-
 The retrieval is client-controlled and reachable before any client is registered, so the external-retrieval protections and resource bounds of {{STATEMENT}} apply to it as to a runtime presentation.
 
 ## Registration Validity {#registration-validity}
@@ -142,7 +140,7 @@ The replacement MUST:
 
 For a replacement, the authorization server MUST:
 
-* obtain the Client ID Metadata Document at the replacement's `sub`, by retrieval or from retained octets as {{dcr-presentation}} permits;
+* obtain the Client ID Metadata Document at the replacement's `sub` by retrieval, as {{dcr-presentation}} requires;
 * verify that the digest of those octets equals the replacement's `cimd_digest`; and
 * re-derive the registration's metadata from those same octets, under the rules of {{dcr-presentation}}.
 
