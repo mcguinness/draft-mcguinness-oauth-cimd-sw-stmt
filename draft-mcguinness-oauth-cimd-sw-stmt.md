@@ -455,7 +455,7 @@ Wherever this specification requires a current statement on a refresh-token requ
 
 ## Presentation {#presentation-errors}
 
-An authorization server rejecting a presentation at the token or pushed authorization request endpoint uses the following error codes:
+An authorization server rejecting a presentation at the token or pushed authorization request endpoint for a reason this specification defines uses the following error codes:
 
 `invalid_client`:
 : The statement or the client cannot be established, where:
@@ -481,13 +481,15 @@ An authorization server rejecting a presentation at the token or pushed authoriz
 : A retrieval the presentation needs did not complete, for a reason other than the size bound ({{external-retrieval}}).
 
 `invalid_request`:
-: The request carries `software_statement` in a role {{runtime-presentation}} does not permit, or is rejected for a reason not listed above.
+: The request carries `software_statement` in a role {{runtime-presentation}} does not permit.
+
+A request rejected for another reason, such as an assertion grant whose assertion is invalid (Section 3.1 of {{RFC7523}}), uses the error code its grant or endpoint assigns.
 
 ## Code Redemption and Refresh {#continuation-errors}
 
 A token request that redeems an authorization code opened by a presentation is rejected with `invalid_request` where it carries `software_statement`, and with `invalid_grant` where its client identifier or key binding fails ({{grant-lifecycle}}).
 
-An authorization server rejecting a refresh-token request under an establishment uses the following error codes:
+An authorization server rejecting a refresh-token request under an establishment for a reason this specification defines uses the following error codes:
 
 `statement_required`:
 : A current statement or a replacement is needed ({{refresh}}) and none is supplied or pulled, or the one supplied or pulled fails {{refresh}}: it is malformed, invalid, not acceptable here, expired, refused, or superseded, or it names a document whose digest does not match, that contains duplicate member names, that exceeds the size bound, or that no longer satisfies {{public-client-presentation}}.
@@ -502,9 +504,9 @@ An authorization server rejecting a refresh-token request under an establishment
 : The refreshed access would exceed the reviewed document's metadata or this server's policy, as for a presentation.
 
 `invalid_request`:
-: The request carries `software_statement` in a role {{runtime-presentation}} does not permit, or is rejected for a reason not listed above.
+: The request carries `software_statement` in a role {{runtime-presentation}} does not permit.
 
-None of these rejections indicates refresh-token replay ({{RFC9700}}), and neither does a rejection reporting registration validity ({{REGISTRATION}}).
+None of these rejections indicates refresh-token replay ({{RFC9700}}), and neither does a rejection reporting registration validity ({{REGISTRATION}}). A refresh-token request rejected for another reason, such as an expired or revoked refresh token, uses the error codes of Section 5.2 of {{RFC6749}}, and this specification does not change how an authorization server detects refresh-token replay.
 
 ## Authorization Endpoint {#authorization-errors}
 
