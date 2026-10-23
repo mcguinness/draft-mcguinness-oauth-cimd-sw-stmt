@@ -472,7 +472,7 @@ A rejection uses the error response and HTTP status codes specified for the endp
 * at the pushed authorization request endpoint, Section 2.3 of {{RFC9126}}; and
 * at the authorization endpoint, Section 4.1.2.1 of {{RFC6749}}.
 
-An authorization server SHOULD respond to a request it rejects with `temporarily_unavailable` with HTTP status code 503, so that a client can distinguish a retrieval worth retrying from a condition that needs a new statement. {{REGISTRATION}} defines rejections at a registration endpoint and how registration validity is reported.
+At the token and pushed authorization request endpoints, an authorization server SHOULD respond to a request it rejects with `temporarily_unavailable` with HTTP status code 503, so that a client can distinguish a retrieval worth retrying from a condition that needs a new statement. {{REGISTRATION}} defines rejections at a registration endpoint and how registration validity is reported.
 
 ## Requiring a Current Statement {#statement-required}
 
