@@ -1224,6 +1224,26 @@ svg {
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
             <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-error-responses" class="internal xref">Error Responses</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.1">
+                <p id="section-toc.1-1.8.2.1.1"><a href="#section-8.1" class="auto internal xref">8.1</a>.  <a href="#name-the-statement_required-erro" class="internal xref">The statement_required Error Code</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.2">
+                <p id="section-toc.1-1.8.2.2.1"><a href="#section-8.2" class="auto internal xref">8.2</a>.  <a href="#name-presentation" class="internal xref">Presentation</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.3">
+                <p id="section-toc.1-1.8.2.3.1"><a href="#section-8.3" class="auto internal xref">8.3</a>.  <a href="#name-code-redemption-and-refresh" class="internal xref">Code Redemption and Refresh</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.4">
+                <p id="section-toc.1-1.8.2.4.1"><a href="#section-8.4" class="auto internal xref">8.4</a>.  <a href="#name-authorization-endpoint-2" class="internal xref">Authorization Endpoint</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.5">
+                <p id="section-toc.1-1.8.2.5.1"><a href="#section-8.5" class="auto internal xref">8.5</a>.  <a href="#name-proof-mechanism-errors" class="internal xref">Proof Mechanism Errors</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.6">
+                <p id="section-toc.1-1.8.2.6.1"><a href="#section-8.6" class="auto internal xref">8.6</a>.  <a href="#name-error-descriptions" class="internal xref">Error Descriptions</a></p>
+</li>
+            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
             <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-examples" class="internal xref">Examples</a></p>
@@ -1538,7 +1558,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 </li>
         </ul>
 <p id="section-3.2-3">A trusting authorization server that hosts more than one tenant <span class="bcp14">MUST</span> evaluate every tenant-specific check, such as <code>aud_tenant</code> and a required issuer (<a href="#issuer-trust" class="auto internal xref">Section 4</a>), against the tenant that scopes what it issues on the statement, never selected by a value the client chooses.<a href="#section-3.2-3" class="pilcrow">¶</a></p>
-<p id="section-3.2-4">A trusting authorization server <span class="bcp14">MUST</span> reject a statement for which it holds a refusal record (<a href="#withdrawal" class="auto internal xref">Section 3.3</a>). The rejection uses the refusal-record row of <a href="#errors" class="auto internal xref">Section 8</a>, because re-presenting the same statement cannot succeed while the refusal stands.<a href="#section-3.2-4" class="pilcrow">¶</a></p>
+<p id="section-3.2-4">A trusting authorization server <span class="bcp14">MUST</span> reject a statement for which it holds a refusal record (<a href="#withdrawal" class="auto internal xref">Section 3.3</a>). Outside registration, the rejection is <code>statement_required</code> (<a href="#errors" class="auto internal xref">Section 8</a>), because re-presenting the same statement cannot succeed while the refusal stands.<a href="#section-3.2-4" class="pilcrow">¶</a></p>
 <p id="section-3.2-5">A trusting authorization server resolving the reviewed document <span class="bcp14">MUST</span> reject a document containing duplicate object member names, since parsers interpret them differently despite an identical digest.<a href="#section-3.2-5" class="pilcrow">¶</a></p>
 <p id="section-3.2-6"><span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span> defines rejections at a registration endpoint; rejections elsewhere use <a href="#errors" class="auto internal xref">Section 8</a>.<a href="#section-3.2-6" class="pilcrow">¶</a></p>
 </section>
@@ -1956,159 +1976,162 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
       <h2 id="name-error-responses">
 <a href="#section-8" class="section-number selfRef">8. </a><a href="#name-error-responses" class="section-name selfRef">Error Responses</a>
       </h2>
-<p id="section-8-1"><span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span> defines rejections at a registration endpoint. A rejected presentation or replacement uses the error responses of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> for the endpoint at which it was presented, with the error codes in the following table. This specification defines one code, <code>statement_required</code>: a current statement is required and none was supplied, or the one supplied is expired or refused, so the client recovers by obtaining a newer statement and re-sending the same one cannot succeed. Wherever this specification requires a current statement on a refresh-token request, <code>statement_required</code> replaces <code>invalid_grant</code>, so that a client does not read the rejection as an invalid refresh token (<span>[<a href="#RFC9700" class="cite xref">RFC9700</a>]</span>).<a href="#section-8-1" class="pilcrow">¶</a></p>
-<table class="center" id="table-1">
-        <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
-<thead>
-          <tr>
-            <th class="text-left" rowspan="1" colspan="1">Condition</th>
-            <th class="text-left" rowspan="1" colspan="1">Pushed authorization request or token</th>
-            <th class="text-left" rowspan="1" colspan="1">Refresh</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Malformed, or failing signature or claim validation</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_client</code>
-</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>statement_required</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Failing the sender constraint (<a href="#sender-constraint" class="auto internal xref">Section 5.4</a>), or on refresh not proving the establishment's proven key</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_client</code>
-</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_grant</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Proven key no longer carried by the client's document (<a href="#refresh" class="auto internal xref">Section 5.6.1</a>)</td>
-            <td class="text-left" rowspan="1" colspan="1">n/a</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_grant</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Valid but not acceptable here: issuer not configured, <code>aud</code> excludes this server, <code>sub</code> outside the issuer's scope, <code>aud_tenant</code> not this request's tenant or absent where required, <code>statement_uses</code> excludes this use</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_client</code>
-</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>statement_required</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Expired, refused by a refusal record (<a href="#withdrawal" class="auto internal xref">Section 3.3</a>), or superseded under the <code>iat</code> floor of <a href="#multi-instance" class="auto internal xref">Section 6</a>
-</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>statement_required</code>
-</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>statement_required</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Required statement absent, including one from an issuer required for the tenant (<a href="#issuer-trust" class="auto internal xref">Section 4</a>)</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>statement_required</code>
-</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>statement_required</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Digest does not match the retrieved document</td>
-            <td class="text-left" rowspan="1" colspan="1">see <a href="#effective-metadata" class="auto internal xref">Section 5.5</a>
-</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>statement_required</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Document contains duplicate member names (<a href="#validation" class="auto internal xref">Section 3.2</a>)</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_client</code>
-</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>statement_required</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Document carries metadata this server's policy refuses</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>unauthorized_client</code> or <code>invalid_scope</code>
-</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>unauthorized_client</code> or <code>invalid_scope</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Request exceeds the reviewed document's grant types or response types (<a href="#effective-metadata" class="auto internal xref">Section 5.5</a>)</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>unauthorized_client</code>
-</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>unauthorized_client</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Request exceeds the reviewed document's scope (<a href="#effective-metadata" class="auto internal xref">Section 5.5</a>)</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_scope</code>
-</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_scope</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Retrieval did not complete</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>temporarily_unavailable</code>
-</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>temporarily_unavailable</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Document exceeds the server's size bound (<a href="#metadata-digest" class="auto internal xref">Section 3.1</a>)</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_client</code>
-</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>statement_required</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Review-only client where reviewed software is required (<a href="#public-client-presentation" class="auto internal xref">Section 5.4.1</a>)</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>unauthorized_client</code>
-</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>statement_required</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Any other rejection, including <code>software_statement</code> in a request that may not carry it, such as a redemption or an issuance request (<a href="#runtime-presentation" class="auto internal xref">Section 5.1</a>, <a href="#grant-lifecycle" class="auto internal xref">Section 5.6</a>)</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_request</code>
-</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_request</code>
-</td>
-          </tr>
-        </tbody>
-      </table>
-<p id="section-8-3">An authorization server <span class="bcp14">SHOULD</span> use HTTP status code 503 with <code>temporarily_unavailable</code> and 400 with the others, so that a client can distinguish a retrieval worth retrying from a condition that needs a new statement.<a href="#section-8-3" class="pilcrow">¶</a></p>
-<p id="section-8-4">At the pushed authorization request endpoint, these codes are carried in the error response of <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span>. Registration validity is reported as <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span> defines. Neither a rejection in the Refresh column nor one reporting registration validity indicates refresh-token replay (<span>[<a href="#RFC9700" class="cite xref">RFC9700</a>]</span>).<a href="#section-8-4" class="pilcrow">¶</a></p>
-<p id="section-8-5">A statement is never presented at the authorization endpoint (<a href="#authorization-requests" class="auto internal xref">Section 5.1.1</a>), though one may be pulled there (<a href="#pulled-statements" class="auto internal xref">Section 5.2</a>). There, a review-only client is rejected with <code>unauthorized_client</code>, and a client whose pulled statements could not be retrieved is rejected with <code>temporarily_unavailable</code>, in each case where reviewed software is required (<a href="#public-client-presentation" class="auto internal xref">Section 5.4.1</a>, <a href="#pulled-statements" class="auto internal xref">Section 5.2</a>).<a href="#section-8-5" class="pilcrow">¶</a></p>
-<p id="section-8-6">Apart from those two cases, at the authorization endpoint, where this server requires a statement for a client it has not admitted on one, the authorization server <span class="bcp14">MUST</span> return <code>statement_required</code> in the authorization error response <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>. The code tells the client to obtain a statement and return through the pushed authorization request endpoint; without the code, a client cannot tell a missing review from a policy it will never satisfy.<a href="#section-8-6" class="pilcrow">¶</a></p>
-<p id="section-8-7">The authorization server redirects with the error only after resolving the client's Client ID Metadata Document and validating the request's <code>redirect_uri</code> against it. Where it cannot resolve the document, and so cannot validate the redirection URI, the authorization server <span class="bcp14">MUST NOT</span> redirect and reports the error to the resource owner instead.<a href="#section-8-7" class="pilcrow">¶</a></p>
-<p id="section-8-8">Where the proof mechanism defines an error of its own for a proof it does not accept, such as <code>invalid_dpop_proof</code> for a DPoP proof that fails the checks of Section 4.3 of <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span> or <code>use_dpop_nonce</code> for a nonce challenge (Section 8 of <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>), the request is rejected with that error in place of the code this specification assigns to a failed sender constraint. A proof that its mechanism accepts but that proves a key other than the one this specification requires, such as a key the reviewed document does not carry or not the establishment's proven key, is not an invalid proof: it fails the sender constraint, and is rejected with the code this section or <a href="#grant-lifecycle" class="auto internal xref">Section 5.6</a> assigns to that failure.<a href="#section-8-8" class="pilcrow">¶</a></p>
-<p id="section-8-9">These codes do not tell a client whether to seek a corrected statement or a different issuer. The authorization server <span class="bcp14">MAY</span> return non-sensitive diagnostics in <code>error_description</code> to a client it has authenticated, but <span class="bcp14">MUST NOT</span> reveal issuer-trust, subject-namespace, or attester-policy details to an unauthenticated requester. Where a statement is refused by a refusal record rather than merely expired, and the client is authenticated, the authorization server <span class="bcp14">SHOULD</span> indicate that a statement issued more recently is required, since re-delivering the same statement can never succeed.<a href="#section-8-9" class="pilcrow">¶</a></p>
+<p id="section-8-1">A rejection uses the error response of the endpoint at which it occurs: Section 5.2 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> at the token endpoint, Section 2.3 of <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span> at the pushed authorization request endpoint, and Section 4.1.2.1 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> at the authorization endpoint, with the HTTP status codes those sections specify. An authorization server <span class="bcp14">SHOULD</span> respond to a request it rejects with <code>temporarily_unavailable</code> with HTTP status code 503, so that a client can distinguish a retrieval worth retrying from a condition that needs a new statement. <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span> defines rejections at a registration endpoint and how registration validity is reported.<a href="#section-8-1" class="pilcrow">¶</a></p>
+<div id="statement-required">
+<section id="section-8.1">
+        <h3 id="name-the-statement_required-erro">
+<a href="#section-8.1" class="section-number selfRef">8.1. </a><a href="#name-the-statement_required-erro" class="section-name selfRef">The statement_required Error Code</a>
+        </h3>
+<p id="section-8.1-1">This specification defines the following error code:<a href="#section-8.1-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-8.1-2">
+          <dt id="section-8.1-2.1">
+<code>statement_required</code>:</dt>
+          <dd style="margin-left: 1.5em" id="section-8.1-2.2">
+            <p id="section-8.1-2.2.1">A current software statement is required and none was supplied, or the one supplied is expired, refused by a refusal record (<a href="#withdrawal" class="auto internal xref">Section 3.3</a>), or superseded under the <code>iat</code> floor of <a href="#multi-instance" class="auto internal xref">Section 6</a>. Re-sending the same statement cannot succeed; the client recovers by obtaining a statement issued more recently.<a href="#section-8.1-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
+<p id="section-8.1-3">Wherever this specification requires a current statement on a refresh-token request, <code>statement_required</code> replaces <code>invalid_grant</code>, so that a client does not read the rejection as an invalid refresh token (<span>[<a href="#RFC9700" class="cite xref">RFC9700</a>]</span>).<a href="#section-8.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="presentation-errors">
+<section id="section-8.2">
+        <h3 id="name-presentation">
+<a href="#section-8.2" class="section-number selfRef">8.2. </a><a href="#name-presentation" class="section-name selfRef">Presentation</a>
+        </h3>
+<p id="section-8.2-1">An authorization server rejecting a presentation at the token or pushed authorization request endpoint for a reason this specification defines uses the following error codes:<a href="#section-8.2-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-8.2-2">
+          <dt id="section-8.2-2.1">
+<code>invalid_client</code>:</dt>
+          <dd style="margin-left: 1.5em" id="section-8.2-2.2">
+            <p id="section-8.2-2.2.1">The statement or the client cannot be established, where:<a href="#section-8.2-2.2.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-8.2-2.2.2.1">
+                <p id="section-8.2-2.2.2.1.1">the statement is malformed, or fails signature or claim validation (<a href="#validation" class="auto internal xref">Section 3.2</a>);<a href="#section-8.2-2.2.2.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-8.2-2.2.2.2">
+                <p id="section-8.2-2.2.2.2.1">the statement is valid but not acceptable here: its issuer is not configured, its <code>aud</code> excludes this server, its <code>sub</code> is outside the issuer's scope, its <code>aud_tenant</code> is not this request's tenant or is absent where required, or its <code>statement_uses</code> excludes this use;<a href="#section-8.2-2.2.2.2.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-8.2-2.2.2.3">
+                <p id="section-8.2-2.2.2.3.1">the request's <code>client_id</code> differs from the statement's <code>sub</code> (<a href="#runtime-presentation" class="auto internal xref">Section 5.1</a>);<a href="#section-8.2-2.2.2.3.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-8.2-2.2.2.4">
+                <p id="section-8.2-2.2.2.4.1">the reviewed document contains duplicate member names (<a href="#validation" class="auto internal xref">Section 3.2</a>) or exceeds the server's size bound (<a href="#metadata-digest" class="auto internal xref">Section 3.1</a>);<a href="#section-8.2-2.2.2.4.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-8.2-2.2.2.5">
+                <p id="section-8.2-2.2.2.5.1">the document's digest does not match <code>cimd_digest</code> and the server does not proceed without the statement (<a href="#effective-metadata" class="auto internal xref">Section 5.5</a>);<a href="#section-8.2-2.2.2.5.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-8.2-2.2.2.6">
+                <p id="section-8.2-2.2.2.6.1">the request fails the sender constraint, including a presentation under a document that omits <code>token_endpoint_auth_method</code> and a presentation at the token endpoint under a document with no key material (<a href="#sender-constraint" class="auto internal xref">Section 5.4</a>, <a href="#public-client-presentation" class="auto internal xref">Section 5.4.1</a>); or<a href="#section-8.2-2.2.2.6.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-8.2-2.2.2.7">
+                <p id="section-8.2-2.2.2.7.1">the bound on establishments of <a href="#multi-instance" class="auto internal xref">Section 6</a> is reached (<a href="#effective-metadata" class="auto internal xref">Section 5.5</a>).<a href="#section-8.2-2.2.2.7.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-8.2-2.3">
+<code>statement_required</code>:</dt>
+          <dd style="margin-left: 1.5em" id="section-8.2-2.4">
+            <p id="section-8.2-2.4.1">The statement is expired, refused by a refusal record, or superseded, or a required statement is absent, including one from an issuer required for the tenant (<a href="#issuer-trust" class="auto internal xref">Section 4</a>).<a href="#section-8.2-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-8.2-2.5">
+<code>unauthorized_client</code>:</dt>
+          <dd style="margin-left: 1.5em" id="section-8.2-2.6">
+            <p id="section-8.2-2.6.1">The request exceeds the reviewed document's grant types or response types (<a href="#effective-metadata" class="auto internal xref">Section 5.5</a>), the document carries metadata this server's policy refuses, or the client is review-only and this server requires reviewed software (<a href="#public-client-presentation" class="auto internal xref">Section 5.4.1</a>).<a href="#section-8.2-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-8.2-2.7">
+<code>invalid_scope</code>:</dt>
+          <dd style="margin-left: 1.5em" id="section-8.2-2.8">
+            <p id="section-8.2-2.8.1">The request exceeds the reviewed document's scope (<a href="#effective-metadata" class="auto internal xref">Section 5.5</a>), or the document carries a scope this server's policy refuses.<a href="#section-8.2-2.8.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-8.2-2.9">
+<code>temporarily_unavailable</code>:</dt>
+          <dd style="margin-left: 1.5em" id="section-8.2-2.10">
+            <p id="section-8.2-2.10.1">A retrieval the presentation needs did not complete, for a reason other than the size bound (<a href="#external-retrieval" class="auto internal xref">Section 12.5</a>).<a href="#section-8.2-2.10.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-8.2-2.11">
+<code>invalid_request</code>:</dt>
+          <dd style="margin-left: 1.5em" id="section-8.2-2.12">
+            <p id="section-8.2-2.12.1">The request carries <code>software_statement</code> in a role <a href="#runtime-presentation" class="auto internal xref">Section 5.1</a> does not permit.<a href="#section-8.2-2.12.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
+<p id="section-8.2-3">A request rejected for another reason, such as an assertion grant whose assertion is invalid (Section 3.1 of <span>[<a href="#RFC7523" class="cite xref">RFC7523</a>]</span>), uses the error code its grant or endpoint assigns.<a href="#section-8.2-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="continuation-errors">
+<section id="section-8.3">
+        <h3 id="name-code-redemption-and-refresh">
+<a href="#section-8.3" class="section-number selfRef">8.3. </a><a href="#name-code-redemption-and-refresh" class="section-name selfRef">Code Redemption and Refresh</a>
+        </h3>
+<p id="section-8.3-1">A token request that redeems an authorization code opened by a presentation is rejected with <code>invalid_request</code> where it carries <code>software_statement</code>, and with <code>invalid_grant</code> where its client identifier or key binding fails (<a href="#grant-lifecycle" class="auto internal xref">Section 5.6</a>).<a href="#section-8.3-1" class="pilcrow">¶</a></p>
+<p id="section-8.3-2">An authorization server rejecting a refresh-token request under an establishment for a reason this specification defines uses the following error codes:<a href="#section-8.3-2" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-8.3-3">
+          <dt id="section-8.3-3.1">
+<code>statement_required</code>:</dt>
+          <dd style="margin-left: 1.5em" id="section-8.3-3.2">
+            <p id="section-8.3-3.2.1">A current statement or a replacement is needed (<a href="#refresh" class="auto internal xref">Section 5.6.1</a>) and none is supplied or pulled, or the one supplied or pulled fails <a href="#refresh" class="auto internal xref">Section 5.6.1</a>: it is malformed, invalid, not acceptable here, expired, refused, or superseded, or it names a document whose digest does not match, that contains duplicate member names, that exceeds the size bound, or that no longer satisfies <a href="#public-client-presentation" class="auto internal xref">Section 5.4.1</a>.<a href="#section-8.3-3.2.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-8.3-3.3">
+<code>invalid_grant</code>:</dt>
+          <dd style="margin-left: 1.5em" id="section-8.3-3.4">
+            <p id="section-8.3-3.4.1">The request does not prove the establishment's proven key, or the document currently served at the establishment's <code>sub</code> no longer carries that key (<a href="#refresh" class="auto internal xref">Section 5.6.1</a>).<a href="#section-8.3-3.4.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-8.3-3.5">
+<code>temporarily_unavailable</code>:</dt>
+          <dd style="margin-left: 1.5em" id="section-8.3-3.6">
+            <p id="section-8.3-3.6.1">A retrieval needed to check the replacement or the proven key did not complete, for a reason other than the size bound.<a href="#section-8.3-3.6.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-8.3-3.7">
+<code>unauthorized_client</code> or <code>invalid_scope</code>:</dt>
+          <dd style="margin-left: 1.5em" id="section-8.3-3.8">
+            <p id="section-8.3-3.8.1">The refreshed access would exceed the reviewed document's metadata or this server's policy, as for a presentation.<a href="#section-8.3-3.8.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-8.3-3.9">
+<code>invalid_request</code>:</dt>
+          <dd style="margin-left: 1.5em" id="section-8.3-3.10">
+            <p id="section-8.3-3.10.1">The request carries <code>software_statement</code> in a role <a href="#runtime-presentation" class="auto internal xref">Section 5.1</a> does not permit.<a href="#section-8.3-3.10.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
+<p id="section-8.3-4">None of these rejections indicates refresh-token replay (<span>[<a href="#RFC9700" class="cite xref">RFC9700</a>]</span>), and neither does a rejection reporting registration validity (<span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>). A refresh-token request rejected for another reason, such as an expired or revoked refresh token, uses the error codes of Section 5.2 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, and this specification does not change how an authorization server detects refresh-token replay.<a href="#section-8.3-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="authorization-errors">
+<section id="section-8.4">
+        <h3 id="name-authorization-endpoint-2">
+<a href="#section-8.4" class="section-number selfRef">8.4. </a><a href="#name-authorization-endpoint-2" class="section-name selfRef">Authorization Endpoint</a>
+        </h3>
+<p id="section-8.4-1">A statement is never presented at the authorization endpoint (<a href="#authorization-requests" class="auto internal xref">Section 5.1.1</a>), though one may be pulled there (<a href="#pulled-statements" class="auto internal xref">Section 5.2</a>). There, a review-only client is rejected with <code>unauthorized_client</code>, and a client whose pulled statements could not be retrieved is rejected with <code>temporarily_unavailable</code>, in each case where reviewed software is required (<a href="#public-client-presentation" class="auto internal xref">Section 5.4.1</a>, <a href="#pulled-statements" class="auto internal xref">Section 5.2</a>).<a href="#section-8.4-1" class="pilcrow">¶</a></p>
+<p id="section-8.4-2">Apart from those two cases, at the authorization endpoint, where this server requires a statement for a client it has not admitted on one, the authorization server <span class="bcp14">MUST</span> return <code>statement_required</code> in the authorization error response (Section 4.1.2.1 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>). The code tells the client to obtain a statement and return through the pushed authorization request endpoint; without the code, a client cannot tell a missing review from a policy it will never satisfy.<a href="#section-8.4-2" class="pilcrow">¶</a></p>
+<p id="section-8.4-3">The authorization server redirects with the error only after resolving the client's Client ID Metadata Document and validating the request's <code>redirect_uri</code> against it. Where it cannot resolve the document, and so cannot validate the redirection URI, the authorization server <span class="bcp14">MUST NOT</span> redirect and reports the error to the resource owner instead.<a href="#section-8.4-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="proof-errors">
+<section id="section-8.5">
+        <h3 id="name-proof-mechanism-errors">
+<a href="#section-8.5" class="section-number selfRef">8.5. </a><a href="#name-proof-mechanism-errors" class="section-name selfRef">Proof Mechanism Errors</a>
+        </h3>
+<p id="section-8.5-1">Where the proof mechanism defines an error of its own for a proof it does not accept, such as <code>invalid_dpop_proof</code> for a DPoP proof that fails the checks of Section 4.3 of <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span> or <code>use_dpop_nonce</code> for a nonce challenge (Section 8 of <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>), the request is rejected with that error in place of the code this specification assigns to a failed sender constraint. A proof that its mechanism accepts but that proves a key other than the one this specification requires, such as a key the reviewed document does not carry or not the establishment's proven key, is not an invalid proof: it fails the sender constraint, and is rejected with the code this section assigns to that failure.<a href="#section-8.5-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="error-descriptions">
+<section id="section-8.6">
+        <h3 id="name-error-descriptions">
+<a href="#section-8.6" class="section-number selfRef">8.6. </a><a href="#name-error-descriptions" class="section-name selfRef">Error Descriptions</a>
+        </h3>
+<p id="section-8.6-1">These codes do not tell a client whether to seek a corrected statement or a different issuer. The authorization server <span class="bcp14">MAY</span> return non-sensitive diagnostics in <code>error_description</code> to a client it has authenticated, but <span class="bcp14">MUST NOT</span> reveal issuer-trust, subject-namespace, or attester-policy details to an unauthenticated requester. Where a statement is refused by a refusal record rather than merely expired, and the client is authenticated, the authorization server <span class="bcp14">SHOULD</span> indicate that a statement issued more recently is required, since re-delivering the same statement can never succeed.<a href="#section-8.6-1" class="pilcrow">¶</a></p>
+</section>
+</div>
 </section>
 </div>
 <div id="example">

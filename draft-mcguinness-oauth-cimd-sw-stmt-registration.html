@@ -1421,98 +1421,57 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
       <h2 id="name-error-responses">
 <a href="#section-6" class="section-number selfRef">6. </a><a href="#name-error-responses" class="section-name selfRef">Error Responses</a>
       </h2>
-<p id="section-6-1">Rejections at a registration endpoint use the error response of Section 3.2.2 of <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>, with the error codes the following table assigns. Rejections at other endpoints use the error responses of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>.<a href="#section-6-1" class="pilcrow">¶</a></p>
-<table class="center" id="table-1">
-        <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
-<thead>
-          <tr>
-            <th class="text-left" rowspan="1" colspan="1">Condition</th>
-            <th class="text-left" rowspan="1" colspan="1">Registration endpoint</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Malformed, or failing signature or claim validation</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_software_statement</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Valid but not acceptable here: issuer not configured, <code>aud</code> excludes this server, <code>sub</code> outside the issuer's scope, <code>aud_tenant</code> not this request's tenant or absent where required, <code>statement_uses</code> excludes this use</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>unapproved_software_statement</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Expired, refused by a refusal record, or superseded under the <code>iat</code> floor of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>
-</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_software_statement</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Required statement absent</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>unapproved_software_statement</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Digest does not match the retrieved document</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_software_statement</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Document contains duplicate member names (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>)</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_client_metadata</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Document carries metadata this server's policy refuses</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_client_metadata</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Retrieval did not complete</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>temporarily_unavailable</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Document exceeds the server's size bound (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), so that retrying cannot succeed</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_client_metadata</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Document omits <code>token_endpoint_auth_method</code> (<a href="#dcr-presentation" class="auto internal xref">Section 3</a>)</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_client_metadata</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Document declaring <code>none</code> lists a grant other than <code>authorization_code</code> and <code>refresh_token</code> (<a href="#dcr-presentation" class="auto internal xref">Section 3</a>)</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_client_metadata</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Document with a redirection URI another application could claim (<a href="#dcr-presentation" class="auto internal xref">Section 3</a>)</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_client_metadata</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Public client, where the server advertises statement-governed registration validity and offers it no registration management (<a href="#registration-validity" class="auto internal xref">Section 3.1</a>)</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_client_metadata</code>
-</td>
-          </tr>
-        </tbody>
-      </table>
-<p id="section-6-3">A registration management request (<span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span>) carrying a failing replacement uses the same codes. Registration expiry is reported as <a href="#registration-validity" class="auto internal xref">Section 3.1</a> defines. An authorization server <span class="bcp14">SHOULD</span> use HTTP status code 503 with <code>temporarily_unavailable</code> and 400 with the others.<a href="#section-6-3" class="pilcrow">¶</a></p>
+<p id="section-6-1">A rejection this specification defines, at a registration endpoint or at the registration management endpoint of <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span>, uses the error response of Section 3.2.2 of <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>, with the HTTP status code that section specifies. An authorization server <span class="bcp14">SHOULD</span> respond to a request it rejects with <code>temporarily_unavailable</code> with HTTP status code 503. Other rejections of a registration management request, such as for an invalid registration access token, an unknown client, or a request the client is not permitted to make, use the responses <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> specifies. Rejections at other endpoints use the error responses of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, and registration expiry is reported as <a href="#registration-validity" class="auto internal xref">Section 3.1</a> defines.<a href="#section-6-1" class="pilcrow">¶</a></p>
+<p id="section-6-2">An authorization server rejecting a registration request, or a registration management request carrying a failing replacement, uses the following error codes:<a href="#section-6-2" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-6-3">
+        <dt id="section-6-3.1">
+<code>invalid_software_statement</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-6-3.2">
+          <p id="section-6-3.2.1">The statement is malformed, fails signature or claim validation, or is expired, refused by a refusal record, or superseded under the <code>iat</code> floor of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>; or the digest of the retrieved document does not match its <code>cimd_digest</code>.<a href="#section-6-3.2.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-6-3.3">
+<code>unapproved_software_statement</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-6-3.4">
+          <p id="section-6-3.4.1">The statement is valid but not acceptable here: its issuer is not configured, its <code>aud</code> excludes this server, its <code>sub</code> is outside the issuer's scope, its <code>aud_tenant</code> is not this request's tenant or is absent where required, or its <code>statement_uses</code> excludes this use. This code is also used where a statement this server requires is absent.<a href="#section-6-3.4.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-6-3.5">
+<code>invalid_client_metadata</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-6-3.6">
+          <p id="section-6-3.6.1">The reviewed document:<a href="#section-6-3.6.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-6-3.6.2.1">
+              <p id="section-6-3.6.2.1.1">contains duplicate member names (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>);<a href="#section-6-3.6.2.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-6-3.6.2.2">
+              <p id="section-6-3.6.2.2.1">carries metadata this server's policy refuses;<a href="#section-6-3.6.2.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-6-3.6.2.3">
+              <p id="section-6-3.6.2.3.1">exceeds the server's size bound (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), so that retrying cannot succeed;<a href="#section-6-3.6.2.3.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-6-3.6.2.4">
+              <p id="section-6-3.6.2.4.1">omits <code>token_endpoint_auth_method</code> (<a href="#dcr-presentation" class="auto internal xref">Section 3</a>);<a href="#section-6-3.6.2.4.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-6-3.6.2.5">
+              <p id="section-6-3.6.2.5.1">declares <code>token_endpoint_auth_method</code> of <code>none</code> and lists a grant other than <code>authorization_code</code> and <code>refresh_token</code> (<a href="#dcr-presentation" class="auto internal xref">Section 3</a>);<a href="#section-6-3.6.2.5.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-6-3.6.2.6">
+              <p id="section-6-3.6.2.6.1">carries a redirection URI another application could claim (<a href="#dcr-presentation" class="auto internal xref">Section 3</a>); or<a href="#section-6-3.6.2.6.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-6-3.6.2.7">
+              <p id="section-6-3.6.2.7.1">declares <code>token_endpoint_auth_method</code> of <code>none</code> at a server that advertises statement-governed registration validity and offers such a client no registration management (<a href="#registration-validity" class="auto internal xref">Section 3.1</a>).<a href="#section-6-3.6.2.7.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-6-3.7">
+<code>temporarily_unavailable</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-6-3.8">
+          <p id="section-6-3.8.1">A retrieval the request needs did not complete, for a reason other than the size bound.<a href="#section-6-3.8.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
 </section>
 </div>
 <div id="example">

@@ -85,6 +85,12 @@ Table of Contents
      7.2.  Identity Assertions
      7.3.  OpenID Federation
    8.  Error Responses
+     8.1.  The statement_required Error Code
+     8.2.  Presentation
+     8.3.  Code Redemption and Refresh
+     8.4.  Authorization Endpoint
+     8.5.  Proof Mechanism Errors
+     8.6.  Error Descriptions
    9.  Examples
      9.1.  Presenting at the Token Endpoint
      9.2.  Publishing a Statement for Servers to Pull
@@ -408,9 +414,9 @@ Table of Contents
    chooses.
 
    A trusting authorization server MUST reject a statement for which it
-   holds a refusal record (Section 3.3).  The rejection uses the
-   refusal-record row of Section 8, because re-presenting the same
-   statement cannot succeed while the refusal stands.
+   holds a refusal record (Section 3.3).  Outside registration, the
+   rejection is statement_required (Section 8), because re-presenting
+   the same statement cannot succeed while the refusal stands.
 
    A trusting authorization server resolving the reviewed document MUST
    reject a document containing duplicate object member names, since
@@ -1132,135 +1138,133 @@ Table of Contents
 
 8.  Error Responses
 
-   [REGISTRATION] defines rejections at a registration endpoint.  A
-   rejected presentation or replacement uses the error responses of
-   [RFC6749] for the endpoint at which it was presented, with the error
-   codes in the following table.  This specification defines one code,
-   statement_required: a current statement is required and none was
-   supplied, or the one supplied is expired or refused, so the client
-   recovers by obtaining a newer statement and re-sending the same one
-   cannot succeed.  Wherever this specification requires a current
-   statement on a refresh-token request, statement_required replaces
-   invalid_grant, so that a client does not read the rejection as an
-   invalid refresh token ([RFC9700]).
+   A rejection uses the error response of the endpoint at which it
+   occurs: Section 5.2 of [RFC6749] at the token endpoint, Section 2.3
+   of [RFC9126] at the pushed authorization request endpoint, and
+   Section 4.1.2.1 of [RFC6749] at the authorization endpoint, with the
+   HTTP status codes those sections specify.  An authorization server
+   SHOULD respond to a request it rejects with temporarily_unavailable
+   with HTTP status code 503, so that a client can distinguish a
+   retrieval worth retrying from a condition that needs a new statement.
+   [REGISTRATION] defines rejections at a registration endpoint and how
+   registration validity is reported.
 
-   +===================+=======================+=======================+
-   |Condition          |Pushed authorization   |Refresh                |
-   |                   |request or token       |                       |
-   +===================+=======================+=======================+
-   |Malformed, or      |invalid_client         |statement_required     |
-   |failing signature  |                       |                       |
-   |or claim           |                       |                       |
-   |validation         |                       |                       |
-   +-------------------+-----------------------+-----------------------+
-   |Failing the sender |invalid_client         |invalid_grant          |
-   |constraint         |                       |                       |
-   |(Section 5.4), or  |                       |                       |
-   |on refresh not     |                       |                       |
-   |proving the        |                       |                       |
-   |establishment's    |                       |                       |
-   |proven key         |                       |                       |
-   +-------------------+-----------------------+-----------------------+
-   |Proven key no      |n/a                    |invalid_grant          |
-   |longer carried by  |                       |                       |
-   |the client's       |                       |                       |
-   |document           |                       |                       |
-   |(Section 5.6.1)    |                       |                       |
-   +-------------------+-----------------------+-----------------------+
-   |Valid but not      |invalid_client         |statement_required     |
-   |acceptable here:   |                       |                       |
-   |issuer not         |                       |                       |
-   |configured, aud    |                       |                       |
-   |excludes this      |                       |                       |
-   |server, sub        |                       |                       |
-   |outside the        |                       |                       |
-   |issuer's scope,    |                       |                       |
-   |aud_tenant not     |                       |                       |
-   |this request's     |                       |                       |
-   |tenant or absent   |                       |                       |
-   |where required,    |                       |                       |
-   |statement_uses     |                       |                       |
-   |excludes this use  |                       |                       |
-   +-------------------+-----------------------+-----------------------+
-   |Expired, refused   |statement_required     |statement_required     |
-   |by a refusal       |                       |                       |
-   |record             |                       |                       |
-   |(Section 3.3), or  |                       |                       |
-   |superseded under   |                       |                       |
-   |the iat floor of   |                       |                       |
-   |Section 6          |                       |                       |
-   +-------------------+-----------------------+-----------------------+
-   |Required statement |statement_required     |statement_required     |
-   |absent, including  |                       |                       |
-   |one from an issuer |                       |                       |
-   |required for the   |                       |                       |
-   |tenant (Section 4) |                       |                       |
-   +-------------------+-----------------------+-----------------------+
-   |Digest does not    |see Section 5.5        |statement_required     |
-   |match the          |                       |                       |
-   |retrieved document |                       |                       |
-   +-------------------+-----------------------+-----------------------+
-   |Document contains  |invalid_client         |statement_required     |
-   |duplicate member   |                       |                       |
-   |names              |                       |                       |
-   |(Section 3.2)      |                       |                       |
-   +-------------------+-----------------------+-----------------------+
-   |Document carries   |unauthorized_client or |unauthorized_client or |
-   |metadata this      |invalid_scope          |invalid_scope          |
-   |server's policy    |                       |                       |
-   |refuses            |                       |                       |
-   +-------------------+-----------------------+-----------------------+
-   |Request exceeds    |unauthorized_client    |unauthorized_client    |
-   |the reviewed       |                       |                       |
-   |document's grant   |                       |                       |
-   |types or response  |                       |                       |
-   |types              |                       |                       |
-   |(Section 5.5)      |                       |                       |
-   +-------------------+-----------------------+-----------------------+
-   |Request exceeds    |invalid_scope          |invalid_scope          |
-   |the reviewed       |                       |                       |
-   |document's scope   |                       |                       |
-   |(Section 5.5)      |                       |                       |
-   +-------------------+-----------------------+-----------------------+
-   |Retrieval did not  |temporarily_unavailable|temporarily_unavailable|
-   |complete           |                       |                       |
-   +-------------------+-----------------------+-----------------------+
-   |Document exceeds   |invalid_client         |statement_required     |
-   |the server's size  |                       |                       |
-   |bound              |                       |                       |
-   |(Section 3.1)      |                       |                       |
-   +-------------------+-----------------------+-----------------------+
-   |Review-only client |unauthorized_client    |statement_required     |
-   |where reviewed     |                       |                       |
-   |software is        |                       |                       |
-   |required           |                       |                       |
-   |(Section 5.4.1)    |                       |                       |
-   +-------------------+-----------------------+-----------------------+
-   |Any other          |invalid_request        |invalid_request        |
-   |rejection,         |                       |                       |
-   |including          |                       |                       |
-   |software_statement |                       |                       |
-   |in a request that  |                       |                       |
-   |may not carry it,  |                       |                       |
-   |such as a          |                       |                       |
-   |redemption or an   |                       |                       |
-   |issuance request   |                       |                       |
-   |(Section 5.1,      |                       |                       |
-   |Section 5.6)       |                       |                       |
-   +-------------------+-----------------------+-----------------------+
+8.1.  The statement_required Error Code
 
-                                  Table 1
+   This specification defines the following error code:
 
-   An authorization server SHOULD use HTTP status code 503 with
-   temporarily_unavailable and 400 with the others, so that a client can
-   distinguish a retrieval worth retrying from a condition that needs a
-   new statement.
+   statement_required:  A current software statement is required and
+      none was supplied, or the one supplied is expired, refused by a
+      refusal record (Section 3.3), or superseded under the iat floor of
+      Section 6.  Re-sending the same statement cannot succeed; the
+      client recovers by obtaining a statement issued more recently.
 
-   At the pushed authorization request endpoint, these codes are carried
-   in the error response of [RFC9126].  Registration validity is
-   reported as [REGISTRATION] defines.  Neither a rejection in the
-   Refresh column nor one reporting registration validity indicates
-   refresh-token replay ([RFC9700]).
+   Wherever this specification requires a current statement on a
+   refresh-token request, statement_required replaces invalid_grant, so
+   that a client does not read the rejection as an invalid refresh token
+   ([RFC9700]).
+
+8.2.  Presentation
+
+   An authorization server rejecting a presentation at the token or
+   pushed authorization request endpoint for a reason this specification
+   defines uses the following error codes:
+
+   invalid_client:  The statement or the client cannot be established,
+      where:
+
+      *  the statement is malformed, or fails signature or claim
+         validation (Section 3.2);
+
+      *  the statement is valid but not acceptable here: its issuer is
+         not configured, its aud excludes this server, its sub is
+         outside the issuer's scope, its aud_tenant is not this
+         request's tenant or is absent where required, or its
+         statement_uses excludes this use;
+
+      *  the request's client_id differs from the statement's sub
+         (Section 5.1);
+
+      *  the reviewed document contains duplicate member names
+         (Section 3.2) or exceeds the server's size bound (Section 3.1);
+
+      *  the document's digest does not match cimd_digest and the server
+         does not proceed without the statement (Section 5.5);
+
+      *  the request fails the sender constraint, including a
+         presentation under a document that omits
+         token_endpoint_auth_method and a presentation at the token
+         endpoint under a document with no key material (Section 5.4,
+         Section 5.4.1); or
+
+      *  the bound on establishments of Section 6 is reached
+         (Section 5.5).
+
+   statement_required:  The statement is expired, refused by a refusal
+      record, or superseded, or a required statement is absent,
+      including one from an issuer required for the tenant (Section 4).
+
+   unauthorized_client:  The request exceeds the reviewed document's
+      grant types or response types (Section 5.5), the document carries
+      metadata this server's policy refuses, or the client is review-
+      only and this server requires reviewed software (Section 5.4.1).
+
+   invalid_scope:  The request exceeds the reviewed document's scope
+      (Section 5.5), or the document carries a scope this server's
+      policy refuses.
+
+   temporarily_unavailable:  A retrieval the presentation needs did not
+      complete, for a reason other than the size bound (Section 12.5).
+
+   invalid_request:  The request carries software_statement in a role
+      Section 5.1 does not permit.
+
+   A request rejected for another reason, such as an assertion grant
+   whose assertion is invalid (Section 3.1 of [RFC7523]), uses the error
+   code its grant or endpoint assigns.
+
+8.3.  Code Redemption and Refresh
+
+   A token request that redeems an authorization code opened by a
+   presentation is rejected with invalid_request where it carries
+   software_statement, and with invalid_grant where its client
+   identifier or key binding fails (Section 5.6).
+
+   An authorization server rejecting a refresh-token request under an
+   establishment for a reason this specification defines uses the
+   following error codes:
+
+   statement_required:  A current statement or a replacement is needed
+      (Section 5.6.1) and none is supplied or pulled, or the one
+      supplied or pulled fails Section 5.6.1: it is malformed, invalid,
+      not acceptable here, expired, refused, or superseded, or it names
+      a document whose digest does not match, that contains duplicate
+      member names, that exceeds the size bound, or that no longer
+      satisfies Section 5.4.1.
+
+   invalid_grant:  The request does not prove the establishment's proven
+      key, or the document currently served at the establishment's sub
+      no longer carries that key (Section 5.6.1).
+
+   temporarily_unavailable:  A retrieval needed to check the replacement
+      or the proven key did not complete, for a reason other than the
+      size bound.
+
+   unauthorized_client or invalid_scope:  The refreshed access would
+      exceed the reviewed document's metadata or this server's policy,
+      as for a presentation.
+
+   invalid_request:  The request carries software_statement in a role
+      Section 5.1 does not permit.
+
+   None of these rejections indicates refresh-token replay ([RFC9700]),
+   and neither does a rejection reporting registration validity
+   ([REGISTRATION]).  A refresh-token request rejected for another
+   reason, such as an expired or revoked refresh token, uses the error
+   codes of Section 5.2 of [RFC6749], and this specification does not
+   change how an authorization server detects refresh-token replay.
+
+8.4.  Authorization Endpoint
 
    A statement is never presented at the authorization endpoint
    (Section 5.1.1), though one may be pulled there (Section 5.2).
@@ -1272,10 +1276,10 @@ Table of Contents
    Apart from those two cases, at the authorization endpoint, where this
    server requires a statement for a client it has not admitted on one,
    the authorization server MUST return statement_required in the
-   authorization error response [RFC6749].  The code tells the client to
-   obtain a statement and return through the pushed authorization
-   request endpoint; without the code, a client cannot tell a missing
-   review from a policy it will never satisfy.
+   authorization error response (Section 4.1.2.1 of [RFC6749]).  The
+   code tells the client to obtain a statement and return through the
+   pushed authorization request endpoint; without the code, a client
+   cannot tell a missing review from a policy it will never satisfy.
 
    The authorization server redirects with the error only after
    resolving the client's Client ID Metadata Document and validating the
@@ -1283,6 +1287,8 @@ Table of Contents
    document, and so cannot validate the redirection URI, the
    authorization server MUST NOT redirect and reports the error to the
    resource owner instead.
+
+8.5.  Proof Mechanism Errors
 
    Where the proof mechanism defines an error of its own for a proof it
    does not accept, such as invalid_dpop_proof for a DPoP proof that
@@ -1293,8 +1299,10 @@ Table of Contents
    that proves a key other than the one this specification requires,
    such as a key the reviewed document does not carry or not the
    establishment's proven key, is not an invalid proof: it fails the
-   sender constraint, and is rejected with the code this section or
-   Section 5.6 assigns to that failure.
+   sender constraint, and is rejected with the code this section assigns
+   to that failure.
+
+8.6.  Error Descriptions
 
    These codes do not tell a client whether to seek a corrected
    statement or a different issuer.  The authorization server MAY return

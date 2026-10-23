@@ -468,72 +468,57 @@ Table of Contents
 
 6.  Error Responses
 
-   Rejections at a registration endpoint use the error response of
-   Section 3.2.2 of [RFC7591], with the error codes the following table
-   assigns.  Rejections at other endpoints use the error responses of
-   [STATEMENT].
+   A rejection this specification defines, at a registration endpoint or
+   at the registration management endpoint of [RFC7592], uses the error
+   response of Section 3.2.2 of [RFC7591], with the HTTP status code
+   that section specifies.  An authorization server SHOULD respond to a
+   request it rejects with temporarily_unavailable with HTTP status code
+   503.  Other rejections of a registration management request, such as
+   for an invalid registration access token, an unknown client, or a
+   request the client is not permitted to make, use the responses
+   [RFC7592] specifies.  Rejections at other endpoints use the error
+   responses of [STATEMENT], and registration expiry is reported as
+   Section 3.1 defines.
 
-   +==================================+===============================+
-   | Condition                        | Registration endpoint         |
-   +==================================+===============================+
-   | Malformed, or failing signature  | invalid_software_statement    |
-   | or claim validation              |                               |
-   +----------------------------------+-------------------------------+
-   | Valid but not acceptable here:   | unapproved_software_statement |
-   | issuer not configured, aud       |                               |
-   | excludes this server, sub        |                               |
-   | outside the issuer's scope,      |                               |
-   | aud_tenant not this request's    |                               |
-   | tenant or absent where required, |                               |
-   | statement_uses excludes this use |                               |
-   +----------------------------------+-------------------------------+
-   | Expired, refused by a refusal    | invalid_software_statement    |
-   | record, or superseded under the  |                               |
-   | iat floor of [STATEMENT]         |                               |
-   +----------------------------------+-------------------------------+
-   | Required statement absent        | unapproved_software_statement |
-   +----------------------------------+-------------------------------+
-   | Digest does not match the        | invalid_software_statement    |
-   | retrieved document               |                               |
-   +----------------------------------+-------------------------------+
-   | Document contains duplicate      | invalid_client_metadata       |
-   | member names ([STATEMENT])       |                               |
-   +----------------------------------+-------------------------------+
-   | Document carries metadata this   | invalid_client_metadata       |
-   | server's policy refuses          |                               |
-   +----------------------------------+-------------------------------+
-   | Retrieval did not complete       | temporarily_unavailable       |
-   +----------------------------------+-------------------------------+
-   | Document exceeds the server's    | invalid_client_metadata       |
-   | size bound ([STATEMENT]), so     |                               |
-   | that retrying cannot succeed     |                               |
-   +----------------------------------+-------------------------------+
-   | Document omits                   | invalid_client_metadata       |
-   | token_endpoint_auth_method       |                               |
-   | (Section 3)                      |                               |
-   +----------------------------------+-------------------------------+
-   | Document declaring none lists a  | invalid_client_metadata       |
-   | grant other than                 |                               |
-   | authorization_code and           |                               |
-   | refresh_token (Section 3)        |                               |
-   +----------------------------------+-------------------------------+
-   | Document with a redirection URI  | invalid_client_metadata       |
-   | another application could claim  |                               |
-   | (Section 3)                      |                               |
-   +----------------------------------+-------------------------------+
-   | Public client, where the server  | invalid_client_metadata       |
-   | advertises statement-governed    |                               |
-   | registration validity and offers |                               |
-   | it no registration management    |                               |
-   | (Section 3.1)                    |                               |
-   +----------------------------------+-------------------------------+
+   An authorization server rejecting a registration request, or a
+   registration management request carrying a failing replacement, uses
+   the following error codes:
 
-                                 Table 1
+   invalid_software_statement:  The statement is malformed, fails
+      signature or claim validation, or is expired, refused by a refusal
+      record, or superseded under the iat floor of [STATEMENT]; or the
+      digest of the retrieved document does not match its cimd_digest.
 
-   A registration management request ([RFC7592]) carrying a failing
-   replacement uses the same codes.  Registration expiry is reported as
-   Section 3.1 defines.  An authorization server SHOULD use HTTP status
-   code 503 with temporarily_unavailable and 400 with the others.
+   unapproved_software_statement:  The statement is valid but not
+      acceptable here: its issuer is not configured, its aud excludes
+      this server, its sub is outside the issuer's scope, its aud_tenant
+      is not this request's tenant or is absent where required, or its
+      statement_uses excludes this use.  This code is also used where a
+      statement this server requires is absent.
+
+   invalid_client_metadata:  The reviewed document:
+
+      *  contains duplicate member names ([STATEMENT]);
+
+      *  carries metadata this server's policy refuses;
+
+      *  exceeds the server's size bound ([STATEMENT]), so that retrying
+         cannot succeed;
+
+      *  omits token_endpoint_auth_method (Section 3);
+
+      *  declares token_endpoint_auth_method of none and lists a grant
+         other than authorization_code and refresh_token (Section 3);
+
+      *  carries a redirection URI another application could claim
+         (Section 3); or
+
+      *  declares token_endpoint_auth_method of none at a server that
+         advertises statement-governed registration validity and offers
+         such a client no registration management (Section 3.1).
+
+   temporarily_unavailable:  A retrieval the request needs did not
+      complete, for a reason other than the size bound.
 
 7.  Example
 
