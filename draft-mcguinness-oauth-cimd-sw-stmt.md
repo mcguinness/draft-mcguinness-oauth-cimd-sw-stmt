@@ -404,7 +404,7 @@ Expiry after presentation does not by itself invalidate an establishment already
 
 ### Refresh {#refresh}
 
-On refresh-token use, the authorization server MUST verify possession of the establishment's proven key under the same sender-constraint mechanism. Except for an establishment created under {{public-client-presentation}}, it MUST also verify that the document currently served at the establishment's `sub` still carries that key, in its `jwks` or at its `jwks_uri`, within the reuse bounds of {{sender-constraint}}, and rejects the refresh with `invalid_grant` where it does not, so that a key the publisher removes stops continuing grants as well as opening them.
+On refresh-token use, the authorization server MUST verify possession of the establishment's proven key under the same sender-constraint mechanism. Except for an establishment created under {{public-client-presentation}}, it MUST also verify that the document currently served at the establishment's `sub` still carries that key, in its `jwks` or at its `jwks_uri`, within the reuse bounds of {{sender-constraint}}, and rejects the refresh with `invalid_grant` where it does not or where that document exceeds the size bound of {{metadata-digest}}, so that a key the publisher removes stops continuing grants as well as opening them.
 
 On refresh-token use, the authorization server MAY, by local policy, additionally require a current unexpired statement, and SHOULD require one once the establishment's recorded statement has expired ({{enforcement-bounds}}). The recorded statement satisfies that requirement while it is unexpired and no refusal record covers it, even after a later statement has raised the `iat` floor of {{multi-instance}}; a replacement is needed only once the recorded statement expires or a refusal record covers it.
 
@@ -508,7 +508,7 @@ An authorization server rejecting a presentation at the token or pushed authoriz
 : The request exceeds the reviewed document's scope ({{effective-metadata}}), or the document carries a scope this server's policy refuses.
 
 `temporarily_unavailable`:
-: A retrieval the presentation needs did not complete, for a reason other than the size bound ({{external-retrieval}}).
+: A retrieval the presentation needs did not complete, for a reason other than the document size bound ({{metadata-digest}}).
 
 `invalid_request`:
 : The request carries `software_statement` in a role {{runtime-presentation}} does not permit.
@@ -525,10 +525,10 @@ An authorization server rejecting a refresh-token request under an establishment
 : A current statement or a replacement is needed ({{refresh}}) and none is supplied or pulled, or the one supplied or pulled fails {{refresh}}: it is malformed, invalid, not acceptable here, expired, refused, or superseded, or it names a document whose digest does not match, that contains duplicate member names, that exceeds the size bound, or that no longer satisfies {{public-client-presentation}}.
 
 `invalid_grant`:
-: The request does not prove the establishment's proven key, or the document currently served at the establishment's `sub` no longer carries that key ({{refresh}}).
+: The request does not prove the establishment's proven key, or the document currently served at the establishment's `sub` no longer carries that key or exceeds the document size bound ({{refresh}}).
 
 `temporarily_unavailable`:
-: A retrieval needed to check the replacement or the proven key did not complete, for a reason other than the size bound.
+: A retrieval needed to check the replacement or the proven key did not complete, for a reason other than the document size bound ({{metadata-digest}}).
 
 `unauthorized_client` or `invalid_scope`:
 : The refreshed access would exceed the reviewed document's metadata or this server's policy, as for a presentation.
