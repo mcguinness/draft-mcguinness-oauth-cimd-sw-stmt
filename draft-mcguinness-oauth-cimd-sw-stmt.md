@@ -479,7 +479,7 @@ At the token and pushed authorization request endpoints, an authorization server
 This specification defines the following error code:
 
 `statement_required`:
-: A current software statement is required and none was supplied, or the one supplied is expired, refused by a refusal record ({{withdrawal}}), or superseded under the `iat` floor of {{multi-instance}}. Re-presenting the same statement cannot succeed; the client recovers by obtaining a statement issued more recently.
+: A current software statement is required and none was supplied, or the one supplied is expired, refused by a refusal record ({{withdrawal}}), or superseded under the `iat` floor of {{multi-instance}}; or a statement offered as a replacement ({{refresh}}, {{REGISTRATION}}) does not satisfy the requirements for one. Re-presenting the same statement cannot succeed; the client recovers by obtaining a statement issued more recently.
 
 Wherever this specification requires a current statement on a refresh-token request, `statement_required` replaces `invalid_grant`, so that a client does not read the rejection as an invalid refresh token ({{RFC9700}}).
 
