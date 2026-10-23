@@ -82,26 +82,27 @@ Table of Contents
    10. Software Statement Token Response
      10.1.  Terminal Denial
    11. Withdrawal
-   12. Authorization Server Metadata
-   13. Security Considerations
-     13.1.  Client Establishment Is Not an Access Grant
-     13.2.  What Issuance Attests
-     13.3.  Client Metadata Retrieval
-     13.4.  Authorization Response Security
-     13.5.  Token Exchange Considerations
-     13.6.  Renewal by Prior Statement
-     13.7.  Signing Keys and Algorithms
-     13.8.  Approver Identity and Audit
-   14. Privacy Considerations
-   15. IANA Considerations
-     15.1.  OAuth Authorization Endpoint Response Types Registry
-     15.2.  OAuth URI Registry
-     15.3.  OAuth Parameters Registry
-     15.4.  OAuth Extensions Error Registry
-     15.5.  OAuth Authorization Server Metadata Registry
-   16. References
-     16.1.  Normative References
-     16.2.  Informative References
+   12. Issuer and Consumer as One Server
+   13. Authorization Server Metadata
+   14. Security Considerations
+     14.1.  Client Establishment Is Not an Access Grant
+     14.2.  What Issuance Attests
+     14.3.  Client Metadata Retrieval
+     14.4.  Authorization Response Security
+     14.5.  Token Exchange Considerations
+     14.6.  Renewal by Prior Statement
+     14.7.  Signing Keys and Algorithms
+     14.8.  Approver Identity and Audit
+   15. Privacy Considerations
+   16. IANA Considerations
+     16.1.  OAuth Authorization Endpoint Response Types Registry
+     16.2.  OAuth URI Registry
+     16.3.  OAuth Parameters Registry
+     16.4.  OAuth Extensions Error Registry
+     16.5.  OAuth Authorization Server Metadata Registry
+   17. References
+     17.1.  Normative References
+     17.2.  Informative References
    Appendix A.  Design Rationale
    Acknowledgments
    Author's Address
@@ -148,7 +149,8 @@ Table of Contents
 
    This specification uses terminology defined in [RFC6749], [RFC7591],
    [CIMD], and [DTR].  The terms Issuing Authorization Server, Trusting
-   Authorization Server, and Metadata Digest are defined by [STATEMENT].
+   Authorization Server, Metadata Digest, Effective Expiry,
+   Establishment, and Refusal Record are defined by [STATEMENT].
 
    This specification defines the following terms:
 
@@ -513,7 +515,7 @@ Table of Contents
       URI that another application on the same device could claim, as
       the public-client presentation rules of [STATEMENT] define,
       whatever authentication method the document declares
-      (Section 13.4).
+      (Section 14.4).
 
    state:  REQUIRED.  An opaque value used by the client to bind the
       authorization response to its request.
@@ -678,7 +680,7 @@ Table of Contents
       code_challenge in the authorization request.
 
    completion_mode:  REQUIRED when the authorization server advertises
-      deferred_token_response_supported (Section 12); otherwise not
+      deferred_token_response_supported (Section 13); otherwise not
       used, and an authorization server that does not defer ignores it.
       When present, the value MUST include deferred.  A deferral-capable
       issuer rejects a redemption that omits it with invalid_request.
@@ -697,7 +699,7 @@ Table of Contents
 
    A redemption attempt consumes the software statement code whenever
    the presented code value is valid, including when its PKCE, DPoP, or
-   client-authentication bindings fail (Section 13.4).  A DPoP nonce
+   client-authentication bindings fail (Section 14.4).  A DPoP nonce
    challenge [RFC9449] is not a binding failure: an authorization server
    requiring a nonce issues the use_dpop_nonce challenge before
    evaluating the code, which remains unconsumed.
@@ -861,7 +863,53 @@ Table of Contents
    does not withdraw a replacement obtained through Section 5.1, and
    withdrawing a replacement does not restore its predecessor.
 
-12.  Authorization Server Metadata
+12.  Issuer and Consumer as One Server
+
+   An authorization server that issued a statement already holds the
+   decision that statement records.  Where it is also the trusting
+   authorization server, it MAY admit the client on that record rather
+   than require the statement to be presented back to it, at
+   registration or at runtime.
+
+   Such a server MUST apply the conditions it would apply to a statement
+   presented under [STATEMENT], since a decision it made is not a
+   document it has re-read:
+
+   *  the decision's issuer is one this server accepts for the request's
+      tenant and for the decision's sub, as [STATEMENT] requires of iss
+      and sub, and, where this server records a required issuer for that
+      tenant and sub, is that issuer;
+
+   *  the effective expiry the decision's statement would have at this
+      server has not passed, and the registration has not expired where
+      the validity model of [REGISTRATION] governs it;
+
+   *  the decision's audience, tenant, and permitted uses admit this
+      server, the request's tenant, and this use, as [STATEMENT]
+      requires of aud, aud_tenant, and statement_uses;
+
+   *  the decision is not superseded under the iat floor of [STATEMENT],
+      which admission on it advances as acceptance of a statement would;
+
+   *  the server has not withdrawn the decision and holds no refusal
+      record for its statement;
+
+   *  the document at sub has been obtained and contains no duplicate
+      member names; and
+
+   *  that document's metadata digest equals the one recorded.
+
+   At runtime, the recorded decision replaces the presented statement,
+   not the proof of who is making the request.  The request MUST meet
+   the sender constraint of [STATEMENT] against the reviewed document,
+   as a presentation would, and a successful admission creates an
+   establishment.  At registration, the rules of [REGISTRATION] apply as
+   they do to a statement presented there.
+
+   A client dealing only with the server that reviewed it therefore
+   presents no statement; portability matters only to other servers.
+
+13.  Authorization Server Metadata
 
    An authorization server that issues software statements under this
    specification advertises true for
@@ -911,9 +959,9 @@ Table of Contents
       statement among its values advertises renewal by prior statement
       (Section 5.1).
 
-13.  Security Considerations
+14.  Security Considerations
 
-13.1.  Client Establishment Is Not an Access Grant
+14.1.  Client Establishment Is Not an Access Grant
 
    A software statement vouches for a client's metadata document; it
    grants no resource access or consent on behalf of the software's
@@ -948,7 +996,7 @@ Table of Contents
    client_attesters ([ATTESTERS]) endorses those attesters for the
    software under review and deserves particular scrutiny.
 
-13.2.  What Issuance Attests
+14.2.  What Issuance Attests
 
    A software statement means only that its issuer evaluated the
    document captured in the metadata snapshot (Section 4.1) under its
@@ -958,14 +1006,14 @@ Table of Contents
    through evidence beyond the document itself; verification depth is
    part of the trust relationship.
 
-13.3.  Client Metadata Retrieval
+14.3.  Client Metadata Retrieval
 
    Fetching a Client ID Metadata Document and resources referenced by it
    exposes the authorization server to server-side request forgery,
    resource exhaustion, malicious content, and client impersonation
    risks; the considerations of [CIMD] apply.
 
-13.4.  Authorization Response Security
+14.4.  Authorization Response Security
 
    The software statement is a signed credential and can contain
    sensitive deployment information, which is why it is never returned
@@ -1001,7 +1049,7 @@ Table of Contents
    was bound, the dpop_jkt key; form_post (Section 7.1) keeps it out of
    URLs.
 
-13.5.  Token Exchange Considerations
+14.5.  Token Exchange Considerations
 
    Validating the subject token before metadata retrieval or enqueueing
    (Section 5) limits resource consumption by unauthorized requesters.
@@ -1027,7 +1075,7 @@ Table of Contents
    prior user consent and MUST apply the same issuance and approval
    policy as for the redirect flow.
 
-13.6.  Renewal by Prior Statement
+14.6.  Renewal by Prior Statement
 
    Where both documents carry their keys inline, a party able to change
    the current document cannot supply a key that satisfies the holder
@@ -1038,7 +1086,7 @@ Table of Contents
    access token, which would be a standing credential to mint
    statements.
 
-13.7.  Signing Keys and Algorithms
+14.7.  Signing Keys and Algorithms
 
    Compromise of a software statement signing key lets an attacker mint
    statements for every audience that trusts that key.
@@ -1050,7 +1098,7 @@ Table of Contents
       properties, such as PS256, ES256, or EdDSA, over RSASSA-PKCS1-v1_5
       (RS256), and MUST follow [RFC8725] when signing.
 
-13.8.  Approver Identity and Audit
+14.8.  Approver Identity and Audit
 
    A software statement does not identify the human or system that
    approved issuance.  Deployments that require approver attribution
@@ -1076,7 +1124,7 @@ Table of Contents
    exact retrieved octets of the approved document for audit purposes; a
    re-serialized copy cannot reproduce the digest.
 
-14.  Privacy Considerations
+15.  Privacy Considerations
 
    The authorization server learns the client identifier URL, the
    client's metadata document, and information about the party
@@ -1098,9 +1146,9 @@ Table of Contents
    records SHOULD be access-controlled and retained only as long as
    required.
 
-15.  IANA Considerations
+16.  IANA Considerations
 
-15.1.  OAuth Authorization Endpoint Response Types Registry
+16.1.  OAuth Authorization Endpoint Response Types Registry
 
    This specification requests registration of the following value in
    the IANA "OAuth Authorization Endpoint Response Types" registry
@@ -1113,7 +1161,7 @@ Table of Contents
    Specification Document(s):  This specification, Section 6 and
       Section 7
 
-15.2.  OAuth URI Registry
+16.2.  OAuth URI Registry
 
    This specification requests registration of the following values in
    the IANA "OAuth URI" registry:
@@ -1135,7 +1183,7 @@ Table of Contents
    Specification Document(s):  This specification, Section 10 and
       Section 5
 
-15.3.  OAuth Parameters Registry
+16.3.  OAuth Parameters Registry
 
    This specification requests that IANA add this specification,
    Section 6 and Section 5, as an additional reference for the existing
@@ -1161,7 +1209,7 @@ Table of Contents
    Specification Document(s):  This specification, Section 7.1 and
       Section 8
 
-15.4.  OAuth Extensions Error Registry
+16.4.  OAuth Extensions Error Registry
 
    Both error codes this specification uses at new locations are already
    registered.  This specification requests that IANA add it as an
@@ -1188,7 +1236,7 @@ Table of Contents
 
    Specification Document(s):  [RFC8707], this specification (Section 6)
 
-15.5.  OAuth Authorization Server Metadata Registry
+16.5.  OAuth Authorization Server Metadata Registry
 
    This specification requests registration of the following values in
    the IANA "OAuth Authorization Server Metadata" registry established
@@ -1202,12 +1250,12 @@ Table of Contents
 
    Change Controller:  IESG
 
-   Specification Document(s):  This specification, Section 12 and
+   Specification Document(s):  This specification, Section 13 and
       Section 5
 
-16.  References
+17.  References
 
-16.1.  Normative References
+17.1.  Normative References
 
    [CIMD]     Parecki, A. and E. Smith, "OAuth Client ID Metadata
               Document", Work in Progress, Internet-Draft, draft-ietf-
@@ -1308,7 +1356,7 @@ Table of Contents
               <https://datatracker.ietf.org/doc/draft-mcguinness-oauth-
               cimd-sw-stmt>.
 
-16.2.  Informative References
+17.2.  Informative References
 
    [APPROVAL-DCR]
               Dellaert, P., "OAuth 2.0 Approval-Based Dynamic Client

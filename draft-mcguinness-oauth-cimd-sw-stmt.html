@@ -1160,10 +1160,7 @@ svg {
             <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-issuer-trust-establishment" class="internal xref">Issuer Trust Establishment</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1">
-                <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-issuer-and-consumer-as-one-" class="internal xref">Issuer and Consumer as One Server</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2">
-                <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="auto internal xref">4.2</a>.  <a href="#name-multi-tenant-issuers" class="internal xref">Multi-Tenant Issuers</a></p>
+                <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-multi-tenant-issuers" class="internal xref">Multi-Tenant Issuers</a></p>
 </li>
             </ul>
 </li>
@@ -1622,46 +1619,12 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <p id="section-4-5">Trust configuration <span class="bcp14">SHOULD</span> constrain each issuer to the client identifier namespaces it is expected to attest, for example URLs under the domains of the software publishers it serves; <a href="#validation" class="auto internal xref">Section 3.2</a> rejects a statement outside that scope. Without such a scope, a compromised or over-broad issuer can mint acceptable statements about any client software.<a href="#section-4-5" class="pilcrow">¶</a></p>
 <p id="section-4-6">Where a trusting authorization server configures an issuer whose decisions are confined to one of its tenants, as a customer's own issuer is, it <span class="bcp14">SHOULD</span> record with that configuration the client identifier namespaces for which the issuer's decision is required in that tenant.<a href="#section-4-6" class="pilcrow">¶</a></p>
 <p id="section-4-7">A server that records such a requirement <span class="bcp14">MUST NOT</span> admit software in a covered namespace in that tenant without a current statement from the required issuer, whatever its policy for clients it has not reviewed. Without this rule, withholding the statement would restore access the customer withdrew. The requirement is configured rather than inferred from the statements the server sees, so a holder cannot evade a customer's withdrawal by presenting or publishing only a broader statement, such as a marketplace listing. A required issuer configured for software whose documents are presented review-only (<a href="#public-client-presentation" class="auto internal xref">Section 5.4.1</a>) excludes that software from the tenant, since no statement admits it there.<a href="#section-4-7" class="pilcrow">¶</a></p>
-<div id="same-server">
-<section id="section-4.1">
-        <h3 id="name-issuer-and-consumer-as-one-">
-<a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-issuer-and-consumer-as-one-" class="section-name selfRef">Issuer and Consumer as One Server</a>
-        </h3>
-<p id="section-4.1-1">An authorization server that issued a statement already holds the decision that statement records. Where it is also the trusting authorization server, it <span class="bcp14">MAY</span> admit the client on that record rather than require the statement to be presented back to it, at registration or at runtime.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
-<p id="section-4.1-2">Such a server <span class="bcp14">MUST</span> apply the conditions it would apply to a presented statement, since a decision it made is not a document it has re-read:<a href="#section-4.1-2" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-4.1-3.1">
-            <p id="section-4.1-3.1.1">the decision's issuer is one this server accepts for the request's tenant and for the decision's <code>sub</code>, as <a href="#validation" class="auto internal xref">Section 3.2</a> requires of <code>iss</code> and <code>sub</code> (<a href="#issuer-trust" class="auto internal xref">Section 4</a>), and, where this server records a required issuer for that tenant and <code>sub</code> (<a href="#issuer-trust" class="auto internal xref">Section 4</a>), is that issuer;<a href="#section-4.1-3.1.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-4.1-3.2">
-            <p id="section-4.1-3.2.1">the effective expiry the decision's statement would have at this server has not passed, and the registration has not expired where the validity model of <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span> governs it;<a href="#section-4.1-3.2.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-4.1-3.3">
-            <p id="section-4.1-3.3.1">the decision's audience, tenant, and permitted uses admit this server, the request's tenant, and this use, as <a href="#validation" class="auto internal xref">Section 3.2</a> requires of <code>aud</code>, <code>aud_tenant</code>, and <code>statement_uses</code>;<a href="#section-4.1-3.3.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-4.1-3.4">
-            <p id="section-4.1-3.4.1">the decision is not superseded under the <code>iat</code> floor of <a href="#multi-instance" class="auto internal xref">Section 6</a>, which admission on it advances as acceptance of a statement would;<a href="#section-4.1-3.4.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-4.1-3.5">
-            <p id="section-4.1-3.5.1">the server has not withdrawn the decision and holds no refusal record for its statement (<a href="#withdrawal" class="auto internal xref">Section 3.3</a>);<a href="#section-4.1-3.5.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-4.1-3.6">
-            <p id="section-4.1-3.6.1">the document at <code>sub</code> has been obtained and contains no duplicate member names (<a href="#validation" class="auto internal xref">Section 3.2</a>); and<a href="#section-4.1-3.6.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-4.1-3.7">
-            <p id="section-4.1-3.7.1">that document's digest equals the one recorded (<a href="#metadata-digest" class="auto internal xref">Section 3.1</a>).<a href="#section-4.1-3.7.1" class="pilcrow">¶</a></p>
-</li>
-        </ul>
-<p id="section-4.1-4">At runtime, the recorded decision replaces the presented statement, not the proof of who is making the request. The request <span class="bcp14">MUST</span> meet the sender constraint of <a href="#sender-constraint" class="auto internal xref">Section 5.4</a> against the reviewed document, as a presentation would, and a successful admission creates an establishment (<a href="#grant-lifecycle" class="auto internal xref">Section 5.6</a>). At registration, the rules of <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span> apply as they do to a statement presented there.<a href="#section-4.1-4" class="pilcrow">¶</a></p>
-<p id="section-4.1-5">A client dealing only with the server that reviewed it therefore presents no statement; portability matters only to other servers.<a href="#section-4.1-5" class="pilcrow">¶</a></p>
-</section>
-</div>
 <div id="multi-tenant-issuers">
-<section id="section-4.2">
+<section id="section-4.1">
         <h3 id="name-multi-tenant-issuers">
-<a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-multi-tenant-issuers" class="section-name selfRef">Multi-Tenant Issuers</a>
+<a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-multi-tenant-issuers" class="section-name selfRef">Multi-Tenant Issuers</a>
         </h3>
-<p id="section-4.2-1">Where the tenants of a reviewer serving several customers are independently trusted reviewing authorities, the reviewer <span class="bcp14">MUST</span> issue under a distinct <code>iss</code> for each, so that each tenant's decisions, keys, and watermark (<a href="#multi-instance" class="auto internal xref">Section 6</a>) stay separate. Statements from several authorities under one <code>iss</code> would be indistinguishable by <code>iss</code> and <code>sub</code>, and one customer's renewal would supersede another's review. A statement carries no claim naming the issuer's tenant.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
+<p id="section-4.1-1">Where the tenants of a reviewer serving several customers are independently trusted reviewing authorities, the reviewer <span class="bcp14">MUST</span> issue under a distinct <code>iss</code> for each, so that each tenant's decisions, keys, and watermark (<a href="#multi-instance" class="auto internal xref">Section 6</a>) stay separate. Statements from several authorities under one <code>iss</code> would be indistinguishable by <code>iss</code> and <code>sub</code>, and one customer's renewal would supersede another's review. A statement carries no claim naming the issuer's tenant.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>

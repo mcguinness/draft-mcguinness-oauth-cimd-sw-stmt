@@ -67,8 +67,7 @@ Table of Contents
      3.2.  Validating a Statement
      3.3.  Withdrawal
    4.  Issuer Trust Establishment
-     4.1.  Issuer and Consumer as One Server
-     4.2.  Multi-Tenant Issuers
+     4.1.  Multi-Tenant Issuers
    5.  Runtime Presentation
      5.1.  Presentation Request
        5.1.1.  Authorization Endpoint
@@ -531,52 +530,7 @@ Table of Contents
    (Section 5.4.1) excludes that software from the tenant, since no
    statement admits it there.
 
-4.1.  Issuer and Consumer as One Server
-
-   An authorization server that issued a statement already holds the
-   decision that statement records.  Where it is also the trusting
-   authorization server, it MAY admit the client on that record rather
-   than require the statement to be presented back to it, at
-   registration or at runtime.
-
-   Such a server MUST apply the conditions it would apply to a presented
-   statement, since a decision it made is not a document it has re-read:
-
-   *  the decision's issuer is one this server accepts for the request's
-      tenant and for the decision's sub, as Section 3.2 requires of iss
-      and sub (Section 4), and, where this server records a required
-      issuer for that tenant and sub (Section 4), is that issuer;
-
-   *  the effective expiry the decision's statement would have at this
-      server has not passed, and the registration has not expired where
-      the validity model of [REGISTRATION] governs it;
-
-   *  the decision's audience, tenant, and permitted uses admit this
-      server, the request's tenant, and this use, as Section 3.2
-      requires of aud, aud_tenant, and statement_uses;
-
-   *  the decision is not superseded under the iat floor of Section 6,
-      which admission on it advances as acceptance of a statement would;
-
-   *  the server has not withdrawn the decision and holds no refusal
-      record for its statement (Section 3.3);
-
-   *  the document at sub has been obtained and contains no duplicate
-      member names (Section 3.2); and
-
-   *  that document's digest equals the one recorded (Section 3.1).
-
-   At runtime, the recorded decision replaces the presented statement,
-   not the proof of who is making the request.  The request MUST meet
-   the sender constraint of Section 5.4 against the reviewed document,
-   as a presentation would, and a successful admission creates an
-   establishment (Section 5.6).  At registration, the rules of
-   [REGISTRATION] apply as they do to a statement presented there.
-
-   A client dealing only with the server that reviewed it therefore
-   presents no statement; portability matters only to other servers.
-
-4.2.  Multi-Tenant Issuers
+4.1.  Multi-Tenant Issuers
 
    Where the tenants of a reviewer serving several customers are
    independently trusted reviewing authorities, the reviewer MUST issue
