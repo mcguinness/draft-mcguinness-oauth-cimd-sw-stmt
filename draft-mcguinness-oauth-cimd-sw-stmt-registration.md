@@ -30,7 +30,6 @@ normative:
   RFC7591:
   RFC8414:
   RFC9126:
-  RFC9449:
   RFC9700:
   STATEMENT:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt
@@ -165,9 +164,7 @@ Where the registration is not statement-governed, a statement neither renews nor
 
 One unexpired statement can be consumed more than once, within the bounds of {{STATEMENT}}; for a reviewed document that carries key material, the safe default is one registration per (`iss`, `sub`) at one authorization server. On repeated consumption, local policy can reject the request, treat it as idempotent, or create another registration; {{RFC7591}} defines no duplicate-registration protocol. An idempotent response MUST NOT return the existing registration's credentials, such as its `registration_access_token`, since a repeated request can come from any holder of a copy of the statement.
 
-A reviewed document that carries no key material (no `jwks` or `jwks_uri` member), such as one declaring `token_endpoint_auth_method` of `none`, gives no installation a key with which to displace another's registration (see below), and a client declaring `none` renews only through its own registration management ({{registration-validity}}). Under the one-registration default, the first holder of a copy of the statement would therefore hold the only registration for every installation. For such a document, the authorization server MAY create a registration for each request. Since anyone holding a copy of the statement can create one, such a registration counts against the bounds of {{STATEMENT}} only from the time the first access token is issued at the token endpoint under it, and the authorization server MAY discard one under which no such access token has been issued within a period of its choosing.
-
-Under the one-registration default, whoever first registers with a copy of the statement holds the slot, and {{RFC7592}} management keeps it. A registration request can therefore carry a DPoP proof {{RFC9449}} for the registration request, signed with a key the reviewed document carries, and the authorization server records that key with the registration it creates. A server applying the default SHOULD let a request whose proof verifies as Section 4.3 of {{RFC9449}} describes, and whose proof key the reviewed document carries, replace an existing registration, unless the existing registration has a recorded key, that document also carries it, and the proof key is a different key; the replaced registration ends as an {{RFC7592}} deletion would end it. A registration whose request carried no such proof has no recorded key. Comparing against the current document, rather than against the existing registration's request, lets a publisher reclaim the registration from a holder of a key it has since removed, and a proof by the recorded key itself lets a client that lost the response to its registration request register again. A server that lets a proof replace a registration MUST reject a proof whose `jti` it has already seen at its registration endpoint within the period in which it would accept that proof (Section 11.1 of {{RFC9449}}), whether or not the request that carried it succeeded. A server processes a registration request whose proof it does not accept, for that reason or any other, as a request carrying no proof.
+A reviewed document that carries no key material (no `jwks` or `jwks_uri` member), such as one declaring `token_endpoint_auth_method` of `none`, describes software whose installations cannot share one registration: a client declaring `none` renews only through its own registration management ({{registration-validity}}), and under the one-registration default the first holder of a copy of the statement would hold the only registration for every installation. For such a document, the authorization server MAY create a registration for each request. Since anyone holding a copy of the statement can create one, such a registration counts against the bounds of {{STATEMENT}} only from the time the first access token is issued at the token endpoint under it, and the authorization server MAY discard one under which no such access token has been issued within a period of its choosing.
 
 # Error Responses {#errors}
 
@@ -229,6 +226,8 @@ This specification defines the following authorization server metadata {{RFC8414
 ## Statements at Registration {#statement-bearer}
 
 A statement consumed at registration is a reusable bearer artifact until it expires. Its audience, lifetime, and `statement_uses` claim ({{STATEMENT}}) and the bounds of {{repeated-registration}} limit what a stolen statement can create.
+
+Under the one-registration default ({{repeated-registration}}), whoever first registers with a copy of a statement holds that registration and its registration access token, and can keep the software's publisher from registering at that server. Such a holder cannot authenticate as the client where the reviewed document's authentication method requires a key the document carries, and the publisher's software can still be admitted through runtime presentation ({{STATEMENT}}), which binds every presenter to the reviewed document. This specification defines no way to displace such a registration.
 
 ## Renewal Authenticates the Credential
 
