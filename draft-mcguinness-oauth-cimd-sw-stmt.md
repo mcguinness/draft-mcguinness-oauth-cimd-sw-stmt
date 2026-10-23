@@ -322,7 +322,7 @@ An authorization server advertises support through `software_statement_pull_supp
 On receiving a presentation, the authorization server proceeds as follows, rejecting as {{errors}} defines at the first failure:
 
 1. Validate the statement ({{validation}}), completing every check that does not require a client-controlled network retrieval before performing any such retrieval.
-2. Verify the statement requirements of {{profiles}} and the `client_id` rule of {{runtime-presentation}}.
+2. Verify the statement requirements of {{profiles}}, the `iat` floor of {{multi-instance}}, and the `client_id` rule of {{runtime-presentation}}.
 3. Resolve the reviewed document ({{effective-metadata}}), which is the first step requiring a client-controlled retrieval.
 4. Verify the sender constraint against that document ({{sender-constraint}}), then evaluate the request against its metadata ({{effective-metadata}}).
 5. On success, create the establishment ({{grant-lifecycle}}).
