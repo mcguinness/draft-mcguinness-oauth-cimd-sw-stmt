@@ -87,7 +87,7 @@ How the MCP Authorization Server binds a request to the reviewed software depend
 
 ### 3.4 Presenting Statements in a Request
 
-An MCP Client **MAY** also present a statement in a token request or pushed authorization request, where the MCP Authorization Server advertises `software_statement_presentation_supported`. This profile does not require it, and an MCP Client that only publishes is fully conformant.
+An MCP Client **MAY** also present a statement in a token request or pushed authorization request, at the endpoints, on the grants, and to the audience CIMD Software Statement permits; no discovery is needed, since an MCP Authorization Server that does not implement presentation ignores the parameter. This profile does not require presentation, and an MCP Client that only publishes is fully conformant.
 
 ## 4. MCP Authorization Server Requirements
 
@@ -152,7 +152,7 @@ On a `jwt-bearer` request a confidential MCP Client is bound by authenticating w
 
 ## 6. Discovery
 
-An MCP Client needs no discovery to participate: publishing `software_statements_uri` is enough. An MCP Authorization Server indicates support for this profile by advertising `software_statement_pull_supported` as `true`. A client that wants to present statements in a request checks `software_statement_presentation_supported`.
+An MCP Client needs no discovery to participate: publishing `software_statements_uri` is enough. An MCP Authorization Server indicates support for this profile by advertising `software_statement_pull_supported` as `true`. A client that wants to present statements in a request needs no discovery either (Section 3.4): a server that does not implement presentation ignores the parameter, and one that requires a statement responds with `statement_required`.
 
 ## 7. Examples
 
