@@ -427,13 +427,18 @@ Table of Contents
 3.3.  Withdrawal
 
    An issuer can end a decision before the statement's exp by
-   withdrawing it.  How a trusting authorization server learns of a
-   withdrawal is a withdrawal mechanism.  This specification requires no
-   withdrawal mechanism and defines none; Token Status List [STATUSLIST]
-   is one, and extensions define how a mechanism applies to these
-   statements (Section 11).  A trusting authorization server that learns
-   of a withdrawal, through a mechanism it uses for that issuer or from
-   its own operator, holds a refusal record for the statement.
+   withdrawing it.  Some status mechanisms call this revocation.  This
+   specification uses a distinct term because OAuth revocation
+   ([RFC7009]) ends tokens, while a withdrawal revokes no issued token:
+   a server holding a refusal record refuses new admissions and refresh
+   under the statement (Section 5.6.1, Section 12.6).  How a trusting
+   authorization server learns of a withdrawal is a withdrawal
+   mechanism.  This specification requires no withdrawal mechanism and
+   defines none; Token Status List [STATUSLIST] is one, and extensions
+   define how a mechanism applies to these statements (Section 11).  A
+   trusting authorization server that learns of a withdrawal, through a
+   mechanism it uses for that issuer or from its own operator, holds a
+   refusal record for the statement.
 
    A withdrawal constrains and never relaxes.  A statement for which no
    withdrawal mechanism reports a withdrawal, or for which the server
@@ -1855,6 +1860,10 @@ Table of Contents
               McGuinness, K., "CIMD Software Statement Registration",
               n.d., <https://datatracker.ietf.org/doc/draft-mcguinness-
               oauth-cimd-sw-stmt-registration>.
+
+   [RFC7009]  Lodderstedt, T., Ed., Dronia, S., and M. Scurtescu, "OAuth
+              2.0 Token Revocation", RFC 7009, DOI 10.17487/RFC7009,
+              August 2013, <https://www.rfc-editor.org/rfc/rfc7009>.
 
    [STATUSLIST]
               Looker, T., Bastian, P., and C. Bormann, "Token Status
