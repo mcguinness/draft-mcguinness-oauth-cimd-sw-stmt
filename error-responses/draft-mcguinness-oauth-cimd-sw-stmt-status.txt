@@ -180,15 +180,15 @@ Table of Contents
 
    Resolution follows [STATUSLIST], including its requirement to reject
    where the referenced index lies outside the list, a rejection that
-   also uses the refusal-record row of the error responses of
-   [STATEMENT], and its caching rules, which also apply when the server
-   checks a recorded statement at refresh ([STATEMENT]); a statement
-   whose status the server cannot resolve is bounded by exp, as
-   [STATEMENT] provides.  A server MUST NOT replace a Status List Token
-   it holds with one whose iat is earlier, and MUST treat one whose iat
-   is equal but whose contents differ as a resolution failure, since a
-   host serving an older token could otherwise restore a status the
-   issuer has withdrawn.
+   uses the error code [STATEMENT] assigns to a statement refused by a
+   refusal record, and its caching rules, which also apply when the
+   server checks a recorded statement at refresh ([STATEMENT]); a
+   statement whose status the server cannot resolve is bounded by exp,
+   as [STATEMENT] provides.  A server MUST NOT replace a Status List
+   Token it holds with one whose iat is earlier, and MUST treat one
+   whose iat is equal but whose contents differ as a resolution failure,
+   since a host serving an older token could otherwise restore a status
+   the issuer has withdrawn.
 
    A server MUST obtain a Status List Token's verification keys from the
    jwks_uri of the issuer's authorization server metadata [RFC8414],

@@ -1999,7 +1999,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         <h3 id="name-presentation">
 <a href="#section-8.2" class="section-number selfRef">8.2. </a><a href="#name-presentation" class="section-name selfRef">Presentation</a>
         </h3>
-<p id="section-8.2-1">An authorization server rejecting a presentation at the token or pushed authorization request endpoint uses the following error codes:<a href="#section-8.2-1" class="pilcrow">¶</a></p>
+<p id="section-8.2-1">An authorization server rejecting a presentation at the token or pushed authorization request endpoint for a reason this specification defines uses the following error codes:<a href="#section-8.2-1" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-8.2-2">
           <dt id="section-8.2-2.1">
 <code>invalid_client</code>:</dt>
@@ -2057,10 +2057,11 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <dt id="section-8.2-2.11">
 <code>invalid_request</code>:</dt>
           <dd style="margin-left: 1.5em" id="section-8.2-2.12">
-            <p id="section-8.2-2.12.1">The request carries <code>software_statement</code> in a role <a href="#runtime-presentation" class="auto internal xref">Section 5.1</a> does not permit, or is rejected for a reason not listed above.<a href="#section-8.2-2.12.1" class="pilcrow">¶</a></p>
+            <p id="section-8.2-2.12.1">The request carries <code>software_statement</code> in a role <a href="#runtime-presentation" class="auto internal xref">Section 5.1</a> does not permit.<a href="#section-8.2-2.12.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
+<p id="section-8.2-3">A request rejected for another reason, such as an assertion grant whose assertion is invalid (Section 3.1 of <span>[<a href="#RFC7523" class="cite xref">RFC7523</a>]</span>), uses the error code its grant or endpoint assigns.<a href="#section-8.2-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="continuation-errors">
@@ -2069,7 +2070,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <a href="#section-8.3" class="section-number selfRef">8.3. </a><a href="#name-code-redemption-and-refresh" class="section-name selfRef">Code Redemption and Refresh</a>
         </h3>
 <p id="section-8.3-1">A token request that redeems an authorization code opened by a presentation is rejected with <code>invalid_request</code> where it carries <code>software_statement</code>, and with <code>invalid_grant</code> where its client identifier or key binding fails (<a href="#grant-lifecycle" class="auto internal xref">Section 5.6</a>).<a href="#section-8.3-1" class="pilcrow">¶</a></p>
-<p id="section-8.3-2">An authorization server rejecting a refresh-token request under an establishment uses the following error codes:<a href="#section-8.3-2" class="pilcrow">¶</a></p>
+<p id="section-8.3-2">An authorization server rejecting a refresh-token request under an establishment for a reason this specification defines uses the following error codes:<a href="#section-8.3-2" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-8.3-3">
           <dt id="section-8.3-3.1">
 <code>statement_required</code>:</dt>
@@ -2098,11 +2099,11 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <dt id="section-8.3-3.9">
 <code>invalid_request</code>:</dt>
           <dd style="margin-left: 1.5em" id="section-8.3-3.10">
-            <p id="section-8.3-3.10.1">The request carries <code>software_statement</code> in a role <a href="#runtime-presentation" class="auto internal xref">Section 5.1</a> does not permit, or is rejected for a reason not listed above.<a href="#section-8.3-3.10.1" class="pilcrow">¶</a></p>
+            <p id="section-8.3-3.10.1">The request carries <code>software_statement</code> in a role <a href="#runtime-presentation" class="auto internal xref">Section 5.1</a> does not permit.<a href="#section-8.3-3.10.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
-<p id="section-8.3-4">None of these rejections indicates refresh-token replay (<span>[<a href="#RFC9700" class="cite xref">RFC9700</a>]</span>), and neither does a rejection reporting registration validity (<span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>).<a href="#section-8.3-4" class="pilcrow">¶</a></p>
+<p id="section-8.3-4">None of these rejections indicates refresh-token replay (<span>[<a href="#RFC9700" class="cite xref">RFC9700</a>]</span>), and neither does a rejection reporting registration validity (<span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>). A refresh-token request rejected for another reason, such as an expired or revoked refresh token, uses the error codes of Section 5.2 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, and this specification does not change how an authorization server detects refresh-token replay.<a href="#section-8.3-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="authorization-errors">

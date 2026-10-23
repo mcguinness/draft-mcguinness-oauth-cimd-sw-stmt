@@ -1167,7 +1167,8 @@ Table of Contents
 8.2.  Presentation
 
    An authorization server rejecting a presentation at the token or
-   pushed authorization request endpoint uses the following error codes:
+   pushed authorization request endpoint for a reason this specification
+   defines uses the following error codes:
 
    invalid_client:  The statement or the client cannot be established,
       where:
@@ -1216,8 +1217,11 @@ Table of Contents
       complete, for a reason other than the size bound (Section 12.5).
 
    invalid_request:  The request carries software_statement in a role
-      Section 5.1 does not permit, or is rejected for a reason not
-      listed above.
+      Section 5.1 does not permit.
+
+   A request rejected for another reason, such as an assertion grant
+   whose assertion is invalid (Section 3.1 of [RFC7523]), uses the error
+   code its grant or endpoint assigns.
 
 8.3.  Code Redemption and Refresh
 
@@ -1227,7 +1231,8 @@ Table of Contents
    identifier or key binding fails (Section 5.6).
 
    An authorization server rejecting a refresh-token request under an
-   establishment uses the following error codes:
+   establishment for a reason this specification defines uses the
+   following error codes:
 
    statement_required:  A current statement or a replacement is needed
       (Section 5.6.1) and none is supplied or pulled, or the one
@@ -1250,12 +1255,14 @@ Table of Contents
       as for a presentation.
 
    invalid_request:  The request carries software_statement in a role
-      Section 5.1 does not permit, or is rejected for a reason not
-      listed above.
+      Section 5.1 does not permit.
 
    None of these rejections indicates refresh-token replay ([RFC9700]),
    and neither does a rejection reporting registration validity
-   ([REGISTRATION]).
+   ([REGISTRATION]).  A refresh-token request rejected for another
+   reason, such as an expired or revoked refresh token, uses the error
+   codes of Section 5.2 of [RFC6749], and this specification does not
+   change how an authorization server detects refresh-token replay.
 
 8.4.  Authorization Endpoint
 
