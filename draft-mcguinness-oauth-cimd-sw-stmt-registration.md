@@ -227,7 +227,7 @@ This specification defines the following authorization server metadata {{RFC8414
 
 A statement consumed at registration is a reusable bearer artifact until it expires. Its audience, lifetime, and `statement_uses` claim ({{STATEMENT}}) and the bounds of {{repeated-registration}} limit what a stolen statement can create.
 
-Under the one-registration default ({{repeated-registration}}), whoever first registers with a copy of a statement holds that registration and its registration access token, and can keep the software's publisher from registering at that server. Such a holder cannot authenticate as the client where the reviewed document's authentication method requires a key the document carries, and the publisher's software can still be admitted through runtime presentation ({{STATEMENT}}), which binds every presenter to the reviewed document. This specification defines no way to displace such a registration.
+Under the one-registration default ({{repeated-registration}}), whoever first registers with a copy of a statement holds that registration and its registration access token, and can keep the software's publisher from registering at that server. Such a holder cannot authenticate as the client where the reviewed document's authentication method requires a key the document carries. Where the publisher's statement permits presentation and the server supports it, the software can still be admitted through runtime presentation ({{STATEMENT}}), which binds every presenter to the reviewed document; otherwise, recovery requires the server's operator to intervene or a registration policy other than the one-registration default. This specification defines no way to displace such a registration.
 
 ## Renewal Authenticates the Credential
 
