@@ -122,11 +122,9 @@ Metadata Snapshot:
 
 # Protocol Overview
 
-A client that holds an initial access token authorizing issuance, or a statement it can renew, uses token exchange at the token endpoint without a user agent ({{token-exchange-profile}}). Any client can instead initiate the redirect flow at the authorization endpoint ({{authorization-request}}) and redeem the resulting software statement code at the token endpoint.
+A client that holds an initial access token authorizing issuance, or a statement it can renew, uses token exchange at the token endpoint without a user agent ({{token-exchange-profile}}). Any client can instead initiate the redirect flow at the authorization endpoint ({{authorization-request}}) and redeem the resulting software statement code at the token endpoint. In either flow, the issuer completes the decision synchronously or defers it under {{DTR}}.
 
-A publisher's backend acting for a client is not a party this specification authenticates; issuance it authorizes on a client's behalf is out of scope.
-
-The issuing authorization server fetches and snapshots the client's Client ID Metadata Document ({{metadata-snapshot}}), decides whether to issue, and signs the statement. The client carries the statement to trusting authorization servers in its audience, at registration ({{REGISTRATION}}) or at runtime ({{STATEMENT}}), each of which applies its own acceptance policy.
+The issuing authorization server fetches and snapshots the client's Client ID Metadata Document ({{metadata-snapshot}}), decides whether to issue, and signs the statement. The client carries the statement to trusting authorization servers in its audience, at registration ({{REGISTRATION}}) or at runtime ({{STATEMENT}}), each of which applies its own acceptance policy. A publisher's backend acting for a client is not a party this specification authenticates; issuance it authorizes on a client's behalf is out of scope.
 
 ~~~
                 +--------------------------+
@@ -260,7 +258,8 @@ An initial access token presented under this profile MUST be:
 
 The initial access token is subject to the following:
 
-* A reusable one MUST be sender-constrained to a client key, for example through DPoP or mTLS, and the authorization server MUST verify that binding against the key the exchange request proves; a bearer one MUST be single-use.
+* A reusable one MUST be sender-constrained to a client key, for example through DPoP or mTLS, and the authorization server MUST verify that binding against the key the exchange request proves.
+* A bearer one MUST be single-use.
 * It SHOULD be integrity protected and kept confidential in transit and at rest, and MAY further restrict audiences or metadata.
 * The authorization server MUST enforce every restriction the credential carries and MUST prevent replay beyond its permitted number of uses.
 
@@ -340,7 +339,7 @@ The authorization server selects the final audience according to policy. It MUST
 
 Where no requested audience is acceptable, the authorization server MUST reject the request with `invalid_target` {{RFC8707}}. An authorization server whose policy requires a restricted audience rejects a request carrying none with the same error.
 
-This specification's `audience` semantics apply only to software statement requests and do not affect proprietary uses of the parameter for access-token targeting.
+The `audience` semantics of this section apply only to software statement requests and do not affect proprietary uses of the parameter for access-token targeting.
 
 The authorization server MUST reject with `invalid_request` a request that omits a required PKCE parameter or a required `dpop_jkt`.
 
@@ -475,7 +474,7 @@ An authorization server MAY answer an originating request with a deferred token 
 
 Deferral follows {{DTR}}, including its opt-in, polling, sender constraint, and cancellation, with the following additions:
 
-* A deferral created under this specification MUST be delivered by polling; callback delivery is a deferred capability ({{design-rationale}}).
+* A deferral created under this specification MUST be delivered by polling; callback delivery is omitted from this version ({{design-rationale}}).
 * A client MUST NOT send the `client_notification_token` parameter of {{DTR}}; an authorization server rejects a request carrying it with `invalid_request` and MUST NOT deliver a callback, whatever the client's metadata says.
 * A successful polling response is the software statement token response of {{software-statement-response}}, not an access token response.
 * Issuers SHOULD set deferral code lifetimes that reflect their actual approval latency, which for a review involving human judgment can be hours or days.
@@ -535,7 +534,7 @@ Pragma: no-cache
 
 The `access_token` member is a security-token container ({{RFC8693}}), not an OAuth access token, so the software statement:
 
-* is consumed only as a software statement ({{STATEMENT}});
+* is consumed only as {{STATEMENT}} provides;
 * MUST NOT be attached to a request as an `Authorization: Bearer` credential; and
 * is not subject to refresh.
 
@@ -555,19 +554,19 @@ An issuing authorization server that ends decisions before their expiry does so 
 
 An authorization server that issued a statement already holds the decision that statement records. Where it is also a trusting authorization server, it MAY admit the client on that record rather than require the statement to be presented back to it, at registration or at runtime.
 
-A server admitting a client on its record MUST apply the conditions it would apply to a statement presented under {{STATEMENT}}, since a decision it made is not a document it has re-read:
+A server admitting a client on the record of a statement it issued MUST apply the conditions it would apply to a statement presented under {{STATEMENT}}, since a decision it made is not a document it has re-read:
 
 * the decision's issuer is one this server accepts for the request's tenant and for the decision's `sub`, as {{STATEMENT}} requires of `iss` and `sub`, and, where this server records a required issuer for that tenant and `sub`, is that issuer;
 * the effective expiry the decision's statement would have at this server has not passed, and the registration has not expired where the validity model of {{REGISTRATION}} governs it;
 * the decision's audience, tenant, and permitted uses admit this server, the request's tenant, and this use, as {{STATEMENT}} requires of `aud`, `aud_tenant`, and `statement_uses`;
 * the decision is not superseded under the `iat` floor of {{STATEMENT}}, which admission on it advances as acceptance of a statement would;
-* the server has not withdrawn the decision and holds no refusal record for its statement;
+* this server has not withdrawn the decision and holds no refusal record for its statement;
 * the document at `sub` has been obtained and contains no duplicate member names; and
 * that document's metadata digest equals the one recorded.
 
 At runtime, the recorded decision replaces the presented statement, not the proof of who is making the request. The request MUST meet the sender constraint of {{STATEMENT}} against the reviewed document, as a presentation would, and a successful admission creates an establishment. At registration, the rules of {{REGISTRATION}} apply as they do to a statement presented there.
 
-A client dealing only with the server that reviewed it therefore presents no statement; portability matters only to other servers.
+A client dealing only with the server that reviewed it therefore need not present a statement; portability matters only to other servers.
 
 # Authorization Server Metadata {#authorization-server-metadata}
 
@@ -626,7 +625,7 @@ A public client presents no client authentication, so its association with the s
 
 A confidential client's authentication proves possession of a key, not that the key is absent from software distributed to end users, so the requirement applies to it as well; a statement over a document listing an endpoint another application can claim is in any case review-only at a trusting authorization server ({{STATEMENT}}).
 
-An authorization server SHOULD additionally relate the redirection URI's origin to the client identifier URL or the metadata document's `client_uri` according to policy. Endpoint or key control informs issuance policy but does not determine issuance.
+An authorization server SHOULD relate the redirection URI's origin to the client identifier URL or the metadata document's `client_uri` according to policy. Endpoint or key control informs issuance policy but does not determine issuance.
 
 A software statement code in a URL is visible to browser history, referrer fields, logs, and other observers. It is short lived, single use, and unredeemable without the PKCE verifier and, where one was bound, the `dpop_jkt` key; `form_post` ({{software-statement-code-response}}) keeps it out of URLs.
 
@@ -638,9 +637,11 @@ Validating the subject token before metadata retrieval or enqueueing ({{token-ex
 * cache successful retrieval results and back off after failures rather than caching them, which {{CIMD}} forbids; and
 * bound pending deferrals per client identifier and requester.
 
-The redirect flow likewise reaches the approval queue before any client-authenticated step; the same rate limits and pending-approval bounds SHOULD apply per client identifier there.
+The redirect flow reaches the approval queue before any client-authenticated step; the same rate limits and pending-approval bounds SHOULD apply per client identifier there.
 
-A subject token is an authorization credential, not a client identifier or a substitute for client authentication where the Client ID Metadata Document establishes a method. It appears in a form body, so any component recording request bodies can expose it. Authorization servers MUST exclude subject tokens from logs, traces, error messages, and audit records; clients and authorization servers MUST protect the credential as a bearer credential unless its format provides proof of possession.
+A subject token is an authorization credential, not a client identifier or a substitute for client authentication where the Client ID Metadata Document declares a method.
+
+A subject token appears in a form body, so any component recording request bodies can expose it. Authorization servers MUST exclude subject tokens from logs, traces, error messages, and audit records; clients and authorization servers MUST protect the credential as a bearer credential unless its format provides proof of possession.
 
 A token exchange carries no in-band evidence of user participation. An authorization server MUST NOT treat a token exchange as implying prior user consent and MUST apply the same issuance and approval policy as for the redirect flow.
 
@@ -667,7 +668,7 @@ Authorization servers SHOULD keep an audit record that binds each decision, whet
 
 * the metadata digest ({{metadata-snapshot}}) of the document the deciding party evaluated;
 * the policy under which the decision was made;
-* the identity of that party; and
+* the identity of the deciding party; and
 * the time of decision.
 
 Authorization servers SHOULD retain the exact retrieved octets of the approved document for audit; a re-serialized copy cannot reproduce the digest.
