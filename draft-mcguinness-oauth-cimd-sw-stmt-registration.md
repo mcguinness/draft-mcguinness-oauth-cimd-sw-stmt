@@ -171,25 +171,29 @@ Under the one-registration default, whoever first registers with a copy of the s
 
 # Error Responses {#errors}
 
-Rejections at a registration endpoint use the error response of Section 3.2.2 of {{RFC7591}}, with the error codes the following table assigns. Rejections at other endpoints use the error responses of {{STATEMENT}}.
+A rejection at a registration endpoint, or at the registration management endpoint of {{RFC7592}}, uses the error response of Section 3.2.2 of {{RFC7591}}, with the HTTP status code that section specifies. An authorization server SHOULD respond to a request it rejects with `temporarily_unavailable` with HTTP status code 503. Rejections at other endpoints use the error responses of {{STATEMENT}}, and registration expiry is reported as {{registration-validity}} defines.
 
-| Condition | Registration endpoint |
-| --- | --- |
-| Malformed, or failing signature or claim validation | `invalid_software_statement` |
-| Valid but not acceptable here: issuer not configured, `aud` excludes this server, `sub` outside the issuer's scope, `aud_tenant` not this request's tenant or absent where required, `statement_uses` excludes this use | `unapproved_software_statement` |
-| Expired, refused by a refusal record, or superseded under the `iat` floor of {{STATEMENT}} | `invalid_software_statement` |
-| Required statement absent | `unapproved_software_statement` |
-| Digest does not match the retrieved document | `invalid_software_statement` |
-| Document contains duplicate member names ({{STATEMENT}}) | `invalid_client_metadata` |
-| Document carries metadata this server's policy refuses | `invalid_client_metadata` |
-| Retrieval did not complete | `temporarily_unavailable` |
-| Document exceeds the server's size bound ({{STATEMENT}}), so that retrying cannot succeed | `invalid_client_metadata` |
-| Document omits `token_endpoint_auth_method` ({{dcr-presentation}}) | `invalid_client_metadata` |
-| Document declaring `none` lists a grant other than `authorization_code` and `refresh_token` ({{dcr-presentation}}) | `invalid_client_metadata` |
-| Document with a redirection URI another application could claim ({{dcr-presentation}}) | `invalid_client_metadata` |
-| Public client, where the server advertises statement-governed registration validity and offers it no registration management ({{registration-validity}}) | `invalid_client_metadata` |
+An authorization server rejecting a registration request, or a registration management request carrying a failing replacement, uses the following error codes:
 
-A registration management request ({{RFC7592}}) carrying a failing replacement uses the same codes. Registration expiry is reported as {{registration-validity}} defines. An authorization server SHOULD use HTTP status code 503 with `temporarily_unavailable` and 400 with the others.
+`invalid_software_statement`:
+: The statement is malformed, fails signature or claim validation, or is expired, refused by a refusal record, or superseded under the `iat` floor of {{STATEMENT}}; or the digest of the retrieved document does not match its `cimd_digest`.
+
+`unapproved_software_statement`:
+: The statement is valid but not acceptable here: its issuer is not configured, its `aud` excludes this server, its `sub` is outside the issuer's scope, its `aud_tenant` is not this request's tenant or is absent where required, or its `statement_uses` excludes this use. This code is also used where a statement this server requires is absent.
+
+`invalid_client_metadata`:
+: The reviewed document:
+
+  * contains duplicate member names ({{STATEMENT}});
+  * carries metadata this server's policy refuses;
+  * exceeds the server's size bound ({{STATEMENT}}), so that retrying cannot succeed;
+  * omits `token_endpoint_auth_method` ({{dcr-presentation}});
+  * declares `token_endpoint_auth_method` of `none` and lists a grant other than `authorization_code` and `refresh_token` ({{dcr-presentation}});
+  * carries a redirection URI another application could claim ({{dcr-presentation}}); or
+  * declares `token_endpoint_auth_method` of `none` at a server that advertises statement-governed registration validity and offers such a client no registration management ({{registration-validity}}).
+
+`temporarily_unavailable`:
+: A retrieval the request needs did not complete, for a reason other than the size bound.
 
 # Example {#example}
 
