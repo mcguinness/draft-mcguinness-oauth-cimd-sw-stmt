@@ -46,6 +46,7 @@ normative:
   IDJAG: I-D.ietf-oauth-identity-assertion-authz-grant
 
 informative:
+  RFC7009:
   STATUSLIST: I-D.ietf-oauth-status-list
   REGISTRATION:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration
@@ -190,7 +191,7 @@ A trusting authorization server resolving the reviewed document MUST reject a do
 
 ## Withdrawal {#withdrawal}
 
-An issuer can end a decision before the statement's `exp` by withdrawing it. How a trusting authorization server learns of a withdrawal is a withdrawal mechanism. This specification requires no withdrawal mechanism and defines none; Token Status List {{STATUSLIST}} is one, and extensions define how a mechanism applies to these statements ({{extensions}}). A trusting authorization server that learns of a withdrawal, through a mechanism it uses for that issuer or from its own operator, holds a refusal record for the statement.
+An issuer can end a decision before the statement's `exp` by withdrawing it. Some status mechanisms call this revocation. This specification uses a distinct term because OAuth revocation ({{RFC7009}}) ends tokens, while a withdrawal revokes no issued token: a server holding a refusal record refuses new admissions and refresh under the statement ({{refresh}}, {{enforcement-bounds}}). How a trusting authorization server learns of a withdrawal is a withdrawal mechanism. This specification requires no withdrawal mechanism and defines none; Token Status List {{STATUSLIST}} is one, and extensions define how a mechanism applies to these statements ({{extensions}}). A trusting authorization server that learns of a withdrawal, through a mechanism it uses for that issuer or from its own operator, holds a refusal record for the statement.
 
 A withdrawal constrains and never relaxes. A statement for which no withdrawal mechanism reports a withdrawal, or for which the server cannot consult the mechanism it uses, is bounded by its effective expiry as it would be otherwise, and a server MUST NOT treat any withdrawal mechanism as grounds to accept a statement past its effective expiry. What a server does when it cannot consult a mechanism it relies on is local policy. Refusing makes issuer availability a precondition for every request the statement governs; proceeding leaves a withdrawn statement acceptable for the rest of its lifetime.
 
