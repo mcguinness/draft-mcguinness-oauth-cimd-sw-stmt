@@ -490,7 +490,7 @@ An authorization server rejecting a presentation at the token or pushed authoriz
 `invalid_client`:
 : The statement or the client cannot be established, where:
 
-  * the statement is malformed, or fails signature or claim validation ({{validation}});
+  * the statement is malformed, or fails signature or claim validation ({{validation}}) for a reason other than expiry;
   * the statement is valid but not acceptable here: its issuer is not configured, its `aud` excludes this server, its `sub` is outside the issuer's scope, its `aud_tenant` is not this request's tenant or is absent where required, or its `statement_uses` excludes this use;
   * the request's `client_id` differs from the statement's `sub` ({{runtime-presentation}});
   * the reviewed document contains duplicate member names ({{validation}}) or exceeds the server's size bound ({{metadata-digest}});
