@@ -102,7 +102,7 @@ The retrieval is client-controlled and reachable before any client is registered
 
 An authorization server that advertises `software_statement_registration_validity_supported` as `true` MUST apply the following validity model to every registration it creates from a validated software statement, whichever issuer signed it, so that a client can rely on the signal ({{authorization-server-metadata}}) before it registers:
 
-* it MUST record the governing statement's `iss`, `jti`, `sub`, and `iat`, and any claim by which a withdrawal mechanism locates it, such as `status`, with the registration, and the registration's effective expiry, which is the governing statement's effective expiry ({{STATEMENT}}); the effective expiry is what a renewal extends and what `registration_expires_at` reports;
+* it MUST record the governing statement's `iss`, `jti`, `sub`, and `iat`, and any claim by which a withdrawal mechanism locates it, such as `status`, with the registration, and the registration's effective expiry, which is the governing statement's effective expiry ({{STATEMENT}}), what a renewal extends, and what `registration_expires_at` reports;
 * the registration is valid until that effective expiry;
 * once the effective expiry passes without a replacement ({{revalidation}}), it MUST reject authorization, token, and pushed authorization requests and {{RFC7592}} update requests under the registration, other than the revalidation requests {{revalidation}} permits, since the remedy is a replacement statement:
   * it rejects them with `statement_required` ({{STATEMENT}}), but rejects an {{RFC7592}} update request with `invalid_software_statement`, since the governing statement is expired or refused;
@@ -132,9 +132,9 @@ A client renews a statement-governed registration by delivering a replacement st
 
 The update request carries the complete client metadata that {{RFC7592}} requires, which the server does not take ({{dcr-presentation}}).
 
-A statement with the governing statement's `iss` and `sub` and an `iat` no later than the governing statement's `iat`, such as the governing statement itself, is not a replacement. The authorization server leaves the registration unchanged and treats a request carrying one as carrying no replacement: the request proceeds while the registration is valid and is rejected as {{registration-validity}} provides once it is not.
+A statement with the governing statement's `iss` and `sub` and an `iat` no later than the governing statement's `iat`, such as the governing statement itself, is not a replacement. A client offers one in an ordinary {{RFC7592}} update request, which repeats the statement a registration, read, or update response returned unmodified (Section 3.2.1 of {{RFC7591}}), even after a token or pushed authorization request has renewed the registration, and may offer the governing statement again after losing the response to the request that made it governing. The authorization server leaves the registration unchanged and treats the request as carrying no replacement: the request proceeds while the registration is valid and is rejected as {{registration-validity}} provides once it is not.
 
-A client offers a statement that is not a replacement in an ordinary {{RFC7592}} update request, which repeats the statement a registration, read, or update response returned unmodified (Section 3.2.1 of {{RFC7591}}), even after a token or pushed authorization request has renewed the registration, and may offer the governing statement again after losing the response to the request that made it governing. An {{RFC7592}} read or update response returns the governing statement as its `software_statement` member.
+An {{RFC7592}} read or update response returns the governing statement as its `software_statement` member.
 
 The replacement MUST:
 
@@ -261,7 +261,7 @@ A retained expired registration is distinguishable from an unknown client, becau
 
 At the authorization endpoint, anyone who can send an authorization request naming the client and one of its registered redirection URIs receives the `statement_required` redirection ({{registration-validity}}), and so learns that the registration has lapsed. Where an observer knows the governing statement's `exp`, a lapse before it shows that the server either holds a refusal record for the statement or caps the lifetime it honors for the issuer.
 
-These disclosures are accepted for the reason {{STATEMENT}} gives for its own `statement_required` refusal: a client that cannot learn why it was refused cannot act. Servers publishing `software_statement_registration_validity_supported` also disclose that statement-derived registrations expire there, which a client needs to know before registering. Beyond a lapse and its timing, these disclosures reveal no issuer trust, subject scope, or attester policy, which {{STATEMENT}} keeps from unauthenticated requesters.
+The disclosures above are accepted for the reason {{STATEMENT}} gives for its own `statement_required` refusal: a client that cannot learn why it was refused cannot act. Servers publishing `software_statement_registration_validity_supported` also disclose that statement-derived registrations expire there, which a client needs to know before registering. Beyond a lapse and its timing, these disclosures reveal no issuer trust, subject scope, or attester policy, which {{STATEMENT}} keeps from unauthenticated requesters.
 
 # Privacy Considerations
 
