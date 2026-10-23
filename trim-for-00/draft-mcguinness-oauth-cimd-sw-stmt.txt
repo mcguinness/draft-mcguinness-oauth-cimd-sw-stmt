@@ -67,6 +67,7 @@ Table of Contents
      3.2.  Validating a Statement
      3.3.  Withdrawal
    4.  Issuer Trust Establishment
+     4.1.  Multi-Tenant Issuers
    5.  Runtime Presentation
      5.1.  Presentation Request
        5.1.1.  Authorization Endpoint
@@ -528,6 +529,16 @@ Table of Contents
    configured for software whose documents are presented review-only
    (Section 5.4.1) excludes that software from the tenant, since no
    statement admits it there.
+
+4.1.  Multi-Tenant Issuers
+
+   Where the tenants of a reviewer serving several customers are
+   independently trusted reviewing authorities, the reviewer MUST issue
+   under a distinct iss for each, so that each tenant's decisions, keys,
+   and watermark (Section 6) stay separate.  Statements from several
+   authorities under one iss would be indistinguishable by iss and sub,
+   and one customer's renewal would supersede another's review.  A
+   statement carries no claim naming the issuer's tenant.
 
 5.  Runtime Presentation
 

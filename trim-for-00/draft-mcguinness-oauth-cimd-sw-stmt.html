@@ -1158,6 +1158,11 @@ svg {
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
             <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-issuer-trust-establishment" class="internal xref">Issuer Trust Establishment</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1">
+                <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-multi-tenant-issuers" class="internal xref">Multi-Tenant Issuers</a></p>
+</li>
+            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
             <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-runtime-presentation" class="internal xref">Runtime Presentation</a></p>
@@ -1614,6 +1619,14 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <p id="section-4-5">Trust configuration <span class="bcp14">SHOULD</span> constrain each issuer to the client identifier namespaces it is expected to attest, for example URLs under the domains of the software publishers it serves; <a href="#validation" class="auto internal xref">Section 3.2</a> rejects a statement outside that scope. Without such a scope, a compromised or over-broad issuer can mint acceptable statements about any client software.<a href="#section-4-5" class="pilcrow">¶</a></p>
 <p id="section-4-6">Where a trusting authorization server configures an issuer whose decisions are confined to one of its tenants, as a customer's own issuer is, it <span class="bcp14">SHOULD</span> record with that configuration the client identifier namespaces for which the issuer's decision is required in that tenant.<a href="#section-4-6" class="pilcrow">¶</a></p>
 <p id="section-4-7">A server that records such a requirement <span class="bcp14">MUST NOT</span> admit software in a covered namespace in that tenant without a current statement from the required issuer, whatever its policy for clients it has not reviewed. Without this rule, withholding the statement would restore access the customer withdrew. The requirement is configured rather than inferred from the statements the server sees, so a holder cannot evade a customer's withdrawal by presenting or publishing only a broader statement, such as a marketplace listing. A required issuer configured for software whose documents are presented review-only (<a href="#public-client-presentation" class="auto internal xref">Section 5.4.1</a>) excludes that software from the tenant, since no statement admits it there.<a href="#section-4-7" class="pilcrow">¶</a></p>
+<div id="multi-tenant-issuers">
+<section id="section-4.1">
+        <h3 id="name-multi-tenant-issuers">
+<a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-multi-tenant-issuers" class="section-name selfRef">Multi-Tenant Issuers</a>
+        </h3>
+<p id="section-4.1-1">Where the tenants of a reviewer serving several customers are independently trusted reviewing authorities, the reviewer <span class="bcp14">MUST</span> issue under a distinct <code>iss</code> for each, so that each tenant's decisions, keys, and watermark (<a href="#multi-instance" class="auto internal xref">Section 6</a>) stay separate. Statements from several authorities under one <code>iss</code> would be indistinguishable by <code>iss</code> and <code>sub</code>, and one customer's renewal would supersede another's review. A statement carries no claim naming the issuer's tenant.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
 </section>
 </div>
 <div id="cimd-presentation">
