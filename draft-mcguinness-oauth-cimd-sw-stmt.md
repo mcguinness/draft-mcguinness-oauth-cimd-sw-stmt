@@ -271,7 +271,7 @@ At the token endpoint, a runtime presentation is valid on a request using:
 
 Authorization-code redemption and refresh-token use continue an existing grant ({{grant-lifecycle}}, {{refresh}}). A request that asks an authorization server to issue a software statement, rather than to consume one, MUST NOT carry the `software_statement` parameter.
 
-An authorization server advertises support through `software_statement_presentation_supported` ({{authorization-server-metadata}}).
+An authorization server that does not implement this specification ignores the parameter (Sections 3.1 and 3.2 of {{RFC6749}}), so a client can present wherever its statement's audience allows; one that requires a statement says so with `statement_required` ({{errors}}).
 
 ### Authorization Endpoint {#authorization-requests}
 
@@ -585,9 +585,6 @@ This specification defines the following authorization server metadata {{RFC8414
 `software_statement_signing_alg_values_supported`:
 : REQUIRED for an authorization server that issues software statements. A JSON array containing the asymmetric JWS `alg` values that the authorization server can use to sign software statements. The array MUST NOT contain `none` or a symmetric algorithm. An authorization server that only accepts software statements does not publish it.
 
-`software_statement_presentation_supported`:
-: OPTIONAL. A JSON array naming the endpoints at which the authorization server accepts a software statement presented at runtime ({{runtime-presentation}}): `token` and `pushed_authorization_request`. A client ignores a value it does not recognize. Omission, or an empty array, means runtime presentation is not offered. The member implies neither acceptance of any particular issuer or subject namespace nor support for statement-governed registrations ({{REGISTRATION}}), and admitting a public client's presentation ({{public-client-presentation}}) remains local policy. An authorization server advertising `pushed_authorization_request` MUST publish `pushed_authorization_request_endpoint`.
-
 `software_statement_pull_supported`:
 : OPTIONAL. Boolean value indicating whether the authorization server retrieves statements from a client's `software_statements_uri` when admitting a client that presented none ({{pulled-statements}}). If omitted, the default value is false. It tells a client whether it also needs to present.
 
@@ -644,7 +641,7 @@ Expiry and withdrawal ({{withdrawal}}) govern new admissions; neither revokes an
 
 ## Observable State {#oracle-considerations}
 
-A `statement_required` refusal at the authorization endpoint ({{errors}}) travels through the user agent, so it tells anyone who can see the redirection that this client has no established standing at this server. The `software_statement_presentation_supported` metadata discloses only that presentation is offered. The disclosure is accepted because a client that cannot learn why it was refused cannot act. The disclosure carries no issuer-trust, subject-scope, or attester-policy detail, which {{errors}} keeps from unauthenticated requesters.
+A `statement_required` refusal at the authorization endpoint ({{errors}}) travels through the user agent, so it tells anyone who can see the redirection that this client has no established standing at this server. The disclosure is accepted because a client that cannot learn why it was refused cannot act. The disclosure carries no issuer-trust, subject-scope, or attester-policy detail, which {{errors}} keeps from unauthenticated requesters.
 
 ## Statement Handling
 
@@ -818,18 +815,6 @@ Specification Document(s):
 ## OAuth Authorization Server Metadata Registry
 
 This specification requests registration of the following values in the IANA "OAuth Authorization Server Metadata" registry established by {{RFC8414}}.
-
-Metadata Name:
-: `software_statement_presentation_supported`
-
-Metadata Description:
-: JSON array of endpoint names at which the authorization server accepts a software statement presented at runtime.
-
-Change Controller:
-: IESG
-
-Specification Document(s):
-: This specification, {{authorization-server-metadata}}
 
 Metadata Name:
 : `software_statement_signing_alg_values_supported`
