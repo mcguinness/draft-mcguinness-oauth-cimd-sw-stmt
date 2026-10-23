@@ -351,13 +351,12 @@ Table of Contents
    [REGISTRATION] defines the rejection at a registration endpoint.
 
    A server MUST NOT compare a digest against any representation other
-   than one it retrieved itself, stored under this section, or retained
-   as [REGISTRATION] permits, since a shared cache may hold a variant
-   selected for another request.  A 304 Not Modified response shows that
-   stored octets, and their digest, are still current only where it
-   carries a strong entity tag that matches the one stored with them
-   under strong comparison (Section 8.8.3.2 of [RFC9110]); otherwise the
-   server retrieves the body again.
+   than one it retrieved itself or stored under this section, since a
+   shared cache may hold a variant selected for another request.  A 304
+   Not Modified response shows that stored octets, and their digest, are
+   still current only where it carries a strong entity tag that matches
+   the one stored with them under strong comparison (Section 8.8.3.2 of
+   [RFC9110]); otherwise the server retrieves the body again.
 
 3.2.  Validating a Statement
 
@@ -773,13 +772,14 @@ Table of Contents
    material (Section 5.4.1).
 
    A statement whose reviewed document carries no key material can be
-   consumed at registration where its statement_uses claim permits
+   consumed at registration where its statement_uses claim permits and
+   the document declares a client authentication method other than none
    ([REGISTRATION]).  Where the document declares
-   token_endpoint_auth_method of none, such a statement can also be
-   consumed at the pushed authorization request endpoint under
-   Section 5.4.1.  Endorsement of a key the reviewed document does not
-   carry, such as by a client attester, is left to extensions
-   (Section 11).
+   token_endpoint_auth_method of none, such a statement is consumed
+   instead at the pushed authorization request endpoint, or pulled at
+   the authorization endpoint, under Section 5.4.1.  Endorsement of a
+   key the reviewed document does not carry, such as by a client
+   attester, is left to extensions (Section 11).
 
    A key at the document's jwks_uri is retrieved at presentation time;
    if retrieval fails, the key is unverified and the presentation is

@@ -192,11 +192,11 @@ Table of Contents
       a copy of the statement;
 
    *  MUST reject the registration with invalid_client_metadata where
-      the document declares token_endpoint_auth_method of none and its
-      grant_types include a grant other than authorization_code and
-      refresh_token, since only an authorization code delivered to a
-      reviewed redirection URI binds a client with no key to the review
-      (see the public-client presentation rules of [STATEMENT]); and
+      the document declares token_endpoint_auth_method of none, since
+      such software is admitted instead by runtime presentation, which
+      binds each installation to the reviewed redirection URIs and a key
+      it holds (see the public-client presentation rules of
+      [STATEMENT]); and
 
    *  MUST reject the registration with invalid_client_metadata where
       any of the document's redirection URIs could be claimed by another
@@ -212,16 +212,6 @@ Table of Contents
    supplied value for a member the document omits, such as a jwks beside
    a document naming only jwks_uri, would give any holder of a copy a
    registration with reviewed branding and its own key.
-
-   An authorization server that pre-registers a client identifier URL,
-   as [CIMD] permits, can retain the exact octets it digested when it
-   onboarded that URL.  Such a server MAY satisfy the resolution
-   requirement above by comparing cimd_digest against the digest of the
-   retained octets, and MUST retrieve the document afresh where that
-   comparison fails.  It SHOULD revalidate retained octets on the
-   schedule the document's caching directives allow, for example with a
-   conditional request, since otherwise a statement over an older
-   document keeps matching bytes the publisher no longer serves.
 
    The retrieval is client-controlled and reachable before any client is
    registered, so the external-retrieval protections and resource bounds
@@ -275,10 +265,8 @@ Table of Contents
    authorization server redirects with it only after validating the
    request's redirect_uri against the retained registration; where it
    cannot, it MUST NOT redirect and reports the error to the resource
-   owner instead.  The client then delivers a replacement (Section 3.2)
-   in a pushed authorization request or, where its reviewed document
-   declares token_endpoint_auth_method of none, in an [RFC7592] update
-   request.
+   owner instead.  The client then delivers a replacement in a pushed
+   authorization request (Section 3.2).
 
    The effective expiry is an upper bound.  Where the server holds a
    refusal record for the governing statement ([STATEMENT]), the
@@ -291,14 +279,6 @@ Table of Contents
    pushed_authorization_request_endpoint, since Section 3.2 otherwise
    leaves a client whose only grant type is the authorization code, and
    which holds no refresh token, with no way to renew.
-
-   A client whose reviewed document declares token_endpoint_auth_method
-   of none cannot authenticate a token or pushed authorization request,
-   so it renews only through [RFC7592].  An authorization server
-   advertising this model that does not offer registration management to
-   such a client MUST reject its registration with
-   invalid_client_metadata, rather than create a registration the client
-   cannot renew.
 
    A server applying this model MUST return a registration_expires_at
    member, a NumericDate giving the latest time the registration remains
@@ -359,8 +339,8 @@ Table of Contents
 
    For a replacement, the authorization server MUST:
 
-   *  obtain the Client ID Metadata Document at the replacement's sub,
-      by retrieval or from retained octets as Section 3 permits;
+   *  obtain the Client ID Metadata Document at the replacement's sub by
+      retrieval, as Section 3 requires;
 
    *  verify that the digest of those octets equals the replacement's
       cimd_digest; and
@@ -426,30 +406,14 @@ Table of Contents
 5.  Repeated Registration
 
    One unexpired statement can be consumed more than once, within the
-   bounds of [STATEMENT]; for a reviewed document that carries key
-   material, the safe default is one registration per (iss, sub) at one
-   authorization server.  On repeated consumption, local policy can
-   reject the request, treat it as idempotent, or create another
-   registration; [RFC7591] defines no duplicate-registration protocol.
-   An idempotent response MUST NOT return the existing registration's
-   credentials, such as its registration_access_token, since a repeated
-   request can come from any holder of a copy of the statement.
-
-   A reviewed document that carries no key material (no jwks or jwks_uri
-   member), such as one declaring token_endpoint_auth_method of none,
-   describes software whose installations cannot share one registration:
-   a client declaring none renews only through its own registration
-   management (Section 3.1), and under the one-registration default the
-   first holder of a copy of the statement would hold the only
-   registration for every installation.
-
-   For a reviewed document without key material, the authorization
-   server MAY create a registration for each request.  Since anyone
-   holding a copy of the statement can create one, such a registration
-   counts against the bounds of [STATEMENT] only from the time the first
-   access token is issued at the token endpoint under it, and the
-   authorization server MAY discard one under which no such access token
-   has been issued within a period of its choosing.
+   bounds of [STATEMENT]; the safe default is one registration per (iss,
+   sub) at one authorization server.  On repeated consumption, local
+   policy can reject the request, treat it as idempotent, or create
+   another registration; [RFC7591] defines no duplicate-registration
+   protocol.  An idempotent response MUST NOT return the existing
+   registration's credentials, such as its registration_access_token,
+   since a repeated request can come from any holder of a copy of the
+   statement.
 
 6.  Error Responses
 
@@ -494,15 +458,10 @@ Table of Contents
 
       *  omits token_endpoint_auth_method (Section 3);
 
-      *  declares token_endpoint_auth_method of none and lists a grant
-         other than authorization_code and refresh_token (Section 3);
+      *  declares token_endpoint_auth_method of none (Section 3); or
 
       *  carries a redirection URI another application could claim
-         (Section 3); or
-
-      *  declares token_endpoint_auth_method of none at a server that
-         advertises statement-governed registration validity and offers
-         such a client no registration management (Section 3.1).
+         (Section 3).
 
    temporarily_unavailable:  A retrieval the request needs did not
       complete, for a reason other than the size bound.
@@ -613,10 +572,7 @@ Table of Contents
    registration and evaluate a replacement before rejecting.  At the
    token and pushed authorization request endpoints, only a requester
    that authenticates as the registration's client can observe this, and
-   what it learns is the state it must act on; a client whose reviewed
-   document declares token_endpoint_auth_method of none identifies
-   itself with its client_id alone, so anyone holding that identifier
-   can observe the same.
+   what it learns is the state it must act on.
 
    At the authorization endpoint, anyone who can send an authorization
    request naming the client and one of its registered redirection URIs
