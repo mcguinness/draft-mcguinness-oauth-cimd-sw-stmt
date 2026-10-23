@@ -226,6 +226,10 @@ Where a trusting authorization server configures an issuer whose decisions are c
 
 A server that records such a requirement MUST NOT admit software in a covered namespace in that tenant without a current statement from the required issuer, whatever its policy for clients it has not reviewed. Without this rule, withholding the statement would restore access the customer withdrew. The requirement is configured rather than inferred from the statements the server sees, so a holder cannot evade a customer's withdrawal by presenting or publishing only a broader statement, such as a marketplace listing. A required issuer configured for software whose documents are presented review-only ({{public-client-presentation}}) excludes that software from the tenant, since no statement admits it there.
 
+## Multi-Tenant Issuers {#multi-tenant-issuers}
+
+Where the tenants of a reviewer serving several customers are independently trusted reviewing authorities, the reviewer MUST issue under a distinct `iss` for each, so that each tenant's decisions, keys, and watermark ({{multi-instance}}) stay separate. Statements from several authorities under one `iss` would be indistinguishable by `iss` and `sub`, and one customer's renewal would supersede another's review. A statement carries no claim naming the issuer's tenant.
+
 # Runtime Presentation {#cimd-presentation}
 
 A client presents its statement in a request ({{runtime-presentation}}) or publishes it where its document points ({{pulled-statements}}).

@@ -548,10 +548,6 @@ At runtime, the recorded decision replaces the presented statement, not the proo
 
 A client dealing only with the server that reviewed it therefore presents no statement; portability matters only to other servers.
 
-# Multi-Tenant Issuers {#multi-tenant-issuers}
-
-Where the tenants of a reviewer serving several customers are independently trusted reviewing authorities, the reviewer MUST issue under a distinct `iss` for each, so that each tenant's decisions, keys, and `iat` floor ({{STATEMENT}}) stay separate. Statements from several authorities under one `iss` would be indistinguishable by `iss` and `sub`, and one customer's renewal would supersede another's review. A statement carries no claim naming the issuer's tenant.
-
 # Authorization Server Metadata {#authorization-server-metadata}
 
 An authorization server that issues software statements under this specification advertises `true` for `client_id_metadata_document_supported` ({{CIMD}}) and publishes the issuer metadata of {{STATEMENT}}.
