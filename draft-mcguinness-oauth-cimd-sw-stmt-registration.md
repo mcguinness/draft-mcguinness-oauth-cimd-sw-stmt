@@ -112,6 +112,8 @@ At the authorization endpoint, the rejection is returned in the authorization er
 
 The effective expiry is an upper bound. Where the server holds a refusal record for the governing statement ({{STATEMENT}}), the registration ceases to be valid as it does at its effective expiry, and {{revalidation}} is the recovery path; the client learns of the withdrawal only from the rejection. The disposition of outstanding grants is local policy.
 
+A server applying this model that uses a withdrawal mechanism for the governing statement's issuer SHOULD consult it for that statement at each token request under the registration, as {{STATEMENT}} provides for refresh, so that a withdrawal reaches the registration and not only runtime grants.
+
 An authorization server advertising this model MUST publish `pushed_authorization_request_endpoint`, since {{revalidation}} otherwise leaves a client whose only grant type is the authorization code, and which holds no refresh token, with no way to renew.
 
 A server applying this model MUST return a `registration_expires_at` member, a NumericDate giving the latest time the registration remains valid, in the {{RFC7591}} registration response and in the response to any request that renews the registration or carries its governing statement ({{revalidation}}), and SHOULD return it in any {{RFC7592}} read or update response it supports. For a registration that has ceased to be valid, the value is the time it ceased. A client cannot compute this boundary from the statement alone, because the server can cap the lifetime it honors for the issuer ({{STATEMENT}}).
