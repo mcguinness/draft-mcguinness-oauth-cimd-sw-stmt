@@ -104,7 +104,7 @@ Approval workflow, approver identity, external approval integration, acceptance 
 
 {::boilerplate bcp14-tagged}
 
-This specification uses terminology defined in {{RFC6749}}, {{RFC7591}}, {{CIMD}}, and {{DTR}}. The terms Issuing Authorization Server, Trusting Authorization Server, and Metadata Digest are defined by {{STATEMENT}}.
+This specification uses terminology defined in {{RFC6749}}, {{RFC7591}}, {{CIMD}}, and {{DTR}}. The terms Issuing Authorization Server, Trusting Authorization Server, Metadata Digest, Effective Expiry, Establishment, and Refusal Record are defined by {{STATEMENT}}.
 
 This specification defines the following terms:
 
@@ -529,6 +529,28 @@ The denial is terminal for the request; a denied deferral behaves as {{DTR}} spe
 # Withdrawal {#status-publication}
 
 An issuing authorization server that ends decisions before their expiry does so through a withdrawal mechanism ({{STATEMENT}}), such as the Token Status List binding of {{STATUS}}. Withdrawing a statement does not withdraw a replacement obtained through {{renewal}}, and withdrawing a replacement does not restore its predecessor.
+
+# Issuer and Consumer as One Server {#same-server}
+
+An authorization server that issued a statement already holds the decision that statement records. Where it is also the trusting authorization server, it MAY admit the client on that record rather than require the statement to be presented back to it, at registration or at runtime.
+
+Such a server MUST apply the conditions it would apply to a statement presented under {{STATEMENT}}, since a decision it made is not a document it has re-read:
+
+* the decision's issuer is one this server accepts for the request's tenant and for the decision's `sub`, as {{STATEMENT}} requires of `iss` and `sub`, and, where this server records a required issuer for that tenant and `sub`, is that issuer;
+* the effective expiry the decision's statement would have at this server has not passed, and the registration has not expired where the validity model of {{REGISTRATION}} governs it;
+* the decision's audience, tenant, and permitted uses admit this server, the request's tenant, and this use, as {{STATEMENT}} requires of `aud`, `aud_tenant`, and `statement_uses`;
+* the decision is not superseded under the `iat` floor of {{STATEMENT}}, which admission on it advances as acceptance of a statement would;
+* the server has not withdrawn the decision and holds no refusal record for its statement;
+* the document at `sub` has been obtained and contains no duplicate member names; and
+* that document's metadata digest equals the one recorded.
+
+At runtime, the recorded decision replaces the presented statement, not the proof of who is making the request. The request MUST meet the sender constraint of {{STATEMENT}} against the reviewed document, as a presentation would, and a successful admission creates an establishment. At registration, the rules of {{REGISTRATION}} apply as they do to a statement presented there.
+
+A client dealing only with the server that reviewed it therefore presents no statement; portability matters only to other servers.
+
+# Multi-Tenant Issuers {#multi-tenant-issuers}
+
+Where the tenants of a reviewer serving several customers are independently trusted reviewing authorities, the reviewer MUST issue under a distinct `iss` for each, so that each tenant's decisions, keys, and `iat` floor ({{STATEMENT}}) stay separate. Statements from several authorities under one `iss` would be indistinguishable by `iss` and `sub`, and one customer's renewal would supersede another's review. A statement carries no claim naming the issuer's tenant.
 
 # Authorization Server Metadata {#authorization-server-metadata}
 

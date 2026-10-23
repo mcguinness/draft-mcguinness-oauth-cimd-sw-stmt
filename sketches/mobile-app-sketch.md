@@ -121,7 +121,7 @@ sequenceDiagram
 | Requesting a statement | Issuance | Software Statement Authorization Request |
 | Waiting for an administrator | Issuance | Deferred Processing |
 | Receiving the statement | Issuance | Software Statement Token Response |
-| Admission without presentation | Statement | Issuer and Consumer as One Server |
+| Admission without presentation | Issuance | Issuer and Consumer as One Server |
 | Presenting as a public client | Statement | Public Clients |
 | Binding the grant to one install | Statement | Grant Lifecycle |
 | Ending open grants on withdrawal | Statement | Refresh |

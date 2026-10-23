@@ -226,28 +226,6 @@ Where a trusting authorization server configures an issuer whose decisions are c
 
 A server that records such a requirement MUST NOT admit software in a covered namespace in that tenant without a current statement from the required issuer, whatever its policy for clients it has not reviewed. Without this rule, withholding the statement would restore access the customer withdrew. The requirement is configured rather than inferred from the statements the server sees, so a holder cannot evade a customer's withdrawal by presenting or publishing only a broader statement, such as a marketplace listing. A required issuer configured for software whose documents are presented review-only ({{public-client-presentation}}) excludes that software from the tenant, since no statement admits it there.
 
-## Issuer and Consumer as One Server {#same-server}
-
-An authorization server that issued a statement already holds the decision that statement records. Where it is also the trusting authorization server, it MAY admit the client on that record rather than require the statement to be presented back to it, at registration or at runtime.
-
-Such a server MUST apply the conditions it would apply to a presented statement, since a decision it made is not a document it has re-read:
-
-* the decision's issuer is one this server accepts for the request's tenant and for the decision's `sub`, as {{validation}} requires of `iss` and `sub` ({{issuer-trust}}), and, where this server records a required issuer for that tenant and `sub` ({{issuer-trust}}), is that issuer;
-* the effective expiry the decision's statement would have at this server has not passed, and the registration has not expired where the validity model of {{REGISTRATION}} governs it;
-* the decision's audience, tenant, and permitted uses admit this server, the request's tenant, and this use, as {{validation}} requires of `aud`, `aud_tenant`, and `statement_uses`;
-* the decision is not superseded under the `iat` floor of {{multi-instance}}, which admission on it advances as acceptance of a statement would;
-* the server has not withdrawn the decision and holds no refusal record for its statement ({{withdrawal}});
-* the document at `sub` has been obtained and contains no duplicate member names ({{validation}}); and
-* that document's digest equals the one recorded ({{metadata-digest}}).
-
-At runtime, the recorded decision replaces the presented statement, not the proof of who is making the request. The request MUST meet the sender constraint of {{sender-constraint}} against the reviewed document, as a presentation would, and a successful admission creates an establishment ({{grant-lifecycle}}). At registration, the rules of {{REGISTRATION}} apply as they do to a statement presented there.
-
-A client dealing only with the server that reviewed it therefore presents no statement; portability matters only to other servers.
-
-## Multi-Tenant Issuers {#multi-tenant-issuers}
-
-Where the tenants of a reviewer serving several customers are independently trusted reviewing authorities, the reviewer MUST issue under a distinct `iss` for each, so that each tenant's decisions, keys, and watermark ({{multi-instance}}) stay separate. Statements from several authorities under one `iss` would be indistinguishable by `iss` and `sub`, and one customer's renewal would supersede another's review. A statement carries no claim naming the issuer's tenant.
-
 # Runtime Presentation {#cimd-presentation}
 
 A client presents its statement in a request ({{runtime-presentation}}) or publishes it where its document points ({{pulled-statements}}).
