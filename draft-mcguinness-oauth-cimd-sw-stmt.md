@@ -182,7 +182,7 @@ Before accepting a statement, a trusting authorization server MUST:
 
 A trusting authorization server that hosts more than one tenant MUST evaluate every tenant-specific check, such as `aud_tenant` and a required issuer ({{issuer-trust}}), against the tenant that scopes what it issues on the statement, never selected by a value the client chooses.
 
-A trusting authorization server MUST reject a statement for which it holds a refusal record ({{withdrawal}}). The rejection uses the refusal-record row of {{errors}}, because re-presenting the same statement cannot succeed while the refusal stands.
+A trusting authorization server MUST reject a statement for which it holds a refusal record ({{withdrawal}}). Outside registration, the rejection is `statement_required` ({{errors}}), because re-presenting the same statement cannot succeed while the refusal stands.
 
 A trusting authorization server resolving the reviewed document MUST reject a document containing duplicate object member names, since parsers interpret them differently despite an identical digest.
 
@@ -442,37 +442,83 @@ A trust mark {{OPENID-FED}} is also a signed third-party assertion about an enti
 
 # Error Responses {#errors}
 
-{{REGISTRATION}} defines rejections at a registration endpoint. A rejected presentation or replacement uses the error responses of {{RFC6749}} for the endpoint at which it was presented, with the error codes in the following table. This specification defines one code, `statement_required`: a current statement is required and none was supplied, or the one supplied is expired or refused, so the client recovers by obtaining a newer statement and re-sending the same one cannot succeed. Wherever this specification requires a current statement on a refresh-token request, `statement_required` replaces `invalid_grant`, so that a client does not read the rejection as an invalid refresh token ({{RFC9700}}).
+A rejection uses the error response of the endpoint at which it occurs: Section 5.2 of {{RFC6749}} at the token endpoint, Section 2.3 of {{RFC9126}} at the pushed authorization request endpoint, and Section 4.1.2.1 of {{RFC6749}} at the authorization endpoint, with the HTTP status codes those sections specify. An authorization server SHOULD respond to a request it rejects with `temporarily_unavailable` with HTTP status code 503, so that a client can distinguish a retrieval worth retrying from a condition that needs a new statement. {{REGISTRATION}} defines rejections at a registration endpoint and how registration validity is reported.
 
-| Condition | Pushed authorization request or token | Refresh |
-| --- | --- | --- |
-| Malformed, or failing signature or claim validation | `invalid_client` | `statement_required` |
-| Failing the sender constraint ({{sender-constraint}}), or on refresh not proving the establishment's proven key | `invalid_client` | `invalid_grant` |
-| Proven key no longer carried by the client's document ({{refresh}}) | n/a | `invalid_grant` |
-| Valid but not acceptable here: issuer not configured, `aud` excludes this server, `sub` outside the issuer's scope, `aud_tenant` not this request's tenant or absent where required, `statement_uses` excludes this use | `invalid_client` | `statement_required` |
-| Expired, refused by a refusal record ({{withdrawal}}), or superseded under the `iat` floor of {{multi-instance}} | `statement_required` | `statement_required` |
-| Required statement absent, including one from an issuer required for the tenant ({{issuer-trust}}) | `statement_required` | `statement_required` |
-| Digest does not match the retrieved document | see {{effective-metadata}} | `statement_required` |
-| Document contains duplicate member names ({{validation}}) | `invalid_client` | `statement_required` |
-| Document carries metadata this server's policy refuses | `unauthorized_client` or `invalid_scope` | `unauthorized_client` or `invalid_scope` |
-| Request exceeds the reviewed document's grant types or response types ({{effective-metadata}}) | `unauthorized_client` | `unauthorized_client` |
-| Request exceeds the reviewed document's scope ({{effective-metadata}}) | `invalid_scope` | `invalid_scope` |
-| Retrieval did not complete | `temporarily_unavailable` | `temporarily_unavailable` |
-| Document exceeds the server's size bound ({{metadata-digest}}) | `invalid_client` | `statement_required` |
-| Review-only client where reviewed software is required ({{public-client-presentation}}) | `unauthorized_client` | `statement_required` |
-| Any other rejection, including `software_statement` in a request that may not carry it, such as a redemption or an issuance request ({{runtime-presentation}}, {{grant-lifecycle}}) | `invalid_request` | `invalid_request` |
+## The statement_required Error Code {#statement-required}
 
-An authorization server uses the HTTP status codes of the error response it returns, and SHOULD use HTTP status code 503 with `temporarily_unavailable`, so that a client can distinguish a retrieval worth retrying from a condition that needs a new statement.
+This specification defines the following error code:
 
-At the pushed authorization request endpoint, these codes are carried in the error response of {{RFC9126}}. Registration validity is reported as {{REGISTRATION}} defines. Neither a rejection in the Refresh column nor one reporting registration validity indicates refresh-token replay ({{RFC9700}}).
+`statement_required`:
+: A current software statement is required and none was supplied, or the one supplied is expired, refused by a refusal record ({{withdrawal}}), or superseded under the `iat` floor of {{multi-instance}}. Re-sending the same statement cannot succeed; the client recovers by obtaining a statement issued more recently.
+
+Wherever this specification requires a current statement on a refresh-token request, `statement_required` replaces `invalid_grant`, so that a client does not read the rejection as an invalid refresh token ({{RFC9700}}).
+
+## Presentation {#presentation-errors}
+
+An authorization server rejecting a presentation at the token or pushed authorization request endpoint uses the following error codes:
+
+`invalid_client`:
+: The statement or the client cannot be established, where:
+
+  * the statement is malformed, or fails signature or claim validation ({{validation}});
+  * the statement is valid but not acceptable here: its issuer is not configured, its `aud` excludes this server, its `sub` is outside the issuer's scope, its `aud_tenant` is not this request's tenant or is absent where required, or its `statement_uses` excludes this use;
+  * the request's `client_id` differs from the statement's `sub` ({{runtime-presentation}});
+  * the reviewed document contains duplicate member names ({{validation}}) or exceeds the server's size bound ({{metadata-digest}});
+  * the document's digest does not match `cimd_digest` and the server does not proceed without the statement ({{effective-metadata}});
+  * the request fails the sender constraint, including a presentation under a document that omits `token_endpoint_auth_method` and a presentation at the token endpoint under a document with no key material ({{sender-constraint}}, {{public-client-presentation}}); or
+  * the bound on establishments of {{multi-instance}} is reached ({{effective-metadata}}).
+
+`statement_required`:
+: The statement is expired, refused by a refusal record, or superseded, or a required statement is absent, including one from an issuer required for the tenant ({{issuer-trust}}).
+
+`unauthorized_client`:
+: The request exceeds the reviewed document's grant types or response types ({{effective-metadata}}), the document carries metadata this server's policy refuses, or the client is review-only and this server requires reviewed software ({{public-client-presentation}}).
+
+`invalid_scope`:
+: The request exceeds the reviewed document's scope ({{effective-metadata}}), or the document carries a scope this server's policy refuses.
+
+`temporarily_unavailable`:
+: A retrieval the presentation needs did not complete, for a reason other than the size bound ({{external-retrieval}}).
+
+`invalid_request`:
+: The request carries `software_statement` in a role {{runtime-presentation}} does not permit, or is rejected for a reason not listed above.
+
+## Code Redemption and Refresh {#continuation-errors}
+
+A token request that redeems an authorization code opened by a presentation is rejected with `invalid_request` where it carries `software_statement`, and with `invalid_grant` where its client identifier or key binding fails ({{grant-lifecycle}}).
+
+An authorization server rejecting a refresh-token request under an establishment uses the following error codes:
+
+`statement_required`:
+: A current statement or a replacement is needed ({{refresh}}) and none is supplied or pulled, or the one supplied or pulled fails {{refresh}}: it is malformed, invalid, not acceptable here, expired, refused, or superseded, or it names a document whose digest does not match, that contains duplicate member names, that exceeds the size bound, or that no longer satisfies {{public-client-presentation}}.
+
+`invalid_grant`:
+: The request does not prove the establishment's proven key, or the document currently served at the establishment's `sub` no longer carries that key ({{refresh}}).
+
+`temporarily_unavailable`:
+: A retrieval needed to check the replacement or the proven key did not complete, for a reason other than the size bound.
+
+`unauthorized_client` or `invalid_scope`:
+: The refreshed access would exceed the reviewed document's metadata or this server's policy, as for a presentation.
+
+`invalid_request`:
+: The request carries `software_statement` in a role {{runtime-presentation}} does not permit, or is rejected for a reason not listed above.
+
+None of these rejections indicates refresh-token replay ({{RFC9700}}), and neither does a rejection reporting registration validity ({{REGISTRATION}}).
+
+## Authorization Endpoint {#authorization-errors}
 
 A statement is never presented at the authorization endpoint ({{authorization-requests}}), though one may be pulled there ({{pulled-statements}}). There, a review-only client is rejected with `unauthorized_client`, and a client whose pulled statements could not be retrieved is rejected with `temporarily_unavailable`, in each case where reviewed software is required ({{public-client-presentation}}, {{pulled-statements}}).
 
-Apart from those two cases, at the authorization endpoint, where this server requires a statement for a client it has not admitted on one, the authorization server MUST return `statement_required` in the authorization error response {{RFC6749}}. The code tells the client to obtain a statement and return through the pushed authorization request endpoint; without the code, a client cannot tell a missing review from a policy it will never satisfy.
+Apart from those two cases, at the authorization endpoint, where this server requires a statement for a client it has not admitted on one, the authorization server MUST return `statement_required` in the authorization error response (Section 4.1.2.1 of {{RFC6749}}). The code tells the client to obtain a statement and return through the pushed authorization request endpoint; without the code, a client cannot tell a missing review from a policy it will never satisfy.
 
 The authorization server redirects with the error only after resolving the client's Client ID Metadata Document and validating the request's `redirect_uri` against it. Where it cannot resolve the document, and so cannot validate the redirection URI, the authorization server MUST NOT redirect and reports the error to the resource owner instead.
 
-Where the proof mechanism defines an error of its own for a proof it does not accept, such as `invalid_dpop_proof` for a DPoP proof that fails the checks of Section 4.3 of {{RFC9449}} or `use_dpop_nonce` for a nonce challenge (Section 8 of {{RFC9449}}), the request is rejected with that error in place of the code this specification assigns to a failed sender constraint. A proof that its mechanism accepts but that proves a key other than the one this specification requires, such as a key the reviewed document does not carry or not the establishment's proven key, is not an invalid proof: it fails the sender constraint, and is rejected with the code this section or {{grant-lifecycle}} assigns to that failure.
+## Proof Mechanism Errors {#proof-errors}
+
+Where the proof mechanism defines an error of its own for a proof it does not accept, such as `invalid_dpop_proof` for a DPoP proof that fails the checks of Section 4.3 of {{RFC9449}} or `use_dpop_nonce` for a nonce challenge (Section 8 of {{RFC9449}}), the request is rejected with that error in place of the code this specification assigns to a failed sender constraint. A proof that its mechanism accepts but that proves a key other than the one this specification requires, such as a key the reviewed document does not carry or not the establishment's proven key, is not an invalid proof: it fails the sender constraint, and is rejected with the code this section assigns to that failure.
+
+## Error Descriptions {#error-descriptions}
 
 These codes do not tell a client whether to seek a corrected statement or a different issuer. The authorization server MAY return non-sensitive diagnostics in `error_description` to a client it has authenticated, but MUST NOT reveal issuer-trust, subject-namespace, or attester-policy details to an unauthenticated requester. Where a statement is refused by a refusal record rather than merely expired, and the client is authenticated, the authorization server SHOULD indicate that a statement issued more recently is required, since re-delivering the same statement can never succeed.
 
