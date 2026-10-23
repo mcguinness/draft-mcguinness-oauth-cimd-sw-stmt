@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         22 October 2026
-Expires: 25 April 2027
+Intended status: Standards Track                         23 October 2026
+Expires: 26 April 2027
 
 
                   CIMD Software Statement Registration
@@ -38,7 +38,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 25 April 2027.
+   This Internet-Draft will expire on 26 April 2027.
 
 Copyright Notice
 
@@ -437,9 +437,10 @@ Table of Contents
    For such a document, the authorization server MAY create a
    registration for each request.  Since anyone holding a copy of the
    statement can create one, such a registration counts against the
-   bounds of [STATEMENT] only from the time a token is first issued
-   under it, and the authorization server MAY discard one under which no
-   token has been issued within a period of its choosing.
+   bounds of [STATEMENT] only from the time the first access token is
+   issued at the token endpoint under it, and the authorization server
+   MAY discard one under which no such access token has been issued
+   within a period of its choosing.
 
    Under the one-registration default, whoever first registers with a
    copy of the statement holds the slot, and [RFC7592] management keeps
