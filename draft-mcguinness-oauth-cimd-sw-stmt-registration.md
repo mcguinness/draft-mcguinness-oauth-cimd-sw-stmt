@@ -171,7 +171,7 @@ Under the one-registration default, whoever first registers with a copy of the s
 
 # Error Responses {#errors}
 
-A rejection at a registration endpoint, or at the registration management endpoint of {{RFC7592}}, uses the error response of Section 3.2.2 of {{RFC7591}}, with the HTTP status code that section specifies. An authorization server SHOULD respond to a request it rejects with `temporarily_unavailable` with HTTP status code 503. Rejections at other endpoints use the error responses of {{STATEMENT}}, and registration expiry is reported as {{registration-validity}} defines.
+A rejection this specification defines, at a registration endpoint or at the registration management endpoint of {{RFC7592}}, uses the error response of Section 3.2.2 of {{RFC7591}}, with the HTTP status code that section specifies. An authorization server SHOULD respond to a request it rejects with `temporarily_unavailable` with HTTP status code 503. Other rejections of a registration management request, such as for an invalid registration access token, an unknown client, or a request the client is not permitted to make, use the responses {{RFC7592}} specifies. Rejections at other endpoints use the error responses of {{STATEMENT}}, and registration expiry is reported as {{registration-validity}} defines.
 
 An authorization server rejecting a registration request, or a registration management request carrying a failing replacement, uses the following error codes:
 
