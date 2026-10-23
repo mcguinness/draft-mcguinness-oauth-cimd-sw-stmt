@@ -462,7 +462,7 @@ A trust mark {{OPENID-FED}} is also a signed third-party assertion about an enti
 | Review-only client where reviewed software is required ({{public-client-presentation}}) | `unauthorized_client` | `statement_required` |
 | Any other rejection, including `software_statement` in a request that may not carry it, such as a redemption or an issuance request ({{runtime-presentation}}, {{grant-lifecycle}}) | `invalid_request` | `invalid_request` |
 
-An authorization server SHOULD use HTTP status code 503 with `temporarily_unavailable` and 400 with the others, so that a client can distinguish a retrieval worth retrying from a condition that needs a new statement.
+An authorization server uses the HTTP status codes of the error response it returns, and SHOULD use HTTP status code 503 with `temporarily_unavailable`, so that a client can distinguish a retrieval worth retrying from a condition that needs a new statement.
 
 At the pushed authorization request endpoint, these codes are carried in the error response of {{RFC9126}}. Registration validity is reported as {{REGISTRATION}} defines. Neither a rejection in the Refresh column nor one reporting registration validity indicates refresh-token replay ({{RFC9700}}).
 
