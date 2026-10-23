@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         22 October 2026
-Expires: 25 April 2027
+Intended status: Standards Track                         23 October 2026
+Expires: 26 April 2027
 
 
                         CIMD Software Statement
@@ -41,7 +41,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 25 April 2027.
+   This Internet-Draft will expire on 26 April 2027.
 
 Copyright Notice
 
@@ -538,7 +538,8 @@ Table of Contents
 
    *  the decision's issuer is one this server accepts for the request's
       tenant and for the decision's sub, as Section 3.2 requires of iss
-      and sub (Section 4);
+      and sub (Section 4), and, where this server records a required
+      issuer for that tenant and sub (Section 4), is that issuer;
 
    *  the effective expiry the decision's statement would have at this
       server has not passed, and the registration has not expired where
@@ -551,7 +552,8 @@ Table of Contents
    *  the decision is not superseded under the iat floor of Section 6,
       which admission on it advances as acceptance of a statement would;
 
-   *  the server has not withdrawn the decision (Section 3.3);
+   *  the server has not withdrawn the decision and holds no refusal
+      record for its statement (Section 3.3);
 
    *  the document at sub has been obtained and contains no duplicate
       member names (Section 3.2); and
@@ -608,10 +610,13 @@ Table of Contents
    At the token endpoint, a runtime presentation is valid on a request
    using:
 
-   *  the client_credentials grant; or
+   *  the client_credentials grant;
 
    *  the JWT and SAML 2.0 assertion grants (Section 2.1 of [RFC7523]
-      and Section 2.1 of [RFC7522]).
+      and Section 2.1 of [RFC7522]); or
+
+   *  another grant whose specification provides for runtime
+      presentation under this specification.
 
    Authorization-code redemption and refresh-token use continue an
    existing grant (Section 5.6, Section 5.6.1).  A request that asks an
@@ -786,9 +791,12 @@ Table of Contents
    reject a presentation under it, and treats a statement pulled for it
    as review-only (Section 5.4.1).  A document carrying a redirection
    URI another application could claim is presented review-only whatever
-   its authentication method (Section 5.4.1); where this section or
-   Section 5.4.1 also requires the authorization server to reject the
-   presentation, the rejection applies.
+   its authentication method (Section 5.4.1), and the requirements above
+   do not apply to that presentation, since it admits nothing.  Two
+   rejections apply to such a document all the same: a presentation
+   under a document that omits token_endpoint_auth_method, as above, and
+   a presentation at the token endpoint from a client whose reviewed
+   document carries no key material (Section 5.4.1).
 
    A statement whose reviewed document carries no key material can be
    consumed at registration where its statement_uses claim permits
@@ -1022,9 +1030,10 @@ Table of Contents
    recently issued statement.  A refresh that fails these requirements,
    or omits a replacement that is needed, is rejected with
    statement_required, or with temporarily_unavailable where a retrieval
-   needed to check the replacement did not complete, and leaves the
-   establishment unchanged.  Refresh never rotates the establishment's
-   key; a client that needs a new key performs a new presentation.
+   needed to check the replacement did not complete for a reason other
+   than the size bound of Section 3.1, and leaves the establishment
+   unchanged.  Refresh never rotates the establishment's key; a client
+   that needs a new key performs a new presentation.
 
 6.  Repeated Consumption of One Statement
 
@@ -1144,11 +1153,12 @@ Table of Contents
    |or claim           |                       |                       |
    |validation         |                       |                       |
    +-------------------+-----------------------+-----------------------+
-   |Failing the sender |invalid_client         |invalid_client         |
+   |Failing the sender |invalid_client         |invalid_grant          |
    |constraint         |                       |                       |
    |(Section 5.4), or  |                       |                       |
-   |on refresh the     |                       |                       |
-   |proof of the       |                       |                       |
+   |on refresh not     |                       |                       |
+   |proving the        |                       |                       |
+   |establishment's    |                       |                       |
    |proven key         |                       |                       |
    +-------------------+-----------------------+-----------------------+
    |Proven key no      |n/a                    |invalid_grant          |
@@ -1277,13 +1287,14 @@ Table of Contents
    Where the proof mechanism defines an error of its own for a proof it
    does not accept, such as invalid_dpop_proof for a DPoP proof that
    fails the checks of Section 4.3 of [RFC9449] or use_dpop_nonce for a
-   nonce challenge (Section 8 of [RFC9449]), that error takes precedence
-   over the codes above.  A proof that its mechanism accepts but that
-   proves a key other than the one this specification requires, such as
-   a key the reviewed document does not carry or not the establishment's
-   proven key, is not an invalid proof: it fails the sender constraint,
-   and is rejected with the code this section or Section 5.6 assigns to
-   that failure.
+   nonce challenge (Section 8 of [RFC9449]), the request is rejected
+   with that error in place of the code this specification assigns to a
+   failed sender constraint.  A proof that its mechanism accepts but
+   that proves a key other than the one this specification requires,
+   such as a key the reviewed document does not carry or not the
+   establishment's proven key, is not an invalid proof: it fails the
+   sender constraint, and is rejected with the code this section or
+   Section 5.6 assigns to that failure.
 
    These codes do not tell a client whether to seek a corrected
    statement or a different issuer.  The authorization server MAY return
@@ -1411,6 +1422,9 @@ Table of Contents
 
    *  Statement conveyance within a client attestation, rather than as a
       request parameter.
+
+   *  Runtime presentation on grants other than those Section 5.1 names,
+      such as token exchange.
 
    *  Partial review, by which an issuer vouches for particular members
       rather than a whole document (Section 3).
