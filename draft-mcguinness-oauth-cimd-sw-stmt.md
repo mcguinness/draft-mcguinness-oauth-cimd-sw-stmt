@@ -752,7 +752,7 @@ Fragment identifier considerations:
 : n/a
 
 Additional information:
-: File extension(s): n/a. Macintosh file type code(s): n/a.
+: Magic number(s): n/a. File extension(s): n/a. Macintosh file type code(s): n/a.
 
 Person & email address to contact for further information:
 : Karl McGuinness, public@karlmcguinness.com
