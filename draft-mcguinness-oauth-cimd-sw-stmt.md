@@ -517,7 +517,7 @@ A request rejected for another reason, such as an assertion grant whose assertio
 
 ## Code Redemption and Refresh {#continuation-errors}
 
-A token request that redeems an authorization code opened by a presentation is rejected with `invalid_request` where it carries `software_statement`, and with `invalid_grant` where its client identifier or key binding fails ({{grant-lifecycle}}).
+A token request that redeems an authorization code opened by a presentation is rejected with `invalid_request` where it carries `software_statement`, with `invalid_grant` where its client identifier or key binding fails ({{grant-lifecycle}}), and with `invalid_client` where the bound on establishments of {{multi-instance}} is reached ({{effective-metadata}}).
 
 An authorization server rejecting a refresh-token request under an establishment for a reason this specification defines uses the following error codes:
 
