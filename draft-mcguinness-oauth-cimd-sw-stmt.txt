@@ -629,8 +629,10 @@ Table of Contents
    authorization server to issue a software statement, rather than to
    consume one, MUST NOT carry the software_statement parameter.
 
-   An authorization server advertises support through
-   software_statement_presentation_supported (Section 10).
+   An authorization server that does not implement this specification
+   ignores the parameter (Sections 3.1 and 3.2 of [RFC6749]), so a
+   client can present wherever its statement's audience allows; one that
+   requires a statement says so with statement_required (Section 8).
 
 5.1.1.  Authorization Endpoint
 
@@ -1399,19 +1401,6 @@ Table of Contents
       authorization server that only accepts software statements does
       not publish it.
 
-   software_statement_presentation_supported:  OPTIONAL.  A JSON array
-      naming the endpoints at which the authorization server accepts a
-      software statement presented at runtime (Section 5.1): token and
-      pushed_authorization_request.  A client ignores a value it does
-      not recognize.  Omission, or an empty array, means runtime
-      presentation is not offered.  The member implies neither
-      acceptance of any particular issuer or subject namespace nor
-      support for statement-governed registrations ([REGISTRATION]), and
-      admitting a public client's presentation (Section 5.4.1) remains
-      local policy.  An authorization server advertising
-      pushed_authorization_request MUST publish
-      pushed_authorization_request_endpoint.
-
    software_statement_pull_supported:  OPTIONAL.  Boolean value
       indicating whether the authorization server retrieves statements
       from a client's software_statements_uri when admitting a client
@@ -1571,12 +1560,10 @@ Table of Contents
    A statement_required refusal at the authorization endpoint
    (Section 8) travels through the user agent, so it tells anyone who
    can see the redirection that this client has no established standing
-   at this server.  The software_statement_presentation_supported
-   metadata discloses only that presentation is offered.  The disclosure
-   is accepted because a client that cannot learn why it was refused
-   cannot act.  The disclosure carries no issuer-trust, subject-scope,
-   or attester-policy detail, which Section 8 keeps from unauthenticated
-   requesters.
+   at this server.  The disclosure is accepted because a client that
+   cannot learn why it was refused cannot act.  The disclosure carries
+   no issuer-trust, subject-scope, or attester-policy detail, which
+   Section 8 keeps from unauthenticated requesters.
 
 12.8.  Statement Handling
 
@@ -1761,16 +1748,6 @@ Table of Contents
    This specification requests registration of the following values in
    the IANA "OAuth Authorization Server Metadata" registry established
    by [RFC8414].
-
-   Metadata Name:  software_statement_presentation_supported
-
-   Metadata Description:  JSON array of endpoint names at which the
-      authorization server accepts a software statement presented at
-      runtime.
-
-   Change Controller:  IESG
-
-   Specification Document(s):  This specification, Section 10
 
    Metadata Name:  software_statement_signing_alg_values_supported
 
