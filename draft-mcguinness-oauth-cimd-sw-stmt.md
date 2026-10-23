@@ -665,7 +665,7 @@ Runtime presentation can cause the authorization server to retrieve the Client I
 Presentation reaches these retrievals before any client is registered or any user has interacted, so an unauthenticated requester holding one acceptable statement can cause this work. An authorization server SHOULD therefore bound it:
 
 * rate-limit presentations per statement identity, per subject, and per source, and pulls ({{pulled-statements}}) per client identifier and per source, before spending retrieval or storage on a new presentation;
-* bound the establishments it will create from one statement ({{multi-instance}}), before spending retrieval or storage on a new presentation;
+* refuse a new presentation, before spending retrieval or storage on it, once the bound of {{multi-instance}} for its `iss` and `sub` is reached;
 * bound JWT size and parsing work, concurrent retrievals, response size, and response time; and
 * cache successful retrieval results within the document's caching directives, and back off after a failure rather than cache it, since {{CIMD}} forbids caching error responses.
 
