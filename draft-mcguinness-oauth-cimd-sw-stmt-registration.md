@@ -87,7 +87,7 @@ In {{RFC7591}}, values in a software statement take precedence over those in the
   * a request MAY carry metadata, as {{RFC7591}} clients do, but it does not contribute to the registration; and
   * the registered `client_id` is assigned as {{RFC7591}} provides, and the document's own `client_id` member is the URL recorded as `sub`;
 * MUST reject the registration with `invalid_client_metadata` where the document omits `token_endpoint_auth_method`, since the {{RFC7591}} default is a shared-secret method that {{CIMD}} forbids, and registering under it would issue a client secret to any holder of a copy of the statement;
-* MUST reject the registration with `invalid_client_metadata` where the document declares `token_endpoint_auth_method` of `none` and its `grant_types` include a grant other than `authorization_code` and `refresh_token`, since only an authorization code delivered to a reviewed redirection URI binds a client with no key to the review (see the public-client presentation rules of {{STATEMENT}}); and
+* MUST reject the registration with `invalid_client_metadata` where the document declares `token_endpoint_auth_method` of `none`, since such software is admitted instead by runtime presentation, which binds each installation to the reviewed redirection URIs and a key it holds (see the public-client presentation rules of {{STATEMENT}}); and
 * MUST reject the registration with `invalid_client_metadata` where any of the document's redirection URIs could be claimed by another application on the same device (see the public-client presentation rules of {{STATEMENT}}), whatever authentication method the document declares.
 
 Registration has no review-only form, as runtime presentation does ({{STATEMENT}}), because the registration is the admission.
@@ -110,13 +110,11 @@ An authorization server that advertises `software_statement_registration_validit
   * at the token and pushed authorization request endpoints, it first authenticates the client against the retained registration and rejects a request that fails that authentication with `invalid_client`, as for an unknown client; and
 * it SHOULD retain the expired record so that it can process a later authenticated revalidation ({{oracle-considerations}}); since a valid replacement restores the registration ({{revalidation}}), no grace period is needed.
 
-At the authorization endpoint, the rejection is returned in the authorization error response {{RFC6749}}, so that a client can tell a lapsed registration from a policy it will never satisfy. The authorization server redirects with it only after validating the request's `redirect_uri` against the retained registration; where it cannot, it MUST NOT redirect and reports the error to the resource owner instead. The client then delivers a replacement ({{revalidation}}) in a pushed authorization request or, where its reviewed document declares `token_endpoint_auth_method` of `none`, in an {{RFC7592}} update request.
+At the authorization endpoint, the rejection is returned in the authorization error response {{RFC6749}}, so that a client can tell a lapsed registration from a policy it will never satisfy. The authorization server redirects with it only after validating the request's `redirect_uri` against the retained registration; where it cannot, it MUST NOT redirect and reports the error to the resource owner instead. The client then delivers a replacement in a pushed authorization request ({{revalidation}}).
 
 The effective expiry is an upper bound. Where the server holds a refusal record for the governing statement ({{STATEMENT}}), the registration ceases to be valid as it does at its effective expiry, and {{revalidation}} is the recovery path; the client learns of the withdrawal only from the rejection. The disposition of outstanding grants is local policy.
 
 An authorization server advertising this model MUST publish `pushed_authorization_request_endpoint`, since {{revalidation}} otherwise leaves a client whose only grant type is the authorization code, and which holds no refresh token, with no way to renew.
-
-A client whose reviewed document declares `token_endpoint_auth_method` of `none` cannot authenticate a token or pushed authorization request, so it renews only through {{RFC7592}}. An authorization server advertising this model that does not offer registration management to such a client MUST reject its registration with `invalid_client_metadata`, rather than create a registration the client cannot renew.
 
 A server applying this model MUST return a `registration_expires_at` member, a NumericDate giving the latest time the registration remains valid, in the {{RFC7591}} registration response and in the response to any request that renews the registration or carries its governing statement ({{revalidation}}), and SHOULD return it in any {{RFC7592}} read or update response it supports. For a registration that has ceased to be valid, the value is the time it ceased. A client cannot compute this boundary from the statement alone, because the server can cap the lifetime it honors for the issuer ({{STATEMENT}}).
 
@@ -170,11 +168,7 @@ Where the registration is not statement-governed, a statement neither renews nor
 
 # Repeated Registration {#repeated-registration}
 
-One unexpired statement can be consumed more than once, within the bounds of {{STATEMENT}}; for a reviewed document that carries key material, the safe default is one registration per (`iss`, `sub`) at one authorization server. On repeated consumption, local policy can reject the request, treat it as idempotent, or create another registration; {{RFC7591}} defines no duplicate-registration protocol. An idempotent response MUST NOT return the existing registration's credentials, such as its `registration_access_token`, since a repeated request can come from any holder of a copy of the statement.
-
-A reviewed document that carries no key material (no `jwks` or `jwks_uri` member), such as one declaring `token_endpoint_auth_method` of `none`, describes software whose installations cannot share one registration: a client declaring `none` renews only through its own registration management ({{registration-validity}}), and under the one-registration default the first holder of a copy of the statement would hold the only registration for every installation.
-
-For a reviewed document without key material, the authorization server MAY create a registration for each request. Since anyone holding a copy of the statement can create one, such a registration counts against the bounds of {{STATEMENT}} only from the time the first access token is issued at the token endpoint under it, and the authorization server MAY discard one under which no such access token has been issued within a period of its choosing.
+One unexpired statement can be consumed more than once, within the bounds of {{STATEMENT}}; the safe default is one registration per (`iss`, `sub`) at one authorization server. On repeated consumption, local policy can reject the request, treat it as idempotent, or create another registration; {{RFC7591}} defines no duplicate-registration protocol. An idempotent response MUST NOT return the existing registration's credentials, such as its `registration_access_token`, since a repeated request can come from any holder of a copy of the statement.
 
 # Error Responses {#errors}
 
@@ -197,9 +191,8 @@ An authorization server rejecting a registration request, or a registration mana
   * carries metadata this server's policy refuses;
   * exceeds the server's size bound ({{STATEMENT}}), so that retrying cannot succeed;
   * omits `token_endpoint_auth_method` ({{dcr-presentation}});
-  * declares `token_endpoint_auth_method` of `none` and lists a grant other than `authorization_code` and `refresh_token` ({{dcr-presentation}});
-  * carries a redirection URI another application could claim ({{dcr-presentation}}); or
-  * declares `token_endpoint_auth_method` of `none` at a server that advertises statement-governed registration validity and offers such a client no registration management ({{registration-validity}}).
+  * declares `token_endpoint_auth_method` of `none` ({{dcr-presentation}}); or
+  * carries a redirection URI another application could claim ({{dcr-presentation}}).
 
 `temporarily_unavailable`:
 : A retrieval the request needs did not complete, for a reason other than the size bound.
@@ -257,7 +250,7 @@ Requiring a statement for registration also means each new client identity needs
 
 ## Observable State {#oracle-considerations}
 
-A retained expired registration is distinguishable from an unknown client, because recovery requires the server to authenticate the registration and evaluate a replacement before rejecting. At the token and pushed authorization request endpoints, only a requester that authenticates as the registration's client can observe this, and what it learns is the state it must act on; a client whose reviewed document declares `token_endpoint_auth_method` of `none` identifies itself with its `client_id` alone, so anyone holding that identifier can observe the same.
+A retained expired registration is distinguishable from an unknown client, because recovery requires the server to authenticate the registration and evaluate a replacement before rejecting. At the token and pushed authorization request endpoints, only a requester that authenticates as the registration's client can observe this, and what it learns is the state it must act on.
 
 At the authorization endpoint, anyone who can send an authorization request naming the client and one of its registered redirection URIs receives the `statement_required` redirection ({{registration-validity}}), and so learns that the registration has lapsed. Where an observer knows the governing statement's `exp`, a lapse before it shows that the server either holds a refusal record for the statement or caps the lifetime it honors for the issuer.
 
