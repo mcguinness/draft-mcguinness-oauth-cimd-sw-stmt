@@ -129,7 +129,7 @@ A statement asserts that its issuer evaluated the Client ID Metadata Document wh
 : REQUIRED. The issuer identifier of the issuing authorization server, as defined by {{RFC8414}}.
 
 `sub`:
-: REQUIRED. The exact client identifier URL presented in the request that produced the statement. It is the Client ID Metadata Document URL, not a `client_id` assigned through {{RFC7591}} registration.
+: REQUIRED. The exact client identifier URL of the Client ID Metadata Document the issuer reviewed, not a `client_id` assigned through {{RFC7591}} registration.
 
 `aud`:
 : OPTIONAL. One or more authorization server issuer identifiers ({{RFC8414}}) restricting which authorization servers may accept the statement. Where the claim is absent, any authorization server that trusts the issuer for the subject may accept it ({{issuer-trust}}), and any holder of a copy can use it wherever `statement_uses` permits registration, which requires no key. An issuer SHOULD therefore name an audience, and omit it only where it accepts that any server trusting it may register the software on the strength of a copy ({{REGISTRATION}}).
