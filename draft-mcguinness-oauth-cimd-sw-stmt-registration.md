@@ -93,7 +93,7 @@ In {{RFC7591}}, values in a software statement take precedence over those in the
   * a request MAY carry metadata, as {{RFC7591}} clients do, but it does not contribute to the registration; and
   * the registered `client_id` is assigned as {{RFC7591}} provides, and the document's own `client_id` member is the URL recorded as `sub`;
 * MUST reject the registration with `invalid_client_metadata` where the document omits `token_endpoint_auth_method`, since the {{RFC7591}} default is a shared-secret method that {{CIMD}} forbids, and registering under it would issue a client secret to any holder of a copy of the statement;
-* MUST reject the registration with `invalid_client_metadata` where the document declares `token_endpoint_auth_method` of `none`, since such software is admitted instead by runtime presentation, which binds each installation to the reviewed redirection URIs and a key it holds (see the public-client presentation rules of {{STATEMENT}}); and
+* MUST reject the registration with `invalid_client_metadata` where the document declares `token_endpoint_auth_method` of `none`, since such software is admitted instead, where the server supports it, by runtime presentation, which binds each installation to the reviewed redirection URIs and a key it holds (see the public-client presentation rules of {{STATEMENT}}); and
 * MUST reject the registration with `invalid_client_metadata` where any of the document's redirection URIs could be claimed by another application on the same device (see the public-client presentation rules of {{STATEMENT}}), whatever authentication method the document declares.
 
 Registration has no review-only form, as runtime presentation does ({{STATEMENT}}), because the registration is the admission.
