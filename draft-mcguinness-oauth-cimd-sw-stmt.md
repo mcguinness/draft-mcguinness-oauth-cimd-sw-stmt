@@ -307,8 +307,8 @@ The presenter of a pulled statement is bound as for a presented statement ({{sen
 * at the token endpoint, the request's client authentication or DPoP proof binds it, as for a presentation there;
 * at the authorization endpoint, binding completes at code redemption, before any token is issued:
   * a confidential client authenticates there with a key carried by the octets the server digested, not one that only a later retrieval of the document carries, and that key becomes the establishment's proven key; and
-  * a public client's authorization request is subject to {{public-client-presentation}}, including PKCE and the key binding, and redemption proves the bound key;
-* a public client opening a new grant at the token endpoint has nothing to bind, so a statement pulled for it is review-only ({{public-client-presentation}}), as is one pulled for a document whose redirection URIs that section does not accept; and
+  * a public client's authorization request that binds a key through `dpop_jkt` is subject to {{public-client-presentation}}, including PKCE, and redemption proves the bound key;
+* a public client opening a new grant at the token endpoint, or sending an authorization request that binds no key, has nothing to bind, so a statement pulled for it is review-only ({{public-client-presentation}}), as is one pulled for a document whose redirection URIs that section does not accept; and
 * code redemption and refresh continue an establishment and keep the binding it already has ({{grant-lifecycle}}, {{refresh}}).
 
 Where retrieval does not complete or no statement remains, the server applies its policy for Client ID Metadata Document clients it has not reviewed, subject to any required issuer ({{issuer-trust}}). Where that policy requires reviewed software, it rejects the request with `temporarily_unavailable` if retrieval did not complete and with `statement_required` if no statement remains. A retrieval failure is never a withdrawal.
