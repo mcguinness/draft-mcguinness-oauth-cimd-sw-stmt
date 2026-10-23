@@ -68,7 +68,13 @@ The following non-normative sequence summarizes a statement-governed registratio
 
 OAuth terminology is defined by {{RFC6749}}. Client metadata and software statement terminology is defined by {{RFC7591}}. Client ID Metadata Document terminology is defined by {{CIMD}}. Runtime Presentation, Effective Expiry, and Refusal Record are defined by {{STATEMENT}}.
 
-This specification defines the following term.
+This specification defines the following terms.
+
+Delivery:
+: Carrying a statement in a request under a statement-governed registration, in one of the locations {{revalidation}} lists, so that it can renew the registration. A delivery is not a runtime presentation.
+
+Governing Statement:
+: The statement that bounds a statement-governed registration: the one consumed at registration or, after a renewal, the replacement that renewed it most recently ({{revalidation}}).
 
 Statement-Governed Registration:
 : An {{RFC7591}} client registration, at a server advertising `software_statement_registration_validity_supported` with a value of `true`, whose validity is bound to a software statement's effective expiry and renewed by replacement statements ({{registration-validity}}).
