@@ -179,7 +179,7 @@ Before accepting a statement, a trusting authorization server MUST:
 * verify the signature under a key trusted for the exact `iss` value, obtained as {{issuer-trust}} requires;
 * verify that every required claim of {{profiles}} is present and of the correct type, rejecting a statement that omits one;
 * validate `iat` and `exp`, rejecting an expired statement and one whose `iat` is unreasonably far in the future according to the server's clock-skew policy;
-* where the statement carries `aud`, verify that one of the server's configured audience identifiers exactly matches a value in it;
+* where the statement carries `aud`, verify that a value in it exactly matches one of the server's audience identifiers that its trust configuration permits the statement's issuer to name ({{issuer-trust}});
 * where the statement carries `aud_tenant`, verify that `aud` carries exactly one value and that `aud_tenant` identifies the tenant this request belongs to, resolved before the statement is evaluated, by the server's own means or from a signed assertion it has validated, and never from a value the client chooses;
 * where the server requires a tenant-scoped decision for the request, reject a statement that carries no `aud_tenant`;
 * verify that `statement_uses` names the use being made of the statement, treating a member it does not recognize as naming no use it serves, or, where the claim is absent, that the use is presentation;
