@@ -100,7 +100,7 @@ Registration has no review-only form, as runtime presentation does ({{STATEMENT}
 
 Taking every value from the document prevents metadata substitution. At registration a statement is a bearer artifact, so a request-supplied value for a member the document omits, such as a `jwks` beside a document naming only `jwks_uri`, would give any holder of a copy a registration with reviewed branding and its own key.
 
-The retrieval is client-controlled and reachable before any client is registered, so the external-retrieval protections and resource bounds of {{STATEMENT}} apply to it as to a runtime presentation.
+The retrieval is client-controlled and reachable before any client is registered, so the external-retrieval protections and resource bounds of {{STATEMENT}} apply to it as to a runtime presentation. The authorization server completes every check of {{STATEMENT}} that needs no client-controlled retrieval, including the signature and the identifier scope of `sub`, before resolving the document, as it does for a presentation.
 
 ## Registration Validity {#registration-validity}
 
