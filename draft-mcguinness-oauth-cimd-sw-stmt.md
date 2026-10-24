@@ -555,7 +555,7 @@ A proof that its mechanism accepts but that proves a key other than the one this
 
 ## Error Descriptions {#error-descriptions}
 
-These codes do not tell a client whether to seek a corrected statement or a different issuer. The authorization server MAY return non-sensitive diagnostics in `error_description` to a client it has authenticated, but MUST NOT reveal issuer-trust or subject-namespace details to an unauthenticated requester.
+These codes do not tell a client whether to seek a corrected statement or a different issuer. The authorization server MAY return non-sensitive diagnostics in `error_description` to a client it has authenticated, but MUST NOT reveal details of its issuer trust configuration ({{issuer-trust}}), such as the client identifier namespaces an issuer may attest, to an unauthenticated requester.
 
 Where a statement is refused by a refusal record rather than merely expired, and the client is authenticated, the authorization server SHOULD indicate that a statement issued more recently is required, since re-presenting the same statement can never succeed.
 
@@ -680,7 +680,7 @@ Short lifetimes tighten an issuer's control and increase renewal traffic; at a s
 
 ## Observable State {#oracle-considerations}
 
-A `statement_required` refusal at the authorization endpoint ({{errors}}) travels through the user agent, so it tells anyone who can see the redirection that this client has no established standing at this server. The disclosure is accepted because a client that cannot learn why it was refused cannot act. The disclosure carries no issuer-trust or subject-scope detail, which {{errors}} keeps from unauthenticated requesters.
+A `statement_required` refusal at the authorization endpoint ({{errors}}) travels through the user agent, so it tells anyone who can see the redirection that this client has no established standing at this server. The disclosure is accepted because a client that cannot learn why it was refused cannot act. The disclosure carries no detail of the server's issuer trust configuration, which {{errors}} keeps from unauthenticated requesters.
 
 ## Statement Handling
 
