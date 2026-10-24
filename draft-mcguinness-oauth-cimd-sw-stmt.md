@@ -357,9 +357,9 @@ A presentation is review-only where the reviewed document carries any redirectio
 
 A review-only presentation creates no establishment, admits nothing, and does not advance the watermark of {{multi-instance}}, since it changes nothing for the software's other instances. The authorization server proceeds as it would for the same Client ID Metadata Document client presenting no statement.
 
-The statement of a review-only presentation MUST NOT satisfy a policy requiring reviewed software, and the authorization server SHOULD NOT present that review to the user as an assurance about the presenter. Where the server's policy requires reviewed software, it rejects a review-only client with `unauthorized_client`, since no statement can make such a client reviewed.
+The statement of a review-only presentation MUST NOT satisfy a policy requiring reviewed software, and the authorization server should not present that review to the user as an assurance about the presenter. Where the server's policy requires reviewed software, it rejects a review-only client with `unauthorized_client`, since no statement can make such a client reviewed.
 
-For a review-only presentation, the authorization server MAY record the statement's issuer for audit and inventory, and MAY refuse the request where it holds a refusal record for the statement, since a withdrawal constrains and never relaxes ({{withdrawal}}), subject to the bounds of {{external-retrieval}}.
+For a review-only presentation, the authorization server can record the statement's issuer for audit and inventory, and MAY refuse the request where it holds a refusal record for the statement, since a withdrawal constrains and never relaxes ({{withdrawal}}), subject to the bounds of {{external-retrieval}}.
 
 A presentation at the token endpoint under {{runtime-presentation}} opens no redirect and has nothing to bind it, so an authorization server MUST reject one from a client whose reviewed document carries no key material, with `invalid_client`. A statement pulled for such a client at the token endpoint is instead review-only ({{pulled-statements}}).
 
