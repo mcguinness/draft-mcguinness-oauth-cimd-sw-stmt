@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         23 October 2026
-Expires: 26 April 2027
+Intended status: Standards Track                         24 October 2026
+Expires: 27 April 2027
 
 
                   CIMD Software Statement Registration
@@ -38,7 +38,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 26 April 2027.
+   This Internet-Draft will expire on 27 April 2027.
 
 Copyright Notice
 
@@ -100,8 +100,11 @@ Table of Contents
    what registration adds: taking the registration's metadata from the
    reviewed document (Section 3), bounding its validity by the statement
    (Section 3.1), and renewing it with a replacement statement
-   (Section 3.2).  It depends on [STATEMENT]; [STATEMENT] does not
-   depend on it.
+   (Section 3.2).  It does not register software whose document declares
+   token_endpoint_auth_method of none, which [STATEMENT] admits by
+   runtime presentation instead, or whose document lists a redirection
+   URI another application could claim (Section 3).  It depends on
+   [STATEMENT]; [STATEMENT] does not depend on it.
 
 1.1.  Protocol Overview
 
@@ -138,7 +141,17 @@ Table of Contents
    Presentation, Effective Expiry, and Refusal Record are defined by
    [STATEMENT].
 
-   This specification defines the following term.
+   This specification defines the following terms.
+
+   Delivery:  Carrying a statement in a request under a statement-
+      governed registration, in one of the locations Section 3.2 lists,
+      so that it can renew the registration.  A delivery is not a
+      runtime presentation.
+
+   Governing Statement:  The statement that bounds a statement-governed
+      registration: the one consumed at registration or, after a
+      renewal, the replacement that renewed it most recently
+      (Section 3.2).
 
    Statement-Governed Registration:  An [RFC7591] client registration,
       at a server advertising
@@ -193,10 +206,10 @@ Table of Contents
 
    *  MUST reject the registration with invalid_client_metadata where
       the document declares token_endpoint_auth_method of none, since
-      such software is admitted instead by runtime presentation, which
-      binds each installation to the reviewed redirection URIs and a key
-      it holds (see the public-client presentation rules of
-      [STATEMENT]); and
+      such software is admitted instead, where the server supports it,
+      by runtime presentation, which binds each installation to the
+      reviewed redirection URIs and a key it holds (see the public-
+      client presentation rules of [STATEMENT]); and
 
    *  MUST reject the registration with invalid_client_metadata where
       any of the document's redirection URIs could be claimed by another
@@ -215,7 +228,11 @@ Table of Contents
 
    The retrieval is client-controlled and reachable before any client is
    registered, so the external-retrieval protections and resource bounds
-   of [STATEMENT] apply to it as to a runtime presentation.
+   of [STATEMENT] apply to it as to a runtime presentation.  The
+   authorization server completes every check of [STATEMENT] that needs
+   no client-controlled retrieval, including the signature and the
+   identifier scope of sub, before resolving the document, as it does
+   for a presentation.
 
 3.1.  Registration Validity
 
@@ -275,20 +292,27 @@ Table of Contents
    withdrawal only from the rejection.  The disposition of outstanding
    grants is local policy.
 
+   A server applying this model that uses a withdrawal mechanism for the
+   governing statement's issuer SHOULD consult it for that statement at
+   each token request under the registration, as [STATEMENT] provides
+   for refresh, so that a withdrawal reaches the registration and not
+   only runtime grants.
+
    An authorization server advertising this model MUST publish
    pushed_authorization_request_endpoint, since Section 3.2 otherwise
    leaves a client whose only grant type is the authorization code, and
    which holds no refresh token, with no way to renew.
 
    A server applying this model MUST return a registration_expires_at
-   member, a NumericDate giving the latest time the registration remains
-   valid, in the [RFC7591] registration response and in the response to
-   any request that renews the registration or carries its governing
-   statement (Section 3.2), and SHOULD return it in any [RFC7592] read
-   or update response it supports.  For a registration that has ceased
-   to be valid, the value is the time it ceased.  A client cannot
-   compute this boundary from the statement alone, because the server
-   can cap the lifetime it honors for the issuer ([STATEMENT]).
+   member, a NumericDate (Section 2 of [RFC7519]) giving the latest time
+   the registration remains valid, in the [RFC7591] registration
+   response and in the response to any request that renews the
+   registration or carries its governing statement (Section 3.2), and
+   SHOULD return it in any [RFC7592] read or update response it
+   supports.  For a registration that has ceased to be valid, the value
+   is the time it ceased.  A client cannot compute this boundary from
+   the statement alone, because the server can cap the lifetime it
+   honors for the issuer ([STATEMENT]).
 
    A server that omits the signal or advertises false does not bound
    registrations by statement expiry but still consumes the statement as
@@ -317,13 +341,13 @@ Table of Contents
    statement itself, is not a replacement.  A client offers one in an
    ordinary [RFC7592] update request, which repeats the statement a
    registration, read, or update response returned unmodified
-   (Section 3.2.1 of [RFC7591]), even after a token or pushed
-   authorization request has renewed the registration, and may offer the
-   governing statement again after losing the response to the request
-   that made it governing.  The authorization server leaves the
-   registration unchanged and treats the request as carrying no
-   replacement: the request proceeds while the registration is valid and
-   is rejected as Section 3.1 provides once it is not.
+   (Section 3.2.1 of [RFC7591]; Section 2.2 of [RFC7592]), even after a
+   token or pushed authorization request has renewed the registration,
+   and may offer the governing statement again after losing the response
+   to the request that made it governing.  The authorization server
+   leaves the registration unchanged and treats the request as carrying
+   no replacement: the request proceeds while the registration is valid
+   and is rejected as Section 3.1 provides once it is not.
 
    An [RFC7592] read or update response returns the governing statement
    as its software_statement member.
@@ -358,6 +382,10 @@ Table of Contents
    single atomic update, and concurrent deliveries resolve to the most
    recently issued statement.
 
+   Access issued under the registration after that update, including on
+   refresh of a grant issued before it, MUST fall within the re-derived
+   metadata, as [STATEMENT] requires of a refreshed grant.
+
    When a request under an expired registration contains a replacement,
    the authorization server MUST authenticate the client against the
    retained registration and evaluate the replacement before applying
@@ -387,10 +415,9 @@ Table of Contents
    A client an authorization server already has, whether registered
    through [RFC7591] or admitted under its Client ID Metadata Document
    URL as its client_id, can still carry a statement.  Runtime
-   presentation ([STATEMENT]) admits clients the server does not have
-   and does not reopen metadata for one it has.  A statement from an
-   issuer the server does not accept for that client is rejected as
-   Section 6 defines.
+   presentation ([STATEMENT]) does not alter a registration's metadata.
+   A statement carried under a registration from an issuer the server
+   does not accept for that client is rejected as Section 6 defines.
 
    For a statement-governed registration, a statement from the governing
    issuer is a delivery under Section 3.2.  While the registration is
@@ -684,6 +711,10 @@ Table of Contents
    [RFC6749]  Hardt, D., Ed., "The OAuth 2.0 Authorization Framework",
               RFC 6749, DOI 10.17487/RFC6749, October 2012,
               <https://www.rfc-editor.org/rfc/rfc6749>.
+
+   [RFC7519]  Jones, M., Bradley, J., and N. Sakimura, "JSON Web Token
+              (JWT)", RFC 7519, DOI 10.17487/RFC7519, May 2015,
+              <https://www.rfc-editor.org/rfc/rfc7519>.
 
    [RFC7591]  Richer, J., Ed., Jones, M., Bradley, J., Machulak, M., and
               P. Hunt, "OAuth 2.0 Dynamic Client Registration Protocol",

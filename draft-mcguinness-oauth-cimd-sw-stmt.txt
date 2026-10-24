@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         23 October 2026
-Expires: 26 April 2027
+Intended status: Standards Track                         24 October 2026
+Expires: 27 April 2027
 
 
                         CIMD Software Statement
@@ -41,7 +41,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 26 April 2027.
+   This Internet-Draft will expire on 27 April 2027.
 
 Copyright Notice
 
@@ -255,10 +255,9 @@ Table of Contents
    iss:  REQUIRED.  The issuer identifier of the issuing authorization
       server, as defined by [RFC8414].
 
-   sub:  REQUIRED.  The exact client identifier URL presented in the
-      request that produced the statement.  It is the Client ID Metadata
-      Document URL, not a client_id assigned through [RFC7591]
-      registration.
+   sub:  REQUIRED.  The exact client identifier URL of the Client ID
+      Metadata Document the issuer reviewed, not a client_id assigned
+      through [RFC7591] registration.
 
    aud:  OPTIONAL.  One or more authorization server issuer identifiers
       ([RFC8414]) restricting which authorization servers may accept the
@@ -375,8 +374,9 @@ Table of Contents
       iat is unreasonably far in the future according to the server's
       clock-skew policy;
 
-   *  where the statement carries aud, verify that one of the server's
-      configured audience identifiers exactly matches a value in it;
+   *  where the statement carries aud, verify that a value in it exactly
+      matches one of the server's audience identifiers that its trust
+      configuration permits the statement's issuer to name (Section 4);
 
    *  where the statement carries aud_tenant, verify that aud carries
       exactly one value and that aud_tenant identifies the tenant this
@@ -687,24 +687,26 @@ Table of Contents
          retrieval of the document carries, and that key becomes the
          establishment's proven key; and
 
-      -  a public client's authorization request is subject to
-         Section 5.4.1, including PKCE and the key binding, and
-         redemption proves the bound key;
+      -  a public client's authorization request that binds a key
+         through dpop_jkt is subject to Section 5.4.1, including PKCE,
+         and redemption proves the bound key;
 
-   *  a public client opening a new grant at the token endpoint has
-      nothing to bind, so a statement pulled for it is review-only
-      (Section 5.4.1), as is one pulled for a document whose redirection
-      URIs that section does not accept; and
+   *  a public client opening a new grant at the token endpoint, or
+      sending an authorization request that binds no key, has nothing to
+      bind, so a statement pulled for it is review-only (Section 5.4.1),
+      as is one pulled for a document whose redirection URIs that
+      section does not accept; and
 
    *  code redemption and refresh continue an establishment and keep the
       binding it already has (Section 5.6, Section 5.6.1).
 
    Where retrieval does not complete or no statement remains, the server
    applies its policy for Client ID Metadata Document clients it has not
-   reviewed.  Where that policy requires reviewed software, it rejects
-   the request with temporarily_unavailable if retrieval did not
-   complete and with statement_required if no statement remains.  A
-   retrieval failure is never a withdrawal.
+   reviewed, subject to any required issuer (Section 4).  Where that
+   policy requires reviewed software, it rejects the request with
+   temporarily_unavailable if retrieval did not complete and with
+   statement_required if no statement remains.  A retrieval failure is
+   never a withdrawal.
 
    Where Section 5.6.1 needs a replacement for an establishment created
    from a pulled statement, the server pulls again and applies the
@@ -728,8 +730,8 @@ Table of Contents
        does not require a client-controlled network retrieval before
        performing any such retrieval.
 
-   2.  Verify the statement requirements of Section 3 and the client_id
-       rule of Section 5.1.
+   2.  Verify the statement requirements of Section 3, the iat floor of
+       Section 6, and the client_id rule of Section 5.1.
 
    3.  Resolve the reviewed document (Section 5.5), which is the first
        step requiring a client-controlled retrieval.
@@ -824,12 +826,13 @@ Table of Contents
    A presentation is review-only where the reviewed document carries any
    redirection URI that another application on the same device could
    claim: a non-https URI, such as a private-use scheme or an http
-   loopback redirection URI, or an https URI whose host is a loopback
-   address or localhost.  Desktop software commonly redirects this way.
-   One such URI makes the whole document review-only, whatever
-   authentication method it declares.  The application that claims such
-   a URI receives the code, so neither the reviewed redirection URIs nor
-   a key shipped in every copy of the software can bind the presenter.
+   loopback redirection URI (Sections 7.1 and 7.3 of [RFC8252]), or an
+   https URI whose host is a loopback address or localhost.  Desktop
+   software commonly redirects this way.  One such URI makes the whole
+   document review-only, whatever authentication method it declares.
+   The application that claims such a URI receives the code, so neither
+   the reviewed redirection URIs nor a key shipped in every copy of the
+   software can bind the presenter.
 
    A review-only presentation creates no establishment, admits nothing,
    and does not advance the watermark of Section 6, since it changes
@@ -866,6 +869,13 @@ Table of Contents
    it retrieves the document once more before treating the mismatch as a
    change, since a statement over an updated document would otherwise
    fail at a server still holding older bytes.
+
+   Octets the authorization server already holds serve for that
+   comparison only within a maximum reuse period of its own choosing, as
+   a key set does (Section 5.4); it MUST NOT let the client's cache
+   directives alone determine how long held octets continue to match a
+   statement, since a key the document carries inline would otherwise
+   continue to verify after the publisher removes it.
 
    A match means the served document is the reviewed one, and its
    members are the client's metadata for the request.  A mismatch means
@@ -954,8 +964,9 @@ Table of Contents
    it MUST also verify that the document currently served at the
    establishment's sub still carries that key, in its jwks or at its
    jwks_uri, within the reuse bounds of Section 5.4, and rejects the
-   refresh with invalid_grant where it does not, so that a key the
-   publisher removes stops continuing grants as well as opening them.
+   refresh with invalid_grant where it does not or where that document
+   exceeds the size bound of Section 3.1, so that a key the publisher
+   removes stops continuing grants as well as opening them.
 
    On refresh-token use, the authorization server MAY, by local policy,
    additionally require a current unexpired statement, and SHOULD
@@ -1052,7 +1063,10 @@ Table of Contents
    access token is first issued from it (in a redirect flow, once its
    authorization code is redeemed) until the server discards it
    (Section 5.6), and the server checks the bound before issuing that
-   first token.
+   first token.  A registration counts from the time an access token is
+   first issued under it until the server deletes the registration,
+   since any holder of a copy of a statement permitting registration can
+   create one.
 
    State created by a pushed authorization request does not count toward
    a bound, even where its code was issued but never redeemed, since
@@ -1130,7 +1144,8 @@ Table of Contents
 
    *  at the authorization endpoint, Section 4.1.2.1 of [RFC6749].
 
-   An authorization server SHOULD respond to a request it rejects with
+   At the token and pushed authorization request endpoints, an
+   authorization server SHOULD respond to a request it rejects with
    temporarily_unavailable with HTTP status code 503, so that a client
    can distinguish a retrieval worth retrying from a condition that
    needs a new statement.  [REGISTRATION] defines rejections at a
@@ -1143,8 +1158,10 @@ Table of Contents
    statement_required:  A current software statement is required and
       none was supplied, or the one supplied is expired, refused by a
       refusal record (Section 3.3), or superseded under the iat floor of
-      Section 6.  Re-presenting the same statement cannot succeed; the
-      client recovers by obtaining a statement issued more recently.
+      Section 6; or a statement offered as a replacement (Section 5.6.1,
+      [REGISTRATION]) does not satisfy the requirements for one.  Re-
+      presenting the same statement cannot succeed; the client recovers
+      by obtaining a statement issued more recently.
 
    Wherever this specification requires a current statement on a
    refresh-token request, statement_required replaces invalid_grant, so
@@ -1161,7 +1178,7 @@ Table of Contents
       where:
 
       *  the statement is malformed, or fails signature or claim
-         validation (Section 3.2);
+         validation (Section 3.2) for a reason other than expiry;
 
       *  the statement is valid but not acceptable here: its issuer is
          not configured, its aud excludes this server, its sub is
@@ -1201,7 +1218,8 @@ Table of Contents
       policy refuses.
 
    temporarily_unavailable:  A retrieval the presentation needs did not
-      complete, for a reason other than the size bound (Section 12.5).
+      complete, for a reason other than the document size bound
+      (Section 3.1).
 
    invalid_request:  The request carries software_statement in a role
       Section 5.1 does not permit.
@@ -1214,8 +1232,9 @@ Table of Contents
 
    A token request that redeems an authorization code opened by a
    presentation is rejected with invalid_request where it carries
-   software_statement, and with invalid_grant where its client
-   identifier or key binding fails (Section 5.6).
+   software_statement, with invalid_grant where its client identifier or
+   key binding fails (Section 5.6), and with invalid_client where the
+   bound on establishments of Section 6 is reached (Section 5.5).
 
    An authorization server rejecting a refresh-token request under an
    establishment for a reason this specification defines uses the
@@ -1231,11 +1250,12 @@ Table of Contents
 
    invalid_grant:  The request does not prove the establishment's proven
       key, or the document currently served at the establishment's sub
-      no longer carries that key (Section 5.6.1).
+      no longer carries that key or exceeds the document size bound
+      (Section 5.6.1).
 
    temporarily_unavailable:  A retrieval needed to check the replacement
       or the proven key did not complete, for a reason other than the
-      size bound.
+      document size bound (Section 3.1).
 
    unauthorized_client or invalid_scope:  The refreshed access would
       exceed the reviewed document's metadata or this server's policy,
@@ -1312,10 +1332,11 @@ Table of Contents
    The following example shows a client presenting an already-issued
    statement at the token endpoint of a server holding no record for it.
    The reviewed document, which the statement's digest covers, names a
-   jwks_uri and the private_key_jwt authentication method, so the client
-   authenticates with a key that document carries.  The client_id is the
-   Client ID Metadata Document URL named by the statement's sub (line
-   breaks are for display purposes only).
+   jwks_uri, the private_key_jwt authentication method, and the
+   client_credentials grant type, so the client authenticates with a key
+   that document carries.  The client_id is the Client ID Metadata
+   Document URL named by the statement's sub (line breaks are for
+   display purposes only).
 
    POST /token HTTP/1.1
    Host: as.example
@@ -1504,9 +1525,8 @@ Table of Contents
       source, before spending retrieval or storage on a new
       presentation;
 
-   *  bound the establishments it will create from one statement
-      (Section 6), before spending retrieval or storage on a new
-      presentation;
+   *  refuse a new presentation, before spending retrieval or storage on
+      it, once the bound of Section 6 for its iss and sub is reached;
 
    *  bound JWT size and parsing work, concurrent retrievals, response
       size, and response time; and
@@ -1641,8 +1661,8 @@ Table of Contents
 
    Fragment identifier considerations:  n/a
 
-   Additional information:  File extension(s): n/a.  Macintosh file type
-      code(s): n/a.
+   Additional information:  Magic number(s): n/a.  File extension(s): n/
+      a.  Macintosh file type code(s): n/a.
 
    Person & email address to contact for further information:  Karl
       McGuinness, public@karlmcguinness.com
@@ -1891,6 +1911,10 @@ Table of Contents
    [RFC7009]  Lodderstedt, T., Ed., Dronia, S., and M. Scurtescu, "OAuth
               2.0 Token Revocation", RFC 7009, DOI 10.17487/RFC7009,
               August 2013, <https://www.rfc-editor.org/rfc/rfc7009>.
+
+   [RFC8252]  Denniss, W. and J. Bradley, "OAuth 2.0 for Native Apps",
+              BCP 212, RFC 8252, DOI 10.17487/RFC8252, October 2017,
+              <https://www.rfc-editor.org/rfc/rfc8252>.
 
    [STATUSLIST]
               Looker, T., Bastian, P., and C. Bormann, "Token Status
