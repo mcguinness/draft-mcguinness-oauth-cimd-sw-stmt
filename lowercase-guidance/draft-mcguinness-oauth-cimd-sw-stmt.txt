@@ -513,7 +513,7 @@ Table of Contents
 
    Where a trusting authorization server configures an issuer whose
    decisions are confined to one of its tenants, as a customer's own
-   issuer is, it should record with that configuration the client
+   issuer is, it SHOULD record with that configuration the client
    identifier namespaces for which the issuer's decision is required in
    that tenant.
 
@@ -839,7 +839,7 @@ Table of Contents
    presenting no statement.
 
    The statement of a review-only presentation MUST NOT satisfy a policy
-   requiring reviewed software, and the authorization server should not
+   requiring reviewed software, and the authorization server SHOULD NOT
    present that review to the user as an assurance about the presenter.
    Where the server's policy requires reviewed software, it rejects a
    review-only client with unauthorized_client, since no statement can
