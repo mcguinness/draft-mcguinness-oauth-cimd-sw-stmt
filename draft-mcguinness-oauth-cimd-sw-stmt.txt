@@ -254,7 +254,7 @@ Table of Contents
       statement.  Where the claim is absent, any authorization server
       that trusts the issuer for the subject may accept it (Section 4),
       and any holder of a copy can use it wherever statement_uses
-      permits registration, which requires no key.  An issuer SHOULD
+      permits registration, which requires no key.  An issuer should
       therefore name an audience, and omit it only where it accepts that
       any server trusting it may register the software on the strength
       of a copy ([REGISTRATION]).
@@ -638,8 +638,8 @@ Table of Contents
       document, and does not cache a failure, as [CIMD] requires of the
       document.
 
-   The authorization server MAY revalidate a cached response from that
-   URL with a conditional request, as it may the document (Section 3.1).
+   The authorization server can revalidate a cached response from that
+   URL with a conditional request, as it can the document (Section 3.1).
    Both the document and this URL are retrieved before any statement
    exists to validate, so the ordering of Section 5.3 applies from the
    first statement verified onward.
@@ -845,7 +845,7 @@ Table of Contents
    review-only client with unauthorized_client, since no statement can
    make such a client reviewed.
 
-   For a review-only presentation, the authorization server MAY record
+   For a review-only presentation, the authorization server can record
    the statement's issuer for audit and inventory, and MAY refuse the
    request where it holds a refusal record for the statement, since a
    withdrawal constrains and never relaxes (Section 3.3), subject to the
@@ -897,7 +897,7 @@ Table of Contents
 
    A request refused because the bound on establishments of Section 6 is
    reached is rejected with invalid_client; its statement and proof are
-   sound, so the authorization server SHOULD say so in
+   sound, so the authorization server should say so in
    error_description, and the client can retry once earlier
    establishments are released.
 
@@ -921,7 +921,7 @@ Table of Contents
 
    *  the sender-constraint mechanism and proven key.
 
-   An authorization server MAY reuse an establishment across
+   An authorization server can reuse an establishment across
    presentations that resolve to the same sub, statement, and proven
    key, rather than creating one per request; the bounds of Section 6
    count distinct establishments, not presentations.
@@ -929,7 +929,7 @@ Table of Contents
    The establishment persists while the grant depends on it.  The
    authorization server MUST bind the resulting request_uri,
    authorization code, refresh token, and other grant continuation state
-   to the establishment, as applicable, and MAY discard it once no such
+   to the establishment, as applicable, and can discard it once no such
    state references it.
 
    A token request that redeems an authorization code opened by a
@@ -1311,7 +1311,7 @@ Table of Contents
 8.6.  Error Descriptions
 
    These codes do not tell a client whether to seek a corrected
-   statement or a different issuer.  The authorization server MAY return
+   statement or a different issuer.  The authorization server can return
    non-sensitive diagnostics in error_description to a client it has
    authenticated, but MUST NOT reveal details of its issuer trust
    configuration (Section 4), such as the client identifier namespaces
@@ -1319,7 +1319,7 @@ Table of Contents
 
    Where a statement is refused by a refusal record rather than merely
    expired, and the client is authenticated, the authorization server
-   SHOULD indicate that a statement issued more recently is required,
+   should indicate that a statement issued more recently is required,
    since re-presenting the same statement can never succeed.
 
 9.  Examples
@@ -1556,7 +1556,7 @@ Table of Contents
    traffic; at a server implementing the registration-validity model of
    [REGISTRATION], the lifetime also sets the registration's renewal
    cadence.  A fleet of statements issued together expires together, so
-   issuers SHOULD stagger expiries or renew ahead of the boundary to
+   issuers should stagger expiries or renew ahead of the boundary to
    avoid synchronized lapses.
 
 12.7.  Observable State
@@ -1571,7 +1571,7 @@ Table of Contents
 
 12.8.  Statement Handling
 
-   Servers SHOULD avoid logging software statements, which remain
+   Servers should avoid logging software statements, which remain
    sensitive in transit and at rest.  Possession alone does not enable
    presentation, but a statement names reviewed software and, where it
    carries an audience, that software's intended relationships.

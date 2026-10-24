@@ -567,10 +567,10 @@ Table of Contents
    statement for that software, since such statements circulate to every
    deployment of it.
 
-   Deployments SHOULD pair statement-governed registrations with
+   Deployments should pair statement-governed registrations with
    credential rotation, sender-constrained client authentication, and
    the repeated-consumption limits of [STATEMENT] and Section 5, and
-   SHOULD treat a credential compromise as requiring re-registration
+   should treat a credential compromise as requiring re-registration
    rather than renewal.  Runtime presentation ([STATEMENT]) does not
    have this limitation, because it binds every presenter to the
    reviewed document.
@@ -581,8 +581,8 @@ Table of Contents
    values that imitate trusted software on consent screens (Section 5 of
    [RFC7591]).  Requiring a statement replaces self-asserted branding
    with issuer-reviewed values.  Servers that render such values on
-   consent screens SHOULD prefer those from a reviewed document and
-   SHOULD apply heightened scrutiny to registrations that claim user-
+   consent screens should prefer those from a reviewed document and
+   should apply heightened scrutiny to registrations that claim user-
    visible branding without a statement.
 
    Requiring a statement for registration also means each new client
