@@ -2135,7 +2135,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         <h3 id="name-error-descriptions">
 <a href="#section-8.6" class="section-number selfRef">8.6. </a><a href="#name-error-descriptions" class="section-name selfRef">Error Descriptions</a>
         </h3>
-<p id="section-8.6-1">These codes do not tell a client whether to seek a corrected statement or a different issuer. The authorization server <span class="bcp14">MAY</span> return non-sensitive diagnostics in <code>error_description</code> to a client it has authenticated, but <span class="bcp14">MUST NOT</span> reveal issuer-trust, subject-namespace, or attester-policy details to an unauthenticated requester.<a href="#section-8.6-1" class="pilcrow">¶</a></p>
+<p id="section-8.6-1">These codes do not tell a client whether to seek a corrected statement or a different issuer. The authorization server <span class="bcp14">MAY</span> return non-sensitive diagnostics in <code>error_description</code> to a client it has authenticated, but <span class="bcp14">MUST NOT</span> reveal details of its issuer trust configuration (<a href="#issuer-trust" class="auto internal xref">Section 4</a>), such as the client identifier namespaces an issuer may attest, to an unauthenticated requester.<a href="#section-8.6-1" class="pilcrow">¶</a></p>
 <p id="section-8.6-2">Where a statement is refused by a refusal record rather than merely expired, and the client is authenticated, the authorization server <span class="bcp14">SHOULD</span> indicate that a statement issued more recently is required, since re-presenting the same statement can never succeed.<a href="#section-8.6-2" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -2241,7 +2241,7 @@ client-assertion-type%3Ajwt-bearer
 <p id="section-11-1">The following extensions are left to separate specifications:<a href="#section-11-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-11-2.1">
-          <p id="section-11-2.1.1">endorsed keys: a client attestation <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span>, including one from an attester the reviewed document endorses through <code>client_attesters</code> <span>[<a href="#ATTESTERS" class="cite xref">ATTESTERS</a>]</span>, vouching for a key that document does not carry (<a href="#multi-instance" class="auto internal xref">Section 6</a>);<a href="#section-11-2.1.1" class="pilcrow">¶</a></p>
+          <p id="section-11-2.1.1">endorsed keys: a client attestation <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span>, including one from an attester the reviewed document endorses, vouching for a key that document does not carry (<a href="#multi-instance" class="auto internal xref">Section 6</a>);<a href="#section-11-2.1.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-11-2.2">
           <p id="section-11-2.2.1">statement conveyance within a client attestation, rather than as a request parameter;<a href="#section-11-2.2.1" class="pilcrow">¶</a></p>
@@ -2336,7 +2336,7 @@ client-assertion-type%3Ajwt-bearer
         <h3 id="name-observable-state">
 <a href="#section-12.7" class="section-number selfRef">12.7. </a><a href="#name-observable-state" class="section-name selfRef">Observable State</a>
         </h3>
-<p id="section-12.7-1">A <code>statement_required</code> refusal at the authorization endpoint (<a href="#errors" class="auto internal xref">Section 8</a>) travels through the user agent, so it tells anyone who can see the redirection that this client has no established standing at this server. The disclosure is accepted because a client that cannot learn why it was refused cannot act. The disclosure carries no issuer-trust, subject-scope, or attester-policy detail, which <a href="#errors" class="auto internal xref">Section 8</a> keeps from unauthenticated requesters.<a href="#section-12.7-1" class="pilcrow">¶</a></p>
+<p id="section-12.7-1">A <code>statement_required</code> refusal at the authorization endpoint (<a href="#errors" class="auto internal xref">Section 8</a>) travels through the user agent, so it tells anyone who can see the redirection that this client has no established standing at this server. The disclosure is accepted because a client that cannot learn why it was refused cannot act. The disclosure carries no detail of the server's issuer trust configuration, which <a href="#errors" class="auto internal xref">Section 8</a> keeps from unauthenticated requesters.<a href="#section-12.7-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="statement-handling">
@@ -2809,10 +2809,6 @@ client-assertion-type%3Ajwt-bearer
 <dt id="ABCA">[ABCA]</dt>
         <dd>
 <span class="refAuthor">Looker, T.</span>, <span class="refAuthor">Bastian, P.</span>, and <span class="refAuthor">C. Bormann</span>, <span class="refTitle">"OAuth 2.0 Attestation-Based Client Authentication"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-attestation-based-client-auth-12</span>, <time datetime="2026-10-12" class="refDate">12 October 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="ATTESTERS">[ATTESTERS]</dt>
-        <dd>
-<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"OAuth 2.0 Client Attester Endorsement"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-mcguinness-oauth-client-attesters-00</span>, <time datetime="2026-09-28" class="refDate">28 September 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-mcguinness-oauth-client-attesters-00">https://datatracker.ietf.org/doc/html/draft-mcguinness-oauth-client-attesters-00</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="OPENID-FED">[OPENID-FED]</dt>
         <dd>

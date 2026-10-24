@@ -1313,8 +1313,9 @@ Table of Contents
    These codes do not tell a client whether to seek a corrected
    statement or a different issuer.  The authorization server MAY return
    non-sensitive diagnostics in error_description to a client it has
-   authenticated, but MUST NOT reveal issuer-trust, subject-namespace,
-   or attester-policy details to an unauthenticated requester.
+   authenticated, but MUST NOT reveal details of its issuer trust
+   configuration (Section 4), such as the client identifier namespaces
+   an issuer may attest, to an unauthenticated requester.
 
    Where a statement is refused by a refusal record rather than merely
    expired, and the client is authenticated, the authorization server
@@ -1419,9 +1420,8 @@ Table of Contents
    The following extensions are left to separate specifications:
 
    *  endorsed keys: a client attestation [ABCA], including one from an
-      attester the reviewed document endorses through client_attesters
-      [ATTESTERS], vouching for a key that document does not carry
-      (Section 6);
+      attester the reviewed document endorses, vouching for a key that
+      document does not carry (Section 6);
 
    *  statement conveyance within a client attestation, rather than as a
       request parameter;
@@ -1566,8 +1566,8 @@ Table of Contents
    can see the redirection that this client has no established standing
    at this server.  The disclosure is accepted because a client that
    cannot learn why it was refused cannot act.  The disclosure carries
-   no issuer-trust, subject-scope, or attester-policy detail, which
-   Section 8 keeps from unauthenticated requesters.
+   no detail of the server's issuer trust configuration, which Section 8
+   keeps from unauthenticated requesters.
 
 12.8.  Statement Handling
 
@@ -1889,13 +1889,6 @@ Table of Contents
               based-client-auth-12, 12 October 2026,
               <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
               attestation-based-client-auth-12>.
-
-   [ATTESTERS]
-              McGuinness, K., "OAuth 2.0 Client Attester Endorsement",
-              Work in Progress, Internet-Draft, draft-mcguinness-oauth-
-              client-attesters-00, 28 September 2026,
-              <https://datatracker.ietf.org/doc/html/draft-mcguinness-
-              oauth-client-attesters-00>.
 
    [OPENID-FED]
               "OpenID Federation 1.0", n.d.,

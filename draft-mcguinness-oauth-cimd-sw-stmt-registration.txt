@@ -137,7 +137,7 @@ Table of Contents
 
    OAuth terminology is defined by [RFC6749].  Client metadata and
    software statement terminology is defined by [RFC7591].  Client ID
-   Metadata Document terminology is defined by [CIMD].  Runtime
+   Metadata Document terminology is defined by [CIMD].  Issuer, Runtime
    Presentation, Effective Expiry, and Refusal Record are defined by
    [STATEMENT].
 
@@ -615,8 +615,9 @@ Table of Contents
    software_statement_registration_validity_supported also disclose that
    statement-derived registrations expire there, which a client needs to
    know before registering.  Beyond a lapse and its timing, these
-   disclosures reveal no issuer trust, subject scope, or attester
-   policy, which [STATEMENT] keeps from unauthenticated requesters.
+   disclosures reveal nothing of the server's issuer trust
+   configuration, which [STATEMENT] keeps from unauthenticated
+   requesters.
 
 10.  Privacy Considerations
 
