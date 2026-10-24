@@ -67,7 +67,7 @@ The following non-normative sequence summarizes a statement-governed registratio
 
 {::boilerplate bcp14-tagged}
 
-OAuth terminology is defined by {{RFC6749}}. Client metadata and software statement terminology is defined by {{RFC7591}}. Client ID Metadata Document terminology is defined by {{CIMD}}. Runtime Presentation, Effective Expiry, and Refusal Record are defined by {{STATEMENT}}.
+OAuth terminology is defined by {{RFC6749}}. Client metadata and software statement terminology is defined by {{RFC7591}}. Client ID Metadata Document terminology is defined by {{CIMD}}. Issuer, Runtime Presentation, Effective Expiry, and Refusal Record are defined by {{STATEMENT}}.
 
 This specification defines the following terms.
 
