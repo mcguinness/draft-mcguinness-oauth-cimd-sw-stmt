@@ -249,7 +249,7 @@ Where the publisher's statement permits presentation and the server supports it,
 
 Renewal proves possession of the registration's credential and the currency of a statement sharing the governing `iss` and `sub`, not that the renewing party is the reviewed software. An attacker holding a stolen client credential can renew indefinitely with any current statement for that software, since such statements circulate to every deployment of it.
 
-Deployments SHOULD pair statement-governed registrations with credential rotation, sender-constrained client authentication, and the repeated-consumption limits of {{STATEMENT}} and {{repeated-registration}}, and SHOULD treat a credential compromise as requiring re-registration rather than renewal. Runtime presentation ({{STATEMENT}}) does not have this limitation, because it binds every presenter to the reviewed document.
+Deployments should pair statement-governed registrations with credential rotation, sender-constrained client authentication, and the repeated-consumption limits of {{STATEMENT}} and {{repeated-registration}}, and should treat a credential compromise as requiring re-registration rather than renewal. Runtime presentation ({{STATEMENT}}) does not have this limitation, because it binds every presenter to the reviewed document.
 
 ## Registration Fraud and Impersonation {#registration-fraud}
 
