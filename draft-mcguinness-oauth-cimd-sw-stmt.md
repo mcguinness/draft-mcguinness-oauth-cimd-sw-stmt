@@ -82,9 +82,9 @@ This specification does not define how a client obtains a statement. {{REGISTRAT
 The following non-normative sequence summarizes runtime admission:
 
 1. Using its Client ID Metadata Document URL as `client_id`, the client presents its statement in a token request or, for a redirect flow, a pushed authorization request, or publishes it at the `software_statements_uri` its document names ({{runtime-presentation}}, {{pulled-statements}}).
-2. The authorization server validates the statement ({{profiles}}), resolves the reviewed document ({{effective-metadata}}), and verifies the sender constraint against it ({{sender-constraint}}).
+2. The authorization server validates the statement ({{validation}}), resolves the reviewed document ({{effective-metadata}}), and verifies the sender constraint against it ({{sender-constraint}}).
 3. The request proceeds under that document's metadata, without a registration.
-4. The state the rest of the grant depends on persists as an establishment ({{grant-lifecycle}}).
+4. The state on which the rest of the grant depends persists as an establishment ({{grant-lifecycle}}).
 
 # Conventions and Definitions
 
@@ -191,7 +191,7 @@ A trusting authorization server MUST reject a statement for which it holds a ref
 
 A trusting authorization server resolving the reviewed document MUST reject a document containing duplicate object member names, since parsers interpret them differently despite an identical digest.
 
-{{REGISTRATION}} defines rejections at a registration endpoint; rejections elsewhere use {{errors}}.
+Rejections outside a registration endpoint use {{errors}}.
 
 ## Withdrawal {#withdrawal}
 
@@ -235,13 +235,13 @@ Trust configuration SHOULD constrain each issuer to the client identifier namesp
 
 Where a trusting authorization server configures an issuer whose decisions are confined to one of its tenants, as a customer's own issuer is, it SHOULD record with that configuration the client identifier namespaces for which the issuer's decision is required in that tenant.
 
-A server that records such a requirement MUST NOT admit software in a covered namespace in that tenant without a current statement from the required issuer, whatever its policy for clients it has not reviewed. Otherwise, withholding the statement would restore access the customer withdrew. The requirement is configured rather than inferred from the statements the server sees, so a holder cannot evade a customer's withdrawal by presenting or publishing only a broader statement, such as a marketplace listing.
+A server that records such a requirement MUST NOT admit software in a covered namespace in that tenant without a current statement from the required issuer, whatever its policy for clients it has not reviewed. Without this rule, withholding the statement would restore access the customer withdrew. The requirement is configured rather than inferred from the statements the server sees, so a holder cannot evade a customer's withdrawal by presenting or publishing only a broader statement, such as a marketplace listing.
 
 A required issuer configured for software whose documents are presented review-only ({{public-client-presentation}}) excludes that software from the tenant.
 
 ## Multi-Tenant Issuers {#multi-tenant-issuers}
 
-Where the tenants of a reviewer serving several customers are independently trusted reviewing authorities, the reviewer MUST issue under a distinct `iss` for each, so that each tenant's decisions, keys, and watermark ({{multi-instance}}) stay separate. Otherwise, one customer's renewal would supersede another's review. A statement carries no claim naming the issuer's tenant.
+Where the tenants of a reviewer serving several customers are independently trusted reviewing authorities, the reviewer MUST issue under a distinct `iss` for each, so that each tenant's decisions, keys, and watermark ({{multi-instance}}) stay separate. Under one `iss`, one customer's renewal would supersede another's review. A statement carries no claim naming the issuer's tenant.
 
 # Runtime Presentation {#cimd-presentation}
 
@@ -270,7 +270,7 @@ An authorization server that does not implement this specification ignores the p
 
 ### Authorization Endpoint {#authorization-requests}
 
-Presentation in an authorization request MUST use a pushed authorization request {{RFC9126}}; a pulled statement needs no pushed authorization request ({{pulled-statements}}). The pushed authorization request endpoint processes the statement and its proof as {{processing}} describes. The subsequent authorization request MUST use a `client_id` exactly equal to the establishment's `sub` and MUST NOT include the `software_statement` parameter.
+Presentation in an authorization request MUST use a pushed authorization request {{RFC9126}}; a pulled statement needs no pushed authorization request ({{pulled-statements}}). The pushed authorization request endpoint processes the statement and its proof as {{processing}} describes. The subsequent authorization request MUST use a `client_id` exactly equal to the establishment's `sub` and MUST NOT include the `software_statement` parameter. A statement therefore never appears in a front-channel URL.
 
 ## Pulled Statements {#pulled-statements}
 
@@ -371,7 +371,7 @@ Octets the authorization server already holds serve for that comparison only wit
 
 A match means the served document is the reviewed one, and its members are the client's metadata for the request. A mismatch means the document changed after review, and the authorization server MUST NOT treat the changed document as reviewed. It rejects the presentation with `invalid_client` or, by local policy, proceeds without the statement. If it proceeds, it applies its policy for Client ID Metadata Document clients it has not reviewed to the current document and creates no establishment for the statement.
 
-At registration, a mismatch is fatal ({{REGISTRATION}}). Because an issuer reviews the document it retrieves, a changed document is always served before a statement over it exists, and the statement's lifetime bounds how stale an unobserved review can become.
+At registration, a mismatch is fatal ({{REGISTRATION}}). Either way, the remedy is a statement over the current document. Because an issuer reviews the document it retrieves, a changed document is always served before a statement over it exists, and the statement's lifetime bounds how stale an unobserved review can become.
 
 The request is evaluated against that metadata as against any client's registered metadata ({{RFC6749}}, {{CIMD}}): any requested grant type, response type, or scope MUST fall within it. A document that omits `scope` sets no ceiling on scope beyond the server's own policy.
 
@@ -432,7 +432,7 @@ At a multi-tenant authorization server, the watermark and bounds below are kept 
 
 A trusting authorization server MUST retain, per `iss` and `sub`, the `iat` of the most recent statement it has accepted. It MUST reject a statement whose `iat` is earlier than the retained `iat`, whether it arrives as a replacement, a new registration, or a new presentation. A client holding a superseded, broader statement therefore cannot defer a narrowing by opening a fresh registration or establishment with it. The server retains the watermark at least as long as the maximum statement lifetime it honors for that issuer.
 
-Because the floor spans every new admission, the first presentation of a replacement that establishes the client retires its predecessor for new admissions by every instance of the software at that server, so instances need the current statement from a shared source rather than a copy fixed at build or install time. Grants the predecessor already opened continue under {{refresh}}.
+Because the `iat` floor spans every new admission, the first presentation of a replacement that establishes the client retires its predecessor for new admissions by every instance of the software at that server, so instances need the current statement from a shared source rather than a copy fixed at build or install time. Grants the predecessor already opened continue under {{refresh}}.
 
 A trusting authorization server SHOULD bound the number of establishments, and any registrations ({{REGISTRATION}}), derived from one issuer's statements about one piece of software, identified by `iss` and `sub`. An establishment counts toward a bound from the time an access token is first issued from it (in a redirect flow, once its authorization code is redeemed) until the server discards it ({{grant-lifecycle}}), and the server checks the bound before issuing that first token. A registration counts from the time an access token is first issued under it until the server deletes the registration, since any holder of a copy of a statement permitting registration can create one.
 
@@ -540,9 +540,9 @@ None of these rejections indicates refresh-token replay ({{RFC9700}}), and neith
 
 ## Authorization Endpoint {#authorization-errors}
 
-At the authorization endpoint, where a statement is never presented ({{authorization-requests}}) but may be pulled ({{pulled-statements}}), a review-only client is rejected with `unauthorized_client`, and a client whose pulled statements could not be retrieved is rejected with `temporarily_unavailable`, in each case where reviewed software is required ({{public-client-presentation}}, {{pulled-statements}}).
+A statement is never presented at the authorization endpoint ({{authorization-requests}}) but may be pulled there ({{pulled-statements}}). There, a review-only client is rejected with `unauthorized_client`, and a client whose pulled statements could not be retrieved is rejected with `temporarily_unavailable`, in each case where reviewed software is required ({{public-client-presentation}}, {{pulled-statements}}).
 
-Apart from those two cases, at the authorization endpoint, where this server requires a statement for a client it has not admitted on one, the authorization server MUST return `statement_required` in the authorization error response (Section 4.1.2.1 of {{RFC6749}}). Without the code, a client cannot tell a missing review from a policy it will never satisfy.
+Apart from those two cases, at the authorization endpoint, where this server requires a statement for a client it has not admitted on one, the authorization server MUST return `statement_required` in the authorization error response (Section 4.1.2.1 of {{RFC6749}}). The code tells the client to obtain a statement and return through the pushed authorization request endpoint; without the code, a client cannot tell a missing review from a policy it will never satisfy.
 
 The authorization server redirects with the error only after resolving the client's Client ID Metadata Document and validating the request's `redirect_uri` against it. Where it cannot resolve the document, the authorization server MUST NOT redirect and reports the error to the resource owner instead.
 
@@ -648,13 +648,13 @@ A statement carries no client metadata, so an {{RFC7591}} server that verified o
 
 ## Copied Statements and Public Clients {#public-client-security}
 
-A party holding a copied statement for a public client can open a pushed authorization request in the reviewed software's name but cannot receive the authorization code ({{public-client-presentation}}). The residual exposure is a consent prompt carrying the reviewed software's name and branding. Rate limits ({{external-retrieval}}) and the issuer's choice of audience and lifetime bound it. An endorsement extension ({{extensions}}) would strengthen the binding.
+A party holding a copied statement for a public client can open a pushed authorization request in the reviewed software's name but cannot receive the authorization code ({{public-client-presentation}}). The residual exposure is a consent prompt carrying the reviewed software's name and branding. Rate limits ({{external-retrieval}}) and the issuer's choice of audience and lifetime bound it. An endorsement extension ({{extensions}}) would strengthen the binding by giving the instance a key a third party vouches for.
 
 ## Tenant Confusion at a Multi-Tenant Consumer {#tenant-confusion}
 
 A multi-tenant server that derives the tenant one way to check a decision and another way to scope a token lets a client reach one tenant's resources on another tenant's decision; {{validation}} requires one tenant for both, selected by no value the client chooses. The `aud_tenant` claim makes that failure detectable: a statement naming a tenant cannot be used in another.
 
-This specification defines no tenant parameter, and a Client ID Metadata Document URL is the same `client_id` in every tenant, so neither a client nor an issuer can verify that a server honored this rule.
+This specification defines no tenant parameter, and a Client ID Metadata Document URL is the same `client_id` in every tenant, so neither a client nor an issuer can verify that a server honored the tenant rule of {{validation}}.
 
 The `aud_tenant` claim names a tenant at the trusting authorization server, not which of the client's own customers is asking. Software that acts for many customers under one client identifier and key presents the same statement and key for each, so a statement naming a tenant admits the software there on behalf of every customer it serves, and any of them can direct it at another's tenant. A statement attests software and cannot prevent this; a deployment that needs a customer-to-tenant binding records it at the trusting authorization server.
 
@@ -669,7 +669,7 @@ Presentation reaches these retrievals before any client is registered or any use
 * bound JWT size and parsing work, concurrent retrievals, response size, and response time; and
 * cache successful retrieval results within the document's caching directives, and back off after a failure rather than cache it, since {{CIMD}} forbids caching error responses.
 
-A retrieval failure leaves the relevant metadata or proof unverified, so the authorization server MUST reject the request and MUST NOT fall back to a weaker proof. A failed pull of statements for a request that opens a new grant is the exception: it leaves the client unreviewed ({{pulled-statements}}). A failed pull at refresh is not an exception: the refresh fails ({{refresh}}).
+A retrieval failure leaves the relevant metadata or proof unverified, so the authorization server MUST reject the request and MUST NOT fall back to a weaker proof. A failed pull of statements for a request that opens a new grant is the exception: it leaves the client unreviewed, as {{pulled-statements}} describes. A failed pull of a replacement that a refresh requires is not an exception: the refresh fails ({{refresh}}).
 
 ## Statement Lifetime {#enforcement-bounds}
 
@@ -683,7 +683,7 @@ A `statement_required` refusal at the authorization endpoint ({{errors}}) travel
 
 ## Statement Handling
 
-Servers should avoid logging software statements, which remain sensitive in transit and at rest. A statement names reviewed software and, where it carries an audience, that software's intended relationships.
+Servers should avoid logging software statements, which are sensitive in transit and at rest. A statement names reviewed software and, where it carries an audience, that software's intended relationships.
 
 # Privacy Considerations
 
