@@ -52,7 +52,7 @@ RFC 7591 does not define how long a registration based on a software statement r
 
 {{RFC7591}} defines no expiry or renewal procedure for a dynamic client registration. A software statement (Section 2.3 of {{RFC7591}}) can carry a reviewer's approval into a registration request, but the registration can outlive the statement, leaving the reviewer no interoperable way to keep its review current at the authorization servers that relied on it.
 
-{{STATEMENT}} defines the statement, its validation, issuer trust configuration, and runtime consumption. This specification defines what registration adds: taking the registration's metadata from the reviewed document ({{dcr-presentation}}), bounding its validity by the statement ({{registration-validity}}), and renewing it with a replacement statement ({{revalidation}}). It does not register software whose document declares `token_endpoint_auth_method` of `none`, which {{STATEMENT}} admits by runtime presentation instead, or whose document lists a redirection URI another application could claim ({{dcr-presentation}}). It depends on {{STATEMENT}}. {{STATEMENT}} does not depend on it.
+{{STATEMENT}} defines the statement, its validation, issuer trust configuration, and runtime consumption. This specification defines what registration adds: taking the registration's metadata from the reviewed document ({{dcr-presentation}}), bounding its validity by the statement ({{registration-validity}}), and renewing it with a replacement statement ({{revalidation}}). It does not register software whose document declares `token_endpoint_auth_method` of `none`, which {{STATEMENT}} admits by runtime presentation instead, or whose document lists a redirection URI another application could claim ({{dcr-presentation}}). It depends on {{STATEMENT}}, which does not depend on it.
 
 ## Protocol Overview
 
@@ -107,7 +107,7 @@ The external-retrieval protections and resource bounds of {{STATEMENT}} apply to
 
 To let a client rely on the signal ({{authorization-server-metadata}}) before it registers, an authorization server that advertises `software_statement_registration_validity_supported` as `true` MUST apply the following validity model to every registration it creates from a validated software statement, whichever issuer signed it:
 
-* The authorization server MUST record, with the registration, the governing statement's `iss`, `jti`, `sub`, and `iat`, any claim by which a withdrawal mechanism locates that statement, such as `status`, and the registration's effective expiry. That effective expiry is the governing statement's effective expiry ({{STATEMENT}}), what a renewal extends, and what `registration_expires_at` reports.
+* The authorization server MUST record, with the registration, the governing statement's `iss`, `jti`, `sub`, `iat`, and any claim by which a withdrawal mechanism locates that statement, such as `status`, together with the registration's effective expiry. That effective expiry is the governing statement's effective expiry ({{STATEMENT}}), what a renewal extends, and what `registration_expires_at` reports.
 * The registration is valid until that effective expiry.
 * Once the effective expiry passes without a replacement ({{revalidation}}), the authorization server MUST reject authorization, token, and pushed authorization requests and {{RFC7592}} update requests under the registration, other than the revalidation requests {{revalidation}} permits:
   * The authorization server rejects them with `statement_required` ({{STATEMENT}}), but rejects an {{RFC7592}} update request with `invalid_software_statement`, since the governing statement is expired or refused.
@@ -115,7 +115,7 @@ To let a client rely on the signal ({{authorization-server-metadata}}) before it
   * At the token and pushed authorization request endpoints, the authorization server first authenticates the client against the retained registration and rejects a request that fails that authentication with `invalid_client`, as for an unknown client.
 * The authorization server SHOULD retain the expired record for a later authenticated revalidation ({{oracle-considerations}}). A valid replacement restores the registration ({{revalidation}}), so no grace period is needed.
 
-At the authorization endpoint, the rejection is returned in the authorization error response {{RFC6749}}. The authorization server redirects with it only after validating the request's `redirect_uri` against the retained registration. If the authorization server cannot validate the `redirect_uri`, it MUST NOT redirect and reports the error to the resource owner instead. The client then delivers a replacement in a pushed authorization request ({{revalidation}}).
+At the authorization endpoint, the rejection is returned in the authorization error response {{RFC6749}}. The authorization server redirects with it only after validating the request's `redirect_uri` against the retained registration. If it cannot validate the request's `redirect_uri` against the retained registration, the authorization server MUST NOT redirect and reports the error to the resource owner instead. The client then delivers a replacement in a pushed authorization request ({{revalidation}}).
 
 If the server holds a refusal record for the governing statement ({{STATEMENT}}), the registration ceases to be valid as it does at its effective expiry, and {{revalidation}} is the recovery path. The client learns of the withdrawal only from the rejection. The disposition of outstanding grants is local policy.
 
@@ -143,9 +143,9 @@ An {{RFC7592}} read or update response returns the governing statement as its `s
 
 The replacement MUST satisfy the following:
 
-* It validates under the validation rules of {{STATEMENT}}, including its audience if it carries one.
-* It carries the governing statement's `iss` and `sub`.
-* It has an `iat` later than the governing statement's `iat`.
+* The replacement validates under the validation rules of {{STATEMENT}}, including its audience if it carries one.
+* The replacement carries the governing statement's `iss` and `sub`.
+* The replacement has an `iat` later than the governing statement's `iat`.
 
 For a replacement, the authorization server MUST do the following:
 
@@ -181,14 +181,14 @@ One unexpired statement can be consumed more than once, within the bounds of {{S
 
 # Error Responses {#errors}
 
-A rejection this specification defines, at a registration endpoint or at the registration management endpoint of {{RFC7592}}, uses the error response of Section 3.2.2 of {{RFC7591}}, with the HTTP status code that section specifies. An authorization server SHOULD respond to a request it rejects with `temporarily_unavailable` with HTTP status code 503.
+A rejection this specification defines, at a registration endpoint or at the registration management endpoint of {{RFC7592}}, uses the error response of Section 3.2.2 of {{RFC7591}}, with the HTTP status code that section specifies. An authorization server SHOULD respond with HTTP status code 503 to a request it rejects with `temporarily_unavailable`.
 
 Rejections of a registration management request for other reasons use the responses {{RFC7592}} specifies. Rejections at other endpoints use the error responses of {{STATEMENT}}, and registration expiry is reported as {{registration-validity}} defines.
 
 An authorization server rejecting a registration request, or a registration management request carrying a failing replacement, uses the following error codes:
 
 `invalid_software_statement`:
-: The statement is malformed, fails signature or claim validation, or is expired, refused by a refusal record, or superseded under the `iat` floor of {{STATEMENT}}, or the digest of the retrieved document does not match its `cimd_digest`.
+: The statement is malformed, fails signature or claim validation, or is expired, refused by a refusal record, or superseded under the `iat` floor of {{STATEMENT}}. The code also applies when the digest of the retrieved document does not match the statement's `cimd_digest`.
 
 `unapproved_software_statement`:
 : The statement is valid but not acceptable here: its issuer is not configured, its `aud` excludes this server, its `sub` is outside the issuer's scope, its `aud_tenant` is not this request's tenant or is absent when required, or its `statement_uses` excludes this use. This code is also used if a statement this server requires is absent.
