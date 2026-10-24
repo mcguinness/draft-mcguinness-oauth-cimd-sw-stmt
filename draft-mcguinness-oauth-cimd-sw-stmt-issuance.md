@@ -124,7 +124,7 @@ Metadata Snapshot:
 
 A client that holds an initial access token authorizing issuance, or a statement it can renew, uses token exchange at the token endpoint without a user agent ({{token-exchange-profile}}). Any client can instead initiate the redirect flow at the authorization endpoint ({{authorization-request}}) and redeem the resulting software statement code at the token endpoint.
 
-The issuer fetches and snapshots the client's Client ID Metadata Document ({{metadata-snapshot}}), decides whether to issue, and signs the statement. The client carries the statement to trusting authorization servers in its audience, at registration ({{REGISTRATION}}) or at runtime ({{STATEMENT}}). A publisher's backend acting for a client is not a party this specification authenticates. Issuance such a backend authorizes on a client's behalf is out of scope.
+The issuer fetches and snapshots the client's Client ID Metadata Document ({{metadata-snapshot}}), decides whether to issue, and signs the statement. The client carries the statement to trusting authorization servers in its audience, at registration ({{REGISTRATION}}) or at runtime ({{STATEMENT}}). A publisher's backend acting for a client is not a party this specification authenticates. Issuance that such a backend authorizes on a client's behalf is out of scope.
 
 ~~~
                 +--------------------------+
@@ -295,9 +295,9 @@ A replacement carries the subject statement's `aud_tenant` while the decision is
 
 An issuer MUST NOT accept as subject token a statement it has withdrawn ({{STATEMENT}}), including one whose status it publishes under {{STATUS}} as other than `VALID`. Renewing such a statement would reissue the decision that withdrawal ended.
 
-The authorization server MAY accept a statement that has expired, and SHOULD bound how long after expiry it will do so. A client absent for an extended period is asking to be re-established rather than renewed.
+The authorization server MAY accept a statement that has expired, and SHOULD bound how long after expiry it will do so. A renewal after an extended absence amounts to a request for re-establishment.
 
-If the current document's digest equals the subject statement's `cimd_digest`, whether renewal requires fresh review is issuer policy. If the digests differ, the issuer MUST apply the decision it would apply to a first issuance for that document, and MUST NOT renew on the strength of the prior statement alone.
+If the current document's digest equals the subject statement's `cimd_digest`, whether renewal requires fresh review is issuer policy. If the digests differ, the issuer MUST apply the decision it would apply to a first issuance for that document, and MUST NOT renew on the strength of the prior statement alone. Otherwise, whoever can change the document could obtain the issuer's signature over an unreviewed change.
 
 # Software Statement Authorization Request {#authorization-request}
 
@@ -376,7 +376,7 @@ The software statement code response applies the authorization response protecti
 `software_statement_code`:
 : REQUIRED. A short-lived, single-use artifact redeemed at the token endpoint ({{software-statement-code-redemption}}). It MUST be bound to the client identifier, redirect URI, PKCE challenge, metadata snapshot, requested audience, and, when `dpop_jkt` was present, that JWK thumbprint.
 
-  The value MUST satisfy all of the following:
+  The value MUST meet the following conditions:
 
   * It contains at least 128 bits of entropy from a cryptographically secure random source.
   * It is opaque to the client.
@@ -391,7 +391,7 @@ The software statement code response applies the authorization response protecti
 
 A software statement code is not an authorization code and MUST NOT be redeemable as one.
 
-The fragment response mode SHOULD NOT be used. Scripts at the redirection endpoint can access the fragment. A client MAY request `form_post` {{FORM-POST}}.
+Because scripts at the redirection endpoint can access the fragment, the fragment response mode SHOULD NOT be used. A client MAY request `form_post` {{FORM-POST}}.
 
 The following is an example of a software statement code response using the default `query` response mode (line breaks are for display purposes only):
 
@@ -407,7 +407,7 @@ Request validation errors follow Section 4.1.2.1 of {{RFC6749}}.
 
 # Software Statement Code Redemption {#software-statement-code-redemption}
 
-The client redeems a software statement code by sending an HTTP `POST` request to the token endpoint using the `application/x-www-form-urlencoded` format with:
+The client redeems a software statement code by sending an HTTP `POST` request to the token endpoint using the `application/x-www-form-urlencoded` format with the following parameters:
 
 `grant_type`:
 : REQUIRED. The value MUST be `urn:ietf:params:oauth:grant-type:software-statement`.
@@ -439,9 +439,9 @@ When a previously consumed code is presented again, the authorization server SHO
 
 For a valid, unconsumed code, the result depends on the issuance decision:
 
-* **Approved:** The authorization server returns the software statement token response ({{software-statement-response}}).
-* **Denied:** The authorization server returns the terminal denial of {{terminal-denial}}.
-* **Pending:** The authorization server returns the deferred token response of {{DTR}}, binding the deferral to the code's metadata snapshot and audience in addition to the bindings {{DTR}} requires. The client then polls ({{deferred-processing}}).
+* **Approved.** The authorization server returns the software statement token response ({{software-statement-response}}).
+* **Denied.** The authorization server returns the terminal denial of {{terminal-denial}}.
+* **Pending.** The authorization server returns the deferred token response of {{DTR}}, binding the deferral to the code's metadata snapshot and audience in addition to the bindings {{DTR}} requires. The client then polls ({{deferred-processing}}).
 
 An authorization server that does not defer completes the decision before responding.
 
@@ -550,7 +550,7 @@ An issuer that ends a decision before its expiry does so through a withdrawal me
 
 An authorization server that issued a statement already holds the decision that statement records. If it is also a trusting authorization server, it MAY admit the client on that record rather than require the statement to be presented back to it, at registration or at runtime.
 
-A decision a server made is not a document it has re-read. A server admitting a client on the record of a statement it issued therefore MUST apply the conditions it would apply to a statement presented under {{STATEMENT}}:
+Because a decision a server made is not a document it has re-read, a server admitting a client on the record of a statement it issued MUST apply the conditions it would apply to a statement presented under {{STATEMENT}}:
 
 * The decision's issuer is one this server accepts for the request's tenant and for the decision's `sub`, as {{STATEMENT}} requires of `iss` and `sub`, and, if this server records a required issuer for that tenant and `sub`, is that issuer.
 * The effective expiry the decision's statement would have at this server has not passed, and the registration has not expired if the validity model of {{REGISTRATION}} governs it.
@@ -589,7 +589,7 @@ When an approval interface is shown, it SHOULD state that the decision vouches f
 
 An erroneous approval affects every authorization server in the statement's audience until expiry. The approval interface therefore SHOULD present the following:
 
-* The client identifier URL, with its origin shown as the client's identity and display metadata such as `client_name` and `logo_uri` marked as asserted by the client. A look-alike document can carry another vendor's name.
+* The client identifier URL, with its origin shown as the client's identity, and with display metadata such as `client_name` and `logo_uri` marked as asserted by the client (a look-alike document can carry another vendor's name).
 * The document content it will vouch for, identified by its digest.
 * The audience the issuer intends to place in the statement.
 * The tenant the decision is confined to, if the statement will carry `aud_tenant` ({{STATEMENT}}).
@@ -599,7 +599,7 @@ If the client requested a different or broader audience, the interface SHOULD ma
 
 ## What Issuance Attests {#what-issuance-attests}
 
-A software statement means only that its issuer evaluated the document captured in the metadata snapshot ({{metadata-snapshot}}) under its issuance policy and decided to vouch for it. A software statement is not proof that the document's contents are true. The client authors the metadata document. An issuer therefore SHOULD corroborate security-relevant metadata through evidence beyond the document itself. Verification depth is part of the trust relationship.
+A software statement means only that its issuer evaluated the document captured in the metadata snapshot ({{metadata-snapshot}}) under its issuance policy and decided to vouch for it, not that the document's contents are true. Because the client authors the metadata document, an issuer SHOULD corroborate security-relevant metadata through evidence beyond the document itself. Verification depth is part of the trust relationship.
 
 ## Client Metadata Retrieval
 
@@ -637,7 +637,7 @@ A token exchange carries no in-band evidence of user participation. An authoriza
 
 ## Renewal by Prior Statement
 
-If both documents carry their keys inline, a party able to change the current document cannot supply a key that satisfies the holder binding of {{renewal}}. If they name a `jwks_uri`, whoever controls that location can. For this reason, a changed document receives the decision a first issuance receives. Binding renewal to the client's key also spares automated renewal a long-lived reusable initial access token, a standing credential to mint statements.
+If both documents carry their keys inline, a party able to change the current document cannot supply a key that satisfies the holder binding of {{renewal}}. If they name a `jwks_uri`, whoever controls that location can supply such a key. For this reason, a changed document receives the decision a first issuance receives. Binding renewal to the client's key also spares automated renewal a long-lived reusable initial access token, a standing credential to mint statements.
 
 ## Signing Keys and Algorithms
 
@@ -720,7 +720,7 @@ Specification Document(s):
 
 This specification requests that IANA add this specification, {{authorization-request}} and {{token-exchange-profile}}, as an additional reference for the existing `audience` parameter registered by {{RFC8693}} and extend its usage location to include authorization requests. The parameter name and change controller are unchanged.
 
-This specification likewise requests that IANA add it as an additional reference for the `completion_mode` parameter ({{authorization-request}}). The parameter is defined by {{DTR}}, whose registration already includes authorization requests; the name, usage location, and change controller are unchanged.
+This specification likewise requests that IANA add it as an additional reference for the `completion_mode` parameter ({{authorization-request}}). The parameter is defined by {{DTR}}, whose registration already includes authorization requests. The name, usage location, and change controller are unchanged.
 
 This specification also requests registration of the following value in the IANA "OAuth Parameters" registry established by {{RFC6749}}:
 
@@ -787,15 +787,15 @@ Specification Document(s):
 
 # Design Rationale {#design-rationale}
 
-**Why the software statement code is not an authorization code.** Redeeming an authorization code issues an access token under {{RFC6749}}. This flow issues an artifact that grants nothing; a distinct code keeps implementations that treat any code as redeemable from confusing the two.
+**Why the software statement code is not an authorization code.** Redeeming an authorization code issues an access token under {{RFC6749}}. This flow issues an artifact that grants nothing. A distinct code keeps implementations that treat any code as redeemable from confusing the two.
 
-**Why the response uses `access_token`.** {{RFC8693}} defines the container, so existing token endpoint machinery carries the artifact; the `issued_token_type` identifies what it is.
+**Why the response uses `access_token`.** {{RFC8693}} defines the container, so existing token endpoint machinery carries the artifact. The `issued_token_type` identifies what it is.
 
 **Why not the device authorization grant.** {{RFC8628}} fits a human decision that outlives a request, and an issuer whose approval is always out of band can use it. It assumes a user co-present with a constrained device who enters a user code elsewhere. Issuance approval is made by an administrator or reviewer who does not operate the client and is often not present, and the client already has a browser. The redirect flow covers an approver reachable through that browser; the token exchange profile covers the case with no browser.
 
 **Why not a profile of attestation-based client authentication.** An attester vouches for a running instance and its key, for as long as it chooses, to the server in front of it; a statement issuer vouches for reviewed software, for days, to every server that trusts it. Profiling one as the other would give the reviewed-software decision an instance-scoped trust model, or give instance attestation unwarranted portability.
 
-**Why not OpenID Federation trust marks.** A trust mark {{OPENID-FED}} is a signed third-party assertion about an entity, resolved through a federation that supplies key discovery, policy, and delegation and requires both parties to enroll. This specification is pairwise: a consumer configures an issuer directly. Federation standardizes trust resolution, not enrollment, approval, or deferred completion; ecosystems already operating a federation are better served by trust marks.
+**Why not OpenID Federation trust marks.** A trust mark {{OPENID-FED}} is a signed third-party assertion about an entity, resolved through a federation that supplies key discovery, policy, and delegation and requires both parties to enroll. This specification is pairwise: a consumer configures an issuer directly. Federation standardizes trust resolution, not enrollment, approval, or deferred completion. Ecosystems already operating a federation are better served by trust marks.
 
 **Deferred capabilities.** This version omits callback delivery for deferral.
 
