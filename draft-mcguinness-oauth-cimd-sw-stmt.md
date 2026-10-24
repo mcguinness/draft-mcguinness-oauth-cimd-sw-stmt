@@ -95,8 +95,8 @@ This specification uses terminology from {{RFC6749}} (OAuth), {{RFC7591}} (clien
 
 This specification defines the following terms.
 
-Issuing Authorization Server:
-: The authorization server that makes the issuance decision and signs the software statement.
+Issuer:
+: The authorization server that signs a software statement.
 
 Trusting Authorization Server:
 : An authorization server that consumes a software statement, at runtime under this specification or at registration under {{REGISTRATION}}.
@@ -127,7 +127,7 @@ The JOSE header MUST include the `kid` header parameter, identifying the signing
 A statement asserts that its issuer evaluated the Client ID Metadata Document whose content the digest identifies, and vouches for that document to any party that accepts the issuer. The JWT payload contains the following claims.
 
 `iss`:
-: REQUIRED. The issuer identifier of the issuing authorization server, as defined by {{RFC8414}}.
+: REQUIRED. The issuer's issuer identifier, as defined by {{RFC8414}}.
 
 `sub`:
 : REQUIRED. The exact client identifier URL of the Client ID Metadata Document the issuer reviewed, not a `client_id` assigned through {{RFC7591}} registration.

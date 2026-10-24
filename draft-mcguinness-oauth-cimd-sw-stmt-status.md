@@ -65,9 +65,9 @@ An issuer and a trusting authorization server can use the status list without th
 
 {::boilerplate bcp14-tagged}
 
-Transmitter, Receiver, Stream, and the delivery and configuration mechanisms are defined by {{SSF}}. Security Event Token, or SET, is defined by {{RFC8417}}. Subject identifier formats are defined by {{RFC9493}}. Status List Token, and the validation that resolves a status, are defined by {{STATUSLIST}}. The software statement, its claims, its validation, Issuing Authorization Server, Trusting Authorization Server, issuer trust configuration, runtime presentation, withdrawal, and Refusal Record are defined by {{STATEMENT}}.
+Transmitter, Receiver, Stream, and the delivery and configuration mechanisms are defined by {{SSF}}. Security Event Token, or SET, is defined by {{RFC8417}}. Subject identifier formats are defined by {{RFC9493}}. Status List Token, and the validation that resolves a status, are defined by {{STATUSLIST}}. The software statement, its claims, its validation, Issuer, Trusting Authorization Server, issuer trust configuration, runtime presentation, withdrawal, and Refusal Record are defined by {{STATEMENT}}.
 
-For the events defined here, the issuing authorization server acts as a Transmitter, and a trusting authorization server that has configured it acts as a Receiver.
+For the events defined here, the issuer acts as a Transmitter, and a trusting authorization server that has configured it acts as a Receiver.
 
 # Token Status List {#token-status-list}
 
@@ -177,7 +177,7 @@ Two constraints bound every event:
 
 # Stream Configuration {#configuration}
 
-An issuing authorization server that supports the events defined here publishes Transmitter configuration metadata as {{SSF}} defines, discoverable from its issuer identifier. Stream creation, subject management, verification, and delivery follow {{SSF}}.
+An issuer that supports the events defined here publishes Transmitter configuration metadata as {{SSF}} defines, discoverable from its issuer identifier. Stream creation, subject management, verification, and delivery follow {{SSF}}.
 
 A trusting authorization server that supports these events SHOULD create one stream per configured issuer that offers them, covering every subject that issuer attests rather than an enumerated set, since under runtime presentation ({{STATEMENT}}) it holds no state for software until its first presentation, by which time an event about that software would already have been missed.
 

@@ -104,7 +104,7 @@ Approval workflow, approver identity, external approval integration, acceptance 
 
 {::boilerplate bcp14-tagged}
 
-This specification uses terminology defined in {{RFC6749}}, {{RFC7591}}, {{CIMD}}, and {{DTR}}. The terms Issuing Authorization Server, Trusting Authorization Server, Metadata Digest, Effective Expiry, Establishment, and Refusal Record are defined by {{STATEMENT}}.
+This specification uses terminology defined in {{RFC6749}}, {{RFC7591}}, {{CIMD}}, and {{DTR}}. The terms Issuer, Trusting Authorization Server, Metadata Digest, Effective Expiry, Establishment, and Refusal Record are defined by {{STATEMENT}}.
 
 This specification defines the following terms:
 
@@ -124,7 +124,7 @@ Metadata Snapshot:
 
 A client that holds an initial access token authorizing issuance, or a statement it can renew, uses token exchange at the token endpoint without a user agent ({{token-exchange-profile}}). Any client can instead initiate the redirect flow at the authorization endpoint ({{authorization-request}}) and redeem the resulting software statement code at the token endpoint. In either flow, the issuer completes the decision synchronously or defers it under {{DTR}}.
 
-The issuing authorization server fetches and snapshots the client's Client ID Metadata Document ({{metadata-snapshot}}), decides whether to issue, and signs the statement. The client carries the statement to trusting authorization servers in its audience, at registration ({{REGISTRATION}}) or at runtime ({{STATEMENT}}), each of which applies its own acceptance policy. A publisher's backend acting for a client is not a party this specification authenticates; issuance it authorizes on a client's behalf is out of scope.
+The issuer fetches and snapshots the client's Client ID Metadata Document ({{metadata-snapshot}}), decides whether to issue, and signs the statement. The client carries the statement to trusting authorization servers in its audience, at registration ({{REGISTRATION}}) or at runtime ({{STATEMENT}}), each of which applies its own acceptance policy. A publisher's backend acting for a client is not a party this specification authenticates; issuance it authorizes on a client's behalf is out of scope.
 
 ~~~
                 +--------------------------+
@@ -219,7 +219,7 @@ A changed digest marks a new trust state for the same client identifier. The aut
 
 A client publishes its keys in its document either inline through `jwks`, which the digest binds so that rotation requires a new statement, or by reference through `jwks_uri`, which the digest binds only as a location. {{STATEMENT}} weighs that trade-off, and an issuer can require either.
 
-{{CIMD}} permits a document to carry a `software_statement` member. An issuing authorization server evaluates the document as served and MUST NOT refuse a document because it carries the member; consumers ignore a statement embedded there ({{STATEMENT}}), and refusing would leave a client that published its statement unable to renew it.
+{{CIMD}} permits a document to carry a `software_statement` member. An issuer evaluates the document as served and MUST NOT refuse a document because it carries the member; consumers ignore a statement embedded there ({{STATEMENT}}), and refusing would leave a client that published its statement unable to renew it.
 
 # Token Exchange Profile {#token-exchange-profile}
 
@@ -252,7 +252,7 @@ The client authenticates, and a public client constrains the request, as describ
 An initial access token presented under this profile MUST be:
 
 * time limited;
-* limited to the issuing authorization server;
+* limited to the issuer;
 * bound to an exact client identifier URL or an explicitly authorized client identifier namespace; and
 * of at least 128 bits of entropy, when opaque.
 
@@ -548,7 +548,7 @@ The denial is terminal for the request; a denied deferral behaves as {{DTR}} spe
 
 # Withdrawal {#status-publication}
 
-An issuing authorization server that ends decisions before their expiry does so through a withdrawal mechanism ({{STATEMENT}}), such as the Token Status List binding of {{STATUS}}. Withdrawing a statement does not withdraw a replacement obtained through {{renewal}}, and withdrawing a replacement does not restore its predecessor.
+An issuer that ends decisions before their expiry does so through a withdrawal mechanism ({{STATEMENT}}), such as the Token Status List binding of {{STATUS}}. Withdrawing a statement does not withdraw a replacement obtained through {{renewal}}, and withdrawing a replacement does not restore its predecessor.
 
 # Issuer and Consumer as One Server {#same-server}
 
@@ -660,7 +660,7 @@ Compromise of a software statement signing key lets an attacker mint statements 
 
 A software statement does not identify the human or system that approved issuance. Deployments that require approver attribution retain it in an authorization server audit record or define an explicit statement claim and its privacy semantics.
 
-An approved statement is accepted at every authorization server in its audience, not only within the approver's own scope. The policy governing who may approve issuance MUST be at least as restrictive as the policy governing manual client establishment at the issuing authorization server. Approval by a party authorized only for a personal or organizational scope MUST NOT produce a statement whose audience exceeds that scope, or whose `aud_tenant` names a tenant outside it.
+An approved statement is accepted at every authorization server in its audience, not only within the approver's own scope. The policy governing who may approve issuance MUST be at least as restrictive as the policy governing manual client establishment at the issuer. Approval by a party authorized only for a personal or organizational scope MUST NOT produce a statement whose audience exceeds that scope, or whose `aud_tenant` names a tenant outside it.
 
 An issuer SHOULD limit what an approver may approve to client identifiers under publisher namespaces it has enrolled, so that a look-alike document cannot reach approval.
 
