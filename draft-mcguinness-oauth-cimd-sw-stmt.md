@@ -675,7 +675,7 @@ A retrieval failure leaves the relevant metadata or proof unverified, so the aut
 
 Expiry and withdrawal ({{withdrawal}}) govern new admissions; neither revokes an issued access token. A grant opened by a statement lasts for the life of its refresh tokens, whatever the statement's lifetime, unless the server requires a current statement on refresh, holds a refusal record, or finds the proven key gone from the client's document ({{refresh}}). A narrowed review takes effect when the client publishes the narrower document and obtains a statement over it.
 
-Short lifetimes tighten an issuer's control and increase renewal traffic; at a server implementing the registration-validity model of {{REGISTRATION}}, the lifetime also sets the registration's renewal cadence. A fleet of statements issued together expires together, so issuers SHOULD stagger expiries or renew ahead of the boundary to avoid synchronized lapses.
+Short lifetimes tighten an issuer's control and increase renewal traffic; at a server implementing the registration-validity model of {{REGISTRATION}}, the lifetime also sets the registration's renewal cadence. A fleet of statements issued together expires together, so issuers should stagger expiries or renew ahead of the boundary to avoid synchronized lapses.
 
 ## Observable State {#oracle-considerations}
 
