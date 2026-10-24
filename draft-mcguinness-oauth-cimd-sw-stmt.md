@@ -375,7 +375,7 @@ At registration, a mismatch is fatal ({{REGISTRATION}}). Either way, the remedy 
 
 The request is evaluated against that metadata as against any client's registered metadata ({{RFC6749}}, {{CIMD}}): any requested grant type, response type, or scope MUST fall within it. A document that omits `scope` sets no ceiling on scope beyond the server's own policy.
 
-A request refused because the bound on establishments of {{multi-instance}} is reached is rejected with `invalid_client`; its statement and proof are sound, so the authorization server SHOULD say so in `error_description`, and the client can retry once earlier establishments are released.
+A request refused because the bound on establishments of {{multi-instance}} is reached is rejected with `invalid_client`; its statement and proof are sound, so the authorization server should say so in `error_description`, and the client can retry once earlier establishments are released.
 
 ## Grant Lifecycle {#grant-lifecycle}
 
