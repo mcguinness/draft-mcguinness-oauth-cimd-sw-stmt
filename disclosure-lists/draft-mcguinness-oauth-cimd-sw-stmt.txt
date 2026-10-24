@@ -1420,9 +1420,8 @@ Table of Contents
    The following extensions are left to separate specifications:
 
    *  endorsed keys: a client attestation [ABCA], including one from an
-      attester the reviewed document endorses through client_attesters
-      [ATTESTERS], vouching for a key that document does not carry
-      (Section 6);
+      attester the reviewed document endorses, vouching for a key that
+      document does not carry (Section 6);
 
    *  statement conveyance within a client attestation, rather than as a
       request parameter;
@@ -1890,13 +1889,6 @@ Table of Contents
               based-client-auth-12, 12 October 2026,
               <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
               attestation-based-client-auth-12>.
-
-   [ATTESTERS]
-              McGuinness, K., "OAuth 2.0 Client Attester Endorsement",
-              Work in Progress, Internet-Draft, draft-mcguinness-oauth-
-              client-attesters-00, 28 September 2026,
-              <https://datatracker.ietf.org/doc/html/draft-mcguinness-
-              oauth-client-attesters-00>.
 
    [OPENID-FED]
               "OpenID Federation 1.0", n.d.,
