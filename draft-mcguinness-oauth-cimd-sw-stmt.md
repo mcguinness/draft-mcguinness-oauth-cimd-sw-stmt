@@ -683,7 +683,7 @@ A `statement_required` refusal at the authorization endpoint ({{errors}}) travel
 
 ## Statement Handling
 
-Servers SHOULD avoid logging software statements, which remain sensitive in transit and at rest. Possession alone does not enable presentation, but a statement names reviewed software and, where it carries an audience, that software's intended relationships.
+Servers should avoid logging software statements, which remain sensitive in transit and at rest. Possession alone does not enable presentation, but a statement names reviewed software and, where it carries an audience, that software's intended relationships.
 
 # Privacy Considerations
 
