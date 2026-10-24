@@ -388,9 +388,9 @@ A successful presentation creates an establishment, the state a server persists 
 * the issuer trust decision; and
 * the sender-constraint mechanism and proven key.
 
-An authorization server MAY reuse an establishment across presentations that resolve to the same `sub`, statement, and proven key, rather than creating one per request; the bounds of {{multi-instance}} count distinct establishments, not presentations.
+An authorization server can reuse an establishment across presentations that resolve to the same `sub`, statement, and proven key, rather than creating one per request; the bounds of {{multi-instance}} count distinct establishments, not presentations.
 
-The establishment persists while the grant depends on it. The authorization server MUST bind the resulting `request_uri`, authorization code, refresh token, and other grant continuation state to the establishment, as applicable, and MAY discard it once no such state references it.
+The establishment persists while the grant depends on it. The authorization server MUST bind the resulting `request_uri`, authorization code, refresh token, and other grant continuation state to the establishment, as applicable, and can discard it once no such state references it.
 
 A token request that redeems an authorization code opened by a presentation:
 
