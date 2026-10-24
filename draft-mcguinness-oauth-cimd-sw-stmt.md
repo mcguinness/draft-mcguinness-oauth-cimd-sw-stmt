@@ -233,7 +233,7 @@ These inputs, not the signature alone, define acceptance. A trusting authorizati
 
 Trust configuration SHOULD constrain each issuer to the client identifier namespaces it is expected to attest, for example URLs under the domains of the software publishers it serves; {{validation}} rejects a statement outside that scope. Without such a scope, a compromised or over-broad issuer can mint acceptable statements about any client software.
 
-Where a trusting authorization server configures an issuer whose decisions are confined to one of its tenants, as a customer's own issuer is, it SHOULD record with that configuration the client identifier namespaces for which the issuer's decision is required in that tenant.
+Where a trusting authorization server configures an issuer whose decisions are confined to one of its tenants, as a customer's own issuer is, it should record with that configuration the client identifier namespaces for which the issuer's decision is required in that tenant.
 
 A server that records such a requirement MUST NOT admit software in a covered namespace in that tenant without a current statement from the required issuer, whatever its policy for clients it has not reviewed. Without this rule, withholding the statement would restore access the customer withdrew. The requirement is configured rather than inferred from the statements the server sees, so a holder cannot evade a customer's withdrawal by presenting or publishing only a broader statement, such as a marketplace listing.
 
