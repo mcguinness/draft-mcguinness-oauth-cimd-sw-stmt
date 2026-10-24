@@ -83,13 +83,11 @@ Table of Contents
 1.  Introduction
 
    [STATEMENT] lets an issuer withdraw a decision before the statement's
-   expiry, and has a trusting authorization server that learns of a
-   withdrawal hold a refusal record, but it requires and defines no
-   withdrawal mechanism.  This specification defines two.  Section 3
-   profiles Token Status List [STATUSLIST]: an issuer withdraws a
-   decision by setting the statement's status, and a trusting
-   authorization server learns of the change when it next resolves the
-   list.
+   expiry but requires and defines no withdrawal mechanism.  This
+   specification defines two.  Section 3 profiles Token Status List
+   [STATUSLIST]: an issuer withdraws a decision by setting the
+   statement's status, and a trusting authorization server learns of the
+   change when it next resolves the list.
 
    A withdrawal therefore takes effect only as quickly as consumers
    poll.  As an optional addition, this specification defines a Shared
@@ -99,12 +97,11 @@ Table of Contents
    carries no status, and the status list remains the authority on
    whether a statement stands (Section 7).
 
-   An issuer and a trusting authorization server can use the status list
-   without the events, and the requirements of Section 4 through
-   Section 8 apply only to implementations that support the events.
-   This specification defines no new endpoint, transport, subject
-   identifier format, durable receiver record, or trust establishment
-   mechanism.  [STATEMENT] does not depend on this specification.
+   The requirements of Section 4 through Section 8 apply only to
+   implementations that support the events.  This specification defines
+   no new endpoint, transport, subject identifier format, or trust
+   establishment mechanism.  [STATEMENT] does not depend on this
+   specification.
 
 2.  Conventions and Definitions
 
@@ -137,9 +134,9 @@ Table of Contents
 3.1.  Status Publication
 
    An issuer that uses Token Status List publishes the status of its
-   statements as [STATUSLIST] defines, and each statement locates itself
-   in the issuer's Status List Token with its status claim
-   ([STATEMENT]).  An issuer that publishes status:
+   statements as [STATUSLIST] defines, and each statement's status claim
+   ([STATEMENT]) locates its entry in the issuer's Status List Token.
+   An issuer that publishes status:
 
    *  MUST publish it, and carry the status claim, for every statement
       it issues under a given iss from the point it begins publishing,
@@ -160,9 +157,8 @@ Table of Contents
       an older token cannot stand in for a newer one indefinitely; and
 
    *  MUST give each Status List Token it publishes at a given list URI
-      an iat later than that of any token it published there before, so
-      that a trusting authorization server can tell the newer of two
-      apart.
+      an iat later than that of any token it published there before
+      (Section 3.2).
 
 3.2.  Status Resolution
 
@@ -217,11 +213,10 @@ Table of Contents
    locations.
 
    A SET carrying an event defined here MUST use the explicit typ JOSE
-   header parameter value secevent+jwt ([RFC8417]), which distinguishes
-   it from a software statement and from a Status List Token.  Its aud
-   claim MUST contain the receiving authorization server's issuer
-   identifier [RFC8414]; a stream audience negotiated under [SSF] does
-   not replace it.
+   header parameter value secevent+jwt ([RFC8417]).  Its aud claim MUST
+   contain the receiving authorization server's issuer identifier
+   [RFC8414]; a stream audience negotiated under [SSF] does not replace
+   it.
 
 5.  Subject Identification
 
@@ -243,8 +238,7 @@ Table of Contents
       issuer changed the status the event reports.  This narrows the
       [CAEP] member, which is optional and gives the time the event
       occurred.  It is informational: a receiver does not use it to
-      order, bound, or scope anything, since the resolved status governs
-      (Section 7).
+      order, bound, or scope anything.
 
    software_statement_jti:  OPTIONAL.  The jti of a single statement
       whose status changed (Section 7).
@@ -327,8 +321,7 @@ Table of Contents
    delivered and acknowledge it as [RFC8935] or [RFC8936] requires,
    rather than reporting a delivery error, since rejecting a retry can
    stall or disable a stream carrying later events.  Duplicate detection
-   is per transmitting issuer, since SET jti values are unique only
-   within an issuer.
+   is per transmitting issuer.
 
    Two constraints bound every event:
 
@@ -364,9 +357,7 @@ Table of Contents
    that issuer ([STATEMENT]).
 
    A receiver SHOULD request the event this specification defines, and
-   SHOULD use the stream verification facility of [SSF] on a schedule,
-   since a misconfigured stream that delivers nothing is otherwise
-   indistinguishable from an issuer with nothing to report.
+   SHOULD use the stream verification facility of [SSF] on a schedule.
 
 9.  Security Considerations
 
@@ -383,8 +374,7 @@ Table of Contents
 
    An event names no status, so a forged, replayed, delayed, or
    reordered event cannot change whether any statement stands.  Its only
-   effect is a resolution the receiver would have performed anyway,
-   against a Status List Token signed by the issuer.
+   effect is a resolution the receiver would have performed anyway.
 
    The remaining exposure is resource cost: an attacker holding the
    issuer's SET signing key, or a misbehaving transmitter, can drive
@@ -414,16 +404,14 @@ Table of Contents
    separated, compromise of a SET key lets an attacker drive resolutions
    and nothing more, while compromise of a statement signing key has
    wider effect, because statements grant standing and events cannot.
-   Removing trust in the issuer as [STATEMENT] describes also ends event
-   acceptance.
 
 10.  Privacy Considerations
 
-   Subject identifiers in these events name software an issuer has
-   reviewed and, in aggregate, describe an organization's approved
-   software estate, which is why a stream is scoped as Section 8
-   provides.  A receiver SHOULD apply to event logs the handling it
-   applies to statements ([STATEMENT]).
+   Subject identifiers in these events name reviewed software and, in
+   aggregate, describe an organization's approved software estate, which
+   is why a stream is scoped as Section 8 provides.  A receiver SHOULD
+   apply to event logs the handling it applies to statements
+   ([STATEMENT]).
 
    Because this specification defines no durable receiver-side record,
    it adds no negative state about a client identifier that outlives the
