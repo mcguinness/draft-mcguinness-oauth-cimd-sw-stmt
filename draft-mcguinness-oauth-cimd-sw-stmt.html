@@ -1384,9 +1384,9 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <p id="section-2-2">This specification uses terminology from <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> (OAuth), <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> (client metadata and software statements), and <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> (Client ID Metadata Documents).<a href="#section-2-2" class="pilcrow">¶</a></p>
 <p id="section-2-3">This specification defines the following terms.<a href="#section-2-3" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-2-4">
-        <dt id="section-2-4.1">Issuing Authorization Server:</dt>
+        <dt id="section-2-4.1">Issuer:</dt>
         <dd style="margin-left: 1.5em" id="section-2-4.2">
-          <p id="section-2-4.2.1">The authorization server that makes the issuance decision and signs the software statement.<a href="#section-2-4.2.1" class="pilcrow">¶</a></p>
+          <p id="section-2-4.2.1">The authorization server that signs a software statement.<a href="#section-2-4.2.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 <dt id="section-2-4.3">Trusting Authorization Server:</dt>
@@ -1417,7 +1417,6 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <dt id="section-2-4.13">Refusal Record:</dt>
         <dd style="margin-left: 1.5em" id="section-2-4.14">
           <p id="section-2-4.14.1">State an authorization server holds when it has learned that a statement ceased to be acceptable before its expiry, whether from a withdrawal mechanism it uses for the issuer (<a href="#withdrawal" class="auto internal xref">Section 3.3</a>) or from its own operator. Wherever this specification requires a statement to be current, a statement matching a refusal record is not current.<a href="#section-2-4.14.1" class="pilcrow">¶</a></p>
-<p id="section-2-4.14.2">A refusal derived from a withdrawal mechanism lasts until a later authoritative result from that mechanism supersedes it, or until an expiry the mechanism itself defines for the withdrawal, and a server <span class="bcp14">MUST NOT</span> retain such a refusal once it is superseded or expired in that way. A failure to consult the mechanism, or cached evidence that has lapsed, neither supersedes nor expires a refusal. A refusal its operator entered persists on the operator's own terms.<a href="#section-2-4.14.2" class="pilcrow">¶</a></p>
 </dd>
       <dd class="break"></dd>
 </dl>
@@ -1435,7 +1434,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         <dt id="section-3-4.1">
 <code>iss</code>:</dt>
         <dd style="margin-left: 1.5em" id="section-3-4.2">
-          <p id="section-3-4.2.1"><span class="bcp14">REQUIRED</span>. The issuer identifier of the issuing authorization server, as defined by <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span>.<a href="#section-3-4.2.1" class="pilcrow">¶</a></p>
+          <p id="section-3-4.2.1"><span class="bcp14">REQUIRED</span>. The issuer's issuer identifier, as defined by <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span>.<a href="#section-3-4.2.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 <dt id="section-3-4.3">
@@ -1561,22 +1560,23 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         </h3>
 <p id="section-3.3-1">An issuer can end a decision before the statement's <code>exp</code> by withdrawing it. Some status mechanisms call this revocation. This specification uses a distinct term because OAuth revocation (<span>[<a href="#RFC7009" class="cite xref">RFC7009</a>]</span>) ends tokens, while a withdrawal revokes no issued token: a server holding a refusal record refuses new admissions and refresh under the statement (<a href="#refresh" class="auto internal xref">Section 5.6.1</a>, <a href="#enforcement-bounds" class="auto internal xref">Section 12.6</a>).<a href="#section-3.3-1" class="pilcrow">¶</a></p>
 <p id="section-3.3-2">How a trusting authorization server learns of a withdrawal is a withdrawal mechanism. This specification requires no withdrawal mechanism and defines none; Token Status List <span>[<a href="#STATUSLIST" class="cite xref">STATUSLIST</a>]</span> is one, and extensions define how a mechanism applies to these statements (<a href="#extensions" class="auto internal xref">Section 11</a>).<a href="#section-3.3-2" class="pilcrow">¶</a></p>
-<p id="section-3.3-3">A withdrawal constrains and never relaxes. A statement for which no withdrawal mechanism reports a withdrawal, or for which the server cannot consult the mechanism it uses, is bounded by its effective expiry as it would be otherwise, and a server <span class="bcp14">MUST NOT</span> treat any withdrawal mechanism as grounds to accept a statement past its effective expiry.<a href="#section-3.3-3" class="pilcrow">¶</a></p>
-<p id="section-3.3-4">What a server does when it cannot consult a mechanism it relies on is local policy. Refusing makes issuer availability a precondition for every request the statement governs; proceeding leaves a withdrawn statement acceptable for the rest of its lifetime.<a href="#section-3.3-4" class="pilcrow">¶</a></p>
-<p id="section-3.3-5">An issuer that uses a withdrawal mechanism and issues a replacement narrower than the statement it replaces <span class="bcp14">SHOULD</span> withdraw the earlier statement. A replacement is narrower when it:<a href="#section-3.3-5" class="pilcrow">¶</a></p>
+<p id="section-3.3-3">A refusal derived from a withdrawal mechanism lasts until a later authoritative result from that mechanism supersedes it, or until an expiry the mechanism itself defines for the withdrawal, and a server <span class="bcp14">MUST NOT</span> retain such a refusal once it is superseded or expired in that way. A failure to consult the mechanism, or cached evidence that has lapsed, neither supersedes nor expires a refusal. A refusal its operator entered persists on the operator's own terms.<a href="#section-3.3-3" class="pilcrow">¶</a></p>
+<p id="section-3.3-4">A withdrawal constrains and never relaxes. A statement for which no withdrawal mechanism reports a withdrawal, or for which the server cannot consult the mechanism it uses, is bounded by its effective expiry as it would be otherwise, and a server <span class="bcp14">MUST NOT</span> treat any withdrawal mechanism as grounds to accept a statement past its effective expiry.<a href="#section-3.3-4" class="pilcrow">¶</a></p>
+<p id="section-3.3-5">What a server does when it cannot consult a mechanism it relies on is local policy. Refusing makes issuer availability a precondition for every request the statement governs; proceeding leaves a withdrawn statement acceptable for the rest of its lifetime.<a href="#section-3.3-5" class="pilcrow">¶</a></p>
+<p id="section-3.3-6">An issuer that uses a withdrawal mechanism and issues a replacement narrower than the statement it replaces <span class="bcp14">SHOULD</span> withdraw the earlier statement. A replacement is narrower when it:<a href="#section-3.3-6" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-3.3-6.1">
-            <p id="section-3.3-6.1.1">is over a document that no longer carries a key, redirection URI, or scope the earlier document carried;<a href="#section-3.3-6.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-3.3-7.1">
+            <p id="section-3.3-7.1.1">is over a document that no longer carries a key, redirection URI, or scope the earlier document carried;<a href="#section-3.3-7.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-3.3-6.2">
-            <p id="section-3.3-6.2.1">has a narrower <code>aud</code>, <code>aud_tenant</code>, or <code>statement_uses</code>; or<a href="#section-3.3-6.2.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-3.3-7.2">
+            <p id="section-3.3-7.2.1">has a narrower <code>aud</code>, <code>aud_tenant</code>, or <code>statement_uses</code>; or<a href="#section-3.3-7.2.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-3.3-6.3">
-            <p id="section-3.3-6.3.1">has a shorter remaining lifetime.<a href="#section-3.3-6.3.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-3.3-7.3">
+            <p id="section-3.3-7.3.1">has a shorter remaining lifetime.<a href="#section-3.3-7.3.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-3.3-7">What was removed may be why the replacement was issued; a trusting authorization server that has not yet seen the replacement, or at which it does not validate, would otherwise accept the earlier statement until it expires.<a href="#section-3.3-7" class="pilcrow">¶</a></p>
-<p id="section-3.3-8">Withdrawal does not replace lifetime. A trusting authorization server is not obliged to use any withdrawal mechanism, so an issuer chooses <code>exp</code> assuming none does.<a href="#section-3.3-8" class="pilcrow">¶</a></p>
+<p id="section-3.3-8">What was removed may be why the replacement was issued; a trusting authorization server that has not yet seen the replacement, or at which it does not validate, would otherwise accept the earlier statement until it expires.<a href="#section-3.3-8" class="pilcrow">¶</a></p>
+<p id="section-3.3-9">Withdrawal does not replace lifetime. A trusting authorization server is not obliged to use any withdrawal mechanism, so an issuer chooses <code>exp</code> assuming none does.<a href="#section-3.3-9" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>

@@ -191,8 +191,7 @@ Table of Contents
 
    This specification defines the following terms.
 
-   Issuing Authorization Server:  The authorization server that makes
-      the issuance decision and signs the software statement.
+   Issuer:  The authorization server that signs a software statement.
 
    Trusting Authorization Server:  An authorization server that consumes
       a software statement, at runtime under this specification or at
@@ -221,15 +220,6 @@ Table of Contents
       specification requires a statement to be current, a statement
       matching a refusal record is not current.
 
-      A refusal derived from a withdrawal mechanism lasts until a later
-      authoritative result from that mechanism supersedes it, or until
-      an expiry the mechanism itself defines for the withdrawal, and a
-      server MUST NOT retain such a refusal once it is superseded or
-      expired in that way.  A failure to consult the mechanism, or
-      cached evidence that has lapsed, neither supersedes nor expires a
-      refusal.  A refusal its operator entered persists on the
-      operator's own terms.
-
 3.  The Software Statement
 
    The software statement is a compact JWT [RFC7519] protected by JWS
@@ -252,8 +242,8 @@ Table of Contents
    document to any party that accepts the issuer.  The JWT payload
    contains the following claims.
 
-   iss:  REQUIRED.  The issuer identifier of the issuing authorization
-      server, as defined by [RFC8414].
+   iss:  REQUIRED.  The issuer's issuer identifier, as defined by
+      [RFC8414].
 
    sub:  REQUIRED.  The exact client identifier URL of the Client ID
       Metadata Document the issuer reviewed, not a client_id assigned
@@ -435,6 +425,14 @@ Table of Contents
    mechanism and defines none; Token Status List [STATUSLIST] is one,
    and extensions define how a mechanism applies to these statements
    (Section 11).
+
+   A refusal derived from a withdrawal mechanism lasts until a later
+   authoritative result from that mechanism supersedes it, or until an
+   expiry the mechanism itself defines for the withdrawal, and a server
+   MUST NOT retain such a refusal once it is superseded or expired in
+   that way.  A failure to consult the mechanism, or cached evidence
+   that has lapsed, neither supersedes nor expires a refusal.  A refusal
+   its operator entered persists on the operator's own terms.
 
    A withdrawal constrains and never relaxes.  A statement for which no
    withdrawal mechanism reports a withdrawal, or for which the server
