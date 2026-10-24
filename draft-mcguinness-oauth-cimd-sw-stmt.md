@@ -58,7 +58,6 @@ informative:
   OPENID-FED:
     target: https://openid.net/specs/openid-federation-1_0.html
     title: "OpenID Federation 1.0"
-  ATTESTERS: I-D.mcguinness-oauth-client-attesters
 
 --- abstract
 
@@ -629,7 +628,7 @@ This specification defines the following authorization server metadata {{RFC8414
 
 The following extensions are left to separate specifications:
 
-* endorsed keys: a client attestation {{ABCA}}, including one from an attester the reviewed document endorses through `client_attesters` {{ATTESTERS}}, vouching for a key that document does not carry ({{multi-instance}});
+* endorsed keys: a client attestation {{ABCA}}, including one from an attester the reviewed document endorses, vouching for a key that document does not carry ({{multi-instance}});
 * statement conveyance within a client attestation, rather than as a request parameter;
 * runtime presentation on grants other than those {{runtime-presentation}} names, such as token exchange;
 * partial review, by which an issuer vouches for particular members rather than a whole document ({{profiles}}); and
