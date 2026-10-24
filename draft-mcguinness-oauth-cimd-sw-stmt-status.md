@@ -75,9 +75,9 @@ An issuer may use Token Status List {{STATUSLIST}} as the withdrawal mechanism o
 
 ## Status Publication {#status-publication}
 
-An issuer that uses Token Status List publishes the status of its statements as {{STATUSLIST}} defines, and each statement's `status` claim ({{STATEMENT}}) locates its entry in the issuer's Status List Token. An issuer that publishes status meets the following requirements:
+An issuer that uses Token Status List publishes the status of its statements as {{STATUSLIST}} defines, and each statement's `status` claim ({{STATEMENT}}) locates its entry in the issuer's Status List Token. An issuer that publishes status is subject to the following requirements:
 
-* The issuer MUST publish status, and carry the `status` claim, for every statement it issues under a given `iss` from the point it begins publishing. Once statements issued before that point have expired, a trusting authorization server can then read an absent claim as meaning the issuer publishes no status.
+* The issuer MUST publish status, and carry the `status` claim, for every statement it issues under a given `iss` from the point it begins publishing. Once statements issued before that point have expired, a trusting authorization server can read an absent claim as meaning the issuer publishes no status.
 * The issuer MUST NOT reuse an index across statements. Withdrawing a statement then affects no other: withdrawing a superseded statement does not withdraw its replacement, and withdrawing a replacement does not restore its predecessor.
 * The issuer MUST sign the Status List Token with a key published at the `jwks_uri` of its authorization server metadata {{RFC8414}}, which {{STATEMENT}} keeps apart from its statement signing keys.
 * To prevent an older token from standing in for a newer one indefinitely, the issuer MUST include `exp` in every Status List Token it publishes.
@@ -159,10 +159,10 @@ The following non-normative example shows the payload of a SET carrying this eve
 
 A trusting authorization server that receives an event defined here MUST process it as follows:
 
-1. The server verifies the SET as {{RFC8417}} requires, including its `typ`, and verifies that the SET's issuer is configured and its keys were obtained as {{relationship}} requires.
-2. The server rejects an event whose `aud` does not contain its own issuer identifier ({{relationship}}), and an event whose type it does not recognize.
-3. The server resolves the subject ({{subjects}}).
-4. The server resolves the status of the affected statements from the issuer's Status List Token as {{STATUSLIST}} defines, without waiting for the schedule it would otherwise have used, and applies the resolved status as {{status-resolution}} defines.
+1. Verify the SET as {{RFC8417}} requires, including its `typ`, and verify that the SET's issuer is configured and its keys were obtained as {{relationship}} requires.
+2. Reject an event whose `aud` does not contain the server's own issuer identifier ({{relationship}}), and an event whose type the server does not recognize.
+3. Resolve the subject ({{subjects}}).
+4. Resolve the status of the affected statements from the issuer's Status List Token as {{STATUSLIST}} defines, without waiting for the schedule the server would otherwise have used, and apply the resolved status as {{status-resolution}} defines.
 
 The affected statements are those the transmitting issuer made about the subject, never statements another issuer made about the same software: the one the event's `software_statement_jti` names or, if the event names none, those the receiver holds or has cached a status for. An event about a subject for which the receiver holds no state requires nothing of it.
 
@@ -189,7 +189,7 @@ A receiver SHOULD request the event this specification defines, and SHOULD use t
 
 ## Status Resolution Schedule
 
-Because {{STATUSLIST}} aggregates many statements into one list, a retrieval tells the issuer only that some trusting authorization server is checking. A server SHOULD retrieve the list on the list's own schedule rather than once per request. Its request timing then does not disclose the client population it serves, and each request the statement governs does not depend on issuer availability.
+Because {{STATUSLIST}} aggregates many statements into one list, a retrieval tells the issuer only that some trusting authorization server is checking. A server SHOULD retrieve the list on the list's own schedule rather than once per request. The server's request timing then does not disclose the client population it serves, and each request a statement governs does not depend on issuer availability.
 
 ## What an Event Cannot Do
 
@@ -233,7 +233,7 @@ Specification Document(s):
 
 ## SET Payload Claims
 
-Under Section 2 of {{RFC8417}}, the `software_statement_jti` payload claim of {{events}} is defined by this specification and need not be registered as a JWT claim; no IANA registry of them exists, so no registration is requested.
+Under Section 2 of {{RFC8417}}, the `software_statement_jti` payload claim of {{events}} is defined by this specification and need not be registered as a JWT claim. No IANA registry of SET payload claims exists, so no registration is requested.
 
 --- back
 
