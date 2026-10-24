@@ -287,7 +287,7 @@ An authorization server that supports pulled statements MAY retrieve this URL wh
 * discards statements from issuers it has not configured before verifying any signature; and
 * caches a successful response no longer than it caches the document, and does not cache a failure, as {{CIMD}} requires of the document.
 
-The authorization server MAY revalidate a cached response from that URL with a conditional request, as it may the document ({{metadata-digest}}). Both the document and this URL are retrieved before any statement exists to validate, so the ordering of {{processing}} applies from the first statement verified onward.
+The authorization server can revalidate a cached response from that URL with a conditional request, as it can the document ({{metadata-digest}}). Both the document and this URL are retrieved before any statement exists to validate, so the ordering of {{processing}} applies from the first statement verified onward.
 
 The server considers only statements that:
 
