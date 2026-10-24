@@ -92,7 +92,7 @@ The client presents the statement at registration or at runtime, or publishes it
 
 # Introduction
 
-{{RFC7591}} standardizes the consumption of a software statement (Section 2.3 of {{RFC7591}}), but not its issuance. Issuance today relies on manual provisioning or proprietary processes; the UK Open Banking Directory {{UK-OPEN-BANKING}} and the Australian Consumer Data Right Register {{AU-CDR}} each built a central issuer, yet a client needs a separate integration for each.
+{{RFC7591}} standardizes the consumption of a software statement, a signed JWT asserting client metadata (Section 2.3 of {{RFC7591}}), but not its issuance. Issuance today relies on manual provisioning or proprietary processes; the UK Open Banking Directory {{UK-OPEN-BANKING}} and the Australian Consumer Data Right Register {{AU-CDR}} each built a central issuer, yet a client needs a separate integration for each.
 
 {{STATEMENT}} profiles that statement to carry no client metadata and instead vouch for the exact octets of a Client ID Metadata Document, and defines its validation and consumption. This document defines how a client obtains one, through OAuth token exchange ({{token-exchange-profile}}) or a redirect flow ({{authorization-request}}); an issuer whose review outlives a request can defer it under {{DTR}}.
 
@@ -217,7 +217,7 @@ Replacing the snapshot does not alter the sender-constraint context fixed for a 
 
 The authorization server MUST reject duplicate object member names, because parsers can interpret them differently despite an identical digest.
 
-A document carries its keys inline through `jwks` or by reference through `jwks_uri`; {{STATEMENT}} weighs the trade-off, and an issuer can require either.
+A document carries its keys inline through `jwks`, which the digest binds, or by reference through `jwks_uri`, which it binds only as a location; {{STATEMENT}} weighs the trade-off, and an issuer can require either.
 
 {{CIMD}} permits a document to carry a `software_statement` member. An issuer evaluates the document as served and MUST NOT refuse a document because it carries the member; consumers ignore a statement embedded there ({{STATEMENT}}), and refusing would leave a client that published its statement unable to renew it.
 
@@ -293,7 +293,7 @@ A client rotating keys inline renews while its document carries both the old and
 
 A replacement carries the subject statement's `aud_tenant` while the decision is confined to that tenant, and the uses the subject statement permits unless issuance policy narrows them; it MUST NOT permit a use the subject statement does not. It is matched to the statement it replaces by `iss` and `sub` ({{STATEMENT}}).
 
-An issuer MUST NOT accept as subject token a statement it has withdrawn ({{STATEMENT}}), including one whose status it publishes under {{STATUS}} as other than `VALID`.
+An issuer MUST NOT accept as subject token a statement it has withdrawn ({{STATEMENT}}), including one whose status it publishes under {{STATUS}} as other than `VALID`, since renewing it would reissue the decision that withdrawal ended.
 
 The authorization server MAY accept a statement that has expired, and SHOULD bound how long after expiry it will do so, since a client absent for an extended period is asking to be re-established rather than renewed.
 
@@ -339,7 +339,7 @@ The authorization server selects the final audience according to policy. It MUST
 
 Where no requested audience is acceptable, the authorization server MUST reject the request with `invalid_target` {{RFC8707}}. An authorization server whose policy requires a restricted audience rejects a request carrying none with the same error.
 
-The `audience` semantics of this section apply only to software statement requests.
+The `audience` semantics of this section apply only to software statement requests and do not affect proprietary uses of the parameter for access-token targeting.
 
 The authorization server MUST reject with `invalid_request` a request that omits a required PKCE parameter or a required `dpop_jkt`.
 
@@ -472,7 +472,7 @@ grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3A
 
 An authorization server MAY answer an originating request with a deferred token response {{DTR}} instead of a statement.
 
-Deferral follows {{DTR}}, with the following additions:
+Deferral follows {{DTR}}, including the sender constraint it fixes at origination, with the following additions:
 
 * A deferral created under this specification MUST be delivered by polling; callback delivery is omitted from this version ({{design-rationale}}).
 * A client MUST NOT send the `client_notification_token` parameter of {{DTR}}; an authorization server rejects a request carrying it with `invalid_request` and MUST NOT deliver a callback, whatever the client's metadata says.
@@ -548,7 +548,7 @@ The denial is terminal for the request; a denied deferral behaves as {{DTR}} spe
 
 # Withdrawal {#status-publication}
 
-An issuer ends a decision before its expiry through a withdrawal mechanism ({{STATEMENT}}), such as the Token Status List binding of {{STATUS}}. Withdrawing a statement does not withdraw a replacement obtained through {{renewal}}, and withdrawing a replacement does not restore its predecessor.
+An issuer that ends a decision before its expiry does so through a withdrawal mechanism ({{STATEMENT}}), such as the Token Status List binding of {{STATUS}}. Withdrawing a statement does not withdraw a replacement obtained through {{renewal}}, and withdrawing a replacement does not restore its predecessor.
 
 # Issuer and Consumer as One Server {#same-server}
 
@@ -637,7 +637,7 @@ Validating the subject token before metadata retrieval or enqueueing ({{token-ex
 
 The redirect flow reaches the approval queue before any client-authenticated step; the same rate limits and pending-approval bounds SHOULD apply per client identifier there.
 
-A subject token is not a client identifier and does not substitute for client authentication ({{client-identity}}).
+A subject token is an authorization credential, not a client identifier or a substitute for client authentication where the Client ID Metadata Document declares a method.
 
 A subject token appears in a form body, so any component recording request bodies can expose it. Authorization servers MUST exclude subject tokens from logs, traces, error messages, and audit records; clients and authorization servers MUST protect the credential as a bearer credential unless its format provides proof of possession.
 
