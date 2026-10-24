@@ -52,7 +52,7 @@ RFC 7591 does not define how long a registration based on a software statement r
 
 {{RFC7591}} defines no expiry or renewal procedure for a dynamic client registration. A software statement (Section 2.3 of {{RFC7591}}) can carry a reviewer's approval into a registration request, but the registration can outlive the statement, leaving the reviewer no interoperable way to keep its review current at the authorization servers that relied on it.
 
-{{STATEMENT}} defines the statement, its validation, issuer trust configuration, and runtime consumption. This specification defines what registration adds: taking the registration's metadata from the reviewed document ({{dcr-presentation}}), bounding its validity by the statement ({{registration-validity}}), and renewing it with a replacement statement ({{revalidation}}). It depends on {{STATEMENT}}; {{STATEMENT}} does not depend on it.
+{{STATEMENT}} defines the statement, its validation, issuer trust configuration, and runtime consumption. This specification defines what registration adds: taking the registration's metadata from the reviewed document ({{dcr-presentation}}), bounding its validity by the statement ({{registration-validity}}), and renewing it with a replacement statement ({{revalidation}}). It does not register software whose document declares `token_endpoint_auth_method` of `none`, which {{STATEMENT}} admits by runtime presentation instead, or whose document lists a redirection URI another application could claim ({{dcr-presentation}}). It depends on {{STATEMENT}}; {{STATEMENT}} does not depend on it.
 
 ## Protocol Overview
 
@@ -111,7 +111,7 @@ An authorization server that advertises `software_statement_registration_validit
 * the registration is valid until that effective expiry;
 * once the effective expiry passes without a replacement ({{revalidation}}), it MUST reject authorization, token, and pushed authorization requests and {{RFC7592}} update requests under the registration, other than the revalidation requests {{revalidation}} permits:
   * it rejects them with `statement_required` ({{STATEMENT}}), but rejects an {{RFC7592}} update request with `invalid_software_statement`, since the governing statement is expired or refused;
-  * {{RFC7592}} read and delete requests remain available; and
+  * {{RFC7592}} read and delete requests remain available so that a client can learn its registration's state and end it; and
   * at the token and pushed authorization request endpoints, it first authenticates the client against the retained registration and rejects a request that fails that authentication with `invalid_client`, as for an unknown client; and
 * it SHOULD retain the expired record so that it can process a later authenticated revalidation ({{oracle-considerations}}); since a valid replacement restores the registration ({{revalidation}}), no grace period is needed.
 
@@ -241,7 +241,7 @@ This specification defines the following authorization server metadata {{RFC8414
 
 A statement consumed at registration is a reusable bearer artifact until it expires. Its audience, lifetime, and `statement_uses` claim ({{STATEMENT}}) and the bounds of {{repeated-registration}} limit what a stolen statement can create.
 
-Under the one-registration default ({{repeated-registration}}), whoever first registers with a copy of a statement holds that registration and its registration access token, and can keep the publisher from registering at that server. Such a holder cannot authenticate as the client where the reviewed document's authentication method requires a key the document carries.
+Under the one-registration default ({{repeated-registration}}), whoever first registers with a copy of a statement holds that registration and its registration access token, and can keep the software's publisher from registering at that server. Such a holder cannot authenticate as the client where the reviewed document's authentication method requires a key the document carries.
 
 Where the publisher's statement permits presentation and the server supports it, the publisher's software can still be admitted through runtime presentation ({{STATEMENT}}); otherwise, recovery requires the server's operator to intervene or a registration policy other than the one-registration default. This specification defines no way to displace such a registration.
 
