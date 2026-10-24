@@ -554,9 +554,9 @@ A proof that its mechanism accepts but that proves a key other than the one this
 
 ## Error Descriptions {#error-descriptions}
 
-These codes do not tell a client whether to seek a corrected statement or a different issuer. The authorization server MAY return non-sensitive diagnostics in `error_description` to a client it has authenticated, but MUST NOT reveal details of its issuer trust configuration ({{issuer-trust}}), such as the client identifier namespaces an issuer may attest, to an unauthenticated requester.
+These codes do not tell a client whether to seek a corrected statement or a different issuer. The authorization server can return non-sensitive diagnostics in `error_description` to a client it has authenticated, but MUST NOT reveal details of its issuer trust configuration ({{issuer-trust}}), such as the client identifier namespaces an issuer may attest, to an unauthenticated requester.
 
-Where a statement is refused by a refusal record rather than merely expired, and the client is authenticated, the authorization server SHOULD indicate that a statement issued more recently is required, since re-presenting the same statement can never succeed.
+Where a statement is refused by a refusal record rather than merely expired, and the client is authenticated, the authorization server should indicate that a statement issued more recently is required, since re-presenting the same statement can never succeed.
 
 # Examples {#example}
 
