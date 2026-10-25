@@ -205,11 +205,7 @@ A withdrawal constrains and never relaxes. A statement for which no withdrawal m
 
 What a server does when it cannot consult a mechanism it relies on is local policy. Refusing makes issuer availability a precondition for every request the statement governs. Proceeding leaves a withdrawn statement acceptable until it expires.
 
-An issuer that uses a withdrawal mechanism and issues a replacement narrower than the statement it replaces SHOULD withdraw the earlier statement. A replacement is narrower if any of the following holds:
-
-* The replacement is over a document that no longer carries a key, redirection URI, or scope the earlier document carried.
-* The replacement has a narrower `aud`, `aud_tenant`, or `statement_uses`.
-* The replacement has a shorter remaining lifetime.
+An issuer that uses a withdrawal mechanism and issues a replacement narrower than the statement it replaces SHOULD withdraw the earlier statement. A replacement is narrower if the document it names no longer carries a key, redirection URI, or scope the earlier document carried, if its `aud`, `aud_tenant`, or `statement_uses` is narrower, or if its remaining lifetime is shorter.
 
 What was removed may be why the replacement was issued. A trusting authorization server that has not yet seen the replacement, or at which it does not validate, would otherwise accept the earlier statement until it expires.
 
