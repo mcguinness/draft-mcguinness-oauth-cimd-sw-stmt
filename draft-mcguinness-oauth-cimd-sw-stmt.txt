@@ -781,11 +781,11 @@ Table of Contents
    whose reviewed document carries no key material (Section 5.4.1).
 
    A statement whose reviewed document carries no key material can be
-   consumed at registration if its statement_uses claim permits and the
-   document declares a client authentication method other than none
-   ([REGISTRATION]).  If the document declares
-   token_endpoint_auth_method of none, such a statement is consumed
-   instead under Section 5.4.1.
+   consumed at registration if its statement_uses claim permits
+   ([REGISTRATION]), which registers a document declaring
+   token_endpoint_auth_method of none only under rules that bind it as
+   Section 5.4.1 does.  At runtime, a statement for such a document is
+   consumed under Section 5.4.1.
 
    A key at the document's jwks_uri is retrieved at presentation time.
    If that retrieval fails, the presentation is rejected with
