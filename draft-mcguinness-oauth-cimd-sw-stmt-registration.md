@@ -130,7 +130,7 @@ A server applying this model MUST return a `registration_expires_at` member, a N
 
 A server that omits the signal or advertises `false` does not bound registrations by statement expiry, except as the next paragraph requires, but still consumes the statement as {{dcr-presentation}} requires.
 
-A server that records a required issuer for a tenant ({{STATEMENT}}) MUST apply this validity model to every registration it creates in that tenant for software in a covered namespace, whether or not it advertises the model. Otherwise, withholding the required issuer's statement would keep such a registration in use after the issuer withdrew or stopped renewing its decision.
+A server that records a required issuer for a tenant ({{STATEMENT}}) MUST apply this validity model to every registration it creates in that tenant for software in a covered namespace, whether or not it advertises the model. It MUST reject a request in that tenant under any registration for software in a covered namespace, whatever tenant the registration was created in and whenever the requirement was configured, unless a current statement from the required issuer governs the registration once any replacement the request delivers has been evaluated ({{revalidation}}). The rejection is `statement_required` ({{STATEMENT}}), returned as for an expired registration. Without these rules, withholding the required issuer's statement would keep such a registration in use after the issuer withdrew or stopped renewing its decision. A registration governed by another issuer's statement cannot satisfy the requirement, since a replacement keeps the governing statement's `iss`.
 
 ## Revalidation {#revalidation}
 
