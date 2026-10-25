@@ -75,13 +75,13 @@ An issuer may use Token Status List {{STATUSLIST}} as the withdrawal mechanism o
 
 ## Status Publication {#status-publication}
 
-An issuer that uses Token Status List publishes the status of its statements as {{STATUSLIST}} defines, and each statement's `status` claim ({{STATEMENT}}) locates its entry in the issuer's Status List Token. An issuer that publishes status is subject to the following requirements:
+An issuer that uses Token Status List publishes the status of its statements as {{STATUSLIST}} defines, and each statement's `status` claim ({{STATEMENT}}) locates its entry in the issuer's Status List Token. An issuer that publishes status:
 
-* The issuer MUST publish status, and carry the `status` claim, for every statement it issues under a given `iss` from the point it begins publishing. Once statements issued before that point have expired, a trusting authorization server can read an absent claim as meaning the issuer publishes no status.
-* The issuer MUST NOT reuse an index across statements. Withdrawing a statement then affects no other: withdrawing a superseded statement does not withdraw its replacement, and withdrawing a replacement does not restore its predecessor.
-* The issuer MUST sign the Status List Token with a key published at the `jwks_uri` of its authorization server metadata {{RFC8414}}, which {{STATEMENT}} keeps apart from its statement signing keys.
-* To prevent an older token from standing in for a newer one indefinitely, the issuer MUST include `exp` in every Status List Token it publishes.
-* The issuer MUST give each Status List Token it publishes at a given list URI an `iat` later than that of any token it published there before ({{status-resolution}}).
+* MUST publish status, and carry the `status` claim, for every statement it issues under a given `iss` from the point it begins publishing. Once statements issued before that point have expired, a trusting authorization server can read an absent claim as meaning the issuer publishes no status.
+* MUST NOT reuse an index across statements. Withdrawing a statement then affects no other: withdrawing a superseded statement does not withdraw its replacement, and withdrawing a replacement does not restore its predecessor.
+* MUST sign the Status List Token with a key published at the `jwks_uri` of its authorization server metadata {{RFC8414}}, which {{STATEMENT}} keeps apart from its statement signing keys.
+* MUST include `exp` in every Status List Token it publishes, to prevent an older token from standing in for a newer one indefinitely.
+* MUST give each Status List Token it publishes at a given list URI an `iat` later than that of any token it published there before ({{status-resolution}}).
 
 ## Status Resolution {#status-resolution}
 
