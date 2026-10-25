@@ -354,7 +354,7 @@ A review-only presentation creates no establishment, admits nothing, and does no
 
 The statement of a review-only presentation MUST NOT satisfy a policy requiring reviewed software, and the authorization server SHOULD NOT present that review to the user as an assurance about the presenter. If the server's policy requires reviewed software, it rejects a review-only client with `unauthorized_client`.
 
-For a review-only presentation, the authorization server can record the statement's issuer for audit and inventory, and MAY refuse the request if it holds a refusal record for the statement ({{withdrawal}}), subject to the bounds of {{external-retrieval}}.
+For a review-only presentation, the authorization server can record the statement's issuer for audit and inventory.
 
 An authorization server MUST reject, with `invalid_client`, a presentation at the token endpoint under {{runtime-presentation}} from a client whose reviewed document carries no key material. Such a presentation opens no redirect and has nothing to bind it. A statement pulled for such a client at the token endpoint is instead review-only ({{pulled-statements}}).
 
