@@ -113,6 +113,7 @@ To let a client rely on the signal ({{authorization-server-metadata}}) before it
 * The registration is valid until that effective expiry.
 * Once the effective expiry passes without a replacement ({{revalidation}}), the authorization server MUST reject authorization, token, and pushed authorization requests and {{RFC7592}} update requests under the registration, other than the revalidation requests {{revalidation}} permits:
   * They are rejected with `statement_required` ({{STATEMENT}}), except that an {{RFC7592}} update request is rejected with `invalid_software_statement`, since the governing statement is expired or refused.
+  * An authorization request carrying the `software_statement` parameter is rejected with `invalid_request` instead, as {{STATEMENT}} provides.
   * {{RFC7592}} read and delete requests remain available for a client to learn its registration's state and end it.
   * At the token and pushed authorization request endpoints, the client is first authenticated against the retained registration, and a request that fails that authentication is rejected with `invalid_client`, as for an unknown client.
 * The authorization server SHOULD retain the expired record for a later authenticated revalidation ({{oracle-considerations}}). A valid replacement restores the registration ({{revalidation}}), so no grace period is needed.
