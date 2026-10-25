@@ -62,7 +62,7 @@ A software statement (Section 2.3 of {{RFC7591}}) carries a third party's approv
 * Validity: an authorization server can bound the registration by the statement's effective expiry, and advertise that it does ({{registration-validity}}).
 * Renewal: the client extends the registration by delivering a replacement statement, which also brings the registration's metadata up to date with the new review ({{revalidation}}).
 
-This specification does not register software whose document declares `token_endpoint_auth_method` of `none` or lists a redirection URI another application could claim ({{dcr-presentation}}). A public client can instead use runtime presentation if it meets the public-client binding requirements of {{STATEMENT}}. A document with a redirection URI another application could claim is review-only under {{STATEMENT}} and cannot satisfy a policy requiring reviewed software. This specification depends on {{STATEMENT}}, which does not depend on it.
+This specification never registers software whose document lists a redirection URI another application could claim ({{dcr-presentation}}). Such a document is review-only under {{STATEMENT}} and cannot satisfy a policy requiring reviewed software. A server can register a public client, whose document declares `token_endpoint_auth_method` of `none`, only under rules that bind it as {{STATEMENT}} binds a public client at runtime ({{public-client-registration}}). This specification depends on {{STATEMENT}}, which does not depend on it.
 
 ## Protocol Overview
 
@@ -70,7 +70,7 @@ The following non-normative sequence summarizes a statement-governed registratio
 
 1. The client registers through {{RFC7591}}, carrying a statement in the `software_statement` member.
 2. The authorization server derives the registration's metadata from the reviewed document and records the statement's identity. The registration is valid until the statement's effective expiry ({{registration-validity}}).
-3. The client delivers a replacement statement in an authenticated token or pushed authorization request or, if supported, an {{RFC7592}} update request, extending the registration's validity to the replacement's effective expiry.
+3. The client delivers a replacement statement in a token or pushed authorization request under the registration or, if supported, an {{RFC7592}} update request, extending the registration's validity to the replacement's effective expiry.
 4. If no replacement arrives, the registration expires and requests under it fail.
 
 # Conventions and Definitions
