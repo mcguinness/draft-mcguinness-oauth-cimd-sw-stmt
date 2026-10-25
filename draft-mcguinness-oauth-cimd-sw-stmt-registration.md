@@ -125,9 +125,9 @@ An authorization server MAY register a client whose reviewed document declares `
 * MUST require every authorization request under the registration to bind a key the client holds, through the `dpop_jkt` parameter or, at the pushed authorization request endpoint, a DPoP proof (Section 10 of {{RFC9449}}), and MUST require code redemption and every refresh of the resulting grant to prove that key.
 * MUST apply the validity model of {{registration-validity}} to the registration, whether or not it advertises the model.
 * MUST NOT issue a registration access token {{RFC7592}} for the registration.
-* MUST answer a later registration request that carries a valid statement with the same `iss` and `sub`, in a tenant where the registration can be used, with the existing registration. If that statement satisfies the replacement rules of {{revalidation}}, the server also renews the registration with it as {{revalidation}} provides for a delivery.
+* MUST answer a later registration request with the existing registration if the request is in a tenant where the registration can be used and its statement has the same `iss` and `sub`, validates, is not superseded under the `iat` floor of {{STATEMENT}}, and is confined to no tenant other than one the registration is already restricted to. If that statement's `iat` is later than the governing statement's, the server evaluates it as {{revalidation}} provides for a delivery, renewing the registration with it or rejecting the request with the codes of {{errors}}.
 
-The deliveries that {{revalidation}} lists need no client authentication under such a registration, which has none. A delivery renews it only with a valid replacement, so an unauthenticated delivery can apply only a statement the issuer signed. Without a registration access token, the registration ends only at its effective expiry, on withdrawal ({{registration-validity}}), or by the server's own policy.
+The deliveries that {{revalidation}} lists need no client authentication under such a registration, which has none. A delivery renews it only with a valid replacement, so an unauthenticated delivery can apply only a statement the issuer signed. A statement whose decision is confined to a tenant is not a replacement for such a registration if the registration carries no tenant restriction. Without a registration access token, the registration ends only at its effective expiry, on withdrawal ({{registration-validity}}), or by the server's own policy.
 
 ## Registration Validity {#registration-validity}
 
@@ -206,7 +206,7 @@ If the registration is not statement-governed, a statement neither renews nor al
 
 # Repeated Registration {#repeated-registration}
 
-One unexpired statement can be consumed more than once, within the bounds of {{STATEMENT}}. The safe default is one registration per (`iss`, `sub`) at one authorization server. On repeated consumption, local policy can reject the request, treat it as idempotent, or create another registration. A repeated public-client registration is always answered with the existing registration ({{public-client-registration}}). An idempotent response MUST NOT return the existing registration's credentials, such as its `registration_access_token`. A repeated request can come from any holder of a copy of the statement.
+One unexpired statement can be consumed more than once, within the bounds of {{STATEMENT}}. The safe default is one registration per (`iss`, `sub`) at one authorization server. On repeated consumption, local policy can reject the request, treat it as idempotent, or create another registration. A repeated public-client registration is answered with the existing registration as {{public-client-registration}} provides. An idempotent response MUST NOT return the existing registration's credentials, such as its `registration_access_token`. A repeated request can come from any holder of a copy of the statement.
 
 # Error Responses {#errors}
 
