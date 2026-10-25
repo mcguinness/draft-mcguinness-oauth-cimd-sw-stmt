@@ -116,7 +116,7 @@ Refusal Record:
 : State an authorization server holds when it has learned that a statement ceased to be acceptable before its expiry, whether from a withdrawal mechanism it uses for the issuer ({{withdrawal}}) or from its own operator.
 
 Current Statement:
-: A statement whose effective expiry has not passed and that matches no refusal record. For a new admission, a statement superseded under the `iat` floor ({{multi-instance}}) is also not current. An establishment's recorded statement remains current after a later statement raises the `iat` floor ({{refresh}}).
+: A statement whose effective expiry has not passed and that matches no refusal record. For a new admission or a replacement ({{refresh}}, {{REGISTRATION}}), a statement superseded under the `iat` floor ({{multi-instance}}) is also not current. On refresh, an establishment's recorded statement remains current after a later statement raises the `iat` floor ({{refresh}}).
 
 Review-Only:
 : Describes a presentation, or a pulled statement, that the authorization server evaluates but that admits nothing ({{public-client-presentation}}).
