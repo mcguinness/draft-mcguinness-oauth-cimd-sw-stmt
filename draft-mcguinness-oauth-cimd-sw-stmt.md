@@ -609,12 +609,12 @@ An authorization server receiving an ordinary authorization request with this `c
 This specification defines the following authorization server metadata {{RFC8414}} values:
 
 `software_statement_jwks_uri`:
-: REQUIRED for an authorization server that issues software statements. URL of a JWK Set containing only the keys with which it signs software statements. The URL MUST use the `https` scheme, and a trusting authorization server MUST validate the server's certificate when retrieving it.
+: REQUIRED for an authorization server that issues statements under this specification. URL of a JWK Set containing only the keys with which it signs them. The URL MUST use the `https` scheme, and a trusting authorization server MUST validate the server's certificate when retrieving it.
 
-  The keys in this set MUST NOT appear in the JWK Set at the server's `jwks_uri`, and the server MUST NOT sign anything other than software statements with them. As a result, a key that signs another artifact, such as a Status List Token, cannot verify a statement ({{legacy-servers}}).
+  The keys in this set MUST NOT appear in the JWK Set at the server's `jwks_uri`, and the server MUST NOT sign anything other than statements under this specification with them. As a result, a key that signs another artifact, such as a Status List Token or a software statement of another profile, cannot verify a statement ({{legacy-servers}}).
 
 `software_statement_signing_alg_values_supported`:
-: REQUIRED for an authorization server that issues software statements. A JSON array containing the asymmetric JWS `alg` values that the authorization server can use to sign software statements. The array MUST NOT contain `none` or a symmetric algorithm. An authorization server that only accepts software statements does not publish it.
+: REQUIRED for an authorization server that issues statements under this specification. A JSON array containing the asymmetric JWS `alg` values that the authorization server can use to sign them. The array MUST NOT contain `none` or a symmetric algorithm. An authorization server that only accepts software statements does not publish it.
 
 `software_statement_pull_supported`:
 : OPTIONAL. Boolean value indicating whether the authorization server retrieves statements from a client's `software_statements_uri` when admitting a client that presented none ({{pulled-statements}}). If omitted, the default value is false.
@@ -639,7 +639,7 @@ Attesting a `jwks_uri` attests the location, not its contents: a compromised key
 
 ## Servers That Do Not Implement This Specification {#legacy-servers}
 
-A statement carries no client metadata, so an {{RFC7591}} server that verified one without implementing this specification would take every metadata value from the registration request, attaching the issuer's approval to an attacker's redirection URIs and keys. Keeping statement signing keys at `software_statement_jwks_uri` and out of `jwks_uri` ({{authorization-server-metadata}}) prevents this. A server that discovers an issuer's keys through {{RFC8414}} finds none that verify a statement, and a server configured with the statement key set has been configured for this specification.
+A statement carries no client metadata, so an {{RFC7591}} server that verified one without implementing this specification would take every metadata value from the registration request, attaching the issuer's approval to an attacker's redirection URIs and keys. Keeping statement signing keys at `software_statement_jwks_uri`, out of `jwks_uri`, and away from statements of other profiles ({{authorization-server-metadata}}) guards against this. A server that discovers an issuer's keys through {{RFC8414}} finds none that verify a statement. A server is exposed only if its operator configures the statement key set in a server that does not implement this specification.
 
 ## Copied Statements and Public Clients {#public-client-security}
 
