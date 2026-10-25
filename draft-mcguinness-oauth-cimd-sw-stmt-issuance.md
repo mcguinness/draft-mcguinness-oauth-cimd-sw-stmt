@@ -427,11 +427,11 @@ A redemption attempt consumes the software statement code whenever the presented
 
 When a previously consumed code is presented again, the authorization server SHOULD revoke any deferral derived from it ({{RFC9700}}). To keep anyone who observed the code in a URL from triggering that revocation, an authorization server MAY limit revocation to replays that pass the PKCE check.
 
-For a valid, unconsumed code, the result depends on the issuance decision:
+For a valid, unconsumed code, the authorization server returns the following, according to the issuance decision:
 
-* **Approved.** The authorization server returns the software statement token response ({{software-statement-response}}).
-* **Denied.** The authorization server returns the terminal denial of {{terminal-denial}}.
-* **Pending.** The authorization server returns the deferred token response of {{DTR}}, binding the deferral to the code's metadata snapshot and audience in addition to the bindings {{DTR}} requires. The client then polls ({{deferred-processing}}).
+* **Approved.** The software statement token response ({{software-statement-response}}).
+* **Denied.** The terminal denial of {{terminal-denial}}.
+* **Pending.** The deferred token response of {{DTR}}, with the deferral bound to the code's metadata snapshot and audience in addition to the bindings {{DTR}} requires. The client then polls ({{deferred-processing}}).
 
 An authorization server that does not defer completes the decision before responding.
 
