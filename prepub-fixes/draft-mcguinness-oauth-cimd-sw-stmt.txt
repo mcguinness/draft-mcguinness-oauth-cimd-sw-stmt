@@ -255,10 +255,10 @@ Table of Contents
       authorization server, as [IDJAG] defines the claim, naming the
       tenant in which the statement's decision applies.  A statement
       whose decision is confined to one of a server's tenants MUST carry
-      it, with an aud naming exactly one authorization server, unless
-      that server confines the issuer to the tenant through its own
-      trust configuration (Section 4).  A tenant identifier is
-      meaningful only at one authorization server.
+      an aud naming exactly one authorization server and, unless that
+      server confines the issuer to the tenant through its own trust
+      configuration (Section 4), an aud_tenant naming the tenant.  A
+      tenant identifier is meaningful only at one authorization server.
 
       A statement whose review applies wherever its aud reaches, such as
       a marketplace listing, carries no aud_tenant.  Its absence does
@@ -367,7 +367,9 @@ Table of Contents
       a value the client chooses.
 
    *  If the server requires a tenant-scoped decision for the request,
-      the statement carries aud_tenant.
+      the statement carries aud_tenant, or the server's trust
+      configuration confines the statement's issuer to the request's
+      tenant (Section 4).
 
    *  If the statement carries statement_uses, the claim names the use
       being made of the statement, and a member the server does not
