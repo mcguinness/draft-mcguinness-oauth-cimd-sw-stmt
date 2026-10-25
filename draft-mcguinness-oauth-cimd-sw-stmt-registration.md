@@ -97,6 +97,8 @@ In {{RFC7591}}, values in a software statement take precedence over those in the
 * MUST reject the registration with `invalid_client_metadata` if the document declares `token_endpoint_auth_method` of `none`. Such software is admitted instead, if the server supports it, by runtime presentation, which binds each installation to the reviewed redirection URIs and a key it holds (see the public-client presentation rules of {{STATEMENT}}).
 * MUST reject the registration with `invalid_client_metadata` if any of the document's redirection URIs could be claimed by another application on the same device (see the public-client presentation rules of {{STATEMENT}}), whatever authentication method the document declares.
 
+If the statement's decision is confined to one of the authorization server's tenants, by its `aud_tenant` claim or by the server's trust configuration for its issuer ({{STATEMENT}}), the authorization server MUST record that tenant with the registration, and MUST treat a request under the registration in any other tenant, including a delivery ({{revalidation}}), as a request from a client it has not registered. The restriction persists across renewals. A registration created from a statement whose decision is not confined to a tenant carries no tenant restriction under this specification.
+
 Unlike runtime presentation ({{STATEMENT}}), registration has no review-only form: the registration is the admission.
 
 Taking every value from the document prevents metadata substitution. At registration a statement is a bearer artifact, so a request-supplied value for a member the document omits, such as a `jwks` beside a document naming only `jwks_uri`, would give any holder of a copy a registration with reviewed branding and its own key.
