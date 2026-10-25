@@ -291,10 +291,9 @@ The authorization server can revalidate a cached response from that URL with a c
 
 The server considers only statements that meet all of the following conditions:
 
-* The statement's `sub` equals the document's client identifier.
-* The statement validates under {{validation}}.
-* The statement permits presentation ({{profiles}}).
-* The statement's `cimd_digest` equals the digest of the document the server resolved.
+* The `sub` claim equals the document's client identifier.
+* The statement validates under {{validation}} and permits presentation ({{profiles}}).
+* The `cimd_digest` claim equals the digest of the document the server resolved.
 
 The server ignores the rest.
 
@@ -412,10 +411,10 @@ If the authorization server holds a refusal record for the establishment's recor
 
 When a replacement is needed, the client presents it in the `software_statement` parameter of the refresh request, or, for an establishment created from a pulled statement, the server pulls one ({{pulled-statements}}). A statement with the recorded statement's `iss` and `jti` is not a replacement: if the client offers it again, the server rechecks it as the recorded statement, under the first two paragraphs of this section. The following requirements apply to the replacement:
 
-* The replacement MUST validate under {{validation}}, including its audience if it carries one.
-* The replacement MUST have the recorded statement's `iss` and `sub`.
-* The replacement MUST have an `iat` later than the recorded statement's `iat`.
-* The replacement MUST name, by its `cimd_digest`, the document currently served at its `sub`, which the server confirms by retrieval or by revalidating octets it holds.
+* It MUST validate under {{validation}}, including its audience if it carries one.
+* The `iss` and `sub` claims MUST equal those of the recorded statement.
+* The `iat` claim MUST be later than that of the recorded statement.
+* The `cimd_digest` claim MUST name the document currently served at that `sub`, which the server confirms by retrieval or by revalidating octets it holds.
 * The replacement MUST authorize the establishment's proven key ({{sender-constraint}}) or, for an establishment created under {{public-client-presentation}}, name a document that still satisfies that section.
 
 The refreshed access MUST fall within the metadata of the document the replacement names.
