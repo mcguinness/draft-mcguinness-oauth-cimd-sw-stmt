@@ -345,11 +345,11 @@ A key at the document's `jwks_uri` is retrieved at presentation time. If that re
 
 Software distributed to end users cannot hold a key its reviewed document carries: a key shipped in every copy identifies the software, not the installation. Such a document declares `token_endpoint_auth_method` of `none` and carries no key material.
 
-A presentation at the pushed authorization request endpoint, or a pulled statement at the authorization endpoint ({{pulled-statements}}), is bound instead by its reviewed redirection URIs if the client's reviewed document declares `token_endpoint_auth_method` of `none` and none of its redirection URIs is one another application could claim (see below). The following requirements apply to such a presentation:
+A presentation at the pushed authorization request endpoint, or a pulled statement at the authorization endpoint ({{pulled-statements}}), is bound instead by its reviewed redirection URIs if the client's reviewed document declares `token_endpoint_auth_method` of `none` and none of its redirection URIs is one another application could claim (see below). For such a presentation, the authorization server:
 
-* The authorization server MUST require PKCE {{RFC7636}} with the `S256` method.
-* The authorization server MUST require the presenter to bind a key it holds, through the `dpop_jkt` parameter or, at the pushed authorization request endpoint, a DPoP proof (Section 10.1 of {{RFC9449}}), and records that key as the proven key of the establishment ({{grant-lifecycle}}).
-* The authorization server MUST NOT require that key to appear in the reviewed document.
+* MUST require PKCE {{RFC7636}} with the `S256` method.
+* MUST require the presenter to bind a key it holds, through the `dpop_jkt` parameter or, at the pushed authorization request endpoint, a DPoP proof (Section 10.1 of {{RFC9449}}), and records that key as the proven key of the establishment ({{grant-lifecycle}}).
+* MUST NOT require that key to appear in the reviewed document.
 
 The reviewed document, not the proven key, admits the statement here: an authorization code opened by such a presentation is delivered only to a redirection URI the issuer reviewed, so a holder of a copied statement cannot receive the code ({{public-client-security}}). The proven key identifies the installation the grant belongs to. Code redemption and refresh prove that key ({{grant-lifecycle}}, {{refresh}}).
 
@@ -392,11 +392,11 @@ An authorization server can reuse an establishment across presentations that res
 
 The establishment persists while the grant depends on it. The authorization server MUST bind the resulting `request_uri`, authorization code, refresh token, and other grant continuation state to the establishment, as applicable, and can discard it once no such state references it.
 
-The following requirements apply to a token request that redeems an authorization code opened by a presentation:
+A token request that redeems an authorization code opened by a presentation:
 
-* The request MUST have a `client_id` exactly equal to the establishment's `sub`, even if the client authenticates.
-* The request MUST demonstrate possession of the same proven key under the same sender-constraint mechanism.
-* The request MUST NOT carry the `software_statement` parameter.
+* MUST have a `client_id` exactly equal to the establishment's `sub`, even if the client authenticates.
+* MUST demonstrate possession of the same proven key under the same sender-constraint mechanism.
+* MUST NOT carry the `software_statement` parameter.
 
 A redemption carrying a statement is rejected with `invalid_request`. A wrong client identifier or failed key binding is rejected with `invalid_grant`. The prohibition on carrying a statement covers redemption of a code bound to an establishment. A registered client redeeming its own code may deliver a replacement statement under {{REGISTRATION}}, which is a delivery, not a presentation.
 
