@@ -281,7 +281,7 @@ An authorization server that supports pulled statements MAY retrieve this URL wh
 * Apply the protections {{CIMD}} sets for URLs a document contains and the bounds of {{external-retrieval}}.
 * Bound the response size and the number of statements examined separately from the document's. Several issuers' statements outgrow a document-sized bound, and a host can pad the array.
 * Discard statements from unconfigured issuers before verifying any signature.
-* Cache a successful response no longer than the document is cached, and do not cache a failure, as {{CIMD}} requires of the document.
+* Cache a successful response no longer than the document is cached, and cache a failure no longer than {{CIMD}} permits for the document.
 
 The authorization server can revalidate a cached response from that URL with a conditional request, as it can the document ({{metadata-digest}}). Both the document and this URL are retrieved before any statement exists to validate, so the ordering of {{processing}} applies from the first statement verified onward.
 
@@ -664,7 +664,7 @@ Presentation reaches these retrievals before any client is registered or any use
 * Rate-limit presentations per statement identity, per subject, and per source, and pulls ({{pulled-statements}}) per client identifier and per source, before spending retrieval or storage on a new presentation.
 * Refuse a presentation that would create a new establishment, before spending retrieval or storage on it, once the bound of {{multi-instance}} for its `iss` and `sub` is reached.
 * Bound JWT size and parsing work, concurrent retrievals, response size, and response time.
-* Cache successful retrieval results within the document's caching directives, and back off after a failure rather than caching it, since {{CIMD}} forbids caching error responses.
+* Cache successful retrieval results within the document's caching directives, and back off after a failure, caching it no longer than {{CIMD}} permits.
 
 A retrieval failure leaves the relevant metadata or proof unverified, so the authorization server MUST reject the request and MUST NOT fall back to a weaker proof. A failed pull of statements for a request that opens a new grant is the exception: it leaves the client unreviewed, as {{pulled-statements}} describes. A failed pull of a replacement that a refresh requires is not an exception: the refresh fails ({{refresh}}).
 
