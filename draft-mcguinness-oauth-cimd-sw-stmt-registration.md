@@ -60,7 +60,7 @@ A software statement (Section 2.3 of {{RFC7591}}) carries a third party's approv
 * Validity: an authorization server can bound the registration by the statement's effective expiry, and advertise that it does ({{registration-validity}}).
 * Renewal: the client extends the registration by delivering a replacement statement, which also brings the registration's metadata up to date with the new review ({{revalidation}}).
 
-This specification does not register software whose document declares `token_endpoint_auth_method` of `none` or lists a redirection URI another application could claim ({{dcr-presentation}}). {{STATEMENT}} admits such software by runtime presentation, which binds each installation to the reviewed redirection URIs and a key it holds. This specification depends on {{STATEMENT}}, which does not depend on it.
+This specification does not register software whose document declares `token_endpoint_auth_method` of `none` or lists a redirection URI another application could claim ({{dcr-presentation}}). A public client can instead use runtime presentation if it meets the public-client binding requirements of {{STATEMENT}}. A document with a redirection URI another application could claim is review-only under {{STATEMENT}} and cannot satisfy a policy requiring reviewed software. This specification depends on {{STATEMENT}}, which does not depend on it.
 
 ## Protocol Overview
 
