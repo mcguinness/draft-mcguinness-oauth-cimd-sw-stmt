@@ -302,11 +302,12 @@ Having selected a statement, the server continues from step 4 of {{processing}},
 The presenter of a pulled statement is bound as for a presented statement ({{sender-constraint}}), at the point the request allows, as follows:
 
 * At the token endpoint, the request's client authentication or DPoP proof binds the presenter.
+* At the pushed authorization request endpoint, a confidential client's authentication binds the presenter, and a public client whose request binds a key through a DPoP proof or `dpop_jkt` is subject to {{public-client-presentation}}, including PKCE.
 * At the authorization endpoint, binding completes at code redemption, before any token is issued:
   * A confidential client authenticates there with a key the digested document carries, in its `jwks` or at its `jwks_uri` within the reuse bounds of {{sender-constraint}}, not one that only a later retrieval of the document carries, and that key becomes the establishment's proven key.
   * A public client's authorization request that binds a key through `dpop_jkt` is subject to {{public-client-presentation}}, including PKCE, and redemption proves the bound key.
-* A public client opening a new grant at the token endpoint, or sending an authorization request that binds no key, has nothing to bind, so a statement pulled for it is review-only ({{public-client-presentation}}), as is one pulled for a document whose redirection URIs that section does not accept.
-* Code redemption and refresh continue an establishment and keep the binding it already has ({{grant-lifecycle}}, {{refresh}}).
+* A public client opening a new grant at the token endpoint, or sending a pushed or ordinary authorization request that binds no key, has nothing to bind, so a statement pulled for it is review-only ({{public-client-presentation}}), as is one pulled for a document whose redirection URIs that section does not accept.
+* Code redemption and refresh continue an establishment and keep the binding it already has ({{grant-lifecycle}}, {{refresh}}), except that redemption sets the proven key of an establishment whose binding completes there.
 
 If retrieval does not complete or no statement remains, the server applies its policy for Client ID Metadata Document clients it has not reviewed, subject to any required issuer ({{issuer-trust}}). If that policy requires reviewed software, the server rejects the request with `temporarily_unavailable` if retrieval did not complete and with `statement_required` if no statement remains. A retrieval failure is never a withdrawal.
 
@@ -342,7 +343,7 @@ A key at the document's `jwks_uri` is retrieved at presentation time. If that re
 
 Software distributed to end users cannot hold a key its reviewed document carries: a key shipped in every copy identifies the software, not the installation. Such a document declares `token_endpoint_auth_method` of `none` and carries no key material.
 
-A presentation at the pushed authorization request endpoint, or a pulled statement at the authorization endpoint ({{pulled-statements}}), is bound instead by its reviewed redirection URIs if the client's reviewed document declares `token_endpoint_auth_method` of `none` and none of its redirection URIs is one another application could claim (see below). For such a presentation, the authorization server:
+A presentation at the pushed authorization request endpoint, or a statement pulled at that endpoint or at the authorization endpoint ({{pulled-statements}}), is bound instead by its reviewed redirection URIs if the client's reviewed document declares `token_endpoint_auth_method` of `none` and none of its redirection URIs is one another application could claim (see below). For such a presentation, the authorization server:
 
 * MUST require PKCE {{RFC7636}} with the `S256` method.
 * MUST require the presenter to bind a key it holds, through the `dpop_jkt` parameter or, at the pushed authorization request endpoint, a DPoP proof (Section 10.1 of {{RFC9449}}), and records that key as the proven key of the establishment ({{grant-lifecycle}}).
@@ -392,7 +393,7 @@ The establishment persists while the grant depends on it. The authorization serv
 A token request that redeems an authorization code opened by a presentation:
 
 * MUST have a `client_id` exactly equal to the establishment's `sub`, even if the client authenticates.
-* MUST demonstrate possession of the same proven key under the same sender-constraint mechanism.
+* MUST demonstrate possession of the establishment's proven key under the same sender-constraint mechanism or, if binding completes at redemption ({{pulled-statements}}), authenticate with the key that becomes the proven key.
 * MUST NOT carry the `software_statement` parameter.
 
 A redemption carrying a statement is rejected with `invalid_request`. A wrong client identifier or failed key binding is rejected with `invalid_grant`. The prohibition on carrying a statement covers redemption of a code bound to an establishment. A registered client redeeming its own code may deliver a replacement statement under {{REGISTRATION}}, which is a delivery, not a presentation.
