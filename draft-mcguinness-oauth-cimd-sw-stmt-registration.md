@@ -44,7 +44,7 @@ informative:
 
 --- abstract
 
-A software statement for a Client ID Metadata Document, as a companion specification defines it, carries no client metadata: it binds an issuer's review to the exact bytes of the client's own document. This specification defines how an authorization server consumes such a statement in an RFC 7591 registration request, taking every metadata value from the reviewed document rather than from the request; how the statement's expiry can bound the resulting registration, which RFC 7591 leaves unbounded; and how a client renews the registration, and brings its metadata up to date, by delivering a replacement statement.
+The CIMD Software Statement specification defines a software statement for a Client ID Metadata Document that carries no client metadata: it binds an issuer's review to the exact bytes of the client's own document. This specification defines how an authorization server consumes such a statement in an RFC 7591 registration request, taking every metadata value from the reviewed document rather than from the request. It also defines how the statement's expiry can bound the resulting registration, which RFC 7591 leaves unbounded, and how a client renews the registration by delivering a replacement statement, which also updates the registration's metadata.
 
 --- middle
 
