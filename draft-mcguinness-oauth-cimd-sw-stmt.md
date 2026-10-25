@@ -550,7 +550,7 @@ Apart from those two cases, at the authorization endpoint, if this server requir
 
 The authorization server redirects with the error only after resolving the client's Client ID Metadata Document and validating the request's `redirect_uri` against it. If it cannot resolve the document, the authorization server MUST NOT redirect and reports the error to the resource owner instead.
 
-An authorization request carrying the `software_statement` parameter ({{authorization-requests}}) is rejected with `invalid_request` in place of any other code of this section, and the authorization server redirects with that error only as the preceding paragraph allows.
+An authorization request carrying the `software_statement` parameter ({{authorization-requests}}) is rejected with `invalid_request` in place of any other code of this section. The authorization server redirects with that error only after validating the request's `redirect_uri`: for a client identified by its Client ID Metadata Document URL, against that document as the preceding paragraph requires, and for a registered client, against its registered redirection URIs (Section 4.1.2.1 of {{RFC6749}}).
 
 ## Proof Mechanism Errors {#proof-errors}
 
