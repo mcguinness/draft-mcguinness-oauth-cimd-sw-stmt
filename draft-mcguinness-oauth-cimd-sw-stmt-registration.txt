@@ -197,10 +197,11 @@ Table of Contents
          the document's own client_id member is the URL recorded as sub.
 
    *  MUST reject the registration with invalid_client_metadata if the
-      document omits token_endpoint_auth_method.  The [RFC7591] default
-      is a shared-secret method that [CIMD] forbids, and registering
-      under it would issue a client secret to any holder of a copy of
-      the statement.
+      document omits token_endpoint_auth_method, which [STATEMENT]
+      requires a reviewed document to declare.  Registering under the
+      [RFC7591] default, a shared-secret method that [CIMD] forbids,
+      would issue a client secret to any holder of a copy of the
+      statement.
 
    *  MUST reject the registration with invalid_client_metadata if the
       document declares token_endpoint_auth_method of none.  Such

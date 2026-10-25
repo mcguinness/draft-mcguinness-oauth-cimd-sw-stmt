@@ -317,11 +317,12 @@ Table of Contents
    serialized.  Any byte order mark or trailing newline is included.
 
    Retrieval for digest purposes follows [CIMD] and MUST NOT use content
-   negotiation: the retrieving party sends Accept: application/json and
-   no other variant selection.  Equal digests show that the issuer and
-   the trusting authorization server obtained the same octets, so any
-   condition that makes retrieval depend on who is asking defeats the
-   comparison.
+   negotiation: the retrieving party sends the Accept header field that
+   [CIMD] specifies for retrieving the document, or Accept: application/
+   json if it specifies none, and no other variant selection.  Equal
+   digests show that the issuer and the trusting authorization server
+   obtained the same octets, so any condition that makes retrieval
+   depend on who is asking defeats the comparison.
 
    A trusting authorization server MUST treat a response exceeding its
    configured size bound (Section 8.7 of [CIMD]) as a retrieval failure
@@ -615,7 +616,8 @@ Table of Contents
       signature.
 
    *  Cache a successful response no longer than the document is cached,
-      and do not cache a failure, as [CIMD] requires of the document.
+      and cache a failure no longer than [CIMD] permits for the
+      document.
 
    The authorization server can revalidate a cached response from that
    URL with a conditional request, as it can the document (Section 3.1).
@@ -730,16 +732,17 @@ Table of Contents
 
    Except as Section 5.4.1 provides, the proven key MUST appear in the
    jwks or at the jwks_uri of the reviewed document (Section 5.5).  If
-   the reviewed document specifies a client authentication method, the
-   presenter MUST use it.  The authorization server MUST reject a
-   presentation without such a proof, or whose proven key the reviewed
-   document does not carry.
+   the reviewed document declares one or more client authentication
+   methods ([CIMD]), the presenter MUST use one of them.  The
+   authorization server MUST reject a presentation without such a proof,
+   or whose proven key the reviewed document does not carry.
 
-   A reviewed document that omits token_endpoint_auth_method declares
-   neither a client authentication method nor a public client, since the
-   [RFC7591] default is a shared-secret method that [CIMD] forbids.  The
-   authorization server MUST reject a presentation under such a document
-   and treats a statement pulled for it as review-only (Section 5.4.1).
+   This specification requires a reviewed document to declare its client
+   authentication method, so that the issuer's review and the trusting
+   authorization server's treatment of the client do not depend on a
+   default.  The authorization server MUST reject a presentation under a
+   reviewed document that omits token_endpoint_auth_method and treats a
+   statement pulled for it as review-only (Section 5.4.1).
 
    A document carrying a redirection URI another application could claim
    is presented review-only whatever its authentication method
@@ -1499,8 +1502,8 @@ Table of Contents
       size, and response time.
 
    *  Cache successful retrieval results within the document's caching
-      directives, and back off after a failure rather than caching it,
-      since [CIMD] forbids caching error responses.
+      directives, and back off after a failure, caching it no longer
+      than [CIMD] permits.
 
    A retrieval failure leaves the relevant metadata or proof unverified,
    so the authorization server MUST reject the request and MUST NOT fall
