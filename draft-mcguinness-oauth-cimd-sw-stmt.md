@@ -328,7 +328,7 @@ A runtime presentation MUST be sender-constrained by a key the statement attests
 
 Except as {{public-client-presentation}} provides, the proven key MUST appear in the `jwks` or at the `jwks_uri` of the reviewed document ({{effective-metadata}}). If the reviewed document specifies a client authentication method, the presenter MUST use it. The authorization server MUST reject a presentation without such a proof, or whose proven key the reviewed document does not carry.
 
-A reviewed document that omits `token_endpoint_auth_method` declares neither a client authentication method nor a public client, since the {{RFC7591}} default is a shared-secret method that {{CIMD}} forbids. The authorization server MUST reject a presentation under such a document and treats a statement pulled for it as review-only ({{public-client-presentation}}).
+This specification requires a reviewed document to declare its client authentication method, so that the issuer's review and the trusting authorization server's treatment of the client do not depend on a default. The authorization server MUST reject a presentation under a reviewed document that omits `token_endpoint_auth_method` and treats a statement pulled for it as review-only ({{public-client-presentation}}).
 
 A document carrying a redirection URI another application could claim is presented review-only whatever its authentication method ({{public-client-presentation}}), and the requirements above do not apply to that presentation. Two rejections still apply to such a document: a presentation under a document that omits `token_endpoint_auth_method`, as above, and a presentation at the token endpoint from a client whose reviewed document carries no key material ({{public-client-presentation}}).
 
