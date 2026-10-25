@@ -194,7 +194,7 @@ The rejection of a request under an expired registration that carries no replace
 
 A request whose replacement fails the rules above is rejected whether or not the registration has expired. The client then learns of the failure at once and can tell a bad replacement from a missing one. Such a request is rejected with `statement_required` at the token and pushed authorization request endpoints, or with `temporarily_unavailable` there if a retrieval needed to check the replacement did not complete for a reason other than the size bound of {{STATEMENT}}, and with the codes of {{errors}} at the registration management endpoint. A rejected delivery leaves the governing statement unchanged.
 
-A registration request without an {{RFC7592}} registration access token creates a new registration and never renews an existing one.
+A registration request without an {{RFC7592}} registration access token creates a new registration and never renews an existing one, except for a public-client registration ({{public-client-registration}}).
 
 # Statements from a Registered or Admitted Client {#registered-delivery}
 
@@ -206,7 +206,7 @@ If the registration is not statement-governed, a statement neither renews nor al
 
 # Repeated Registration {#repeated-registration}
 
-One unexpired statement can be consumed more than once, within the bounds of {{STATEMENT}}. The safe default is one registration per (`iss`, `sub`) at one authorization server. On repeated consumption, local policy can reject the request, treat it as idempotent, or create another registration. An idempotent response MUST NOT return the existing registration's credentials, such as its `registration_access_token`. A repeated request can come from any holder of a copy of the statement.
+One unexpired statement can be consumed more than once, within the bounds of {{STATEMENT}}. The safe default is one registration per (`iss`, `sub`) at one authorization server. On repeated consumption, local policy can reject the request, treat it as idempotent, or create another registration. A repeated public-client registration is always answered with the existing registration ({{public-client-registration}}). An idempotent response MUST NOT return the existing registration's credentials, such as its `registration_access_token`. A repeated request can come from any holder of a copy of the statement.
 
 # Error Responses {#errors}
 
