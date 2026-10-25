@@ -346,7 +346,7 @@ A presentation at the pushed authorization request endpoint, or a pulled stateme
 * MUST require the presenter to bind a key it holds, through the `dpop_jkt` parameter or, at the pushed authorization request endpoint, a DPoP proof (Section 10.1 of {{RFC9449}}), and records that key as the proven key of the establishment ({{grant-lifecycle}}).
 * MUST NOT require that key to appear in the reviewed document.
 
-The reviewed document, not the proven key, admits the statement here: an authorization code opened by such a presentation is delivered only to a redirection URI the issuer reviewed, so a holder of a copied statement cannot receive the code ({{public-client-security}}). The proven key identifies the installation the grant belongs to. Code redemption and refresh prove that key ({{grant-lifecycle}}, {{refresh}}).
+The reviewed document, not the proven key, admits the statement here: an authorization code opened by such a presentation is delivered only to a redirection URI the issuer reviewed, so a holder of a copied statement cannot receive a code that another resource owner approves in a user agent the holder does not control ({{public-client-security}}). The proven key identifies the installation the grant belongs to. Code redemption and refresh prove that key ({{grant-lifecycle}}, {{refresh}}).
 
 A presentation is review-only if the reviewed document carries any redirection URI that another application on the same device could claim: a non-`https` URI, such as a private-use scheme or an `http` loopback redirection URI (Sections 7.1 and 7.3 of {{RFC8252}}), or an `https` URI whose host is a loopback address or `localhost`. One such URI makes the whole document review-only, whatever authentication method it declares. The application that claims such a URI receives the code, so neither the reviewed redirection URIs nor a key shipped in every copy of the software can bind the presenter.
 
@@ -643,7 +643,9 @@ A statement carries no client metadata, so an {{RFC7591}} server that verified o
 
 ## Copied Statements and Public Clients {#public-client-security}
 
-A party holding a copied statement for a public client can open a pushed authorization request in the reviewed software's name but cannot receive the authorization code ({{public-client-presentation}}). The residual exposure is a consent prompt carrying the reviewed software's name and branding. Rate limits ({{external-retrieval}}) and the issuer's choice of audience and lifetime bound it. An endorsement extension ({{extensions}}) would strengthen the binding by giving the instance a key a third party vouches for.
+A party holding a copied statement for a public client can open a pushed authorization request in the reviewed software's name. It cannot receive an authorization code that another resource owner approves in a user agent the party does not control ({{public-client-presentation}}), so its exposure to other users is a consent prompt carrying the reviewed software's name and branding. Rate limits ({{external-retrieval}}) and the issuer's choice of audience and lifetime bound it.
+
+A party that controls the user agent receives the code: an application embedding a user agent (Section 8.12 of {{RFC8252}}), or a holder authorizing with its own account. It redeems the code with a PKCE verifier and key of its own choosing. An admission under {{public-client-presentation}} therefore shows where codes are delivered, not which software holds the grant, and a tenant's required issuer ({{issuer-trust}}) cannot keep unreviewed software out for a user who chooses to run it. This is the client impersonation that Section 8.6 of {{RFC8252}} describes for public clients. An endorsement extension ({{extensions}}) would strengthen the binding by giving the instance a key a third party vouches for.
 
 ## Tenant Confusion at a Multi-Tenant Consumer {#tenant-confusion}
 
