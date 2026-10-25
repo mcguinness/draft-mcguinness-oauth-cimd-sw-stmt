@@ -30,7 +30,9 @@ normative:
   RFC7519:
   RFC7591:
   RFC8414:
+  RFC7636:
   RFC9126:
+  RFC9449:
   RFC9700:
   STATEMENT:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt
@@ -102,7 +104,7 @@ In {{RFC7591}}, values in a software statement take precedence over those in the
   * A request MAY carry metadata, as {{RFC7591}} clients do, but it does not contribute to the registration.
   * The registered `client_id` is assigned as {{RFC7591}} provides, and the document's own `client_id` member is the URL recorded as `sub`.
 * MUST reject the registration with `invalid_client_metadata` if the document omits `token_endpoint_auth_method`, which {{STATEMENT}} requires a reviewed document to declare. Registering under the {{RFC7591}} default, a shared-secret method that {{CIMD}} forbids, would issue a client secret to any holder of a copy of the statement.
-* MUST reject the registration with `invalid_client_metadata` if the document declares `token_endpoint_auth_method` of `none`. Such software is admitted instead, if the server supports it, by runtime presentation, which binds each installation to the reviewed redirection URIs and a key it holds (see the public-client presentation rules of {{STATEMENT}}).
+* MUST reject the registration with `invalid_client_metadata` if the document declares `token_endpoint_auth_method` of `none`, unless it registers the client under {{public-client-registration}}. Such software can otherwise use runtime presentation if it meets the public-client binding requirements of {{STATEMENT}}.
 * MUST reject the registration with `invalid_client_metadata` if any of the document's redirection URIs could be claimed by another application on the same device (see the public-client presentation rules of {{STATEMENT}}), whatever authentication method the document declares.
 
 If the statement's decision is confined to one of the authorization server's tenants, by its `aud_tenant` claim or by the server's trust configuration for its issuer ({{STATEMENT}}), the authorization server MUST record that tenant with the registration, and MUST treat a request under the registration in any other tenant, including a delivery ({{revalidation}}), as a request from a client it has not registered. The restriction persists across renewals, and a renewal by a replacement whose decision is confined to a tenant restricts the registration to that tenant. A registration created from a statement whose decision is not confined to a tenant carries no tenant restriction under this specification until such a renewal.
@@ -112,6 +114,20 @@ Unlike runtime presentation ({{STATEMENT}}), registration has no review-only for
 Taking every value from the document prevents metadata substitution. At registration a statement is a bearer artifact, so a request-supplied value for a member the document omits, such as a `jwks` beside a document naming only `jwks_uri`, would give any holder of a copy a registration with reviewed branding and its own key.
 
 The external-retrieval protections and resource bounds of {{STATEMENT}} apply to retrieving the document as to a runtime presentation. The authorization server completes every check of {{STATEMENT}} that needs no client-controlled retrieval before resolving the document.
+
+## Public Clients {#public-client-registration}
+
+An authorization server MAY register a client whose reviewed document declares `token_endpoint_auth_method` of `none`. Such a registration has no client credential. Every installation of the software registers and receives the same registration and `client_id`, and so can any holder of a copy of the statement. The registration is bound instead as {{STATEMENT}} binds a public client at runtime: authorization codes reach only the reviewed redirection URIs, and each grant is bound to a key the installation holds. A server that registers such a client:
+
+* MUST reject the registration with `invalid_client_metadata` if the document lists no redirection URI. {{dcr-presentation}} already rejects a document listing one that another application could claim.
+* MUST issue tokens under the registration only through the authorization code grant and refresh of the grants it opens.
+* MUST require PKCE {{RFC7636}} with the `S256` method on every authorization request under the registration.
+* MUST require every authorization request under the registration to bind a key the client holds, through the `dpop_jkt` parameter or, at the pushed authorization request endpoint, a DPoP proof (Section 10 of {{RFC9449}}), and MUST require code redemption and every refresh of the resulting grant to prove that key.
+* MUST apply the validity model of {{registration-validity}} to the registration, whether or not it advertises the model.
+* MUST NOT issue a registration access token {{RFC7592}} for the registration.
+* MUST answer a later registration request that carries a valid statement with the same `iss` and `sub`, in a tenant where the registration can be used, with the existing registration. If that statement satisfies the replacement rules of {{revalidation}}, the server also renews the registration with it as {{revalidation}} provides for a delivery.
+
+The deliveries that {{revalidation}} lists need no client authentication under such a registration, which has none. A delivery renews it only with a valid replacement, so an unauthenticated delivery can apply only a statement the issuer signed. Without a registration access token, the registration ends only at its effective expiry, on withdrawal ({{registration-validity}}), or by the server's own policy.
 
 ## Registration Validity {#registration-validity}
 
@@ -214,7 +230,8 @@ An authorization server rejecting a registration request, or a registration mana
   * It carries metadata this server's policy refuses.
   * It exceeds the server's size bound ({{STATEMENT}}), so that retrying cannot succeed.
   * It omits `token_endpoint_auth_method` ({{dcr-presentation}}).
-  * It declares `token_endpoint_auth_method` of `none` ({{dcr-presentation}}).
+  * It declares `token_endpoint_auth_method` of `none` and the server does not register it under {{public-client-registration}}.
+  * It declares `token_endpoint_auth_method` of `none` and lists no redirection URI ({{public-client-registration}}).
   * It carries a redirection URI another application could claim ({{dcr-presentation}}).
 
 `temporarily_unavailable`:
