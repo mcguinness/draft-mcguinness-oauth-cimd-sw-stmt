@@ -180,7 +180,7 @@ Before accepting a statement, a trusting authorization server MUST ensure the fo
 * If the statement carries `aud`, a value in it exactly matches one of the server's audience identifiers that its trust configuration permits the statement's issuer to name ({{issuer-trust}}).
 * If the statement carries `aud_tenant`, `aud` carries exactly one value and `aud_tenant` identifies the tenant this request belongs to, resolved before the statement is evaluated, by the server's own means or from a signed assertion it has validated, and never from a value the client chooses.
 * If the server requires a tenant-scoped decision for the request, the statement carries `aud_tenant`.
-* If the statement carries `statement_uses`, the claim names the use being made of the statement, and a member the server does not recognize is treated as naming no use the server serves. If the claim is absent, the use being made of the statement is presentation.
+* If the statement carries `statement_uses`, the claim names the use being made of the statement, and a member the server does not recognize is treated as naming no use it serves. If the claim is absent, that use is presentation.
 * The `sub` claim is a client identifier URL conforming to {{CIMD}} and falls within the identifier scope for which this server accepts the issuer ({{issuer-trust}}).
 * The statement carries no claim registered in the IANA "OAuth Dynamic Client Registration Metadata" registry, which {{profiles}} forbids. Any other claim the server does not recognize is ignored.
 * The JWT validation guidance in {{RFC8725}} has been applied.
