@@ -143,9 +143,9 @@ An {{RFC7592}} read or update response returns the governing statement as its `s
 
 The replacement MUST satisfy the following:
 
-* The replacement validates under the validation rules of {{STATEMENT}}, including its audience if it carries one.
-* The replacement carries the governing statement's `iss` and `sub`.
-* The replacement has an `iat` later than the governing statement's `iat`.
+* It validates under the validation rules of {{STATEMENT}}, including its audience if it carries one.
+* The `iss` and `sub` claims equal those of the governing statement.
+* The `iat` claim is later than that of the governing statement.
 
 For a replacement, the authorization server MUST do the following:
 
