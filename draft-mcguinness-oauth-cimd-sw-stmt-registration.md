@@ -50,7 +50,7 @@ RFC 7591 does not define how long a registration based on a software statement r
 
 # Introduction
 
-{{RFC7591}} defines no expiry or renewal procedure for a dynamic client registration. A software statement (Section 2.3 of {{RFC7591}}) can carry a reviewer's approval into a registration request, but the registration can outlive the statement, leaving the reviewer no interoperable way to keep its review current at the authorization servers that relied on it.
+{{RFC7591}} defines no expiry or renewal procedure for a dynamic client registration. A software statement (Section 2.3 of {{RFC7591}}) can carry an issuer's approval into a registration request, but the registration can outlive the statement, leaving the issuer no interoperable way to keep its review current at the authorization servers that relied on it.
 
 {{STATEMENT}} defines the statement, its validation, issuer trust configuration, and runtime consumption. This specification defines what registration adds: taking the registration's metadata from the reviewed document ({{dcr-presentation}}), bounding its validity by the statement ({{registration-validity}}), and renewing it with a replacement statement ({{revalidation}}). It does not register software whose document declares `token_endpoint_auth_method` of `none`, which {{STATEMENT}} admits by runtime presentation instead, or whose document lists a redirection URI another application could claim ({{dcr-presentation}}). It depends on {{STATEMENT}}, which does not depend on it.
 

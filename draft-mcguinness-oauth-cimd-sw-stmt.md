@@ -239,7 +239,7 @@ A required issuer configured for software whose documents are presented review-o
 
 ## Multi-Tenant Issuers {#multi-tenant-issuers}
 
-If the tenants of a reviewer serving several customers are independently trusted reviewing authorities, the reviewer MUST issue under a distinct `iss` for each, so that each tenant's decisions, keys, and watermark ({{multi-instance}}) stay separate. Under one `iss`, one customer's renewal would supersede another's review. A statement carries no claim naming the issuer's tenant.
+If an issuer reviews software for several customers that are each trusted independently, it MUST issue under a distinct `iss` for each customer, so that each customer's decisions, keys, and `iat` floor ({{multi-instance}}) stay separate. Under one `iss`, one customer's renewal would supersede another's review. A statement carries no claim naming the issuer's customer.
 
 # Runtime Presentation {#cimd-presentation}
 
@@ -295,7 +295,7 @@ The server considers only statements that meet all of the following conditions:
 
 The server ignores the rest.
 
-If the server's trust configuration requires an issuer for this client ({{issuer-trust}}), it applies only that issuer's statement, and if none remains, the client is not reviewed. Otherwise, if more than one statement remains, the server keeps only the latest `iat` from each issuer and applies any one of those, subject to the watermark of {{multi-instance}}. A pulled statement the server does not apply does not advance the watermark.
+If the server's trust configuration requires an issuer for this client ({{issuer-trust}}), it applies only that issuer's statement, and if none remains, the client is not reviewed. Otherwise, if more than one statement remains, the server keeps only the latest `iat` from each issuer and applies any one of those, subject to the `iat` floor of {{multi-instance}}. A pulled statement the server does not apply does not advance the `iat` floor.
 
 Having selected a statement, the server continues from step 4 of {{processing}}, with the pulled statement in place of a presented one and the document already resolved. The selection above satisfies the `client_id` rule of step 2.
 
@@ -353,7 +353,7 @@ The reviewed document, not the proven key, admits the statement here: an authori
 
 A presentation is review-only if the reviewed document carries any redirection URI that another application on the same device could claim: a non-`https` URI, such as a private-use scheme or an `http` loopback redirection URI (Sections 7.1 and 7.3 of {{RFC8252}}), or an `https` URI whose host is a loopback address or `localhost`. One such URI makes the whole document review-only, whatever authentication method it declares. The application that claims such a URI receives the code, so neither the reviewed redirection URIs nor a key shipped in every copy of the software can bind the presenter.
 
-A review-only presentation creates no establishment, admits nothing, and does not advance the watermark of {{multi-instance}}, since it changes nothing for the software's other instances. The authorization server proceeds as it would for the same Client ID Metadata Document client presenting no statement.
+A review-only presentation creates no establishment, admits nothing, and does not advance the `iat` floor of {{multi-instance}}, since it changes nothing for the software's other instances. The authorization server proceeds as it would for the same Client ID Metadata Document client presenting no statement.
 
 The statement of a review-only presentation MUST NOT satisfy a policy requiring reviewed software, and the authorization server SHOULD NOT present that review to the user as an assurance about the presenter. If the server's policy requires reviewed software, it rejects a review-only client with `unauthorized_client`.
 
@@ -426,9 +426,9 @@ Refresh never rotates the establishment's key. A client that needs a new key per
 
 A statement attests client software, identified by `sub`, not its runtime instances. This specification defines no instance identifier. One unexpired statement is therefore consumable more than once: at each trusting authorization server in its audience and, if the server registers clients ({{REGISTRATION}}) and its policy permits, in more than one registration at that server.
 
-To prevent an issuer's statements for different tenants from superseding one another, a multi-tenant authorization server keeps the watermark and bounds below per tenant ({{tenant-confusion}}).
+To prevent an issuer's statements for different tenants from superseding one another, a multi-tenant authorization server keeps the `iat` floor and bounds below per tenant ({{tenant-confusion}}).
 
-A trusting authorization server MUST retain, per `iss` and `sub`, the `iat` of the most recent statement it has accepted. It MUST reject a statement whose `iat` is earlier than the retained `iat`, whether it arrives as a replacement, a new registration, or a new presentation. A client holding a superseded, broader statement therefore cannot defer a narrowing by opening a fresh registration or establishment with it. The server retains the watermark at least as long as the maximum statement lifetime it honors for that issuer.
+A trusting authorization server MUST retain, per `iss` and `sub`, the `iat` of the most recent statement it has accepted, its `iat` floor. It MUST reject a statement whose `iat` is earlier than the retained `iat`, whether it arrives as a replacement, a new registration, or a new presentation. A client holding a superseded, broader statement therefore cannot defer a narrowing by opening a fresh registration or establishment with it. The server retains the `iat` floor at least as long as the maximum statement lifetime it honors for that issuer.
 
 The first presentation of a replacement that establishes the client retires its predecessor for new admissions by every instance of the software at that server, so instances need the current statement from a shared source rather than a copy fixed at build or install time. Grants the predecessor already opened continue under {{refresh}}.
 
@@ -446,13 +446,13 @@ This section is non-normative.
 
 ## Client Attestation {#relationship-attestation}
 
-A software statement and a client attestation {{ABCA}} are both signed third-party assertions. A statement attests client software and the metadata a reviewer evaluated. It is signed by a review authority scoped to a set of client identifiers and accepted wherever that authority is trusted. A client attestation attests a running instance and the key it holds, and is presented with a proof bound to the request.
+A software statement and a client attestation {{ABCA}} are both signed third-party assertions. A statement attests client software and the metadata its issuer evaluated. It is signed by an issuer trusted for a set of client identifiers and accepted wherever that issuer is trusted. A client attestation attests a running instance and the key it holds, and is presented with a proof bound to the request.
 
 Neither assertion grants access nor substitutes for the other. Runtime presentation therefore always requires a sender constraint ({{sender-constraint}}). Binding a presenter attestation defined elsewhere is an extension ({{extensions}}).
 
 ## Identity Assertions {#identity-assertions}
 
-A statement records that a named party reviewed software, not that a particular customer currently permits that software to act in its tenant. A tenant-scoped decision (`aud_tenant`) authorizes no particular user or transaction. When a customer's identity provider mediates a grant, as with a cross-domain identity assertion {{IDJAG}}, it already answers the customer's question per grant by issuing assertions only for clients the customer permits. A statement serves when the reviewer is not in the request path, as in the following cases:
+A statement records that a named party reviewed software, not that a particular customer currently permits that software to act in its tenant. A tenant-scoped decision (`aud_tenant`) authorizes no particular user or transaction. When a customer's identity provider mediates a grant, as with a cross-domain identity assertion {{IDJAG}}, it already answers the customer's question per grant by issuing assertions only for clients the customer permits. A statement serves when the issuer is not in the request path, as in the following cases:
 
 * A publisher program vouches to servers it will never see.
 * A provider admits software it has never registered.
