@@ -129,6 +129,8 @@ A server applying this model MUST return a `registration_expires_at` member, a N
 
 A server that omits the signal or advertises `false` does not bound registrations by statement expiry but still consumes the statement as {{dcr-presentation}} requires.
 
+A server that records a required issuer for a tenant ({{STATEMENT}}) MUST apply this validity model to every registration it creates in that tenant for software in a covered namespace, whether or not it advertises the model. Otherwise, withholding the required issuer's statement would keep such a registration in use after the issuer withdrew or stopped renewing its decision.
+
 ## Revalidation {#revalidation}
 
 A client renews a statement-governed registration by delivering a replacement statement in one of the following:
