@@ -277,11 +277,11 @@ A client can publish its statements rather than present them. Its Client ID Meta
 
 An authorization server that supports pulled statements MAY retrieve this URL when it resolves the document of a client that presented no statement. In retrieving this URL, the server does the following:
 
-* The server sends a `GET` request with `Accept: application/json`, does not automatically follow redirects, and accepts only a `200` response with a JSON media type.
-* The server applies the protections {{CIMD}} sets for URLs a document contains and the bounds of {{external-retrieval}}.
-* The server bounds the response size and the number of statements it examines separately from the document's. Several issuers' statements outgrow a document-sized bound, and a host can pad the array.
-* The server discards statements from issuers it has not configured before verifying any signature.
-* The server caches a successful response no longer than it caches the document, and does not cache a failure, as {{CIMD}} requires of the document.
+* Send a `GET` request with `Accept: application/json`, do not automatically follow redirects, and accept only a `200` response with a JSON media type.
+* Apply the protections {{CIMD}} sets for URLs a document contains and the bounds of {{external-retrieval}}.
+* Bound the response size and the number of statements examined separately from the document's. Several issuers' statements outgrow a document-sized bound, and a host can pad the array.
+* Discard statements from unconfigured issuers before verifying any signature.
+* Cache a successful response no longer than the document is cached, and do not cache a failure, as {{CIMD}} requires of the document.
 
 The authorization server can revalidate a cached response from that URL with a conditional request, as it can the document ({{metadata-digest}}). Both the document and this URL are retrieved before any statement exists to validate, so the ordering of {{processing}} applies from the first statement verified onward.
 
