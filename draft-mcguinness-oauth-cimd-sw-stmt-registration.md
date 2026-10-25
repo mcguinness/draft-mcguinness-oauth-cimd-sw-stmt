@@ -44,7 +44,7 @@ informative:
 
 --- abstract
 
-RFC 7591 does not define how long a registration based on a software statement remains valid or how that statement is renewed. This specification defines how an authorization server consumes a software statement for a Client ID Metadata Document in a registration request, taking every metadata value from the reviewed document; how the statement's expiry bounds the resulting registration; and how a client renews the registration with a replacement statement. It builds on the companion specification that defines the statement and its runtime consumption.
+A software statement for a Client ID Metadata Document, as a companion specification defines it, carries no client metadata: it binds an issuer's review to the exact bytes of the client's own document. This specification defines how an authorization server consumes such a statement in an RFC 7591 registration request, taking every metadata value from the reviewed document rather than from the request; how the statement's expiry can bound the resulting registration, which RFC 7591 leaves unbounded; and how a client renews the registration, and brings its metadata up to date, by delivering a replacement statement.
 
 --- middle
 
