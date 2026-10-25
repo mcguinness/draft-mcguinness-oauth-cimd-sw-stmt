@@ -163,7 +163,7 @@ A statement issued under this specification MUST NOT contain client metadata cla
 
 The metadata digest is the unpadded base64url-encoded SHA-256 hash {{RFC6234}} of the retrieved representation body after removal of content coding. The body is not transcoded, normalized, or re-serialized. Any byte order mark or trailing newline is included.
 
-Retrieval for digest purposes follows {{CIMD}} and MUST NOT use content negotiation: the retrieving party sends `Accept: application/json` and no other variant selection. Equal digests show that the issuer and the trusting authorization server obtained the same octets, so any condition that makes retrieval depend on who is asking defeats the comparison.
+Retrieval for digest purposes follows {{CIMD}} and MUST NOT use content negotiation: the retrieving party sends the `Accept` header field that {{CIMD}} specifies for retrieving the document, or `Accept: application/json` if it specifies none, and no other variant selection. Equal digests show that the issuer and the trusting authorization server obtained the same octets, so any condition that makes retrieval depend on who is asking defeats the comparison.
 
 A trusting authorization server MUST treat a response exceeding its configured size bound (Section 8.7 of {{CIMD}}) as a retrieval failure rather than digesting what it read. For a runtime presentation, retrying cannot succeed, so the request is rejected with `invalid_client` rather than `temporarily_unavailable` ({{errors}}), except on refresh-token use, for which {{refresh}} takes precedence.
 
