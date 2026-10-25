@@ -249,12 +249,7 @@ The request MUST NOT contain `actor_token` or `actor_token_type`, nor the `scope
 
 The client authenticates, and a public client constrains the request, as described in {{client-identity}}. An assertion-based method such as `private_key_jwt` {{RFC7521}} {{RFC7523}} serves if the document specifies one.
 
-An initial access token presented under this profile MUST meet the following conditions:
-
-* It is time limited.
-* It is limited to the issuer.
-* It is bound to an exact client identifier URL or an explicitly authorized client identifier namespace.
-* If opaque, it has at least 128 bits of entropy.
+An initial access token presented under this profile MUST be time limited, be limited to the issuer, be bound to an exact client identifier URL or an explicitly authorized client identifier namespace, and, if opaque, have at least 128 bits of entropy.
 
 The initial access token is subject to the following:
 
@@ -376,12 +371,7 @@ The software statement code response applies the authorization response protecti
 `software_statement_code`:
 : REQUIRED. A short-lived, single-use artifact redeemed at the token endpoint ({{software-statement-code-redemption}}). It MUST be bound to the client identifier, redirect URI, PKCE challenge, metadata snapshot, requested audience, and, when `dpop_jkt` was present, that JWK thumbprint.
 
-  The value MUST meet the following conditions:
-
-  * It contains at least 128 bits of entropy from a cryptographically secure random source.
-  * It is opaque to the client.
-  * It expires shortly after issuance.
-  * It is not accepted more than once.
+  The value MUST contain at least 128 bits of entropy from a cryptographically secure random source, be opaque to the client, expire shortly after issuance, and not be accepted more than once.
 
 `state`:
 : REQUIRED. The exact value received in the authorization request.
@@ -528,11 +518,7 @@ Pragma: no-cache
 }
 ~~~
 
-The `access_token` member is a security-token container ({{RFC8693}}), not an OAuth access token. The following apply to the software statement it carries:
-
-* The statement is consumed only as {{STATEMENT}} provides.
-* The statement MUST NOT be attached to a request as an `Authorization: Bearer` credential.
-* The statement is not subject to refresh.
+The `access_token` member is a security-token container ({{RFC8693}}), not an OAuth access token. The software statement it carries is consumed only as {{STATEMENT}} provides, MUST NOT be attached to a request as an `Authorization: Bearer` credential, and is not subject to refresh.
 
 Implementations that cache issued tokens by type SHOULD key this artifact on its `issued_token_type` so that generic access-token handling does not apply to it, and SHOULD treat it as a sensitive credential in logs.
 
