@@ -160,9 +160,9 @@ The following non-normative example shows the payload of a SET carrying this eve
 A trusting authorization server that receives an event defined here MUST process it as follows:
 
 1. Verify the SET as {{RFC8417}} requires, including its `typ`, and verify that the SET's issuer is configured and its keys were obtained as {{relationship}} requires.
-2. Reject an event whose `aud` does not contain the server's own issuer identifier ({{relationship}}), and an event whose type the server does not recognize.
+2. Reject an event whose `aud` does not contain the server's own issuer identifier ({{relationship}}) or whose type is not recognized.
 3. Resolve the subject ({{subjects}}).
-4. Resolve the status of the affected statements from the issuer's Status List Token as {{STATUSLIST}} defines, without waiting for the schedule the server would otherwise have used, and apply the resolved status as {{status-resolution}} defines.
+4. Resolve the status of the affected statements from the issuer's Status List Token as {{STATUSLIST}} defines, without waiting for the schedule that would otherwise apply, and apply the resolved status as {{status-resolution}} defines.
 
 The affected statements are those the transmitting issuer made about the subject, never statements another issuer made about the same software: the one the event's `software_statement_jti` names or, if the event names none, those the receiver holds or has cached a status for. An event about a subject for which the receiver holds no state requires nothing of it.
 
