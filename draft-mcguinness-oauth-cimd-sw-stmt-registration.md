@@ -274,11 +274,13 @@ A statement consumed at registration is a reusable bearer artifact until it expi
 
 Under the one-registration default ({{repeated-registration}}), whoever first registers with a copy of a statement holds that registration and its registration access token, and can keep the software's publisher from registering at that server. Such a holder cannot authenticate as the client if the reviewed document's authentication method requires a key the document carries.
 
+A public-client registration ({{public-client-registration}}) has no credential to take and is answered idempotently, so its first registrant gains nothing over later ones. Any holder of a copy can use it, as any party can use a public client's identifier. Its codes reach only the reviewed redirection URIs and its grants are bound to keys that installations hold, so a holder of a copy gains what it would gain at runtime, including the exposure the copied-statement considerations of {{STATEMENT}} describe for a holder that controls the user agent.
+
 If the publisher's statement permits presentation and the server supports it, the publisher's software can still be admitted through runtime presentation ({{STATEMENT}}). Otherwise, recovery requires the server's operator to intervene or a registration policy other than the one-registration default. This specification defines no way to displace such a registration.
 
 ## Renewal Authenticates the Credential
 
-Renewal proves possession of the registration's credential and the currency of a statement sharing the governing `iss` and `sub`, not that the renewing party is the reviewed software. An attacker holding a stolen client credential can renew indefinitely with any current statement for that software. Such statements circulate to every deployment of it.
+Renewal proves possession of the registration's credential and the currency of a statement sharing the governing `iss` and `sub`, not that the renewing party is the reviewed software. An attacker holding a stolen client credential can renew indefinitely with any current statement for that software. Such statements circulate to every deployment of it. A public-client registration has no credential, so its renewal proves only that the replacement is current. This loses nothing, since any party can already use that registration.
 
 Deployments should pair statement-governed registrations with credential rotation, sender-constrained client authentication, and the repeated-consumption limits of {{STATEMENT}} and {{repeated-registration}}, and should treat a credential compromise as requiring re-registration rather than renewal. Runtime presentation ({{STATEMENT}}) binds every presenter to the reviewed document and so does not have this limitation.
 
@@ -290,7 +292,7 @@ Requiring a statement also means each new client identity needs another issuer d
 
 ## Observable State {#oracle-considerations}
 
-A retained expired registration is distinguishable from an unknown client ({{revalidation}}). At the token and pushed authorization request endpoints, only a requester that authenticates as the registration's client can observe this, and what it learns is the state it must act on.
+A retained expired registration is distinguishable from an unknown client ({{revalidation}}). At the token and pushed authorization request endpoints, only a requester that authenticates as the registration's client can observe this, and what it learns is the state it must act on. A public-client registration has no credential, so anyone can observe its state there, as anyone can at the authorization endpoint.
 
 At the authorization endpoint, anyone who can send an authorization request naming the client and one of its registered redirection URIs receives the `statement_required` redirection ({{registration-validity}}), and so learns that the registration has lapsed. If an observer knows the governing statement's `exp`, a lapse before it shows that the server either holds a refusal record for the statement or caps the lifetime it honors for the issuer.
 
