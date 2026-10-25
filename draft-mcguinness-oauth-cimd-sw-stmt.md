@@ -544,6 +544,8 @@ Apart from those two cases, at the authorization endpoint, if this server requir
 
 The authorization server redirects with the error only after resolving the client's Client ID Metadata Document and validating the request's `redirect_uri` against it. If it cannot resolve the document, the authorization server MUST NOT redirect and reports the error to the resource owner instead.
 
+An authorization request carrying the `software_statement` parameter ({{authorization-requests}}) is rejected with `invalid_request`, and the authorization server redirects with that error only as the preceding paragraph allows.
+
 ## Proof Mechanism Errors {#proof-errors}
 
 If the proof mechanism defines an error of its own for a proof it does not accept, such as `invalid_dpop_proof` for a DPoP proof that fails the checks of Section 4.3 of {{RFC9449}} or `use_dpop_nonce` for a nonce challenge (Section 8 of {{RFC9449}}), the request is rejected with that error in place of the code this specification assigns to a failed sender constraint.

@@ -173,11 +173,11 @@ A registration request without an {{RFC7592}} registration access token creates 
 
 # Statements from a Registered or Admitted Client {#registered-delivery}
 
-A client registered through {{RFC7591}}, or admitted under its Client ID Metadata Document URL as its `client_id`, can still carry a statement. Runtime presentation ({{STATEMENT}}) does not alter a registration's metadata. A statement carried under a registration from an issuer the server does not accept for that client is rejected as {{errors}} defines.
+A client registered through {{RFC7591}}, or admitted under its Client ID Metadata Document URL as its `client_id`, can still carry a statement. Runtime presentation ({{STATEMENT}}) does not alter a registration's metadata. At the token and pushed authorization request endpoints, a statement carried under a registration that is neither a runtime presentation nor a delivery ({{revalidation}}) is rejected with `invalid_request` ({{STATEMENT}}). At the registration management endpoint, a statement from an issuer the server does not accept for the client is rejected with `unapproved_software_statement` ({{errors}}).
 
 For a statement-governed registration, a statement from the governing issuer is a delivery under {{revalidation}}. While the registration is valid, its governing statement is current, even after a later statement has raised the `iat` floor of {{STATEMENT}}, and satisfies any requirement the server has for a current statement on refresh.
 
-If the registration is not statement-governed, a statement neither renews nor alters it. For such a registration, the server applies a reviewed change, if at all, through its own registration policy, deriving metadata only from a reviewed document ({{dcr-presentation}}).
+If the registration is not statement-governed, a statement neither renews nor alters it and is not a delivery. For such a registration, the server applies a reviewed change, if at all, through its own registration policy, deriving metadata only from a reviewed document ({{dcr-presentation}}).
 
 # Repeated Registration {#repeated-registration}
 
@@ -201,6 +201,7 @@ An authorization server rejecting a registration request, or a registration mana
 : Any of the following holds for the reviewed document:
 
   * It contains duplicate member names ({{STATEMENT}}).
+  * Its `client_id` member does not match the statement's `sub` ({{dcr-presentation}}).
   * It carries metadata this server's policy refuses.
   * It exceeds the server's size bound ({{STATEMENT}}), so that retrying cannot succeed.
   * It omits `token_endpoint_auth_method` ({{dcr-presentation}}).
