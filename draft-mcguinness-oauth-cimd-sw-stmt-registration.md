@@ -78,7 +78,7 @@ Governing Statement:
 : The statement that bounds a statement-governed registration: the one consumed at registration or, after a renewal, the replacement that renewed it most recently ({{revalidation}}).
 
 Statement-Governed Registration:
-: An {{RFC7591}} client registration, at a server advertising `software_statement_registration_validity_supported` with a value of `true`, whose validity is bound to a software statement's effective expiry and renewed by replacement statements ({{registration-validity}}).
+: An {{RFC7591}} client registration to which the server applies the validity model of {{registration-validity}}: its validity is bound to a software statement's effective expiry, and replacement statements renew it.
 
 # Consumption at Registration {#dcr-presentation}
 
@@ -123,11 +123,11 @@ If the server holds a refusal record for the governing statement ({{STATEMENT}})
 
 A server applying this model that uses a withdrawal mechanism for the governing statement's issuer SHOULD consult it for that statement at each token request under the registration, as {{STATEMENT}} provides for refresh.
 
-An authorization server advertising this model MUST publish `pushed_authorization_request_endpoint`. Without that endpoint, {{revalidation}} leaves a client whose only grant type is the authorization code, and which holds no refresh token, with no way to renew.
+An authorization server applying this model MUST publish `pushed_authorization_request_endpoint`. Without that endpoint, {{revalidation}} leaves a client whose only grant type is the authorization code, and which holds no refresh token, with no way to renew.
 
 A server applying this model MUST return a `registration_expires_at` member, a NumericDate (Section 2 of {{RFC7519}}) giving the latest time the registration remains valid, in the {{RFC7591}} registration response and in the response to any request that renews the registration or carries its governing statement ({{revalidation}}), and SHOULD return it in any {{RFC7592}} read or update response it supports. For a registration that has ceased to be valid, the value is the time it ceased. The server can cap the lifetime it honors for the issuer ({{STATEMENT}}), so a client cannot compute this boundary from the statement alone.
 
-A server that omits the signal or advertises `false` does not bound registrations by statement expiry but still consumes the statement as {{dcr-presentation}} requires.
+A server that omits the signal or advertises `false` does not bound registrations by statement expiry, except as the next paragraph requires, but still consumes the statement as {{dcr-presentation}} requires.
 
 A server that records a required issuer for a tenant ({{STATEMENT}}) MUST apply this validity model to every registration it creates in that tenant for software in a covered namespace, whether or not it advertises the model. Otherwise, withholding the required issuer's statement would keep such a registration in use after the issuer withdrew or stopped renewing its decision.
 
