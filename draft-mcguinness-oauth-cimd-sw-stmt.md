@@ -706,7 +706,7 @@ Note:
 : In an authorization request the parameter is conveyed only through the pushed authorization request endpoint {{RFC9126}}, never in a front-channel URL ({{authorization-requests}}).
 
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : This specification, {{runtime-presentation}}
@@ -811,7 +811,7 @@ Related Protocol Extension:
 : CIMD Software Statement
 
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : This specification, {{errors}}
@@ -826,7 +826,7 @@ Error Usage Location:
 : token error response and pushed authorization request error response, in addition to the locations already registered
 
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : {{RFC6749}}, this specification ({{errors}})

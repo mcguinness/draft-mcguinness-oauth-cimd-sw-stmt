@@ -298,7 +298,7 @@ Parameter Usage Location:
 : token response, pushed authorization request response
 
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : This specification, {{registration-validity}}
@@ -333,7 +333,7 @@ Error Usage Location:
 : client registration error response, in addition to the locations already registered
 
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : {{RFC6749}}, this specification ({{errors}})
