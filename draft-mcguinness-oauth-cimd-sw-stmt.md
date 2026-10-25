@@ -313,7 +313,7 @@ The presenter of a pulled statement is bound as for a presented statement ({{sen
   * A confidential client authenticates there with a key the digested document carries, in its `jwks` or at its `jwks_uri` within the reuse bounds of {{sender-constraint}}, not one that only a later retrieval of the document carries, and that key becomes the establishment's proven key.
   * A public client's authorization request that binds a key through `dpop_jkt` is subject to {{public-client-presentation}}, including PKCE, and redemption proves the bound key.
 * A public client opening a new grant at the token endpoint, or sending a pushed or ordinary authorization request that binds no key, has nothing to bind, so a statement pulled for it is review-only ({{public-client-presentation}}), as is one pulled for a document whose redirection URIs that section does not accept.
-* Code redemption and refresh continue an establishment and keep the binding it already has ({{grant-lifecycle}}, {{refresh}}), except that redemption sets the proven key of an establishment whose binding completes there.
+* Code redemption and refresh continue an establishment and keep the binding it already has ({{grant-lifecycle}}, {{refresh}}), except that redemption sets the proven key of an establishment whose statement was pulled at the authorization endpoint for a confidential client.
 
 If retrieval does not complete or no statement remains, the server applies its policy for Client ID Metadata Document clients it has not reviewed, subject to any required issuer ({{issuer-trust}}). If that policy requires reviewed software, the server rejects the request with `temporarily_unavailable` if retrieval did not complete and with `statement_required` if no statement remains. A retrieval failure is never a withdrawal.
 
@@ -399,7 +399,7 @@ The establishment persists while the grant depends on it. The authorization serv
 A token request that redeems an authorization code opened by a presentation:
 
 * MUST have a `client_id` exactly equal to the establishment's `sub`, even if the client authenticates.
-* MUST demonstrate possession of the establishment's proven key under the same sender-constraint mechanism or, if binding completes at redemption ({{pulled-statements}}), authenticate with the key that becomes the proven key.
+* MUST demonstrate possession of the establishment's proven key under the same sender-constraint mechanism or, for a confidential client whose statement was pulled at the authorization endpoint ({{pulled-statements}}), authenticate with the key that becomes the proven key.
 * MUST NOT carry the `software_statement` parameter.
 
 A redemption carrying a statement is rejected with `invalid_request`. A wrong client identifier or failed key binding is rejected with `invalid_grant`. The prohibition on carrying a statement covers redemption of a code bound to an establishment. A registered client redeeming its own code may deliver a replacement statement under {{REGISTRATION}}, which that specification calls a delivery and which is not a presentation.
