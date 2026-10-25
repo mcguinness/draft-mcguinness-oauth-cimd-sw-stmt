@@ -161,7 +161,7 @@ Access issued under the registration after that update, including on refresh of 
 
 When a request under an expired registration contains a replacement, the authorization server MUST authenticate the client against the retained registration and evaluate the replacement before applying the expiry rejection. A valid replacement therefore restores the registration. An omitted or invalid replacement does not.
 
-The rejection of a request under an expired registration that carries no replacement ({{registration-validity}}) MUST NOT by itself trigger the refresh-token family revocation of {{RFC9700}}. The client recovers by delivering a valid replacement.
+The rejection of a request under an expired registration that carries no replacement ({{registration-validity}}) MUST NOT by itself cause the authorization server to revoke refresh tokens as it does on detecting refresh-token replay (Section 4.14.2 of {{RFC9700}}). The client recovers by delivering a valid replacement.
 
 A request whose replacement fails the rules above is rejected whether or not the registration has expired. The client then learns of the failure at once and can tell a bad replacement from a missing one. Such a request is rejected with `statement_required` at the token and pushed authorization request endpoints, or with `temporarily_unavailable` there if a retrieval needed to check the replacement did not complete for a reason other than the size bound of {{STATEMENT}}, and with the codes of {{errors}} at the registration management endpoint. A rejected delivery leaves the governing statement unchanged.
 
