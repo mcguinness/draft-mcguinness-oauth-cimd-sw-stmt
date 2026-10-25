@@ -317,7 +317,7 @@ Metadata Name:
 : `software_statement_registration_validity_supported`
 
 Metadata Description:
-: Boolean value indicating whether registrations created from validated software statements are governed by the statement validity and revalidation rules of this specification.
+: Boolean value indicating whether every registration created from a validated software statement is governed by the statement validity and revalidation rules of this specification.
 
 Change Controller:
 : IESG
