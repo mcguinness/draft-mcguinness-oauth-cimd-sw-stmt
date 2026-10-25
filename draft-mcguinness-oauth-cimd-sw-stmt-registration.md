@@ -50,9 +50,17 @@ A software statement for a Client ID Metadata Document, as a companion specifica
 
 # Introduction
 
-{{RFC7591}} defines no expiry or renewal procedure for a dynamic client registration. A software statement (Section 2.3 of {{RFC7591}}) can carry an issuer's approval into a registration request, but the registration can outlive the statement, leaving the issuer no interoperable way to keep its review current at the authorization servers that relied on it.
+A software statement (Section 2.3 of {{RFC7591}}) carries a third party's approval of client software into a dynamic client registration request. In {{RFC7591}}, values in the statement take precedence over those in the request. A statement under {{STATEMENT}} carries no client metadata: it names a Client ID Metadata Document by its URL and binds the review to that document's exact octets. An {{RFC7591}} server that verified such a statement without this specification would take every metadata value from the request, attaching the issuer's approval to redirection URIs and keys nobody reviewed.
 
-{{STATEMENT}} defines the statement, its validation, issuer trust configuration, and runtime consumption. This specification defines what registration adds: taking the registration's metadata from the reviewed document ({{dcr-presentation}}), bounding its validity by the statement ({{registration-validity}}), and renewing it with a replacement statement ({{revalidation}}). It does not register software whose document declares `token_endpoint_auth_method` of `none`, which {{STATEMENT}} admits by runtime presentation instead, or whose document lists a redirection URI another application could claim ({{dcr-presentation}}). It depends on {{STATEMENT}}, which does not depend on it.
+{{RFC7591}} also defines no expiry or renewal for a registration. A registration based on a statement can outlive it, so an issuer that narrows or withdraws its review has no interoperable way to reach the authorization servers that registered the client on it.
+
+{{STATEMENT}} admits a client at request time without registering it. This specification is for deployments that register clients through {{RFC7591}} instead, for example to assign their own client identifiers or to manage registrations under {{RFC7592}}. It defines the following:
+
+* Consumption: the registration takes every metadata value from the reviewed document, never from the request ({{dcr-presentation}}).
+* Validity: an authorization server can bound the registration by the statement's effective expiry, and advertise that it does ({{registration-validity}}).
+* Renewal: the client extends the registration by delivering a replacement statement, which also brings the registration's metadata up to date with the new review ({{revalidation}}).
+
+This specification does not register software whose document declares `token_endpoint_auth_method` of `none` or lists a redirection URI another application could claim ({{dcr-presentation}}). {{STATEMENT}} admits such software by runtime presentation, which binds each installation to the reviewed redirection URIs and a key it holds. This specification depends on {{STATEMENT}}, which does not depend on it.
 
 ## Protocol Overview
 
