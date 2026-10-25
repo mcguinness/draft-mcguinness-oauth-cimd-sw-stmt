@@ -84,18 +84,18 @@ Statement-Governed Registration:
 
 The statement is consumed in the `software_statement` member of an {{RFC7591}} registration request. The authorization server validates it under the validation rules of {{STATEMENT}} and registers the client under its ordinary registration policy.
 
-In {{RFC7591}}, values in a software statement take precedence over those in the request. A statement under {{STATEMENT}} carries no client metadata, so the reviewed document takes that role. The following rules apply to an authorization server consuming a statement under this specification:
+In {{RFC7591}}, values in a software statement take precedence over those in the request. A statement under {{STATEMENT}} carries no client metadata, so the reviewed document takes that role. An authorization server consuming a statement under this specification:
 
-* The authorization server MUST resolve the Client ID Metadata Document at the statement's `sub`, rejecting the registration if retrieval does not complete.
-* The authorization server MUST validate the document as {{CIMD}} requires, including that its `client_id` member matches the client identifier URL it is held for, which is the statement's `sub`.
-* The authorization server MUST verify that the digest of the retrieved representation equals `cimd_digest`, rejecting the registration if it does not, and MUST derive the registered metadata by parsing the same octets it digested, not a second retrieval or a cached copy it has not digested.
-* The authorization server MUST take every client metadata value from that document, and MUST NOT take any client metadata value from the registration request, or from any {{RFC7592}} update request for the registration it creates, whether or not the document carries that member:
+* MUST resolve the Client ID Metadata Document at the statement's `sub`, rejecting the registration if retrieval does not complete.
+* MUST validate the document as {{CIMD}} requires, including that its `client_id` member matches the client identifier URL it is held for, which is the statement's `sub`.
+* MUST verify that the digest of the retrieved representation equals `cimd_digest`, rejecting the registration if it does not, and MUST derive the registered metadata by parsing the same octets it digested, not a second retrieval or a cached copy it has not digested.
+* MUST take every client metadata value from that document, and MUST NOT take any client metadata value from the registration request, or from any {{RFC7592}} update request for the registration it creates, whether or not the document carries that member:
   * The registration's metadata changes only by re-derivation from the document a replacement statement reviews ({{revalidation}}).
   * A request MAY carry metadata, as {{RFC7591}} clients do, but it does not contribute to the registration.
   * The registered `client_id` is assigned as {{RFC7591}} provides, and the document's own `client_id` member is the URL recorded as `sub`.
-* If the document omits `token_endpoint_auth_method`, the authorization server MUST reject the registration with `invalid_client_metadata`. The {{RFC7591}} default is a shared-secret method that {{CIMD}} forbids, and registering under it would issue a client secret to any holder of a copy of the statement.
-* If the document declares `token_endpoint_auth_method` of `none`, the authorization server MUST reject the registration with `invalid_client_metadata`. Such software is admitted instead, if the server supports it, by runtime presentation, which binds each installation to the reviewed redirection URIs and a key it holds (see the public-client presentation rules of {{STATEMENT}}).
-* If any of the document's redirection URIs could be claimed by another application on the same device (see the public-client presentation rules of {{STATEMENT}}), the authorization server MUST reject the registration with `invalid_client_metadata`, whatever authentication method the document declares.
+* MUST reject the registration with `invalid_client_metadata` if the document omits `token_endpoint_auth_method`. The {{RFC7591}} default is a shared-secret method that {{CIMD}} forbids, and registering under it would issue a client secret to any holder of a copy of the statement.
+* MUST reject the registration with `invalid_client_metadata` if the document declares `token_endpoint_auth_method` of `none`. Such software is admitted instead, if the server supports it, by runtime presentation, which binds each installation to the reviewed redirection URIs and a key it holds (see the public-client presentation rules of {{STATEMENT}}).
+* MUST reject the registration with `invalid_client_metadata` if any of the document's redirection URIs could be claimed by another application on the same device (see the public-client presentation rules of {{STATEMENT}}), whatever authentication method the document declares.
 
 Unlike runtime presentation ({{STATEMENT}}), registration has no review-only form: the registration is the admission.
 
