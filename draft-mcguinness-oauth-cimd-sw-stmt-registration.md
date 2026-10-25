@@ -52,7 +52,7 @@ The CIMD Software Statement specification defines a software statement for a Cli
 
 A software statement (Section 2.3 of {{RFC7591}}) carries a third party's approval of client software into a dynamic client registration request. In {{RFC7591}}, values in the statement take precedence over those in the request. A statement under {{STATEMENT}} carries no client metadata: it names a Client ID Metadata Document by its URL and binds the review to that document's exact octets. An {{RFC7591}} server that verified such a statement without this specification would take every metadata value from the request, attaching the issuer's approval to redirection URIs and keys nobody reviewed.
 
-{{RFC7591}} also defines no expiry or renewal for a registration. A registration based on a statement can outlive it, so an issuer that narrows or withdraws its review has no interoperable way to reach the authorization servers that registered the client on it.
+{{RFC7591}} also defines no expiry or renewal for a registration. A registration based on a statement can outlive it, and nothing keeps the registration's validity or metadata in line with the issuer's decision once the issuer narrows, withdraws, or stops renewing it.
 
 {{STATEMENT}} admits a client at request time without registering it. This specification is for deployments that register clients through {{RFC7591}} instead, for example to assign their own client identifiers or to manage registrations under {{RFC7592}}. It defines the following:
 
