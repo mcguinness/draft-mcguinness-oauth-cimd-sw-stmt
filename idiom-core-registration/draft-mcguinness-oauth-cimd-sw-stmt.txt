@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         24 October 2026
-Expires: 27 April 2027
+Intended status: Standards Track                         25 October 2026
+Expires: 28 April 2027
 
 
                         CIMD Software Statement
@@ -41,7 +41,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 27 April 2027.
+   This Internet-Draft will expire on 28 April 2027.
 
 Copyright Notice
 
@@ -367,9 +367,8 @@ Table of Contents
 
    *  If the statement carries statement_uses, the claim names the use
       being made of the statement, and a member the server does not
-      recognize is treated as naming no use the server serves.  If the
-      claim is absent, the use being made of the statement is
-      presentation.
+      recognize is treated as naming no use it serves.  If the claim is
+      absent, that use is presentation.
 
    *  The sub claim is a client identifier URL conforming to [CIMD] and
       falls within the identifier scope for which this server accepts
@@ -434,14 +433,10 @@ Table of Contents
 
    An issuer that uses a withdrawal mechanism and issues a replacement
    narrower than the statement it replaces SHOULD withdraw the earlier
-   statement.  A replacement is narrower if any of the following holds:
-
-   *  The replacement is over a document that no longer carries a key,
-      redirection URI, or scope the earlier document carried.
-
-   *  The replacement has a narrower aud, aud_tenant, or statement_uses.
-
-   *  The replacement has a shorter remaining lifetime.
+   statement.  A replacement is narrower if the document it names no
+   longer carries a key, redirection URI, or scope the earlier document
+   carried, if its aud, aud_tenant, or statement_uses is narrower, or if
+   its remaining lifetime is shorter.
 
    What was removed may be why the replacement was issued.  A trusting
    authorization server that has not yet seen the replacement, or at
@@ -599,24 +594,22 @@ Table of Contents
    this URL when it resolves the document of a client that presented no
    statement.  In retrieving this URL, the server does the following:
 
-   *  The server sends a GET request with Accept: application/json, does
-      not automatically follow redirects, and accepts only a 200
-      response with a JSON media type.
+   *  Send a GET request with Accept: application/json, do not
+      automatically follow redirects, and accept only a 200 response
+      with a JSON media type.
 
-   *  The server applies the protections [CIMD] sets for URLs a document
-      contains and the bounds of Section 12.5.
+   *  Apply the protections [CIMD] sets for URLs a document contains and
+      the bounds of Section 12.5.
 
-   *  The server bounds the response size and the number of statements
-      it examines separately from the document's.  Several issuers'
-      statements outgrow a document-sized bound, and a host can pad the
-      array.
+   *  Bound the response size and the number of statements examined
+      separately from the document's.  Several issuers' statements
+      outgrow a document-sized bound, and a host can pad the array.
 
-   *  The server discards statements from issuers it has not configured
-      before verifying any signature.
+   *  Discard statements from unconfigured issuers before verifying any
+      signature.
 
-   *  The server caches a successful response no longer than it caches
-      the document, and does not cache a failure, as [CIMD] requires of
-      the document.
+   *  Cache a successful response no longer than the document is cached,
+      and do not cache a failure, as [CIMD] requires of the document.
 
    The authorization server can revalidate a cached response from that
    URL with a conditional request, as it can the document (Section 3.1).
@@ -627,14 +620,13 @@ Table of Contents
    The server considers only statements that meet all of the following
    conditions:
 
-   *  The statement's sub equals the document's client identifier.
+   *  The sub claim equals the document's client identifier.
 
-   *  The statement validates under Section 3.2.
+   *  The statement validates under Section 3.2 and permits presentation
+      (Section 3).
 
-   *  The statement permits presentation (Section 3).
-
-   *  The statement's cimd_digest equals the digest of the document the
-      server resolved.
+   *  The cimd_digest claim equals the digest of the document the server
+      resolved.
 
    The server ignores the rest.
 
@@ -777,20 +769,16 @@ Table of Contents
    bound instead by its reviewed redirection URIs if the client's
    reviewed document declares token_endpoint_auth_method of none and
    none of its redirection URIs is one another application could claim
-   (see below).  The following requirements apply to such a
-   presentation:
+   (see below).  For such a presentation, the authorization server:
 
-   *  The authorization server MUST require PKCE [RFC7636] with the S256
-      method.
+   *  MUST require PKCE [RFC7636] with the S256 method.
 
-   *  The authorization server MUST require the presenter to bind a key
-      it holds, through the dpop_jkt parameter or, at the pushed
-      authorization request endpoint, a DPoP proof (Section 10.1 of
-      [RFC9449]), and records that key as the proven key of the
-      establishment (Section 5.6).
+   *  MUST require the presenter to bind a key it holds, through the
+      dpop_jkt parameter or, at the pushed authorization request
+      endpoint, a DPoP proof (Section 10.1 of [RFC9449]), and records
+      that key as the proven key of the establishment (Section 5.6).
 
-   *  The authorization server MUST NOT require that key to appear in
-      the reviewed document.
+   *  MUST NOT require that key to appear in the reviewed document.
 
    The reviewed document, not the proven key, admits the statement here:
    an authorization code opened by such a presentation is delivered only
@@ -909,16 +897,16 @@ Table of Contents
    to the establishment, as applicable, and can discard it once no such
    state references it.
 
-   The following requirements apply to a token request that redeems an
-   authorization code opened by a presentation:
+   A token request that redeems an authorization code opened by a
+   presentation:
 
-   *  The request MUST have a client_id exactly equal to the
-      establishment's sub, even if the client authenticates.
+   *  MUST have a client_id exactly equal to the establishment's sub,
+      even if the client authenticates.
 
-   *  The request MUST demonstrate possession of the same proven key
-      under the same sender-constraint mechanism.
+   *  MUST demonstrate possession of the same proven key under the same
+      sender-constraint mechanism.
 
-   *  The request MUST NOT carry the software_statement parameter.
+   *  MUST NOT carry the software_statement parameter.
 
    A redemption carrying a statement is rejected with invalid_request.
    A wrong client identifier or failed key binding is rejected with
@@ -969,17 +957,16 @@ Table of Contents
    of this section.  The following requirements apply to the
    replacement:
 
-   *  The replacement MUST validate under Section 3.2, including its
-      audience if it carries one.
+   *  It MUST validate under Section 3.2, including its audience if it
+      carries one.
 
-   *  The replacement MUST have the recorded statement's iss and sub.
+   *  The iss and sub claims MUST equal those of the recorded statement.
 
-   *  The replacement MUST have an iat later than the recorded
-      statement's iat.
+   *  The iat claim MUST be later than that of the recorded statement.
 
-   *  The replacement MUST name, by its cimd_digest, the document
-      currently served at its sub, which the server confirms by
-      retrieval or by revalidating octets it holds.
+   *  The cimd_digest claim MUST name the document currently served at
+      that sub, which the server confirms by retrieval or by
+      revalidating octets it holds.
 
    *  The replacement MUST authorize the establishment's proven key
       (Section 5.4) or, for an establishment created under

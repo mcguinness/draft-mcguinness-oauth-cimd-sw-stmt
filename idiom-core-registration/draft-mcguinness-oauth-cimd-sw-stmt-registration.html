@@ -1049,7 +1049,7 @@ svg {
 </tr></thead>
 <tfoot><tr>
 <td class="left">McGuinness</td>
-<td class="center">Expires 27 April 2027</td>
+<td class="center">Expires 28 April 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1062,12 +1062,12 @@ svg {
 <dd class="internet-draft">draft-mcguinness-oauth-cimd-sw-stmt-registration-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-10-24" class="published">24 October 2026</time>
+<time datetime="2026-10-25" class="published">25 October 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2027-04-27">27 April 2027</time></dd>
+<dd class="expires"><time datetime="2027-04-28">28 April 2027</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1101,7 +1101,7 @@ svg {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 27 April 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 28 April 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1297,19 +1297,19 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <a href="#section-3" class="section-number selfRef">3. </a><a href="#name-consumption-at-registration" class="section-name selfRef">Consumption at Registration</a>
       </h2>
 <p id="section-3-1">The statement is consumed in the <code>software_statement</code> member of an <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> registration request. The authorization server validates it under the validation rules of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> and registers the client under its ordinary registration policy.<a href="#section-3-1" class="pilcrow">¶</a></p>
-<p id="section-3-2">In <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>, values in a software statement take precedence over those in the request. A statement under <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> carries no client metadata, so the reviewed document takes that role. The following rules apply to an authorization server consuming a statement under this specification:<a href="#section-3-2" class="pilcrow">¶</a></p>
+<p id="section-3-2">In <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>, values in a software statement take precedence over those in the request. A statement under <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> carries no client metadata, so the reviewed document takes that role. An authorization server consuming a statement under this specification:<a href="#section-3-2" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-3-3.1">
-          <p id="section-3-3.1.1">The authorization server <span class="bcp14">MUST</span> resolve the Client ID Metadata Document at the statement's <code>sub</code>, rejecting the registration if retrieval does not complete.<a href="#section-3-3.1.1" class="pilcrow">¶</a></p>
+          <p id="section-3-3.1.1"><span class="bcp14">MUST</span> resolve the Client ID Metadata Document at the statement's <code>sub</code>, rejecting the registration if retrieval does not complete.<a href="#section-3-3.1.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-3-3.2">
-          <p id="section-3-3.2.1">The authorization server <span class="bcp14">MUST</span> validate the document as <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> requires, including that its <code>client_id</code> member matches the client identifier URL it is held for, which is the statement's <code>sub</code>.<a href="#section-3-3.2.1" class="pilcrow">¶</a></p>
+          <p id="section-3-3.2.1"><span class="bcp14">MUST</span> validate the document as <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> requires, including that its <code>client_id</code> member matches the client identifier URL it is held for, which is the statement's <code>sub</code>.<a href="#section-3-3.2.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-3-3.3">
-          <p id="section-3-3.3.1">The authorization server <span class="bcp14">MUST</span> verify that the digest of the retrieved representation equals <code>cimd_digest</code>, rejecting the registration if it does not, and <span class="bcp14">MUST</span> derive the registered metadata by parsing the same octets it digested, not a second retrieval or a cached copy it has not digested.<a href="#section-3-3.3.1" class="pilcrow">¶</a></p>
+          <p id="section-3-3.3.1"><span class="bcp14">MUST</span> verify that the digest of the retrieved representation equals <code>cimd_digest</code>, rejecting the registration if it does not, and <span class="bcp14">MUST</span> derive the registered metadata by parsing the same octets it digested, not a second retrieval or a cached copy it has not digested.<a href="#section-3-3.3.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-3-3.4">
-          <p id="section-3-3.4.1">The authorization server <span class="bcp14">MUST</span> take every client metadata value from that document, and <span class="bcp14">MUST NOT</span> take any client metadata value from the registration request, or from any <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> update request for the registration it creates, whether or not the document carries that member:<a href="#section-3-3.4.1" class="pilcrow">¶</a></p>
+          <p id="section-3-3.4.1"><span class="bcp14">MUST</span> take every client metadata value from that document, and <span class="bcp14">MUST NOT</span> take any client metadata value from the registration request, or from any <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> update request for the registration it creates, whether or not the document carries that member:<a href="#section-3-3.4.1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-3-3.4.2.1">
               <p id="section-3-3.4.2.1.1">The registration's metadata changes only by re-derivation from the document a replacement statement reviews (<a href="#revalidation" class="auto internal xref">Section 3.2</a>).<a href="#section-3-3.4.2.1.1" class="pilcrow">¶</a></p>
@@ -1323,13 +1323,13 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
           </ul>
 </li>
         <li class="normal" id="section-3-3.5">
-          <p id="section-3-3.5.1">If the document omits <code>token_endpoint_auth_method</code>, the authorization server <span class="bcp14">MUST</span> reject the registration with <code>invalid_client_metadata</code>. The <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> default is a shared-secret method that <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> forbids, and registering under it would issue a client secret to any holder of a copy of the statement.<a href="#section-3-3.5.1" class="pilcrow">¶</a></p>
+          <p id="section-3-3.5.1"><span class="bcp14">MUST</span> reject the registration with <code>invalid_client_metadata</code> if the document omits <code>token_endpoint_auth_method</code>. The <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> default is a shared-secret method that <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> forbids, and registering under it would issue a client secret to any holder of a copy of the statement.<a href="#section-3-3.5.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-3-3.6">
-          <p id="section-3-3.6.1">If the document declares <code>token_endpoint_auth_method</code> of <code>none</code>, the authorization server <span class="bcp14">MUST</span> reject the registration with <code>invalid_client_metadata</code>. Such software is admitted instead, if the server supports it, by runtime presentation, which binds each installation to the reviewed redirection URIs and a key it holds (see the public-client presentation rules of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-3-3.6.1" class="pilcrow">¶</a></p>
+          <p id="section-3-3.6.1"><span class="bcp14">MUST</span> reject the registration with <code>invalid_client_metadata</code> if the document declares <code>token_endpoint_auth_method</code> of <code>none</code>. Such software is admitted instead, if the server supports it, by runtime presentation, which binds each installation to the reviewed redirection URIs and a key it holds (see the public-client presentation rules of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-3-3.6.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-3-3.7">
-          <p id="section-3-3.7.1">If any of the document's redirection URIs could be claimed by another application on the same device (see the public-client presentation rules of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), the authorization server <span class="bcp14">MUST</span> reject the registration with <code>invalid_client_metadata</code>, whatever authentication method the document declares.<a href="#section-3-3.7.1" class="pilcrow">¶</a></p>
+          <p id="section-3-3.7.1"><span class="bcp14">MUST</span> reject the registration with <code>invalid_client_metadata</code> if any of the document's redirection URIs could be claimed by another application on the same device (see the public-client presentation rules of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), whatever authentication method the document declares.<a href="#section-3-3.7.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 <p id="section-3-4">Unlike runtime presentation (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), registration has no review-only form: the registration is the admission.<a href="#section-3-4" class="pilcrow">¶</a></p>
@@ -1352,13 +1352,13 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
             <p id="section-3.1-2.3.1">Once the effective expiry passes without a replacement (<a href="#revalidation" class="auto internal xref">Section 3.2</a>), the authorization server <span class="bcp14">MUST</span> reject authorization, token, and pushed authorization requests and <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> update requests under the registration, other than the revalidation requests <a href="#revalidation" class="auto internal xref">Section 3.2</a> permits:<a href="#section-3.1-2.3.1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-3.1-2.3.2.1">
-                <p id="section-3.1-2.3.2.1.1">The authorization server rejects them with <code>statement_required</code> (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), but rejects an <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> update request with <code>invalid_software_statement</code>, since the governing statement is expired or refused.<a href="#section-3.1-2.3.2.1.1" class="pilcrow">¶</a></p>
+                <p id="section-3.1-2.3.2.1.1">They are rejected with <code>statement_required</code> (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), except that an <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> update request is rejected with <code>invalid_software_statement</code>, since the governing statement is expired or refused.<a href="#section-3.1-2.3.2.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-3.1-2.3.2.2">
                 <p id="section-3.1-2.3.2.2.1"><span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> read and delete requests remain available for a client to learn its registration's state and end it.<a href="#section-3.1-2.3.2.2.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-3.1-2.3.2.3">
-                <p id="section-3.1-2.3.2.3.1">At the token and pushed authorization request endpoints, the authorization server first authenticates the client against the retained registration and rejects a request that fails that authentication with <code>invalid_client</code>, as for an unknown client.<a href="#section-3.1-2.3.2.3.1" class="pilcrow">¶</a></p>
+                <p id="section-3.1-2.3.2.3.1">At the token and pushed authorization request endpoints, the client is first authenticated against the retained registration, and a request that fails that authentication is rejected with <code>invalid_client</code>, as for an unknown client.<a href="#section-3.1-2.3.2.3.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
@@ -1366,7 +1366,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
             <p id="section-3.1-2.4.1">The authorization server <span class="bcp14">SHOULD</span> retain the expired record for a later authenticated revalidation (<a href="#oracle-considerations" class="auto internal xref">Section 9.4</a>). A valid replacement restores the registration (<a href="#revalidation" class="auto internal xref">Section 3.2</a>), so no grace period is needed.<a href="#section-3.1-2.4.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-3.1-3">At the authorization endpoint, the rejection is returned in the authorization error response <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>. The authorization server redirects with it only after validating the request's <code>redirect_uri</code> against the retained registration. If it cannot validate the request's <code>redirect_uri</code> against the retained registration, the authorization server <span class="bcp14">MUST NOT</span> redirect and reports the error to the resource owner instead. The client then delivers a replacement in a pushed authorization request (<a href="#revalidation" class="auto internal xref">Section 3.2</a>).<a href="#section-3.1-3" class="pilcrow">¶</a></p>
+<p id="section-3.1-3">At the authorization endpoint, the rejection is returned in the authorization error response <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>. The authorization server redirects with it only after validating the request's <code>redirect_uri</code> against the retained registration. If it cannot do so, it <span class="bcp14">MUST NOT</span> redirect and reports the error to the resource owner instead. The client then delivers a replacement in a pushed authorization request (<a href="#revalidation" class="auto internal xref">Section 3.2</a>).<a href="#section-3.1-3" class="pilcrow">¶</a></p>
 <p id="section-3.1-4">If the server holds a refusal record for the governing statement (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), the registration ceases to be valid as it does at its effective expiry, and <a href="#revalidation" class="auto internal xref">Section 3.2</a> is the recovery path. The client learns of the withdrawal only from the rejection. The disposition of outstanding grants is local policy.<a href="#section-3.1-4" class="pilcrow">¶</a></p>
 <p id="section-3.1-5">A server applying this model that uses a withdrawal mechanism for the governing statement's issuer <span class="bcp14">SHOULD</span> consult it for that statement at each token request under the registration, as <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> provides for refresh.<a href="#section-3.1-5" class="pilcrow">¶</a></p>
 <p id="section-3.1-6">An authorization server advertising this model <span class="bcp14">MUST</span> publish <code>pushed_authorization_request_endpoint</code>. Without that endpoint, <a href="#revalidation" class="auto internal xref">Section 3.2</a> leaves a client whose only grant type is the authorization code, and which holds no refresh token, with no way to renew.<a href="#section-3.1-6" class="pilcrow">¶</a></p>
@@ -1397,13 +1397,13 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <p id="section-3.2-6">The replacement <span class="bcp14">MUST</span> satisfy the following:<a href="#section-3.2-6" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-3.2-7.1">
-            <p id="section-3.2-7.1.1">The replacement validates under the validation rules of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, including its audience if it carries one.<a href="#section-3.2-7.1.1" class="pilcrow">¶</a></p>
+            <p id="section-3.2-7.1.1">It validates under the validation rules of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, including its audience if it carries one.<a href="#section-3.2-7.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-3.2-7.2">
-            <p id="section-3.2-7.2.1">The replacement carries the governing statement's <code>iss</code> and <code>sub</code>.<a href="#section-3.2-7.2.1" class="pilcrow">¶</a></p>
+            <p id="section-3.2-7.2.1">The <code>iss</code> and <code>sub</code> claims equal those of the governing statement.<a href="#section-3.2-7.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-3.2-7.3">
-            <p id="section-3.2-7.3.1">The replacement has an <code>iat</code> later than the governing statement's <code>iat</code>.<a href="#section-3.2-7.3.1" class="pilcrow">¶</a></p>
+            <p id="section-3.2-7.3.1">The <code>iat</code> claim is later than that of the governing statement.<a href="#section-3.2-7.3.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <p id="section-3.2-8">For a replacement, the authorization server <span class="bcp14">MUST</span> do the following:<a href="#section-3.2-8" class="pilcrow">¶</a></p>

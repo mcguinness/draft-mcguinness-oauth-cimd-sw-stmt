@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         24 October 2026
-Expires: 27 April 2027
+Intended status: Standards Track                         25 October 2026
+Expires: 28 April 2027
 
 
                   CIMD Software Statement Registration
@@ -38,7 +38,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 27 April 2027.
+   This Internet-Draft will expire on 28 April 2027.
 
 Copyright Notice
 
@@ -166,29 +166,26 @@ Table of Contents
 
    In [RFC7591], values in a software statement take precedence over
    those in the request.  A statement under [STATEMENT] carries no
-   client metadata, so the reviewed document takes that role.  The
-   following rules apply to an authorization server consuming a
-   statement under this specification:
+   client metadata, so the reviewed document takes that role.  An
+   authorization server consuming a statement under this specification:
 
-   *  The authorization server MUST resolve the Client ID Metadata
-      Document at the statement's sub, rejecting the registration if
-      retrieval does not complete.
+   *  MUST resolve the Client ID Metadata Document at the statement's
+      sub, rejecting the registration if retrieval does not complete.
 
-   *  The authorization server MUST validate the document as [CIMD]
-      requires, including that its client_id member matches the client
-      identifier URL it is held for, which is the statement's sub.
+   *  MUST validate the document as [CIMD] requires, including that its
+      client_id member matches the client identifier URL it is held for,
+      which is the statement's sub.
 
-   *  The authorization server MUST verify that the digest of the
-      retrieved representation equals cimd_digest, rejecting the
-      registration if it does not, and MUST derive the registered
-      metadata by parsing the same octets it digested, not a second
-      retrieval or a cached copy it has not digested.
+   *  MUST verify that the digest of the retrieved representation equals
+      cimd_digest, rejecting the registration if it does not, and MUST
+      derive the registered metadata by parsing the same octets it
+      digested, not a second retrieval or a cached copy it has not
+      digested.
 
-   *  The authorization server MUST take every client metadata value
-      from that document, and MUST NOT take any client metadata value
-      from the registration request, or from any [RFC7592] update
-      request for the registration it creates, whether or not the
-      document carries that member:
+   *  MUST take every client metadata value from that document, and MUST
+      NOT take any client metadata value from the registration request,
+      or from any [RFC7592] update request for the registration it
+      creates, whether or not the document carries that member:
 
       -  The registration's metadata changes only by re-derivation from
          the document a replacement statement reviews (Section 3.2).
@@ -199,24 +196,24 @@ Table of Contents
       -  The registered client_id is assigned as [RFC7591] provides, and
          the document's own client_id member is the URL recorded as sub.
 
-   *  If the document omits token_endpoint_auth_method, the
-      authorization server MUST reject the registration with
-      invalid_client_metadata.  The [RFC7591] default is a shared-secret
-      method that [CIMD] forbids, and registering under it would issue a
-      client secret to any holder of a copy of the statement.
+   *  MUST reject the registration with invalid_client_metadata if the
+      document omits token_endpoint_auth_method.  The [RFC7591] default
+      is a shared-secret method that [CIMD] forbids, and registering
+      under it would issue a client secret to any holder of a copy of
+      the statement.
 
-   *  If the document declares token_endpoint_auth_method of none, the
-      authorization server MUST reject the registration with
-      invalid_client_metadata.  Such software is admitted instead, if
-      the server supports it, by runtime presentation, which binds each
-      installation to the reviewed redirection URIs and a key it holds
-      (see the public-client presentation rules of [STATEMENT]).
+   *  MUST reject the registration with invalid_client_metadata if the
+      document declares token_endpoint_auth_method of none.  Such
+      software is admitted instead, if the server supports it, by
+      runtime presentation, which binds each installation to the
+      reviewed redirection URIs and a key it holds (see the public-
+      client presentation rules of [STATEMENT]).
 
-   *  If any of the document's redirection URIs could be claimed by
-      another application on the same device (see the public-client
-      presentation rules of [STATEMENT]), the authorization server MUST
-      reject the registration with invalid_client_metadata, whatever
-      authentication method the document declares.
+   *  MUST reject the registration with invalid_client_metadata if any
+      of the document's redirection URIs could be claimed by another
+      application on the same device (see the public-client presentation
+      rules of [STATEMENT]), whatever authentication method the document
+      declares.
 
    Unlike runtime presentation ([STATEMENT]), registration has no
    review-only form: the registration is the admission.
@@ -256,8 +253,8 @@ Table of Contents
       requests under the registration, other than the revalidation
       requests Section 3.2 permits:
 
-      -  The authorization server rejects them with statement_required
-         ([STATEMENT]), but rejects an [RFC7592] update request with
+      -  They are rejected with statement_required ([STATEMENT]), except
+         that an [RFC7592] update request is rejected with
          invalid_software_statement, since the governing statement is
          expired or refused.
 
@@ -265,9 +262,9 @@ Table of Contents
          client to learn its registration's state and end it.
 
       -  At the token and pushed authorization request endpoints, the
-         authorization server first authenticates the client against the
-         retained registration and rejects a request that fails that
-         authentication with invalid_client, as for an unknown client.
+         client is first authenticated against the retained
+         registration, and a request that fails that authentication is
+         rejected with invalid_client, as for an unknown client.
 
    *  The authorization server SHOULD retain the expired record for a
       later authenticated revalidation (Section 9.4).  A valid
@@ -277,11 +274,10 @@ Table of Contents
    At the authorization endpoint, the rejection is returned in the
    authorization error response [RFC6749].  The authorization server
    redirects with it only after validating the request's redirect_uri
-   against the retained registration.  If it cannot validate the
-   request's redirect_uri against the retained registration, the
-   authorization server MUST NOT redirect and reports the error to the
-   resource owner instead.  The client then delivers a replacement in a
-   pushed authorization request (Section 3.2).
+   against the retained registration.  If it cannot do so, it MUST NOT
+   redirect and reports the error to the resource owner instead.  The
+   client then delivers a replacement in a pushed authorization request
+   (Section 3.2).
 
    If the server holds a refusal record for the governing statement
    ([STATEMENT]), the registration ceases to be valid as it does at its
@@ -351,13 +347,12 @@ Table of Contents
 
    The replacement MUST satisfy the following:
 
-   *  The replacement validates under the validation rules of
-      [STATEMENT], including its audience if it carries one.
+   *  It validates under the validation rules of [STATEMENT], including
+      its audience if it carries one.
 
-   *  The replacement carries the governing statement's iss and sub.
+   *  The iss and sub claims equal those of the governing statement.
 
-   *  The replacement has an iat later than the governing statement's
-      iat.
+   *  The iat claim is later than that of the governing statement.
 
    For a replacement, the authorization server MUST do the following:
 
