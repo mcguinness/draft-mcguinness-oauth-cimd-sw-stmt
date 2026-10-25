@@ -1340,7 +1340,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         <h3 id="name-registration-validity">
 <a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-registration-validity" class="section-name selfRef">Registration Validity</a>
         </h3>
-<p id="section-3.1-1">To let a client rely on the signal (<a href="#authorization-server-metadata" class="auto internal xref">Section 8</a>) before it registers, an authorization server that advertises <code>software_statement_registration_validity_supported</code> as <code>true</code> <span class="bcp14">MUST</span> apply the following validity model to every registration it creates from a validated software statement, whichever issuer signed it:<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.1-1">To let a client rely on the signal (<a href="#authorization-server-metadata" class="auto internal xref">Section 8</a>) before it registers, an authorization server that advertises <code>software_statement_registration_validity_supported</code> as <code>true</code> <span class="bcp14">MUST</span> apply the following validity model to every registration it creates from a statement validated under <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, whichever issuer signed it:<a href="#section-3.1-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-3.1-2.1">
             <p id="section-3.1-2.1.1">The authorization server <span class="bcp14">MUST</span> record, with the registration, the governing statement's <code>iss</code>, <code>jti</code>, <code>sub</code>, <code>iat</code>, and any claim by which a withdrawal mechanism locates that statement, such as <code>status</code>, together with the registration's effective expiry. That effective expiry is the governing statement's effective expiry (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), what a renewal extends, and what <code>registration_expires_at</code> reports.<a href="#section-3.1-2.1.1" class="pilcrow">¶</a></p>
@@ -1422,7 +1422,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <p id="section-3.2-11">On success, the replacement becomes the governing statement: the authorization server <span class="bcp14">MUST</span> replace the recorded identity, <code>iat</code>, effective expiry, and derived metadata with the replacement's in a single atomic update, and concurrent deliveries resolve to the most recently issued statement.<a href="#section-3.2-11" class="pilcrow">¶</a></p>
 <p id="section-3.2-12">Access issued under the registration after that update, including on refresh of a grant issued before it, <span class="bcp14">MUST</span> fall within the re-derived metadata, as <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> requires of a refreshed grant.<a href="#section-3.2-12" class="pilcrow">¶</a></p>
 <p id="section-3.2-13">When a request under an expired registration contains a replacement, the authorization server <span class="bcp14">MUST</span> authenticate the client against the retained registration and evaluate the replacement before applying the expiry rejection. A valid replacement therefore restores the registration. An omitted or invalid replacement does not.<a href="#section-3.2-13" class="pilcrow">¶</a></p>
-<p id="section-3.2-14">The rejection of a request under an expired registration that carries no replacement (<a href="#registration-validity" class="auto internal xref">Section 3.1</a>) <span class="bcp14">MUST NOT</span> by itself trigger the refresh-token family revocation of <span>[<a href="#RFC9700" class="cite xref">RFC9700</a>]</span>. The client recovers by delivering a valid replacement.<a href="#section-3.2-14" class="pilcrow">¶</a></p>
+<p id="section-3.2-14">The rejection of a request under an expired registration that carries no replacement (<a href="#registration-validity" class="auto internal xref">Section 3.1</a>) <span class="bcp14">MUST NOT</span> by itself cause the authorization server to revoke refresh tokens as it does on detecting refresh-token replay (Section 4.14.2 of <span>[<a href="#RFC9700" class="cite xref">RFC9700</a>]</span>). The client recovers by delivering a valid replacement.<a href="#section-3.2-14" class="pilcrow">¶</a></p>
 <p id="section-3.2-15">A request whose replacement fails the rules above is rejected whether or not the registration has expired. The client then learns of the failure at once and can tell a bad replacement from a missing one. Such a request is rejected with <code>statement_required</code> at the token and pushed authorization request endpoints, or with <code>temporarily_unavailable</code> there if a retrieval needed to check the replacement did not complete for a reason other than the size bound of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, and with the codes of <a href="#errors" class="auto internal xref">Section 6</a> at the registration management endpoint. A rejected delivery leaves the governing statement unchanged.<a href="#section-3.2-15" class="pilcrow">¶</a></p>
 <p id="section-3.2-16">A registration request without an <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> registration access token creates a new registration and never renews an existing one.<a href="#section-3.2-16" class="pilcrow">¶</a></p>
 </section>
@@ -1544,7 +1544,7 @@ client-assertion-type%3Ajwt-bearer
         <dt id="section-8-2.1">
 <code>software_statement_registration_validity_supported</code>:</dt>
         <dd style="margin-left: 1.5em" id="section-8-2.2">
-          <p id="section-8-2.2.1"><span class="bcp14">OPTIONAL</span>. Boolean value indicating whether every registration the authorization server creates from a validated software statement is governed by the validity and revalidation rules of <a href="#registration-validity" class="auto internal xref">Section 3.1</a> and <a href="#revalidation" class="auto internal xref">Section 3.2</a>. If omitted, the default value is <code>false</code>. A value of <code>true</code> does not imply support for runtime presentation.<a href="#section-8-2.2.1" class="pilcrow">¶</a></p>
+          <p id="section-8-2.2.1"><span class="bcp14">OPTIONAL</span>. Boolean value indicating whether every registration the authorization server creates from a statement validated under <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> is governed by the validity and revalidation rules of <a href="#registration-validity" class="auto internal xref">Section 3.1</a> and <a href="#revalidation" class="auto internal xref">Section 3.2</a>. If omitted, the default value is <code>false</code>. A value of <code>true</code> does not imply support for runtime presentation.<a href="#section-8-2.2.1" class="pilcrow">¶</a></p>
 </dd>
       <dd class="break"></dd>
 </dl>
@@ -1657,7 +1657,7 @@ client-assertion-type%3Ajwt-bearer
           <dd class="break"></dd>
 <dt id="section-11.2-2.5">Change Controller:</dt>
           <dd style="margin-left: 1.5em" id="section-11.2-2.6">
-            <p id="section-11.2-2.6.1">IESG<a href="#section-11.2-2.6.1" class="pilcrow">¶</a></p>
+            <p id="section-11.2-2.6.1">IETF<a href="#section-11.2-2.6.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 <dt id="section-11.2-2.7">Specification Document(s):</dt>
@@ -1722,7 +1722,7 @@ client-assertion-type%3Ajwt-bearer
           <dd class="break"></dd>
 <dt id="section-11.4-2.7">Change Controller:</dt>
           <dd style="margin-left: 1.5em" id="section-11.4-2.8">
-            <p id="section-11.4-2.8.1">IESG<a href="#section-11.4-2.8.1" class="pilcrow">¶</a></p>
+            <p id="section-11.4-2.8.1">IETF<a href="#section-11.4-2.8.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 <dt id="section-11.4-2.9">Specification Document(s):</dt>

@@ -254,15 +254,19 @@ Table of Contents
    aud_tenant:  OPTIONAL.  A tenant identifier at a trusting
       authorization server, as [IDJAG] defines the claim, naming the
       tenant in which the statement's decision applies.  A statement
-      whose decision is confined to one tenant MUST carry it, with an
-      aud naming exactly one authorization server.  A tenant identifier
-      is meaningful only at one authorization server.
+      whose decision is confined to one of a server's tenants MUST carry
+      an aud naming exactly one authorization server and, unless that
+      server confines the issuer to the tenant through its own trust
+      configuration (Section 4), an aud_tenant naming the tenant.  A
+      tenant identifier is meaningful only at one authorization server.
 
       A statement whose review applies wherever its aud reaches, such as
       a marketplace listing, carries no aud_tenant.  Its absence does
       not mean that the statement applies in every tenant: an issuer
-      also omits it if the authorization server has one tenant or if the
-      issuer does not know the identifier.
+      also omits it if the authorization server has one tenant, or if
+      the server's trust configuration confines the issuer to a tenant,
+      as it can for an issuer that does not know the tenant's
+      identifier.
 
    statement_uses:  OPTIONAL.  A JSON array identifying the permitted
       uses of the statement: registration ([REGISTRATION]) and
@@ -363,7 +367,9 @@ Table of Contents
       a value the client chooses.
 
    *  If the server requires a tenant-scoped decision for the request,
-      the statement carries aud_tenant.
+      the statement carries aud_tenant, or the server's trust
+      configuration confines the statement's issuer to the request's
+      tenant (Section 4).
 
    *  If the statement carries statement_uses, the claim names the use
       being made of the statement, and a member the server does not
@@ -652,10 +658,11 @@ Table of Contents
    *  At the authorization endpoint, binding completes at code
       redemption, before any token is issued:
 
-      -  A confidential client authenticates there with a key carried by
-         the octets the server digested, not one that only a later
-         retrieval of the document carries, and that key becomes the
-         establishment's proven key.
+      -  A confidential client authenticates there with a key the
+         digested document carries, in its jwks or at its jwks_uri
+         within the reuse bounds of Section 5.4, not one that only a
+         later retrieval of the document carries, and that key becomes
+         the establishment's proven key.
 
       -  A public client's authorization request that binds a key
          through dpop_jkt is subject to Section 5.4.1, including PKCE,
@@ -783,9 +790,10 @@ Table of Contents
    The reviewed document, not the proven key, admits the statement here:
    an authorization code opened by such a presentation is delivered only
    to a redirection URI the issuer reviewed, so a holder of a copied
-   statement cannot receive the code (Section 12.3).  The proven key
-   identifies the installation the grant belongs to.  Code redemption
-   and refresh prove that key (Section 5.6, Section 5.6.1).
+   statement cannot receive a code that another resource owner approves
+   in a user agent the holder does not control (Section 12.3).  The
+   proven key identifies the installation the grant belongs to.  Code
+   redemption and refresh prove that key (Section 5.6, Section 5.6.1).
 
    A presentation is review-only if the reviewed document carries any
    redirection URI that another application on the same device could
@@ -810,9 +818,7 @@ Table of Contents
    review-only client with unauthorized_client.
 
    For a review-only presentation, the authorization server can record
-   the statement's issuer for audit and inventory, and MAY refuse the
-   request if it holds a refusal record for the statement (Section 3.3),
-   subject to the bounds of Section 12.5.
+   the statement's issuer for audit and inventory.
 
    An authorization server MUST reject, with invalid_client, a
    presentation at the token endpoint under Section 5.1 from a client
@@ -1344,21 +1350,22 @@ Table of Contents
    metadata [RFC8414] values:
 
    software_statement_jwks_uri:  REQUIRED for an authorization server
-      that issues software statements.  URL of a JWK Set containing only
-      the keys with which it signs software statements.  The URL MUST
+      that issues statements under this specification.  URL of a JWK Set
+      containing only the keys with which it signs them.  The URL MUST
       use the https scheme, and a trusting authorization server MUST
       validate the server's certificate when retrieving it.
 
       The keys in this set MUST NOT appear in the JWK Set at the
       server's jwks_uri, and the server MUST NOT sign anything other
-      than software statements with them.  As a result, a key that signs
-      another artifact, such as a Status List Token, cannot verify a
-      statement (Section 12.2).
+      than statements under this specification with them.  As a result,
+      a key that signs another artifact, such as a Status List Token or
+      a software statement of another profile, cannot verify a statement
+      (Section 12.2).
 
    software_statement_signing_alg_values_supported:  REQUIRED for an
-      authorization server that issues software statements.  A JSON
-      array containing the asymmetric JWS alg values that the
-      authorization server can use to sign software statements.  The
+      authorization server that issues statements under this
+      specification.  A JSON array containing the asymmetric JWS alg
+      values that the authorization server can use to sign them.  The
       array MUST NOT contain none or a symmetric algorithm.  An
       authorization server that only accepts software statements does
       not publish it.
@@ -1411,22 +1418,34 @@ Table of Contents
    verified one without implementing this specification would take every
    metadata value from the registration request, attaching the issuer's
    approval to an attacker's redirection URIs and keys.  Keeping
-   statement signing keys at software_statement_jwks_uri and out of
-   jwks_uri (Section 10) prevents this.  A server that discovers an
-   issuer's keys through [RFC8414] finds none that verify a statement,
-   and a server configured with the statement key set has been
-   configured for this specification.
+   statement signing keys at software_statement_jwks_uri, out of
+   jwks_uri, and away from statements of other profiles (Section 10)
+   guards against this.  A server that discovers an issuer's keys
+   through [RFC8414] finds none that verify a statement.  A server is
+   exposed only if its operator configures the statement key set in a
+   server that does not implement this specification.
 
 12.3.  Copied Statements and Public Clients
 
    A party holding a copied statement for a public client can open a
-   pushed authorization request in the reviewed software's name but
-   cannot receive the authorization code (Section 5.4.1).  The residual
-   exposure is a consent prompt carrying the reviewed software's name
-   and branding.  Rate limits (Section 12.5) and the issuer's choice of
-   audience and lifetime bound it.  An endorsement extension
-   (Section 11) would strengthen the binding by giving the instance a
-   key a third party vouches for.
+   pushed authorization request in the reviewed software's name.  It
+   cannot receive an authorization code that another resource owner
+   approves in a user agent the party does not control (Section 5.4.1),
+   so its exposure to other users is a consent prompt carrying the
+   reviewed software's name and branding.  Rate limits (Section 12.5)
+   and the issuer's choice of audience and lifetime bound it.
+
+   A party that controls the user agent receives the code: an
+   application embedding a user agent (Section 8.12 of [RFC8252]), or a
+   holder authorizing with its own account.  It redeems the code with a
+   PKCE verifier and key of its own choosing.  An admission under
+   Section 5.4.1 therefore shows where codes are delivered, not which
+   software holds the grant, and a tenant's required issuer (Section 4)
+   cannot keep unreviewed software out for a user who chooses to run it.
+   This is the client impersonation that Section 8.6 of [RFC8252]
+   describes for public clients.  An endorsement extension (Section 11)
+   would strengthen the binding by giving the instance a key a third
+   party vouches for.
 
 12.4.  Tenant Confusion at a Multi-Tenant Consumer
 
@@ -1472,8 +1491,9 @@ Table of Contents
       source, before spending retrieval or storage on a new
       presentation.
 
-   *  Refuse a new presentation, before spending retrieval or storage on
-      it, once the bound of Section 6 for its iss and sub is reached.
+   *  Refuse a presentation that would create a new establishment,
+      before spending retrieval or storage on it, once the bound of
+      Section 6 for its iss and sub is reached.
 
    *  Bound JWT size and parsing work, concurrent retrievals, response
       size, and response time.
@@ -1561,7 +1581,7 @@ Table of Contents
       through the pushed authorization request endpoint [RFC9126], never
       in a front-channel URL (Section 5.1.1).
 
-   Change Controller:  IESG
+   Change Controller:  IETF
 
    Specification Document(s):  This specification, Section 5.1
 
@@ -1622,8 +1642,9 @@ Table of Contents
 
 14.3.  Claims Defined Elsewhere
 
-   This specification uses one claim it does not define: aud_tenant,
-   defined and registered by [IDJAG].
+   This specification uses two claims it does not define: aud_tenant,
+   defined and registered by [IDJAG], and status, defined and registered
+   by [STATUSLIST].
 
 14.4.  JSON Web Token Claims Registry
 
@@ -1661,7 +1682,7 @@ Table of Contents
 
    Related Protocol Extension:  CIMD Software Statement
 
-   Change Controller:  IESG
+   Change Controller:  IETF
 
    Specification Document(s):  This specification, Section 8
 
@@ -1673,7 +1694,7 @@ Table of Contents
       request error response, in addition to the locations already
       registered
 
-   Change Controller:  IESG
+   Change Controller:  IETF
 
    Specification Document(s):  [RFC6749], this specification (Section 8)
 
