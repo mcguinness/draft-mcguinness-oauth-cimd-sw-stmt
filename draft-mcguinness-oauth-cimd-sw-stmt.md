@@ -245,7 +245,7 @@ A required issuer configured for software whose documents are presented review-o
 
 ## Multi-Tenant Issuers {#multi-tenant-issuers}
 
-If an issuer reviews software for several customers that are each trusted independently, it MUST issue under a distinct `iss` for each customer, so that each customer's decisions, keys, and `iat` floor ({{multi-instance}}) stay separate. Under one `iss`, one customer's renewal would supersede another's review. A statement carries no claim naming the issuer's customer.
+If an issuer reviews software for several customers whose decisions are each trusted independently, it MUST issue under a distinct `iss` for each customer, so that each customer's decisions, keys, and `iat` floor ({{multi-instance}}) stay separate. Under one `iss`, one customer's renewal would supersede another's review. A statement carries no claim naming the issuer's customer.
 
 # Runtime Presentation {#cimd-presentation}
 
