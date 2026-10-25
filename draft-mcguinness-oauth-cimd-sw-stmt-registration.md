@@ -175,6 +175,7 @@ The replacement MUST satisfy the following:
 * It validates under the validation rules of {{STATEMENT}}, including its audience if it carries one.
 * The `iss` and `sub` claims equal those of the governing statement.
 * The `iat` claim is later than that of the governing statement.
+* Its document declares `token_endpoint_auth_method` of `none` if and only if the governing statement's document does.
 
 For a replacement, the authorization server MUST do the following:
 
