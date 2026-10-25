@@ -1295,8 +1295,12 @@ Table of Contents
 
    An authorization request carrying the software_statement parameter
    (Section 5.1.1) is rejected with invalid_request in place of any
-   other code of this section, and the authorization server redirects
-   with that error only as the preceding paragraph allows.
+   other code of this section.  The authorization server redirects with
+   that error only after validating the request's redirect_uri: for a
+   client identified by its Client ID Metadata Document URL, against
+   that document as the preceding paragraph requires, and for a
+   registered client, against its registered redirection URIs
+   (Section 4.1.2.1 of [RFC6749]).
 
 8.5.  Proof Mechanism Errors
 
