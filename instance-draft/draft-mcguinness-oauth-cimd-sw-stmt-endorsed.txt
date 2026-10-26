@@ -9,7 +9,7 @@ Expires: 29 April 2027
 
 
           Endorsed Instance Keys for CIMD Software Statements
-          draft-mcguinness-oauth-cimd-sw-stmt-instance-latest
+          draft-mcguinness-oauth-cimd-sw-stmt-endorsed-latest
 
 Abstract
 
