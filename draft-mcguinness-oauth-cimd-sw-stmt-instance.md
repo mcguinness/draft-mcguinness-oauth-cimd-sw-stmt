@@ -292,16 +292,19 @@ This specification defines no interoperable attestation or instance revocation p
 
 # Relationship to Core Processing {#core-exceptions}
 
-For establishments governed by this specification, the following rules take precedence over the corresponding rules in {{STATEMENT}}:
+For establishments governed by this specification, the following rules replace the corresponding rules of {{STATEMENT}}:
 
-* The sender constraint is satisfied by the endorsed instance key under {{attestation-validation}}. The key need not, and under {{client-metadata}} does not, appear in the document's `jwks` or `jwks_uri`.
-* A document whose redirects all satisfy {{loopback}} is not review-only when admitted through {{par}}. The exception depends on the complete instance binding, not merely the document's authentication-method declaration.
-* The public-client rules for a document declaring `none` do not apply. The client authenticates using the method in {{selection}}.
-* Code redemption and refresh use the endorsed key and attestation, including when the document carries no key material. They continue an establishment and are not new token-endpoint presentations. Core's rejection of new token-endpoint presentations without document keys is unchanged.
-* Refresh verifies continued endorsement instead of membership of the key in document key material. A replacement preserves the binding as {{refresh}} specifies.
-* The statement-currency checks at code redemption and refresh are mandatory as specified here.
+| Core section | Core rule | Under this profile |
+| --- | --- | --- |
+| 5.3 | The statement and the document are checked before the proof. | The instance is authenticated first ({{par}}, step 1). Statement and document checks follow, and checks needing no client-controlled retrieval still precede such retrieval. |
+| 5.2, 5.4.1, 5.5 | A request without an acceptable statement can proceed under the policy for unreviewed clients, a review-only presentation proceeds as a client presenting no statement, and a digest mismatch can proceed without the statement. | No fallback: any failed check rejects the request ({{par}}). |
+| 5.4 | The proven key appears in the reviewed document's `jwks` or at its `jwks_uri`. | The proven key is the endorsed instance key ({{attestation-validation}}), and the document carries no key material ({{client-metadata}}). |
+| 5.4.1 | A redirection URI another application could claim makes a presentation review-only, and a document declaring `none` is bound by its redirection URIs. | A presentation processed under {{par}} whose redirects meet {{loopback}} is not review-only. The client is confidential and authenticates with the method of {{selection}}, so the public-client rules do not apply. |
+| 5.6 | Expiry after presentation does not invalidate an establishment, and redemption checks the client identifier and key. | Redemption also requires the recorded statement to be unexpired and unrefused, and the current document to match the recorded digest ({{redemption}}). |
+| 5.6.1 | A current statement on refresh is a local-policy option, the document is checked for the proven key, and its digest is checked only for a replacement. | Every refresh requires a current statement, re-checks the document against the recorded digests, and verifies continued endorsement of the key instead of its presence in the document ({{refresh}}). |
+| 8.4 | A client not admitted on a statement receives `statement_required`. | A missing or invalid required pushed authorization request is rejected with `invalid_request` ({{errors}}). |
 
-All other core requirements continue to apply, including digest processing, issuer trust, statement audience and tenant checks, refusal records, statement ordering, and bounds on repeated consumption. The extension applies equally to presented statements, pulled statements, and acceptable issuer-held review records. It adds no requirement to issue statements or implement {{REGISTRATION}}.
+Code redemption and refresh continue an establishment and are not new token-endpoint presentations, so core's rejection of a token-endpoint presentation from a client whose document carries no key material is unchanged. All other core requirements continue to apply, including digest processing, issuer trust, statement audience and tenant checks, refusal records, the `iat` floor, and bounds on repeated consumption. The extension applies equally to presented and pulled statements. It adds no requirement to issue statements or implement {{REGISTRATION}}.
 
 An implementation of core alone does not gain this exception. Its review-only treatment of claimable redirects continues to apply. A supporting server MUST NOT infer this profile's assurance from successful generic client authentication without all of this specification's checks.
 
