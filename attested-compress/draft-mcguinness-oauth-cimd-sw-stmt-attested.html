@@ -2620,7 +2620,7 @@ grant_type=refresh_token
           <dd class="break"></dd>
 <dt id="appendix-A.1-2.5">Caller identification:</dt>
           <dd style="margin-left: 1.5em" id="appendix-A.1-2.6">
-            <p id="appendix-A.1-2.6.1">The client connects to the launcher over XPC. The launcher sets a code-signing requirement on the connection naming the publisher's Team ID and the client's signing identifier, and the system invalidates a connection whose peer does not satisfy it <span>[<a href="#APPLE-XPC" class="cite xref">APPLE-XPC</a>]</span>. The launcher never relies on a process ID or a reported path.<a href="#appendix-A.1-2.6.1" class="pilcrow">¶</a></p>
+            <p id="appendix-A.1-2.6.1">The client connects to the launcher over XPC. The launcher sets a code-signing requirement on the connection that requires an Apple-issued certificate chain, the publisher's Team ID, and the client's signing identifier, and the system invalidates a connection whose peer does not satisfy it <span>[<a href="#APPLE-XPC" class="cite xref">APPLE-XPC</a>]</span>. The launcher never relies on a process ID or a reported path.<a href="#appendix-A.1-2.6.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 <dt id="appendix-A.1-2.7">Code injection:</dt>

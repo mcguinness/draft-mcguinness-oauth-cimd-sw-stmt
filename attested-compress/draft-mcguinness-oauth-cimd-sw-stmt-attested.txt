@@ -1778,10 +1778,11 @@ A.1.  Example: macOS
 
    Caller identification:  The client connects to the launcher over XPC.
       The launcher sets a code-signing requirement on the connection
-      naming the publisher's Team ID and the client's signing
-      identifier, and the system invalidates a connection whose peer
-      does not satisfy it [APPLE-XPC].  The launcher never relies on a
-      process ID or a reported path.
+      that requires an Apple-issued certificate chain, the publisher's
+      Team ID, and the client's signing identifier, and the system
+      invalidates a connection whose peer does not satisfy it
+      [APPLE-XPC].  The launcher never relies on a process ID or a
+      reported path.
 
    Code injection:  The evidence policy requires that the client's
       signature carry no entitlement that disables library validation
