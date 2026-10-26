@@ -446,7 +446,7 @@ State created by a pushed authorization request does not count toward a bound, e
 
 For software admitted under {{public-client-presentation}}, whose every installation opens its own establishment, the server SHOULD also bound establishments per resource owner, so that one user cannot exhaust a bound the software's other users share.
 
-Software whose instances authenticate as the client with keys of their own, which the reviewed document does not carry, can neither prove nor register those keys ({{sender-constraint}}, {{REGISTRATION}}) and depends on the endorsement extension of {{extensions}}.
+Software whose instances authenticate as the client with keys of their own, which the reviewed document does not carry, can neither prove nor register those keys ({{sender-constraint}}, {{REGISTRATION}}) and depends on the attested-key extension of {{extensions}}.
 
 # Relationship to Other Work {#relationship}
 
@@ -636,7 +636,7 @@ This specification defines the following authorization server metadata {{RFC8414
 
 The following extensions are left to separate specifications:
 
-* Endorsed keys: a client attestation {{ABCA}}, including one from an attester the reviewed document endorses, vouching for a key that document does not carry ({{multi-instance}}).
+* Attested keys: a client attestation {{ABCA}}, including one from an attester the reviewed document names, vouching for a key that document does not carry ({{multi-instance}}).
 * Statement conveyance within a client attestation, rather than as a request parameter.
 * Runtime presentation on grants other than those {{runtime-presentation}} names, such as token exchange.
 * Partial review, by which an issuer vouches for particular members rather than a whole document ({{profiles}}).
@@ -646,7 +646,7 @@ The following extensions are left to separate specifications:
 
 ## Statement Theft and Replay {#statement-validation}
 
-A copied statement admits nothing without the sender constraint ({{sender-constraint}}). Admitting only keys the reviewed document carries also prevents downgrade. An extension admitting endorsed keys ({{extensions}}) has to address downgrade itself.
+A copied statement admits nothing without the sender constraint ({{sender-constraint}}). Admitting only keys the reviewed document carries also prevents downgrade. An extension admitting attested keys ({{extensions}}) has to address downgrade itself.
 
 Attesting a `jwks_uri` attests the location, not its contents: a compromised key host can add keys that satisfy the proof without a digest change. If that matters, an issuer attests `jwks` inline and accepts that rotation changes the digest. A server reusing a cached key set ({{sender-constraint}}) also accepts that a just-removed key can briefly continue to verify.
 
@@ -658,7 +658,7 @@ A statement carries no client metadata, so an {{RFC7591}} server that verified o
 
 A party holding a copied statement for a public client can open a pushed authorization request in the reviewed software's name. It cannot receive an authorization code that another resource owner approves in a user agent the party does not control ({{public-client-presentation}}), so its exposure to other users is a consent prompt carrying the reviewed software's name and branding. Rate limits ({{external-retrieval}}) and the issuer's choice of audience and lifetime bound it.
 
-A party that controls the user agent receives the code: an application embedding a user agent (Section 8.12 of {{RFC8252}}), or a holder authorizing with its own account. It redeems the code with a PKCE verifier and key of its own choosing. An admission under {{public-client-presentation}} therefore shows where codes are delivered, not which software holds the grant, and a tenant's required issuer ({{issuer-trust}}) cannot keep unreviewed software out for a user who chooses to run it. This is the client impersonation that Section 8.6 of {{RFC8252}} describes for public clients. An endorsement extension ({{extensions}}) would strengthen the binding by giving the instance a key a third party vouches for.
+A party that controls the user agent receives the code: an application embedding a user agent (Section 8.12 of {{RFC8252}}), or a holder authorizing with its own account. It redeems the code with a PKCE verifier and key of its own choosing. An admission under {{public-client-presentation}} therefore shows where codes are delivered, not which software holds the grant, and a tenant's required issuer ({{issuer-trust}}) cannot keep unreviewed software out for a user who chooses to run it. This is the client impersonation that Section 8.6 of {{RFC8252}} describes for public clients. An attested-key extension ({{extensions}}) would strengthen the binding by giving the instance a key a third party vouches for.
 
 ## Tenant Confusion at a Multi-Tenant Consumer {#tenant-confusion}
 
