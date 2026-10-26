@@ -306,16 +306,19 @@ This specification defines no interoperable attestation or instance revocation p
 
 # Relationship to Core Processing {#core-exceptions}
 
-For establishments governed by this specification, the following rules replace the corresponding rules of {{STATEMENT}}:
+For establishments governed by this specification, the following rules replace or add to the corresponding rules of {{STATEMENT}}:
 
 | Core section | Core rule | Under this profile |
 | --- | --- | --- |
-| 5.3 | The statement and the document are checked before the proof. | The instance is authenticated first ({{par}}, step 1). Statement and document checks follow, and checks needing no client-controlled retrieval still precede such retrieval. |
+| 4 | A required issuer configured for software whose documents are presented review-only excludes that software from the tenant. | A presentation processed under {{par}} is not review-only, so a current statement from the required issuer can admit the software. |
+| 5.2 | A statement pulled at the authorization endpoint binds the presenter at code redemption. | The binding is set at PAR; an authorization request without a PAR `request_uri` governed by this profile is rejected ({{authorization}}). |
+| 5.3, 5.5 | The statement and the document are checked before the proof. | The instance is authenticated first ({{par}}, step 1). Statement and document checks follow, and checks needing no client-controlled retrieval still precede such retrieval. |
 | 5.2, 5.4.1, 5.5 | A request without an acceptable statement can proceed under the policy for unreviewed clients, a review-only presentation proceeds as a client presenting no statement, and a digest mismatch can proceed without the statement. | No fallback: any failed check rejects the request ({{par}}). |
 | 5.4 | The proven key appears in the reviewed document's `jwks` or at its `jwks_uri`. | The proven key is the endorsed instance key ({{attestation-validation}}), and the document carries no key material ({{client-metadata}}). |
 | 5.4.1 | A redirection URI another application could claim makes a presentation review-only, and a document declaring `none` is bound by its redirection URIs. | A presentation processed under {{par}} whose redirects meet {{loopback}} is not review-only. The client is confidential and authenticates with the method of {{selection}}, so the public-client rules do not apply. |
 | 5.6 | Expiry after presentation does not invalidate an establishment, and redemption checks the client identifier and key. | Redemption also requires the recorded statement to be unexpired and unrefused, and the current document to match the recorded digest ({{redemption}}). |
 | 5.6.1 | A current statement on refresh is a local-policy option, the document is checked for the proven key, and its digest is checked only for a replacement. | Every refresh requires a current statement, re-checks the document against the recorded digests, and verifies continued endorsement of the key instead of its presence in the document ({{refresh}}). |
+| 8.3 | Code redemption is rejected with `invalid_request` or `invalid_grant`. | Redemption can also return `statement_required`, `use_fresh_attestation`, or `temporarily_unavailable` ({{errors}}). |
 | 8.4 | A client not admitted on a statement receives `statement_required`. | A missing or invalid required pushed authorization request is rejected with `invalid_request` ({{errors}}). |
 
 Code redemption and refresh continue an establishment and are not new token-endpoint presentations, so core's rejection of a token-endpoint presentation from a client whose document carries no key material is unchanged. All other core requirements continue to apply, including digest processing, issuer trust, statement audience and tenant checks, refusal records, the `iat` floor, and bounds on repeated consumption. The extension applies equally to presented and pulled statements. It adds no requirement to issue statements or implement {{REGISTRATION}}.
