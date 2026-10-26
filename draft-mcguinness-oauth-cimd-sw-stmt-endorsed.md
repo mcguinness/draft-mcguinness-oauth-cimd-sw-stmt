@@ -289,7 +289,7 @@ The server MUST issue tokens only within the user's authorization, tenant policy
 
 Every refresh request MUST carry the original client identifier, the refresh token, a current instance attestation, and a fresh DPoP proof under the establishment's proven key. The server MUST authenticate the instance, verify the refresh-token binding, and enforce the fixed values of {{establishment}} before accepting any replacement statement.
 
-On every refresh the server MUST require a current, unexpired, unrefused software statement and re-evaluate its issuer trust decision. This strengthens the optional statement-currency check in core. It MUST also verify that the currently served document matches the applicable statement and attestation digests and continues to meet {{client-metadata}}. Removal of the binding member or a change to another authentication method ends continuation under this profile, and the refresh is rejected with `invalid_grant`, as {{STATEMENT}} rejects a refresh whose document no longer carries the proven key.
+On every refresh the server MUST require a current, unexpired, unrefused software statement and re-evaluate its issuer trust decision. This strengthens the optional statement-currency check in core. It MUST also verify that the currently served document matches the applicable statement and attestation digests and continues to meet {{client-metadata}}. Removal of the binding member or a change to another authentication method ends continuation under this profile, and the refresh is rejected with `invalid_grant` without seeking a replacement, as {{STATEMENT}} rejects a refresh whose document no longer carries the proven key.
 
 The recorded statement can remain applicable while it is unexpired, not refused, and matches the current document, even if a newer statement has raised the `iat` floor for new admissions. If it no longer qualifies, a replacement is required. The client can present a replacement in `software_statement` or, for an establishment created from a pulled statement, the server pulls one as {{STATEMENT}} specifies. A request carrying the same `iss` and `jti` as the recorded statement is a recheck, not a replacement.
 
@@ -335,10 +335,10 @@ The endpoint-specific syntax and response rules of {{RFC6749}}, {{RFC9126}}, {{S
 | Error | Condition |
 | --- | --- |
 | `invalid_request` | Malformed or conflicting request parameters, or a `software_statement` parameter on code redemption |
-| `invalid_client` | Missing or unacceptable attestation, untrusted attester or policy, a DPoP proof under a key other than the endorsed key, or a request carrying an instance attestation for a document that does not select this profile or violates {{client-metadata}} |
+| `invalid_client` | Missing or unacceptable attestation, untrusted attester or policy, a DPoP proof under a key other than the endorsed key, or, at PAR, a request carrying an instance attestation for a document that does not select this profile or violates {{client-metadata}} |
 | `use_fresh_attestation` | An otherwise valid attestation whose `exp` has passed, or that names a digest other than that of the document currently served while that document matches the applicable statement, which this profile treats as not fresh enough (Section 7.4 of {{ABCA}}) |
 | `use_dpop_nonce` | Missing or unacceptable server DPoP nonce |
-| `invalid_grant` | At redemption or refresh, a validly authenticated instance does not match the recorded key, attester, policy, or client; or, at redemption, the current document no longer matches the recorded digest |
+| `invalid_grant` | At redemption or refresh, a validly authenticated instance does not match the recorded key, attester, policy, or client; or, at redemption, the current document no longer matches the recorded digest; or, at refresh, the current document no longer selects this profile or meets {{client-metadata}} |
 | `statement_required` | A required statement is missing, expired, refused, or superseded, or, at refresh, a needed replacement is missing or unacceptable |
 | `temporarily_unavailable` | A retrieval needed for validation temporarily fails |
 
