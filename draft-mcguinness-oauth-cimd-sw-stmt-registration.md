@@ -365,11 +365,11 @@ This specification requests that IANA add this specification as a reference for 
 Error Name:
 : `temporarily_unavailable`
 
-Existing Registration:
-: {{RFC6749}}
-
 Error Usage Location:
 : client registration error response, in addition to the locations already registered
+
+Related Protocol Extension:
+: OAuth 2.0 Authorization Framework
 
 Change Controller:
 : IETF
