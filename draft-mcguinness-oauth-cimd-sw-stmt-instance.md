@@ -547,19 +547,7 @@ Change Controller:
 Specification Document(s):
 : This specification, {{attestation}}
 
-This specification also requests that the `cimd_digest` registration requested by {{STATEMENT}} include this specification as an additional reference and use the following description, preserving its encoding and hash algorithm:
-
-Claim Name:
-: `cimd_digest`
-
-Claim Description:
-: Unpadded base64url-encoded SHA-256 digest of the retrieved octets of the Client ID Metadata Document evaluated during software statement or CIMD instance attestation issuance.
-
-Change Controller:
-: IESG
-
-Specification Document(s):
-: {{STATEMENT}}; this specification, {{attestation}}
+This specification also requests that the `cimd_digest` registration requested by {{STATEMENT}} list this specification ({{attestation}}) as an additional reference. An instance attestation carries the same digest that a software statement carries.
 
 The `iss`, `sub`, `iat`, `exp`, and `cnf` claims are defined elsewhere and are not re-registered here.
 
