@@ -321,7 +321,7 @@ The endpoint-specific syntax and response rules of {{RFC6749}}, {{RFC9126}}, {{S
 | Error | Condition |
 | --- | --- |
 | `invalid_request` | Malformed or conflicting request parameters, or a `software_statement` parameter on code redemption |
-| `invalid_client` | Missing or unacceptable attestation, untrusted attester or policy, invalid client proof, or a request carrying an instance attestation for a document that does not select this profile or violates {{client-metadata}} |
+| `invalid_client` | Missing or unacceptable attestation, untrusted attester or policy, a DPoP proof under a key other than the attested key, or a request carrying an instance attestation for a document that does not select this profile or violates {{client-metadata}} |
 | `use_fresh_attestation` | An otherwise valid attestation whose `exp` has passed, or that names a digest other than the current reviewed document's |
 | `use_dpop_nonce` | Missing or unacceptable server DPoP nonce |
 | `invalid_grant` | At redemption or refresh, a validly authenticated instance does not match the recorded key, attester, policy, or client; or, at redemption, the current document no longer matches the recorded digest |
@@ -329,6 +329,8 @@ The endpoint-specific syntax and response rules of {{RFC6749}}, {{RFC9126}}, {{S
 | `temporarily_unavailable` | A retrieval needed for validation temporarily fails |
 
 Invalid statements and reviewed documents at PAR, in requests that carry no instance attestation, use core's error rules. At refresh, an unacceptable replacement uses `statement_required` as in core. A document exceeding a configured size bound is not a transient failure; apply core's non-transient retrieval and refresh errors. An invalid or expired code or refresh token, failed PKCE check, or mismatched redemption redirect uses `invalid_grant`.
+
+A DPoP proof that fails the checks of Section 4.3 of {{RFC9449}} is rejected with `invalid_dpop_proof`, and a missing or unacceptable nonce with `use_dpop_nonce`, in place of any code in the table above, as {{STATEMENT}} provides for proof-mechanism errors. A valid proof under a key other than the endorsed key, or other than the establishment's recorded key, is not an invalid proof: it fails the key binding and is rejected with `invalid_client` at PAR and with `invalid_grant` at code redemption and refresh.
 
 Servers MUST check basic request syntax before reporting errors requiring authentication. They MUST authenticate the instance before reporting errors about a code, refresh token, or the review governing that grant. Within authentication, they MUST verify attester identity, signature, and policy before returning `use_fresh_attestation`. Nonce challenges MAY precede completion of authentication and MUST NOT reveal tenant trust configuration. When several failures remain at one stage, a server MAY choose any applicable error without disclosing additional failed checks.
 
