@@ -354,7 +354,7 @@ The client sends `grant_type=authorization_code`, the code, the same `client_id`
 
 Before issuing tokens, the server MUST verify the code and PKCE binding and every fixed establishment value in {{establishment}}. It MUST re-evaluate both trust decisions, require the recorded statement to be unexpired and not refused, and confirm that the current Client ID Metadata Document still matches its recorded digest and meets {{client-metadata}}. Retrieval and cache reuse use the freshness bounds of {{STATEMENT}}. The attestation MUST match that digest and be within its effective expiry.
 
-An attestation MAY have been renewed since PAR, but its key, attester, policy, and subject MUST match the establishment. If the metadata changed or the recorded statement needs replacement, the client MUST start a new PAR transaction; code redemption cannot replace the governing review. The metadata has also changed for this purpose when a replacement accepted on refresh of another grant sharing the establishment has changed its digest since the code's pushed authorization request, and {{STATEMENT}} then rejects the code with `invalid_grant`. A raised `iat` floor alone does not invalidate a code already bound to an acceptable recorded statement.
+If the metadata changed or the recorded statement needs replacement, the client MUST start a new PAR transaction; code redemption cannot replace the governing review. The metadata has also changed for this purpose when a replacement accepted on refresh of another grant sharing the establishment has changed its digest since the code's pushed authorization request, and {{STATEMENT}} then rejects the code with `invalid_grant`. A raised `iat` floor alone does not invalidate a code already bound to an acceptable recorded statement.
 
 The server MUST issue tokens only within the user's authorization, tenant policy, and reviewed metadata. It MUST bind any refresh token to the establishment, and MUST issue access tokens, at redemption and on refresh ({{refresh}}), bound to the proven key with a `token_type` of `DPoP` (Section 5 of {{RFC9449}}). The effective expiry of each access token, whether the token is a JWT or an opaque reference, MUST NOT be later than the attestation effective expiry accepted for the request that obtained it. A client holding a refresh token therefore refreshes, with a fresh attestation, at least as often as its attester's evidence age allows, and a client without one starts a new authorization request at the PAR endpoint. A resource server that does not accept DPoP-bound access tokens cannot be used under this profile. A DPoP proof shows possession of the attested key at the resource server; it does not show that the software was re-evaluated at that moment.
 
@@ -370,7 +370,7 @@ A replacement MUST satisfy the replacement validation of {{STATEMENT}}, includin
 
 On success, the server MUST atomically update the recorded statement, metadata, digest, and trust decisions and apply the concurrency rules of {{STATEMENT}} for replacements. It also records the newly accepted attestation effective expiry. A failed attempt MUST NOT replace the recorded binding or rotate a refresh token. This does not prevent the server from recording a withdrawal or trust removal learned during processing, or applying independent refresh-token replay protections.
 
-Attestation renewal for the proven key is not key rotation and does not reset the `iat` floor or an establishment count. This specification defines no migration of an existing grant to a new key, attester, evidence policy, or tenant.
+Attestation renewal for the proven key is not key rotation and does not reset the `iat` floor or an establishment count.
 
 # Withdrawal and Trust Changes {#withdrawal}
 
@@ -602,7 +602,7 @@ A server requiring reviewed software for a client namespace or tenant MUST enfor
 
 The server MUST enforce the reviewed binding selection on every new admission under that document. A deployment permitting unrelated unreviewed clients MAY continue to do so under its own policy, but a failed request under this profile MUST NOT silently become an unreviewed request. Any independently admitted unreviewed client carries none of the assurance of this specification.
 
-Existing grants retain their recorded binding. Removing metadata, changing an attester or policy, or presenting a fresh proof under a new key cannot relax it. A server implementing only {{STATEMENT}} continues to reject these clients where review is required.
+Existing grants retain their recorded binding ({{selection}}, {{establishment}}). A server implementing only {{STATEMENT}} continues to reject these clients where review is required.
 
 ## Artifact Substitution and Key Separation
 
@@ -859,7 +859,7 @@ This appendix is non-normative. It gathers the commitments a deployment takes on
 * Lifetimes: An attester that collects evidence at 09:00 issues an attestation expiring no later than 17:00, and every access token issued on it expires by then ({{redemption}}). Before 17:00, a client holding a refresh token obtains an attestation resting on new evidence and refreshes. A client without one starts a new authorization request, including browser authorization.
 * Metadata changes: Adding a loopback redirect or a scope changes the document's digest. The publisher serves the new document, the statement issuer signs a statement over it, and each installation obtains an attestation over the new digest. Each existing grant then refreshes with the replacement statement and a matching attestation ({{refresh}}). An authorization in progress during the change is rejected at code redemption and restarts at the PAR endpoint ({{redemption}}).
 * Evidence policy changes: A material change to an evidence policy takes a new identifier ({{trust}}). An existing grant keeps its recorded policy, so it continues only while the server accepts that policy, and a grant under the new policy is a new grant ({{establishment}}).
-* Key changes: A reinstalled installation, or one that has lost its key, opens a new grant. Refresh never moves a grant to another key ({{refresh}}).
+* Key changes: A reinstalled installation, or one that has lost its key, opens a new grant. Refresh never moves a grant to another key ({{establishment}}).
 
 # Verification Scenarios
 
