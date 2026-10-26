@@ -14,14 +14,14 @@ New to the drafts? Start with the [FAQ](https://github.com/mcguinness/draft-mcgu
 | CIMD Software Statement Registration | Consuming a statement in an RFC 7591 registration: metadata taken from the reviewed document, validity bounded by the statement, and renewal by a replacement statement | [HTML](https://mcguinness.github.io/draft-mcguinness-oauth-software-statement-issuance/draft-mcguinness-oauth-cimd-sw-stmt-registration.html), [TXT](https://mcguinness.github.io/draft-mcguinness-oauth-software-statement-issuance/draft-mcguinness-oauth-cimd-sw-stmt-registration.txt) |
 | CIMD Software Statement Issuance | How a client obtains a statement: token exchange, a redirect flow returning a `software_statement_code`, and asynchronous review under Deferred Token Response | [HTML](https://mcguinness.github.io/draft-mcguinness-oauth-software-statement-issuance/draft-mcguinness-oauth-cimd-sw-stmt-issuance.html), [TXT](https://mcguinness.github.io/draft-mcguinness-oauth-software-statement-issuance/draft-mcguinness-oauth-cimd-sw-stmt-issuance.txt) |
 | CIMD Software Statement Status | Optional withdrawal mechanisms: Token Status List as the authority on whether a statement stands, and a Shared Signals event telling an authorization server to check at once rather than on its next scheduled check | [HTML](https://mcguinness.github.io/draft-mcguinness-oauth-software-statement-issuance/draft-mcguinness-oauth-cimd-sw-stmt-status.html), [TXT](https://mcguinness.github.io/draft-mcguinness-oauth-software-statement-issuance/draft-mcguinness-oauth-cimd-sw-stmt-status.txt) |
-| CIMD Software Statement Endorsed Keys | An extension in which an attester the authorization server trusts endorses an installation's key for the reviewed document, so a native application, typically on a managed device, can use loopback redirects through PAR, with the same binding enforced at code redemption and refresh | [HTML](https://mcguinness.github.io/draft-mcguinness-oauth-software-statement-issuance/draft-mcguinness-oauth-cimd-sw-stmt-endorsed.html), [TXT](https://mcguinness.github.io/draft-mcguinness-oauth-software-statement-issuance/draft-mcguinness-oauth-cimd-sw-stmt-endorsed.txt) |
+| CIMD Software Statement Attested Keys | An extension in which an attester the authorization server trusts attests an installation's key for the reviewed document, so a native application, typically on a managed device, can use loopback redirects through PAR, with the same binding enforced at code redemption and refresh | [HTML](https://mcguinness.github.io/draft-mcguinness-oauth-software-statement-issuance/draft-mcguinness-oauth-cimd-sw-stmt-endorsed.html), [TXT](https://mcguinness.github.io/draft-mcguinness-oauth-software-statement-issuance/draft-mcguinness-oauth-cimd-sw-stmt-endorsed.txt) |
 
 The statement draft is the core. The other drafts build on it, and it depends on none of them.
 
 The statement and registration drafts are planned for submission; their Datatracker pages will be available after first submission:
 [statement](https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt/),
 [registration](https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration/).
-The issuance, status, and endorsed-keys drafts are working drafts kept here for discussion and are not planned for submission yet.
+The issuance, status, and attested-keys drafts are working drafts kept here for discussion and are not planned for submission yet.
 
 ## MCP Profile
 
@@ -46,7 +46,7 @@ Dependencies:
 
 * [OAuth Client ID Metadata Document](https://datatracker.ietf.org/doc/draft-ietf-oauth-client-id-metadata-document/), for every draft
 * [Token Status List](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/), for the status draft only
-* [OAuth 2.0 Attestation-Based Client Authentication](https://datatracker.ietf.org/doc/draft-ietf-oauth-attestation-based-client-auth/), for the endorsed-keys draft
+* [OAuth 2.0 Attestation-Based Client Authentication](https://datatracker.ietf.org/doc/draft-ietf-oauth-attestation-based-client-auth/), for the attested-keys draft
 * [Identity Assertion Authorization Grant](https://datatracker.ietf.org/doc/draft-ietf-oauth-identity-assertion-authz-grant/), for the `aud_tenant` claim
 * [Deferred Token Response](https://datatracker.ietf.org/doc/draft-ietf-oauth-deferred-token-response/), for asynchronous issuance only
 * [OpenID Shared Signals Framework](https://openid.net/specs/openid-sharedsignals-framework-1_0.html), for the status draft only

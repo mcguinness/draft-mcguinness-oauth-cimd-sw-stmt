@@ -1,6 +1,6 @@
 ---
-title: "Endorsed Instance Keys for CIMD Software Statements"
-abbrev: CIMD Endorsed Keys
+title: "Attested Instance Keys for CIMD Software Statements"
+abbrev: CIMD Attested Keys
 docname: draft-mcguinness-oauth-cimd-sw-stmt-endorsed-latest
 category: std
 submissiontype: IETF
@@ -61,7 +61,7 @@ informative:
 
 --- abstract
 
-A software statement for a Client ID Metadata Document (CIMD) binds a review of client software to the exact bytes of that document. It does not, by itself, bind an installation of that software to a key. This specification defines an instance-binding extension in which an independently trusted client attester endorses an installation's key for the reviewed document. The client proves that key through attestation-based client authentication when opening and continuing an authorization code grant. When an attester can verify which software controls an installation's key, as on managed devices, this specification permits native applications, including command-line clients, to use loopback redirects while satisfying a policy requiring reviewed software. The specification defines attestation and metadata requirements, processing at the pushed authorization request and token endpoints, and the exceptions to the base software statement rules needed for endorsed keys.
+A software statement for a Client ID Metadata Document (CIMD) binds a review of client software to the exact bytes of that document. It does not, by itself, bind an installation of that software to a key. This specification defines an instance-binding extension in which an independently trusted client attester attests an installation's key for the reviewed document. The client proves that key through attestation-based client authentication when opening and continuing an authorization code grant. When an attester can verify which software controls an installation's key, as on managed devices, this specification permits native applications, including command-line clients, to use loopback redirects while satisfying a policy requiring reviewed software. The specification defines attestation and metadata requirements, processing at the pushed authorization request and token endpoints, and the exceptions to the base software statement rules needed for attested keys.
 
 --- middle
 
@@ -93,7 +93,7 @@ The following sequence is non-normative:
 2. An installation obtains an attestation from an accepted attester. The attestation names the CIMD URL, metadata digest, instance key, and evidence policy.
 3. The installation sends a pushed authorization request with PKCE, the attestation, and a Demonstrating Proof of Possession (DPoP) proof. It supplies the software statement or lets the server pull it.
 4. The server validates both trust decisions (in the statement issuer and in the attester) and their bindings before returning a `request_uri`.
-5. The user authorizes in an external browser. The code returns over loopback and is redeemed with the PKCE verifier and the endorsed key.
+5. The user authorizes in an external browser. The code returns over loopback and is redeemed with the PKCE verifier and the attested key.
 6. Refresh requires the proven key, a current acceptable attestation, and a current acceptable software statement. A different key requires a new grant.
 
 # Conventions and Definitions
@@ -113,7 +113,7 @@ Instance Attestation:
 Evidence Policy:
 : A versioned set of requirements for establishing the association between software, an instance key, and reviewed metadata. It covers evidence collection, verification, freshness, and protection of key use.
 
-Endorsed Key:
+Attested Key:
 : The key an instance attestation's `cnf` claim names. Once an establishment records it, it is the establishment's Proven Key ({{STATEMENT}}), which this specification also calls the recorded key.
 
 Attestation Effective Expiry:
@@ -123,7 +123,7 @@ The software statement's issuer and the client attester are separate roles. One 
 
 # Scope and Profile Selection {#selection}
 
-An authorization server implementing this specification MUST support PAR, PKCE with `S256` {{RFC7636}}, DPoP {{RFC9449}}, and the `attest_jwt_client_auth_dpop` method of {{ABCA}}, which uses a DPoP proof as the proof of possession (Sections 5.2 and 7.3 of {{ABCA}}). Clients MUST use that method at the PAR endpoint and at every token request under this specification. The same asymmetric key is used for client authentication and DPoP binding. This profile does not support the Client Attestation PoP JWT (Section 5.1 of {{ABCA}}). Each installation holds its own credential, the endorsed key, so a client under this profile is a confidential client although it is a native application, as Section 8.4 of {{RFC8252}} contemplates for per-instance credentials.
+An authorization server implementing this specification MUST support PAR, PKCE with `S256` {{RFC7636}}, DPoP {{RFC9449}}, and the `attest_jwt_client_auth_dpop` method of {{ABCA}}, which uses a DPoP proof as the proof of possession (Sections 5.2 and 7.3 of {{ABCA}}). Clients MUST use that method at the PAR endpoint and at every token request under this specification. The same asymmetric key is used for client authentication and DPoP binding. This profile does not support the Client Attestation PoP JWT (Section 5.1 of {{ABCA}}). Each installation holds its own credential, the attested key, so a client under this profile is a confidential client although it is a native application, as Section 8.4 of {{RFC8252}} contemplates for per-instance credentials.
 
 The client selects this profile by publishing `software_statement_instance_binding` with value `true` in its reviewed document ({{client-metadata}}). A server accepts a new establishment under the profile only if it supports this specification, the reviewed document selects it, and all admission checks succeed. The instance attestation's distinct `typ` identifies the corresponding attestation profile but does not alone enable admission.
 
@@ -165,7 +165,7 @@ An authorization server MUST establish attester trust independently of the reque
   * An `x5c` certificate chain ({{RFC7515}}) validated to a configured trust anchor, together with a configured mapping from the certificate to this attester, such as an exact subject or subject alternative name. Sharing a trust anchor with another attester does not authorize a key for this attester's `iss`.
   * A `kid` matched against a JWK Set configured for this attester. A `jku` is followed only if it names that configured JWK Set.
 * Accepted asymmetric signing algorithms.
-* Client identifier namespaces the attester may endorse.
+* Client identifier namespaces for which the attester may issue instance attestations.
 * Accepted evidence-policy identifiers and, for each, a finite maximum evidence age.
 * Tenant restrictions and any requirements for a particular attester or policy within a tenant.
 * Clock-skew and evidence-freshness requirements and any local denial rules for instance keys.
@@ -177,10 +177,10 @@ The server cannot observe how an attester reached its decision, so it relies on 
 * Before issuing each instance attestation, the attester verifies control of the private instance key through an authenticated, replay-resistant exchange bound to the submitted public key.
 * The attester evaluates evidence about the software instance and protection of key use, and sets each attestation's `exp` no later than the time that evidence was collected plus the policy's maximum evidence age. Rounding or randomizing `exp` (Section 11.1 of {{ABCA}}) only moves it earlier. A previous attestation is not evidence: a renewal rests on new evidence under the same bound.
 * The attester establishes an authenticated association between the software identity and the CIMD URL, retrieves and validates the document under {{CIMD}}, and calculates its digest under {{STATEMENT}}.
-* The attester confirms that the artifact or package identity established by the evidence is covered by that association for the document version being endorsed. The association is authorized by whoever controls the origin of the CIMD URL, or by an authority that controller has explicitly delegated, for example through a manifest served from that origin or signed under that controller's or delegate's authority. An enterprise inventory can authenticate or record such an authorization; listing a package and someone else's CIMD URL together does not create one. A URL, file path, digest, or publisher name asserted only by the requesting process does not suffice. The metadata digest is not an executable digest.
+* The attester confirms that the artifact or package identity established by the evidence is covered by that association for the document version the attestation names. The association is authorized by whoever controls the origin of the CIMD URL, or by an authority that controller has explicitly delegated, for example through a manifest served from that origin or signed under that controller's or delegate's authority. An enterprise inventory can authenticate or record such an authorization; listing a package and someone else's CIMD URL together does not create one. A URL, file path, digest, or publisher name asserted only by the requesting process does not suffice. The metadata digest is not an executable digest.
 * The policy defines what identifies the software, how evidence authenticates that identity and the instance key, how use of the key is restricted to the software instance the evidence covers, a finite maximum evidence age, and the treatment of updates, scripts, plugins, and other executable extensions.
 * The policy's identifier denotes immutable policy semantics: a material policy change requires a new identifier.
-* The policy establishes an association between the software the statement covers and control of the endorsed key. User approval of a key, a publisher account login, possession of a shared embedded secret, or device integrity alone does not establish that association.
+* The policy establishes an association between the software the statement covers and control of the attested key. User approval of a key, a publisher account login, possession of a shared embedded secret, or device integrity alone does not establish that association.
 
 A server MUST NOT accept for this profile an evidence policy that does not meet these requirements. A deployment MAY use weaker evidence for other purposes but MUST NOT report it as satisfying this profile.
 
@@ -208,13 +208,13 @@ The attestation contains the following claims. The `sub`, `iat`, `exp`, and `cnf
 : REQUIRED. It MUST be later than `iat`. It bounds the age of the evidence behind the attestation, as the accepted evidence policy requires ({{trust}}).
 
 `cnf`:
-: REQUIRED. The endorsed key ({{RFC7800}}), in the form Section 4 of {{ABCA}} requires.
+: REQUIRED. The attested key ({{RFC7800}}), in the form Section 4 of {{ABCA}} requires.
 
 `cimd_digest`:
 : REQUIRED. The metadata digest defined by {{STATEMENT}}, computed over the document the attester evaluated. This claim has the same representation and comparison rules as in a software statement. Its use here records the attester's software-to-metadata association, not a second software review.
 
 `cimd_instance_policy`:
-: REQUIRED. A string containing an absolute URI identifying the evidence policy under which the attester endorsed the instance key. The URI is an identifier, not a retrieval instruction. It MUST be compared exactly with an accepted policy identifier.
+: REQUIRED. A string containing an absolute URI identifying the evidence policy under which the attester attested the instance key. The URI is an identifier, not a retrieval instruction. It MUST be compared exactly with an accepted policy identifier.
 
 A server MUST reject an attestation whose `exp` has passed, or lies further in the future than the maximum evidence age it accepts for the attester and evidence policy, and MUST NOT reject an attestation only because its `iat` was rounded or randomized. No field supplied by the client can extend these bounds.
 
@@ -229,7 +229,7 @@ At each pushed authorization request, code redemption, and refresh, the authoriz
 * The attester and policy are currently accepted for this client identifier and tenant, and the key is not denied by local policy.
 * The request's `client_id`, the software statement's `sub`, and the attestation's `sub` are exactly equal.
 * The attestation's `cimd_digest`, the applicable software statement's `cimd_digest`, and the digest of the reviewed document are equal.
-* The endorsed key and the key of the DPoP proof are equal under the key-comparison rules of Section 7.3 of {{ABCA}}.
+* The attested key and the key of the DPoP proof are equal under the key-comparison rules of Section 7.3 of {{ABCA}}.
 
 On continuation, the recorded key, attester, policy, and tenant constraints of {{establishment}} also apply. The server MUST NOT treat an attestation for another digest as permission to update metadata without the software statement replacement required by {{refresh}}.
 
@@ -239,7 +239,7 @@ The client sends the instance attestation in the `OAuth-Client-Attestation` HTTP
 
 The authorization server MUST require a server-issued DPoP nonce at the PAR endpoint and on every token request under this profile. It MUST enforce endpoint and method binding and reject replay of a proof within its acceptance window under {{RFC9449}}. Nonce challenges and retries use `use_dpop_nonce` and the `DPoP-Nonce` HTTP header field; they do not consume a code, rotate a refresh token, create an establishment, or advance the `iat` floor. A request rejected before the instance is authenticated, or rejected with `use_fresh_attestation` or `temporarily_unavailable`, has none of these effects either, so the client can retry with a fresh attestation.
 
-If the pushed authorization request also carries `dpop_jkt`, its JWK thumbprint ({{RFC7638}}) MUST identify the endorsed key; otherwise the server rejects the request. A client MUST generate a new proof for each request, including a retry. TLS protects request contents. DPoP does not sign the request body, and implementations MUST NOT treat a valid proof as a signature over the redirect URI, PKCE challenge, or statement.
+If the pushed authorization request also carries `dpop_jkt`, its JWK thumbprint ({{RFC7638}}) MUST identify the attested key; otherwise the server rejects the request. A client MUST generate a new proof for each request, including a retry. TLS protects request contents. DPoP does not sign the request body, and implementations MUST NOT treat a valid proof as a signature over the redirect URI, PKCE challenge, or statement.
 
 # Runtime Admission {#admission}
 
@@ -259,7 +259,7 @@ Before returning a successful PAR response, the server MUST:
 4. Validate the requested redirect under {{loopback}}, require PKCE `S256`, and evaluate the request against the reviewed metadata and authorization policy.
 5. Create or reuse an establishment under {{establishment}}, bind the accepted request to it, and return a PAR response under {{RFC9126}}.
 
-For step 1, authentication establishes the attester, policy, client identifier, and endorsed key; it is not yet reviewed-software admission. An attestation whose digest has not been checked cannot establish the client. The ordering of statement checks before client-controlled retrieval in {{STATEMENT}} applies once a statement is available. External-retrieval bounds, HTTP caching rules ({{RFC9111}}), and protection against server-side request forgery from {{STATEMENT}} and {{CIMD}} apply throughout.
+For step 1, authentication establishes the attester, policy, client identifier, and attested key; it is not yet reviewed-software admission. An attestation whose digest has not been checked cannot establish the client. The ordering of statement checks before client-controlled retrieval in {{STATEMENT}} applies once a statement is available. External-retrieval bounds, HTTP caching rules ({{RFC9111}}), and protection against server-side request forgery from {{STATEMENT}} and {{CIMD}} apply throughout.
 
 The server MUST NOT fall back to review-only or unreviewed admission for the same request if any required check fails. A request that carries no instance attestation for a document selecting this profile is an example: the server learns from the document (step 3) that this profile applies, then rejects the request with `invalid_client`. If no acceptable statement is available, it returns `statement_required`. A failed request MUST NOT advance the statement's `iat` floor or alter an existing establishment.
 
@@ -271,7 +271,7 @@ An establishment records all state required by {{STATEMENT}} and, in addition:
 * The exact attester identifier and evidence-policy identifier.
 * The attester trust decision and the attestation effective expiry most recently accepted.
 
-The proven key is the endorsed key, which is also the DPoP key. A server MAY reuse an establishment only when the reuse conditions of {{STATEMENT}} hold and the profile, attester, policy, and tenant also match. Individual authorization transactions still retain separate PKCE challenges, redirects, `state`, resource-owner decisions, and continuation state.
+The proven key is the attested key, which is also the DPoP key. A server MAY reuse an establishment only when the reuse conditions of {{STATEMENT}} hold and the profile, attester, policy, and tenant also match. Individual authorization transactions still retain separate PKCE challenges, redirects, `state`, resource-owner decisions, and continuation state.
 
 The client identifier, tenant, key, attester, policy, and binding profile MUST remain fixed for the lifetime of the grant. Changing any of them requires a new grant opened through PAR. A fresh attestation that keeps these values can renew the grant's evidence, and a software statement replacement can update the grant's reviewed metadata only as {{refresh}} permits. Neither operation changes these values.
 
@@ -293,7 +293,7 @@ Before issuing tokens, the server MUST verify the code and PKCE binding and ever
 
 An attestation MAY have been renewed since PAR, but its key, attester, policy, and subject MUST match the establishment. If the metadata changed or the recorded statement needs replacement, the client MUST start a new PAR transaction; code redemption cannot replace the governing review. A raised `iat` floor alone does not invalidate a code already bound to an acceptable recorded statement.
 
-The server MUST issue tokens only within the user's authorization, tenant policy, and reviewed metadata. It MUST bind any refresh token to the establishment, and MUST issue access tokens, at redemption and on refresh ({{refresh}}), bound to the proven key with a `token_type` of `DPoP` (Section 5 of {{RFC9449}}). The effective expiry of each access token, whether the token is a JWT or an opaque reference, MUST NOT be later than the attestation effective expiry accepted for the request that obtained it. A client therefore refreshes, with a fresh attestation, at least as often as its attester's evidence age allows. A resource server that does not accept DPoP-bound access tokens cannot be used under this profile. A DPoP proof shows possession of the endorsed key at the resource server; it does not show that the software was re-evaluated at that moment.
+The server MUST issue tokens only within the user's authorization, tenant policy, and reviewed metadata. It MUST bind any refresh token to the establishment, and MUST issue access tokens, at redemption and on refresh ({{refresh}}), bound to the proven key with a `token_type` of `DPoP` (Section 5 of {{RFC9449}}). The effective expiry of each access token, whether the token is a JWT or an opaque reference, MUST NOT be later than the attestation effective expiry accepted for the request that obtained it. A client therefore refreshes, with a fresh attestation, at least as often as its attester's evidence age allows. A resource server that does not accept DPoP-bound access tokens cannot be used under this profile. A DPoP proof shows possession of the attested key at the resource server; it does not show that the software was re-evaluated at that moment.
 
 # Refresh {#refresh}
 
@@ -327,10 +327,10 @@ For establishments governed by this specification, the following rules replace o
 | 5.2 | A statement pulled at the authorization endpoint binds the presenter at code redemption. | The binding is set at the PAR endpoint; an authorization request without a PAR `request_uri` governed by this profile is rejected ({{authorization}}). |
 | 5.3, 5.5 | The statement and the document are checked before the proof. | The instance is authenticated first ({{par}}, step 1). Statement and document checks follow, and checks needing no client-controlled retrieval still precede such retrieval. |
 | 5.2, 5.4.1, 5.5 | A request without an acceptable statement can proceed under the policy for unreviewed clients, a review-only presentation proceeds as a client presenting no statement, and a digest mismatch can proceed without the statement. | No fallback: any failed check rejects the request ({{par}}). |
-| 5.4 | The proven key appears in the reviewed document's `jwks` or at its `jwks_uri`. | The proven key is the endorsed key ({{attestation-validation}}), and the document carries no key material ({{client-metadata}}). |
+| 5.4 | The proven key appears in the reviewed document's `jwks` or at its `jwks_uri`. | The proven key is the attested key ({{attestation-validation}}), and the document carries no key material ({{client-metadata}}). |
 | 5.4.1 | A redirection URI another application could claim makes a presentation review-only, and a document declaring `none` is bound by its redirection URIs. | A presentation processed under {{par}} whose redirects meet {{loopback}} is not review-only. The client is confidential and authenticates with the method of {{selection}}, so the public-client rules do not apply. |
 | 5.6 | Expiry after presentation does not invalidate an establishment, and redemption checks the client identifier and key. | Redemption also requires the recorded statement to be unexpired and unrefused, and the current document to match the recorded digest ({{redemption}}). |
-| 5.6.1 | A current statement on refresh is a local-policy option, the document is checked for the proven key, and its digest is checked only for a replacement. | Every refresh requires a current statement, re-checks the document against the recorded digests, and verifies continued endorsement of the key instead of its presence in the document ({{refresh}}). |
+| 5.6.1 | A current statement on refresh is a local-policy option, the document is checked for the proven key, and its digest is checked only for a replacement. | Every refresh requires a current statement, re-checks the document against the recorded digests, and verifies a current attestation of the key instead of its presence in the document ({{refresh}}). |
 | 8.3 | Code redemption is rejected with `invalid_request`, `invalid_grant`, or, at the establishment bound, `invalid_client`. | Redemption can also return `invalid_client` or `invalid_client_attestation` for failed authentication, `statement_required`, `use_fresh_attestation`, or `temporarily_unavailable` ({{errors}}). |
 | 8.4 | A client not admitted on a statement receives `statement_required`. | A missing or invalid required pushed authorization request is rejected with `invalid_request` ({{errors}}). |
 
@@ -356,7 +356,7 @@ The following error codes apply to pushed authorization requests, code redemptio
 : Malformed or conflicting request parameters, or a `software_statement` parameter on code redemption.
 
 `invalid_client`:
-: Missing or unacceptable attestation, untrusted attester or policy, a request carrying the `OAuth-Client-Attestation-PoP` header field, a DPoP proof under a key other than the endorsed key, or, at the PAR endpoint, a request carrying an instance attestation for a document that does not select this profile or violates {{client-metadata}}.
+: Missing or unacceptable attestation, untrusted attester or policy, a request carrying the `OAuth-Client-Attestation-PoP` header field, a DPoP proof under a key other than the attested key, or, at the PAR endpoint, a request carrying an instance attestation for a document that does not select this profile or violates {{client-metadata}}.
 
 `use_fresh_attestation`:
 : An otherwise valid attestation whose `exp` has passed, or that names a digest other than that of the document currently served while that document matches the applicable statement, which this profile treats as not fresh enough (Section 7.4 of {{ABCA}}).
@@ -527,7 +527,7 @@ This profile cannot ensure benign user intent, prevent an approved application f
 
 ## Loopback and Transaction Theft
 
-An attacker can attempt to occupy a loopback port, intercept a response, or initiate its own authorization transaction using the published client identifier. PKCE and proof of the recorded key protect redemption of an intercepted code. Admission of a new transaction additionally requires an acceptable instance attestation; PKCE or an unendorsed DPoP key alone supplies no software identity.
+An attacker can attempt to occupy a loopback port, intercept a response, or initiate its own authorization transaction using the published client identifier. PKCE and proof of the recorded key protect redemption of an intercepted code. Admission of a new transaction additionally requires an acceptable instance attestation; PKCE or an unattested DPoP key alone supplies no software identity.
 
 The client MUST keep its verifier and transaction state confidential and unpredictable as their respective specifications require. A launcher that handles authorization for another process has to bind the authenticated caller, intended authorization server, callback, verifier, and resulting grant state to the same local session. A reusable signing capability handed to that caller is insufficient.
 
@@ -543,7 +543,7 @@ Existing grants retain their recorded binding. Removing metadata, changing an at
 
 The distinct attestation type, digest binding, subject equality, and fixed establishment values prevent a generic attestation or one for another reviewed document from being substituted. Implementations MUST apply mutually exclusive validation rules for software statements and instance attestations. Software-statement signing keys retain the separation requirements of {{STATEMENT}} and MUST NOT sign instance attestations, even if one organization performs both roles.
 
-Attester authorization is scoped independently to client namespaces and tenants. An over-broad attester can undermine the binding for every namespace it is allowed to endorse. A statement issuer and an attester colluding or both being compromised can make false assertions within the authority the server has assigned them.
+Attester authorization is scoped independently to client namespaces and tenants. An over-broad attester can undermine the binding for every namespace for which it may issue instance attestations. A statement issuer and an attester colluding or both being compromised can make false assertions within the authority the server has assigned them.
 
 ## Freshness and Availability
 
@@ -577,7 +577,7 @@ Client Metadata Name:
 : `software_statement_instance_binding`
 
 Client Metadata Description:
-: Boolean value selecting endorsed instance-key binding for runtime admission using a software statement for a Client ID Metadata Document. It is defined for Client ID Metadata Documents and does not enable registration under this specification.
+: Boolean value selecting attested instance-key binding for runtime admission using a software statement for a Client ID Metadata Document. It is defined for Client ID Metadata Documents and does not enable registration under this specification.
 
 Change Controller:
 : IESG
@@ -593,7 +593,7 @@ Metadata Name:
 : `software_statement_instance_binding_supported`
 
 Metadata Description:
-: Boolean value indicating support for endorsed instance-key binding of software statements for Client ID Metadata Documents.
+: Boolean value indicating support for attested instance-key binding of software statements for Client ID Metadata Documents.
 
 Change Controller:
 : IESG
@@ -712,7 +712,7 @@ Published specification:
 : This specification
 
 Applications that use this media type:
-: Native OAuth clients, client attesters, and authorization servers using CIMD software statements with endorsed instance keys.
+: Native OAuth clients, client attesters, and authorization servers using CIMD software statements with attested instance keys.
 
 Fragment identifier considerations:
 : n/a
@@ -757,7 +757,7 @@ An implementation needs to address changes between checking software and using t
 
 This appendix is non-normative. An implementation exercise should include the following cases in addition to successful admission and refresh:
 
-* A copied statement with an unendorsed key fails before creating an establishment.
+* A copied statement with an unattested key fails before creating an establishment.
 * A copied attestation with a different proof key fails authentication.
 * A valid attestation for another client, digest, tenant authorization, or policy fails its corresponding binding check.
 * A loopback code intercepted by another process cannot be redeemed without both the verifier and recorded key.
@@ -773,4 +773,4 @@ This appendix is non-normative. An implementation exercise should include the fo
 # Acknowledgments
 {:numbered="false"}
 
-This specification develops the endorsed-key extension point in {{STATEMENT}} and composes it with attestation-based client authentication. The initial deployment question was how a command-line application could retain loopback callbacks while demonstrating an association with reviewed software.
+This specification develops the attested-key extension point in {{STATEMENT}} and composes it with attestation-based client authentication. The initial deployment question was how a command-line application could retain loopback callbacks while demonstrating an association with reviewed software.
