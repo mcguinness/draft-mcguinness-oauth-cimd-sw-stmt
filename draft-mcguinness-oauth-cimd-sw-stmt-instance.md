@@ -110,7 +110,7 @@ The software statement's issuer and the client attester are separate roles. One 
 
 # Scope and Profile Selection {#selection}
 
-An authorization server implementing this specification MUST support PAR, PKCE with `S256` {{RFC7636}}, DPoP {{RFC9449}}, and the `attest_jwt_client_auth_dpop` method of {{ABCA}}. Clients MUST use that method at PAR and at every token request under this specification. The same asymmetric key is used for client authentication and DPoP binding. The normal Client Attestation PoP JWT mode is not supported by this profile.
+An authorization server implementing this specification MUST support PAR, PKCE with `S256` {{RFC7636}}, DPoP {{RFC9449}}, and the `attest_jwt_client_auth_dpop` method of {{ABCA}}, which uses a DPoP proof as the proof of possession (Sections 5.2 and 7.3 of {{ABCA}}). Clients MUST use that method at PAR and at every token request under this specification. The same asymmetric key is used for client authentication and DPoP binding. The normal Client Attestation PoP JWT mode is not supported by this profile.
 
 The client selects this profile by publishing `software_statement_instance_binding` with value `true` in its reviewed document ({{client-metadata}}). A server accepts a new establishment under the profile only if it supports the extension, the reviewed document selects it, and all admission checks succeed. The instance attestation's distinct `typ` identifies the corresponding attestation profile but does not alone enable admission.
 
@@ -159,7 +159,7 @@ A client MUST confirm support for this extension before starting a grant under i
 
 An authorization server MUST establish attester trust independently of the request. For each accepted attester it MUST configure:
 
-* The exact attester `iss` identifier and the trusted source of its verification keys.
+* The exact attester `iss` identifier and how its verification keys are resolved, as Section 10.8 of {{ABCA}} asks a profile to fix: an `x5c` certificate chain ({{RFC7515}}) validated to a configured trust anchor, or a `kid` matched against a configured JWK Set. A `jku` is followed only if it names that configured JWK Set.
 * Accepted asymmetric signing algorithms.
 * Client identifier namespaces the attester may endorse.
 * Accepted evidence-policy identifiers and, for each, a finite maximum attestation lifetime and a finite maximum evidence age.
@@ -184,7 +184,7 @@ Attestation acquisition and platform evidence formats are out of scope. They req
 
 # Instance Attestation {#attestation}
 
-An instance attestation follows {{ABCA}} with the following additional requirements. Its JOSE `typ` MUST be `cimd-instance-attestation+jwt`. It MUST be digitally signed using an accepted asymmetric algorithm; a MAC or `none` MUST NOT be accepted. Its header and claims MUST contain no duplicate member names. Validation MUST apply {{RFC8725}}.
+An instance attestation is a Client Attestation JWT (Section 4 of {{ABCA}}) with the following additional requirements, which Section 13 of {{ABCA}} permits a profile to define. Together with the document's selection of this profile ({{selection}}), its type tells a server that this profile applies. Its JOSE `typ` MUST be `cimd-instance-attestation+jwt`. It MUST be digitally signed using an accepted asymmetric algorithm; a MAC or `none` MUST NOT be accepted. Its header and claims MUST contain no duplicate member names. Validation MUST apply {{RFC8725}}.
 
 The attestation retains the `sub`, `cnf` ({{RFC7800}}), `iat`, and `exp` requirements of {{ABCA}}. Its `sub` MUST be the exact CIMD client identifier URL. In addition, it MUST contain:
 
@@ -210,13 +210,13 @@ At each PAR request, code redemption, and refresh, the authorization server MUST
 * The attester and policy are currently accepted for this client identifier and tenant, and the key is not denied by local policy.
 * The request's `client_id`, the software statement's `sub`, and the attestation's `sub` are exactly equal.
 * The attestation's `cimd_digest`, the applicable software statement's `cimd_digest`, and the digest of the reviewed document are equal.
-* The attested public key and proven DPoP key are equal under the key-comparison rules of {{ABCA}}.
+* The attested public key and proven DPoP key are equal under the key-comparison rules of Section 7.3 of {{ABCA}}.
 
 On continuation, the recorded key, attester, policy, and tenant constraints of {{establishment}} also apply. The server MUST NOT treat an attestation for another digest as permission to update metadata without the software statement replacement required by {{refresh}}.
 
 ## Proof of Possession {#proof}
 
-The client sends the instance attestation in `OAuth-Client-Attestation` and uses DPoP combined mode under {{ABCA}}. It MUST NOT also send `OAuth-Client-Attestation-PoP`. A `dpop_jkt` parameter alone is not a proof. The authentication method and its validation remain those defined by {{ABCA}}; this profile supplies the attestation's type and additional bindings.
+The client sends the instance attestation in `OAuth-Client-Attestation` and uses DPoP combined mode under Section 7.3 of {{ABCA}}. It MUST NOT also send `OAuth-Client-Attestation-PoP`. A `dpop_jkt` parameter alone is not a proof. The authentication method and its validation remain those defined by {{ABCA}}; this profile supplies the attestation's type and additional bindings.
 
 The authorization server MUST require a server-issued DPoP nonce at PAR and on every token request under this profile. It MUST enforce endpoint and method binding and reject replay of a proof within its acceptance window under {{RFC9449}}. Nonce challenges and retries use `use_dpop_nonce` and `DPoP-Nonce`; they do not consume a code, rotate a refresh token, create an establishment, or advance the `iat` floor.
 
@@ -335,7 +335,7 @@ Invalid statements and reviewed documents at PAR use core's error rules. A docum
 
 Servers MUST check basic request syntax before reporting errors requiring authentication. They MUST authenticate the instance before reporting errors about a code, refresh token, or the review governing that grant. Within authentication, they MUST verify attester identity, signature, and policy before returning `use_fresh_attestation`. Nonce challenges MAY precede completion of authentication and MUST NOT reveal tenant trust configuration. When several failures remain at one stage, a server MAY choose any applicable error without disclosing additional failed checks.
 
-A `use_dpop_nonce` response MUST include `DPoP-Nonce`. Client attestation errors and status codes follow {{ABCA}}; other errors retain their endpoint's response format. A `software_statement` parameter on code redemption is `invalid_request`, even if it offers an otherwise valid replacement. A `statement_required` response at code redemption requires a new PAR transaction, not a retry with a statement attached to the code request.
+A `use_dpop_nonce` response MUST include `DPoP-Nonce`. Client attestation errors and status codes follow Section 7.4 of {{ABCA}}; other errors retain their endpoint's response format. A `software_statement` parameter on code redemption is `invalid_request`, even if it offers an otherwise valid replacement. A `statement_required` response at code redemption requires a new PAR transaction, not a retry with a statement attached to the code request.
 
 At the authorization endpoint, a missing or invalid required PAR request is rejected with `invalid_request`. The server MUST NOT redirect an error unless it has validated the redirect under the applicable client metadata and transaction. Front-channel carriage of the statement or instance-attestation artifacts is rejected with `invalid_request`. Details of configured issuers, attesters, evidence policies, and tenant restrictions SHOULD NOT be exposed in error descriptions to unauthenticated callers.
 
