@@ -333,7 +333,7 @@ The endpoint-specific syntax and response rules of {{RFC6749}}, {{RFC9126}}, {{S
 | --- | --- |
 | `invalid_request` | Malformed or conflicting request parameters, or a `software_statement` parameter on code redemption |
 | `invalid_client` | Missing or unacceptable attestation, untrusted attester or policy, a DPoP proof under a key other than the attested key, or a request carrying an instance attestation for a document that does not select this profile or violates {{client-metadata}} |
-| `use_fresh_attestation` | An otherwise valid attestation whose `exp` has passed, or that names a digest other than the current reviewed document's |
+| `use_fresh_attestation` | An otherwise valid attestation whose `exp` has passed, or that names a digest other than that of the document currently served, which this profile treats as not fresh enough (Section 7.4 of {{ABCA}}) |
 | `use_dpop_nonce` | Missing or unacceptable server DPoP nonce |
 | `invalid_grant` | At redemption or refresh, a validly authenticated instance does not match the recorded key, attester, policy, or client; or, at redemption, the current document no longer matches the recorded digest |
 | `statement_required` | A required statement is missing, expired, refused, or superseded, or, at refresh, a needed replacement is missing or unacceptable |
