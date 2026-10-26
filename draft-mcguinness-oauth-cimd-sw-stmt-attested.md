@@ -820,37 +820,28 @@ An implementation needs to address changes between checking software and using t
 
 ## Example: macOS {#launcher-macos}
 
-This example uses facilities of macOS 27 or later on Apple silicon, and a launcher of an application type for which App Attest is available {{APPLE-WWDC26}}. It shows one way a platform can meet the boundary of {{trust}}, not the only way.
+This example uses macOS 27 or later on Apple silicon, with a launcher application for which App Attest is available {{APPLE-WWDC26}}.
 
 Software identity:
-: The publisher signs each release of the client with an Apple-issued developer certificate, under the hardened runtime {{APPLE-RUNTIME}}, with the same signing identifier. The manifest served from the CIMD URL's origin names the publisher's Team ID and that identifier, so it covers each release the publisher signs that way ({{trust}}). A manifest that names code directory hashes covers only the listed builds, since any change to the code changes its hash.
+: The publisher signs each release with an Apple-issued developer certificate, under the hardened runtime {{APPLE-RUNTIME}} and one signing identifier. A manifest served from the CIMD URL's origin and naming the publisher's Team ID and that identifier covers each such release. A manifest naming code directory hashes covers only the listed builds.
 
-Privilege boundary:
-: The launcher is a per-user application with an embedded provisioning profile, deployed and configured through the organization's device management service. macOS makes a data protection keychain access group available to a program only through code-signing entitlements that a provisioning profile authorizes, and only in a user context {{APPLE-KEYCHAIN}}. The profile authorizes an access group for the launcher alone.
-
-Instance key:
-: The launcher creates a P-256 key in the Secure Enclave and keeps it in the data protection keychain under that access group. Key material cannot be transferred out of the Secure Enclave {{APPLE-ENCLAVE}}, and a program whose signature lacks the authorized entitlement cannot use the key, so the client never signs with it directly.
+Key isolation:
+: The launcher is a per-user application whose provisioning profile authorizes a data protection keychain access group for the launcher alone. macOS grants such groups only through entitlements a provisioning profile authorizes, and only in a user context {{APPLE-KEYCHAIN}}. It creates a P-256 instance key in the Secure Enclave, from which key material cannot be transferred {{APPLE-ENCLAVE}}, and keeps it under that access group, so the client cannot use the key directly.
 
 Caller identification:
-: The client reaches the launcher over XPC. The launcher sets a code-signing requirement on each connection {{APPLE-XPC}}, requiring an Apple-issued certificate chain, the publisher's Team ID in the leaf certificate's organizational unit, and the client's signing identifier, and the system invalidates a connection whose peer does not satisfy it. The launcher does not identify a caller by process ID or by an executable path the caller reports.
+: The client connects to the launcher over XPC. The launcher sets a code-signing requirement on the connection naming the publisher's Team ID and the client's signing identifier, and the system invalidates a connection whose peer does not satisfy it {{APPLE-XPC}}. The launcher never relies on a process ID or a reported path.
 
 Code injection:
-: The evidence policy requires the client's signature to carry none of the entitlements that disable library validation {{APPLE-LIBVAL}}, let the dynamic linker read `DYLD_` environment variables {{APPLE-DYLD}}, or let a debugger obtain the client's task port (the `get-task-allow` entitlement, {{APPLE-DEBUGGER}}). Library validation then limits the frameworks, plug-ins, and libraries the client loads to those signed by Apple or by the client's own team {{APPLE-LIBVAL}}.
-
-Key use:
-: The launcher performs the OAuth exchange for the connected client and produces DPoP proofs only as {{software-evidence}} describes. It keeps the refresh token itself and returns the access token only to the connected client whose session obtained it.
-
-Device:
-: Managed Device Attestation lets the organization's device management service confirm that the device is a genuine Apple device it manages, with a hardware-bound identity key {{APPLE-MDA}}. It establishes properties of the device, not which program on the device is reporting, so it does not authenticate the launcher.
+: The evidence policy requires that the client's signature carry no entitlement that disables library validation {{APPLE-LIBVAL}}, lets the dynamic linker read `DYLD_` variables {{APPLE-DYLD}}, or lets a debugger obtain the client's task port (`get-task-allow`, {{APPLE-DEBUGGER}}). The client then loads only libraries signed by Apple or by its own team.
 
 Launcher authentication:
-: The launcher therefore registers with the enterprise service through App Attest: it generates an App Attest key, and the service verifies Apple's attestation that the key belongs to a valid instance of the launcher {{APPLE-APPATTEST}}. To tie that key to the managed device, the device management service delivers a single-use enrollment secret to the launcher through managed app configuration, which macOS applies only to an application whose code signature matches the configured identifier {{APPLE-APPCONFIG}}, and the launcher returns the secret with the attestation. After registration, the launcher sends each report, carrying the instance public key and the client's verified signing identity, with an App Attest assertion over a hash of the report, so another process cannot submit a report under the launcher's identity.
+: Managed Device Attestation shows that the device is a genuine Apple device the organization manages {{APPLE-MDA}}, not which program is reporting. The launcher therefore registers an App Attest key, which Apple certifies as belonging to the launcher {{APPLE-APPATTEST}}. To tie that key to the managed device, the launcher returns with the attestation a single-use secret that the device management service delivered through managed app configuration, which macOS applies only to an application with a matching code signature {{APPLE-APPCONFIG}}. Each later report, carrying the instance public key and the client's signing identity, bears an App Attest assertion.
 
 Evidence and renewal:
-: App Attest certifies only the launcher's own key, not a key such as the instance key, so no Apple attestation covers the instance key itself. The service relies on the authenticated launcher for the statement that the instance key is in the Secure Enclave and usable only by the launcher. Before the evidence policy's maximum evidence age expires, the launcher re-checks the device's management state and the client's signature and obtains an attestation on that new evidence.
+: No Apple attestation covers the instance key, so the enterprise service relies on the authenticated launcher for the statement that the key is in the Secure Enclave and usable only by the launcher. The launcher acts as the signing broker of {{software-evidence}}. Before the maximum evidence age expires, it re-checks the device's management state and the client's signature and obtains an attestation on that new evidence.
 
 Unsupported case:
-: A script run by a signed interpreter, such as a Python program that can import any module on the system, is not covered. The signature the launcher verifies is the interpreter's, and library validation constrains the native code the interpreter loads, not the scripts and modules it reads. The evidence therefore does not identify the software a statement covers. Such a client remains review-only under {{STATEMENT}}, or needs an execution environment whose policy covers its interpreter, script, and dependencies.
+: A script run by a signed interpreter with unrestricted imports is not covered. The verified signature is the interpreter's, and library validation does not constrain the scripts and modules it reads. Such a client remains review-only under {{STATEMENT}}.
 
 # Operational Consequences {#operations}
 
