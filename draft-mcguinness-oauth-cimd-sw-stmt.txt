@@ -949,6 +949,15 @@ Table of Contents
    to the establishment, as applicable, and can discard it once no such
    state references it.
 
+   The authorization server MUST also record, with each request_uri and
+   authorization code, the digest of the reviewed metadata its request
+   was evaluated against (Section 5.5).  A replacement accepted on
+   refresh of another grant sharing the establishment (Section 5.6.1)
+   can change the establishment's digest while a code is outstanding.
+   Redemption of a code whose recorded digest differs from the
+   establishment's is rejected with invalid_grant, and the client starts
+   a new authorization request.
+
    A token request that redeems an authorization code opened by a
    presentation:
 
@@ -1248,7 +1257,8 @@ Table of Contents
    A token request that redeems an authorization code opened by a
    presentation is rejected with invalid_request if it carries
    software_statement, with invalid_grant if its client identifier or
-   key binding fails (Section 5.6), and with invalid_client if the bound
+   key binding fails or its recorded digest differs from the
+   establishment's (Section 5.6), and with invalid_client if the bound
    on establishments of Section 6 is reached (Section 5.5).
 
    Under an establishment, a refresh-token request rejected for a reason
