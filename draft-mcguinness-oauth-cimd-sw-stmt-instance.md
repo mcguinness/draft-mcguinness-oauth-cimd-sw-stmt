@@ -320,18 +320,15 @@ The endpoint-specific syntax and response rules of {{RFC6749}}, {{RFC9126}}, {{S
 
 | Error | Condition |
 | --- | --- |
-| `invalid_request` | Malformed or conflicting request parameters |
-| `invalid_client` | Missing or unacceptable attestation, untrusted attester or policy, or invalid client proof |
-| `use_fresh_attestation` | Otherwise valid attestation is too old or expired |
+| `invalid_request` | Malformed or conflicting request parameters, or a `software_statement` parameter on code redemption |
+| `invalid_client` | Missing or unacceptable attestation, untrusted attester or policy, invalid client proof, or a request carrying an instance attestation for a document that does not select this profile or violates {{client-metadata}} |
+| `use_fresh_attestation` | An otherwise valid attestation whose `exp` has passed, or that names a digest other than the current reviewed document's |
 | `use_dpop_nonce` | Missing or unacceptable server DPoP nonce |
-| `invalid_grant` | At redemption or refresh, a validly authenticated instance does not match the recorded key, attester, policy, or client |
-| `statement_required` | Required statement is missing, expired, refused, or needs replacement |
-| `invalid_client` | Attestation digest does not match the otherwise applicable review and document |
-| `invalid_grant` | At code redemption, current metadata no longer matches the recorded digest |
-| `statement_required` | At refresh, changed metadata requires a replacement and none is acceptable |
+| `invalid_grant` | At redemption or refresh, a validly authenticated instance does not match the recorded key, attester, policy, or client; or, at redemption, the current document no longer matches the recorded digest |
+| `statement_required` | A required statement is missing, expired, refused, or superseded, or, at refresh, a needed replacement is missing or unacceptable |
 | `temporarily_unavailable` | A retrieval needed for validation temporarily fails |
 
-Invalid statements and reviewed documents at PAR use core's error rules. A document that does not select this profile or violates {{client-metadata}} is rejected with `invalid_client`. At refresh, an unacceptable replacement uses `statement_required` as in core. A document exceeding a configured size bound is not a transient failure; apply core's non-transient retrieval and refresh errors. An invalid or expired code or refresh token, failed PKCE check, or mismatched redemption redirect uses `invalid_grant`.
+Invalid statements and reviewed documents at PAR, in requests that carry no instance attestation, use core's error rules. At refresh, an unacceptable replacement uses `statement_required` as in core. A document exceeding a configured size bound is not a transient failure; apply core's non-transient retrieval and refresh errors. An invalid or expired code or refresh token, failed PKCE check, or mismatched redemption redirect uses `invalid_grant`.
 
 Servers MUST check basic request syntax before reporting errors requiring authentication. They MUST authenticate the instance before reporting errors about a code, refresh token, or the review governing that grant. Within authentication, they MUST verify attester identity, signature, and policy before returning `use_fresh_attestation`. Nonce challenges MAY precede completion of authentication and MUST NOT reveal tenant trust configuration. When several failures remain at one stage, a server MAY choose any applicable error without disclosing additional failed checks.
 
@@ -565,6 +562,25 @@ Specification Document(s):
 : {{STATEMENT}}; this specification, {{attestation}}
 
 The `iss`, `sub`, `iat`, `exp`, and `cnf` claims are defined elsewhere and are not re-registered here.
+
+## OAuth Extensions Error Registry
+
+This specification requests that IANA add this specification as a reference for the `use_fresh_attestation` error, registered by {{ABCA}}, and extend its usage locations to include the pushed authorization request error response:
+
+Error Name:
+: `use_fresh_attestation`
+
+Existing Registration:
+: {{ABCA}}
+
+Error Usage Location:
+: pushed authorization request error response, in addition to the locations already registered
+
+Change Controller:
+: IETF
+
+Specification Document(s):
+: {{ABCA}}, this specification ({{errors}})
 
 ## Media Type Registration
 
