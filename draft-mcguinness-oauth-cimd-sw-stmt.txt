@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         25 October 2026
-Expires: 28 April 2027
+Intended status: Standards Track                         26 October 2026
+Expires: 29 April 2027
 
 
                         CIMD Software Statement
@@ -41,7 +41,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 28 April 2027.
+   This Internet-Draft will expire on 29 April 2027.
 
 Copyright Notice
 
@@ -140,6 +140,20 @@ Table of Contents
    The document remains the metadata and the statement records the
    decision, so one review is portable across every authorization server
    in the statement's audience.
+
+   This serves deployments in which a party other than the client
+   decides which software may connect: a marketplace or registry that
+   vouches for software to authorization servers it does not operate, an
+   enterprise that approves software for its users at a service run by
+   someone else, and server-hosted software, such as an agent, that
+   obtains tokens with the client_credentials grant.  An admitted client
+   is treated as reviewed, rather than under the authorization server's
+   policy for Client ID Metadata Document clients it has not reviewed.
+   A native application whose redirection URIs another application on
+   the device could claim, such as a loopback or private-use URI, gains
+   only a record of the review: its presentations are review-only
+   (Section 5.4.1) until an extension binds an installation key that a
+   third party vouches for (Section 11).
 
    A statement vouches for metadata, not for its presenter.  Possession
    of a statement alone admits nothing: the presenter is bound to the
@@ -1081,9 +1095,10 @@ Table of Contents
    establishments per resource owner, so that one user cannot exhaust a
    bound the software's other users share.
 
-   Software whose instances hold their own keys can neither prove nor
-   register those keys (Section 5.4, [REGISTRATION]) and depends on the
-   endorsement extension of Section 11.
+   Software whose instances authenticate as the client with keys of
+   their own, which the reviewed document does not carry, can neither
+   prove nor register those keys (Section 5.4, [REGISTRATION]) and
+   depends on the endorsement extension of Section 11.
 
 7.  Relationship to Other Work
 
