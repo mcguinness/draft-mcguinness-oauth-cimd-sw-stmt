@@ -245,7 +245,7 @@ The server cannot observe how an attester reached its decision, so it relies on 
 
 A server MUST NOT accept for this profile an evidence policy that does not meet these requirements. A deployment MAY use weaker evidence for other purposes but MUST NOT report it as satisfying this profile.
 
-A software statement approves the document and, through it, the software that the document's publisher, the controller of the document URL's origin or its delegate, associates with that document. The publisher decides which releases and artifacts that association covers, under the evidence policy's treatment of updates, so a new release served with unchanged metadata needs no new statement. Reviewed software under this profile therefore means the publisher's software as the publisher identifies it, not a particular executable the statement issuer examined. This specification defines no binding of a statement to a release, so a statement issuer that approves only particular releases cannot rely on this profile to enforce that limit.
+A statement approves the document and the software that its publisher (the controller of the document URL's origin, or a delegate) associates with it, not a particular executable. The publisher decides which releases that association covers, under the evidence policy's treatment of updates, so a new release with unchanged metadata needs no new statement. This profile cannot enforce an issuer's approval of particular releases.
 
 Attestation acquisition and platform evidence formats are out of scope. They require an interoperable agreement between the installation and its attester; the wire format below does not by itself supply a software-verification mechanism. {{launcher}} gives an implementation model and its prerequisites.
 
