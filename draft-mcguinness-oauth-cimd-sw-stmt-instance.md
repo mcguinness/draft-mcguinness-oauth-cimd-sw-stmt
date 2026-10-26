@@ -222,7 +222,7 @@ If the PAR request also carries `dpop_jkt`, its thumbprint MUST identify the end
 
 The client MUST start every grant under this profile at the PAR endpoint. Its request MUST include `client_id`, `response_type=code`, `redirect_uri`, a PKCE `code_challenge` with `code_challenge_method=S256`, and a transaction-specific `state`. It MUST authenticate under {{proof}}. A request using a Request Object MUST meet {{RFC9126}} and MUST NOT provide conflicting parameter values; the following checks apply to the effective authorization request.
 
-The client presents its software statement using `software_statement` as defined by {{STATEMENT}}, or the server obtains a statement through that specification's pulled-statement mechanism. An acceptable issuer-held review record can take the place of a presented statement only under the same validation and instance-binding requirements. Having issued the statement itself does not authenticate the requester.
+The client presents its software statement using `software_statement` as defined by {{STATEMENT}}, or the server obtains a statement through that specification's pulled-statement mechanism.
 
 Before returning a successful PAR response, the server MUST:
 
