@@ -685,7 +685,7 @@ Specification Document(s):
 
 ## Media Type Registration {#media-type}
 
-This specification requests registration of the following media type under {{RFC6838}}:
+This specification requests registration of the following media type in the "Media Types" registry, in the manner described in {{RFC6838}}:
 
 Type name:
 : application
@@ -703,7 +703,7 @@ Encoding considerations:
 : 8bit. Values are JWTs in compact serialization.
 
 Security considerations:
-: See {{security-considerations}} of this specification and the security considerations of {{ABCA}} and {{RFC7519}}.
+: See {{security-considerations}} of this specification, Section 12 of {{ABCA}}, and Section 11 of {{RFC7519}}.
 
 Interoperability considerations:
 : n/a
