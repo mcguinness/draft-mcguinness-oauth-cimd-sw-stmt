@@ -444,7 +444,7 @@ The following is an example of the decoded header and payload of an instance att
 }
 ~~~
 
-The policy URI denotes agreed evidence requirements. The server does not fetch it to decide whether to trust the attester. The document digest must equal the software statement's digest. The public key represents one installation; it is absent from the shared document.
+The policy URI denotes agreed evidence requirements. The server does not fetch it to decide whether to trust the attester. The document digest needs to equal the software statement's digest. The public key represents one installation; it is absent from the shared document.
 
 ## PAR and Redemption
 
@@ -500,7 +500,7 @@ grant_type=refresh_token
 &refresh_token=<refresh-token>
 ~~~
 
-If the review has expired, the server pulls a current replacement as {{STATEMENT}} permits for a grant established from a pulled statement. If the replacement names changed metadata, the attestation must name that same new digest while retaining the recorded key, attester, and policy. Otherwise the refresh fails without changing the binding.
+If the review has expired, the server pulls a current replacement as {{STATEMENT}} permits for a grant established from a pulled statement. If the replacement names changed metadata, the attestation needs to name that same new digest while retaining the recorded key, attester, and policy. Otherwise the refresh fails without changing the binding.
 
 # Authorization Server Metadata {#server-metadata}
 
@@ -751,7 +751,7 @@ The launcher creates or provisions the instance key in protected storage and obt
 
 For each authorization transaction, the launcher performs the OAuth exchange on behalf of the verified caller. For resource requests, it produces DPoP proofs only for resource endpoints the caller is authorized to reach and only with that caller's own access token. It never signs arbitrary input, and produces a proof for the authorization server only within its own transaction processing. The local session binds caller identity, server, callback, PKCE verifier, and resulting grant. It rechecks caller authorization when the key is used, including refresh, and protects returned tokens from other processes.
 
-An implementation must address changes between checking software and using the key, dynamic code loading, and the ability of an approved executable to proxy requests for others. Platforms without reliable process identity and key-use isolation cannot obtain that assurance merely by running the launcher with more privileges. A script-based command-line client may require an execution environment whose policy covers its interpreter, script, and dependencies, or a narrower assurance than reviewed executable identity.
+An implementation needs to address changes between checking software and using the key, dynamic code loading, and the ability of an approved executable to proxy requests for others. Platforms without reliable process identity and key-use isolation cannot obtain that assurance merely by running the launcher with more privileges. A script-based command-line client may require an execution environment whose policy covers its interpreter, script, and dependencies, or a narrower assurance than reviewed executable identity.
 
 # Verification Scenarios
 
