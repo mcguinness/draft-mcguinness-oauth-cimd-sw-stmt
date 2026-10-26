@@ -81,7 +81,7 @@ This specification defines an alternative binding made of three checks, which st
 
 The callback delivers the authorization response; it supplies no evidence of the presenter's software identity.
 
-The extension serves authorization code flows using pushed authorization requests (PAR) {{RFC9126}} and refresh of the resulting grants. It defines neither registration nor new token-endpoint presentations for other grants. {{REGISTRATION}} is unchanged: it rejects loopback redirects, so a document selecting this profile is never registered, and an issuer omits `registration` from the `statement_uses` of a statement over one. Neither {{STATEMENT}} nor {{REGISTRATION}} depends on this specification.
+This specification serves authorization code flows using pushed authorization requests (PAR) {{RFC9126}} and refresh of the resulting grants. It defines neither registration nor new token-endpoint presentations for other grants. {{REGISTRATION}} is unchanged: it rejects loopback redirects, so a document selecting this profile is never registered, and an issuer omits `registration` from the `statement_uses` of a statement over one. Neither {{STATEMENT}} nor {{REGISTRATION}} depends on this specification.
 
 The binding is only as strong as the attester's evidence that the software, not merely the device or the user, controls the key ({{software-evidence}}). Such evidence is available today mainly on managed endpoints, through an enterprise agent or launcher ({{launcher}}). On an unmanaged desktop, or for an interpreted command-line client, an attester typically cannot meet the requirements of {{trust}}, and the client remains review-only under {{STATEMENT}}.
 
@@ -123,7 +123,7 @@ The software statement's issuer and the client attester are separate roles. One 
 
 An authorization server implementing this specification MUST support PAR, PKCE with `S256` {{RFC7636}}, DPoP {{RFC9449}}, and the `attest_jwt_client_auth_dpop` method of {{ABCA}}, which uses a DPoP proof as the proof of possession (Sections 5.2 and 7.3 of {{ABCA}}). Clients MUST use that method at the PAR endpoint and at every token request under this specification. The same asymmetric key is used for client authentication and DPoP binding. The normal Client Attestation PoP JWT mode is not supported by this profile. Each installation holds its own credential, the endorsed key, so a client under this profile is a confidential client although it is a native application, as Section 8.4 of {{RFC8252}} contemplates for per-instance credentials.
 
-The client selects this profile by publishing `software_statement_instance_binding` with value `true` in its reviewed document ({{client-metadata}}). A server accepts a new establishment under the profile only if it supports the extension, the reviewed document selects it, and all admission checks succeed. The instance attestation's distinct `typ` identifies the corresponding attestation profile but does not alone enable admission.
+The client selects this profile by publishing `software_statement_instance_binding` with value `true` in its reviewed document ({{client-metadata}}). A server accepts a new establishment under the profile only if it supports this specification, the reviewed document selects it, and all admission checks succeed. The instance attestation's distinct `typ` identifies the corresponding attestation profile but does not alone enable admission.
 
 Once an establishment is created, its recorded binding selects the profile for every continuation. Selection MUST NOT depend on whether a continuation happens to include an attestation or on a newly fetched document omitting the selection member. Such omissions fail the request; they do not change the grant's binding.
 
@@ -164,7 +164,7 @@ This specification defines the following authorization server metadata member un
 
 A supporting server MUST publish its `pushed_authorization_request_endpoint`, include `attest_jwt_client_auth_dpop` in `token_endpoint_auth_methods_supported`, advertise `S256` in `code_challenge_methods_supported`, and publish `dpop_signing_alg_values_supported` ({{RFC9449}}) and `client_attestation_signing_alg_values_supported` (Section 8 of {{ABCA}}). It MUST support {{RFC9207}} and publish `authorization_response_iss_parameter_supported` as `true`.
 
-A client MUST confirm support for this extension before starting a grant under it. The generic attestation method advertisement alone is insufficient. This profile requires PAR for its clients even when the server also serves other clients without PAR; it does not require the server's global `require_pushed_authorization_requests` value to be `true`.
+A client MUST confirm support for this specification before starting a grant under it. The generic attestation method advertisement alone is insufficient. This profile requires PAR for its clients even when the server also serves other clients without PAR; it does not require the server's global `require_pushed_authorization_requests` value to be `true`.
 
 # Attester Trust and Evidence {#trust}
 
@@ -324,7 +324,7 @@ For establishments governed by this specification, the following rules replace o
 | 8.3 | Code redemption is rejected with `invalid_request`, `invalid_grant`, or, at the establishment bound, `invalid_client`. | Redemption can also return `invalid_client` or `invalid_client_attestation` for failed authentication, `statement_required`, `use_fresh_attestation`, or `temporarily_unavailable` ({{errors}}). |
 | 8.4 | A client not admitted on a statement receives `statement_required`. | A missing or invalid required pushed authorization request is rejected with `invalid_request` ({{errors}}). |
 
-Code redemption and refresh continue an establishment and are not new token-endpoint presentations, so the rejection in {{STATEMENT}} of a token-endpoint presentation from a client whose document carries no key material is unchanged. All other requirements of {{STATEMENT}} continue to apply, including digest processing, issuer trust, statement audience and tenant checks, refusal records, the `iat` floor, and bounds on repeated consumption. The extension applies equally to presented and pulled statements. It adds no requirement to issue statements or implement {{REGISTRATION}}.
+Code redemption and refresh continue an establishment and are not new token-endpoint presentations, so the rejection in {{STATEMENT}} of a token-endpoint presentation from a client whose document carries no key material is unchanged. All other requirements of {{STATEMENT}} continue to apply, including digest processing, issuer trust, statement audience and tenant checks, refusal records, the `iat` floor, and bounds on repeated consumption. This specification applies equally to presented and pulled statements. It adds no requirement to issue statements or implement {{REGISTRATION}}.
 
 An implementation of {{STATEMENT}} alone does not gain these exceptions. Its review-only treatment of claimable redirects continues to apply. A supporting server MUST NOT infer this profile's assurance from successful generic client authentication without all of this specification's checks.
 
@@ -463,7 +463,7 @@ If the review has expired, the server pulls a current replacement as {{STATEMENT
 
 # Security Considerations {#security-considerations}
 
-The security requirements of {{STATEMENT}}, {{ABCA}}, {{CIMD}}, {{RFC8252}}, and {{RFC9700}} apply. This section describes the additional trust boundary introduced by the extension.
+The security requirements of {{STATEMENT}}, {{ABCA}}, {{CIMD}}, {{RFC8252}}, and {{RFC9700}} apply. This section describes the additional trust boundary introduced by this specification.
 
 ## Software Evidence and Key Use {#software-evidence}
 
@@ -483,7 +483,7 @@ The client MUST keep its verifier and transaction state confidential and unpredi
 
 A server requiring reviewed software for a client namespace or tenant MUST enforce that requirement even when the requester omits every review artifact or presents an earlier document. A server requiring this binding MUST reject attempts to open a grant under an alternative authentication method, through a direct authorization request, or through another grant type. These requirements MUST be based on server policy, not inferred only from artifacts a requester can withhold.
 
-The server MUST enforce the reviewed binding selection on every new admission under that document. A deployment permitting unrelated unreviewed clients MAY continue to do so under its own policy, but a failed request under this profile MUST NOT silently become an unreviewed request. Any independently admitted unreviewed client carries none of this extension's assurance.
+The server MUST enforce the reviewed binding selection on every new admission under that document. A deployment permitting unrelated unreviewed clients MAY continue to do so under its own policy, but a failed request under this profile MUST NOT silently become an unreviewed request. Any independently admitted unreviewed client carries none of the assurance of this specification.
 
 Existing grants retain their recorded binding. Removing metadata, changing an attester or policy, or presenting a fresh proof under a new key cannot relax it. A server implementing only {{STATEMENT}} continues to reject these clients where review is required.
 
