@@ -294,7 +294,7 @@ The client sends `grant_type=authorization_code`, the code, the same `client_id`
 
 Before issuing tokens, the server MUST verify the code and PKCE binding and every fixed establishment value in {{establishment}}. It MUST re-evaluate both trust decisions, require the recorded statement to be unexpired and not refused, and confirm that the current Client ID Metadata Document still matches its recorded digest and meets {{client-metadata}}. Retrieval and cache reuse use the freshness bounds of {{STATEMENT}}. The attestation MUST match that digest and be within its effective expiry.
 
-An attestation MAY have been renewed since PAR, but its key, attester, policy, and subject MUST match the establishment. If the metadata changed or the recorded statement needs replacement, the client MUST start a new PAR transaction; code redemption cannot replace the governing review. A raised `iat` floor alone does not invalidate a code already bound to an acceptable recorded statement.
+An attestation MAY have been renewed since PAR, but its key, attester, policy, and subject MUST match the establishment. If the metadata changed or the recorded statement needs replacement, the client MUST start a new PAR transaction; code redemption cannot replace the governing review. The metadata has also changed for this purpose when a replacement accepted on refresh of another grant sharing the establishment has changed its digest since the code's pushed authorization request, and {{STATEMENT}} then rejects the code with `invalid_grant`. A raised `iat` floor alone does not invalidate a code already bound to an acceptable recorded statement.
 
 The server MUST issue tokens only within the user's authorization, tenant policy, and reviewed metadata. It MUST bind any refresh token to the establishment, and MUST issue access tokens, at redemption and on refresh ({{refresh}}), bound to the proven key with a `token_type` of `DPoP` (Section 5 of {{RFC9449}}). The effective expiry of each access token, whether the token is a JWT or an opaque reference, MUST NOT be later than the attestation effective expiry accepted for the request that obtained it. A client therefore refreshes, with a fresh attestation, at least as often as its attester's evidence age allows. A resource server that does not accept DPoP-bound access tokens cannot be used under this profile. A DPoP proof shows possession of the attested key at the resource server; it does not show that the software was re-evaluated at that moment.
 
@@ -368,7 +368,7 @@ The following error codes apply to pushed authorization requests, code redemptio
 : Missing or unacceptable server DPoP nonce.
 
 `invalid_grant`:
-: At redemption or refresh, a validly authenticated instance does not match the recorded key, attester, policy, or client; or, at redemption, the current document no longer matches the recorded digest; or, at refresh, the current document no longer selects this profile or meets {{client-metadata}}.
+: At redemption or refresh, a validly authenticated instance does not match the recorded key, attester, policy, or client; or, at redemption, the current document no longer matches the recorded digest, or that digest differs from the one recorded with the code ({{STATEMENT}}); or, at refresh, the current document no longer selects this profile or meets {{client-metadata}}.
 
 `statement_required`:
 : A required statement is missing, expired, refused, or superseded, or, at refresh, a needed replacement is missing or unacceptable.
@@ -770,6 +770,7 @@ This appendix is non-normative. An implementation exercise should include the fo
 * A nonce retry neither consumes grant state nor advances the `iat` floor.
 * A refresh with a renewed attestation for the original key, attester, and policy succeeds when the review remains current.
 * A metadata replacement without a matching current attestation fails without changing the establishment.
+* A code outstanding while another grant sharing its establishment refreshes onto a replacement over new metadata is rejected at redemption, and the client restarts at the PAR endpoint.
 * A new key, attester, policy, or tenant cannot take over an existing grant.
 * Withdrawal or removal of trust prevents continuation despite a fresh proof.
 * Omitting attestations or using direct authorization cannot bypass a server requirement for this binding.
