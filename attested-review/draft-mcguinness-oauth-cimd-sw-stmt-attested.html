@@ -2540,7 +2540,11 @@ grant_type=refresh_token
 <dl class="references">
 <dt id="APPLE-APPATTEST">[APPLE-APPATTEST]</dt>
         <dd>
-<span class="refAuthor">Apple Inc.</span>, <span class="refTitle">"isSupported"</span>, <span>n.d.</span>, <span>&lt;<a href="https://developer.apple.com/documentation/devicecheck/dcappattestservice/issupported">https://developer.apple.com/documentation/devicecheck/dcappattestservice/issupported</a>&gt;</span>. </dd>
+<span class="refAuthor">Apple Inc.</span>, <span class="refTitle">"Establishing your app's integrity"</span>, <span>n.d.</span>, <span>&lt;<a href="https://developer.apple.com/documentation/devicecheck/establishing-your-app-s-integrity">https://developer.apple.com/documentation/devicecheck/establishing-your-app-s-integrity</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="APPLE-APPCONFIG">[APPLE-APPCONFIG]</dt>
+        <dd>
+<span class="refAuthor">Apple Inc.</span>, <span class="refTitle">"AppManaged"</span>, <span>n.d.</span>, <span>&lt;<a href="https://developer.apple.com/documentation/devicemanagement/appmanaged">https://developer.apple.com/documentation/devicemanagement/appmanaged</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="APPLE-DEBUGGER">[APPLE-DEBUGGER]</dt>
         <dd>
@@ -2570,6 +2574,10 @@ grant_type=refresh_token
         <dd>
 <span class="refAuthor">Apple Inc.</span>, <span class="refTitle">"Hardened Runtime"</span>, <span>n.d.</span>, <span>&lt;<a href="https://developer.apple.com/documentation/security/hardened-runtime">https://developer.apple.com/documentation/security/hardened-runtime</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="APPLE-WWDC26">[APPLE-WWDC26]</dt>
+        <dd>
+<span class="refAuthor">Apple Inc.</span>, <span class="refTitle">"Secure your apps with App Attest"</span>, <span class="seriesInfo">WWDC26 Session 201</span>, <time datetime="2026" class="refDate">2026</time>, <span>&lt;<a href="https://developer.apple.com/videos/play/wwdc2026/201/">https://developer.apple.com/videos/play/wwdc2026/201/</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="APPLE-XPC">[APPLE-XPC]</dt>
         <dd>
 <span class="refAuthor">Apple Inc.</span>, <span class="refTitle">"setCodeSigningRequirement(_:)"</span>, <span>n.d.</span>, <span>&lt;<a href="https://developer.apple.com/documentation/foundation/nsxpcconnection/setcodesigningrequirement(_:)">https://developer.apple.com/documentation/foundation/nsxpcconnection/setcodesigningrequirement(_:)</a>&gt;</span>. </dd>
@@ -2598,7 +2606,7 @@ grant_type=refresh_token
         <h3 id="name-example-macos">
 <a href="#appendix-A.1" class="section-number selfRef">A.1. </a><a href="#name-example-macos" class="section-name selfRef">Example: macOS</a>
         </h3>
-<p id="appendix-A.1-1">This example uses facilities of macOS 14 or later on Apple silicon. It shows one way a platform can meet the boundary of <a href="#trust" class="auto internal xref">Section 5</a>, not the only way.<a href="#appendix-A.1-1" class="pilcrow">¶</a></p>
+<p id="appendix-A.1-1">This example uses facilities of macOS 27 or later on Apple silicon, and a launcher of an application type for which App Attest is available <span>[<a href="#APPLE-WWDC26" class="cite xref">APPLE-WWDC26</a>]</span>. It shows one way a platform can meet the boundary of <a href="#trust" class="auto internal xref">Section 5</a>, not the only way.<a href="#appendix-A.1-1" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="appendix-A.1-2">
           <dt id="appendix-A.1-2.1">Software identity:</dt>
           <dd style="margin-left: 1.5em" id="appendix-A.1-2.2">
@@ -2607,7 +2615,7 @@ grant_type=refresh_token
           <dd class="break"></dd>
 <dt id="appendix-A.1-2.3">Privilege boundary:</dt>
           <dd style="margin-left: 1.5em" id="appendix-A.1-2.4">
-            <p id="appendix-A.1-2.4.1">The launcher is a per-user agent in an app-like bundle with an embedded provisioning profile, deployed and configured through the organization's device management service. macOS makes a data protection keychain access group available to a program only through code-signing entitlements that a provisioning profile authorizes, and only in a user context <span>[<a href="#APPLE-KEYCHAIN" class="cite xref">APPLE-KEYCHAIN</a>]</span>. The profile authorizes an access group for the launcher alone.<a href="#appendix-A.1-2.4.1" class="pilcrow">¶</a></p>
+            <p id="appendix-A.1-2.4.1">The launcher is a per-user application with an embedded provisioning profile, deployed and configured through the organization's device management service. macOS makes a data protection keychain access group available to a program only through code-signing entitlements that a provisioning profile authorizes, and only in a user context <span>[<a href="#APPLE-KEYCHAIN" class="cite xref">APPLE-KEYCHAIN</a>]</span>. The profile authorizes an access group for the launcher alone.<a href="#appendix-A.1-2.4.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 <dt id="appendix-A.1-2.5">Instance key:</dt>
@@ -2630,14 +2638,24 @@ grant_type=refresh_token
             <p id="appendix-A.1-2.12.1">The launcher performs the OAuth exchange for the connected client and produces DPoP proofs only as <a href="#software-evidence" class="auto internal xref">Section 14.1</a> describes. It keeps the refresh token itself and returns the access token only to the connected client whose session obtained it.<a href="#appendix-A.1-2.12.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="appendix-A.1-2.13">Evidence and renewal:</dt>
+<dt id="appendix-A.1-2.13">Device:</dt>
           <dd style="margin-left: 1.5em" id="appendix-A.1-2.14">
-            <p id="appendix-A.1-2.14.1">The device holds a hardware-bound identity enrolled through Managed Device Attestation, which lets the enterprise service confirm a genuine Apple device that the organization manages <span>[<a href="#APPLE-MDA" class="cite xref">APPLE-MDA</a>]</span>. The launcher authenticates to the service with that identity and reports the instance key and the client's verified signing identity. Apple's App Attest reports itself unsupported on a Mac <span>[<a href="#APPLE-APPATTEST" class="cite xref">APPLE-APPATTEST</a>]</span>, so no Apple attestation covers the instance key itself, and the service relies on the managed launcher for the statement that the key is in the Secure Enclave and usable only by the launcher. Before the evidence policy's maximum evidence age expires, the launcher re-checks the device's management state and the client's signature and obtains an attestation on that new evidence.<a href="#appendix-A.1-2.14.1" class="pilcrow">¶</a></p>
+            <p id="appendix-A.1-2.14.1">Managed Device Attestation lets the organization's device management service confirm that the device is a genuine Apple device it manages, with a hardware-bound identity key <span>[<a href="#APPLE-MDA" class="cite xref">APPLE-MDA</a>]</span>. It establishes properties of the device, not which program on the device is reporting, so it does not authenticate the launcher.<a href="#appendix-A.1-2.14.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="appendix-A.1-2.15">Unsupported case:</dt>
+<dt id="appendix-A.1-2.15">Launcher authentication:</dt>
           <dd style="margin-left: 1.5em" id="appendix-A.1-2.16">
-            <p id="appendix-A.1-2.16.1">A script run by a signed interpreter, such as a Python program that can import any module on the system, is not covered. The signature the launcher verifies is the interpreter's, and library validation constrains the native code the interpreter loads, not the scripts and modules it reads. The evidence therefore does not identify the software a statement covers. Such a client remains review-only under <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, or needs an execution environment whose policy covers its interpreter, script, and dependencies.<a href="#appendix-A.1-2.16.1" class="pilcrow">¶</a></p>
+            <p id="appendix-A.1-2.16.1">The launcher therefore registers with the enterprise service through App Attest: it generates an App Attest key, and the service verifies Apple's attestation that the key belongs to a valid instance of the launcher <span>[<a href="#APPLE-APPATTEST" class="cite xref">APPLE-APPATTEST</a>]</span>. To tie that key to the managed device, the device management service delivers a single-use enrollment secret to the launcher through managed app configuration, which macOS applies only to an application whose code signature matches the configured identifier <span>[<a href="#APPLE-APPCONFIG" class="cite xref">APPLE-APPCONFIG</a>]</span>, and the launcher returns the secret with the attestation. After registration, the launcher sends each report, carrying the instance public key and the client's verified signing identity, with an App Attest assertion over a hash of the report, so another process cannot submit a report under the launcher's identity.<a href="#appendix-A.1-2.16.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="appendix-A.1-2.17">Evidence and renewal:</dt>
+          <dd style="margin-left: 1.5em" id="appendix-A.1-2.18">
+            <p id="appendix-A.1-2.18.1">App Attest certifies only the launcher's own key, not a key such as the instance key, so no Apple attestation covers the instance key itself. The service relies on the authenticated launcher for the statement that the instance key is in the Secure Enclave and usable only by the launcher. Before the evidence policy's maximum evidence age expires, the launcher re-checks the device's management state and the client's signature and obtains an attestation on that new evidence.<a href="#appendix-A.1-2.18.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="appendix-A.1-2.19">Unsupported case:</dt>
+          <dd style="margin-left: 1.5em" id="appendix-A.1-2.20">
+            <p id="appendix-A.1-2.20.1">A script run by a signed interpreter, such as a Python program that can import any module on the system, is not covered. The signature the launcher verifies is the interpreter's, and library validation constrains the native code the interpreter loads, not the scripts and modules it reads. The evidence therefore does not identify the software a statement covers. Such a client remains review-only under <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, or needs an execution environment whose policy covers its interpreter, script, and dependencies.<a href="#appendix-A.1-2.20.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
