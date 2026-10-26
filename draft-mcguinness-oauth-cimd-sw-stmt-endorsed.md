@@ -192,7 +192,7 @@ Attestation acquisition and platform evidence formats are out of scope. They req
 
 # Instance Attestation {#attestation}
 
-An instance attestation is a Client Attestation JWT (Section 4 of {{ABCA}}) with the following additional requirements, which Section 13 of {{ABCA}} permits a profile to define. Together with the document's selection of this profile ({{selection}}), its type tells a server that this profile applies. Its JOSE `typ` MUST be `cimd-instance-attestation+jwt`. It MUST be digitally signed using an accepted asymmetric algorithm; a MAC or `none` MUST NOT be accepted. Its header and claims MUST contain no duplicate member names. Validation MUST apply {{RFC8725}}.
+An instance attestation is a Client Attestation JWT (Section 4 of {{ABCA}}) with the following additional requirements. Section 4 of {{ABCA}} permits additional claims, and Section 13 permits a profile its own `typ`. Together with the document's selection of this profile ({{selection}}), its type tells a server that this profile applies. Its JOSE `typ` MUST be `cimd-instance-attestation+jwt`. It MUST be digitally signed using an accepted asymmetric algorithm; a MAC or `none` MUST NOT be accepted. Its header and claims MUST contain no duplicate member names. Validation MUST apply {{RFC8725}}.
 
 The attestation retains the `sub`, `cnf` ({{RFC7800}}), `iat`, and `exp` requirements of {{ABCA}}. Its `sub` MUST be the exact CIMD client identifier URL. In addition, it MUST contain:
 
