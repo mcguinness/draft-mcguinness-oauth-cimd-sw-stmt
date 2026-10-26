@@ -398,6 +398,8 @@ An authorization server can reuse an establishment across presentations that res
 
 The establishment persists while the grant depends on it. The authorization server MUST bind the resulting `request_uri`, authorization code, refresh token, and other grant continuation state to the establishment, as applicable, and can discard it once no such state references it.
 
+The authorization server MUST also record, with each `request_uri` and authorization code, the digest of the reviewed metadata its request was evaluated against ({{effective-metadata}}). A replacement accepted on refresh of another grant sharing the establishment ({{refresh}}) can change the establishment's digest while a code is outstanding. Redemption of a code whose recorded digest differs from the establishment's is rejected with `invalid_grant`, and the client starts a new authorization request.
+
 A token request that redeems an authorization code opened by a presentation:
 
 * MUST have a `client_id` exactly equal to the establishment's `sub`, even if the client authenticates.
@@ -523,7 +525,7 @@ A request rejected for another reason, such as an assertion grant whose assertio
 
 ## Code Redemption and Refresh {#continuation-errors}
 
-A token request that redeems an authorization code opened by a presentation is rejected with `invalid_request` if it carries `software_statement`, with `invalid_grant` if its client identifier or key binding fails ({{grant-lifecycle}}), and with `invalid_client` if the bound on establishments of {{multi-instance}} is reached ({{effective-metadata}}).
+A token request that redeems an authorization code opened by a presentation is rejected with `invalid_request` if it carries `software_statement`, with `invalid_grant` if its client identifier or key binding fails or its recorded digest differs from the establishment's ({{grant-lifecycle}}), and with `invalid_client` if the bound on establishments of {{multi-instance}} is reached ({{effective-metadata}}).
 
 Under an establishment, a refresh-token request rejected for a reason this specification defines uses the following error codes:
 
