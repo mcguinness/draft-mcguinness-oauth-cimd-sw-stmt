@@ -616,7 +616,7 @@ Short effective lifetimes limit stale evidence but make attester availability im
 
 Servers MUST enforce finite evidence and trust-data reuse bounds. A failure to retrieve metadata, reviews, or trust updates MUST NOT extend a recorded expiry or remove a refusal. An access token cannot outlive the attestation accepted when it was issued ({{redemption}}), but it can outlive a review withdrawn or attester trust removed after issuance ({{withdrawal}}).
 
-Metadata digest binding can require coordinated publication of a new document, review, and attestation. During an incomplete transition a request fails. A server MUST NOT substitute semantically similar JSON, omit members from the digest, or continue with an older digest beyond permitted cache reuse merely to avoid that failure.
+Metadata digest binding can require coordinated publication of a new document, review, and attestation ({{operations}}). During an incomplete transition a request fails: {{STATEMENT}} does not treat the changed document as reviewed, and this profile does not fall back ({{par}}).
 
 ## Resource Exhaustion
 
