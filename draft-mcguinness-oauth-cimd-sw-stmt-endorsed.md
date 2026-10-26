@@ -94,7 +94,7 @@ The following sequence is non-normative:
 3. The installation sends a PAR request with PKCE, the attestation, and a DPoP proof. It supplies the software statement or lets the server pull it.
 4. The server validates both trust decisions and their bindings before returning a `request_uri`.
 5. The user authorizes in an external browser. The code returns over loopback and is redeemed with the PKCE verifier and the endorsed key.
-6. Refresh requires the original key, a current acceptable attestation, and a current acceptable software statement. A different key requires a new grant.
+6. Refresh requires the proven key, a current acceptable attestation, and a current acceptable software statement. A different key requires a new grant.
 
 # Conventions and Definitions
 
@@ -110,6 +110,9 @@ Instance Attestation:
 
 Evidence Policy:
 : A versioned set of requirements for establishing the association between software, an instance key, and reviewed metadata. It covers evidence collection, verification, freshness, and protection of key use.
+
+Endorsed Key:
+: The key an instance attestation's `cnf` claim names. Once an establishment records it, it is the establishment's Proven Key ({{STATEMENT}}), which this specification also calls the recorded key.
 
 Attestation Effective Expiry:
 : An instance attestation's `exp`. An accepted evidence policy sets it no later than the time the attester's evidence was collected plus the policy's maximum evidence age ({{trust}}), so an attestation before its `exp` rests on evidence no older than that maximum.
@@ -218,7 +221,7 @@ At each PAR request, code redemption, and refresh, the authorization server MUST
 * The attester and policy are currently accepted for this client identifier and tenant, and the key is not denied by local policy.
 * The request's `client_id`, the software statement's `sub`, and the attestation's `sub` are exactly equal.
 * The attestation's `cimd_digest`, the applicable software statement's `cimd_digest`, and the digest of the reviewed document are equal.
-* The attested public key and proven DPoP key are equal under the key-comparison rules of Section 7.3 of {{ABCA}}.
+* The endorsed key and the key of the DPoP proof are equal under the key-comparison rules of Section 7.3 of {{ABCA}}.
 
 On continuation, the recorded key, attester, policy, and tenant constraints of {{establishment}} also apply. The server MUST NOT treat an attestation for another digest as permission to update metadata without the software statement replacement required by {{refresh}}.
 
@@ -258,7 +261,7 @@ An establishment records all state required by {{STATEMENT}} and, in addition:
 * The exact attester identifier and evidence-policy identifier.
 * The attester trust decision and the attestation effective expiry most recently accepted.
 
-The proven key is the attestation key used for DPoP. A server MAY reuse an establishment only when the core reuse conditions hold and the profile, attester, policy, and tenant also match. Individual authorization transactions still retain separate PKCE challenges, redirects, `state`, resource-owner decisions, and continuation state.
+The proven key is the endorsed key, which is also the DPoP key. A server MAY reuse an establishment only when the core reuse conditions hold and the profile, attester, policy, and tenant also match. Individual authorization transactions still retain separate PKCE challenges, redirects, `state`, resource-owner decisions, and continuation state.
 
 The client identifier, tenant, key, attester, policy, and binding profile MUST remain fixed for the lifetime of the grant. Changing any of them requires a new grant opened through PAR. A fresh attestation for the same tuple can renew its evidence, and a software statement replacement can update its reviewed metadata only as {{refresh}} permits. Neither operation changes the tuple.
 
@@ -284,17 +287,17 @@ The server MUST issue tokens only within the user's authorization, tenant policy
 
 # Grant Continuation {#refresh}
 
-Every refresh request MUST carry the original client identifier, the refresh token, a current instance attestation, and a fresh DPoP proof under the establishment's original key. The server MUST authenticate the instance, verify the refresh-token binding, and enforce the fixed values of {{establishment}} before accepting any replacement statement.
+Every refresh request MUST carry the original client identifier, the refresh token, a current instance attestation, and a fresh DPoP proof under the establishment's proven key. The server MUST authenticate the instance, verify the refresh-token binding, and enforce the fixed values of {{establishment}} before accepting any replacement statement.
 
 On every refresh the server MUST require a current, unexpired, unrefused software statement and re-evaluate its issuer trust decision. This strengthens the optional statement-currency check in core. It MUST also verify that the currently served document matches the applicable statement and attestation digests and continues to meet {{client-metadata}}. Removal of the binding member or a change to another authentication method ends continuation under this profile, and the refresh is rejected with `invalid_grant`, as {{STATEMENT}} rejects a refresh whose document no longer carries the proven key.
 
 The recorded statement can remain applicable while it is unexpired, not refused, and matches the current document, even if a newer statement has raised the `iat` floor for new admissions. If it no longer qualifies, a replacement is required. The client can present a replacement in `software_statement` or, for an establishment created from a pulled statement, the server pulls one as {{STATEMENT}} specifies. A request carrying the same `iss` and `jti` as the recorded statement is a recheck, not a replacement.
 
-A replacement MUST satisfy core's replacement validation, including identical statement `iss` and `sub`, a later `iat`, and current metadata. Its decision MUST apply to the establishment's recorded tenant and runtime use. Instead of authorizing a document key or preserving core's public-client conditions, the replacement MUST preserve this profile and authorize the original instance key through a current attestation from the recorded attester under the recorded policy. The replacement and attestation MUST name the same current metadata digest. A replacement cannot expand access beyond the original grant, resource-owner authorization, or current server policy.
+A replacement MUST satisfy core's replacement validation, including identical statement `iss` and `sub`, a later `iat`, and current metadata. Its decision MUST apply to the establishment's recorded tenant and runtime use. Instead of authorizing a document key or preserving core's public-client conditions, the replacement MUST preserve this profile and authorize the establishment's proven key through a current attestation from the recorded attester under the recorded policy. The replacement and attestation MUST name the same current metadata digest. A replacement cannot expand access beyond the original grant, resource-owner authorization, or current server policy.
 
 On success, the server MUST atomically update the recorded statement, metadata, digest, and trust decisions and apply core's concurrency rules for replacements. It also records the newly accepted attestation effective expiry. A failed attempt MUST NOT replace the recorded binding or rotate a refresh token. This does not prevent the server from recording a withdrawal or trust removal learned during processing, or applying independent refresh-token replay protections.
 
-Attestation renewal for the original key is not key rotation and does not reset the `iat` floor or an establishment count. This specification defines no migration of an existing grant to a new key, attester, evidence policy, or tenant.
+Attestation renewal for the proven key is not key rotation and does not reset the `iat` floor or an establishment count. This specification defines no migration of an existing grant to a new key, attester, evidence policy, or tenant.
 
 ## Withdrawal and Trust Changes {#withdrawal}
 
@@ -332,7 +335,7 @@ The endpoint-specific syntax and response rules of {{RFC6749}}, {{RFC9126}}, {{S
 | Error | Condition |
 | --- | --- |
 | `invalid_request` | Malformed or conflicting request parameters, or a `software_statement` parameter on code redemption |
-| `invalid_client` | Missing or unacceptable attestation, untrusted attester or policy, a DPoP proof under a key other than the attested key, or a request carrying an instance attestation for a document that does not select this profile or violates {{client-metadata}} |
+| `invalid_client` | Missing or unacceptable attestation, untrusted attester or policy, a DPoP proof under a key other than the endorsed key, or a request carrying an instance attestation for a document that does not select this profile or violates {{client-metadata}} |
 | `use_fresh_attestation` | An otherwise valid attestation whose `exp` has passed, or that names a digest other than that of the document currently served, which this profile treats as not fresh enough (Section 7.4 of {{ABCA}}) |
 | `use_dpop_nonce` | Missing or unacceptable server DPoP nonce |
 | `invalid_grant` | At redemption or refresh, a validly authenticated instance does not match the recorded key, attester, policy, or client; or, at redemption, the current document no longer matches the recorded digest |
