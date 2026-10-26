@@ -1,7 +1,7 @@
 ---
 title: "Attested Instance Keys for CIMD Software Statements"
 abbrev: CIMD Attested Keys
-docname: draft-mcguinness-oauth-cimd-sw-stmt-endorsed-latest
+docname: draft-mcguinness-oauth-cimd-sw-stmt-attested-latest
 category: std
 submissiontype: IETF
 
