@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         25 October 2026
-Expires: 28 April 2027
+Intended status: Standards Track                         26 October 2026
+Expires: 29 April 2027
 
 
                   CIMD Software Statement Registration
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 28 April 2027.
+   This Internet-Draft will expire on 29 April 2027.
 
 Copyright Notice
 
@@ -444,26 +444,28 @@ Table of Contents
    [RFC7592] requires, which the server does not take (Section 3).
 
    A statement with the governing statement's iss and sub and an iat no
-   later than the governing statement's iat is not a replacement.  A
-   client sends one in two ordinary cases:
+   later than the governing statement's iat is not a replacement.  The
+   authorization server leaves the registration unchanged and treats a
+   request as carrying no replacement in either of the following cases,
+   so that the request proceeds while the registration is valid and is
+   rejected as Section 3.2 provides once it is not:
 
-   *  An [RFC7592] update request repeats, unmodified, the statement
-      that a registration, read, or update response returned
-      (Section 3.2.1 of [RFC7591]; Section 2.2 of [RFC7592]).  After a
-      token or pushed authorization request has renewed the
-      registration, that statement can be older than the governing
-      statement.
+   *  The request carries the governing statement itself, identified by
+      its iss and jti.  A client sends it, for example, after losing the
+      response to the request that renewed the registration, or by
+      attaching its current statement to later requests.
 
-   *  A client that lost the response to the request that renewed the
-      registration offers the governing statement again.
+   *  The request is an [RFC7592] update request, which repeats,
+      unmodified, the statement that a registration, read, or update
+      response returned (Section 3.2.1 of [RFC7591]; Section 2.2 of
+      [RFC7592]).  After a token or pushed authorization request has
+      renewed the registration, that statement can be older than the
+      governing statement.
 
-   In those two cases, the authorization server leaves the registration
-   unchanged and treats the request as carrying no replacement: the
-   request proceeds while the registration is valid and is rejected as
-   Section 3.2 provides once it is not.  Any other statement older than
-   the governing statement is superseded under the iat floor of
-   [STATEMENT], and a request carrying it at the token or pushed
-   authorization request endpoint is rejected with statement_required.
+   Any other statement older than the governing statement is superseded
+   under the iat floor of [STATEMENT], and a request carrying it at the
+   token or pushed authorization request endpoint is rejected with
+   statement_required.
 
    An [RFC7592] read or update response returns the governing statement
    as its software_statement member.
