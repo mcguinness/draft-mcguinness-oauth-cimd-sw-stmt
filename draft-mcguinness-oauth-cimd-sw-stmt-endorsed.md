@@ -357,21 +357,32 @@ A rejection uses the error response format and HTTP status codes specified for t
 * At the token endpoint, Section 5.2 of {{RFC6749}} applies.
 * At the authorization endpoint, Section 4.1.2.1 of {{RFC6749}} applies.
 
-The error rules of {{STATEMENT}}, {{ABCA}}, and {{RFC9449}} also apply. This specification defines no new error code. The following table applies to pushed authorization requests, code redemption, and refresh, except where a condition names a particular endpoint. Other OAuth errors, such as `invalid_scope`, continue to apply to their respective failures.
+The error rules of {{STATEMENT}}, {{ABCA}}, and {{RFC9449}} also apply. This specification defines no new error code. The following error codes apply to pushed authorization requests, code redemption, and refresh, except where a condition names a particular endpoint. Other OAuth errors, such as `invalid_scope`, continue to apply to their respective failures.
 
-| Error | Condition |
-| --- | --- |
-| `invalid_request` | Malformed or conflicting request parameters, or a `software_statement` parameter on code redemption |
-| `invalid_client` | Missing or unacceptable attestation, untrusted attester or policy, a request carrying the `OAuth-Client-Attestation-PoP` header field, a DPoP proof under a key other than the endorsed key, or, at the PAR endpoint, a request carrying an instance attestation for a document that does not select this profile or violates {{client-metadata}} |
-| `use_fresh_attestation` | An otherwise valid attestation whose `exp` has passed, or that names a digest other than that of the document currently served while that document matches the applicable statement, which this profile treats as not fresh enough (Section 7.4 of {{ABCA}}) |
-| `use_dpop_nonce` | Missing or unacceptable server DPoP nonce |
-| `invalid_grant` | At redemption or refresh, a validly authenticated instance does not match the recorded key, attester, policy, or client; or, at redemption, the current document no longer matches the recorded digest; or, at refresh, the current document no longer selects this profile or meets {{client-metadata}} |
-| `statement_required` | A required statement is missing, expired, refused, or superseded, or, at refresh, a needed replacement is missing or unacceptable |
-| `temporarily_unavailable` | A retrieval needed for validation temporarily fails |
+`invalid_request`:
+: Malformed or conflicting request parameters, or a `software_statement` parameter on code redemption.
+
+`invalid_client`:
+: Missing or unacceptable attestation, untrusted attester or policy, a request carrying the `OAuth-Client-Attestation-PoP` header field, a DPoP proof under a key other than the endorsed key, or, at the PAR endpoint, a request carrying an instance attestation for a document that does not select this profile or violates {{client-metadata}}.
+
+`use_fresh_attestation`:
+: An otherwise valid attestation whose `exp` has passed, or that names a digest other than that of the document currently served while that document matches the applicable statement, which this profile treats as not fresh enough (Section 7.4 of {{ABCA}}).
+
+`use_dpop_nonce`:
+: Missing or unacceptable server DPoP nonce.
+
+`invalid_grant`:
+: At redemption or refresh, a validly authenticated instance does not match the recorded key, attester, policy, or client; or, at redemption, the current document no longer matches the recorded digest; or, at refresh, the current document no longer selects this profile or meets {{client-metadata}}.
+
+`statement_required`:
+: A required statement is missing, expired, refused, or superseded, or, at refresh, a needed replacement is missing or unacceptable.
+
+`temporarily_unavailable`:
+: A retrieval needed for validation temporarily fails.
 
 Invalid statements and reviewed documents at the PAR endpoint otherwise use the error rules of {{STATEMENT}}. At refresh, an unacceptable replacement uses `statement_required` as in {{STATEMENT}}. A document exceeding a configured size bound is not a transient failure; apply the non-transient retrieval and refresh errors of {{STATEMENT}}. An invalid or expired code or refresh token, failed PKCE check, or mismatched redemption redirect uses `invalid_grant`.
 
-A DPoP proof that fails the checks of Section 4.3 of {{RFC9449}} is rejected with `invalid_dpop_proof`, and a missing or unacceptable nonce with `use_dpop_nonce`, in place of any code in the table above, as {{STATEMENT}} provides for proof-mechanism errors. A valid proof under a key other than the attestation's `cnf` key is not an invalid proof: authentication fails (Section 7.3 of {{ABCA}}), and the request is rejected with `invalid_client`, or with `invalid_client_attestation` as Section 7.4 of {{ABCA}} permits. At code redemption and refresh, an instance that authenticates under a key other than the establishment's recorded key fails the grant binding and is rejected with `invalid_grant`.
+A DPoP proof that fails the checks of Section 4.3 of {{RFC9449}} is rejected with `invalid_dpop_proof`, and a missing or unacceptable nonce with `use_dpop_nonce`, in place of any code listed above, as {{STATEMENT}} provides for proof-mechanism errors. A valid proof under a key other than the attestation's `cnf` key is not an invalid proof: authentication fails (Section 7.3 of {{ABCA}}), and the request is rejected with `invalid_client`, or with `invalid_client_attestation` as Section 7.4 of {{ABCA}} permits. At code redemption and refresh, an instance that authenticates under a key other than the establishment's recorded key fails the grant binding and is rejected with `invalid_grant`.
 
 Servers MUST check basic request syntax before reporting errors requiring authentication. They MUST authenticate the instance before reporting errors about a code, refresh token, or the review governing that grant. Within authentication, they MUST verify attester identity, signature, and policy before returning `use_fresh_attestation`. Nonce challenges MAY precede completion of authentication and MUST NOT reveal tenant trust configuration. When several failures remain at one stage, a server MAY choose any applicable error without disclosing additional failed checks.
 
