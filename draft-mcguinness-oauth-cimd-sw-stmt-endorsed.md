@@ -69,9 +69,17 @@ A CIMD software statement binds a review of client software to the exact bytes o
 
 A native application's installations cannot safely authenticate by a private key distributed in every copy of the software. Each installation can generate its own key, but possession of that key establishes continuity, not the identity of the software using it. A copied Client ID Metadata Document {{CIMD}} URL and software statement can be presented with an attacker's own key.
 
-{{STATEMENT}} therefore treats a document containing a redirect that another local application could claim as review-only. Such a presentation cannot satisfy a policy requiring reviewed software. This excludes loopback redirects, even though they are an established response-delivery mechanism for native applications under {{RFC8252}}.
+{{STATEMENT}} therefore treats a document containing a redirect that another local application could claim as review-only: the server records the review but admits nothing on it, and such a presentation cannot satisfy a policy requiring reviewed software. This excludes loopback redirects, even though they are an established response-delivery mechanism for native applications under {{RFC8252}}.
 
-This specification defines an alternative binding. A software statement identifies the review and the exact metadata bytes. An independently trusted client attester associates a particular instance key with that software and those bytes under an evidence policy the authorization server accepts. Attestation-based client authentication {{ABCA}} proves possession of the endorsed key. The callback delivers the authorization response; it supplies no evidence of the presenter's software identity.
+Existing mechanisms do not close this gap. Loopback redirects with PKCE {{RFC7636}} protect an authorization code from interception, but any application can start a transaction with a native client's identifier, the client impersonation that Section 8.6 of {{RFC8252}} describes. Attestation-based client authentication {{ABCA}} alone shows that an installation holds a key an attester vouches for, not that the installation runs the software a reviewer approved for a particular document. The core's public-client binding relies on redirection URIs no other application can claim, which loopback URIs are not.
+
+This specification defines an alternative binding made of three checks, which stay separate even when one organization operates both issuing roles:
+
+* The software statement records approval of the software and its exact metadata.
+* An instance attestation, from an independently trusted client attester under an evidence policy the authorization server accepts, associates an installation's key with that software and metadata.
+* A proof under attestation-based client authentication demonstrates possession of that key.
+
+The callback delivers the authorization response; it supplies no evidence of the presenter's software identity.
 
 The extension serves authorization code flows using pushed authorization requests (PAR) {{RFC9126}} and refresh of the resulting grants. It defines neither registration nor new token-endpoint presentations for other grants. {{REGISTRATION}} is unchanged: it rejects loopback redirects, so a document selecting this profile is never registered, and an issuer omits `registration` from the `statement_uses` of a statement over one. Core and registration do not depend on this extension.
 
