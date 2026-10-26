@@ -71,7 +71,7 @@ A native application's installations cannot safely authenticate by a private key
 
 {{STATEMENT}} therefore treats a document containing a redirect that another local application could claim as review-only: the server records the review but admits nothing on it, and such a presentation cannot satisfy a policy requiring reviewed software. This excludes loopback redirects, even though they are an established response-delivery mechanism for native applications under {{RFC8252}}.
 
-Existing mechanisms do not close this gap. Loopback redirects with PKCE {{RFC7636}} protect an authorization code from interception, but any application can start a transaction with a native client's identifier, the client impersonation that Section 8.6 of {{RFC8252}} describes. Attestation-based client authentication {{ABCA}} alone shows that an installation holds a key an attester vouches for, not that the installation runs the software a reviewer approved for a particular document. The public-client binding of {{STATEMENT}} relies on redirection URIs no other application can claim, which loopback URIs are not.
+Existing mechanisms do not close this gap. Loopback redirects with PKCE {{RFC7636}} protect an authorization code from interception, but any application can start a transaction with a native client's identifier, the client impersonation that Section 8.6 of {{RFC8252}} describes. Attestation-based client authentication {{ABCA}} alone shows that an installation holds a key an attester vouches for, not that the installation runs the software a statement issuer approved for a particular document. The public-client binding of {{STATEMENT}} relies on redirection URIs no other application can claim, which loopback URIs are not.
 
 This specification defines an alternative binding made of three checks, which stay separate even when one organization operates both issuing roles:
 
@@ -89,7 +89,7 @@ The binding is only as strong as the attester's evidence that the software, not 
 
 The following sequence is non-normative:
 
-1. A publisher serves a CIMD document declaring this instance binding, attestation-based client authentication, and loopback redirects. A reviewer issues a software statement over its exact bytes.
+1. A publisher serves a CIMD document declaring this instance binding, attestation-based client authentication, and loopback redirects. A statement issuer signs a software statement over its exact bytes.
 2. An installation obtains an attestation from an accepted attester. The attestation names the CIMD URL, metadata digest, instance key, and evidence policy.
 3. The installation sends a pushed authorization request with PKCE, the attestation, and a DPoP proof. It supplies the software statement or lets the server pull it.
 4. The server validates both trust decisions and their bindings before returning a `request_uri`.
@@ -491,7 +491,7 @@ Existing grants retain their recorded binding. Removing metadata, changing an at
 
 The distinct attestation type, digest binding, subject equality, and fixed establishment values prevent a generic attestation or one for another reviewed document from being substituted. Implementations MUST apply mutually exclusive validation rules for software statements and instance attestations. Software-statement signing keys retain the separation requirements of {{STATEMENT}} and MUST NOT sign instance attestations, even if one organization performs both roles.
 
-Attester authorization is scoped independently to client namespaces and tenants. An over-broad attester can undermine the binding for every namespace it is allowed to endorse. A review issuer and an attester colluding or both being compromised can make false assertions within the authority the server has assigned them.
+Attester authorization is scoped independently to client namespaces and tenants. An over-broad attester can undermine the binding for every namespace it is allowed to endorse. A statement issuer and an attester colluding or both being compromised can make false assertions within the authority the server has assigned them.
 
 ## Freshness and Availability
 
