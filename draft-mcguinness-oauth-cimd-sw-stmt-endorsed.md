@@ -291,7 +291,7 @@ An attestation MAY have been renewed since PAR, but its key, attester, policy, a
 
 The server MUST issue tokens only within the user's authorization, tenant policy, and reviewed metadata. It MUST bind any refresh token to the establishment, and MUST issue access tokens, at redemption and on refresh ({{refresh}}), bound to the proven key with a `token_type` of `DPoP` (Section 5 of {{RFC9449}}). The effective expiry of each access token, whether the token is a JWT or an opaque reference, MUST NOT be later than the attestation effective expiry accepted for the request that obtained it. A client therefore refreshes, with a fresh attestation, at least as often as its attester's evidence age allows. A resource server that does not accept DPoP-bound access tokens cannot be used under this profile. A DPoP proof shows possession of the endorsed key at the resource server; it does not show that the software was re-evaluated at that moment.
 
-# Grant Continuation {#refresh}
+# Refresh {#refresh}
 
 Every refresh request MUST carry the original client identifier, the refresh token, a current instance attestation, and a fresh DPoP proof under the establishment's proven key. The server MUST authenticate the instance, verify the refresh-token binding, and enforce the fixed values of {{establishment}} before accepting any replacement statement.
 
@@ -305,7 +305,7 @@ On success, the server MUST atomically update the recorded statement, metadata, 
 
 Attestation renewal for the proven key is not key rotation and does not reset the `iat` floor or an establishment count. This specification defines no migration of an existing grant to a new key, attester, evidence policy, or tenant.
 
-## Withdrawal and Trust Changes {#withdrawal}
+# Withdrawal and Trust Changes {#withdrawal}
 
 A known refusal record for the software statement is enforced as {{STATEMENT}} requires. A current acceptable replacement can restore continuation only under {{refresh}}. A server using a statement withdrawal mechanism SHOULD consult it at code redemption and refresh within that mechanism's freshness rules. Failure to consult it does not clear an existing refusal.
 
