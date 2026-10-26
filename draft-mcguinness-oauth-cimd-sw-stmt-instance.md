@@ -98,7 +98,7 @@ Evidence Policy:
 : A versioned set of requirements for establishing the association between software, an instance key, and reviewed metadata. It covers evidence collection, verification, freshness, and protection of key use.
 
 Attestation Effective Expiry:
-: The earlier of an instance attestation's `exp` and its `iat` plus the maximum lifetime the authorization server accepts for its attester and evidence policy.
+: An instance attestation's `exp`, which the authorization server accepts only if it lies no further in the future than the maximum lifetime the server accepts for the attester and evidence policy ({{attestation}}).
 
 The software statement's issuer and the client attester are separate roles. One entity can perform both, but neither role implies trust in the other.
 
@@ -191,7 +191,7 @@ The attestation retains the `sub`, `cnf`, `iat`, and `exp` requirements of {{ABC
 `cimd_instance_policy`:
 : A string containing an absolute URI identifying the evidence policy under which the attester endorsed the instance key. The URI is an identifier, not a retrieval instruction. It MUST be compared exactly with an accepted policy identifier.
 
-The attestation MUST have `exp` later than `iat`. A server MUST enforce the attestation effective expiry and MUST reject an `iat` unreasonably in the future under its clock-skew policy. The attester MUST select the lifetime consistently with the validity of its evidence and the evidence policy. No field supplied by the client can extend the server's maximum accepted lifetime.
+The attestation MUST have `exp` later than `iat`. An attester can round or randomize `iat` and `exp`, as Section 11.1 of {{ABCA}} recommends, so a server bounds acceptance by `exp`: it MUST reject an attestation whose `exp` has passed, or lies further in the future than the maximum lifetime it accepts for the attester and evidence policy, and MUST NOT reject an attestation only because its `iat` was rounded or randomized. The attester selects the lifetime consistently with the validity of its evidence and the evidence policy. No field supplied by the client can extend the server's maximum accepted lifetime.
 
 This specification does not require an attestation audience or installation identifier. If an `aud` is present, the receiving server MUST validate it under {{RFC7519}}. The proof targets a particular endpoint ({{proof}}); the attestation can be usable at more than one trusting server. An attestation is not tied to a statement's `jti`, so a statement renewed over unchanged bytes need not cause re-attestation.
 
