@@ -136,7 +136,7 @@ This specification permits only the authorization code grant opened through PAR,
 This specification defines the following member of a Client ID Metadata Document:
 
 `software_statement_instance_binding`:
-: OPTIONAL. Boolean. When `true`, the client requires the instance binding defined by this specification for admissions under this document. If absent or `false`, the document does not select this profile. A value of any other type is invalid.
+: OPTIONAL. Boolean value. When `true`, the client requires the instance binding defined by this specification for admissions under this document. If absent or `false`, the document does not select this profile. A value of any other type is invalid.
 
 A document selecting this profile MUST meet all of the following requirements:
 
@@ -162,7 +162,7 @@ The client MUST bind its listener only to the selected loopback interface, open 
 This specification defines the following authorization server metadata member under {{RFC8414}}:
 
 `software_statement_instance_binding_supported`:
-: OPTIONAL. Boolean indicating support for this specification. If omitted, its value is `false`. A server advertising `true` MUST implement the requirements of this specification. Support does not promise acceptance of any particular client, statement issuer, attester, evidence policy, or tenant.
+: OPTIONAL. Boolean value indicating whether the authorization server supports this specification. If omitted, the default value is `false`. A server advertising `true` MUST implement the requirements of this specification. Support does not promise acceptance of any particular client, statement issuer, attester, evidence policy, or tenant.
 
 A supporting server MUST publish its `pushed_authorization_request_endpoint`, include `attest_jwt_client_auth_dpop` in `token_endpoint_auth_methods_supported`, advertise `S256` in `code_challenge_methods_supported`, and publish `dpop_signing_alg_values_supported` ({{RFC9449}}) and `client_attestation_signing_alg_values_supported` (Section 8 of {{ABCA}}). It MUST support {{RFC9207}} and publish `authorization_response_iss_parameter_supported` as `true`.
 
