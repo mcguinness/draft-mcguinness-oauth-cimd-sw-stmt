@@ -157,17 +157,6 @@ The server MUST compare a requested redirect with a reviewed entry using exact s
 
 The client MUST bind its listener only to the selected loopback interface, open it before sending the pushed authorization request, and close it when the transaction completes or is abandoned. It SHOULD obtain an available ephemeral port from the operating system. The authorization code is delivered to that listener; the authorization server MUST NOT fetch the redirect URI to test the listener.
 
-# Authorization Server Metadata {#server-metadata}
-
-This specification defines the following authorization server metadata member under {{RFC8414}}:
-
-`software_statement_instance_binding_supported`:
-: OPTIONAL. Boolean value indicating whether the authorization server supports this specification. If omitted, the default value is `false`. A server advertising `true` MUST implement the requirements of this specification. Support does not promise acceptance of any particular client, statement issuer, attester, evidence policy, or tenant.
-
-A supporting server MUST publish its `pushed_authorization_request_endpoint`, include `attest_jwt_client_auth_dpop` in `token_endpoint_auth_methods_supported`, advertise `S256` in `code_challenge_methods_supported`, and publish `dpop_signing_alg_values_supported` ({{RFC9449}}) and `client_attestation_signing_alg_values_supported` (Section 8 of {{ABCA}}). It MUST support {{RFC9207}} and publish `authorization_response_iss_parameter_supported` as `true`.
-
-A client MUST confirm support for this specification before starting a grant under it. The generic attestation method advertisement alone is insufficient. This profile requires PAR for its clients even when the server also serves other clients without PAR; it does not require the server's global `require_pushed_authorization_requests` value to be `true`.
-
 # Attester Trust and Evidence {#trust}
 
 An authorization server MUST establish attester trust independently of the request. For each accepted attester it MUST configure:
@@ -508,6 +497,17 @@ grant_type=refresh_token
 ~~~
 
 If the review has expired, the server pulls a current replacement as {{STATEMENT}} permits for a grant established from a pulled statement. If the replacement names changed metadata, the attestation must name that same new digest while retaining the recorded key, attester, and policy. Otherwise the refresh fails without changing the binding.
+
+# Authorization Server Metadata {#server-metadata}
+
+This specification defines the following authorization server metadata member under {{RFC8414}}:
+
+`software_statement_instance_binding_supported`:
+: OPTIONAL. Boolean value indicating whether the authorization server supports this specification. If omitted, the default value is `false`. A server advertising `true` MUST implement the requirements of this specification. Support does not promise acceptance of any particular client, statement issuer, attester, evidence policy, or tenant.
+
+A supporting server MUST publish its `pushed_authorization_request_endpoint`, include `attest_jwt_client_auth_dpop` in `token_endpoint_auth_methods_supported`, advertise `S256` in `code_challenge_methods_supported`, and publish `dpop_signing_alg_values_supported` ({{RFC9449}}) and `client_attestation_signing_alg_values_supported` (Section 8 of {{ABCA}}). It MUST support {{RFC9207}} and publish `authorization_response_iss_parameter_supported` as `true`.
+
+A client MUST confirm support for this specification before starting a grant under it. The generic attestation method advertisement alone is insufficient. This profile requires PAR for its clients even when the server also serves other clients without PAR; it does not require the server's global `require_pushed_authorization_requests` value to be `true`.
 
 # Security Considerations {#security-considerations}
 
