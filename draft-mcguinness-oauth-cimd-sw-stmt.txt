@@ -1730,7 +1730,7 @@ Table of Contents
 
 14.5.  OAuth Extensions Error Registry
 
-   This specification requests registration of the following error codes
+   This specification requests registration of the following error code
    in the IANA "OAuth Extensions Error Registry" established by
    [RFC6749]:
 
@@ -1745,13 +1745,18 @@ Table of Contents
 
    Specification Document(s):  This specification, Section 8
 
-   Error Name:  temporarily_unavailable
+   This specification also requests that IANA update the existing
+   temporarily_unavailable entry, adding the token and pushed
+   authorization request error responses to its usage locations and this
+   specification as a reference:
 
-   Existing Registration:  [RFC6749]
+   Error Name:  temporarily_unavailable
 
    Error Usage Location:  token error response and pushed authorization
       request error response, in addition to the locations already
       registered
+
+   Related Protocol Extension:  OAuth 2.0 Authorization Framework
 
    Change Controller:  IETF
 
