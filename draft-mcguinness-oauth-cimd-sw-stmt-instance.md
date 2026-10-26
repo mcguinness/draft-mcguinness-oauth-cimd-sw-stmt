@@ -88,13 +88,13 @@ The following sequence is non-normative:
 
 {::boilerplate bcp14-tagged}
 
-This specification uses terminology from {{RFC6749}}, {{CIMD}}, and {{ABCA}}, and the terms Runtime Presentation, Effective Expiry, Refusal Record, Review-Only, and Establishment from {{STATEMENT}}.
+This specification uses terminology from {{RFC6749}}, {{CIMD}}, and {{ABCA}}, and the terms Runtime Presentation, Effective Expiry, Refusal Record, Current Statement, Review-Only, Establishment, and Proven Key from {{STATEMENT}}, which this specification calls the core specification, or core.
 
 Instance Binding:
 : The association of a proven instance key with the reviewed software and metadata under this specification. It does not assign a global installation identifier.
 
 Instance Attestation:
-: A Client Attestation JWT under {{ABCA}}, profiled by {{attestation}}. It records an attester's association of a key with a CIMD identifier and metadata digest under a named evidence policy.
+: A Client Attestation JWT under {{ABCA}}, profiled by {{attestation}}. It records an attester's association of a key with a CIMD identifier and metadata digest under a named evidence policy. An instance attestation is current while its attestation effective expiry has not passed and its attester and evidence policy remain accepted.
 
 Evidence Policy:
 : A versioned set of requirements for establishing the association between software, an instance key, and reviewed metadata. It covers evidence collection, verification, freshness, and protection of key use.
@@ -214,7 +214,7 @@ On continuation, the recorded key, attester, policy, and tenant constraints of {
 
 The client sends the instance attestation in `OAuth-Client-Attestation` and uses DPoP combined mode under {{ABCA}}. It MUST NOT also send `OAuth-Client-Attestation-PoP`. A `dpop_jkt` parameter alone is not a proof. The authentication method and its validation remain those defined by {{ABCA}}; this profile supplies the attestation's type and additional bindings.
 
-The authorization server MUST require a server-issued DPoP nonce at PAR and on every token request under this profile. It MUST enforce endpoint and method binding and reject replay of a proof within its acceptance window under {{RFC9449}}. Nonce challenges and retries use `use_dpop_nonce` and `DPoP-Nonce`; they do not consume a code, rotate a refresh token, create an establishment, or advance a statement watermark.
+The authorization server MUST require a server-issued DPoP nonce at PAR and on every token request under this profile. It MUST enforce endpoint and method binding and reject replay of a proof within its acceptance window under {{RFC9449}}. Nonce challenges and retries use `use_dpop_nonce` and `DPoP-Nonce`; they do not consume a code, rotate a refresh token, create an establishment, or advance the `iat` floor.
 
 If the PAR request also carries `dpop_jkt`, its thumbprint MUST identify the endorsed key; otherwise the server rejects the request. A client MUST generate a new proof for each request, including a retry. TLS protects request contents. DPoP does not sign the request body, and implementations MUST NOT treat a valid proof as a signature over the redirect URI, PKCE challenge, or statement.
 
@@ -266,7 +266,7 @@ The client sends `grant_type=authorization_code`, the code, the same `client_id`
 
 Before issuing tokens, the server MUST verify the code and PKCE binding and every fixed establishment value in {{establishment}}. It MUST re-evaluate both trust decisions, require the recorded statement to be unexpired and not refused, and confirm that the current CIMD document still matches its recorded digest and meets {{client-metadata}}. Retrieval and cache reuse use core's freshness bounds. The attestation MUST match that digest and be within its effective expiry.
 
-An attestation MAY have been renewed since PAR, but its key, attester, policy, and subject MUST match the establishment. If the metadata changed or the recorded statement needs replacement, the client MUST start a new PAR transaction; code redemption cannot replace the governing review. A later statement watermark alone does not invalidate a code already bound to an acceptable recorded statement.
+An attestation MAY have been renewed since PAR, but its key, attester, policy, and subject MUST match the establishment. If the metadata changed or the recorded statement needs replacement, the client MUST start a new PAR transaction; code redemption cannot replace the governing review. A raised `iat` floor alone does not invalidate a code already bound to an acceptable recorded statement.
 
 The server MUST issue tokens only within the user's authorization, tenant policy, and reviewed metadata. It MUST bind any refresh token to the establishment. Access token issuance and resource-server use follow {{RFC9449}} and the applicable resource profile. This extension does not assume every resource server supports DPoP; binding redemption and refresh alone does not sender-constrain a bearer access token.
 
@@ -276,13 +276,13 @@ Every refresh request MUST carry the original client identifier, the refresh tok
 
 On every refresh the server MUST require a current, unexpired, unrefused software statement and re-evaluate its issuer trust decision. This strengthens the optional statement-currency check in core. It MUST also verify that the currently served document matches the applicable statement and attestation digests and continues to meet {{client-metadata}}. Removal of the binding member or a change to another authentication method ends continuation under this profile.
 
-The recorded statement can remain applicable while it is unexpired, not refused, and matches the current document, even if a newer statement has advanced the watermark for new admissions. If it no longer qualifies, a replacement is required. The client can present a replacement in `software_statement`, or a server supporting pulled replacements can retrieve one as {{STATEMENT}} specifies. A request carrying the same `iss` and `jti` as the recorded statement is a recheck, not a replacement.
+The recorded statement can remain applicable while it is unexpired, not refused, and matches the current document, even if a newer statement has raised the `iat` floor for new admissions. If it no longer qualifies, a replacement is required. The client can present a replacement in `software_statement` or, for an establishment created from a pulled statement, the server pulls one as {{STATEMENT}} specifies. A request carrying the same `iss` and `jti` as the recorded statement is a recheck, not a replacement.
 
 A replacement MUST satisfy core's replacement validation, including identical statement `iss` and `sub`, a later `iat`, and current metadata. Its decision MUST apply to the establishment's recorded tenant and runtime use. Instead of authorizing a document key or preserving core's public-client conditions, the replacement MUST preserve this profile and authorize the original instance key through a current attestation from the recorded attester under the recorded policy. The replacement and attestation MUST name the same current metadata digest. A replacement cannot expand access beyond the original grant, resource-owner authorization, or current server policy.
 
 On success, the server MUST atomically update the recorded statement, metadata, digest, and trust decisions and apply core's concurrency rules for replacements. It also records the newly accepted attestation effective expiry. A failed attempt MUST NOT replace the recorded binding or rotate a refresh token. This does not prevent the server from recording a withdrawal or trust removal learned during processing, or applying independent refresh-token replay protections.
 
-Attestation renewal for the original key is not key rotation and does not reset a software-statement watermark or establishment count. This specification defines no migration of an existing grant to a new key, attester, evidence policy, or tenant.
+Attestation renewal for the original key is not key rotation and does not reset the `iat` floor or an establishment count. This specification defines no migration of an existing grant to a new key, attester, evidence policy, or tenant.
 
 ## Withdrawal and Trust Changes {#withdrawal}
 
@@ -639,7 +639,7 @@ This appendix is non-normative. An implementation exercise should include the fo
 * A valid attestation for another client, digest, tenant authorization, or policy fails its corresponding binding check.
 * A loopback code intercepted by another process cannot be redeemed without both the verifier and recorded key.
 * A repeated proof and a proof intended for another endpoint are rejected.
-* A nonce retry neither consumes grant state nor advances the statement watermark.
+* A nonce retry neither consumes grant state nor advances the `iat` floor.
 * A refresh with a renewed attestation for the original tuple succeeds when the review remains current.
 * A metadata replacement without a matching current attestation fails without changing the establishment.
 * A new key, attester, policy, or tenant cannot take over an existing grant.
