@@ -812,7 +812,7 @@ Specification Document(s):
 
 ## OAuth Extensions Error Registry
 
-This specification requests registration of the following error codes in the IANA "OAuth Extensions Error Registry" established by {{RFC6749}}:
+This specification requests registration of the following error code in the IANA "OAuth Extensions Error Registry" established by {{RFC6749}}:
 
 Error Name:
 : `statement_required`
@@ -829,14 +829,16 @@ Change Controller:
 Specification Document(s):
 : This specification, {{errors}}
 
+This specification also requests that IANA update the existing `temporarily_unavailable` entry, adding the token and pushed authorization request error responses to its usage locations and this specification as a reference:
+
 Error Name:
 : `temporarily_unavailable`
 
-Existing Registration:
-: {{RFC6749}}
-
 Error Usage Location:
 : token error response and pushed authorization request error response, in addition to the locations already registered
+
+Related Protocol Extension:
+: OAuth 2.0 Authorization Framework
 
 Change Controller:
 : IETF
