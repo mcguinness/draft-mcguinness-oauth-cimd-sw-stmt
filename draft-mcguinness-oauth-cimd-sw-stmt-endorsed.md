@@ -207,7 +207,7 @@ The attestation retains the `sub`, `cnf` ({{RFC7800}}), `iat`, and `exp` require
 
 The attestation MUST have `exp` later than `iat`. Its `exp` bounds the age of the evidence behind it, as the accepted evidence policy requires ({{trust}}). Its `iat` is not an evidence timestamp, and an attester can round or randomize it as Section 11.1 of {{ABCA}} recommends. A server MUST reject an attestation whose `exp` has passed, or lies further in the future than the maximum evidence age it accepts for the attester and evidence policy, and MUST NOT reject an attestation only because its `iat` was rounded or randomized. No field supplied by the client can extend these bounds.
 
-This specification does not require an attestation audience or installation identifier. If an `aud` is present, the receiving server MUST validate it under {{RFC7519}}. The proof targets a particular endpoint ({{proof}}); the attestation can be usable at more than one trusting server. An attestation is not tied to a statement's `jti`, so a statement renewed over unchanged bytes need not cause re-attestation.
+This specification does not require an attestation audience or installation identifier. If an `aud` is present, the receiving server MUST validate it under {{RFC7519}} against its own issuer identifier ({{RFC8414}}). The proof targets a particular endpoint ({{proof}}); the attestation can be usable at more than one trusting server. An attestation is not tied to a statement's `jti`, so a statement renewed over unchanged bytes need not cause re-attestation.
 
 ## Validation {#attestation-validation}
 
