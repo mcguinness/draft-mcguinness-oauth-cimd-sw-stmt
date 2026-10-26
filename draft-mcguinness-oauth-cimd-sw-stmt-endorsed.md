@@ -239,6 +239,8 @@ If the pushed authorization request also carries `dpop_jkt`, its JWK thumbprint 
 
 # Runtime Admission {#admission}
 
+This section specifies processing at the pushed authorization request, authorization, and token endpoints when a grant is opened under this profile.
+
 ## Pushed Authorization Request {#par}
 
 The client MUST start every grant under this profile at the PAR endpoint. Its request MUST include `client_id`, `response_type=code`, `redirect_uri`, a PKCE `code_challenge` with `code_challenge_method=S256`, and a transaction-specific `state`. It MUST authenticate under {{proof}}. A request using a Request Object MUST meet {{RFC9126}} and MUST NOT provide conflicting parameter values; the following checks apply to the effective authorization request.
