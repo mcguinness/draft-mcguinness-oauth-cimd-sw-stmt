@@ -357,7 +357,11 @@ A rejection uses the error response format and HTTP status codes specified for t
 * At the token endpoint, Section 5.2 of {{RFC6749}} applies.
 * At the authorization endpoint, Section 4.1.2.1 of {{RFC6749}} applies.
 
-The error rules of {{STATEMENT}}, {{ABCA}}, and {{RFC9449}} also apply. This specification defines no new error code. The following error codes apply to pushed authorization requests, code redemption, and refresh, except where a condition names a particular endpoint. They are defined by Section 5.2 of {{RFC6749}} (`invalid_request`, `invalid_client`, and `invalid_grant`), Section 7.4 of {{ABCA}} (`use_fresh_attestation`), Section 8 of {{RFC9449}} (`use_dpop_nonce`), and {{STATEMENT}} (`statement_required`, and `temporarily_unavailable` at the token and pushed authorization request endpoints, extending Section 4.1.2.1 of {{RFC6749}}). Other OAuth errors, such as `invalid_scope`, continue to apply to their respective failures.
+The error rules of {{STATEMENT}}, {{ABCA}}, and {{RFC9449}} also apply. This specification defines no new error code.
+
+## Error Codes {#error-codes}
+
+The following error codes apply to pushed authorization requests, code redemption, and refresh, except where a condition names a particular endpoint. They are defined by Section 5.2 of {{RFC6749}} (`invalid_request`, `invalid_client`, and `invalid_grant`), Section 7.4 of {{ABCA}} (`use_fresh_attestation`), Section 8 of {{RFC9449}} (`use_dpop_nonce`), and {{STATEMENT}} (`statement_required`, and `temporarily_unavailable` at the token and pushed authorization request endpoints, extending Section 4.1.2.1 of {{RFC6749}}). Other OAuth errors, such as `invalid_scope`, continue to apply to their respective failures.
 
 `invalid_request`:
 : Malformed or conflicting request parameters, or a `software_statement` parameter on code redemption.
@@ -384,11 +388,17 @@ Invalid statements and reviewed documents at the PAR endpoint otherwise use the 
 
 A DPoP proof that fails the checks of Section 4.3 of {{RFC9449}} is rejected with `invalid_dpop_proof` (Section 5 of {{RFC9449}}), and a missing or unacceptable nonce with `use_dpop_nonce`, in place of any code listed above, as {{STATEMENT}} provides for proof-mechanism errors. A valid proof under a key other than the attestation's `cnf` key is not an invalid proof: authentication fails (Section 7.3 of {{ABCA}}), and the request is rejected with `invalid_client`, or with `invalid_client_attestation` as Section 7.4 of {{ABCA}} permits. At code redemption and refresh, an instance that authenticates under a key other than the establishment's recorded key fails the grant binding and is rejected with `invalid_grant`.
 
-Servers MUST check basic request syntax before reporting errors requiring authentication. They MUST authenticate the instance before reporting errors about a code, refresh token, or the review governing that grant. Within authentication, they MUST verify attester identity, signature, and policy before returning `use_fresh_attestation`. Nonce challenges MAY precede completion of authentication and MUST NOT reveal tenant trust configuration. When several failures remain at one stage, a server MAY choose any applicable error without disclosing additional failed checks.
-
 A `use_dpop_nonce` response MUST include the `DPoP-Nonce` HTTP header field. Client attestation errors and status codes follow Section 7.4 of {{ABCA}}; other errors retain their endpoint's response format. A code redemption request carrying the `software_statement` parameter is rejected with `invalid_request`, even if the statement is an otherwise valid replacement. A `statement_required` response at code redemption requires a new PAR transaction, not a retry with a statement attached to the code request.
 
-At the authorization endpoint, a missing or invalid required pushed authorization request is rejected with `invalid_request`. The server MUST NOT redirect an error unless it has validated the redirect under the applicable client metadata and transaction. Front-channel carriage of the statement or instance-attestation artifacts is rejected with `invalid_request`. Details of configured issuers, attesters, evidence policies, and tenant restrictions MUST NOT be exposed in error descriptions to unauthenticated callers, as {{STATEMENT}} requires of its issuer trust configuration.
+## Error Precedence and Disclosure {#error-precedence}
+
+Servers MUST check basic request syntax before reporting errors requiring authentication. They MUST authenticate the instance before reporting errors about a code, refresh token, or the review governing that grant. Within authentication, they MUST verify attester identity, signature, and policy before returning `use_fresh_attestation`. Nonce challenges MAY precede completion of authentication and MUST NOT reveal tenant trust configuration. When several failures remain at one stage, a server MAY choose any applicable error without disclosing additional failed checks.
+
+Details of configured issuers, attesters, evidence policies, and tenant restrictions MUST NOT be exposed in error descriptions to unauthenticated callers, as {{STATEMENT}} requires of its issuer trust configuration.
+
+## Authorization Endpoint {#authorization-errors}
+
+At the authorization endpoint, a missing or invalid required pushed authorization request is rejected with `invalid_request`. The server MUST NOT redirect an error unless it has validated the redirect under the applicable client metadata and transaction. Front-channel carriage of the statement or instance-attestation artifacts is rejected with `invalid_request`.
 
 # Examples {#examples}
 
