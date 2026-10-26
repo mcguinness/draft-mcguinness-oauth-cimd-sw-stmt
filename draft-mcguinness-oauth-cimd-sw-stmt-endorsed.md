@@ -1,7 +1,7 @@
 ---
 title: "Endorsed Instance Keys for CIMD Software Statements"
-abbrev: CIMD Instance Binding
-docname: draft-mcguinness-oauth-cimd-sw-stmt-instance-latest
+abbrev: CIMD Endorsed Keys
+docname: draft-mcguinness-oauth-cimd-sw-stmt-endorsed-latest
 category: std
 submissiontype: IETF
 
