@@ -453,7 +453,7 @@ The security requirements of {{STATEMENT}}, {{ABCA}}, {{CIMD}}, {{RFC8252}}, and
 
 A valid signature proves that an accepted attester made an assertion; it does not improve the evidence behind it. An attester accepting self-reported executable hashes would let a copied statement and an arbitrary key satisfy the binding. The evidence and mapping requirements in {{trust}} prevent that substitution only when the deployment actually enforces them.
 
-A key's non-exportability does not prove which process can use it. Key storage and any signing broker MUST restrict use to the software instance covered by the evidence policy. A general signing service reachable by arbitrary local processes would let unreviewed software authenticate through an approved installation. Remote attestation of a device without an application-to-key binding has the same limitation.
+A key's non-exportability does not prove which process can use it. An acceptable evidence policy therefore requires key storage and any signing broker to restrict use to the software instance the policy covers ({{trust}}). A general signing service reachable by arbitrary local processes would let unreviewed software authenticate through an approved installation. Remote attestation of a device without an application-to-key binding has the same limitation.
 
 This profile cannot ensure benign user intent, prevent an approved application from being used as a proxy, or preserve an assurance after compromise of the platform on which its evidence depends. A server MUST present assurances no stronger than the accepted policy supports. Plugins, scripts, dynamic libraries, debuggers, and injected code can change the effective software identity and require explicit treatment in that policy.
 
@@ -461,7 +461,7 @@ This profile cannot ensure benign user intent, prevent an approved application f
 
 An attacker can attempt to occupy a loopback port, intercept a response, or initiate its own authorization transaction using the published client identifier. PKCE and proof of the endorsed key protect redemption of an intercepted code. Admission of a new transaction additionally requires an acceptable instance attestation; PKCE or an unendorsed DPoP key alone supplies no software identity.
 
-The client MUST keep its verifier and transaction state confidential and unpredictable as their respective specifications require. A launcher that handles authorization for another process MUST bind the authenticated caller, intended authorization server, callback, verifier, and resulting grant state to the same local session. A reusable signing capability handed to that caller without equivalent controls is insufficient.
+The client MUST keep its verifier and transaction state confidential and unpredictable as their respective specifications require. A launcher that handles authorization for another process has to bind the authenticated caller, intended authorization server, callback, verifier, and resulting grant state to the same local session. A reusable signing capability handed to that caller without equivalent controls is insufficient.
 
 ## Downgrade Prevention {#downgrade}
 
