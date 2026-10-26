@@ -577,7 +577,7 @@ Client Metadata Name:
 : `software_statement_instance_binding`
 
 Client Metadata Description:
-: Boolean selecting endorsed instance-key binding for runtime admission using a CIMD software statement. Defined for Client ID Metadata Documents; it does not enable registration under this specification.
+: Boolean value selecting endorsed instance-key binding for runtime admission using a software statement for a Client ID Metadata Document. It is defined for Client ID Metadata Documents and does not enable registration under this specification.
 
 Change Controller:
 : IESG
@@ -593,7 +593,7 @@ Metadata Name:
 : `software_statement_instance_binding_supported`
 
 Metadata Description:
-: Boolean indicating support for endorsed instance-key binding of CIMD software statements.
+: Boolean value indicating support for endorsed instance-key binding of software statements for Client ID Metadata Documents.
 
 Change Controller:
 : IESG
