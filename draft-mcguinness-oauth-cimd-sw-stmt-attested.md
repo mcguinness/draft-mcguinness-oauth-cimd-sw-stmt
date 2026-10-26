@@ -176,7 +176,7 @@ Attested Key:
 : The key an instance attestation's `cnf` claim names. Once an establishment records it, it is the establishment's Proven Key ({{STATEMENT}}), which this specification also calls the recorded key.
 
 Attestation Effective Expiry:
-: An instance attestation's `exp`. An accepted evidence policy sets it no later than the time the attester's evidence was collected plus the policy's maximum evidence age ({{trust}}), so an attestation before its `exp` rests on evidence no older than that maximum.
+: An instance attestation's `exp`, which an accepted evidence policy bounds by the age of the attester's evidence ({{trust}}).
 
 The software statement's issuer and the client attester are separate roles. One entity can perform both, but neither role implies trust in the other.
 
@@ -612,7 +612,7 @@ Attester authorization is scoped independently to client namespaces and tenants.
 
 ## Freshness and Availability
 
-Short effective lifetimes limit stale evidence but make attester availability important. A fresh proof demonstrates current access to a key, not that software was re-evaluated at proof time. Attestation renewal therefore follows the evidence policy and cannot consist solely of extending `exp` on old evidence.
+Short effective lifetimes limit stale evidence but make attester availability important. A fresh proof demonstrates current access to a key, not that software was re-evaluated at proof time.
 
 Servers MUST enforce finite evidence and trust-data reuse bounds. A failure to retrieve metadata, reviews, or trust updates MUST NOT extend a recorded expiry or remove a refusal. An access token cannot outlive the attestation accepted when it was issued ({{redemption}}), but it can outlive a review withdrawn or attester trust removed after issuance; deployments requiring prompt enforcement need short token lifetimes or independent token revocation.
 
