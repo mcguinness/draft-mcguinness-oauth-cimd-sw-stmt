@@ -623,16 +623,16 @@ The `iss`, `sub`, `iat`, `exp`, and `cnf` claims are defined elsewhere and are n
 
 ## OAuth Extensions Error Registry
 
-For completeness of the registry, this specification requests that IANA add this specification as a reference for each of the following errors and extend its usage locations to include the pushed authorization request error response, which can already carry it under {{RFC9126}}.
+This specification requests that IANA update the following entries in the "OAuth Extensions Error Registry" established by {{RFC6749}}. In each entry, the pushed authorization request error response, which can already carry the error under {{RFC9126}}, is added to the usage locations, and this specification is added as a reference.
 
 Error Name:
 : `use_fresh_attestation`
 
-Existing Registration:
-: {{ABCA}}
-
 Error Usage Location:
 : pushed authorization request error response, in addition to the locations already registered
+
+Related Protocol Extension:
+: OAuth 2.0 Attestation-Based Client Authentication
 
 Change Controller:
 : IETF
@@ -643,11 +643,11 @@ Specification Document(s):
 Error Name:
 : `invalid_client_attestation`
 
-Existing Registration:
-: {{ABCA}}
-
 Error Usage Location:
 : pushed authorization request error response, in addition to the locations already registered
+
+Related Protocol Extension:
+: OAuth 2.0 Attestation-Based Client Authentication
 
 Change Controller:
 : IETF
@@ -658,11 +658,11 @@ Specification Document(s):
 Error Name:
 : `use_dpop_nonce`
 
-Existing Registration:
-: {{RFC9449}}
-
 Error Usage Location:
 : pushed authorization request error response, in addition to the locations already registered
+
+Related Protocol Extension:
+: Demonstrating Proof of Possession (DPoP)
 
 Change Controller:
 : IETF
@@ -673,11 +673,11 @@ Specification Document(s):
 Error Name:
 : `invalid_dpop_proof`
 
-Existing Registration:
-: {{RFC9449}}
-
 Error Usage Location:
 : pushed authorization request error response, in addition to the locations already registered
+
+Related Protocol Extension:
+: Demonstrating Proof of Possession (DPoP)
 
 Change Controller:
 : IETF
