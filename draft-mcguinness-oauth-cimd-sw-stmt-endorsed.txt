@@ -13,21 +13,21 @@ Expires: 29 April 2027
 
 Abstract
 
-   A CIMD software statement binds a review of client software to the
-   exact bytes of its Client ID Metadata Document.  It does not, by
-   itself, bind an installation of that software to a key.  This
-   specification defines an instance-binding extension in which an
-   independently trusted client attester endorses an installation key
+   A software statement for a Client ID Metadata Document (CIMD) binds a
+   review of client software to the exact bytes of that document.  It
+   does not, by itself, bind an installation of that software to a key.
+   This specification defines an instance-binding extension in which an
+   independently trusted client attester endorses an installation's key
    for the reviewed document.  The client proves that key through
    attestation-based client authentication when opening and continuing
-   an authorization code grant.  Where an attester can verify which
+   an authorization code grant.  When an attester can verify which
    software controls an installation's key, as on managed devices, this
-   permits native applications, including command-line clients, to use
-   loopback redirects while satisfying a policy requiring reviewed
-   software.  The specification defines attestation and metadata
-   requirements, processing at the pushed authorization request and
-   token endpoints, and the exceptions to the core software statement
-   rules needed for endorsed keys.
+   specification permits native applications, including command-line
+   clients, to use loopback redirects while satisfying a policy
+   requiring reviewed software.  The specification defines attestation
+   and metadata requirements, processing at the pushed authorization
+   request and token endpoints, and the exceptions to the base software
+   statement rules needed for endorsed keys.
 
 Status of This Memo
 
@@ -68,43 +68,47 @@ Table of Contents
    3.  Scope and Profile Selection
    4.  Client Metadata
      4.1.  Loopback Redirects
-   5.  Authorization Server Metadata
-   6.  Attester Trust and Evidence
-   7.  Instance Attestation
-     7.1.  Validation
-     7.2.  Proof of Possession
-   8.  Runtime Admission
-     8.1.  Pushed Authorization Request
-     8.2.  Establishment
-     8.3.  Browser Authorization
-     8.4.  Authorization Code Redemption
-   9.  Grant Continuation
-     9.1.  Withdrawal and Trust Changes
-   10. Relationship to Core Processing
+   5.  Attester Trust and Evidence
+   6.  Instance Attestation
+     6.1.  Validation
+     6.2.  Proof of Possession
+   7.  Runtime Admission
+     7.1.  Pushed Authorization Request
+     7.2.  Establishment
+     7.3.  Browser Authorization
+     7.4.  Authorization Code Redemption
+   8.  Refresh
+   9.  Withdrawal and Trust Changes
+   10. Exceptions to Software Statement Processing
    11. Error Responses
+     11.1.  Error Codes
+     11.2.  Error Precedence and Disclosure
+     11.3.  Authorization Endpoint
    12. Examples
      12.1.  Reviewed Client Metadata
      12.2.  Instance Attestation
      12.3.  PAR and Redemption
      12.4.  Refresh and Replacement
-   13. Security Considerations
-     13.1.  Software Evidence and Key Use
-     13.2.  Loopback and Transaction Theft
-     13.3.  Downgrade Prevention
-     13.4.  Artifact Substitution and Key Separation
-     13.5.  Freshness and Availability
-     13.6.  Resource Exhaustion
-   14. Privacy Considerations
-   15. IANA Considerations
-     15.1.  OAuth Dynamic Client Registration Metadata Registry
-     15.2.  OAuth Authorization Server Metadata Registry
-     15.3.  JSON Web Token Claims Registry
-     15.4.  OAuth Extensions Error Registry
-     15.5.  Media Type Registration
-   16. References
-     16.1.  Normative References
-     16.2.  Informative References
-   Appendix A.  Managed CLI Deployment
+   13. Authorization Server Metadata
+   14. Security Considerations
+     14.1.  Software Evidence and Key Use
+     14.2.  Loopback and Transaction Theft
+     14.3.  Downgrade Prevention
+     14.4.  Artifact Substitution and Key Separation
+     14.5.  Freshness and Availability
+     14.6.  Resource Exhaustion
+   15. Privacy Considerations
+   16. IANA Considerations
+     16.1.  OAuth Dynamic Client Registration Metadata Registry
+     16.2.  OAuth Authorization Server Metadata Registry
+     16.3.  JSON Web Token Claims Registry
+     16.4.  OAuth Extensions Error Registry
+     16.5.  Media Type Registration
+     16.6.  Values Defined Elsewhere
+   17. References
+     17.1.  Normative References
+     17.2.  Informative References
+   Appendix A.  Managed Command-Line Client Deployment
    Appendix B.  Verification Scenarios
    Acknowledgments
    Author's Address
@@ -115,8 +119,8 @@ Table of Contents
    private key distributed in every copy of the software.  Each
    installation can generate its own key, but possession of that key
    establishes continuity, not the identity of the software using it.  A
-   copied Client ID Metadata Document [CIMD] URL and software statement
-   can be presented with an attacker's own key.
+   copied Client ID Metadata Document (CIMD) URL [CIMD] and software
+   statement can be presented with an attacker's own key.
 
    [STATEMENT] therefore treats a document containing a redirect that
    another local application could claim as review-only: the server
@@ -125,16 +129,17 @@ Table of Contents
    loopback redirects, even though they are an established response-
    delivery mechanism for native applications under [RFC8252].
 
-   Existing mechanisms do not close this gap.  Loopback redirects with
-   PKCE [RFC7636] protect an authorization code from interception, but
-   any application can start a transaction with a native client's
-   identifier, the client impersonation that Section 8.6 of [RFC8252]
-   describes.  Attestation-based client authentication [ABCA] alone
-   shows that an installation holds a key an attester vouches for, not
-   that the installation runs the software a reviewer approved for a
-   particular document.  The core's public-client binding relies on
-   redirection URIs no other application can claim, which loopback URIs
-   are not.
+   Existing mechanisms do not provide reviewed-software admission for
+   loopback clients.  Loopback redirects with Proof Key for Code
+   Exchange (PKCE) [RFC7636] protect an authorization code from
+   interception, but any application can start a transaction with a
+   native client's identifier, the client impersonation that Section 8.6
+   of [RFC8252] describes.  Attestation-based client authentication
+   [ABCA] alone shows that an installation holds a key an attester
+   vouches for, not that the installation runs the software a statement
+   issuer approved for a particular document.  The public-client binding
+   of [STATEMENT] relies on redirection URIs no other application can
+   claim, which loopback URIs are not.
 
    This specification defines an alternative binding made of three
    checks, which stay separate even when one organization operates both
@@ -154,42 +159,44 @@ Table of Contents
    The callback delivers the authorization response; it supplies no
    evidence of the presenter's software identity.
 
-   The extension serves authorization code flows using pushed
+   This specification serves authorization code flows using pushed
    authorization requests (PAR) [RFC9126] and refresh of the resulting
    grants.  It defines neither registration nor new token-endpoint
    presentations for other grants.  [REGISTRATION] is unchanged: it
    rejects loopback redirects, so a document selecting this profile is
    never registered, and an issuer omits registration from the
-   statement_uses of a statement over one.  Core and registration do not
-   depend on this extension.
+   statement_uses of a statement over one.  Neither [STATEMENT] nor
+   [REGISTRATION] depends on this specification.
 
    The binding is only as strong as the attester's evidence that the
    software, not merely the device or the user, controls the key
-   (Section 13.1).  Such evidence is available today mainly on managed
+   (Section 14.1).  Such evidence is available today mainly on managed
    endpoints, through an enterprise agent or launcher (Appendix A).  On
    an unmanaged desktop, or for an interpreted command-line client, an
-   attester typically cannot meet the requirements of Section 6, and the
+   attester typically cannot meet the requirements of Section 5, and the
    client remains review-only under [STATEMENT].
 
 1.1.  Protocol Overview
 
    The following sequence is non-normative:
 
-   1.  A publisher serves a CIMD document declaring this instance
-       binding, attestation-based client authentication, and loopback
-       redirects.  A reviewer issues a software statement over its exact
-       bytes.
+   1.  A publisher serves a Client ID Metadata Document declaring this
+       instance binding, attestation-based client authentication, and
+       loopback redirects.  A statement issuer signs a software
+       statement over its exact bytes.
 
    2.  An installation obtains an attestation from an accepted attester.
        The attestation names the CIMD URL, metadata digest, instance
        key, and evidence policy.
 
-   3.  The installation sends a PAR request with PKCE, the attestation,
-       and a DPoP proof.  It supplies the software statement or lets the
-       server pull it.
+   3.  The installation sends a pushed authorization request with PKCE,
+       the attestation, and a Demonstrating Proof of Possession (DPoP)
+       proof.  It supplies the software statement or lets the server
+       pull it.
 
-   4.  The server validates both trust decisions and their bindings
-       before returning a request_uri.
+   4.  The server validates both trust decisions (in the statement
+       issuer and in the attester) and their bindings before returning a
+       request_uri.
 
    5.  The user authorizes in an external browser.  The code returns
        over loopback and is redeemed with the PKCE verifier and the
@@ -210,19 +217,21 @@ Table of Contents
    This specification uses terminology from [RFC6749], [CIMD], and
    [ABCA], and the terms Runtime Presentation, Effective Expiry, Refusal
    Record, Current Statement, Review-Only, Establishment, and Proven Key
-   from [STATEMENT], which this specification calls the core
-   specification, or core.  It also uses the core's iat floor: the iat
+   from [STATEMENT].  It also uses the iat floor of [STATEMENT]: the iat
    of the most recent statement a server has accepted for an iss and
    sub, below which it rejects a newly presented, pulled, or replacement
-   statement, kept per tenant on a multi-tenant server.
+   statement, kept per tenant on a multi-tenant server.  An installation
+   is a Client Instance as defined by [ABCA].
+
+   This specification defines the following terms:
 
    Instance Binding:  The association of a proven instance key with the
       reviewed software and metadata under this specification.  It does
       not assign a global installation identifier.
 
    Instance Attestation:  A Client Attestation JWT under [ABCA],
-      profiled by Section 7.  It records an attester's association of a
-      key with a CIMD identifier and metadata digest under a named
+      profiled by Section 6.  It records an attester's association of a
+      key with a client identifier URL and metadata digest under a named
       evidence policy.  An instance attestation is current while its
       attestation effective expiry has not passed and its attester and
       evidence policy remain accepted.
@@ -240,7 +249,7 @@ Table of Contents
    Attestation Effective Expiry:  An instance attestation's exp.  An
       accepted evidence policy sets it no later than the time the
       attester's evidence was collected plus the policy's maximum
-      evidence age (Section 6), so an attestation before its exp rests
+      evidence age (Section 5), so an attestation before its exp rests
       on evidence no older than that maximum.
 
    The software statement's issuer and the client attester are separate
@@ -253,18 +262,19 @@ Table of Contents
    PAR, PKCE with S256 [RFC7636], DPoP [RFC9449], and the
    attest_jwt_client_auth_dpop method of [ABCA], which uses a DPoP proof
    as the proof of possession (Sections 5.2 and 7.3 of [ABCA]).  Clients
-   MUST use that method at PAR and at every token request under this
-   specification.  The same asymmetric key is used for client
-   authentication and DPoP binding.  The normal Client Attestation PoP
-   JWT mode is not supported by this profile.  Each installation holds
-   its own credential, the endorsed key, so a client under this profile
-   is a confidential client although it is a native application, as
-   Section 8.4 of [RFC8252] contemplates for per-instance credentials.
+   MUST use that method at the PAR endpoint and at every token request
+   under this specification.  The same asymmetric key is used for client
+   authentication and DPoP binding.  This profile does not support the
+   Client Attestation PoP JWT (Section 5.1 of [ABCA]).  Each
+   installation holds its own credential, the endorsed key, so a client
+   under this profile is a confidential client although it is a native
+   application, as Section 8.4 of [RFC8252] contemplates for per-
+   instance credentials.
 
    The client selects this profile by publishing
    software_statement_instance_binding with value true in its reviewed
    document (Section 4).  A server accepts a new establishment under the
-   profile only if it supports the extension, the reviewed document
+   profile only if it supports this specification, the reviewed document
    selects it, and all admission checks succeed.  The instance
    attestation's distinct typ identifies the corresponding attestation
    profile but does not alone enable admission.
@@ -287,8 +297,8 @@ Table of Contents
    This specification defines the following member of a Client ID
    Metadata Document:
 
-   software_statement_instance_binding:  OPTIONAL.  Boolean.  When true,
-      the client requires the instance binding defined by this
+   software_statement_instance_binding:  OPTIONAL.  Boolean value.  When
+      true, the client requires the instance binding defined by this
       specification for admissions under this document.  If absent or
       false, the document does not select this profile.  A value of any
       other type is invalid.
@@ -311,7 +321,7 @@ Table of Contents
       Section 4.1.
 
    *  It MUST NOT contain jwks or jwks_uri.  Instance keys are
-      authorized only through Section 7.1, not by document key material.
+      authorized only through Section 6.1, not by document key material.
 
    The document MAY contain software_statements_uri as defined by
    [STATEMENT].  Metadata governing requested access, such as scope,
@@ -338,54 +348,30 @@ Table of Contents
    do not match.
 
    The client MUST bind its listener only to the selected loopback
-   interface, open it before sending PAR, and close it when the
-   transaction completes or is abandoned.  It SHOULD obtain an available
-   ephemeral port from the operating system.  The authorization code is
-   delivered to that listener; the authorization server MUST NOT fetch
-   the redirect URI to test the listener.
+   interface, open it before sending the pushed authorization request,
+   and close it when the transaction completes or is abandoned.  It
+   SHOULD obtain an available ephemeral port from the operating system.
+   The authorization code is delivered to that listener; the
+   authorization server MUST NOT fetch the redirect URI to test the
+   listener.
 
-5.  Authorization Server Metadata
-
-   This specification defines the following authorization server
-   metadata member under [RFC8414]:
-
-   software_statement_instance_binding_supported:  OPTIONAL.  Boolean
-      indicating support for this specification.  If omitted, its value
-      is false.  A server advertising true MUST implement the
-      requirements of this specification.  Support does not promise
-      acceptance of any particular client, statement issuer, attester,
-      evidence policy, or tenant.
-
-   A supporting server MUST publish its
-   pushed_authorization_request_endpoint, include
-   attest_jwt_client_auth_dpop in token_endpoint_auth_methods_supported,
-   advertise S256 in code_challenge_methods_supported, and publish
-   dpop_signing_alg_values_supported ([RFC9449]) and
-   client_attestation_signing_alg_values_supported (Section 8 of
-   [ABCA]).  It MUST support [RFC9207] and publish
-   authorization_response_iss_parameter_supported as true.
-
-   A client MUST confirm support for this extension before starting a
-   grant under it.  The generic attestation method advertisement alone
-   is insufficient.  This profile requires PAR for its clients even when
-   the server also serves other clients without PAR; it does not require
-   the server's global require_pushed_authorization_requests value to be
-   true.
-
-6.  Attester Trust and Evidence
+5.  Attester Trust and Evidence
 
    An authorization server MUST establish attester trust independently
    of the request.  For each accepted attester it MUST configure:
 
    *  The exact attester iss identifier and how its verification keys
       are resolved, as Section 10.8 of [ABCA] recommends that a profile
-      fix: either an x5c certificate chain ([RFC7515]) validated to a
-      configured trust anchor together with a configured mapping from
-      the certificate to this attester, such as an exact subject or
-      subject alternative name; or a kid matched against a JWK Set
-      configured for this attester.  A jku is followed only if it names
-      that configured JWK Set. Sharing a trust anchor with another
-      attester does not authorize a key for this attester's iss.
+      fix, by one of the following:
+
+      -  An x5c certificate chain ([RFC7515]) validated to a configured
+         trust anchor, together with a configured mapping from the
+         certificate to this attester, such as an exact subject or
+         subject alternative name.  Sharing a trust anchor with another
+         attester does not authorize a key for this attester's iss.
+
+      -  A kid matched against a JWK Set configured for this attester.
+         A jku is followed only if it names that configured JWK Set.
 
    *  Accepted asymmetric signing algorithms.
 
@@ -470,63 +456,75 @@ Table of Contents
    itself supply a software-verification mechanism.  Appendix A gives an
    implementation model and its prerequisites.
 
-7.  Instance Attestation
+6.  Instance Attestation
 
    An instance attestation is a Client Attestation JWT (Section 4 of
    [ABCA]) with the following additional requirements.  Section 4 of
-   [ABCA] permits additional claims, and Section 13 permits a profile
-   its own typ.  Together with the document's selection of this profile
-   (Section 3), its type tells a server that this profile applies.  Its
-   JOSE typ MUST be cimd-instance-attestation+jwt.  It MUST be digitally
-   signed using an accepted asymmetric algorithm; a MAC or none MUST NOT
-   be accepted.  Its header and claims MUST contain no duplicate member
-   names.  Validation MUST apply [RFC8725].
+   [ABCA] permits additional claims, and Section 13 of [ABCA] permits a
+   profile its own typ.  Together with the document's selection of this
+   profile (Section 3), its type tells a server that this profile
+   applies.  Its typ JOSE header parameter MUST have the value cimd-
+   instance-attestation+jwt, which is the media type of Section 16.5
+   without its application/ prefix.  It MUST be digitally signed using
+   an accepted asymmetric algorithm; a MAC or none MUST NOT be accepted.
+   Its header and claims MUST contain no duplicate member names.
+   Validation MUST apply [RFC8725].
 
-   The attestation retains the sub, cnf ([RFC7800]), iat, and exp
-   requirements of [ABCA].  Its sub MUST be the exact CIMD client
-   identifier URL.  In addition, it MUST contain:
+   The attestation contains the following claims.  The sub, iat, exp,
+   and cnf claims also retain the requirements of Section 4 of [ABCA].
 
-   iss:  The attester's identifier, an HTTPS URL without a fragment.  It
-      is matched exactly against configured trust; URL normalization
-      MUST NOT be used to broaden that match.
+   iss:  REQUIRED.  The attester's identifier, an HTTPS URL without a
+      fragment.  It is matched exactly against configured trust; URL
+      normalization MUST NOT be used to broaden that match.
 
-   cimd_digest:  The metadata digest defined by [STATEMENT], computed
-      over the document the attester evaluated.  This claim has the same
-      representation and comparison rules as in a software statement.
-      Its use here records the attester's software-to-metadata
-      association, not a second software review.
+   sub:  REQUIRED.  It MUST be the exact client identifier URL.
 
-   cimd_instance_policy:  A string containing an absolute URI
+   aud:  OPTIONAL.  If present, the receiving server MUST validate it
+      under [RFC7519] against its own issuer identifier ([RFC8414]).
+      The proof targets a particular endpoint (Section 6.2); the
+      attestation can be usable at more than one trusting server.
+
+   iat:  REQUIRED.  It is not an evidence timestamp, and an attester can
+      round or randomize it as Section 11.1 of [ABCA] recommends.
+
+   exp:  REQUIRED.  It MUST be later than iat.  It bounds the age of the
+      evidence behind the attestation, as the accepted evidence policy
+      requires (Section 5).
+
+   cnf:  REQUIRED.  The endorsed key ([RFC7800]), in the form Section 4
+      of [ABCA] requires.
+
+   cimd_digest:  REQUIRED.  The metadata digest defined by [STATEMENT],
+      computed over the document the attester evaluated.  This claim has
+      the same representation and comparison rules as in a software
+      statement.  Its use here records the attester's software-to-
+      metadata association, not a second software review.
+
+   cimd_instance_policy:  REQUIRED.  A string containing an absolute URI
       identifying the evidence policy under which the attester endorsed
       the instance key.  The URI is an identifier, not a retrieval
       instruction.  It MUST be compared exactly with an accepted policy
       identifier.
 
-   The attestation MUST have exp later than iat.  Its exp bounds the age
-   of the evidence behind it, as the accepted evidence policy requires
-   (Section 6).  Its iat is not an evidence timestamp, and an attester
-   can round or randomize it as Section 11.1 of [ABCA] recommends.  A
-   server MUST reject an attestation whose exp has passed, or lies
+   A server MUST reject an attestation whose exp has passed, or lies
    further in the future than the maximum evidence age it accepts for
    the attester and evidence policy, and MUST NOT reject an attestation
    only because its iat was rounded or randomized.  No field supplied by
    the client can extend these bounds.
 
    This specification does not require an attestation audience or
-   installation identifier.  If an aud is present, the receiving server
-   MUST validate it under [RFC7519] against its own issuer identifier
-   ([RFC8414]).  The proof targets a particular endpoint (Section 7.2);
-   the attestation can be usable at more than one trusting server.  An
-   attestation is not tied to a statement's jti, so a statement renewed
-   over unchanged bytes need not cause re-attestation.
+   installation identifier.  An attestation is not tied to a statement's
+   jti, so a statement renewed over unchanged bytes need not cause re-
+   attestation.
 
-7.1.  Validation
+6.1.  Validation
 
-   At each PAR request, code redemption, and refresh, the authorization
-   server MUST validate the instance attestation and its proof.  It MUST
-   verify all of the following before accepting the binding:
+   At each pushed authorization request, code redemption, and refresh,
+   the authorization server MUST validate the instance attestation and
+   its proof.  It MUST verify all of the following before accepting the
+   binding:
 
-   *  The attestation meets Section 7 and the applicable [ABCA]
+   *  The attestation meets Section 6 and the applicable [ABCA]
       validation requirements.
 
    *  The signature verifies with a key authorized for the exact iss,
@@ -545,47 +543,53 @@ Table of Contents
       key-comparison rules of Section 7.3 of [ABCA].
 
    On continuation, the recorded key, attester, policy, and tenant
-   constraints of Section 8.2 also apply.  The server MUST NOT treat an
+   constraints of Section 7.2 also apply.  The server MUST NOT treat an
    attestation for another digest as permission to update metadata
-   without the software statement replacement required by Section 9.
+   without the software statement replacement required by Section 8.
 
-7.2.  Proof of Possession
+6.2.  Proof of Possession
 
-   The client sends the instance attestation in OAuth-Client-Attestation
-   and uses DPoP combined mode under Section 7.3 of [ABCA].  It MUST NOT
-   also send OAuth-Client-Attestation-PoP, and the server MUST reject a
+   The client sends the instance attestation in the OAuth-Client-
+   Attestation HTTP header field and uses DPoP combined mode under
+   Section 7.3 of [ABCA].  It MUST NOT also send the OAuth-Client-
+   Attestation-PoP HTTP header field, and the server MUST reject a
    request under this profile that does.  A dpop_jkt parameter alone is
    not a proof.  The authentication method and its validation remain
    those defined by [ABCA]; this profile supplies the attestation's type
    and additional bindings.
 
    The authorization server MUST require a server-issued DPoP nonce at
-   PAR and on every token request under this profile.  It MUST enforce
-   endpoint and method binding and reject replay of a proof within its
-   acceptance window under [RFC9449].  Nonce challenges and retries use
-   use_dpop_nonce and DPoP-Nonce; they do not consume a code, rotate a
-   refresh token, create an establishment, or advance the iat floor.
-   Nor does a request rejected before the instance is authenticated, or
-   with use_fresh_attestation or temporarily_unavailable, so the client
-   can retry with a fresh attestation.
+   the PAR endpoint and on every token request under this profile.  It
+   MUST enforce endpoint and method binding and reject replay of a proof
+   within its acceptance window under [RFC9449].  Nonce challenges and
+   retries use use_dpop_nonce and the DPoP-Nonce HTTP header field; they
+   do not consume a code, rotate a refresh token, create an
+   establishment, or advance the iat floor.  A request rejected before
+   the instance is authenticated, or rejected with use_fresh_attestation
+   or temporarily_unavailable, has none of these effects either, so the
+   client can retry with a fresh attestation.
 
-   If the PAR request also carries dpop_jkt, its JWK thumbprint
-   ([RFC7638]) MUST identify the endorsed key; otherwise the server
-   rejects the request.  A client MUST generate a new proof for each
-   request, including a retry.  TLS protects request contents.  DPoP
-   does not sign the request body, and implementations MUST NOT treat a
-   valid proof as a signature over the redirect URI, PKCE challenge, or
-   statement.
+   If the pushed authorization request also carries dpop_jkt, its JWK
+   thumbprint ([RFC7638]) MUST identify the endorsed key; otherwise the
+   server rejects the request.  A client MUST generate a new proof for
+   each request, including a retry.  TLS protects request contents.
+   DPoP does not sign the request body, and implementations MUST NOT
+   treat a valid proof as a signature over the redirect URI, PKCE
+   challenge, or statement.
 
-8.  Runtime Admission
+7.  Runtime Admission
 
-8.1.  Pushed Authorization Request
+   This section specifies processing at the pushed authorization
+   request, authorization, and token endpoints when a grant is opened
+   under this profile.
+
+7.1.  Pushed Authorization Request
 
    The client MUST start every grant under this profile at the PAR
    endpoint.  Its request MUST include client_id, response_type=code,
    redirect_uri, a PKCE code_challenge with code_challenge_method=S256,
    and a transaction-specific state.  It MUST authenticate under
-   Section 7.2.  A request using a Request Object MUST meet [RFC9126]
+   Section 6.2.  A request using a Request Object MUST meet [RFC9126]
    and MUST NOT provide conflicting parameter values; the following
    checks apply to the effective authorization request.
 
@@ -596,37 +600,38 @@ Table of Contents
    Before returning a successful PAR response, the server MUST:
 
    1.  Validate request syntax and the client identifier, resolve the
-       applicable tenant, and authenticate the instance under Section 6,
-       Section 7, and Section 7.2.  Checks needing no client-controlled
+       applicable tenant, and authenticate the instance under Section 5,
+       Section 6, and Section 6.2.  Checks needing no client-controlled
        retrieval precede such retrieval.
 
    2.  Validate the selected statement under [STATEMENT], including
        issuer and tenant policy, audience, effective expiry, permission
        for runtime presentation, refusal records, and the applicable iat
-       floor.  Where statements are pulled, step 3 resolves the document
+       floor.  If statements are pulled, step 3 resolves the document
        first, since the document names where statements are published,
        and that specification's retrieval and selection rules apply.
 
-   3.  Resolve the CIMD document and perform the digest and metadata
-       checks of [STATEMENT].  Parse the same bytes it digested, enforce
-       Section 4, and complete the cross-artifact checks of Section 7.1.
+   3.  Resolve the Client ID Metadata Document and perform the digest
+       and metadata checks of [STATEMENT].  Parse the same bytes it
+       digested, enforce Section 4, and complete the cross-artifact
+       checks of Section 6.1.
 
    4.  Validate the requested redirect under Section 4.1, require PKCE
        S256, and evaluate the request against the reviewed metadata and
        authorization policy.
 
-   5.  Create or reuse an establishment under Section 8.2, bind the
+   5.  Create or reuse an establishment under Section 7.2, bind the
        accepted request to it, and return a PAR response under
        [RFC9126].
 
    For step 1, authentication establishes the attester, policy, client
    identifier, and endorsed key; it is not yet reviewed-software
    admission.  An attestation whose digest has not been checked cannot
-   establish the client.  The ordering of core's statement checks before
-   client-controlled retrieval applies once a statement is available.
-   External-retrieval bounds, HTTP caching rules ([RFC9111]), and
-   protection against server-side request forgery from [STATEMENT] and
-   [CIMD] apply throughout.
+   establish the client.  The ordering of statement checks before
+   client-controlled retrieval in [STATEMENT] applies once a statement
+   is available.  External-retrieval bounds, HTTP caching rules
+   ([RFC9111]), and protection against server-side request forgery from
+   [STATEMENT] and [CIMD] apply throughout.
 
    The server MUST NOT fall back to review-only or unreviewed admission
    for the same request if any required check fails.  A request that
@@ -637,7 +642,7 @@ Table of Contents
    failed request MUST NOT advance the statement's iat floor or alter an
    existing establishment.
 
-8.2.  Establishment
+7.2.  Establishment
 
    An establishment records all state required by [STATEMENT] and, in
    addition:
@@ -650,33 +655,36 @@ Table of Contents
       most recently accepted.
 
    The proven key is the endorsed key, which is also the DPoP key.  A
-   server MAY reuse an establishment only when the core reuse conditions
-   hold and the profile, attester, policy, and tenant also match.
-   Individual authorization transactions still retain separate PKCE
-   challenges, redirects, state, resource-owner decisions, and
+   server MAY reuse an establishment only when the reuse conditions of
+   [STATEMENT] hold and the profile, attester, policy, and tenant also
+   match.  Individual authorization transactions still retain separate
+   PKCE challenges, redirects, state, resource-owner decisions, and
    continuation state.
 
    The client identifier, tenant, key, attester, policy, and binding
    profile MUST remain fixed for the lifetime of the grant.  Changing
    any of them requires a new grant opened through PAR.  A fresh
-   attestation for the same tuple can renew its evidence, and a software
-   statement replacement can update its reviewed metadata only as
-   Section 9 permits.  Neither operation changes the tuple.
+   attestation that keeps these values can renew the grant's evidence,
+   and a software statement replacement can update the grant's reviewed
+   metadata only as Section 8 permits.  Neither operation changes these
+   values.
 
    The server MUST bind its request_uri, code, refresh token, and other
-   grant continuation state to the establishment.  Core's establishment
-   limits and counting rules apply.  Servers SHOULD also bound
-   establishments per resource owner and tenant so that one installation
-   cannot exhaust the capacity available to other installations.
+   grant continuation state to the establishment.  The establishment
+   limits and counting rules of [STATEMENT] apply.  Servers SHOULD also
+   bound establishments per resource owner and tenant so that one
+   installation cannot exhaust the capacity available to other
+   installations.
 
-8.3.  Browser Authorization
+7.3.  Browser Authorization
 
    The client MUST use an external user-agent under [RFC8252].  The
-   browser authorization request MUST use the request_uri from PAR and
-   the same client_id.  It MUST NOT carry the software statement,
-   instance attestation, or an instance proof.  The server MUST use the
-   stored PAR parameters and MUST NOT allow front-channel parameters to
-   change the redirect, PKCE challenge, key binding, or tenant.
+   browser authorization request MUST use the request_uri from the PAR
+   response and the same client_id.  It MUST NOT carry the software
+   statement, instance attestation, or an instance proof.  The server
+   MUST use the stored PAR parameters and MUST NOT allow front-channel
+   parameters to change the redirect, PKCE challenge, key binding, or
+   tenant.
 
    The server MUST reject a direct authorization request without a PAR
    request_uri governed by this profile when the client document selects
@@ -692,23 +700,23 @@ Table of Contents
    and OAuth security requirements in [RFC8252] and [RFC9700] continue
    to apply.
 
-8.4.  Authorization Code Redemption
+7.4.  Authorization Code Redemption
 
    The client sends grant_type=authorization_code, the code, the same
    client_id and redirect_uri, and the PKCE code_verifier.  It MUST
    authenticate with a currently acceptable instance attestation and a
    fresh proof under the recorded key.  It MUST NOT send
-   software_statement on this request, retaining core's prohibition on a
+   software_statement on this request, as [STATEMENT] prohibits a
    presentation during code redemption.
 
    Before issuing tokens, the server MUST verify the code and PKCE
-   binding and every fixed establishment value in Section 8.2.  It MUST
+   binding and every fixed establishment value in Section 7.2.  It MUST
    re-evaluate both trust decisions, require the recorded statement to
-   be unexpired and not refused, and confirm that the current CIMD
-   document still matches its recorded digest and meets Section 4.
-   Retrieval and cache reuse use core's freshness bounds.  The
-   attestation MUST match that digest and be within its effective
-   expiry.
+   be unexpired and not refused, and confirm that the current Client ID
+   Metadata Document still matches its recorded digest and meets
+   Section 4.  Retrieval and cache reuse use the freshness bounds of
+   [STATEMENT].  The attestation MUST match that digest and be within
+   its effective expiry.
 
    An attestation MAY have been renewed since PAR, but its key,
    attester, policy, and subject MUST match the establishment.  If the
@@ -720,7 +728,7 @@ Table of Contents
    The server MUST issue tokens only within the user's authorization,
    tenant policy, and reviewed metadata.  It MUST bind any refresh token
    to the establishment, and MUST issue access tokens, at redemption and
-   on refresh (Section 9), bound to the proven key with a token_type of
+   on refresh (Section 8), bound to the proven key with a token_type of
    DPoP (Section 5 of [RFC9449]).  The effective expiry of each access
    token, whether the token is a JWT or an opaque reference, MUST NOT be
    later than the attestation effective expiry accepted for the request
@@ -731,24 +739,24 @@ Table of Contents
    the endorsed key at the resource server; it does not show that the
    software was re-evaluated at that moment.
 
-9.  Grant Continuation
+8.  Refresh
 
    Every refresh request MUST carry the original client identifier, the
    refresh token, a current instance attestation, and a fresh DPoP proof
    under the establishment's proven key.  The server MUST authenticate
    the instance, verify the refresh-token binding, and enforce the fixed
-   values of Section 8.2 before accepting any replacement statement.
+   values of Section 7.2 before accepting any replacement statement.
 
    On every refresh the server MUST require a current, unexpired,
    unrefused software statement and re-evaluate its issuer trust
-   decision.  This strengthens the optional statement-currency check in
-   core.  It MUST also verify that the currently served document matches
-   the applicable statement and attestation digests and continues to
-   meet Section 4.  Removal of the binding member or a change to another
-   authentication method ends continuation under this profile, and the
-   refresh is rejected with invalid_grant without seeking a replacement,
-   as [STATEMENT] rejects a refresh whose document no longer carries the
-   proven key.
+   decision.  This strengthens the optional statement-currency check of
+   [STATEMENT].  It MUST also verify that the currently served document
+   matches the applicable statement and attestation digests and
+   continues to meet Section 4.  Removal of the binding member or a
+   change to another authentication method ends continuation under this
+   profile, and the refresh is rejected with invalid_grant without
+   seeking a replacement, as [STATEMENT] rejects a refresh whose
+   document no longer carries the proven key.
 
    The recorded statement can remain applicable while it is unexpired,
    not refused, and matches the current document, even if a newer
@@ -759,21 +767,21 @@ Table of Contents
    specifies.  A request carrying the same iss and jti as the recorded
    statement is a recheck, not a replacement.
 
-   A replacement MUST satisfy core's replacement validation, including
-   identical statement iss and sub, a later iat, and current metadata.
-   Its decision MUST apply to the establishment's recorded tenant and
-   runtime use.  Instead of authorizing a document key or preserving
-   core's public-client conditions, the replacement MUST preserve this
-   profile and authorize the establishment's proven key through a
-   current attestation from the recorded attester under the recorded
-   policy.  The replacement and attestation MUST name the same current
-   metadata digest.  A replacement cannot expand access beyond the
-   original grant, resource-owner authorization, or current server
-   policy.
+   A replacement MUST satisfy the replacement validation of [STATEMENT],
+   including identical statement iss and sub, a later iat, and current
+   metadata.  Its decision MUST apply to the establishment's recorded
+   tenant and runtime use.  Instead of authorizing a document key or
+   preserving the public-client conditions of [STATEMENT], the
+   replacement MUST preserve this profile and authorize the
+   establishment's proven key through a current attestation from the
+   recorded attester under the recorded policy.  The replacement and
+   attestation MUST name the same current metadata digest.  A
+   replacement cannot expand access beyond the original grant, resource-
+   owner authorization, or current server policy.
 
    On success, the server MUST atomically update the recorded statement,
-   metadata, digest, and trust decisions and apply core's concurrency
-   rules for replacements.  It also records the newly accepted
+   metadata, digest, and trust decisions and apply the concurrency rules
+   of [STATEMENT] for replacements.  It also records the newly accepted
    attestation effective expiry.  A failed attempt MUST NOT replace the
    recorded binding or rotate a refresh token.  This does not prevent
    the server from recording a withdrawal or trust removal learned
@@ -785,22 +793,22 @@ Table of Contents
    specification defines no migration of an existing grant to a new key,
    attester, evidence policy, or tenant.
 
-9.1.  Withdrawal and Trust Changes
+9.  Withdrawal and Trust Changes
 
    A known refusal record for the software statement is enforced as
    [STATEMENT] requires.  A current acceptable replacement can restore
-   continuation only under Section 9.  A server using a statement
+   continuation only under Section 8.  A server using a statement
    withdrawal mechanism SHOULD consult it at code redemption and refresh
    within that mechanism's freshness rules.  Failure to consult it does
    not clear an existing refusal.
 
-   At PAR, code redemption, and refresh, the server MUST enforce current
-   attester trust and local denial rules.  Removing an attester's
-   authorization for this client and tenant, removing the policy, or
-   denying the instance key prevents further use of the affected
-   binding.  A fresh attestation does not override those decisions.  A
-   deployment that cannot refresh trust data MUST NOT accept it beyond a
-   configured maximum staleness bound.
+   At each pushed authorization request, code redemption, and refresh,
+   the server MUST enforce current attester trust and local denial
+   rules.  Removing an attester's authorization for this client and
+   tenant, removing the policy, or denying the instance key prevents
+   further use of the affected binding.  A fresh attestation does not
+   override those decisions.  A deployment that cannot refresh trust
+   data MUST NOT accept it beyond a configured maximum staleness bound.
 
    This specification defines no interoperable attestation or instance
    revocation protocol.  Deployments MAY use independently established
@@ -811,31 +819,31 @@ Table of Contents
    tokens already issued.  Their further use is bounded by the
    resource's token-validation and revocation mechanisms.
 
-10.  Relationship to Core Processing
+10.  Exceptions to Software Statement Processing
 
    For establishments governed by this specification, the following
    rules replace or add to the corresponding rules of [STATEMENT]:
 
     +=========+==========================+============================+
-    | Core    | Core rule                | Under this profile         |
-    | section |                          |                            |
+    | Section | Rule                     | Under this profile         |
     +=========+==========================+============================+
     | 4       | A required issuer        | A presentation processed   |
-    |         | configured for software  | under Section 8.1 is not   |
+    |         | configured for software  | under Section 7.1 is not   |
     |         | whose documents are      | review-only, so a current  |
     |         | presented review-only    | statement from the         |
     |         | excludes that software   | required issuer can admit  |
     |         | from the tenant.         | the software.              |
     +---------+--------------------------+----------------------------+
-    | 5.2     | A statement pulled at    | The binding is set at PAR; |
-    |         | the authorization        | an authorization request   |
-    |         | endpoint binds the       | without a PAR request_uri  |
-    |         | presenter at code        | governed by this profile   |
-    |         | redemption.              | is rejected (Section 8.3). |
+    | 5.2     | A statement pulled at    | The binding is set at the  |
+    |         | the authorization        | PAR endpoint; an           |
+    |         | endpoint binds the       | authorization request      |
+    |         | presenter at code        | without a PAR request_uri  |
+    |         | redemption.              | governed by this profile   |
+    |         |                          | is rejected (Section 7.3). |
     +---------+--------------------------+----------------------------+
     | 5.3,    | The statement and the    | The instance is            |
     | 5.5     | document are checked     | authenticated first        |
-    |         | before the proof.        | (Section 8.1, step 1).     |
+    |         | before the proof.        | (Section 7.1, step 1).     |
     |         |                          | Statement and document     |
     |         |                          | checks follow, and checks  |
     |         |                          | needing no client-         |
@@ -844,7 +852,7 @@ Table of Contents
     +---------+--------------------------+----------------------------+
     | 5.2,    | A request without an     | No fallback: any failed    |
     | 5.4.1,  | acceptable statement can | check rejects the request  |
-    | 5.5     | proceed under the policy | (Section 8.1).             |
+    | 5.5     | proceed under the policy | (Section 7.1).             |
     |         | for unreviewed clients,  |                            |
     |         | a review-only            |                            |
     |         | presentation proceeds as |                            |
@@ -855,12 +863,12 @@ Table of Contents
     +---------+--------------------------+----------------------------+
     | 5.4     | The proven key appears   | The proven key is the      |
     |         | in the reviewed          | endorsed key               |
-    |         | document's jwks or at    | (Section 7.1), and the     |
+    |         | document's jwks or at    | (Section 6.1), and the     |
     |         | its jwks_uri.            | document carries no key    |
     |         |                          | material (Section 4).      |
     +---------+--------------------------+----------------------------+
     | 5.4.1   | A redirection URI        | A presentation processed   |
-    |         | another application      | under Section 8.1 whose    |
+    |         | another application      | under Section 7.1 whose    |
     |         | could claim makes a      | redirects meet Section 4.1 |
     |         | presentation review-     | is not review-only.  The   |
     |         | only, and a document     | client is confidential and |
@@ -875,7 +883,7 @@ Table of Contents
     |         | establishment, and       | unrefused, and the current |
     |         | redemption checks the    | document to match the      |
     |         | client identifier and    | recorded digest            |
-    |         | key.                     | (Section 8.4).             |
+    |         | key.                     | (Section 7.4).             |
     +---------+--------------------------+----------------------------+
     | 5.6.1   | A current statement on   | Every refresh requires a   |
     |         | refresh is a local-      | current statement, re-     |
@@ -885,7 +893,7 @@ Table of Contents
     |         | digest is checked only   | continued endorsement of   |
     |         | for a replacement.       | the key instead of its     |
     |         |                          | presence in the document   |
-    |         |                          | (Section 9).               |
+    |         |                          | (Section 8).               |
     +---------+--------------------------+----------------------------+
     | 8.3     | Code redemption is       | Redemption can also return |
     |         | rejected with            | invalid_client or          |
@@ -907,100 +915,112 @@ Table of Contents
                                   Table 1
 
    Code redemption and refresh continue an establishment and are not new
-   token-endpoint presentations, so core's rejection of a token-endpoint
-   presentation from a client whose document carries no key material is
-   unchanged.  All other core requirements continue to apply, including
-   digest processing, issuer trust, statement audience and tenant
-   checks, refusal records, the iat floor, and bounds on repeated
-   consumption.  The extension applies equally to presented and pulled
-   statements.  It adds no requirement to issue statements or implement
-   [REGISTRATION].
+   token-endpoint presentations, so the rejection in [STATEMENT] of a
+   token-endpoint presentation from a client whose document carries no
+   key material is unchanged.  All other requirements of [STATEMENT]
+   continue to apply, including digest processing, issuer trust,
+   statement audience and tenant checks, refusal records, the iat floor,
+   and bounds on repeated consumption.  This specification applies
+   equally to presented and pulled statements.  It adds no requirement
+   to issue statements or implement [REGISTRATION].
 
-   An implementation of core alone does not gain this exception.  Its
-   review-only treatment of claimable redirects continues to apply.  A
-   supporting server MUST NOT infer this profile's assurance from
-   successful generic client authentication without all of this
-   specification's checks.
+   An implementation of [STATEMENT] alone does not gain these
+   exceptions.  Its review-only treatment of claimable redirects
+   continues to apply.  A supporting server MUST NOT infer this
+   profile's assurance from successful generic client authentication
+   without all of this specification's checks.
 
 11.  Error Responses
 
-   The endpoint-specific syntax and response rules of [RFC6749],
-   [RFC9126], [STATEMENT], [ABCA], and [RFC9449] apply.  This
-   specification defines no new error code.  The following table applies
-   at PAR, code redemption, and refresh, except where a condition names
-   a particular endpoint.  Other OAuth errors, such as invalid_scope,
-   continue to apply to their respective failures.
+   A rejection uses the error response format and HTTP status codes
+   specified for the endpoint where it occurs:
 
-   +=========================+=========================================+
-   | Error                   | Condition                               |
-   +=========================+=========================================+
-   | invalid_request         | Malformed or conflicting request        |
-   |                         | parameters, or a software_statement     |
-   |                         | parameter on code redemption            |
-   +-------------------------+-----------------------------------------+
-   | invalid_client          | Missing or unacceptable                 |
-   |                         | attestation, untrusted attester or      |
-   |                         | policy, a request carrying OAuth-       |
-   |                         | Client-Attestation-PoP, a DPoP          |
-   |                         | proof under a key other than the        |
-   |                         | endorsed key, or, at PAR, a request     |
-   |                         | carrying an instance attestation        |
-   |                         | for a document that does not select     |
-   |                         | this profile or violates Section 4      |
-   +-------------------------+-----------------------------------------+
-   | use_fresh_attestation   | An otherwise valid attestation          |
-   |                         | whose exp has passed, or that names     |
-   |                         | a digest other than that of the         |
-   |                         | document currently served while         |
-   |                         | that document matches the               |
-   |                         | applicable statement, which this        |
-   |                         | profile treats as not fresh enough      |
-   |                         | (Section 7.4 of [ABCA])                 |
-   +-------------------------+-----------------------------------------+
-   | use_dpop_nonce          | Missing or unacceptable server DPoP     |
-   |                         | nonce                                   |
-   +-------------------------+-----------------------------------------+
-   | invalid_grant           | At redemption or refresh, a validly     |
-   |                         | authenticated instance does not         |
-   |                         | match the recorded key, attester,       |
-   |                         | policy, or client; or, at               |
-   |                         | redemption, the current document no     |
-   |                         | longer matches the recorded digest;     |
-   |                         | or, at refresh, the current             |
-   |                         | document no longer selects this         |
-   |                         | profile or meets Section 4              |
-   +-------------------------+-----------------------------------------+
-   | statement_required      | A required statement is missing,        |
-   |                         | expired, refused, or superseded,        |
-   |                         | or, at refresh, a needed                |
-   |                         | replacement is missing or               |
-   |                         | unacceptable                            |
-   +-------------------------+-----------------------------------------+
-   | temporarily_unavailable | A retrieval needed for validation       |
-   |                         | temporarily fails                       |
-   +-------------------------+-----------------------------------------+
+   *  At the pushed authorization request endpoint, Section 2.3 of
+      [RFC9126] applies.
 
-                                  Table 2
+   *  At the token endpoint, Section 5.2 of [RFC6749] applies.
 
-   Invalid statements and reviewed documents at PAR otherwise use core's
-   error rules.  At refresh, an unacceptable replacement uses
-   statement_required as in core.  A document exceeding a configured
-   size bound is not a transient failure; apply core's non-transient
-   retrieval and refresh errors.  An invalid or expired code or refresh
-   token, failed PKCE check, or mismatched redemption redirect uses
+   *  At the authorization endpoint, Section 4.1.2.1 of [RFC6749]
+      applies.
+
+   The error rules of [STATEMENT], [ABCA], and [RFC9449] also apply.
+   This specification defines no new error code.
+
+11.1.  Error Codes
+
+   The following error codes apply to pushed authorization requests,
+   code redemption, and refresh, except where a condition names a
+   particular endpoint.  They are defined by Section 5.2 of [RFC6749]
+   (invalid_request, invalid_client, and invalid_grant), Section 7.4 of
+   [ABCA] (use_fresh_attestation), Section 8 of [RFC9449]
+   (use_dpop_nonce), and [STATEMENT] (statement_required, and
+   temporarily_unavailable at the token and pushed authorization request
+   endpoints, extending Section 4.1.2.1 of [RFC6749]).  Other OAuth
+   errors, such as invalid_scope, continue to apply to their respective
+   failures.
+
+   invalid_request:  Malformed or conflicting request parameters, or a
+      software_statement parameter on code redemption.
+
+   invalid_client:  Missing or unacceptable attestation, untrusted
+      attester or policy, a request carrying the OAuth-Client-
+      Attestation-PoP header field, a DPoP proof under a key other than
+      the endorsed key, or, at the PAR endpoint, a request carrying an
+      instance attestation for a document that does not select this
+      profile or violates Section 4.
+
+   use_fresh_attestation:  An otherwise valid attestation whose exp has
+      passed, or that names a digest other than that of the document
+      currently served while that document matches the applicable
+      statement, which this profile treats as not fresh enough
+      (Section 7.4 of [ABCA]).
+
+   use_dpop_nonce:  Missing or unacceptable server DPoP nonce.
+
+   invalid_grant:  At redemption or refresh, a validly authenticated
+      instance does not match the recorded key, attester, policy, or
+      client; or, at redemption, the current document no longer matches
+      the recorded digest; or, at refresh, the current document no
+      longer selects this profile or meets Section 4.
+
+   statement_required:  A required statement is missing, expired,
+      refused, or superseded, or, at refresh, a needed replacement is
+      missing or unacceptable.
+
+   temporarily_unavailable:  A retrieval needed for validation
+      temporarily fails.
+
+   Invalid statements and reviewed documents at the PAR endpoint
+   otherwise use the error rules of [STATEMENT].  At refresh, an
+   unacceptable replacement uses statement_required as in [STATEMENT].
+   A document exceeding a configured size bound is not a transient
+   failure, and the server uses the non-transient retrieval and refresh
+   errors of [STATEMENT].  An invalid or expired code or refresh token,
+   failed PKCE check, or mismatched redemption redirect uses
    invalid_grant.
 
    A DPoP proof that fails the checks of Section 4.3 of [RFC9449] is
-   rejected with invalid_dpop_proof, and a missing or unacceptable nonce
-   with use_dpop_nonce, in place of any code in the table above, as
-   [STATEMENT] provides for proof-mechanism errors.  A valid proof under
-   a key other than the attestation's cnf key is not an invalid proof:
-   authentication fails (Section 7.3 of [ABCA]), and the request is
-   rejected with invalid_client, or with invalid_client_attestation as
-   Section 7.4 of [ABCA] permits.  At code redemption and refresh, an
-   instance that authenticates under a key other than the
-   establishment's recorded key fails the grant binding and is rejected
-   with invalid_grant.
+   rejected with invalid_dpop_proof (Section 5 of [RFC9449]), and a
+   missing or unacceptable nonce with use_dpop_nonce, in place of any
+   code listed above, as [STATEMENT] provides for proof-mechanism
+   errors.  A valid proof under a key other than the attestation's cnf
+   key is not an invalid proof: authentication fails (Section 7.3 of
+   [ABCA]), and the request is rejected with invalid_client, or with
+   invalid_client_attestation as Section 7.4 of [ABCA] permits.  At code
+   redemption and refresh, an instance that authenticates under a key
+   other than the establishment's recorded key fails the grant binding
+   and is rejected with invalid_grant.
+
+   A use_dpop_nonce response MUST include the DPoP-Nonce HTTP header
+   field.  Client attestation errors and status codes follow Section 7.4
+   of [ABCA]; other errors retain their endpoint's response format.  A
+   code redemption request carrying the software_statement parameter is
+   rejected with invalid_request, even if the statement is an otherwise
+   valid replacement.  A statement_required response at code redemption
+   requires a new PAR transaction, not a retry with a statement attached
+   to the code request.
+
+11.2.  Error Precedence and Disclosure
 
    Servers MUST check basic request syntax before reporting errors
    requiring authentication.  They MUST authenticate the instance before
@@ -1012,34 +1032,32 @@ Table of Contents
    several failures remain at one stage, a server MAY choose any
    applicable error without disclosing additional failed checks.
 
-   A use_dpop_nonce response MUST include DPoP-Nonce.  Client
-   attestation errors and status codes follow Section 7.4 of [ABCA];
-   other errors retain their endpoint's response format.  A
-   software_statement parameter on code redemption is invalid_request,
-   even if it offers an otherwise valid replacement.  A
-   statement_required response at code redemption requires a new PAR
-   transaction, not a retry with a statement attached to the code
-   request.
+   Details of configured issuers, attesters, evidence policies, and
+   tenant restrictions MUST NOT be exposed in error descriptions to
+   unauthenticated callers, as [STATEMENT] requires of its issuer trust
+   configuration.
 
-   At the authorization endpoint, a missing or invalid required PAR
-   request is rejected with invalid_request.  The server MUST NOT
-   redirect an error unless it has validated the redirect under the
-   applicable client metadata and transaction.  Front-channel carriage
-   of the statement or instance-attestation artifacts is rejected with
-   invalid_request.  Details of configured issuers, attesters, evidence
-   policies, and tenant restrictions MUST NOT be exposed in error
-   descriptions to unauthenticated callers, as [STATEMENT] requires of
-   its issuer trust configuration.
+11.3.  Authorization Endpoint
+
+   At the authorization endpoint, a missing or invalid required pushed
+   authorization request is rejected with invalid_request.  The server
+   MUST NOT redirect an error unless it has validated the redirect under
+   the applicable client metadata and transaction.  Front-channel
+   carriage of the statement or instance-attestation artifacts is
+   rejected with invalid_request.
 
 12.  Examples
 
-   The following examples are non-normative.  JWT signatures and opaque
-   protocol values are abbreviated.  Form bodies are wrapped for
-   readability.  The metadata digest below is computed over the UTF-8
-   bytes of the displayed client document, using LF line endings, two-
-   space indentation, and one final LF after the closing brace.
+   The following examples are non-normative.  In the HTTP examples, JWTs
+   and opaque protocol values are shown as placeholders in angle
+   brackets.  The metadata digest below is computed over the UTF-8 bytes
+   of the displayed client document, using LF line endings, two-space
+   indentation, and one final LF after the closing brace.
 
 12.1.  Reviewed Client Metadata
+
+   The following is an example of a Client ID Metadata Document that
+   selects this profile:
 
    {
      "client_id": "https://cli.example/client.json",
@@ -1059,7 +1077,8 @@ Table of Contents
 
 12.2.  Instance Attestation
 
-   The decoded header and payload of the attestation are:
+   The following is an example of the decoded header and payload of an
+   instance attestation:
 
    {
      "typ": "cimd-instance-attestation+jwt",
@@ -1086,12 +1105,15 @@ Table of Contents
 
    The policy URI denotes agreed evidence requirements.  The server does
    not fetch it to decide whether to trust the attester.  The document
-   digest must equal the software statement's digest.  The public key
-   represents one installation; it is absent from the shared document.
+   digest needs to equal the software statement's digest.  The public
+   key represents one installation; it is absent from the shared
+   document.
 
 12.3.  PAR and Redemption
 
-   After obtaining a DPoP nonce, the CLI submits:
+   The following is an example of a pushed authorization request that
+   the client sends after obtaining a DPoP nonce (line breaks for
+   display purposes only):
 
    POST /par HTTP/1.1
    Host: as.example
@@ -1109,9 +1131,10 @@ Table of Contents
 
    Here the server pulls the software statement.  It binds the accepted
    request, key, attester, policy, and tenant to its returned
-   request_uri.  After authorization in the browser, the CLI receives a
-   code at http://127.0.0.1:51004/callback and validates the response
-   issuer and state.  It redeems the code as follows:
+   request_uri.  After authorization in the browser, the client receives
+   a code at http://127.0.0.1:51004/callback and validates the response
+   issuer and state.  The following is an example of the request that
+   redeems the code (line breaks for display purposes only):
 
    POST /token HTTP/1.1
    Host: as.example
@@ -1131,6 +1154,9 @@ Table of Contents
 
 12.4.  Refresh and Replacement
 
+   The following is an example of a refresh request (line breaks for
+   display purposes only):
+
    POST /token HTTP/1.1
    Host: as.example
    Content-Type: application/x-www-form-urlencoded
@@ -1142,30 +1168,60 @@ Table of Contents
    &refresh_token=<refresh-token>
 
    If the review has expired, the server pulls a current replacement as
-   core permits for a grant established from a pulled statement.  If the
-   replacement names changed metadata, the attestation must name that
-   same new digest while retaining the recorded key, attester, and
-   policy.  Otherwise the refresh fails without changing the binding.
+   [STATEMENT] permits for a grant established from a pulled statement.
+   If the replacement names changed metadata, the attestation needs to
+   name that same new digest while retaining the recorded key, attester,
+   and policy.  Otherwise the refresh fails without changing the
+   binding.
 
-13.  Security Considerations
+13.  Authorization Server Metadata
+
+   This specification defines the following authorization server
+   metadata member under [RFC8414]:
+
+   software_statement_instance_binding_supported:  OPTIONAL.  Boolean
+      value indicating whether the authorization server supports this
+      specification.  If omitted, the default value is false.  A server
+      advertising true MUST implement the requirements of this
+      specification.  Support does not promise acceptance of any
+      particular client, statement issuer, attester, evidence policy, or
+      tenant.
+
+   A supporting server MUST publish its
+   pushed_authorization_request_endpoint, include
+   attest_jwt_client_auth_dpop in token_endpoint_auth_methods_supported,
+   advertise S256 in code_challenge_methods_supported, and publish
+   dpop_signing_alg_values_supported ([RFC9449]) and
+   client_attestation_signing_alg_values_supported (Section 8 of
+   [ABCA]).  It MUST support [RFC9207] and publish
+   authorization_response_iss_parameter_supported as true.
+
+   A client MUST confirm support for this specification before starting
+   a grant under it.  The generic attestation method advertisement alone
+   is insufficient.  This profile requires PAR for its clients even when
+   the server also serves other clients without PAR; it does not require
+   the server's global require_pushed_authorization_requests value to be
+   true.
+
+14.  Security Considerations
 
    The security requirements of [STATEMENT], [ABCA], [CIMD], [RFC8252],
    and [RFC9700] apply.  This section describes the additional trust
-   boundary introduced by the extension.
+   boundary introduced by this specification.
 
-13.1.  Software Evidence and Key Use
+14.1.  Software Evidence and Key Use
 
    A valid signature proves that an accepted attester made an assertion;
    it does not improve the evidence behind it.  An attester accepting
    self-reported executable hashes would let a copied statement and an
    arbitrary key satisfy the binding.  The evidence and mapping
-   requirements in Section 6 prevent that substitution only when the
+   requirements in Section 5 prevent that substitution only when the
    deployment actually enforces them.
 
    A key's non-exportability does not prove which process can use it.
    An acceptable evidence policy therefore requires key storage and any
    signing broker to restrict use to the software instance the policy
-   covers (Section 6).  A general signing service reachable by arbitrary
+   covers (Section 5).  A general signing service reachable by arbitrary
    local processes would let unreviewed software authenticate through an
    approved installation.  A signing broker therefore exposes
    constrained operations rather than arbitrary signing: it produces
@@ -1183,7 +1239,7 @@ Table of Contents
    injected code can change the effective software identity and require
    explicit treatment in that policy.
 
-13.2.  Loopback and Transaction Theft
+14.2.  Loopback and Transaction Theft
 
    An attacker can attempt to occupy a loopback port, intercept a
    response, or initiate its own authorization transaction using the
@@ -1199,7 +1255,7 @@ Table of Contents
    verifier, and resulting grant state to the same local session.  A
    reusable signing capability handed to that caller is insufficient.
 
-13.3.  Downgrade Prevention
+14.3.  Downgrade Prevention
 
    A server requiring reviewed software for a client namespace or tenant
    MUST enforce that requirement even when the requester omits every
@@ -1215,30 +1271,31 @@ Table of Contents
    unreviewed clients MAY continue to do so under its own policy, but a
    failed request under this profile MUST NOT silently become an
    unreviewed request.  Any independently admitted unreviewed client
-   carries none of this extension's assurance.
+   carries none of the assurance of this specification.
 
    Existing grants retain their recorded binding.  Removing metadata,
    changing an attester or policy, or presenting a fresh proof under a
-   new key cannot relax it.  A server implementing only core continues
-   to reject these clients where review is required.
+   new key cannot relax it.  A server implementing only [STATEMENT]
+   continues to reject these clients where review is required.
 
-13.4.  Artifact Substitution and Key Separation
+14.4.  Artifact Substitution and Key Separation
 
    The distinct attestation type, digest binding, subject equality, and
    fixed establishment values prevent a generic attestation or one for
    another reviewed document from being substituted.  Implementations
    MUST apply mutually exclusive validation rules for software
    statements and instance attestations.  Software-statement signing
-   keys retain core's separation requirements and MUST NOT sign instance
-   attestations, even if one organization performs both roles.
+   keys retain the separation requirements of [STATEMENT] and MUST NOT
+   sign instance attestations, even if one organization performs both
+   roles.
 
    Attester authorization is scoped independently to client namespaces
    and tenants.  An over-broad attester can undermine the binding for
-   every namespace it is allowed to endorse.  A review issuer and an
+   every namespace it is allowed to endorse.  A statement issuer and an
    attester colluding or both being compromised can make false
    assertions within the authority the server has assigned them.
 
-13.5.  Freshness and Availability
+14.5.  Freshness and Availability
 
    Short effective lifetimes limit stale evidence but make attester
    availability important.  A fresh proof demonstrates current access to
@@ -1249,7 +1306,7 @@ Table of Contents
    Servers MUST enforce finite evidence and trust-data reuse bounds.  A
    failure to retrieve metadata, reviews, or trust updates MUST NOT
    extend a recorded expiry or remove a refusal.  An access token cannot
-   outlive the attestation accepted when it was issued (Section 8.4),
+   outlive the attestation accepted when it was issued (Section 7.4),
    but it can outlive a review withdrawn or attester trust removed after
    issuance; deployments requiring prompt enforcement need short token
    lifetimes or independent token revocation.
@@ -1260,17 +1317,21 @@ Table of Contents
    JSON, omit members from the digest, or continue with an older digest
    beyond permitted cache reuse merely to avoid that failure.
 
-13.6.  Resource Exhaustion
+14.6.  Resource Exhaustion
 
    Attestations do not remove the need for bounded document retrieval,
    statement selection, proof replay caches, and PAR storage.  Servers
-   SHOULD limit pending PAR transactions separately from core's limits
-   on establishments.  Rate limits SHOULD account for client, instance
-   key, tenant, and authenticated resource owner as available.  An
-   attester SHOULD limit enrollment and renewal so one approved
-   installation cannot obtain unlimited keys to evade per-key controls.
+   SHOULD limit pending PAR transactions separately from the limits of
+   [STATEMENT] on establishments.  Rate limits SHOULD account for
+   client, instance key, tenant, and authenticated resource owner as
+   available.  An attester SHOULD limit enrollment and renewal so one
+   approved installation cannot obtain unlimited keys to evade per-key
+   controls.
 
-14.  Privacy Considerations
+15.  Privacy Considerations
+
+   The privacy considerations of [STATEMENT] and Section 11 of [ABCA]
+   apply.
 
    An instance key reused at multiple servers can correlate
    installations across them.  Clients SHOULD use separate instance keys
@@ -1293,9 +1354,9 @@ Table of Contents
    decisions, policy identifier, digest, and appropriately protected key
    identifiers without retaining credentials.
 
-15.  IANA Considerations
+16.  IANA Considerations
 
-15.1.  OAuth Dynamic Client Registration Metadata Registry
+16.1.  OAuth Dynamic Client Registration Metadata Registry
 
    This specification requests registration of the following value in
    the "OAuth Dynamic Client Registration Metadata" registry established
@@ -1303,16 +1364,17 @@ Table of Contents
 
    Client Metadata Name:  software_statement_instance_binding
 
-   Client Metadata Description:  Boolean selecting endorsed instance-key
-      binding for runtime admission using a CIMD software statement.
-      Defined for Client ID Metadata Documents; it does not enable
-      registration under this specification.
+   Client Metadata Description:  Boolean value selecting endorsed
+      instance-key binding for runtime admission using a software
+      statement for a Client ID Metadata Document.  It is defined for
+      Client ID Metadata Documents and does not enable registration
+      under this specification.
 
    Change Controller:  IESG
 
    Specification Document(s):  This specification, Section 4
 
-15.2.  OAuth Authorization Server Metadata Registry
+16.2.  OAuth Authorization Server Metadata Registry
 
    This specification requests registration of the following value in
    the "OAuth Authorization Server Metadata" registry established by
@@ -1320,14 +1382,15 @@ Table of Contents
 
    Metadata Name:  software_statement_instance_binding_supported
 
-   Metadata Description:  Boolean indicating support for endorsed
-      instance-key binding of CIMD software statements.
+   Metadata Description:  Boolean value indicating support for endorsed
+      instance-key binding of software statements for Client ID Metadata
+      Documents.
 
    Change Controller:  IESG
 
-   Specification Document(s):  This specification, Section 5
+   Specification Document(s):  This specification, Section 13
 
-15.3.  JSON Web Token Claims Registry
+16.3.  JSON Web Token Claims Registry
 
    This specification requests registration of the following claim in
    the "JSON Web Token Claims" registry established by [RFC7519]:
@@ -1340,30 +1403,27 @@ Table of Contents
 
    Change Controller:  IESG
 
-   Specification Document(s):  This specification, Section 7
+   Specification Document(s):  This specification, Section 6
 
    This specification also requests that the cimd_digest registration
-   requested by [STATEMENT] list this specification (Section 7) as an
-   additional reference.  An instance attestation carries the same
-   digest that a software statement carries.
+   requested by [STATEMENT] list this specification (Section 6) as an
+   additional reference.
 
-   The iss, sub, iat, exp, and cnf claims are defined elsewhere and are
-   not re-registered here.
+16.4.  OAuth Extensions Error Registry
 
-15.4.  OAuth Extensions Error Registry
-
-   For completeness of the registry, this specification requests that
-   IANA add this specification as a reference for each of the following
-   errors and extend its usage locations to include the pushed
-   authorization request error response, which can already carry it
-   under [RFC9126].
+   This specification requests that IANA update the following entries in
+   the "OAuth Extensions Error Registry" established by [RFC6749].  In
+   each entry, the pushed authorization request error response, which
+   can already carry the error under [RFC9126], is added to the usage
+   locations, and this specification is added as a reference.
 
    Error Name:  use_fresh_attestation
 
-   Existing Registration:  [ABCA]
-
    Error Usage Location:  pushed authorization request error response,
       in addition to the locations already registered
+
+   Related Protocol Extension:  OAuth 2.0 Attestation-Based Client
+      Authentication
 
    Change Controller:  IETF
 
@@ -1371,10 +1431,11 @@ Table of Contents
 
    Error Name:  invalid_client_attestation
 
-   Existing Registration:  [ABCA]
-
    Error Usage Location:  pushed authorization request error response,
       in addition to the locations already registered
+
+   Related Protocol Extension:  OAuth 2.0 Attestation-Based Client
+      Authentication
 
    Change Controller:  IETF
 
@@ -1382,10 +1443,10 @@ Table of Contents
 
    Error Name:  use_dpop_nonce
 
-   Existing Registration:  [RFC9449]
-
    Error Usage Location:  pushed authorization request error response,
       in addition to the locations already registered
+
+   Related Protocol Extension:  Demonstrating Proof of Possession (DPoP)
 
    Change Controller:  IETF
 
@@ -1394,20 +1455,20 @@ Table of Contents
 
    Error Name:  invalid_dpop_proof
 
-   Existing Registration:  [RFC9449]
-
    Error Usage Location:  pushed authorization request error response,
       in addition to the locations already registered
+
+   Related Protocol Extension:  Demonstrating Proof of Possession (DPoP)
 
    Change Controller:  IETF
 
    Specification Document(s):  [RFC9449], this specification
       (Section 11)
 
-15.5.  Media Type Registration
+16.5.  Media Type Registration
 
    This specification requests registration of the following media type
-   under [RFC6838]:
+   in the "Media Types" registry, in the manner described in [RFC6838]:
 
    Type name:  application
 
@@ -1420,8 +1481,8 @@ Table of Contents
    Encoding considerations:  8bit.  Values are JWTs in compact
       serialization.
 
-   Security considerations:  See Section 13 of this specification and
-      the security considerations of [ABCA] and [RFC7519].
+   Security considerations:  See Section 14 of this specification,
+      Section 12 of [ABCA], and Section 11 of [RFC7519].
 
    Interoperability considerations:  n/a
 
@@ -1447,12 +1508,16 @@ Table of Contents
 
    Change controller:  IETF
 
-   This specification uses the authentication method, HTTP fields, and
-   error codes of [ABCA] without registering replacements.
+16.6.  Values Defined Elsewhere
 
-16.  References
+   The iss, sub, aud, iat, exp, and cnf claims are defined elsewhere and
+   are not re-registered here.  This specification uses the
+   authentication method, HTTP fields, and error codes of [ABCA] without
+   registering replacements.
 
-16.1.  Normative References
+17.  References
+
+17.1.  Normative References
 
    [ABCA]     Looker, T., Bastian, P., and C. Bormann, "OAuth 2.0
               Attestation-Based Client Authentication", Work in
@@ -1556,19 +1621,19 @@ Table of Contents
               <https://datatracker.ietf.org/doc/draft-mcguinness-oauth-
               cimd-sw-stmt>.
 
-16.2.  Informative References
+17.2.  Informative References
 
    [REGISTRATION]
               McGuinness, K., "CIMD Software Statement Registration",
               n.d., <https://datatracker.ietf.org/doc/draft-mcguinness-
               oauth-cimd-sw-stmt-registration>.
 
-Appendix A.  Managed CLI Deployment
+Appendix A.  Managed Command-Line Client Deployment
 
    This appendix is non-normative.  A managed desktop can implement the
    evidence boundary with a trusted launcher or enterprise agent and an
    enterprise attestation service.  Other mechanisms are possible if
-   they meet Section 6.
+   they meet Section 5.
 
    The enterprise enrolls the launcher through an authenticated
    management channel.  It records a manifest, authorized by the
@@ -1598,14 +1663,14 @@ Appendix A.  Managed CLI Deployment
    is used, including refresh, and protects returned tokens from other
    processes.
 
-   An implementation must address changes between checking software and
-   using the key, dynamic code loading, and the ability of an approved
-   executable to proxy requests for others.  Platforms without reliable
-   process identity and key-use isolation cannot obtain that assurance
-   merely by running the launcher with more privileges.  A script-based
-   CLI may require an execution environment whose policy covers its
-   interpreter, script, and dependencies, or a narrower assurance than
-   reviewed executable identity.
+   An implementation needs to address changes between checking software
+   and using the key, dynamic code loading, and the ability of an
+   approved executable to proxy requests for others.  Platforms without
+   reliable process identity and key-use isolation cannot obtain that
+   assurance merely by running the launcher with more privileges.  A
+   script-based command-line client may require an execution environment
+   whose policy covers its interpreter, script, and dependencies, or a
+   narrower assurance than reviewed executable identity.
 
 Appendix B.  Verification Scenarios
 
@@ -1631,8 +1696,8 @@ Appendix B.  Verification Scenarios
    *  A nonce retry neither consumes grant state nor advances the iat
       floor.
 
-   *  A refresh with a renewed attestation for the original tuple
-      succeeds when the review remains current.
+   *  A refresh with a renewed attestation for the original key,
+      attester, and policy succeeds when the review remains current.
 
    *  A metadata replacement without a matching current attestation
       fails without changing the establishment.
