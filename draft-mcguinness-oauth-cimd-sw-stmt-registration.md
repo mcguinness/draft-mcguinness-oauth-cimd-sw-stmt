@@ -166,12 +166,12 @@ A client renews a statement-governed registration by delivering a replacement st
 
 The update request carries the complete client metadata that {{RFC7592}} requires, which the server does not take ({{dcr-presentation}}).
 
-A statement with the governing statement's `iss` and `sub` and an `iat` no later than the governing statement's `iat` is not a replacement. A client sends one in two ordinary cases:
+A statement with the governing statement's `iss` and `sub` and an `iat` no later than the governing statement's `iat` is not a replacement. The authorization server leaves the registration unchanged and treats a request as carrying no replacement in either of the following cases, so that the request proceeds while the registration is valid and is rejected as {{registration-validity}} provides once it is not:
 
-* An {{RFC7592}} update request repeats, unmodified, the statement that a registration, read, or update response returned (Section 3.2.1 of {{RFC7591}}; Section 2.2 of {{RFC7592}}). After a token or pushed authorization request has renewed the registration, that statement can be older than the governing statement.
-* A client that lost the response to the request that renewed the registration offers the governing statement again.
+* The request carries the governing statement itself, identified by its `iss` and `jti`. A client sends it, for example, after losing the response to the request that renewed the registration, or by attaching its current statement to later requests.
+* The request is an {{RFC7592}} update request, which repeats, unmodified, the statement that a registration, read, or update response returned (Section 3.2.1 of {{RFC7591}}; Section 2.2 of {{RFC7592}}). After a token or pushed authorization request has renewed the registration, that statement can be older than the governing statement.
 
-In those two cases, the authorization server leaves the registration unchanged and treats the request as carrying no replacement: the request proceeds while the registration is valid and is rejected as {{registration-validity}} provides once it is not. Any other statement older than the governing statement is superseded under the `iat` floor of {{STATEMENT}}, and a request carrying it at the token or pushed authorization request endpoint is rejected with `statement_required`.
+Any other statement older than the governing statement is superseded under the `iat` floor of {{STATEMENT}}, and a request carrying it at the token or pushed authorization request endpoint is rejected with `statement_required`.
 
 An {{RFC7592}} read or update response returns the governing statement as its `software_statement` member.
 
