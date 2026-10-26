@@ -156,24 +156,23 @@ An authorization server MUST establish attester trust independently of the reque
 * The exact attester `iss` identifier and the trusted source of its verification keys.
 * Accepted asymmetric signing algorithms.
 * Client identifier namespaces the attester may endorse.
-* Accepted evidence-policy identifiers, and a finite maximum attestation lifetime for each.
+* Accepted evidence-policy identifiers and, for each, a finite maximum attestation lifetime and a finite maximum evidence age.
 * Tenant restrictions and any requirements for a particular attester or policy within a tenant.
 * Clock-skew and evidence-freshness requirements and any local denial rules for instance keys.
 
 The server MUST use the tenant determined for the grant by its own trusted processing, as {{STATEMENT}} requires. A client-supplied tenant label is not sufficient. The server MUST NOT infer attester trust from a statement issuer's signature, from the client document, or from a key-location claim in the attestation. An `iss`, `jku`, `x5u`, or similar value in an unverified JWT MUST NOT cause unconfigured key discovery. Retrieval from a configured key source remains subject to external-retrieval protections and bounded cache reuse.
 
-An attester MUST issue an instance attestation only after it has:
+The server cannot observe how an attester reached its decision, so it relies on the evidence policy. An evidence policy is acceptable for reviewed-software admission only if it meets all of the following requirements:
 
-1. Verified control of the private instance key through an authenticated, replay-resistant exchange bound to the submitted public key.
-2. Evaluated evidence about the software instance and protection of key use under the named evidence policy.
-3. Established an authenticated association between that software identity and the CIMD URL, retrieved and validated the document under {{CIMD}}, and calculated its digest under {{STATEMENT}}.
-4. Confirmed that the artifact or package identity established by the evidence is covered by that association for the document version being endorsed.
+* Before issuing each instance attestation, the attester verifies control of the private instance key through an authenticated, replay-resistant exchange bound to the submitted public key.
+* The attester evaluates evidence about the software instance and protection of key use, and that evidence is no older than the policy's maximum evidence age. A previous attestation is not evidence: a renewal rests on evidence that meets the same bound.
+* The attester establishes an authenticated association between the software identity and the CIMD URL, retrieves and validates the document under {{CIMD}}, and calculates its digest under {{STATEMENT}}.
+* The attester confirms that the artifact or package identity established by the evidence is covered by that association for the document version being endorsed. A publisher-controlled manifest accepted under the policy, or a separately approved enterprise inventory, can supply the association. A URL, file path, digest, or publisher name asserted only by the requesting process does not suffice. The metadata digest is not an executable digest.
+* The policy defines what identifies the software, how evidence authenticates that identity and the instance key, how use of the key is restricted to the software instance the evidence covers, a finite maximum evidence age, and the treatment of updates, scripts, plugins, and other executable extensions.
+* The policy's identifier denotes immutable policy semantics: a material policy change requires a new identifier.
+* The policy establishes an association between the software the statement covers and control of the endorsed key. User approval of a key, a publisher account login, possession of a shared embedded secret, or device integrity alone does not establish that association.
 
-A publisher-controlled manifest accepted under the evidence policy, or a separately approved enterprise inventory, can supply the association. A URL, file path, digest, or publisher name asserted only by the requesting process MUST NOT suffice. The metadata digest is not an executable digest.
-
-An evidence policy MUST define what identifies the software, how evidence authenticates that identity and the instance key, how use of the key is restricted, the age of evidence accepted at issuance, and the treatment of updates, scripts, plugins, and other executable extensions. Its identifier MUST denote immutable policy semantics; a material policy change requires a new identifier. An attester MUST NOT renew an attestation merely because a previous attestation exists when the policy requires new evidence.
-
-A server MUST accept a policy for reviewed-software admission only if the policy establishes an association between the software the statement covers and control of the endorsed key. User approval of a key, a publisher account login, possession of a shared embedded secret, or device integrity alone does not establish that association. A deployment MAY use such weaker evidence for other purposes but MUST NOT report it as satisfying this profile.
+A server MUST NOT accept for this profile an evidence policy that does not meet these requirements. A deployment MAY use weaker evidence for other purposes but MUST NOT report it as satisfying this profile.
 
 Attestation acquisition and platform evidence formats are out of scope. They require an interoperable agreement between the installation and its attester; the wire format below does not by itself supply a software-verification mechanism. {{launcher}} gives an implementation model and its prerequisites.
 
