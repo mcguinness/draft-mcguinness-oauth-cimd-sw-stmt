@@ -76,7 +76,7 @@ Existing mechanisms do not provide reviewed-software admission for loopback clie
 
 This specification defines an alternative binding made of three checks, which stay separate even when one organization operates both issuing roles:
 
-* The software statement records approval of the software and its exact metadata.
+* The software statement records approval of the software, as its publisher identifies it ({{trust}}), and its exact metadata.
 * An instance attestation, from an independently trusted client attester under an evidence policy the authorization server accepts, associates an installation's key with that software and metadata.
 * A proof under attestation-based client authentication demonstrates possession of that key.
 
@@ -186,6 +186,8 @@ The server cannot observe how an attester reached its decision, so it relies on 
 * The policy establishes an association between the software the statement covers and control of the attested key. User approval of a key, a publisher account login, possession of a shared embedded secret, or device integrity alone does not establish that association.
 
 A server MUST NOT accept for this profile an evidence policy that does not meet these requirements. A deployment MAY use weaker evidence for other purposes but MUST NOT report it as satisfying this profile.
+
+A software statement approves the document and, through it, the software that the document's publisher, the controller of the document URL's origin or its delegate, associates with that document. The publisher decides which releases and artifacts that association covers, under the evidence policy's treatment of updates, so a new release served with unchanged metadata needs no new statement. Reviewed software under this profile therefore means the publisher's software as the publisher identifies it, not a particular executable the statement issuer examined. This specification defines no binding of a statement to a release, so a statement issuer that approves only particular releases cannot rely on this profile to enforce that limit.
 
 Attestation acquisition and platform evidence formats are out of scope. They require an interoperable agreement between the installation and its attester; the wire format below does not by itself supply a software-verification mechanism. {{launcher}} gives an implementation model and its prerequisites.
 
@@ -756,7 +758,7 @@ The launcher creates or provisions the instance key in protected storage and obt
 
 For each authorization transaction, the launcher performs the OAuth exchange on behalf of the verified caller. For resource requests, it produces DPoP proofs only for resource endpoints the caller is authorized to reach and only with that caller's own access token. It never signs arbitrary input, and produces a proof for the authorization server only within its own transaction processing. The local session binds caller identity, server, callback, PKCE verifier, and resulting grant. It rechecks caller authorization when the key is used, including refresh, and protects returned tokens from other processes.
 
-An implementation needs to address changes between checking software and using the key, dynamic code loading, and the ability of an approved executable to proxy requests for others. Platforms without reliable process identity and key-use isolation cannot obtain that assurance merely by running the launcher with more privileges. A script-based command-line client may require an execution environment whose policy covers its interpreter, script, and dependencies, or a narrower assurance than reviewed executable identity.
+An implementation needs to address changes between checking software and using the key, dynamic code loading, and the ability of an executable the evidence policy covers to proxy requests for others. Platforms without reliable process identity and key-use isolation cannot obtain that assurance merely by running the launcher with more privileges. A script-based command-line client may require an execution environment whose policy covers its interpreter, script, and dependencies, or a narrower assurance than verified executable identity.
 
 # Verification Scenarios
 
