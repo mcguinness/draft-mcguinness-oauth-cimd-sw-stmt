@@ -397,9 +397,9 @@ For establishments governed by this specification, the following rules replace o
 | 8.3 | Code redemption is rejected with `invalid_request`, `invalid_grant`, or, at the establishment bound, `invalid_client`. | Redemption can also return `invalid_client` or `invalid_client_attestation` for failed authentication, `statement_required`, `use_fresh_attestation`, or `temporarily_unavailable` ({{errors}}). |
 | 8.4 | A client not admitted on a statement receives `statement_required`. | A missing or invalid required pushed authorization request is rejected with `invalid_request` ({{errors}}). |
 
-Code redemption and refresh continue an establishment and are not new token-endpoint presentations, so the rejection in {{STATEMENT}} of a token-endpoint presentation from a client whose document carries no key material is unchanged. All other requirements of {{STATEMENT}} continue to apply, including digest processing, issuer trust, statement audience and tenant checks, refusal records, the `iat` floor, and bounds on repeated consumption. This specification applies equally to presented and pulled statements. It adds no requirement to issue statements or implement {{REGISTRATION}}.
+Code redemption and refresh continue an establishment and are not new token-endpoint presentations, so the rejection in {{STATEMENT}} of a token-endpoint presentation from a client whose document carries no key material is unchanged. All other requirements of {{STATEMENT}} continue to apply. This specification applies equally to presented and pulled statements. It adds no requirement to issue statements or implement {{REGISTRATION}}.
 
-An implementation of {{STATEMENT}} alone does not gain these exceptions. Its review-only treatment of claimable redirects continues to apply. A supporting server MUST NOT infer this profile's assurance from successful generic client authentication without all of this specification's checks.
+A supporting server MUST NOT infer this profile's assurance from successful generic client authentication without all of this specification's checks.
 
 # Error Responses {#errors}
 
