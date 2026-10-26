@@ -241,7 +241,7 @@ The client presents its software statement using `software_statement` as defined
 Before returning a successful PAR response, the server MUST:
 
 1. Validate request syntax and the client identifier, resolve the applicable tenant, and authenticate the instance under {{trust}}, {{attestation}}, and {{proof}}. Checks needing no client-controlled retrieval precede such retrieval.
-2. Validate the selected statement under {{STATEMENT}}, including issuer and tenant policy, audience, effective expiry, permission for runtime presentation, refusal records, and the applicable `iat` floor. Where statements are pulled, apply that specification's retrieval and selection rules.
+2. Validate the selected statement under {{STATEMENT}}, including issuer and tenant policy, audience, effective expiry, permission for runtime presentation, refusal records, and the applicable `iat` floor. Where statements are pulled, step 3 resolves the document first, since the document names where statements are published, and that specification's retrieval and selection rules apply.
 3. Resolve the CIMD document and perform the digest and metadata checks of {{STATEMENT}}. Parse the same bytes it digested, enforce {{client-metadata}}, and complete the cross-artifact checks of {{attestation-validation}}.
 4. Validate the requested redirect under {{loopback}}, require PKCE `S256`, and evaluate the request against the reviewed metadata and authorization policy.
 5. Create or reuse an establishment under {{establishment}}, bind the accepted request to it, and return a PAR response under {{RFC9126}}.
