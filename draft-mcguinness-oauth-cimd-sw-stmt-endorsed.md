@@ -199,22 +199,37 @@ Attestation acquisition and platform evidence formats are out of scope. They req
 
 # Instance Attestation {#attestation}
 
-An instance attestation is a Client Attestation JWT (Section 4 of {{ABCA}}) with the following additional requirements. Section 4 of {{ABCA}} permits additional claims, and Section 13 permits a profile its own `typ`. Together with the document's selection of this profile ({{selection}}), its type tells a server that this profile applies. Its JOSE `typ` MUST be `cimd-instance-attestation+jwt`. It MUST be digitally signed using an accepted asymmetric algorithm; a MAC or `none` MUST NOT be accepted. Its header and claims MUST contain no duplicate member names. Validation MUST apply {{RFC8725}}.
+An instance attestation is a Client Attestation JWT (Section 4 of {{ABCA}}) with the following additional requirements. Section 4 of {{ABCA}} permits additional claims, and Section 13 of {{ABCA}} permits a profile its own `typ`. Together with the document's selection of this profile ({{selection}}), its type tells a server that this profile applies. Its `typ` JOSE header parameter MUST have the value `cimd-instance-attestation+jwt`, which is the media type of {{media-type}} without its `application/` prefix. It MUST be digitally signed using an accepted asymmetric algorithm; a MAC or `none` MUST NOT be accepted. Its header and claims MUST contain no duplicate member names. Validation MUST apply {{RFC8725}}.
 
-The attestation retains the `sub`, `cnf` ({{RFC7800}}), `iat`, and `exp` requirements of {{ABCA}}. Its `sub` MUST be the exact CIMD client identifier URL. In addition, it MUST contain:
+The attestation contains the following claims. The `sub`, `iat`, `exp`, and `cnf` claims also retain the requirements of Section 4 of {{ABCA}}.
 
 `iss`:
-: The attester's identifier, an HTTPS URL without a fragment. It is matched exactly against configured trust; URL normalization MUST NOT be used to broaden that match.
+: REQUIRED. The attester's identifier, an HTTPS URL without a fragment. It is matched exactly against configured trust; URL normalization MUST NOT be used to broaden that match.
+
+`sub`:
+: REQUIRED. It MUST be the exact client identifier URL.
+
+`aud`:
+: OPTIONAL. If present, the receiving server MUST validate it under {{RFC7519}} against its own issuer identifier ({{RFC8414}}). The proof targets a particular endpoint ({{proof}}); the attestation can be usable at more than one trusting server.
+
+`iat`:
+: REQUIRED. It is not an evidence timestamp, and an attester can round or randomize it as Section 11.1 of {{ABCA}} recommends.
+
+`exp`:
+: REQUIRED. It MUST be later than `iat`. It bounds the age of the evidence behind the attestation, as the accepted evidence policy requires ({{trust}}).
+
+`cnf`:
+: REQUIRED. The endorsed key ({{RFC7800}}), in the form Section 4 of {{ABCA}} requires.
 
 `cimd_digest`:
-: The metadata digest defined by {{STATEMENT}}, computed over the document the attester evaluated. This claim has the same representation and comparison rules as in a software statement. Its use here records the attester's software-to-metadata association, not a second software review.
+: REQUIRED. The metadata digest defined by {{STATEMENT}}, computed over the document the attester evaluated. This claim has the same representation and comparison rules as in a software statement. Its use here records the attester's software-to-metadata association, not a second software review.
 
 `cimd_instance_policy`:
-: A string containing an absolute URI identifying the evidence policy under which the attester endorsed the instance key. The URI is an identifier, not a retrieval instruction. It MUST be compared exactly with an accepted policy identifier.
+: REQUIRED. A string containing an absolute URI identifying the evidence policy under which the attester endorsed the instance key. The URI is an identifier, not a retrieval instruction. It MUST be compared exactly with an accepted policy identifier.
 
-The attestation MUST have `exp` later than `iat`. Its `exp` bounds the age of the evidence behind it, as the accepted evidence policy requires ({{trust}}). Its `iat` is not an evidence timestamp, and an attester can round or randomize it as Section 11.1 of {{ABCA}} recommends. A server MUST reject an attestation whose `exp` has passed, or lies further in the future than the maximum evidence age it accepts for the attester and evidence policy, and MUST NOT reject an attestation only because its `iat` was rounded or randomized. No field supplied by the client can extend these bounds.
+A server MUST reject an attestation whose `exp` has passed, or lies further in the future than the maximum evidence age it accepts for the attester and evidence policy, and MUST NOT reject an attestation only because its `iat` was rounded or randomized. No field supplied by the client can extend these bounds.
 
-This specification does not require an attestation audience or installation identifier. If an `aud` is present, the receiving server MUST validate it under {{RFC7519}} against its own issuer identifier ({{RFC8414}}). The proof targets a particular endpoint ({{proof}}); the attestation can be usable at more than one trusting server. An attestation is not tied to a statement's `jti`, so a statement renewed over unchanged bytes need not cause re-attestation.
+This specification does not require an attestation audience or installation identifier. An attestation is not tied to a statement's `jti`, so a statement renewed over unchanged bytes need not cause re-attestation.
 
 ## Validation {#attestation-validation}
 
@@ -639,7 +654,7 @@ Change Controller:
 Specification Document(s):
 : {{RFC9449}}, this specification ({{errors}})
 
-## Media Type Registration
+## Media Type Registration {#media-type}
 
 This specification requests registration of the following media type under {{RFC6838}}:
 
