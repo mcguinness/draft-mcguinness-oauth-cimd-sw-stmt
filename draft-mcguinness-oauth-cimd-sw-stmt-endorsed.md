@@ -224,7 +224,7 @@ On continuation, the recorded key, attester, policy, and tenant constraints of {
 
 ## Proof of Possession {#proof}
 
-The client sends the instance attestation in `OAuth-Client-Attestation` and uses DPoP combined mode under Section 7.3 of {{ABCA}}. It MUST NOT also send `OAuth-Client-Attestation-PoP`. A `dpop_jkt` parameter alone is not a proof. The authentication method and its validation remain those defined by {{ABCA}}; this profile supplies the attestation's type and additional bindings.
+The client sends the instance attestation in `OAuth-Client-Attestation` and uses DPoP combined mode under Section 7.3 of {{ABCA}}. It MUST NOT also send `OAuth-Client-Attestation-PoP`, and the server MUST reject a request under this profile that does. A `dpop_jkt` parameter alone is not a proof. The authentication method and its validation remain those defined by {{ABCA}}; this profile supplies the attestation's type and additional bindings.
 
 The authorization server MUST require a server-issued DPoP nonce at PAR and on every token request under this profile. It MUST enforce endpoint and method binding and reject replay of a proof within its acceptance window under {{RFC9449}}. Nonce challenges and retries use `use_dpop_nonce` and `DPoP-Nonce`; they do not consume a code, rotate a refresh token, create an establishment, or advance the `iat` floor. Nor does a request rejected before the instance is authenticated, or with `use_fresh_attestation` or `temporarily_unavailable`, so the client can retry with a fresh attestation.
 
@@ -248,7 +248,7 @@ Before returning a successful PAR response, the server MUST:
 
 For step 1, authentication establishes the attester, policy, client identifier, and proven key; it is not yet reviewed-software admission. An attestation whose digest has not been checked cannot establish the client. The ordering of core's statement checks before client-controlled retrieval applies once a statement is available. External-retrieval bounds, HTTP caching rules ({{RFC9111}}), and protection against server-side request forgery from {{STATEMENT}} and {{CIMD}} apply throughout.
 
-The server MUST NOT fall back to review-only or unreviewed admission for the same request if any required check fails. If no acceptable statement is available, it returns `statement_required`. A failed request MUST NOT advance the statement's `iat` floor or alter an existing establishment.
+The server MUST NOT fall back to review-only or unreviewed admission for the same request if any required check fails. A request that carries no instance attestation for a document selecting this profile is an example: the server learns from the document (step 3) that this profile applies, then rejects the request with `invalid_client`. If no acceptable statement is available, it returns `statement_required`. A failed request MUST NOT advance the statement's `iat` floor or alter an existing establishment.
 
 ## Establishment {#establishment}
 
