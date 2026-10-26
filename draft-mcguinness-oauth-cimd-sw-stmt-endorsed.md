@@ -172,7 +172,9 @@ A client MUST confirm support for this specification before starting a grant und
 
 An authorization server MUST establish attester trust independently of the request. For each accepted attester it MUST configure:
 
-* The exact attester `iss` identifier and how its verification keys are resolved, as Section 10.8 of {{ABCA}} recommends that a profile fix: either an `x5c` certificate chain ({{RFC7515}}) validated to a configured trust anchor together with a configured mapping from the certificate to this attester, such as an exact subject or subject alternative name; or a `kid` matched against a JWK Set configured for this attester. A `jku` is followed only if it names that configured JWK Set. Sharing a trust anchor with another attester does not authorize a key for this attester's `iss`.
+* The exact attester `iss` identifier and how its verification keys are resolved, as Section 10.8 of {{ABCA}} recommends that a profile fix, by one of the following:
+  * An `x5c` certificate chain ({{RFC7515}}) validated to a configured trust anchor, together with a configured mapping from the certificate to this attester, such as an exact subject or subject alternative name. Sharing a trust anchor with another attester does not authorize a key for this attester's `iss`.
+  * A `kid` matched against a JWK Set configured for this attester. A `jku` is followed only if it names that configured JWK Set.
 * Accepted asymmetric signing algorithms.
 * Client identifier namespaces the attester may endorse.
 * Accepted evidence-policy identifiers and, for each, a finite maximum evidence age.
