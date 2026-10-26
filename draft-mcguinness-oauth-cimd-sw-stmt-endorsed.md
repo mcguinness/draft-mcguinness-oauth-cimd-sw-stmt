@@ -92,7 +92,7 @@ The following sequence is non-normative:
 1. A publisher serves a CIMD document declaring this instance binding, attestation-based client authentication, and loopback redirects. A statement issuer signs a software statement over its exact bytes.
 2. An installation obtains an attestation from an accepted attester. The attestation names the CIMD URL, metadata digest, instance key, and evidence policy.
 3. The installation sends a pushed authorization request with PKCE, the attestation, and a Demonstrating Proof of Possession (DPoP) proof. It supplies the software statement or lets the server pull it.
-4. The server validates both trust decisions and their bindings before returning a `request_uri`.
+4. The server validates both trust decisions (in the statement issuer and in the attester) and their bindings before returning a `request_uri`.
 5. The user authorizes in an external browser. The code returns over loopback and is redeemed with the PKCE verifier and the endorsed key.
 6. Refresh requires the proven key, a current acceptable attestation, and a current acceptable software statement. A different key requires a new grant.
 
@@ -229,7 +229,7 @@ On continuation, the recorded key, attester, policy, and tenant constraints of {
 
 The client sends the instance attestation in `OAuth-Client-Attestation` and uses DPoP combined mode under Section 7.3 of {{ABCA}}. It MUST NOT also send `OAuth-Client-Attestation-PoP`, and the server MUST reject a request under this profile that does. A `dpop_jkt` parameter alone is not a proof. The authentication method and its validation remain those defined by {{ABCA}}; this profile supplies the attestation's type and additional bindings.
 
-The authorization server MUST require a server-issued DPoP nonce at the PAR endpoint and on every token request under this profile. It MUST enforce endpoint and method binding and reject replay of a proof within its acceptance window under {{RFC9449}}. Nonce challenges and retries use `use_dpop_nonce` and `DPoP-Nonce`; they do not consume a code, rotate a refresh token, create an establishment, or advance the `iat` floor. Nor does a request rejected before the instance is authenticated, or with `use_fresh_attestation` or `temporarily_unavailable`, so the client can retry with a fresh attestation.
+The authorization server MUST require a server-issued DPoP nonce at the PAR endpoint and on every token request under this profile. It MUST enforce endpoint and method binding and reject replay of a proof within its acceptance window under {{RFC9449}}. Nonce challenges and retries use `use_dpop_nonce` and `DPoP-Nonce`; they do not consume a code, rotate a refresh token, create an establishment, or advance the `iat` floor. A request rejected before the instance is authenticated, or rejected with `use_fresh_attestation` or `temporarily_unavailable`, has none of these effects either, so the client can retry with a fresh attestation.
 
 If the pushed authorization request also carries `dpop_jkt`, its JWK thumbprint ({{RFC7638}}) MUST identify the endorsed key; otherwise the server rejects the request. A client MUST generate a new proof for each request, including a retry. TLS protects request contents. DPoP does not sign the request body, and implementations MUST NOT treat a valid proof as a signature over the redirect URI, PKCE challenge, or statement.
 
@@ -263,7 +263,7 @@ An establishment records all state required by {{STATEMENT}} and, in addition:
 
 The proven key is the endorsed key, which is also the DPoP key. A server MAY reuse an establishment only when the reuse conditions of {{STATEMENT}} hold and the profile, attester, policy, and tenant also match. Individual authorization transactions still retain separate PKCE challenges, redirects, `state`, resource-owner decisions, and continuation state.
 
-The client identifier, tenant, key, attester, policy, and binding profile MUST remain fixed for the lifetime of the grant. Changing any of them requires a new grant opened through PAR. A fresh attestation for the same tuple can renew its evidence, and a software statement replacement can update its reviewed metadata only as {{refresh}} permits. Neither operation changes the tuple.
+The client identifier, tenant, key, attester, policy, and binding profile MUST remain fixed for the lifetime of the grant. Changing any of them requires a new grant opened through PAR. A fresh attestation that keeps these values can renew the grant's evidence, and a software statement replacement can update the grant's reviewed metadata only as {{refresh}} permits. Neither operation changes these values.
 
 The server MUST bind its `request_uri`, code, refresh token, and other grant continuation state to the establishment. The establishment limits and counting rules of {{STATEMENT}} apply. Servers SHOULD also bound establishments per resource owner and tenant so that one installation cannot exhaust the capacity available to other installations.
 
@@ -709,7 +709,7 @@ This appendix is non-normative. An implementation exercise should include the fo
 * A loopback code intercepted by another process cannot be redeemed without both the verifier and recorded key.
 * A repeated proof and a proof intended for another endpoint are rejected.
 * A nonce retry neither consumes grant state nor advances the `iat` floor.
-* A refresh with a renewed attestation for the original tuple succeeds when the review remains current.
+* A refresh with a renewed attestation for the original key, attester, and policy succeeds when the review remains current.
 * A metadata replacement without a matching current attestation fails without changing the establishment.
 * A new key, attester, policy, or tenant cannot take over an existing grant.
 * Withdrawal or removal of trust prevents continuation despite a fresh proof.
