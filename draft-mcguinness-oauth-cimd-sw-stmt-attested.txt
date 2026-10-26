@@ -109,7 +109,9 @@ Table of Contents
      17.1.  Normative References
      17.2.  Informative References
    Appendix A.  Managed Command-Line Client Deployment
-   Appendix B.  Verification Scenarios
+     A.1.  Example: macOS
+   Appendix B.  Operational Consequences
+   Appendix C.  Verification Scenarios
    Acknowledgments
    Author's Address
 
@@ -145,8 +147,8 @@ Table of Contents
    checks, which stay separate even when one organization operates both
    issuing roles:
 
-   *  The software statement records approval of the software and its
-      exact metadata.
+   *  The software statement records approval of the software, as its
+      publisher identifies it (Section 5), and its exact metadata.
 
    *  An instance attestation, from an independently trusted client
       attester under an evidence policy the authorization server
@@ -246,11 +248,9 @@ Table of Contents
       Key ([STATEMENT]), which this specification also calls the
       recorded key.
 
-   Attestation Effective Expiry:  An instance attestation's exp.  An
-      accepted evidence policy sets it no later than the time the
-      attester's evidence was collected plus the policy's maximum
-      evidence age (Section 5), so an attestation before its exp rests
-      on evidence no older than that maximum.
+   Attestation Effective Expiry:  An instance attestation's exp, which
+      an accepted evidence policy bounds by the age of the attester's
+      evidence (Section 5).
 
    The software statement's issuer and the client attester are separate
    roles.  One entity can perform both, but neither role implies trust
@@ -263,21 +263,17 @@ Table of Contents
    attest_jwt_client_auth_dpop method of [ABCA], which uses a DPoP proof
    as the proof of possession (Sections 5.2 and 7.3 of [ABCA]).  Clients
    MUST use that method at the PAR endpoint and at every token request
-   under this specification.  The same asymmetric key is used for client
-   authentication and DPoP binding.  This profile does not support the
-   Client Attestation PoP JWT (Section 5.1 of [ABCA]).  Each
-   installation holds its own credential, the attested key, so a client
-   under this profile is a confidential client although it is a native
-   application, as Section 8.4 of [RFC8252] contemplates for per-
-   instance credentials.
+   under this specification.  This profile does not support the Client
+   Attestation PoP JWT (Section 5.1 of [ABCA]).  Each installation holds
+   its own credential, the attested key, so a client under this profile
+   is a confidential client although it is a native application, as
+   Section 8.4 of [RFC8252] contemplates for per-instance credentials.
 
    The client selects this profile by publishing
    software_statement_instance_binding with value true in its reviewed
    document (Section 4).  A server accepts a new establishment under the
    profile only if it supports this specification, the reviewed document
-   selects it, and all admission checks succeed.  The instance
-   attestation's distinct typ identifies the corresponding attestation
-   profile but does not alone enable admission.
+   selects it, and all admission checks succeed.
 
    Once an establishment is created, its recorded binding selects the
    profile for every continuation.  Selection MUST NOT depend on whether
@@ -326,9 +322,7 @@ Table of Contents
    The document MAY contain software_statements_uri as defined by
    [STATEMENT].  Metadata governing requested access, such as scope,
    remains subject to that specification.  Every member, including the
-   binding selection, is covered by the statement's digest.  This member
-   is not a registration request parameter and does not change
-   [REGISTRATION].
+   binding selection, is covered by the statement's digest.
 
 4.1.  Loopback Redirects
 
@@ -469,6 +463,14 @@ Table of Contents
    evidence for other purposes but MUST NOT report it as satisfying this
    profile.
 
+   A statement approves the document and the software that its publisher
+   (the controller of the document URL's origin, or a delegate)
+   associates with it, not a particular executable.  The publisher
+   decides which releases that association covers, under the evidence
+   policy's treatment of updates, so a new release with unchanged
+   metadata needs no new statement.  This profile cannot enforce an
+   issuer's approval of particular releases.
+
    Attestation acquisition and platform evidence formats are out of
    scope.  They require an interoperable agreement between the
    installation and its attester; the wire format below does not by
@@ -531,10 +533,8 @@ Table of Contents
    only because its iat was rounded or randomized.  No field supplied by
    the client can extend these bounds.
 
-   This specification does not require an attestation audience or
-   installation identifier.  An attestation is not tied to a statement's
-   jti, so a statement renewed over unchanged bytes need not cause re-
-   attestation.
+   An attestation is not tied to a statement's jti, so a statement
+   renewed over unchanged bytes need not cause re-attestation.
 
 6.1.  Validation
 
@@ -737,12 +737,12 @@ Table of Contents
    [STATEMENT].  The attestation MUST match that digest and be within
    its effective expiry.
 
-   An attestation MAY have been renewed since PAR, but its key,
-   attester, policy, and subject MUST match the establishment.  If the
-   metadata changed or the recorded statement needs replacement, the
-   client MUST start a new PAR transaction; code redemption cannot
-   replace the governing review.  A raised iat floor alone does not
-   invalidate a code already bound to an acceptable recorded statement.
+   If the metadata changed or the recorded statement needs replacement,
+   the client MUST start a new PAR transaction; code redemption cannot
+   replace the governing review.  This includes a digest change made by
+   another grant's refresh, for which [STATEMENT] rejects the code with
+   invalid_grant.  A raised iat floor alone does not invalidate a code
+   already bound to an acceptable recorded statement.
 
    The server MUST issue tokens only within the user's authorization,
    tenant policy, and reviewed metadata.  It MUST bind any refresh token
@@ -751,12 +751,14 @@ Table of Contents
    DPoP (Section 5 of [RFC9449]).  The effective expiry of each access
    token, whether the token is a JWT or an opaque reference, MUST NOT be
    later than the attestation effective expiry accepted for the request
-   that obtained it.  A client therefore refreshes, with a fresh
-   attestation, at least as often as its attester's evidence age allows.
-   A resource server that does not accept DPoP-bound access tokens
-   cannot be used under this profile.  A DPoP proof shows possession of
-   the attested key at the resource server; it does not show that the
-   software was re-evaluated at that moment.
+   that obtained it.  A client holding a refresh token therefore
+   refreshes, with a fresh attestation, at least as often as its
+   attester's evidence age allows, and a client without one starts a new
+   authorization request at the PAR endpoint.  A resource server that
+   does not accept DPoP-bound access tokens cannot be used under this
+   profile.  A DPoP proof shows possession of the attested key at the
+   resource server; it does not show that the software was re-evaluated
+   at that moment.
 
 8.  Refresh
 
@@ -808,9 +810,7 @@ Table of Contents
    protections.
 
    Attestation renewal for the proven key is not key rotation and does
-   not reset the iat floor or an establishment count.  This
-   specification defines no migration of an existing grant to a new key,
-   attester, evidence policy, or tenant.
+   not reset the iat floor or an establishment count.
 
 9.  Withdrawal and Trust Changes
 
@@ -821,9 +821,9 @@ Table of Contents
    within that mechanism's freshness rules.  Failure to consult it does
    not clear an existing refusal.
 
-   At each pushed authorization request, code redemption, and refresh,
-   the server MUST enforce current attester trust and local denial
-   rules.  Removing an attester's authorization for this client and
+   Because Section 6.1 checks current attester trust and local denial
+   rules at each pushed authorization request, code redemption, and
+   refresh, removing an attester's authorization for this client and
    tenant, removing the policy, or denying the instance key prevents
    further use of the affected binding.  A fresh attestation does not
    override those decisions.  A deployment that cannot refresh trust
@@ -835,8 +835,8 @@ Table of Contents
    effective expiry bounds acceptance of evidence that has become stale
    without the server learning of it.  Withdrawal of a review, removal
    of trust, and expiry of evidence do not themselves revoke access
-   tokens already issued.  Their further use is bounded by the
-   resource's token-validation and revocation mechanisms.
+   tokens already issued, so deployments requiring prompt enforcement
+   need short token lifetimes or independent token revocation.
 
 10.  Exceptions to Software Statement Processing
 
@@ -937,17 +937,13 @@ Table of Contents
    token-endpoint presentations, so the rejection in [STATEMENT] of a
    token-endpoint presentation from a client whose document carries no
    key material is unchanged.  All other requirements of [STATEMENT]
-   continue to apply, including digest processing, issuer trust,
-   statement audience and tenant checks, refusal records, the iat floor,
-   and bounds on repeated consumption.  This specification applies
-   equally to presented and pulled statements.  It adds no requirement
-   to issue statements or implement [REGISTRATION].
+   continue to apply.  This specification applies equally to presented
+   and pulled statements.  It adds no requirement to issue statements or
+   implement [REGISTRATION].
 
-   An implementation of [STATEMENT] alone does not gain these
-   exceptions.  Its review-only treatment of claimable redirects
-   continues to apply.  A supporting server MUST NOT infer this
-   profile's assurance from successful generic client authentication
-   without all of this specification's checks.
+   A supporting server MUST NOT infer this profile's assurance from
+   successful generic client authentication without all of this
+   specification's checks.
 
 11.  Error Responses
 
@@ -999,8 +995,9 @@ Table of Contents
    invalid_grant:  At redemption or refresh, a validly authenticated
       instance does not match the recorded key, attester, policy, or
       client; or, at redemption, the current document no longer matches
-      the recorded digest; or, at refresh, the current document no
-      longer selects this profile or meets Section 4.
+      the recorded digest, or that digest differs from the one recorded
+      with the code ([STATEMENT]); or, at refresh, the current document
+      no longer selects this profile or meets Section 4.
 
    statement_required:  A required statement is missing, expired,
       refused, or superseded, or, at refresh, a needed replacement is
@@ -1045,13 +1042,7 @@ Table of Contents
    listed.
 
    A use_dpop_nonce response MUST include the DPoP-Nonce HTTP header
-   field.  Client attestation errors and status codes follow Section 7.4
-   of [ABCA]; other errors retain their endpoint's response format.  A
-   code redemption request carrying the software_statement parameter is
-   rejected with invalid_request, even if the statement is an otherwise
-   valid replacement.  A statement_required response at code redemption
-   requires a new PAR transaction, not a retry with a statement attached
-   to the code request.
+   field.
 
 11.2.  Error Precedence and Disclosure
 
@@ -1136,11 +1127,8 @@ Table of Contents
      }
    }
 
-   The policy URI denotes agreed evidence requirements.  The server does
-   not fetch it to decide whether to trust the attester.  The document
-   digest needs to equal the software statement's digest.  The public
-   key represents one installation; it is absent from the shared
-   document.
+   The public key represents one installation; it is absent from the
+   shared document.
 
 12.3.  PAR and Redemption
 
@@ -1261,8 +1249,11 @@ Table of Contents
    proofs for the authorization server only within its own processing of
    an OAuth transaction, and proofs for resource requests only for
    resource endpoints the caller is authorized to reach and only with
-   that caller's own access token.  Remote attestation of a device
-   without an application-to-key binding has the same limitation.
+   that caller's own access token.  A broker that handles authorization
+   for another process binds the authenticated caller, intended
+   authorization server, callback, PKCE verifier, and resulting grant to
+   one local session.  Remote attestation of a device without an
+   application-to-key binding has the same limitation.
 
    This profile cannot ensure benign user intent, prevent an approved
    application from being used as a proxy, or preserve an assurance
@@ -1283,10 +1274,8 @@ Table of Contents
 
    The client MUST keep its verifier and transaction state confidential
    and unpredictable as their respective specifications require.  A
-   launcher that handles authorization for another process has to bind
-   the authenticated caller, intended authorization server, callback,
-   verifier, and resulting grant state to the same local session.  A
-   reusable signing capability handed to that caller is insufficient.
+   launcher handling authorization for another process acts as the
+   signing broker of Section 14.1.
 
 14.3.  Downgrade Prevention
 
@@ -1302,14 +1291,14 @@ Table of Contents
    The server MUST enforce the reviewed binding selection on every new
    admission under that document.  A deployment permitting unrelated
    unreviewed clients MAY continue to do so under its own policy, but a
-   failed request under this profile MUST NOT silently become an
-   unreviewed request.  Any independently admitted unreviewed client
-   carries none of the assurance of this specification.
+   failed request under this profile is rejected rather than admitted
+   under that policy (Section 7.1).  Any independently admitted
+   unreviewed client carries none of the assurance of this
+   specification.
 
-   Existing grants retain their recorded binding.  Removing metadata,
-   changing an attester or policy, or presenting a fresh proof under a
-   new key cannot relax it.  A server implementing only [STATEMENT]
-   continues to reject these clients where review is required.
+   Existing grants retain their recorded binding (Section 3,
+   Section 7.2).  A server implementing only [STATEMENT] continues to
+   reject these clients where review is required.
 
 14.4.  Artifact Substitution and Key Separation
 
@@ -1333,23 +1322,20 @@ Table of Contents
 
    Short effective lifetimes limit stale evidence but make attester
    availability important.  A fresh proof demonstrates current access to
-   a key, not that software was re-evaluated at proof time.  Attestation
-   renewal therefore follows the evidence policy and cannot consist
-   solely of extending exp on old evidence.
+   a key, not that software was re-evaluated at proof time.
 
    Servers MUST enforce finite evidence and trust-data reuse bounds.  A
    failure to retrieve metadata, reviews, or trust updates MUST NOT
    extend a recorded expiry or remove a refusal.  An access token cannot
    outlive the attestation accepted when it was issued (Section 7.4),
    but it can outlive a review withdrawn or attester trust removed after
-   issuance; deployments requiring prompt enforcement need short token
-   lifetimes or independent token revocation.
+   issuance (Section 9).
 
    Metadata digest binding can require coordinated publication of a new
-   document, review, and attestation.  During an incomplete transition a
-   request fails.  A server MUST NOT substitute semantically similar
-   JSON, omit members from the digest, or continue with an older digest
-   beyond permitted cache reuse merely to avoid that failure.
+   document, review, and attestation (Appendix B).  During an incomplete
+   transition a request fails: [STATEMENT] does not treat the changed
+   document as reviewed, and this profile does not fall back
+   (Section 7.1).
 
 14.6.  Resource Exhaustion
 
@@ -1664,6 +1650,67 @@ Table of Contents
 
 17.2.  Informative References
 
+   [APPLE-APPATTEST]
+              Apple Inc., "Establishing your app's integrity", n.d.,
+              <https://developer.apple.com/documentation/devicecheck/
+              establishing-your-app-s-integrity>.
+
+   [APPLE-APPCONFIG]
+              Apple Inc., "AppManaged", n.d.,
+              <https://developer.apple.com/documentation/
+              devicemanagement/appmanaged>.
+
+   [APPLE-DEBUGGER]
+              Apple Inc., "Debugging tool entitlement", n.d.,
+              <https://developer.apple.com/documentation/
+              bundleresources/entitlements/
+              com.apple.security.cs.debugger>.
+
+   [APPLE-DYLD]
+              Apple Inc., "Allow DYLD environment variables
+              entitlement", n.d.,
+              <https://developer.apple.com/documentation/
+              bundleresources/entitlements/com.apple.security.cs.allow-
+              dyld-environment-variables>.
+
+   [APPLE-ENCLAVE]
+              Apple Inc., "Protecting keys with the Secure Enclave",
+              n.d., <https://developer.apple.com/documentation/security/
+              protecting-keys-with-the-secure-enclave>.
+
+   [APPLE-KEYCHAIN]
+              Apple Inc., "TN3137: On Mac keychain APIs and
+              implementations", n.d.,
+              <https://developer.apple.com/documentation/technotes/
+              tn3137-on-mac-keychains>.
+
+   [APPLE-LIBVAL]
+              Apple Inc., "Disable Library Validation Entitlement",
+              n.d., <https://developer.apple.com/documentation/
+              bundleresources/entitlements/
+              com.apple.security.cs.disable-library-validation>.
+
+   [APPLE-MDA]
+              Apple Inc., "Managed Device Attestation for Apple
+              devices", n.d.,
+              <https://support.apple.com/guide/deployment/managed-
+              device-attestation-dep28afbde6a/web>.
+
+   [APPLE-RUNTIME]
+              Apple Inc., "Hardened Runtime", n.d.,
+              <https://developer.apple.com/documentation/security/
+              hardened-runtime>.
+
+   [APPLE-WWDC26]
+              Apple Inc., "Secure your apps with App Attest",
+              WWDC26 Session 201, 2026,
+              <https://developer.apple.com/videos/play/wwdc2026/201/>.
+
+   [APPLE-XPC]
+              Apple Inc., "setCodeSigningRequirement(_:)", n.d.,
+              <https://developer.apple.com/documentation/foundation/
+              nsxpcconnection/setcodesigningrequirement(_:)>.
+
    [REGISTRATION]
               McGuinness, K., "CIMD Software Statement Registration",
               n.d., <https://datatracker.ietf.org/doc/draft-mcguinness-
@@ -1694,26 +1741,101 @@ Appendix A.  Managed Command-Line Client Deployment
    configuration.
 
    For each authorization transaction, the launcher performs the OAuth
-   exchange on behalf of the verified caller.  For resource requests, it
-   produces DPoP proofs only for resource endpoints the caller is
-   authorized to reach and only with that caller's own access token.  It
-   never signs arbitrary input, and produces a proof for the
-   authorization server only within its own transaction processing.  The
-   local session binds caller identity, server, callback, PKCE verifier,
-   and resulting grant.  It rechecks caller authorization when the key
-   is used, including refresh, and protects returned tokens from other
-   processes.
+   exchange on behalf of the verified caller, as the signing broker of
+   Section 14.1.  It rechecks caller authorization when the key is used,
+   including refresh, and protects returned tokens from other processes.
 
    An implementation needs to address changes between checking software
    and using the key, dynamic code loading, and the ability of an
-   approved executable to proxy requests for others.  Platforms without
-   reliable process identity and key-use isolation cannot obtain that
-   assurance merely by running the launcher with more privileges.  A
-   script-based command-line client may require an execution environment
-   whose policy covers its interpreter, script, and dependencies, or a
-   narrower assurance than reviewed executable identity.
+   executable the evidence policy covers to proxy requests for others.
+   Platforms without reliable process identity and key-use isolation
+   cannot obtain that assurance merely by running the launcher with more
+   privileges.  A script-based command-line client may require an
+   execution environment whose policy covers its interpreter, script,
+   and dependencies, or a narrower assurance than verified executable
+   identity.
 
-Appendix B.  Verification Scenarios
+A.1.  Example: macOS
+
+   This example uses macOS 27 or later on Apple silicon, with a launcher
+   application for which App Attest is available [APPLE-WWDC26].
+
+   Software identity:  The publisher signs each release with an Apple-
+      issued developer certificate, under the hardened runtime
+      [APPLE-RUNTIME] and one signing identifier.  A manifest served
+      from the CIMD URL's origin and naming the publisher's Team ID and
+      that identifier covers each such release.  A manifest naming code
+      directory hashes covers only the listed builds.
+
+   Key isolation:  The launcher is a per-user application whose
+      provisioning profile authorizes a data protection keychain access
+      group for the launcher alone. macOS grants such groups only
+      through entitlements a provisioning profile authorizes, and only
+      in a user context [APPLE-KEYCHAIN].  It creates a P-256 instance
+      key in the Secure Enclave, from which key material cannot be
+      transferred [APPLE-ENCLAVE], and keeps it under that access group,
+      so the client cannot use the key directly.
+
+   Caller identification:  The client connects to the launcher over XPC.
+      The launcher sets a code-signing requirement on the connection
+      that requires an Apple-issued certificate chain, the publisher's
+      Team ID, and the client's signing identifier, and the system
+      invalidates a connection whose peer does not satisfy it
+      [APPLE-XPC].  The launcher never relies on a process ID or a
+      reported path.
+
+   Code injection:  The evidence policy requires that the client's
+      signature carry no entitlement that disables library validation
+      [APPLE-LIBVAL], lets the dynamic linker read DYLD_ variables
+      [APPLE-DYLD], or lets a debugger obtain the client's task port
+      (get-task-allow, [APPLE-DEBUGGER]).  The client then loads only
+      libraries signed by Apple or by its own team.
+
+   Launcher authentication:  Managed Device Attestation shows that the
+      device is a genuine Apple device the organization manages
+      [APPLE-MDA], not which program is reporting.  The launcher
+      therefore registers an App Attest key, which Apple certifies as
+      belonging to the launcher [APPLE-APPATTEST].  To tie that key to
+      the managed device, the launcher returns with the attestation a
+      single-use secret that the device management service delivered
+      through managed app configuration, which macOS applies only to an
+      application with a matching code signature [APPLE-APPCONFIG].
+      Each later report, carrying the instance public key and the
+      client's signing identity, bears an App Attest assertion.
+
+   Evidence and renewal:  No Apple attestation covers the instance key,
+      so the enterprise service relies on the authenticated launcher for
+      the statement that the key is in the Secure Enclave and usable
+      only by the launcher.  The launcher acts as the signing broker of
+      Section 14.1.  Before the maximum evidence age expires, it re-
+      checks the device's management state and the client's signature
+      and obtains an attestation on that new evidence.
+
+   Unsupported case:  A script run by a signed interpreter with
+      unrestricted imports is not covered.  The verified signature is
+      the interpreter's, and library validation does not constrain the
+      scripts and modules it reads.  Such a client remains review-only
+      under [STATEMENT].
+
+Appendix B.  Operational Consequences
+
+   This appendix is non-normative.  It assumes an evidence policy whose
+   maximum evidence age is eight hours.
+
+   *  An attestation on evidence collected at 09:00 expires by 17:00,
+      and so does every access token issued on it (Section 7.4).  Before
+      then, a client holding a refresh token refreshes on new evidence.
+      A client without one starts a new authorization request.
+
+   *  A metadata change, such as a new loopback redirect or scope, needs
+      a statement and attestations over the new digest before each grant
+      refreshes onto it (Section 8).  An authorization in progress
+      during the change restarts at the PAR endpoint (Section 7.4).
+
+   *  A new evidence-policy identifier (Section 5) or a new key requires
+      a new grant (Section 7.2).
+
+Appendix C.  Verification Scenarios
 
    This appendix is non-normative.  An implementation exercise should
    include the following cases in addition to successful admission and
@@ -1742,6 +1864,10 @@ Appendix B.  Verification Scenarios
 
    *  A metadata replacement without a matching current attestation
       fails without changing the establishment.
+
+   *  A code outstanding while another grant sharing its establishment
+      refreshes onto a replacement over new metadata is rejected at
+      redemption, and the client restarts at the PAR endpoint.
 
    *  A new key, attester, policy, or tenant cannot take over an
       existing grant.

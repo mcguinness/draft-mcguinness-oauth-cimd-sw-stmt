@@ -1289,15 +1289,23 @@ svg {
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.18">
             <p id="section-toc.1-1.18.1"><a href="#appendix-A" class="auto internal xref">Appendix A</a>.  <a href="#name-managed-command-line-client" class="internal xref">Managed Command-Line Client Deployment</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.18.2.1">
+                <p id="section-toc.1-1.18.2.1.1"><a href="#appendix-A.1" class="auto internal xref">A.1</a>.  <a href="#name-example-macos" class="internal xref">Example: macOS</a></p>
+</li>
+            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.19">
-            <p id="section-toc.1-1.19.1"><a href="#appendix-B" class="auto internal xref">Appendix B</a>.  <a href="#name-verification-scenarios" class="internal xref">Verification Scenarios</a></p>
+            <p id="section-toc.1-1.19.1"><a href="#appendix-B" class="auto internal xref">Appendix B</a>.  <a href="#name-operational-consequences" class="internal xref">Operational Consequences</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.20">
-            <p id="section-toc.1-1.20.1"><a href="#appendix-C" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+            <p id="section-toc.1-1.20.1"><a href="#appendix-C" class="auto internal xref">Appendix C</a>.  <a href="#name-verification-scenarios" class="internal xref">Verification Scenarios</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.21">
-            <p id="section-toc.1-1.21.1"><a href="#appendix-D" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
+            <p id="section-toc.1-1.21.1"><a href="#appendix-D" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.22">
+            <p id="section-toc.1-1.22.1"><a href="#appendix-E" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
 </li>
         </ul>
 </nav>
@@ -1314,7 +1322,7 @@ svg {
 <p id="section-1-4">This specification defines an alternative binding made of three checks, which stay separate even when one organization operates both issuing roles:<a href="#section-1-4" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-1-5.1">
-          <p id="section-1-5.1.1">The software statement records approval of the software and its exact metadata.<a href="#section-1-5.1.1" class="pilcrow">¶</a></p>
+          <p id="section-1-5.1.1">The software statement records approval of the software, as its publisher identifies it (<a href="#trust" class="auto internal xref">Section 5</a>), and its exact metadata.<a href="#section-1-5.1.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-1-5.2">
           <p id="section-1-5.2.1">An instance attestation, from an independently trusted client attester under an evidence policy the authorization server accepts, associates an installation's key with that software and metadata.<a href="#section-1-5.2.1" class="pilcrow">¶</a></p>
@@ -1390,7 +1398,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         <dd class="break"></dd>
 <dt id="section-2-4.9">Attestation Effective Expiry:</dt>
         <dd style="margin-left: 1.5em" id="section-2-4.10">
-          <p id="section-2-4.10.1">An instance attestation's <code>exp</code>. An accepted evidence policy sets it no later than the time the attester's evidence was collected plus the policy's maximum evidence age (<a href="#trust" class="auto internal xref">Section 5</a>), so an attestation before its <code>exp</code> rests on evidence no older than that maximum.<a href="#section-2-4.10.1" class="pilcrow">¶</a></p>
+          <p id="section-2-4.10.1">An instance attestation's <code>exp</code>, which an accepted evidence policy bounds by the age of the attester's evidence (<a href="#trust" class="auto internal xref">Section 5</a>).<a href="#section-2-4.10.1" class="pilcrow">¶</a></p>
 </dd>
       <dd class="break"></dd>
 </dl>
@@ -1402,8 +1410,8 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
       <h2 id="name-scope-and-profile-selection">
 <a href="#section-3" class="section-number selfRef">3. </a><a href="#name-scope-and-profile-selection" class="section-name selfRef">Scope and Profile Selection</a>
       </h2>
-<p id="section-3-1">An authorization server implementing this specification <span class="bcp14">MUST</span> support PAR, PKCE with <code>S256</code> <span>[<a href="#RFC7636" class="cite xref">RFC7636</a>]</span>, DPoP <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>, and the <code>attest_jwt_client_auth_dpop</code> method of <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span>, which uses a DPoP proof as the proof of possession (Sections 5.2 and 7.3 of <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span>). Clients <span class="bcp14">MUST</span> use that method at the PAR endpoint and at every token request under this specification. The same asymmetric key is used for client authentication and DPoP binding. This profile does not support the Client Attestation PoP JWT (Section 5.1 of <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span>). Each installation holds its own credential, the attested key, so a client under this profile is a confidential client although it is a native application, as Section 8.4 of <span>[<a href="#RFC8252" class="cite xref">RFC8252</a>]</span> contemplates for per-instance credentials.<a href="#section-3-1" class="pilcrow">¶</a></p>
-<p id="section-3-2">The client selects this profile by publishing <code>software_statement_instance_binding</code> with value <code>true</code> in its reviewed document (<a href="#client-metadata" class="auto internal xref">Section 4</a>). A server accepts a new establishment under the profile only if it supports this specification, the reviewed document selects it, and all admission checks succeed. The instance attestation's distinct <code>typ</code> identifies the corresponding attestation profile but does not alone enable admission.<a href="#section-3-2" class="pilcrow">¶</a></p>
+<p id="section-3-1">An authorization server implementing this specification <span class="bcp14">MUST</span> support PAR, PKCE with <code>S256</code> <span>[<a href="#RFC7636" class="cite xref">RFC7636</a>]</span>, DPoP <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>, and the <code>attest_jwt_client_auth_dpop</code> method of <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span>, which uses a DPoP proof as the proof of possession (Sections 5.2 and 7.3 of <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span>). Clients <span class="bcp14">MUST</span> use that method at the PAR endpoint and at every token request under this specification. This profile does not support the Client Attestation PoP JWT (Section 5.1 of <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span>). Each installation holds its own credential, the attested key, so a client under this profile is a confidential client although it is a native application, as Section 8.4 of <span>[<a href="#RFC8252" class="cite xref">RFC8252</a>]</span> contemplates for per-instance credentials.<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-3-2">The client selects this profile by publishing <code>software_statement_instance_binding</code> with value <code>true</code> in its reviewed document (<a href="#client-metadata" class="auto internal xref">Section 4</a>). A server accepts a new establishment under the profile only if it supports this specification, the reviewed document selects it, and all admission checks succeed.<a href="#section-3-2" class="pilcrow">¶</a></p>
 <p id="section-3-3">Once an establishment is created, its recorded binding selects the profile for every continuation. Selection <span class="bcp14">MUST NOT</span> depend on whether a continuation happens to include an attestation or on a newly fetched document omitting the selection member. Such omissions fail the request; they do not change the grant's binding.<a href="#section-3-3" class="pilcrow">¶</a></p>
 <p id="section-3-4">This specification permits only the authorization code grant opened through PAR, and refresh of that grant. It does not authorize private-use URI schemes, <code>localhost</code> hostnames, non-loopback redirects, implicit responses, device authorization, client credentials, or assertion grants. Other specifications can define additional bindings without changing the behavior of this profile.<a href="#section-3-4" class="pilcrow">¶</a></p>
 </section>
@@ -1443,7 +1451,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
           <p id="section-4-4.6.1">It <span class="bcp14">MUST NOT</span> contain <code>jwks</code> or <code>jwks_uri</code>. Instance keys are authorized only through <a href="#attestation-validation" class="auto internal xref">Section 6.1</a>, not by document key material.<a href="#section-4-4.6.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
-<p id="section-4-5">The document <span class="bcp14">MAY</span> contain <code>software_statements_uri</code> as defined by <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>. Metadata governing requested access, such as <code>scope</code>, remains subject to that specification. Every member, including the binding selection, is covered by the statement's digest. This member is not a registration request parameter and does not change <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>.<a href="#section-4-5" class="pilcrow">¶</a></p>
+<p id="section-4-5">The document <span class="bcp14">MAY</span> contain <code>software_statements_uri</code> as defined by <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>. Metadata governing requested access, such as <code>scope</code>, remains subject to that specification. Every member, including the binding selection, is covered by the statement's digest.<a href="#section-4-5" class="pilcrow">¶</a></p>
 <div id="loopback">
 <section id="section-4.1">
         <h3 id="name-loopback-redirects">
@@ -1517,7 +1525,8 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 </li>
       </ul>
 <p id="section-5-7">A server <span class="bcp14">MUST NOT</span> accept for this profile an evidence policy that does not meet these requirements. A deployment <span class="bcp14">MAY</span> use weaker evidence for other purposes but <span class="bcp14">MUST NOT</span> report it as satisfying this profile.<a href="#section-5-7" class="pilcrow">¶</a></p>
-<p id="section-5-8">Attestation acquisition and platform evidence formats are out of scope. They require an interoperable agreement between the installation and its attester; the wire format below does not by itself supply a software-verification mechanism. <a href="#launcher" class="auto internal xref">Appendix A</a> gives an implementation model and its prerequisites.<a href="#section-5-8" class="pilcrow">¶</a></p>
+<p id="section-5-8">A statement approves the document and the software that its publisher (the controller of the document URL's origin, or a delegate) associates with it, not a particular executable. The publisher decides which releases that association covers, under the evidence policy's treatment of updates, so a new release with unchanged metadata needs no new statement. This profile cannot enforce an issuer's approval of particular releases.<a href="#section-5-8" class="pilcrow">¶</a></p>
+<p id="section-5-9">Attestation acquisition and platform evidence formats are out of scope. They require an interoperable agreement between the installation and its attester; the wire format below does not by itself supply a software-verification mechanism. <a href="#launcher" class="auto internal xref">Appendix A</a> gives an implementation model and its prerequisites.<a href="#section-5-9" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="attestation">
@@ -1578,7 +1587,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
       <dd class="break"></dd>
 </dl>
 <p id="section-6-4">A server <span class="bcp14">MUST</span> reject an attestation whose <code>exp</code> has passed, or lies further in the future than the maximum evidence age it accepts for the attester and evidence policy, and <span class="bcp14">MUST NOT</span> reject an attestation only because its <code>iat</code> was rounded or randomized. No field supplied by the client can extend these bounds.<a href="#section-6-4" class="pilcrow">¶</a></p>
-<p id="section-6-5">This specification does not require an attestation audience or installation identifier. An attestation is not tied to a statement's <code>jti</code>, so a statement renewed over unchanged bytes need not cause re-attestation.<a href="#section-6-5" class="pilcrow">¶</a></p>
+<p id="section-6-5">An attestation is not tied to a statement's <code>jti</code>, so a statement renewed over unchanged bytes need not cause re-attestation.<a href="#section-6-5" class="pilcrow">¶</a></p>
 <div id="attestation-validation">
 <section id="section-6.1">
         <h3 id="name-validation">
@@ -1694,8 +1703,8 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         </h3>
 <p id="section-7.4-1">The client sends <code>grant_type=authorization_code</code>, the code, the same <code>client_id</code> and <code>redirect_uri</code>, and the PKCE <code>code_verifier</code>. It <span class="bcp14">MUST</span> authenticate with a currently acceptable instance attestation and a fresh proof under the recorded key. It <span class="bcp14">MUST NOT</span> send <code>software_statement</code> on this request, as <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> prohibits a presentation during code redemption.<a href="#section-7.4-1" class="pilcrow">¶</a></p>
 <p id="section-7.4-2">Before issuing tokens, the server <span class="bcp14">MUST</span> verify the code and PKCE binding and every fixed establishment value in <a href="#establishment" class="auto internal xref">Section 7.2</a>. It <span class="bcp14">MUST</span> re-evaluate both trust decisions, require the recorded statement to be unexpired and not refused, and confirm that the current Client ID Metadata Document still matches its recorded digest and meets <a href="#client-metadata" class="auto internal xref">Section 4</a>. Retrieval and cache reuse use the freshness bounds of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>. The attestation <span class="bcp14">MUST</span> match that digest and be within its effective expiry.<a href="#section-7.4-2" class="pilcrow">¶</a></p>
-<p id="section-7.4-3">An attestation <span class="bcp14">MAY</span> have been renewed since PAR, but its key, attester, policy, and subject <span class="bcp14">MUST</span> match the establishment. If the metadata changed or the recorded statement needs replacement, the client <span class="bcp14">MUST</span> start a new PAR transaction; code redemption cannot replace the governing review. A raised <code>iat</code> floor alone does not invalidate a code already bound to an acceptable recorded statement.<a href="#section-7.4-3" class="pilcrow">¶</a></p>
-<p id="section-7.4-4">The server <span class="bcp14">MUST</span> issue tokens only within the user's authorization, tenant policy, and reviewed metadata. It <span class="bcp14">MUST</span> bind any refresh token to the establishment, and <span class="bcp14">MUST</span> issue access tokens, at redemption and on refresh (<a href="#refresh" class="auto internal xref">Section 8</a>), bound to the proven key with a <code>token_type</code> of <code>DPoP</code> (Section 5 of <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>). The effective expiry of each access token, whether the token is a JWT or an opaque reference, <span class="bcp14">MUST NOT</span> be later than the attestation effective expiry accepted for the request that obtained it. A client therefore refreshes, with a fresh attestation, at least as often as its attester's evidence age allows. A resource server that does not accept DPoP-bound access tokens cannot be used under this profile. A DPoP proof shows possession of the attested key at the resource server; it does not show that the software was re-evaluated at that moment.<a href="#section-7.4-4" class="pilcrow">¶</a></p>
+<p id="section-7.4-3">If the metadata changed or the recorded statement needs replacement, the client <span class="bcp14">MUST</span> start a new PAR transaction; code redemption cannot replace the governing review. This includes a digest change made by another grant's refresh, for which <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> rejects the code with <code>invalid_grant</code>. A raised <code>iat</code> floor alone does not invalidate a code already bound to an acceptable recorded statement.<a href="#section-7.4-3" class="pilcrow">¶</a></p>
+<p id="section-7.4-4">The server <span class="bcp14">MUST</span> issue tokens only within the user's authorization, tenant policy, and reviewed metadata. It <span class="bcp14">MUST</span> bind any refresh token to the establishment, and <span class="bcp14">MUST</span> issue access tokens, at redemption and on refresh (<a href="#refresh" class="auto internal xref">Section 8</a>), bound to the proven key with a <code>token_type</code> of <code>DPoP</code> (Section 5 of <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>). The effective expiry of each access token, whether the token is a JWT or an opaque reference, <span class="bcp14">MUST NOT</span> be later than the attestation effective expiry accepted for the request that obtained it. A client holding a refresh token therefore refreshes, with a fresh attestation, at least as often as its attester's evidence age allows, and a client without one starts a new authorization request at the PAR endpoint. A resource server that does not accept DPoP-bound access tokens cannot be used under this profile. A DPoP proof shows possession of the attested key at the resource server; it does not show that the software was re-evaluated at that moment.<a href="#section-7.4-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1710,7 +1719,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <p id="section-8-3">The recorded statement can remain applicable while it is unexpired, not refused, and matches the current document, even if a newer statement has raised the <code>iat</code> floor for new admissions. If it no longer qualifies, a replacement is required. The client can present a replacement in <code>software_statement</code> or, for an establishment created from a pulled statement, the server pulls one as <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> specifies. A request carrying the same <code>iss</code> and <code>jti</code> as the recorded statement is a recheck, not a replacement.<a href="#section-8-3" class="pilcrow">¶</a></p>
 <p id="section-8-4">A replacement <span class="bcp14">MUST</span> satisfy the replacement validation of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, including identical statement <code>iss</code> and <code>sub</code>, a later <code>iat</code>, and current metadata. Its decision <span class="bcp14">MUST</span> apply to the establishment's recorded tenant and runtime use. Instead of authorizing a document key or preserving the public-client conditions of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, the replacement <span class="bcp14">MUST</span> preserve this profile and authorize the establishment's proven key through a current attestation from the recorded attester under the recorded policy. The replacement and attestation <span class="bcp14">MUST</span> name the same current metadata digest. A replacement cannot expand access beyond the original grant, resource-owner authorization, or current server policy.<a href="#section-8-4" class="pilcrow">¶</a></p>
 <p id="section-8-5">On success, the server <span class="bcp14">MUST</span> atomically update the recorded statement, metadata, digest, and trust decisions and apply the concurrency rules of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> for replacements. It also records the newly accepted attestation effective expiry. A failed attempt <span class="bcp14">MUST NOT</span> replace the recorded binding or rotate a refresh token. This does not prevent the server from recording a withdrawal or trust removal learned during processing, or applying independent refresh-token replay protections.<a href="#section-8-5" class="pilcrow">¶</a></p>
-<p id="section-8-6">Attestation renewal for the proven key is not key rotation and does not reset the <code>iat</code> floor or an establishment count. This specification defines no migration of an existing grant to a new key, attester, evidence policy, or tenant.<a href="#section-8-6" class="pilcrow">¶</a></p>
+<p id="section-8-6">Attestation renewal for the proven key is not key rotation and does not reset the <code>iat</code> floor or an establishment count.<a href="#section-8-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="withdrawal">
@@ -1719,8 +1728,8 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <a href="#section-9" class="section-number selfRef">9. </a><a href="#name-withdrawal-and-trust-change" class="section-name selfRef">Withdrawal and Trust Changes</a>
       </h2>
 <p id="section-9-1">A known refusal record for the software statement is enforced as <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> requires. A current acceptable replacement can restore continuation only under <a href="#refresh" class="auto internal xref">Section 8</a>. A server using a statement withdrawal mechanism <span class="bcp14">SHOULD</span> consult it at code redemption and refresh within that mechanism's freshness rules. Failure to consult it does not clear an existing refusal.<a href="#section-9-1" class="pilcrow">¶</a></p>
-<p id="section-9-2">At each pushed authorization request, code redemption, and refresh, the server <span class="bcp14">MUST</span> enforce current attester trust and local denial rules. Removing an attester's authorization for this client and tenant, removing the policy, or denying the instance key prevents further use of the affected binding. A fresh attestation does not override those decisions. A deployment that cannot refresh trust data <span class="bcp14">MUST NOT</span> accept it beyond a configured maximum staleness bound.<a href="#section-9-2" class="pilcrow">¶</a></p>
-<p id="section-9-3">This specification defines no interoperable attestation or instance revocation protocol. Deployments <span class="bcp14">MAY</span> use independently established mechanisms or local denial lists. In their absence, attestation effective expiry bounds acceptance of evidence that has become stale without the server learning of it. Withdrawal of a review, removal of trust, and expiry of evidence do not themselves revoke access tokens already issued. Their further use is bounded by the resource's token-validation and revocation mechanisms.<a href="#section-9-3" class="pilcrow">¶</a></p>
+<p id="section-9-2">Because <a href="#attestation-validation" class="auto internal xref">Section 6.1</a> checks current attester trust and local denial rules at each pushed authorization request, code redemption, and refresh, removing an attester's authorization for this client and tenant, removing the policy, or denying the instance key prevents further use of the affected binding. A fresh attestation does not override those decisions. A deployment that cannot refresh trust data <span class="bcp14">MUST NOT</span> accept it beyond a configured maximum staleness bound.<a href="#section-9-2" class="pilcrow">¶</a></p>
+<p id="section-9-3">This specification defines no interoperable attestation or instance revocation protocol. Deployments <span class="bcp14">MAY</span> use independently established mechanisms or local denial lists. In their absence, attestation effective expiry bounds acceptance of evidence that has become stale without the server learning of it. Withdrawal of a review, removal of trust, and expiry of evidence do not themselves revoke access tokens already issued, so deployments requiring prompt enforcement need short token lifetimes or independent token revocation.<a href="#section-9-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="core-exceptions">
@@ -1791,8 +1800,8 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
           </tr>
         </tbody>
       </table>
-<p id="section-10-3">Code redemption and refresh continue an establishment and are not new token-endpoint presentations, so the rejection in <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> of a token-endpoint presentation from a client whose document carries no key material is unchanged. All other requirements of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> continue to apply, including digest processing, issuer trust, statement audience and tenant checks, refusal records, the <code>iat</code> floor, and bounds on repeated consumption. This specification applies equally to presented and pulled statements. It adds no requirement to issue statements or implement <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>.<a href="#section-10-3" class="pilcrow">¶</a></p>
-<p id="section-10-4">An implementation of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> alone does not gain these exceptions. Its review-only treatment of claimable redirects continues to apply. A supporting server <span class="bcp14">MUST NOT</span> infer this profile's assurance from successful generic client authentication without all of this specification's checks.<a href="#section-10-4" class="pilcrow">¶</a></p>
+<p id="section-10-3">Code redemption and refresh continue an establishment and are not new token-endpoint presentations, so the rejection in <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> of a token-endpoint presentation from a client whose document carries no key material is unchanged. All other requirements of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> continue to apply. This specification applies equally to presented and pulled statements. It adds no requirement to issue statements or implement <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>.<a href="#section-10-3" class="pilcrow">¶</a></p>
+<p id="section-10-4">A supporting server <span class="bcp14">MUST NOT</span> infer this profile's assurance from successful generic client authentication without all of this specification's checks.<a href="#section-10-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="errors">
@@ -1847,7 +1856,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <dt id="section-11.1-2.9">
 <code>invalid_grant</code>:</dt>
           <dd style="margin-left: 1.5em" id="section-11.1-2.10">
-            <p id="section-11.1-2.10.1">At redemption or refresh, a validly authenticated instance does not match the recorded key, attester, policy, or client; or, at redemption, the current document no longer matches the recorded digest; or, at refresh, the current document no longer selects this profile or meets <a href="#client-metadata" class="auto internal xref">Section 4</a>.<a href="#section-11.1-2.10.1" class="pilcrow">¶</a></p>
+            <p id="section-11.1-2.10.1">At redemption or refresh, a validly authenticated instance does not match the recorded key, attester, policy, or client; or, at redemption, the current document no longer matches the recorded digest, or that digest differs from the one recorded with the code (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>); or, at refresh, the current document no longer selects this profile or meets <a href="#client-metadata" class="auto internal xref">Section 4</a>.<a href="#section-11.1-2.10.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 <dt id="section-11.1-2.11">
@@ -1866,7 +1875,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <p id="section-11.1-3">Invalid statements and reviewed documents at the PAR endpoint otherwise use the error rules of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>. At refresh, an unacceptable replacement uses <code>statement_required</code> as in <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>. A document exceeding a configured size bound is not a transient failure, and the server uses the non-transient retrieval and refresh errors of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>. An invalid or expired code or refresh token, failed PKCE check, or mismatched redemption redirect uses <code>invalid_grant</code>.<a href="#section-11.1-3" class="pilcrow">¶</a></p>
 <p id="section-11.1-4">A DPoP proof that fails the checks of Section 4.3 of <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span> is rejected with <code>invalid_dpop_proof</code> (Section 5 of <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>), and a missing or unacceptable nonce with <code>use_dpop_nonce</code>, in place of any code listed above, as <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> provides for proof-mechanism errors. A valid proof under a key other than the attestation's <code>cnf</code> key is not an invalid proof: authentication fails (Section 7.3 of <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span>), and the request is rejected with <code>invalid_client</code>, or with <code>invalid_client_attestation</code> as Section 7.4 of <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span> permits. At code redemption and refresh, an instance that authenticates under a key other than the establishment's recorded key fails the grant binding and is rejected with <code>invalid_grant</code>.<a href="#section-11.1-4" class="pilcrow">¶</a></p>
 <p id="section-11.1-5">A request that fails a required <code>client_attesters</code> listing (<a href="#trust" class="auto internal xref">Section 5</a>) is rejected with <code>invalid_client_attestation</code>. Such a request has a listing that is malformed, omits the attester, or names a <code>jwks_uri</code> that does not match the configured key source (Section 5.3 of <span>[<a href="#ATTESTERS" class="cite xref">ATTESTERS</a>]</span>). As Section 5.4 of <span>[<a href="#ATTESTERS" class="cite xref">ATTESTERS</a>]</span> requires, that code also replaces <code>invalid_client</code> for each other attestation failure for which Section 7.4 of <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span> permits it. Retrieval failures are not listing failures: they keep the error codes of this section and <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, including <code>temporarily_unavailable</code>. The order of <a href="#error-precedence" class="auto internal xref">Section 11.2</a> still applies. The listing is checked in the reviewed document, after the checks of step 1 of <a href="#par" class="auto internal xref">Section 7.1</a>, so a response from that step, such as <code>use_fresh_attestation</code>, does not indicate whether the attester is listed.<a href="#section-11.1-5" class="pilcrow">¶</a></p>
-<p id="section-11.1-6">A <code>use_dpop_nonce</code> response <span class="bcp14">MUST</span> include the <code>DPoP-Nonce</code> HTTP header field. Client attestation errors and status codes follow Section 7.4 of <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span>; other errors retain their endpoint's response format. A code redemption request carrying the <code>software_statement</code> parameter is rejected with <code>invalid_request</code>, even if the statement is an otherwise valid replacement. A <code>statement_required</code> response at code redemption requires a new PAR transaction, not a retry with a statement attached to the code request.<a href="#section-11.1-6" class="pilcrow">¶</a></p>
+<p id="section-11.1-6">A <code>use_dpop_nonce</code> response <span class="bcp14">MUST</span> include the <code>DPoP-Nonce</code> HTTP header field.<a href="#section-11.1-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="error-precedence">
@@ -1953,7 +1962,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 }
 </pre><a href="#section-12.2-3" class="pilcrow">¶</a>
 </div>
-<p id="section-12.2-4">The policy URI denotes agreed evidence requirements. The server does not fetch it to decide whether to trust the attester. The document digest needs to equal the software statement's digest. The public key represents one installation; it is absent from the shared document.<a href="#section-12.2-4" class="pilcrow">¶</a></p>
+<p id="section-12.2-4">The public key represents one installation; it is absent from the shared document.<a href="#section-12.2-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="par-and-redemption">
@@ -2052,7 +2061,7 @@ grant_type=refresh_token
 <a href="#section-14.1" class="section-number selfRef">14.1. </a><a href="#name-software-evidence-and-key-u" class="section-name selfRef">Software Evidence and Key Use</a>
         </h3>
 <p id="section-14.1-1">A valid signature proves that an accepted attester made an assertion; it does not improve the evidence behind it. An attester accepting self-reported executable hashes would let a copied statement and an arbitrary key satisfy the binding. The evidence and mapping requirements in <a href="#trust" class="auto internal xref">Section 5</a> prevent that substitution only when the deployment actually enforces them.<a href="#section-14.1-1" class="pilcrow">¶</a></p>
-<p id="section-14.1-2">A key's non-exportability does not prove which process can use it. An acceptable evidence policy therefore requires key storage and any signing broker to restrict use to the software instance the policy covers (<a href="#trust" class="auto internal xref">Section 5</a>). A general signing service reachable by arbitrary local processes would let unreviewed software authenticate through an approved installation. A signing broker therefore exposes constrained operations rather than arbitrary signing: it produces proofs for the authorization server only within its own processing of an OAuth transaction, and proofs for resource requests only for resource endpoints the caller is authorized to reach and only with that caller's own access token. Remote attestation of a device without an application-to-key binding has the same limitation.<a href="#section-14.1-2" class="pilcrow">¶</a></p>
+<p id="section-14.1-2">A key's non-exportability does not prove which process can use it. An acceptable evidence policy therefore requires key storage and any signing broker to restrict use to the software instance the policy covers (<a href="#trust" class="auto internal xref">Section 5</a>). A general signing service reachable by arbitrary local processes would let unreviewed software authenticate through an approved installation. A signing broker therefore exposes constrained operations rather than arbitrary signing: it produces proofs for the authorization server only within its own processing of an OAuth transaction, and proofs for resource requests only for resource endpoints the caller is authorized to reach and only with that caller's own access token. A broker that handles authorization for another process binds the authenticated caller, intended authorization server, callback, PKCE verifier, and resulting grant to one local session. Remote attestation of a device without an application-to-key binding has the same limitation.<a href="#section-14.1-2" class="pilcrow">¶</a></p>
 <p id="section-14.1-3">This profile cannot ensure benign user intent, prevent an approved application from being used as a proxy, or preserve an assurance after compromise of the platform on which its evidence depends. A server <span class="bcp14">MUST</span> present assurances no stronger than the accepted policy supports. Plugins, scripts, dynamic libraries, debuggers, and injected code can change the effective software identity and require explicit treatment in that policy.<a href="#section-14.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -2062,7 +2071,7 @@ grant_type=refresh_token
 <a href="#section-14.2" class="section-number selfRef">14.2. </a><a href="#name-loopback-and-transaction-th" class="section-name selfRef">Loopback and Transaction Theft</a>
         </h3>
 <p id="section-14.2-1">An attacker can attempt to occupy a loopback port, intercept a response, or initiate its own authorization transaction using the published client identifier. PKCE and proof of the recorded key protect redemption of an intercepted code. Admission of a new transaction additionally requires an acceptable instance attestation; PKCE or an unattested DPoP key alone supplies no software identity.<a href="#section-14.2-1" class="pilcrow">¶</a></p>
-<p id="section-14.2-2">The client <span class="bcp14">MUST</span> keep its verifier and transaction state confidential and unpredictable as their respective specifications require. A launcher that handles authorization for another process has to bind the authenticated caller, intended authorization server, callback, verifier, and resulting grant state to the same local session. A reusable signing capability handed to that caller is insufficient.<a href="#section-14.2-2" class="pilcrow">¶</a></p>
+<p id="section-14.2-2">The client <span class="bcp14">MUST</span> keep its verifier and transaction state confidential and unpredictable as their respective specifications require. A launcher handling authorization for another process acts as the signing broker of <a href="#software-evidence" class="auto internal xref">Section 14.1</a>.<a href="#section-14.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="downgrade">
@@ -2071,8 +2080,8 @@ grant_type=refresh_token
 <a href="#section-14.3" class="section-number selfRef">14.3. </a><a href="#name-downgrade-prevention" class="section-name selfRef">Downgrade Prevention</a>
         </h3>
 <p id="section-14.3-1">A server requiring reviewed software for a client namespace or tenant <span class="bcp14">MUST</span> enforce that requirement even when the requester omits every review artifact or presents an earlier document. A server requiring this binding <span class="bcp14">MUST</span> reject attempts to open a grant under an alternative authentication method, through a direct authorization request, or through another grant type. These requirements <span class="bcp14">MUST</span> be based on server policy, not inferred only from artifacts a requester can withhold.<a href="#section-14.3-1" class="pilcrow">¶</a></p>
-<p id="section-14.3-2">The server <span class="bcp14">MUST</span> enforce the reviewed binding selection on every new admission under that document. A deployment permitting unrelated unreviewed clients <span class="bcp14">MAY</span> continue to do so under its own policy, but a failed request under this profile <span class="bcp14">MUST NOT</span> silently become an unreviewed request. Any independently admitted unreviewed client carries none of the assurance of this specification.<a href="#section-14.3-2" class="pilcrow">¶</a></p>
-<p id="section-14.3-3">Existing grants retain their recorded binding. Removing metadata, changing an attester or policy, or presenting a fresh proof under a new key cannot relax it. A server implementing only <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> continues to reject these clients where review is required.<a href="#section-14.3-3" class="pilcrow">¶</a></p>
+<p id="section-14.3-2">The server <span class="bcp14">MUST</span> enforce the reviewed binding selection on every new admission under that document. A deployment permitting unrelated unreviewed clients <span class="bcp14">MAY</span> continue to do so under its own policy, but a failed request under this profile is rejected rather than admitted under that policy (<a href="#par" class="auto internal xref">Section 7.1</a>). Any independently admitted unreviewed client carries none of the assurance of this specification.<a href="#section-14.3-2" class="pilcrow">¶</a></p>
+<p id="section-14.3-3">Existing grants retain their recorded binding (<a href="#selection" class="auto internal xref">Section 3</a>, <a href="#establishment" class="auto internal xref">Section 7.2</a>). A server implementing only <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> continues to reject these clients where review is required.<a href="#section-14.3-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="artifact-substitution-and-key-separation">
@@ -2089,9 +2098,9 @@ grant_type=refresh_token
         <h3 id="name-freshness-and-availability">
 <a href="#section-14.5" class="section-number selfRef">14.5. </a><a href="#name-freshness-and-availability" class="section-name selfRef">Freshness and Availability</a>
         </h3>
-<p id="section-14.5-1">Short effective lifetimes limit stale evidence but make attester availability important. A fresh proof demonstrates current access to a key, not that software was re-evaluated at proof time. Attestation renewal therefore follows the evidence policy and cannot consist solely of extending <code>exp</code> on old evidence.<a href="#section-14.5-1" class="pilcrow">¶</a></p>
-<p id="section-14.5-2">Servers <span class="bcp14">MUST</span> enforce finite evidence and trust-data reuse bounds. A failure to retrieve metadata, reviews, or trust updates <span class="bcp14">MUST NOT</span> extend a recorded expiry or remove a refusal. An access token cannot outlive the attestation accepted when it was issued (<a href="#redemption" class="auto internal xref">Section 7.4</a>), but it can outlive a review withdrawn or attester trust removed after issuance; deployments requiring prompt enforcement need short token lifetimes or independent token revocation.<a href="#section-14.5-2" class="pilcrow">¶</a></p>
-<p id="section-14.5-3">Metadata digest binding can require coordinated publication of a new document, review, and attestation. During an incomplete transition a request fails. A server <span class="bcp14">MUST NOT</span> substitute semantically similar JSON, omit members from the digest, or continue with an older digest beyond permitted cache reuse merely to avoid that failure.<a href="#section-14.5-3" class="pilcrow">¶</a></p>
+<p id="section-14.5-1">Short effective lifetimes limit stale evidence but make attester availability important. A fresh proof demonstrates current access to a key, not that software was re-evaluated at proof time.<a href="#section-14.5-1" class="pilcrow">¶</a></p>
+<p id="section-14.5-2">Servers <span class="bcp14">MUST</span> enforce finite evidence and trust-data reuse bounds. A failure to retrieve metadata, reviews, or trust updates <span class="bcp14">MUST NOT</span> extend a recorded expiry or remove a refusal. An access token cannot outlive the attestation accepted when it was issued (<a href="#redemption" class="auto internal xref">Section 7.4</a>), but it can outlive a review withdrawn or attester trust removed after issuance (<a href="#withdrawal" class="auto internal xref">Section 9</a>).<a href="#section-14.5-2" class="pilcrow">¶</a></p>
+<p id="section-14.5-3">Metadata digest binding can require coordinated publication of a new document, review, and attestation (<a href="#operations" class="auto internal xref">Appendix B</a>). During an incomplete transition a request fails: <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> does not treat the changed document as reviewed, and this profile does not fall back (<a href="#par" class="auto internal xref">Section 7.1</a>).<a href="#section-14.5-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="resource-exhaustion">
@@ -2529,6 +2538,50 @@ grant_type=refresh_token
 <a href="#section-17.2" class="section-number selfRef">17.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
         </h3>
 <dl class="references">
+<dt id="APPLE-APPATTEST">[APPLE-APPATTEST]</dt>
+        <dd>
+<span class="refAuthor">Apple Inc.</span>, <span class="refTitle">"Establishing your app's integrity"</span>, <span>n.d.</span>, <span>&lt;<a href="https://developer.apple.com/documentation/devicecheck/establishing-your-app-s-integrity">https://developer.apple.com/documentation/devicecheck/establishing-your-app-s-integrity</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="APPLE-APPCONFIG">[APPLE-APPCONFIG]</dt>
+        <dd>
+<span class="refAuthor">Apple Inc.</span>, <span class="refTitle">"AppManaged"</span>, <span>n.d.</span>, <span>&lt;<a href="https://developer.apple.com/documentation/devicemanagement/appmanaged">https://developer.apple.com/documentation/devicemanagement/appmanaged</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="APPLE-DEBUGGER">[APPLE-DEBUGGER]</dt>
+        <dd>
+<span class="refAuthor">Apple Inc.</span>, <span class="refTitle">"Debugging tool entitlement"</span>, <span>n.d.</span>, <span>&lt;<a href="https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.security.cs.debugger">https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.security.cs.debugger</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="APPLE-DYLD">[APPLE-DYLD]</dt>
+        <dd>
+<span class="refAuthor">Apple Inc.</span>, <span class="refTitle">"Allow DYLD environment variables entitlement"</span>, <span>n.d.</span>, <span>&lt;<a href="https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.security.cs.allow-dyld-environment-variables">https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.security.cs.allow-dyld-environment-variables</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="APPLE-ENCLAVE">[APPLE-ENCLAVE]</dt>
+        <dd>
+<span class="refAuthor">Apple Inc.</span>, <span class="refTitle">"Protecting keys with the Secure Enclave"</span>, <span>n.d.</span>, <span>&lt;<a href="https://developer.apple.com/documentation/security/protecting-keys-with-the-secure-enclave">https://developer.apple.com/documentation/security/protecting-keys-with-the-secure-enclave</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="APPLE-KEYCHAIN">[APPLE-KEYCHAIN]</dt>
+        <dd>
+<span class="refAuthor">Apple Inc.</span>, <span class="refTitle">"TN3137: On Mac keychain APIs and implementations"</span>, <span>n.d.</span>, <span>&lt;<a href="https://developer.apple.com/documentation/technotes/tn3137-on-mac-keychains">https://developer.apple.com/documentation/technotes/tn3137-on-mac-keychains</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="APPLE-LIBVAL">[APPLE-LIBVAL]</dt>
+        <dd>
+<span class="refAuthor">Apple Inc.</span>, <span class="refTitle">"Disable Library Validation Entitlement"</span>, <span>n.d.</span>, <span>&lt;<a href="https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.security.cs.disable-library-validation">https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.security.cs.disable-library-validation</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="APPLE-MDA">[APPLE-MDA]</dt>
+        <dd>
+<span class="refAuthor">Apple Inc.</span>, <span class="refTitle">"Managed Device Attestation for Apple devices"</span>, <span>n.d.</span>, <span>&lt;<a href="https://support.apple.com/guide/deployment/managed-device-attestation-dep28afbde6a/web">https://support.apple.com/guide/deployment/managed-device-attestation-dep28afbde6a/web</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="APPLE-RUNTIME">[APPLE-RUNTIME]</dt>
+        <dd>
+<span class="refAuthor">Apple Inc.</span>, <span class="refTitle">"Hardened Runtime"</span>, <span>n.d.</span>, <span>&lt;<a href="https://developer.apple.com/documentation/security/hardened-runtime">https://developer.apple.com/documentation/security/hardened-runtime</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="APPLE-WWDC26">[APPLE-WWDC26]</dt>
+        <dd>
+<span class="refAuthor">Apple Inc.</span>, <span class="refTitle">"Secure your apps with App Attest"</span>, <span class="seriesInfo">WWDC26 Session 201</span>, <time datetime="2026" class="refDate">2026</time>, <span>&lt;<a href="https://developer.apple.com/videos/play/wwdc2026/201/">https://developer.apple.com/videos/play/wwdc2026/201/</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="APPLE-XPC">[APPLE-XPC]</dt>
+        <dd>
+<span class="refAuthor">Apple Inc.</span>, <span class="refTitle">"setCodeSigningRequirement(_:)"</span>, <span>n.d.</span>, <span>&lt;<a href="https://developer.apple.com/documentation/foundation/nsxpcconnection/setcodesigningrequirement(_:)">https://developer.apple.com/documentation/foundation/nsxpcconnection/setcodesigningrequirement(_:)</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="REGISTRATION">[REGISTRATION]</dt>
       <dd>
 <span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"CIMD Software Statement Registration"</span>, <span>n.d.</span>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration">https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration</a>&gt;</span>. </dd>
@@ -2546,66 +2599,133 @@ grant_type=refresh_token
 <p id="appendix-A-1">This appendix is non-normative. A managed desktop can implement the evidence boundary with a trusted launcher or enterprise agent and an enterprise attestation service. Other mechanisms are possible if they meet <a href="#trust" class="auto internal xref">Section 5</a>.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
 <p id="appendix-A-2">The enterprise enrolls the launcher through an authenticated management channel. It records a manifest, authorized by the controller of the CIMD URL's origin or its delegate, associating a signed package or exact artifact with that CIMD identifier, and approves it for the applicable evidence policy. The launcher uses platform facilities to authenticate the actual calling process and validate that association. It does not trust a process's own claim about its executable path or hash.<a href="#appendix-A-2" class="pilcrow">¶</a></p>
 <p id="appendix-A-3">The launcher creates or provisions the instance key in protected storage and obtains an attestation through an authenticated exchange with the enterprise service. That service verifies the evidence, the binding to the key, and the document digest before issuing the attestation. The service's signing key is distinct from the instance key and is accepted through the authorization server's attester trust configuration.<a href="#appendix-A-3" class="pilcrow">¶</a></p>
-<p id="appendix-A-4">For each authorization transaction, the launcher performs the OAuth exchange on behalf of the verified caller. For resource requests, it produces DPoP proofs only for resource endpoints the caller is authorized to reach and only with that caller's own access token. It never signs arbitrary input, and produces a proof for the authorization server only within its own transaction processing. The local session binds caller identity, server, callback, PKCE verifier, and resulting grant. It rechecks caller authorization when the key is used, including refresh, and protects returned tokens from other processes.<a href="#appendix-A-4" class="pilcrow">¶</a></p>
-<p id="appendix-A-5">An implementation needs to address changes between checking software and using the key, dynamic code loading, and the ability of an approved executable to proxy requests for others. Platforms without reliable process identity and key-use isolation cannot obtain that assurance merely by running the launcher with more privileges. A script-based command-line client may require an execution environment whose policy covers its interpreter, script, and dependencies, or a narrower assurance than reviewed executable identity.<a href="#appendix-A-5" class="pilcrow">¶</a></p>
+<p id="appendix-A-4">For each authorization transaction, the launcher performs the OAuth exchange on behalf of the verified caller, as the signing broker of <a href="#software-evidence" class="auto internal xref">Section 14.1</a>. It rechecks caller authorization when the key is used, including refresh, and protects returned tokens from other processes.<a href="#appendix-A-4" class="pilcrow">¶</a></p>
+<p id="appendix-A-5">An implementation needs to address changes between checking software and using the key, dynamic code loading, and the ability of an executable the evidence policy covers to proxy requests for others. Platforms without reliable process identity and key-use isolation cannot obtain that assurance merely by running the launcher with more privileges. A script-based command-line client may require an execution environment whose policy covers its interpreter, script, and dependencies, or a narrower assurance than verified executable identity.<a href="#appendix-A-5" class="pilcrow">¶</a></p>
+<div id="launcher-macos">
+<section id="appendix-A.1">
+        <h3 id="name-example-macos">
+<a href="#appendix-A.1" class="section-number selfRef">A.1. </a><a href="#name-example-macos" class="section-name selfRef">Example: macOS</a>
+        </h3>
+<p id="appendix-A.1-1">This example uses macOS 27 or later on Apple silicon, with a launcher application for which App Attest is available <span>[<a href="#APPLE-WWDC26" class="cite xref">APPLE-WWDC26</a>]</span>.<a href="#appendix-A.1-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="appendix-A.1-2">
+          <dt id="appendix-A.1-2.1">Software identity:</dt>
+          <dd style="margin-left: 1.5em" id="appendix-A.1-2.2">
+            <p id="appendix-A.1-2.2.1">The publisher signs each release with an Apple-issued developer certificate, under the hardened runtime <span>[<a href="#APPLE-RUNTIME" class="cite xref">APPLE-RUNTIME</a>]</span> and one signing identifier. A manifest served from the CIMD URL's origin and naming the publisher's Team ID and that identifier covers each such release. A manifest naming code directory hashes covers only the listed builds.<a href="#appendix-A.1-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="appendix-A.1-2.3">Key isolation:</dt>
+          <dd style="margin-left: 1.5em" id="appendix-A.1-2.4">
+            <p id="appendix-A.1-2.4.1">The launcher is a per-user application whose provisioning profile authorizes a data protection keychain access group for the launcher alone. macOS grants such groups only through entitlements a provisioning profile authorizes, and only in a user context <span>[<a href="#APPLE-KEYCHAIN" class="cite xref">APPLE-KEYCHAIN</a>]</span>. It creates a P-256 instance key in the Secure Enclave, from which key material cannot be transferred <span>[<a href="#APPLE-ENCLAVE" class="cite xref">APPLE-ENCLAVE</a>]</span>, and keeps it under that access group, so the client cannot use the key directly.<a href="#appendix-A.1-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="appendix-A.1-2.5">Caller identification:</dt>
+          <dd style="margin-left: 1.5em" id="appendix-A.1-2.6">
+            <p id="appendix-A.1-2.6.1">The client connects to the launcher over XPC. The launcher sets a code-signing requirement on the connection that requires an Apple-issued certificate chain, the publisher's Team ID, and the client's signing identifier, and the system invalidates a connection whose peer does not satisfy it <span>[<a href="#APPLE-XPC" class="cite xref">APPLE-XPC</a>]</span>. The launcher never relies on a process ID or a reported path.<a href="#appendix-A.1-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="appendix-A.1-2.7">Code injection:</dt>
+          <dd style="margin-left: 1.5em" id="appendix-A.1-2.8">
+            <p id="appendix-A.1-2.8.1">The evidence policy requires that the client's signature carry no entitlement that disables library validation <span>[<a href="#APPLE-LIBVAL" class="cite xref">APPLE-LIBVAL</a>]</span>, lets the dynamic linker read <code>DYLD_</code> variables <span>[<a href="#APPLE-DYLD" class="cite xref">APPLE-DYLD</a>]</span>, or lets a debugger obtain the client's task port (<code>get-task-allow</code>, <span>[<a href="#APPLE-DEBUGGER" class="cite xref">APPLE-DEBUGGER</a>]</span>). The client then loads only libraries signed by Apple or by its own team.<a href="#appendix-A.1-2.8.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="appendix-A.1-2.9">Launcher authentication:</dt>
+          <dd style="margin-left: 1.5em" id="appendix-A.1-2.10">
+            <p id="appendix-A.1-2.10.1">Managed Device Attestation shows that the device is a genuine Apple device the organization manages <span>[<a href="#APPLE-MDA" class="cite xref">APPLE-MDA</a>]</span>, not which program is reporting. The launcher therefore registers an App Attest key, which Apple certifies as belonging to the launcher <span>[<a href="#APPLE-APPATTEST" class="cite xref">APPLE-APPATTEST</a>]</span>. To tie that key to the managed device, the launcher returns with the attestation a single-use secret that the device management service delivered through managed app configuration, which macOS applies only to an application with a matching code signature <span>[<a href="#APPLE-APPCONFIG" class="cite xref">APPLE-APPCONFIG</a>]</span>. Each later report, carrying the instance public key and the client's signing identity, bears an App Attest assertion.<a href="#appendix-A.1-2.10.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="appendix-A.1-2.11">Evidence and renewal:</dt>
+          <dd style="margin-left: 1.5em" id="appendix-A.1-2.12">
+            <p id="appendix-A.1-2.12.1">No Apple attestation covers the instance key, so the enterprise service relies on the authenticated launcher for the statement that the key is in the Secure Enclave and usable only by the launcher. The launcher acts as the signing broker of <a href="#software-evidence" class="auto internal xref">Section 14.1</a>. Before the maximum evidence age expires, it re-checks the device's management state and the client's signature and obtains an attestation on that new evidence.<a href="#appendix-A.1-2.12.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="appendix-A.1-2.13">Unsupported case:</dt>
+          <dd style="margin-left: 1.5em" id="appendix-A.1-2.14">
+            <p id="appendix-A.1-2.14.1">A script run by a signed interpreter with unrestricted imports is not covered. The verified signature is the interpreter's, and library validation does not constrain the scripts and modules it reads. Such a client remains review-only under <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>.<a href="#appendix-A.1-2.14.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
+</section>
+</div>
+</section>
+</div>
+<div id="operations">
+<section id="appendix-B">
+      <h2 id="name-operational-consequences">
+<a href="#appendix-B" class="section-number selfRef">Appendix B. </a><a href="#name-operational-consequences" class="section-name selfRef">Operational Consequences</a>
+      </h2>
+<p id="appendix-B-1">This appendix is non-normative. It assumes an evidence policy whose maximum evidence age is eight hours.<a href="#appendix-B-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="appendix-B-2.1">
+          <p id="appendix-B-2.1.1">An attestation on evidence collected at 09:00 expires by 17:00, and so does every access token issued on it (<a href="#redemption" class="auto internal xref">Section 7.4</a>). Before then, a client holding a refresh token refreshes on new evidence. A client without one starts a new authorization request.<a href="#appendix-B-2.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-B-2.2">
+          <p id="appendix-B-2.2.1">A metadata change, such as a new loopback redirect or scope, needs a statement and attestations over the new digest before each grant refreshes onto it (<a href="#refresh" class="auto internal xref">Section 8</a>). An authorization in progress during the change restarts at the PAR endpoint (<a href="#redemption" class="auto internal xref">Section 7.4</a>).<a href="#appendix-B-2.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-B-2.3">
+          <p id="appendix-B-2.3.1">A new evidence-policy identifier (<a href="#trust" class="auto internal xref">Section 5</a>) or a new key requires a new grant (<a href="#establishment" class="auto internal xref">Section 7.2</a>).<a href="#appendix-B-2.3.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
 </section>
 </div>
 <div id="verification-scenarios">
-<section id="appendix-B">
+<section id="appendix-C">
       <h2 id="name-verification-scenarios">
-<a href="#appendix-B" class="section-number selfRef">Appendix B. </a><a href="#name-verification-scenarios" class="section-name selfRef">Verification Scenarios</a>
+<a href="#appendix-C" class="section-number selfRef">Appendix C. </a><a href="#name-verification-scenarios" class="section-name selfRef">Verification Scenarios</a>
       </h2>
-<p id="appendix-B-1">This appendix is non-normative. An implementation exercise should include the following cases in addition to successful admission and refresh:<a href="#appendix-B-1" class="pilcrow">¶</a></p>
+<p id="appendix-C-1">This appendix is non-normative. An implementation exercise should include the following cases in addition to successful admission and refresh:<a href="#appendix-C-1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="appendix-B-2.1">
-          <p id="appendix-B-2.1.1">A copied statement with an unattested key fails before creating an establishment.<a href="#appendix-B-2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="appendix-C-2.1">
+          <p id="appendix-C-2.1.1">A copied statement with an unattested key fails before creating an establishment.<a href="#appendix-C-2.1.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="appendix-B-2.2">
-          <p id="appendix-B-2.2.1">A copied attestation with a different proof key fails authentication.<a href="#appendix-B-2.2.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="appendix-C-2.2">
+          <p id="appendix-C-2.2.1">A copied attestation with a different proof key fails authentication.<a href="#appendix-C-2.2.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="appendix-B-2.3">
-          <p id="appendix-B-2.3.1">A valid attestation for another client, digest, tenant authorization, or policy fails its corresponding binding check.<a href="#appendix-B-2.3.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="appendix-C-2.3">
+          <p id="appendix-C-2.3.1">A valid attestation for another client, digest, tenant authorization, or policy fails its corresponding binding check.<a href="#appendix-C-2.3.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="appendix-B-2.4">
-          <p id="appendix-B-2.4.1">A loopback code intercepted by another process cannot be redeemed without both the verifier and recorded key.<a href="#appendix-B-2.4.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="appendix-C-2.4">
+          <p id="appendix-C-2.4.1">A loopback code intercepted by another process cannot be redeemed without both the verifier and recorded key.<a href="#appendix-C-2.4.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="appendix-B-2.5">
-          <p id="appendix-B-2.5.1">A repeated proof and a proof intended for another endpoint are rejected.<a href="#appendix-B-2.5.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="appendix-C-2.5">
+          <p id="appendix-C-2.5.1">A repeated proof and a proof intended for another endpoint are rejected.<a href="#appendix-C-2.5.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="appendix-B-2.6">
-          <p id="appendix-B-2.6.1">A nonce retry neither consumes grant state nor advances the <code>iat</code> floor.<a href="#appendix-B-2.6.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="appendix-C-2.6">
+          <p id="appendix-C-2.6.1">A nonce retry neither consumes grant state nor advances the <code>iat</code> floor.<a href="#appendix-C-2.6.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="appendix-B-2.7">
-          <p id="appendix-B-2.7.1">A refresh with a renewed attestation for the original key, attester, and policy succeeds when the review remains current.<a href="#appendix-B-2.7.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="appendix-C-2.7">
+          <p id="appendix-C-2.7.1">A refresh with a renewed attestation for the original key, attester, and policy succeeds when the review remains current.<a href="#appendix-C-2.7.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="appendix-B-2.8">
-          <p id="appendix-B-2.8.1">A metadata replacement without a matching current attestation fails without changing the establishment.<a href="#appendix-B-2.8.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="appendix-C-2.8">
+          <p id="appendix-C-2.8.1">A metadata replacement without a matching current attestation fails without changing the establishment.<a href="#appendix-C-2.8.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="appendix-B-2.9">
-          <p id="appendix-B-2.9.1">A new key, attester, policy, or tenant cannot take over an existing grant.<a href="#appendix-B-2.9.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="appendix-C-2.9">
+          <p id="appendix-C-2.9.1">A code outstanding while another grant sharing its establishment refreshes onto a replacement over new metadata is rejected at redemption, and the client restarts at the PAR endpoint.<a href="#appendix-C-2.9.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="appendix-B-2.10">
-          <p id="appendix-B-2.10.1">Withdrawal or removal of trust prevents continuation despite a fresh proof.<a href="#appendix-B-2.10.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="appendix-C-2.10">
+          <p id="appendix-C-2.10.1">A new key, attester, policy, or tenant cannot take over an existing grant.<a href="#appendix-C-2.10.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="appendix-B-2.11">
-          <p id="appendix-B-2.11.1">Omitting attestations or using direct authorization cannot bypass a server requirement for this binding.<a href="#appendix-B-2.11.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="appendix-C-2.11">
+          <p id="appendix-C-2.11.1">Withdrawal or removal of trust prevents continuation despite a fresh proof.<a href="#appendix-C-2.11.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="appendix-B-2.12">
-          <p id="appendix-B-2.12.1">An unapproved local process cannot obtain usable signatures or tokens through the trusted launcher.<a href="#appendix-B-2.12.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="appendix-C-2.12">
+          <p id="appendix-C-2.12.1">Omitting attestations or using direct authorization cannot bypass a server requirement for this binding.<a href="#appendix-C-2.12.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-C-2.13">
+          <p id="appendix-C-2.13.1">An unapproved local process cannot obtain usable signatures or tokens through the trusted launcher.<a href="#appendix-C-2.13.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 </section>
 </div>
 <div id="acknowledgments">
-<section id="appendix-C">
+<section id="appendix-D">
       <h2 id="name-acknowledgments">
 <a href="#name-acknowledgments" class="section-name selfRef">Acknowledgments</a>
       </h2>
-<p id="appendix-C-1">This specification develops the attested-key extension point in <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> and composes it with attestation-based client authentication. The initial deployment question was how a command-line application could retain loopback callbacks while demonstrating an association with reviewed software.<a href="#appendix-C-1" class="pilcrow">¶</a></p>
+<p id="appendix-D-1">This specification develops the attested-key extension point in <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> and composes it with attestation-based client authentication. The initial deployment question was how a command-line application could retain loopback callbacks while demonstrating an association with reviewed software.<a href="#appendix-D-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="authors-addresses">
-<section id="appendix-D">
+<section id="appendix-E">
       <h2 id="name-authors-address">
 <a href="#name-authors-address" class="section-name selfRef">Author's Address</a>
       </h2>
