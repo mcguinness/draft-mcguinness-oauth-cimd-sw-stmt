@@ -509,7 +509,7 @@ The following is an example of the decoded header and payload of an instance att
 }
 ~~~
 
-The policy URI denotes agreed evidence requirements. The server does not fetch it to decide whether to trust the attester. The document digest needs to equal the software statement's digest. The public key represents one installation; it is absent from the shared document.
+The public key represents one installation; it is absent from the shared document.
 
 ## PAR and Redemption
 
