@@ -760,6 +760,15 @@ For each authorization transaction, the launcher performs the OAuth exchange on 
 
 An implementation needs to address changes between checking software and using the key, dynamic code loading, and the ability of an executable the evidence policy covers to proxy requests for others. Platforms without reliable process identity and key-use isolation cannot obtain that assurance merely by running the launcher with more privileges. A script-based command-line client may require an execution environment whose policy covers its interpreter, script, and dependencies, or a narrower assurance than verified executable identity.
 
+# Operational Consequences {#operations}
+
+This appendix is non-normative. It gathers the commitments a deployment takes on, for an evidence policy whose maximum evidence age is eight hours.
+
+* Lifetimes: An attester that collects evidence at 09:00 issues an attestation expiring no later than 17:00, and every access token issued on it expires by then ({{redemption}}). Before 17:00, a client holding a refresh token obtains an attestation resting on new evidence and refreshes. A client without one starts a new authorization request, including browser authorization.
+* Metadata changes: Adding a loopback redirect or a scope changes the document's digest. The publisher serves the new document, the statement issuer signs a statement over it, and each installation obtains an attestation over the new digest. Each existing grant then refreshes with the replacement statement and a matching attestation ({{refresh}}). An authorization in progress during the change is rejected at code redemption and restarts at the PAR endpoint ({{redemption}}).
+* Evidence policy changes: A material change to an evidence policy takes a new identifier ({{trust}}). An existing grant keeps its recorded policy, so it continues only while the server accepts that policy, and a grant under the new policy is a new grant ({{establishment}}).
+* Key changes: A reinstalled installation, or one that has lost its key, opens a new grant. Refresh never moves a grant to another key ({{refresh}}).
+
 # Verification Scenarios
 
 This appendix is non-normative. An implementation exercise should include the following cases in addition to successful admission and refresh:
