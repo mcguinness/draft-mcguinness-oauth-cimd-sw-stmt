@@ -442,7 +442,7 @@ A DPoP proof that fails the checks of Section 4.3 of {{RFC9449}} is rejected wit
 
 A request that fails a required `client_attesters` listing ({{trust}}) is rejected with `invalid_client_attestation`. Such a request has a listing that is malformed, omits the attester, or names a `jwks_uri` that does not match the configured key source (Section 5.3 of {{ATTESTERS}}). As Section 5.4 of {{ATTESTERS}} requires, that code also replaces `invalid_client` for each other attestation failure for which Section 7.4 of {{ABCA}} permits it. Retrieval failures are not listing failures: they keep the error codes of this section and {{STATEMENT}}, including `temporarily_unavailable`. The order of {{error-precedence}} still applies. The listing is checked in the reviewed document, after the checks of step 1 of {{par}}, so a response from that step, such as `use_fresh_attestation`, does not indicate whether the attester is listed.
 
-A `use_dpop_nonce` response MUST include the `DPoP-Nonce` HTTP header field. Client attestation errors and status codes follow Section 7.4 of {{ABCA}}; other errors retain their endpoint's response format.
+A `use_dpop_nonce` response MUST include the `DPoP-Nonce` HTTP header field.
 
 ## Error Precedence and Disclosure {#error-precedence}
 
