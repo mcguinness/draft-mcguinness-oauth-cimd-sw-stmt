@@ -159,7 +159,7 @@ This specification defines the following authorization server metadata member un
 `software_statement_instance_binding_supported`:
 : OPTIONAL. Boolean indicating support for this specification. If omitted, its value is `false`. A server advertising `true` MUST implement the requirements of this specification. Support does not promise acceptance of any particular client, statement issuer, attester, evidence policy, or tenant.
 
-A supporting server MUST publish its `pushed_authorization_request_endpoint`, include `attest_jwt_client_auth_dpop` in `token_endpoint_auth_methods_supported`, advertise `S256` in `code_challenge_methods_supported`, and publish the algorithm metadata required by {{ABCA}} and {{RFC9449}} for the chosen method. It MUST support {{RFC9207}} and publish `authorization_response_iss_parameter_supported` as `true`.
+A supporting server MUST publish its `pushed_authorization_request_endpoint`, include `attest_jwt_client_auth_dpop` in `token_endpoint_auth_methods_supported`, advertise `S256` in `code_challenge_methods_supported`, and publish `dpop_signing_alg_values_supported` ({{RFC9449}}) and `client_attestation_signing_alg_values_supported` (Section 8 of {{ABCA}}). It MUST support {{RFC9207}} and publish `authorization_response_iss_parameter_supported` as `true`.
 
 A client MUST confirm support for this extension before starting a grant under it. The generic attestation method advertisement alone is insufficient. This profile requires PAR for its clients even when the server also serves other clients without PAR; it does not require the server's global `require_pushed_authorization_requests` value to be `true`.
 
