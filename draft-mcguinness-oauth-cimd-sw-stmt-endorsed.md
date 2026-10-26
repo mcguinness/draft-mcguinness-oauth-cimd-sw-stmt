@@ -91,7 +91,7 @@ The following sequence is non-normative:
 
 1. A publisher serves a CIMD document declaring this instance binding, attestation-based client authentication, and loopback redirects. A reviewer issues a software statement over its exact bytes.
 2. An installation obtains an attestation from an accepted attester. The attestation names the CIMD URL, metadata digest, instance key, and evidence policy.
-3. The installation sends a PAR request with PKCE, the attestation, and a DPoP proof. It supplies the software statement or lets the server pull it.
+3. The installation sends a pushed authorization request with PKCE, the attestation, and a DPoP proof. It supplies the software statement or lets the server pull it.
 4. The server validates both trust decisions and their bindings before returning a `request_uri`.
 5. The user authorizes in an external browser. The code returns over loopback and is redeemed with the PKCE verifier and the endorsed key.
 6. Refresh requires the proven key, a current acceptable attestation, and a current acceptable software statement. A different key requires a new grant.
@@ -121,7 +121,7 @@ The software statement's issuer and the client attester are separate roles. One 
 
 # Scope and Profile Selection {#selection}
 
-An authorization server implementing this specification MUST support PAR, PKCE with `S256` {{RFC7636}}, DPoP {{RFC9449}}, and the `attest_jwt_client_auth_dpop` method of {{ABCA}}, which uses a DPoP proof as the proof of possession (Sections 5.2 and 7.3 of {{ABCA}}). Clients MUST use that method at PAR and at every token request under this specification. The same asymmetric key is used for client authentication and DPoP binding. The normal Client Attestation PoP JWT mode is not supported by this profile. Each installation holds its own credential, the endorsed key, so a client under this profile is a confidential client although it is a native application, as Section 8.4 of {{RFC8252}} contemplates for per-instance credentials.
+An authorization server implementing this specification MUST support PAR, PKCE with `S256` {{RFC7636}}, DPoP {{RFC9449}}, and the `attest_jwt_client_auth_dpop` method of {{ABCA}}, which uses a DPoP proof as the proof of possession (Sections 5.2 and 7.3 of {{ABCA}}). Clients MUST use that method at the PAR endpoint and at every token request under this specification. The same asymmetric key is used for client authentication and DPoP binding. The normal Client Attestation PoP JWT mode is not supported by this profile. Each installation holds its own credential, the endorsed key, so a client under this profile is a confidential client although it is a native application, as Section 8.4 of {{RFC8252}} contemplates for per-instance credentials.
 
 The client selects this profile by publishing `software_statement_instance_binding` with value `true` in its reviewed document ({{client-metadata}}). A server accepts a new establishment under the profile only if it supports the extension, the reviewed document selects it, and all admission checks succeed. The instance attestation's distinct `typ` identifies the corresponding attestation profile but does not alone enable admission.
 
@@ -153,7 +153,7 @@ Every reviewed redirect URI MUST use `http`, have the host exactly `127.0.0.1` o
 
 The server MUST compare a requested redirect with a reviewed entry using exact string matching, except for the port variation permitted by Section 7.3 of {{RFC8252}}. No other component can vary: the address form, path, and any query remain fixed. In particular, a wildcard path, a hostname resolving to loopback, an alternative numerical spelling of the address, and a different loopback address do not match.
 
-The client MUST bind its listener only to the selected loopback interface, open it before sending PAR, and close it when the transaction completes or is abandoned. It SHOULD obtain an available ephemeral port from the operating system. The authorization code is delivered to that listener; the authorization server MUST NOT fetch the redirect URI to test the listener.
+The client MUST bind its listener only to the selected loopback interface, open it before sending the pushed authorization request, and close it when the transaction completes or is abandoned. It SHOULD obtain an available ephemeral port from the operating system. The authorization code is delivered to that listener; the authorization server MUST NOT fetch the redirect URI to test the listener.
 
 # Authorization Server Metadata {#server-metadata}
 
@@ -214,7 +214,7 @@ This specification does not require an attestation audience or installation iden
 
 ## Validation {#attestation-validation}
 
-At each PAR request, code redemption, and refresh, the authorization server MUST validate the instance attestation and its proof. It MUST verify all of the following before accepting the binding:
+At each pushed authorization request, code redemption, and refresh, the authorization server MUST validate the instance attestation and its proof. It MUST verify all of the following before accepting the binding:
 
 * The attestation meets {{attestation}} and the applicable {{ABCA}} validation requirements.
 * The signature verifies with a key authorized for the exact `iss`, for this artifact type and accepted algorithm.
@@ -229,9 +229,9 @@ On continuation, the recorded key, attester, policy, and tenant constraints of {
 
 The client sends the instance attestation in `OAuth-Client-Attestation` and uses DPoP combined mode under Section 7.3 of {{ABCA}}. It MUST NOT also send `OAuth-Client-Attestation-PoP`, and the server MUST reject a request under this profile that does. A `dpop_jkt` parameter alone is not a proof. The authentication method and its validation remain those defined by {{ABCA}}; this profile supplies the attestation's type and additional bindings.
 
-The authorization server MUST require a server-issued DPoP nonce at PAR and on every token request under this profile. It MUST enforce endpoint and method binding and reject replay of a proof within its acceptance window under {{RFC9449}}. Nonce challenges and retries use `use_dpop_nonce` and `DPoP-Nonce`; they do not consume a code, rotate a refresh token, create an establishment, or advance the `iat` floor. Nor does a request rejected before the instance is authenticated, or with `use_fresh_attestation` or `temporarily_unavailable`, so the client can retry with a fresh attestation.
+The authorization server MUST require a server-issued DPoP nonce at the PAR endpoint and on every token request under this profile. It MUST enforce endpoint and method binding and reject replay of a proof within its acceptance window under {{RFC9449}}. Nonce challenges and retries use `use_dpop_nonce` and `DPoP-Nonce`; they do not consume a code, rotate a refresh token, create an establishment, or advance the `iat` floor. Nor does a request rejected before the instance is authenticated, or with `use_fresh_attestation` or `temporarily_unavailable`, so the client can retry with a fresh attestation.
 
-If the PAR request also carries `dpop_jkt`, its JWK thumbprint ({{RFC7638}}) MUST identify the endorsed key; otherwise the server rejects the request. A client MUST generate a new proof for each request, including a retry. TLS protects request contents. DPoP does not sign the request body, and implementations MUST NOT treat a valid proof as a signature over the redirect URI, PKCE challenge, or statement.
+If the pushed authorization request also carries `dpop_jkt`, its JWK thumbprint ({{RFC7638}}) MUST identify the endorsed key; otherwise the server rejects the request. A client MUST generate a new proof for each request, including a retry. TLS protects request contents. DPoP does not sign the request body, and implementations MUST NOT treat a valid proof as a signature over the redirect URI, PKCE challenge, or statement.
 
 # Runtime Admission {#admission}
 
@@ -269,7 +269,7 @@ The server MUST bind its `request_uri`, code, refresh token, and other grant con
 
 ## Browser Authorization {#authorization}
 
-The client MUST use an external user-agent under {{RFC8252}}. The browser authorization request MUST use the `request_uri` from PAR and the same `client_id`. It MUST NOT carry the software statement, instance attestation, or an instance proof. The server MUST use the stored PAR parameters and MUST NOT allow front-channel parameters to change the redirect, PKCE challenge, key binding, or tenant.
+The client MUST use an external user-agent under {{RFC8252}}. The browser authorization request MUST use the `request_uri` from the PAR response and the same `client_id`. It MUST NOT carry the software statement, instance attestation, or an instance proof. The server MUST use the stored PAR parameters and MUST NOT allow front-channel parameters to change the redirect, PKCE challenge, key binding, or tenant.
 
 The server MUST reject a direct authorization request without a PAR `request_uri` governed by this profile when the client document selects this profile or server policy requires it. A statement pulled at the authorization endpoint cannot create an exception to that requirement.
 
@@ -303,7 +303,7 @@ Attestation renewal for the proven key is not key rotation and does not reset th
 
 A known refusal record for the software statement is enforced as {{STATEMENT}} requires. A current acceptable replacement can restore continuation only under {{refresh}}. A server using a statement withdrawal mechanism SHOULD consult it at code redemption and refresh within that mechanism's freshness rules. Failure to consult it does not clear an existing refusal.
 
-At PAR, code redemption, and refresh, the server MUST enforce current attester trust and local denial rules. Removing an attester's authorization for this client and tenant, removing the policy, or denying the instance key prevents further use of the affected binding. A fresh attestation does not override those decisions. A deployment that cannot refresh trust data MUST NOT accept it beyond a configured maximum staleness bound.
+At each pushed authorization request, code redemption, and refresh, the server MUST enforce current attester trust and local denial rules. Removing an attester's authorization for this client and tenant, removing the policy, or denying the instance key prevents further use of the affected binding. A fresh attestation does not override those decisions. A deployment that cannot refresh trust data MUST NOT accept it beyond a configured maximum staleness bound.
 
 This specification defines no interoperable attestation or instance revocation protocol. Deployments MAY use independently established mechanisms or local denial lists. In their absence, attestation effective expiry bounds acceptance of evidence that has become stale without the server learning of it. Withdrawal of a review, removal of trust, and expiry of evidence do not themselves revoke access tokens already issued. Their further use is bounded by the resource's token-validation and revocation mechanisms.
 
@@ -314,7 +314,7 @@ For establishments governed by this specification, the following rules replace o
 | Section | Rule | Under this profile |
 | --- | --- | --- |
 | 4 | A required issuer configured for software whose documents are presented review-only excludes that software from the tenant. | A presentation processed under {{par}} is not review-only, so a current statement from the required issuer can admit the software. |
-| 5.2 | A statement pulled at the authorization endpoint binds the presenter at code redemption. | The binding is set at PAR; an authorization request without a PAR `request_uri` governed by this profile is rejected ({{authorization}}). |
+| 5.2 | A statement pulled at the authorization endpoint binds the presenter at code redemption. | The binding is set at the PAR endpoint; an authorization request without a PAR `request_uri` governed by this profile is rejected ({{authorization}}). |
 | 5.3, 5.5 | The statement and the document are checked before the proof. | The instance is authenticated first ({{par}}, step 1). Statement and document checks follow, and checks needing no client-controlled retrieval still precede such retrieval. |
 | 5.2, 5.4.1, 5.5 | A request without an acceptable statement can proceed under the policy for unreviewed clients, a review-only presentation proceeds as a client presenting no statement, and a digest mismatch can proceed without the statement. | No fallback: any failed check rejects the request ({{par}}). |
 | 5.4 | The proven key appears in the reviewed document's `jwks` or at its `jwks_uri`. | The proven key is the endorsed key ({{attestation-validation}}), and the document carries no key material ({{client-metadata}}). |
@@ -330,19 +330,19 @@ An implementation of {{STATEMENT}} alone does not gain these exceptions. Its rev
 
 # Error Responses {#errors}
 
-The endpoint-specific syntax and response rules of {{RFC6749}}, {{RFC9126}}, {{STATEMENT}}, {{ABCA}}, and {{RFC9449}} apply. This specification defines no new error code. The following table applies at PAR, code redemption, and refresh, except where a condition names a particular endpoint. Other OAuth errors, such as `invalid_scope`, continue to apply to their respective failures.
+The endpoint-specific syntax and response rules of {{RFC6749}}, {{RFC9126}}, {{STATEMENT}}, {{ABCA}}, and {{RFC9449}} apply. This specification defines no new error code. The following table applies to pushed authorization requests, code redemption, and refresh, except where a condition names a particular endpoint. Other OAuth errors, such as `invalid_scope`, continue to apply to their respective failures.
 
 | Error | Condition |
 | --- | --- |
 | `invalid_request` | Malformed or conflicting request parameters, or a `software_statement` parameter on code redemption |
-| `invalid_client` | Missing or unacceptable attestation, untrusted attester or policy, a request carrying `OAuth-Client-Attestation-PoP`, a DPoP proof under a key other than the endorsed key, or, at PAR, a request carrying an instance attestation for a document that does not select this profile or violates {{client-metadata}} |
+| `invalid_client` | Missing or unacceptable attestation, untrusted attester or policy, a request carrying `OAuth-Client-Attestation-PoP`, a DPoP proof under a key other than the endorsed key, or, at the PAR endpoint, a request carrying an instance attestation for a document that does not select this profile or violates {{client-metadata}} |
 | `use_fresh_attestation` | An otherwise valid attestation whose `exp` has passed, or that names a digest other than that of the document currently served while that document matches the applicable statement, which this profile treats as not fresh enough (Section 7.4 of {{ABCA}}) |
 | `use_dpop_nonce` | Missing or unacceptable server DPoP nonce |
 | `invalid_grant` | At redemption or refresh, a validly authenticated instance does not match the recorded key, attester, policy, or client; or, at redemption, the current document no longer matches the recorded digest; or, at refresh, the current document no longer selects this profile or meets {{client-metadata}} |
 | `statement_required` | A required statement is missing, expired, refused, or superseded, or, at refresh, a needed replacement is missing or unacceptable |
 | `temporarily_unavailable` | A retrieval needed for validation temporarily fails |
 
-Invalid statements and reviewed documents at PAR otherwise use the error rules of {{STATEMENT}}. At refresh, an unacceptable replacement uses `statement_required` as in {{STATEMENT}}. A document exceeding a configured size bound is not a transient failure; apply the non-transient retrieval and refresh errors of {{STATEMENT}}. An invalid or expired code or refresh token, failed PKCE check, or mismatched redemption redirect uses `invalid_grant`.
+Invalid statements and reviewed documents at the PAR endpoint otherwise use the error rules of {{STATEMENT}}. At refresh, an unacceptable replacement uses `statement_required` as in {{STATEMENT}}. A document exceeding a configured size bound is not a transient failure; apply the non-transient retrieval and refresh errors of {{STATEMENT}}. An invalid or expired code or refresh token, failed PKCE check, or mismatched redemption redirect uses `invalid_grant`.
 
 A DPoP proof that fails the checks of Section 4.3 of {{RFC9449}} is rejected with `invalid_dpop_proof`, and a missing or unacceptable nonce with `use_dpop_nonce`, in place of any code in the table above, as {{STATEMENT}} provides for proof-mechanism errors. A valid proof under a key other than the attestation's `cnf` key is not an invalid proof: authentication fails (Section 7.3 of {{ABCA}}), and the request is rejected with `invalid_client`, or with `invalid_client_attestation` as Section 7.4 of {{ABCA}} permits. At code redemption and refresh, an instance that authenticates under a key other than the establishment's recorded key fails the grant binding and is rejected with `invalid_grant`.
 
@@ -350,7 +350,7 @@ Servers MUST check basic request syntax before reporting errors requiring authen
 
 A `use_dpop_nonce` response MUST include `DPoP-Nonce`. Client attestation errors and status codes follow Section 7.4 of {{ABCA}}; other errors retain their endpoint's response format. A `software_statement` parameter on code redemption is `invalid_request`, even if it offers an otherwise valid replacement. A `statement_required` response at code redemption requires a new PAR transaction, not a retry with a statement attached to the code request.
 
-At the authorization endpoint, a missing or invalid required PAR request is rejected with `invalid_request`. The server MUST NOT redirect an error unless it has validated the redirect under the applicable client metadata and transaction. Front-channel carriage of the statement or instance-attestation artifacts is rejected with `invalid_request`. Details of configured issuers, attesters, evidence policies, and tenant restrictions MUST NOT be exposed in error descriptions to unauthenticated callers, as {{STATEMENT}} requires of its issuer trust configuration.
+At the authorization endpoint, a missing or invalid required pushed authorization request is rejected with `invalid_request`. The server MUST NOT redirect an error unless it has validated the redirect under the applicable client metadata and transaction. Front-channel carriage of the statement or instance-attestation artifacts is rejected with `invalid_request`. Details of configured issuers, attesters, evidence policies, and tenant restrictions MUST NOT be exposed in error descriptions to unauthenticated callers, as {{STATEMENT}} requires of its issuer trust configuration.
 
 # Examples {#examples}
 
