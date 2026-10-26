@@ -334,7 +334,7 @@ Servers MUST check basic request syntax before reporting errors requiring authen
 
 A `use_dpop_nonce` response MUST include `DPoP-Nonce`. Client attestation errors and status codes follow Section 7.4 of {{ABCA}}; other errors retain their endpoint's response format. A `software_statement` parameter on code redemption is `invalid_request`, even if it offers an otherwise valid replacement. A `statement_required` response at code redemption requires a new PAR transaction, not a retry with a statement attached to the code request.
 
-At the authorization endpoint, a missing or invalid required PAR request is rejected with `invalid_request`. The server MUST NOT redirect an error unless it has validated the redirect under the applicable client metadata and transaction. Front-channel carriage of the statement or instance-attestation artifacts is rejected with `invalid_request`. Details of configured issuers, attesters, evidence policies, and tenant restrictions SHOULD NOT be exposed in error descriptions to unauthenticated callers.
+At the authorization endpoint, a missing or invalid required PAR request is rejected with `invalid_request`. The server MUST NOT redirect an error unless it has validated the redirect under the applicable client metadata and transaction. Front-channel carriage of the statement or instance-attestation artifacts is rejected with `invalid_request`. Details of configured issuers, attesters, evidence policies, and tenant restrictions MUST NOT be exposed in error descriptions to unauthenticated callers, as {{STATEMENT}} requires of its issuer trust configuration.
 
 # Examples {#examples}
 
