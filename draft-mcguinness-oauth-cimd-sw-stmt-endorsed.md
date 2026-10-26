@@ -617,9 +617,7 @@ Change Controller:
 Specification Document(s):
 : This specification, {{attestation}}
 
-This specification also requests that the `cimd_digest` registration requested by {{STATEMENT}} list this specification ({{attestation}}) as an additional reference. An instance attestation carries the same digest that a software statement carries.
-
-The `iss`, `sub`, `iat`, `exp`, and `cnf` claims are defined elsewhere and are not re-registered here.
+This specification also requests that the `cimd_digest` registration requested by {{STATEMENT}} list this specification ({{attestation}}) as an additional reference.
 
 ## OAuth Extensions Error Registry
 
@@ -737,7 +735,9 @@ Author:
 Change controller:
 : IETF
 
-This specification uses the authentication method, HTTP fields, and error codes of {{ABCA}} without registering replacements.
+## Values Defined Elsewhere
+
+The `iss`, `sub`, `aud`, `iat`, `exp`, and `cnf` claims are defined elsewhere and are not re-registered here. This specification uses the authentication method, HTTP fields, and error codes of {{ABCA}} without registering replacements.
 
 --- back
 
