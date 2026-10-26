@@ -61,7 +61,7 @@ informative:
 
 --- abstract
 
-A CIMD software statement binds a review of client software to the exact bytes of its Client ID Metadata Document. It does not, by itself, bind an installation of that software to a key. This specification defines an instance-binding extension in which an independently trusted client attester endorses an installation key for the reviewed document. The client proves that key through attestation-based client authentication when opening and continuing an authorization code grant. Where an attester can verify which software controls an installation's key, as on managed devices, this permits native applications, including command-line clients, to use loopback redirects while satisfying a policy requiring reviewed software. The specification defines attestation and metadata requirements, processing at the pushed authorization request and token endpoints, and the exceptions to the core software statement rules needed for endorsed keys.
+A CIMD software statement binds a review of client software to the exact bytes of its Client ID Metadata Document. It does not, by itself, bind an installation of that software to a key. This specification defines an instance-binding extension in which an independently trusted client attester endorses an installation key for the reviewed document. The client proves that key through attestation-based client authentication when opening and continuing an authorization code grant. Where an attester can verify which software controls an installation's key, as on managed devices, this permits native applications, including command-line clients, to use loopback redirects while satisfying a policy requiring reviewed software. The specification defines attestation and metadata requirements, processing at the pushed authorization request and token endpoints, and the exceptions to the base software statement rules needed for endorsed keys.
 
 --- middle
 
@@ -71,7 +71,7 @@ A native application's installations cannot safely authenticate by a private key
 
 {{STATEMENT}} therefore treats a document containing a redirect that another local application could claim as review-only: the server records the review but admits nothing on it, and such a presentation cannot satisfy a policy requiring reviewed software. This excludes loopback redirects, even though they are an established response-delivery mechanism for native applications under {{RFC8252}}.
 
-Existing mechanisms do not close this gap. Loopback redirects with PKCE {{RFC7636}} protect an authorization code from interception, but any application can start a transaction with a native client's identifier, the client impersonation that Section 8.6 of {{RFC8252}} describes. Attestation-based client authentication {{ABCA}} alone shows that an installation holds a key an attester vouches for, not that the installation runs the software a reviewer approved for a particular document. The core's public-client binding relies on redirection URIs no other application can claim, which loopback URIs are not.
+Existing mechanisms do not close this gap. Loopback redirects with PKCE {{RFC7636}} protect an authorization code from interception, but any application can start a transaction with a native client's identifier, the client impersonation that Section 8.6 of {{RFC8252}} describes. Attestation-based client authentication {{ABCA}} alone shows that an installation holds a key an attester vouches for, not that the installation runs the software a reviewer approved for a particular document. The public-client binding of {{STATEMENT}} relies on redirection URIs no other application can claim, which loopback URIs are not.
 
 This specification defines an alternative binding made of three checks, which stay separate even when one organization operates both issuing roles:
 
@@ -81,7 +81,7 @@ This specification defines an alternative binding made of three checks, which st
 
 The callback delivers the authorization response; it supplies no evidence of the presenter's software identity.
 
-The extension serves authorization code flows using pushed authorization requests (PAR) {{RFC9126}} and refresh of the resulting grants. It defines neither registration nor new token-endpoint presentations for other grants. {{REGISTRATION}} is unchanged: it rejects loopback redirects, so a document selecting this profile is never registered, and an issuer omits `registration` from the `statement_uses` of a statement over one. Core and registration do not depend on this extension.
+The extension serves authorization code flows using pushed authorization requests (PAR) {{RFC9126}} and refresh of the resulting grants. It defines neither registration nor new token-endpoint presentations for other grants. {{REGISTRATION}} is unchanged: it rejects loopback redirects, so a document selecting this profile is never registered, and an issuer omits `registration` from the `statement_uses` of a statement over one. Neither {{STATEMENT}} nor {{REGISTRATION}} depends on this specification.
 
 The binding is only as strong as the attester's evidence that the software, not merely the device or the user, controls the key ({{software-evidence}}). Such evidence is available today mainly on managed endpoints, through an enterprise agent or launcher ({{launcher}}). On an unmanaged desktop, or for an interpreted command-line client, an attester typically cannot meet the requirements of {{trust}}, and the client remains review-only under {{STATEMENT}}.
 
@@ -100,7 +100,7 @@ The following sequence is non-normative:
 
 {::boilerplate bcp14-tagged}
 
-This specification uses terminology from {{RFC6749}}, {{CIMD}}, and {{ABCA}}, and the terms Runtime Presentation, Effective Expiry, Refusal Record, Current Statement, Review-Only, Establishment, and Proven Key from {{STATEMENT}}, which this specification calls the core specification, or core. It also uses the core's `iat` floor: the `iat` of the most recent statement a server has accepted for an `iss` and `sub`, below which it rejects a newly presented, pulled, or replacement statement, kept per tenant on a multi-tenant server.
+This specification uses terminology from {{RFC6749}}, {{CIMD}}, and {{ABCA}}, and the terms Runtime Presentation, Effective Expiry, Refusal Record, Current Statement, Review-Only, Establishment, and Proven Key from {{STATEMENT}}. It also uses the `iat` floor of {{STATEMENT}}: the `iat` of the most recent statement a server has accepted for an `iss` and `sub`, below which it rejects a newly presented, pulled, or replacement statement, kept per tenant on a multi-tenant server.
 
 Instance Binding:
 : The association of a proven instance key with the reviewed software and metadata under this specification. It does not assign a global installation identifier.
@@ -249,7 +249,7 @@ Before returning a successful PAR response, the server MUST:
 4. Validate the requested redirect under {{loopback}}, require PKCE `S256`, and evaluate the request against the reviewed metadata and authorization policy.
 5. Create or reuse an establishment under {{establishment}}, bind the accepted request to it, and return a PAR response under {{RFC9126}}.
 
-For step 1, authentication establishes the attester, policy, client identifier, and endorsed key; it is not yet reviewed-software admission. An attestation whose digest has not been checked cannot establish the client. The ordering of core's statement checks before client-controlled retrieval applies once a statement is available. External-retrieval bounds, HTTP caching rules ({{RFC9111}}), and protection against server-side request forgery from {{STATEMENT}} and {{CIMD}} apply throughout.
+For step 1, authentication establishes the attester, policy, client identifier, and endorsed key; it is not yet reviewed-software admission. An attestation whose digest has not been checked cannot establish the client. The ordering of statement checks before client-controlled retrieval in {{STATEMENT}} applies once a statement is available. External-retrieval bounds, HTTP caching rules ({{RFC9111}}), and protection against server-side request forgery from {{STATEMENT}} and {{CIMD}} apply throughout.
 
 The server MUST NOT fall back to review-only or unreviewed admission for the same request if any required check fails. A request that carries no instance attestation for a document selecting this profile is an example: the server learns from the document (step 3) that this profile applies, then rejects the request with `invalid_client`. If no acceptable statement is available, it returns `statement_required`. A failed request MUST NOT advance the statement's `iat` floor or alter an existing establishment.
 
@@ -261,11 +261,11 @@ An establishment records all state required by {{STATEMENT}} and, in addition:
 * The exact attester identifier and evidence-policy identifier.
 * The attester trust decision and the attestation effective expiry most recently accepted.
 
-The proven key is the endorsed key, which is also the DPoP key. A server MAY reuse an establishment only when the core reuse conditions hold and the profile, attester, policy, and tenant also match. Individual authorization transactions still retain separate PKCE challenges, redirects, `state`, resource-owner decisions, and continuation state.
+The proven key is the endorsed key, which is also the DPoP key. A server MAY reuse an establishment only when the reuse conditions of {{STATEMENT}} hold and the profile, attester, policy, and tenant also match. Individual authorization transactions still retain separate PKCE challenges, redirects, `state`, resource-owner decisions, and continuation state.
 
 The client identifier, tenant, key, attester, policy, and binding profile MUST remain fixed for the lifetime of the grant. Changing any of them requires a new grant opened through PAR. A fresh attestation for the same tuple can renew its evidence, and a software statement replacement can update its reviewed metadata only as {{refresh}} permits. Neither operation changes the tuple.
 
-The server MUST bind its `request_uri`, code, refresh token, and other grant continuation state to the establishment. Core's establishment limits and counting rules apply. Servers SHOULD also bound establishments per resource owner and tenant so that one installation cannot exhaust the capacity available to other installations.
+The server MUST bind its `request_uri`, code, refresh token, and other grant continuation state to the establishment. The establishment limits and counting rules of {{STATEMENT}} apply. Servers SHOULD also bound establishments per resource owner and tenant so that one installation cannot exhaust the capacity available to other installations.
 
 ## Browser Authorization {#authorization}
 
@@ -277,9 +277,9 @@ The server authenticates the resource owner and applies authorization policy ind
 
 ## Authorization Code Redemption {#redemption}
 
-The client sends `grant_type=authorization_code`, the code, the same `client_id` and `redirect_uri`, and the PKCE `code_verifier`. It MUST authenticate with a currently acceptable instance attestation and a fresh proof under the recorded key. It MUST NOT send `software_statement` on this request, retaining core's prohibition on a presentation during code redemption.
+The client sends `grant_type=authorization_code`, the code, the same `client_id` and `redirect_uri`, and the PKCE `code_verifier`. It MUST authenticate with a currently acceptable instance attestation and a fresh proof under the recorded key. It MUST NOT send `software_statement` on this request, as {{STATEMENT}} prohibits a presentation during code redemption.
 
-Before issuing tokens, the server MUST verify the code and PKCE binding and every fixed establishment value in {{establishment}}. It MUST re-evaluate both trust decisions, require the recorded statement to be unexpired and not refused, and confirm that the current CIMD document still matches its recorded digest and meets {{client-metadata}}. Retrieval and cache reuse use core's freshness bounds. The attestation MUST match that digest and be within its effective expiry.
+Before issuing tokens, the server MUST verify the code and PKCE binding and every fixed establishment value in {{establishment}}. It MUST re-evaluate both trust decisions, require the recorded statement to be unexpired and not refused, and confirm that the current CIMD document still matches its recorded digest and meets {{client-metadata}}. Retrieval and cache reuse use the freshness bounds of {{STATEMENT}}. The attestation MUST match that digest and be within its effective expiry.
 
 An attestation MAY have been renewed since PAR, but its key, attester, policy, and subject MUST match the establishment. If the metadata changed or the recorded statement needs replacement, the client MUST start a new PAR transaction; code redemption cannot replace the governing review. A raised `iat` floor alone does not invalidate a code already bound to an acceptable recorded statement.
 
@@ -289,13 +289,13 @@ The server MUST issue tokens only within the user's authorization, tenant policy
 
 Every refresh request MUST carry the original client identifier, the refresh token, a current instance attestation, and a fresh DPoP proof under the establishment's proven key. The server MUST authenticate the instance, verify the refresh-token binding, and enforce the fixed values of {{establishment}} before accepting any replacement statement.
 
-On every refresh the server MUST require a current, unexpired, unrefused software statement and re-evaluate its issuer trust decision. This strengthens the optional statement-currency check in core. It MUST also verify that the currently served document matches the applicable statement and attestation digests and continues to meet {{client-metadata}}. Removal of the binding member or a change to another authentication method ends continuation under this profile, and the refresh is rejected with `invalid_grant` without seeking a replacement, as {{STATEMENT}} rejects a refresh whose document no longer carries the proven key.
+On every refresh the server MUST require a current, unexpired, unrefused software statement and re-evaluate its issuer trust decision. This strengthens the optional statement-currency check of {{STATEMENT}}. It MUST also verify that the currently served document matches the applicable statement and attestation digests and continues to meet {{client-metadata}}. Removal of the binding member or a change to another authentication method ends continuation under this profile, and the refresh is rejected with `invalid_grant` without seeking a replacement, as {{STATEMENT}} rejects a refresh whose document no longer carries the proven key.
 
 The recorded statement can remain applicable while it is unexpired, not refused, and matches the current document, even if a newer statement has raised the `iat` floor for new admissions. If it no longer qualifies, a replacement is required. The client can present a replacement in `software_statement` or, for an establishment created from a pulled statement, the server pulls one as {{STATEMENT}} specifies. A request carrying the same `iss` and `jti` as the recorded statement is a recheck, not a replacement.
 
-A replacement MUST satisfy core's replacement validation, including identical statement `iss` and `sub`, a later `iat`, and current metadata. Its decision MUST apply to the establishment's recorded tenant and runtime use. Instead of authorizing a document key or preserving core's public-client conditions, the replacement MUST preserve this profile and authorize the establishment's proven key through a current attestation from the recorded attester under the recorded policy. The replacement and attestation MUST name the same current metadata digest. A replacement cannot expand access beyond the original grant, resource-owner authorization, or current server policy.
+A replacement MUST satisfy the replacement validation of {{STATEMENT}}, including identical statement `iss` and `sub`, a later `iat`, and current metadata. Its decision MUST apply to the establishment's recorded tenant and runtime use. Instead of authorizing a document key or preserving the public-client conditions of {{STATEMENT}}, the replacement MUST preserve this profile and authorize the establishment's proven key through a current attestation from the recorded attester under the recorded policy. The replacement and attestation MUST name the same current metadata digest. A replacement cannot expand access beyond the original grant, resource-owner authorization, or current server policy.
 
-On success, the server MUST atomically update the recorded statement, metadata, digest, and trust decisions and apply core's concurrency rules for replacements. It also records the newly accepted attestation effective expiry. A failed attempt MUST NOT replace the recorded binding or rotate a refresh token. This does not prevent the server from recording a withdrawal or trust removal learned during processing, or applying independent refresh-token replay protections.
+On success, the server MUST atomically update the recorded statement, metadata, digest, and trust decisions and apply the concurrency rules of {{STATEMENT}} for replacements. It also records the newly accepted attestation effective expiry. A failed attempt MUST NOT replace the recorded binding or rotate a refresh token. This does not prevent the server from recording a withdrawal or trust removal learned during processing, or applying independent refresh-token replay protections.
 
 Attestation renewal for the proven key is not key rotation and does not reset the `iat` floor or an establishment count. This specification defines no migration of an existing grant to a new key, attester, evidence policy, or tenant.
 
@@ -307,11 +307,11 @@ At PAR, code redemption, and refresh, the server MUST enforce current attester t
 
 This specification defines no interoperable attestation or instance revocation protocol. Deployments MAY use independently established mechanisms or local denial lists. In their absence, attestation effective expiry bounds acceptance of evidence that has become stale without the server learning of it. Withdrawal of a review, removal of trust, and expiry of evidence do not themselves revoke access tokens already issued. Their further use is bounded by the resource's token-validation and revocation mechanisms.
 
-# Relationship to Core Processing {#core-exceptions}
+# Exceptions to Software Statement Processing {#core-exceptions}
 
 For establishments governed by this specification, the following rules replace or add to the corresponding rules of {{STATEMENT}}:
 
-| Core section | Core rule | Under this profile |
+| Section | Rule | Under this profile |
 | --- | --- | --- |
 | 4 | A required issuer configured for software whose documents are presented review-only excludes that software from the tenant. | A presentation processed under {{par}} is not review-only, so a current statement from the required issuer can admit the software. |
 | 5.2 | A statement pulled at the authorization endpoint binds the presenter at code redemption. | The binding is set at PAR; an authorization request without a PAR `request_uri` governed by this profile is rejected ({{authorization}}). |
@@ -324,9 +324,9 @@ For establishments governed by this specification, the following rules replace o
 | 8.3 | Code redemption is rejected with `invalid_request`, `invalid_grant`, or, at the establishment bound, `invalid_client`. | Redemption can also return `invalid_client` or `invalid_client_attestation` for failed authentication, `statement_required`, `use_fresh_attestation`, or `temporarily_unavailable` ({{errors}}). |
 | 8.4 | A client not admitted on a statement receives `statement_required`. | A missing or invalid required pushed authorization request is rejected with `invalid_request` ({{errors}}). |
 
-Code redemption and refresh continue an establishment and are not new token-endpoint presentations, so core's rejection of a token-endpoint presentation from a client whose document carries no key material is unchanged. All other core requirements continue to apply, including digest processing, issuer trust, statement audience and tenant checks, refusal records, the `iat` floor, and bounds on repeated consumption. The extension applies equally to presented and pulled statements. It adds no requirement to issue statements or implement {{REGISTRATION}}.
+Code redemption and refresh continue an establishment and are not new token-endpoint presentations, so the rejection in {{STATEMENT}} of a token-endpoint presentation from a client whose document carries no key material is unchanged. All other requirements of {{STATEMENT}} continue to apply, including digest processing, issuer trust, statement audience and tenant checks, refusal records, the `iat` floor, and bounds on repeated consumption. The extension applies equally to presented and pulled statements. It adds no requirement to issue statements or implement {{REGISTRATION}}.
 
-An implementation of core alone does not gain this exception. Its review-only treatment of claimable redirects continues to apply. A supporting server MUST NOT infer this profile's assurance from successful generic client authentication without all of this specification's checks.
+An implementation of {{STATEMENT}} alone does not gain these exceptions. Its review-only treatment of claimable redirects continues to apply. A supporting server MUST NOT infer this profile's assurance from successful generic client authentication without all of this specification's checks.
 
 # Error Responses {#errors}
 
@@ -342,7 +342,7 @@ The endpoint-specific syntax and response rules of {{RFC6749}}, {{RFC9126}}, {{S
 | `statement_required` | A required statement is missing, expired, refused, or superseded, or, at refresh, a needed replacement is missing or unacceptable |
 | `temporarily_unavailable` | A retrieval needed for validation temporarily fails |
 
-Invalid statements and reviewed documents at PAR otherwise use core's error rules. At refresh, an unacceptable replacement uses `statement_required` as in core. A document exceeding a configured size bound is not a transient failure; apply core's non-transient retrieval and refresh errors. An invalid or expired code or refresh token, failed PKCE check, or mismatched redemption redirect uses `invalid_grant`.
+Invalid statements and reviewed documents at PAR otherwise use the error rules of {{STATEMENT}}. At refresh, an unacceptable replacement uses `statement_required` as in {{STATEMENT}}. A document exceeding a configured size bound is not a transient failure; apply the non-transient retrieval and refresh errors of {{STATEMENT}}. An invalid or expired code or refresh token, failed PKCE check, or mismatched redemption redirect uses `invalid_grant`.
 
 A DPoP proof that fails the checks of Section 4.3 of {{RFC9449}} is rejected with `invalid_dpop_proof`, and a missing or unacceptable nonce with `use_dpop_nonce`, in place of any code in the table above, as {{STATEMENT}} provides for proof-mechanism errors. A valid proof under a key other than the attestation's `cnf` key is not an invalid proof: authentication fails (Section 7.3 of {{ABCA}}), and the request is rejected with `invalid_client`, or with `invalid_client_attestation` as Section 7.4 of {{ABCA}} permits. At code redemption and refresh, an instance that authenticates under a key other than the establishment's recorded key fails the grant binding and is rejected with `invalid_grant`.
 
@@ -459,7 +459,7 @@ grant_type=refresh_token
 &refresh_token=<refresh-token>
 ~~~
 
-If the review has expired, the server pulls a current replacement as core permits for a grant established from a pulled statement. If the replacement names changed metadata, the attestation must name that same new digest while retaining the recorded key, attester, and policy. Otherwise the refresh fails without changing the binding.
+If the review has expired, the server pulls a current replacement as {{STATEMENT}} permits for a grant established from a pulled statement. If the replacement names changed metadata, the attestation must name that same new digest while retaining the recorded key, attester, and policy. Otherwise the refresh fails without changing the binding.
 
 # Security Considerations {#security-considerations}
 
@@ -485,11 +485,11 @@ A server requiring reviewed software for a client namespace or tenant MUST enfor
 
 The server MUST enforce the reviewed binding selection on every new admission under that document. A deployment permitting unrelated unreviewed clients MAY continue to do so under its own policy, but a failed request under this profile MUST NOT silently become an unreviewed request. Any independently admitted unreviewed client carries none of this extension's assurance.
 
-Existing grants retain their recorded binding. Removing metadata, changing an attester or policy, or presenting a fresh proof under a new key cannot relax it. A server implementing only core continues to reject these clients where review is required.
+Existing grants retain their recorded binding. Removing metadata, changing an attester or policy, or presenting a fresh proof under a new key cannot relax it. A server implementing only {{STATEMENT}} continues to reject these clients where review is required.
 
 ## Artifact Substitution and Key Separation
 
-The distinct attestation type, digest binding, subject equality, and fixed establishment values prevent a generic attestation or one for another reviewed document from being substituted. Implementations MUST apply mutually exclusive validation rules for software statements and instance attestations. Software-statement signing keys retain core's separation requirements and MUST NOT sign instance attestations, even if one organization performs both roles.
+The distinct attestation type, digest binding, subject equality, and fixed establishment values prevent a generic attestation or one for another reviewed document from being substituted. Implementations MUST apply mutually exclusive validation rules for software statements and instance attestations. Software-statement signing keys retain the separation requirements of {{STATEMENT}} and MUST NOT sign instance attestations, even if one organization performs both roles.
 
 Attester authorization is scoped independently to client namespaces and tenants. An over-broad attester can undermine the binding for every namespace it is allowed to endorse. A review issuer and an attester colluding or both being compromised can make false assertions within the authority the server has assigned them.
 
@@ -503,7 +503,7 @@ Metadata digest binding can require coordinated publication of a new document, r
 
 ## Resource Exhaustion
 
-Attestations do not remove the need for bounded document retrieval, statement selection, proof replay caches, and PAR storage. Servers SHOULD limit pending PAR transactions separately from core's limits on establishments. Rate limits SHOULD account for client, instance key, tenant, and authenticated resource owner as available. An attester SHOULD limit enrollment and renewal so one approved installation cannot obtain unlimited keys to evade per-key controls.
+Attestations do not remove the need for bounded document retrieval, statement selection, proof replay caches, and PAR storage. Servers SHOULD limit pending PAR transactions separately from the limits of {{STATEMENT}} on establishments. Rate limits SHOULD account for client, instance key, tenant, and authenticated resource owner as available. An attester SHOULD limit enrollment and renewal so one approved installation cannot obtain unlimited keys to evade per-key controls.
 
 # Privacy Considerations {#privacy}
 
