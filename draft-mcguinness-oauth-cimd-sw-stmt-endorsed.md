@@ -391,9 +391,11 @@ At the authorization endpoint, a missing or invalid required pushed authorizatio
 
 # Examples {#examples}
 
-The following examples are non-normative. JWT signatures and opaque protocol values are abbreviated. Form bodies are wrapped for readability. The metadata digest below is computed over the UTF-8 bytes of the displayed client document, using LF line endings, two-space indentation, and one final LF after the closing brace.
+The following examples are non-normative. In the HTTP examples, JWTs and opaque protocol values are shown as placeholders in angle brackets. The metadata digest below is computed over the UTF-8 bytes of the displayed client document, using LF line endings, two-space indentation, and one final LF after the closing brace.
 
 ## Reviewed Client Metadata
+
+The following is an example of a Client ID Metadata Document that selects this profile:
 
 ~~~ json
 {
@@ -413,7 +415,7 @@ The server retrieves a statement for this identifier and these exact bytes. The 
 
 ## Instance Attestation
 
-The decoded header and payload of the attestation are:
+The following is an example of the decoded header and payload of an instance attestation:
 
 ~~~ json
 {
@@ -446,7 +448,7 @@ The policy URI denotes agreed evidence requirements. The server does not fetch i
 
 ## PAR and Redemption
 
-After obtaining a DPoP nonce, the CLI submits:
+The following is an example of a pushed authorization request that the client sends after obtaining a DPoP nonce (line breaks for display purposes only):
 
 ~~~ http
 POST /par HTTP/1.1
@@ -464,7 +466,7 @@ client_id=https%3A%2F%2Fcli.example%2Fclient.json
 &state=<transaction-state>
 ~~~
 
-Here the server pulls the software statement. It binds the accepted request, key, attester, policy, and tenant to its returned `request_uri`. After authorization in the browser, the CLI receives a code at `http://127.0.0.1:51004/callback` and validates the response issuer and state. It redeems the code as follows:
+Here the server pulls the software statement. It binds the accepted request, key, attester, policy, and tenant to its returned `request_uri`. After authorization in the browser, the CLI receives a code at `http://127.0.0.1:51004/callback` and validates the response issuer and state. The following is an example of the request that redeems the code (line breaks for display purposes only):
 
 ~~~ http
 POST /token HTTP/1.1
@@ -483,6 +485,8 @@ grant_type=authorization_code
 The server verifies the proven key and all continuation checks. It does not accept another installation's valid attestation for this code.
 
 ## Refresh and Replacement
+
+The following is an example of a refresh request (line breaks for display purposes only):
 
 ~~~ http
 POST /token HTTP/1.1
