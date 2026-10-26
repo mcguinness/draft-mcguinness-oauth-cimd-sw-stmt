@@ -829,7 +829,7 @@ Key isolation:
 : The launcher is a per-user application whose provisioning profile authorizes a data protection keychain access group for the launcher alone. macOS grants such groups only through entitlements a provisioning profile authorizes, and only in a user context {{APPLE-KEYCHAIN}}. It creates a P-256 instance key in the Secure Enclave, from which key material cannot be transferred {{APPLE-ENCLAVE}}, and keeps it under that access group, so the client cannot use the key directly.
 
 Caller identification:
-: The client connects to the launcher over XPC. The launcher sets a code-signing requirement on the connection naming the publisher's Team ID and the client's signing identifier, and the system invalidates a connection whose peer does not satisfy it {{APPLE-XPC}}. The launcher never relies on a process ID or a reported path.
+: The client connects to the launcher over XPC. The launcher sets a code-signing requirement on the connection that requires an Apple-issued certificate chain, the publisher's Team ID, and the client's signing identifier, and the system invalidates a connection whose peer does not satisfy it {{APPLE-XPC}}. The launcher never relies on a process ID or a reported path.
 
 Code injection:
 : The evidence policy requires that the client's signature carry no entitlement that disables library validation {{APPLE-LIBVAL}}, lets the dynamic linker read `DYLD_` variables {{APPLE-DYLD}}, or lets a debugger obtain the client's task port (`get-task-allow`, {{APPLE-DEBUGGER}}). The client then loads only libraries signed by Apple or by its own team.
