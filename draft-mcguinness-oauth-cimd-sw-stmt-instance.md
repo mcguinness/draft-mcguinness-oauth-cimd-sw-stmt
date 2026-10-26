@@ -30,12 +30,16 @@ author:
 normative:
   RFC6749:
   RFC6838:
+  RFC7515:
   RFC7519:
   RFC7591:
   RFC7636:
+  RFC7638:
+  RFC7800:
   RFC8252:
   RFC8414:
   RFC8725:
+  RFC9111:
   RFC9126:
   RFC9207:
   RFC9449:
@@ -162,7 +166,7 @@ An authorization server MUST establish attester trust independently of the reque
 * Tenant restrictions and any requirements for a particular attester or policy within a tenant.
 * Clock-skew and evidence-freshness requirements and any local denial rules for instance keys.
 
-The server MUST use the tenant determined for the grant by its own trusted processing, as {{STATEMENT}} requires. A client-supplied tenant label is not sufficient. The server MUST NOT infer attester trust from a statement issuer's signature, from the client document, or from a key-location claim in the attestation. An `iss`, `jku`, `x5u`, or similar value in an unverified JWT MUST NOT cause unconfigured key discovery. Retrieval from a configured key source remains subject to external-retrieval protections and bounded cache reuse.
+The server MUST use the tenant determined for the grant by its own trusted processing, as {{STATEMENT}} requires. A client-supplied tenant label is not sufficient. The server MUST NOT infer attester trust from a statement issuer's signature, from the client document, or from a key-location claim in the attestation. An `iss`, a `jku` or `x5u` header parameter ({{RFC7515}}), or a similar value in an unverified JWT MUST NOT cause unconfigured key discovery. Retrieval from a configured key source remains subject to external-retrieval protections and bounded cache reuse.
 
 The server cannot observe how an attester reached its decision, so it relies on the evidence policy. An evidence policy is acceptable for reviewed-software admission only if it meets all of the following requirements:
 
@@ -182,7 +186,7 @@ Attestation acquisition and platform evidence formats are out of scope. They req
 
 An instance attestation follows {{ABCA}} with the following additional requirements. Its JOSE `typ` MUST be `cimd-instance-attestation+jwt`. It MUST be digitally signed using an accepted asymmetric algorithm; a MAC or `none` MUST NOT be accepted. Its header and claims MUST contain no duplicate member names. Validation MUST apply {{RFC8725}}.
 
-The attestation retains the `sub`, `cnf`, `iat`, and `exp` requirements of {{ABCA}}. Its `sub` MUST be the exact CIMD client identifier URL. In addition, it MUST contain:
+The attestation retains the `sub`, `cnf` ({{RFC7800}}), `iat`, and `exp` requirements of {{ABCA}}. Its `sub` MUST be the exact CIMD client identifier URL. In addition, it MUST contain:
 
 `iss`:
 : The attester's identifier, an HTTPS URL without a fragment. It is matched exactly against configured trust; URL normalization MUST NOT be used to broaden that match.
@@ -216,7 +220,7 @@ The client sends the instance attestation in `OAuth-Client-Attestation` and uses
 
 The authorization server MUST require a server-issued DPoP nonce at PAR and on every token request under this profile. It MUST enforce endpoint and method binding and reject replay of a proof within its acceptance window under {{RFC9449}}. Nonce challenges and retries use `use_dpop_nonce` and `DPoP-Nonce`; they do not consume a code, rotate a refresh token, create an establishment, or advance the `iat` floor.
 
-If the PAR request also carries `dpop_jkt`, its thumbprint MUST identify the endorsed key; otherwise the server rejects the request. A client MUST generate a new proof for each request, including a retry. TLS protects request contents. DPoP does not sign the request body, and implementations MUST NOT treat a valid proof as a signature over the redirect URI, PKCE challenge, or statement.
+If the PAR request also carries `dpop_jkt`, its JWK thumbprint ({{RFC7638}}) MUST identify the endorsed key; otherwise the server rejects the request. A client MUST generate a new proof for each request, including a retry. TLS protects request contents. DPoP does not sign the request body, and implementations MUST NOT treat a valid proof as a signature over the redirect URI, PKCE challenge, or statement.
 
 # Runtime Admission {#admission}
 
@@ -234,7 +238,7 @@ Before returning a successful PAR response, the server MUST:
 4. Validate the requested redirect under {{loopback}}, require PKCE `S256`, and evaluate the request against the reviewed metadata and authorization policy.
 5. Create or reuse an establishment under {{establishment}}, bind the accepted request to it, and return a PAR response under {{RFC9126}}.
 
-For step 1, authentication establishes the attester, policy, client identifier, and proven key; it is not yet reviewed-software admission. An attestation whose digest has not been checked cannot establish the client. The ordering of core's statement checks before client-controlled retrieval applies once a statement is available. External-retrieval bounds, HTTP caching rules, and protection against server-side request forgery from {{STATEMENT}} and {{CIMD}} apply throughout.
+For step 1, authentication establishes the attester, policy, client identifier, and proven key; it is not yet reviewed-software admission. An attestation whose digest has not been checked cannot establish the client. The ordering of core's statement checks before client-controlled retrieval applies once a statement is available. External-retrieval bounds, HTTP caching rules ({{RFC9111}}), and protection against server-side request forgery from {{STATEMENT}} and {{CIMD}} apply throughout.
 
 The server MUST NOT fall back to review-only or unreviewed admission for the same request if any required check fails. If no acceptable statement is available, it returns `statement_required`. A failed request MUST NOT advance the statement's `iat` floor or alter an existing establishment.
 
