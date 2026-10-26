@@ -46,7 +46,6 @@ normative:
   RFC9700:
   CIMD: I-D.ietf-oauth-client-id-metadata-document
   ABCA: I-D.ietf-oauth-attestation-based-client-auth
-  ATTESTERS: I-D.mcguinness-oauth-client-attesters
   STATEMENT:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt
     title: "CIMD Software Statement"
@@ -230,8 +229,6 @@ An authorization server MUST establish attester trust independently of the reque
 * Clock-skew and evidence-freshness requirements and any local denial rules for instance keys.
 
 The server MUST use the tenant determined for the grant by its own trusted processing, as {{STATEMENT}} requires. A client-supplied tenant label is not sufficient. The server MUST NOT infer attester trust from a statement issuer's signature, from the client document, or from a key-location claim in the attestation. An `iss`, a `jku` or `x5u` header parameter ({{RFC7515}}), or a similar value in an unverified JWT MUST NOT cause unconfigured key discovery. Retrieval from a configured key source remains subject to external-retrieval protections and bounded cache reuse.
-
-A server MAY also require, before accepting an attester for a client, that the reviewed document's `client_attesters` member ({{ATTESTERS}}) list that attester. This requirement adds to the configuration above and does not replace it. Of the key-trust policies of Section 2.1 of {{ATTESTERS}}, only "AS-configured attester trust" is compatible with this profile: the configured key source remains the only source of keys, and the listed `jwks_uri` is compared with it but never retrieved. "Publisher-authorized key selection" infers attester trust from the client document, which the previous paragraph prohibits. Because Section 5.3 of {{ATTESTERS}} resolves keys only by `kid` against a JWK Set, an attester whose keys the server resolves through an `x5c` certificate chain cannot satisfy this requirement. The server evaluates the listing in the reviewed document's digested bytes, not in a separately retrieved copy. The statement's digest covers the listing, so the statement issuer reviews it, and a change to the listing requires a replacement statement ({{refresh}}) and instance attestations over the new digest.
 
 The server cannot observe how an attester reached its decision, so it relies on the evidence policy. An evidence policy is acceptable for reviewed-software admission only if it meets all of the following requirements:
 
@@ -439,8 +436,6 @@ The following error codes apply to pushed authorization requests, code redemptio
 Invalid statements and reviewed documents at the PAR endpoint otherwise use the error rules of {{STATEMENT}}. At refresh, an unacceptable replacement uses `statement_required` as in {{STATEMENT}}. A document exceeding a configured size bound is not a transient failure, and the server uses the non-transient retrieval and refresh errors of {{STATEMENT}}. An invalid or expired code or refresh token, failed PKCE check, or mismatched redemption redirect uses `invalid_grant`.
 
 A DPoP proof that fails the checks of Section 4.3 of {{RFC9449}} is rejected with `invalid_dpop_proof` (Section 5 of {{RFC9449}}), and a missing or unacceptable nonce with `use_dpop_nonce`, in place of any code listed above, as {{STATEMENT}} provides for proof-mechanism errors. A valid proof under a key other than the attestation's `cnf` key is not an invalid proof: authentication fails (Section 7.3 of {{ABCA}}), and the request is rejected with `invalid_client`, or with `invalid_client_attestation` as Section 7.4 of {{ABCA}} permits. At code redemption and refresh, an instance that authenticates under a key other than the establishment's recorded key fails the grant binding and is rejected with `invalid_grant`.
-
-A request that fails a required `client_attesters` listing ({{trust}}) is rejected with `invalid_client_attestation`. Such a request has a listing that is malformed, omits the attester, or names a `jwks_uri` that does not match the configured key source (Section 5.3 of {{ATTESTERS}}). As Section 5.4 of {{ATTESTERS}} requires, that code also replaces `invalid_client` for each other attestation failure for which Section 7.4 of {{ABCA}} permits it. Retrieval failures are not listing failures: they keep the error codes of this section and {{STATEMENT}}, including `temporarily_unavailable`. The order of {{error-precedence}} still applies. The listing is checked in the reviewed document, after the checks of step 1 of {{par}}, so a response from that step, such as `use_fresh_attestation`, does not indicate whether the attester is listed.
 
 A `use_dpop_nonce` response MUST include the `DPoP-Nonce` HTTP header field.
 
