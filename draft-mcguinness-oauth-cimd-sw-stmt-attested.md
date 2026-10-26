@@ -46,6 +46,7 @@ normative:
   RFC9700:
   CIMD: I-D.ietf-oauth-client-id-metadata-document
   ABCA: I-D.ietf-oauth-attestation-based-client-auth
+  ATTESTERS: I-D.mcguinness-oauth-client-attesters
   STATEMENT:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt
     title: "CIMD Software Statement"
@@ -58,7 +59,6 @@ informative:
     title: "CIMD Software Statement Registration"
     author:
       - fullname: Karl McGuinness
-  ATTESTERS: I-D.mcguinness-oauth-client-attesters
 
 --- abstract
 
