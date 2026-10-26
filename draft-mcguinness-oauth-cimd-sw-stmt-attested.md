@@ -376,9 +376,9 @@ Attestation renewal for the proven key is not key rotation and does not reset th
 
 A known refusal record for the software statement is enforced as {{STATEMENT}} requires. A current acceptable replacement can restore continuation only under {{refresh}}. A server using a statement withdrawal mechanism SHOULD consult it at code redemption and refresh within that mechanism's freshness rules. Failure to consult it does not clear an existing refusal.
 
-At each pushed authorization request, code redemption, and refresh, the server MUST enforce current attester trust and local denial rules. Removing an attester's authorization for this client and tenant, removing the policy, or denying the instance key prevents further use of the affected binding. A fresh attestation does not override those decisions. A deployment that cannot refresh trust data MUST NOT accept it beyond a configured maximum staleness bound.
+Because {{attestation-validation}} checks current attester trust and local denial rules at each pushed authorization request, code redemption, and refresh, removing an attester's authorization for this client and tenant, removing the policy, or denying the instance key prevents further use of the affected binding. A fresh attestation does not override those decisions. A deployment that cannot refresh trust data MUST NOT accept it beyond a configured maximum staleness bound.
 
-This specification defines no interoperable attestation or instance revocation protocol. Deployments MAY use independently established mechanisms or local denial lists. In their absence, attestation effective expiry bounds acceptance of evidence that has become stale without the server learning of it. Withdrawal of a review, removal of trust, and expiry of evidence do not themselves revoke access tokens already issued. Their further use is bounded by the resource's token-validation and revocation mechanisms.
+This specification defines no interoperable attestation or instance revocation protocol. Deployments MAY use independently established mechanisms or local denial lists. In their absence, attestation effective expiry bounds acceptance of evidence that has become stale without the server learning of it. Withdrawal of a review, removal of trust, and expiry of evidence do not themselves revoke access tokens already issued, so deployments requiring prompt enforcement need short token lifetimes or independent token revocation.
 
 # Exceptions to Software Statement Processing {#core-exceptions}
 
@@ -614,7 +614,7 @@ Attester authorization is scoped independently to client namespaces and tenants.
 
 Short effective lifetimes limit stale evidence but make attester availability important. A fresh proof demonstrates current access to a key, not that software was re-evaluated at proof time.
 
-Servers MUST enforce finite evidence and trust-data reuse bounds. A failure to retrieve metadata, reviews, or trust updates MUST NOT extend a recorded expiry or remove a refusal. An access token cannot outlive the attestation accepted when it was issued ({{redemption}}), but it can outlive a review withdrawn or attester trust removed after issuance; deployments requiring prompt enforcement need short token lifetimes or independent token revocation.
+Servers MUST enforce finite evidence and trust-data reuse bounds. A failure to retrieve metadata, reviews, or trust updates MUST NOT extend a recorded expiry or remove a refusal. An access token cannot outlive the attestation accepted when it was issued ({{redemption}}), but it can outlive a review withdrawn or attester trust removed after issuance ({{withdrawal}}).
 
 Metadata digest binding can require coordinated publication of a new document, review, and attestation. During an incomplete transition a request fails. A server MUST NOT substitute semantically similar JSON, omit members from the digest, or continue with an older digest beyond permitted cache reuse merely to avoid that failure.
 
