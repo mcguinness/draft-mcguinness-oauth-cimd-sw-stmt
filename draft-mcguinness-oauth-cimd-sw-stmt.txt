@@ -1098,7 +1098,7 @@ Table of Contents
    Software whose instances authenticate as the client with keys of
    their own, which the reviewed document does not carry, can neither
    prove nor register those keys (Section 5.4, [REGISTRATION]) and
-   depends on the endorsement extension of Section 11.
+   depends on the attested-key extension of Section 11.
 
 7.  Relationship to Other Work
 
@@ -1439,8 +1439,8 @@ Table of Contents
 
    The following extensions are left to separate specifications:
 
-   *  Endorsed keys: a client attestation [ABCA], including one from an
-      attester the reviewed document endorses, vouching for a key that
+   *  Attested keys: a client attestation [ABCA], including one from an
+      attester the reviewed document names, vouching for a key that
       document does not carry (Section 6).
 
    *  Statement conveyance within a client attestation, rather than as a
@@ -1461,7 +1461,7 @@ Table of Contents
 
    A copied statement admits nothing without the sender constraint
    (Section 5.4).  Admitting only keys the reviewed document carries
-   also prevents downgrade.  An extension admitting endorsed keys
+   also prevents downgrade.  An extension admitting attested keys
    (Section 11) has to address downgrade itself.
 
    Attesting a jwks_uri attests the location, not its contents: a
@@ -1502,7 +1502,7 @@ Table of Contents
    software holds the grant, and a tenant's required issuer (Section 4)
    cannot keep unreviewed software out for a user who chooses to run it.
    This is the client impersonation that Section 8.6 of [RFC8252]
-   describes for public clients.  An endorsement extension (Section 11)
+   describes for public clients.  An attested-key extension (Section 11)
    would strengthen the binding by giving the instance a key a third
    party vouches for.
 

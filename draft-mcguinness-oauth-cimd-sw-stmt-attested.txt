@@ -8,8 +8,8 @@ Intended status: Standards Track                         26 October 2026
 Expires: 29 April 2027
 
 
-          Endorsed Instance Keys for CIMD Software Statements
-          draft-mcguinness-oauth-cimd-sw-stmt-endorsed-latest
+          Attested Instance Keys for CIMD Software Statements
+          draft-mcguinness-oauth-cimd-sw-stmt-attested-latest
 
 Abstract
 
@@ -17,7 +17,7 @@ Abstract
    review of client software to the exact bytes of that document.  It
    does not, by itself, bind an installation of that software to a key.
    This specification defines an instance-binding extension in which an
-   independently trusted client attester endorses an installation's key
+   independently trusted client attester attests an installation's key
    for the reviewed document.  The client proves that key through
    attestation-based client authentication when opening and continuing
    an authorization code grant.  When an attester can verify which
@@ -27,7 +27,7 @@ Abstract
    requiring reviewed software.  The specification defines attestation
    and metadata requirements, processing at the pushed authorization
    request and token endpoints, and the exceptions to the base software
-   statement rules needed for endorsed keys.
+   statement rules needed for attested keys.
 
 Status of This Memo
 
@@ -200,7 +200,7 @@ Table of Contents
 
    5.  The user authorizes in an external browser.  The code returns
        over loopback and is redeemed with the PKCE verifier and the
-       endorsed key.
+       attested key.
 
    6.  Refresh requires the proven key, a current acceptable
        attestation, and a current acceptable software statement.  A
@@ -241,7 +241,7 @@ Table of Contents
       metadata.  It covers evidence collection, verification, freshness,
       and protection of key use.
 
-   Endorsed Key:  The key an instance attestation's cnf claim names.
+   Attested Key:  The key an instance attestation's cnf claim names.
       Once an establishment records it, it is the establishment's Proven
       Key ([STATEMENT]), which this specification also calls the
       recorded key.
@@ -266,7 +266,7 @@ Table of Contents
    under this specification.  The same asymmetric key is used for client
    authentication and DPoP binding.  This profile does not support the
    Client Attestation PoP JWT (Section 5.1 of [ABCA]).  Each
-   installation holds its own credential, the endorsed key, so a client
+   installation holds its own credential, the attested key, so a client
    under this profile is a confidential client although it is a native
    application, as Section 8.4 of [RFC8252] contemplates for per-
    instance credentials.
@@ -375,7 +375,8 @@ Table of Contents
 
    *  Accepted asymmetric signing algorithms.
 
-   *  Client identifier namespaces the attester may endorse.
+   *  Client identifier namespaces for which the attester may issue
+      instance attestations.
 
    *  Accepted evidence-policy identifiers and, for each, a finite
       maximum evidence age.
@@ -395,6 +396,24 @@ Table of Contents
    JWT MUST NOT cause unconfigured key discovery.  Retrieval from a
    configured key source remains subject to external-retrieval
    protections and bounded cache reuse.
+
+   A server MAY also require, before accepting an attester for a client,
+   that the reviewed document's client_attesters member ([ATTESTERS])
+   list that attester.  This requirement adds to the configuration above
+   and does not replace it.  Of the key-trust policies of Section 2.1 of
+   [ATTESTERS], only "AS-configured attester trust" is compatible with
+   this profile: the configured key source remains the only source of
+   keys, and the listed jwks_uri is compared with it but never
+   retrieved.  "Publisher-authorized key selection" infers attester
+   trust from the client document, which the previous paragraph
+   prohibits.  Because Section 5.3 of [ATTESTERS] resolves keys only by
+   kid against a JWK Set, an attester whose keys the server resolves
+   through an x5c certificate chain cannot satisfy this requirement.
+   The server evaluates the listing in the reviewed document's digested
+   bytes, not in a separately retrieved copy.  The statement's digest
+   covers the listing, so the statement issuer reviews it, and a change
+   to the listing requires a replacement statement (Section 8) and
+   instance attestations over the new digest.
 
    The server cannot observe how an attester reached its decision, so it
    relies on the evidence policy.  An evidence policy is acceptable for
@@ -419,16 +438,16 @@ Table of Contents
 
    *  The attester confirms that the artifact or package identity
       established by the evidence is covered by that association for the
-      document version being endorsed.  The association is authorized by
-      whoever controls the origin of the CIMD URL, or by an authority
-      that controller has explicitly delegated, for example through a
-      manifest served from that origin or signed under that controller's
-      or delegate's authority.  An enterprise inventory can authenticate
-      or record such an authorization; listing a package and someone
-      else's CIMD URL together does not create one.  A URL, file path,
-      digest, or publisher name asserted only by the requesting process
-      does not suffice.  The metadata digest is not an executable
-      digest.
+      document version the attestation names.  The association is
+      authorized by whoever controls the origin of the CIMD URL, or by
+      an authority that controller has explicitly delegated, for example
+      through a manifest served from that origin or signed under that
+      controller's or delegate's authority.  An enterprise inventory can
+      authenticate or record such an authorization; listing a package
+      and someone else's CIMD URL together does not create one.  A URL,
+      file path, digest, or publisher name asserted only by the
+      requesting process does not suffice.  The metadata digest is not
+      an executable digest.
 
    *  The policy defines what identifies the software, how evidence
       authenticates that identity and the instance key, how use of the
@@ -440,7 +459,7 @@ Table of Contents
       material policy change requires a new identifier.
 
    *  The policy establishes an association between the software the
-      statement covers and control of the endorsed key.  User approval
+      statement covers and control of the attested key.  User approval
       of a key, a publisher account login, possession of a shared
       embedded secret, or device integrity alone does not establish that
       association.
@@ -491,7 +510,7 @@ Table of Contents
       evidence behind the attestation, as the accepted evidence policy
       requires (Section 5).
 
-   cnf:  REQUIRED.  The endorsed key ([RFC7800]), in the form Section 4
+   cnf:  REQUIRED.  The attested key ([RFC7800]), in the form Section 4
       of [ABCA] requires.
 
    cimd_digest:  REQUIRED.  The metadata digest defined by [STATEMENT],
@@ -501,7 +520,7 @@ Table of Contents
       metadata association, not a second software review.
 
    cimd_instance_policy:  REQUIRED.  A string containing an absolute URI
-      identifying the evidence policy under which the attester endorsed
+      identifying the evidence policy under which the attester attested
       the instance key.  The URI is an identifier, not a retrieval
       instruction.  It MUST be compared exactly with an accepted policy
       identifier.
@@ -539,7 +558,7 @@ Table of Contents
    *  The attestation's cimd_digest, the applicable software statement's
       cimd_digest, and the digest of the reviewed document are equal.
 
-   *  The endorsed key and the key of the DPoP proof are equal under the
+   *  The attested key and the key of the DPoP proof are equal under the
       key-comparison rules of Section 7.3 of [ABCA].
 
    On continuation, the recorded key, attester, policy, and tenant
@@ -570,7 +589,7 @@ Table of Contents
    client can retry with a fresh attestation.
 
    If the pushed authorization request also carries dpop_jkt, its JWK
-   thumbprint ([RFC7638]) MUST identify the endorsed key; otherwise the
+   thumbprint ([RFC7638]) MUST identify the attested key; otherwise the
    server rejects the request.  A client MUST generate a new proof for
    each request, including a retry.  TLS protects request contents.
    DPoP does not sign the request body, and implementations MUST NOT
@@ -625,7 +644,7 @@ Table of Contents
        [RFC9126].
 
    For step 1, authentication establishes the attester, policy, client
-   identifier, and endorsed key; it is not yet reviewed-software
+   identifier, and attested key; it is not yet reviewed-software
    admission.  An attestation whose digest has not been checked cannot
    establish the client.  The ordering of statement checks before
    client-controlled retrieval in [STATEMENT] applies once a statement
@@ -654,7 +673,7 @@ Table of Contents
    *  The attester trust decision and the attestation effective expiry
       most recently accepted.
 
-   The proven key is the endorsed key, which is also the DPoP key.  A
+   The proven key is the attested key, which is also the DPoP key.  A
    server MAY reuse an establishment only when the reuse conditions of
    [STATEMENT] hold and the profile, attester, policy, and tenant also
    match.  Individual authorization transactions still retain separate
@@ -736,7 +755,7 @@ Table of Contents
    attestation, at least as often as its attester's evidence age allows.
    A resource server that does not accept DPoP-bound access tokens
    cannot be used under this profile.  A DPoP proof shows possession of
-   the endorsed key at the resource server; it does not show that the
+   the attested key at the resource server; it does not show that the
    software was re-evaluated at that moment.
 
 8.  Refresh
@@ -862,7 +881,7 @@ Table of Contents
     |         | without the statement.   |                            |
     +---------+--------------------------+----------------------------+
     | 5.4     | The proven key appears   | The proven key is the      |
-    |         | in the reviewed          | endorsed key               |
+    |         | in the reviewed          | attested key               |
     |         | document's jwks or at    | (Section 6.1), and the     |
     |         | its jwks_uri.            | document carries no key    |
     |         |                          | material (Section 4).      |
@@ -889,9 +908,9 @@ Table of Contents
     |         | refresh is a local-      | current statement, re-     |
     |         | policy option, the       | checks the document        |
     |         | document is checked for  | against the recorded       |
-    |         | the proven key, and its  | digests, and verifies      |
-    |         | digest is checked only   | continued endorsement of   |
-    |         | for a replacement.       | the key instead of its     |
+    |         | the proven key, and its  | digests, and verifies a    |
+    |         | digest is checked only   | current attestation of the |
+    |         | for a replacement.       | key instead of its         |
     |         |                          | presence in the document   |
     |         |                          | (Section 8).               |
     +---------+--------------------------+----------------------------+
@@ -965,7 +984,7 @@ Table of Contents
    invalid_client:  Missing or unacceptable attestation, untrusted
       attester or policy, a request carrying the OAuth-Client-
       Attestation-PoP header field, a DPoP proof under a key other than
-      the endorsed key, or, at the PAR endpoint, a request carrying an
+      the attested key, or, at the PAR endpoint, a request carrying an
       instance attestation for a document that does not select this
       profile or violates Section 4.
 
@@ -1010,6 +1029,20 @@ Table of Contents
    redemption and refresh, an instance that authenticates under a key
    other than the establishment's recorded key fails the grant binding
    and is rejected with invalid_grant.
+
+   A request that fails a required client_attesters listing (Section 5)
+   is rejected with invalid_client_attestation.  Such a request has a
+   listing that is malformed, omits the attester, or names a jwks_uri
+   that does not match the configured key source (Section 5.3 of
+   [ATTESTERS]).  As Section 5.4 of [ATTESTERS] requires, that code also
+   replaces invalid_client for each other attestation failure for which
+   Section 7.4 of [ABCA] permits it.  Retrieval failures are not listing
+   failures: they keep the error codes of this section and [STATEMENT],
+   including temporarily_unavailable.  The order of Section 11.2 still
+   applies.  The listing is checked in the reviewed document, after the
+   checks of step 1 of Section 7.1, so a response from that step, such
+   as use_fresh_attestation, does not indicate whether the attester is
+   listed.
 
    A use_dpop_nonce response MUST include the DPoP-Nonce HTTP header
    field.  Client attestation errors and status codes follow Section 7.4
@@ -1246,7 +1279,7 @@ Table of Contents
    published client identifier.  PKCE and proof of the recorded key
    protect redemption of an intercepted code.  Admission of a new
    transaction additionally requires an acceptable instance attestation;
-   PKCE or an unendorsed DPoP key alone supplies no software identity.
+   PKCE or an unattested DPoP key alone supplies no software identity.
 
    The client MUST keep its verifier and transaction state confidential
    and unpredictable as their respective specifications require.  A
@@ -1291,9 +1324,10 @@ Table of Contents
 
    Attester authorization is scoped independently to client namespaces
    and tenants.  An over-broad attester can undermine the binding for
-   every namespace it is allowed to endorse.  A statement issuer and an
-   attester colluding or both being compromised can make false
-   assertions within the authority the server has assigned them.
+   every namespace for which it may issue instance attestations.  A
+   statement issuer and an attester colluding or both being compromised
+   can make false assertions within the authority the server has
+   assigned them.
 
 14.5.  Freshness and Availability
 
@@ -1364,7 +1398,7 @@ Table of Contents
 
    Client Metadata Name:  software_statement_instance_binding
 
-   Client Metadata Description:  Boolean value selecting endorsed
+   Client Metadata Description:  Boolean value selecting attested
       instance-key binding for runtime admission using a software
       statement for a Client ID Metadata Document.  It is defined for
       Client ID Metadata Documents and does not enable registration
@@ -1382,7 +1416,7 @@ Table of Contents
 
    Metadata Name:  software_statement_instance_binding_supported
 
-   Metadata Description:  Boolean value indicating support for endorsed
+   Metadata Description:  Boolean value indicating support for attested
       instance-key binding of software statements for Client ID Metadata
       Documents.
 
@@ -1490,7 +1524,7 @@ Table of Contents
 
    Applications that use this media type:  Native OAuth clients, client
       attesters, and authorization servers using CIMD software
-      statements with endorsed instance keys.
+      statements with attested instance keys.
 
    Fragment identifier considerations:  n/a
 
@@ -1525,6 +1559,13 @@ Table of Contents
               based-client-auth-12, 12 October 2026,
               <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
               attestation-based-client-auth-12>.
+
+   [ATTESTERS]
+              McGuinness, K., "OAuth 2.0 Client Attester Endorsement",
+              Work in Progress, Internet-Draft, draft-mcguinness-oauth-
+              client-attesters-00, 28 September 2026,
+              <https://datatracker.ietf.org/doc/html/draft-mcguinness-
+              oauth-client-attesters-00>.
 
    [CIMD]     Parecki, A. and E. Smith, "OAuth Client ID Metadata
               Document", Work in Progress, Internet-Draft, draft-ietf-
@@ -1678,7 +1719,7 @@ Appendix B.  Verification Scenarios
    include the following cases in addition to successful admission and
    refresh:
 
-   *  A copied statement with an unendorsed key fails before creating an
+   *  A copied statement with an unattested key fails before creating an
       establishment.
 
    *  A copied attestation with a different proof key fails
@@ -1716,7 +1757,7 @@ Appendix B.  Verification Scenarios
 
 Acknowledgments
 
-   This specification develops the endorsed-key extension point in
+   This specification develops the attested-key extension point in
    [STATEMENT] and composes it with attestation-based client
    authentication.  The initial deployment question was how a command-
    line application could retain loopback callbacks while demonstrating
