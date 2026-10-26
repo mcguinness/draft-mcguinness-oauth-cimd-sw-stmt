@@ -104,6 +104,11 @@ informative:
     title: "Establishing your app's integrity"
     author:
       - org: Apple Inc.
+  APPLE-APPCONFIG:
+    target: https://developer.apple.com/documentation/devicemanagement/appmanaged
+    title: "AppManaged"
+    author:
+      - org: Apple Inc.
   APPLE-WWDC26:
     target: https://developer.apple.com/videos/play/wwdc2026/201/
     title: "Secure your apps with App Attest"
@@ -815,13 +820,13 @@ An implementation needs to address changes between checking software and using t
 
 ## Example: macOS {#launcher-macos}
 
-This example uses facilities of macOS 14 or later on Apple silicon. It shows one way a platform can meet the boundary of {{trust}}, not the only way.
+This example uses facilities of macOS 27 or later on Apple silicon, and a launcher of an application type for which App Attest is available {{APPLE-WWDC26}}. It shows one way a platform can meet the boundary of {{trust}}, not the only way.
 
 Software identity:
 : The publisher signs each release of the client with an Apple-issued developer certificate, under the hardened runtime {{APPLE-RUNTIME}}, with the same signing identifier. The manifest served from the CIMD URL's origin names the publisher's Team ID and that identifier, so it covers each release the publisher signs that way ({{trust}}). A manifest that names code directory hashes covers only the listed builds, since any change to the code changes its hash.
 
 Privilege boundary:
-: The launcher is a per-user agent in an app-like bundle with an embedded provisioning profile, deployed and configured through the organization's device management service. macOS makes a data protection keychain access group available to a program only through code-signing entitlements that a provisioning profile authorizes, and only in a user context {{APPLE-KEYCHAIN}}. The profile authorizes an access group for the launcher alone.
+: The launcher is a per-user application with an embedded provisioning profile, deployed and configured through the organization's device management service. macOS makes a data protection keychain access group available to a program only through code-signing entitlements that a provisioning profile authorizes, and only in a user context {{APPLE-KEYCHAIN}}. The profile authorizes an access group for the launcher alone.
 
 Instance key:
 : The launcher creates a P-256 key in the Secure Enclave and keeps it in the data protection keychain under that access group. Key material cannot be transferred out of the Secure Enclave {{APPLE-ENCLAVE}}, and a program whose signature lacks the authorized entitlement cannot use the key, so the client never signs with it directly.
@@ -835,8 +840,14 @@ Code injection:
 Key use:
 : The launcher performs the OAuth exchange for the connected client and produces DPoP proofs only as {{software-evidence}} describes. It keeps the refresh token itself and returns the access token only to the connected client whose session obtained it.
 
+Device:
+: Managed Device Attestation lets the organization's device management service confirm that the device is a genuine Apple device it manages, with a hardware-bound identity key {{APPLE-MDA}}. It establishes properties of the device, not which program on the device is reporting, so it does not authenticate the launcher.
+
+Launcher authentication:
+: The launcher therefore registers with the enterprise service through App Attest: it generates an App Attest key, and the service verifies Apple's attestation that the key belongs to a valid instance of the launcher {{APPLE-APPATTEST}}. To tie that key to the managed device, the device management service delivers a single-use enrollment secret to the launcher through managed app configuration, which macOS applies only to an application whose code signature matches the configured identifier {{APPLE-APPCONFIG}}, and the launcher returns the secret with the attestation. After registration, the launcher sends each report, carrying the instance public key and the client's verified signing identity, with an App Attest assertion over a hash of the report, so another process cannot submit a report under the launcher's identity.
+
 Evidence and renewal:
-: The device holds a hardware-bound identity enrolled through Managed Device Attestation, which lets the enterprise service confirm a genuine Apple device that the organization manages {{APPLE-MDA}}. The launcher authenticates to the service with that identity and reports the instance key and the client's verified signing identity. App Attest, available on macOS 27 and later {{APPLE-WWDC26}}, certifies a key that an application generates for its own requests {{APPLE-APPATTEST}}, not a key such as the instance key, so no Apple attestation covers the instance key itself. The service relies on the launcher for the statement that the instance key is in the Secure Enclave and usable only by the launcher. Before the evidence policy's maximum evidence age expires, the launcher re-checks the device's management state and the client's signature and obtains an attestation on that new evidence.
+: App Attest certifies only the launcher's own key, not a key such as the instance key, so no Apple attestation covers the instance key itself. The service relies on the authenticated launcher for the statement that the instance key is in the Secure Enclave and usable only by the launcher. Before the evidence policy's maximum evidence age expires, the launcher re-checks the device's management state and the client's signature and obtains an attestation on that new evidence.
 
 Unsupported case:
 : A script run by a signed interpreter, such as a Python program that can import any module on the system, is not covered. The signature the launcher verifies is the interpreter's, and library validation constrains the native code the interpreter loads, not the scripts and modules it reads. The evidence therefore does not identify the software a statement covers. Such a client remains review-only under {{STATEMENT}}, or needs an execution environment whose policy covers its interpreter, script, and dependencies.
