@@ -249,7 +249,7 @@ Before returning a successful PAR response, the server MUST:
 4. Validate the requested redirect under {{loopback}}, require PKCE `S256`, and evaluate the request against the reviewed metadata and authorization policy.
 5. Create or reuse an establishment under {{establishment}}, bind the accepted request to it, and return a PAR response under {{RFC9126}}.
 
-For step 1, authentication establishes the attester, policy, client identifier, and proven key; it is not yet reviewed-software admission. An attestation whose digest has not been checked cannot establish the client. The ordering of core's statement checks before client-controlled retrieval applies once a statement is available. External-retrieval bounds, HTTP caching rules ({{RFC9111}}), and protection against server-side request forgery from {{STATEMENT}} and {{CIMD}} apply throughout.
+For step 1, authentication establishes the attester, policy, client identifier, and endorsed key; it is not yet reviewed-software admission. An attestation whose digest has not been checked cannot establish the client. The ordering of core's statement checks before client-controlled retrieval applies once a statement is available. External-retrieval bounds, HTTP caching rules ({{RFC9111}}), and protection against server-side request forgery from {{STATEMENT}} and {{CIMD}} apply throughout.
 
 The server MUST NOT fall back to review-only or unreviewed admission for the same request if any required check fails. A request that carries no instance attestation for a document selecting this profile is an example: the server learns from the document (step 3) that this profile applies, then rejects the request with `invalid_client`. If no acceptable statement is available, it returns `statement_required`. A failed request MUST NOT advance the statement's `iat` floor or alter an existing establishment.
 
@@ -317,7 +317,7 @@ For establishments governed by this specification, the following rules replace o
 | 5.2 | A statement pulled at the authorization endpoint binds the presenter at code redemption. | The binding is set at PAR; an authorization request without a PAR `request_uri` governed by this profile is rejected ({{authorization}}). |
 | 5.3, 5.5 | The statement and the document are checked before the proof. | The instance is authenticated first ({{par}}, step 1). Statement and document checks follow, and checks needing no client-controlled retrieval still precede such retrieval. |
 | 5.2, 5.4.1, 5.5 | A request without an acceptable statement can proceed under the policy for unreviewed clients, a review-only presentation proceeds as a client presenting no statement, and a digest mismatch can proceed without the statement. | No fallback: any failed check rejects the request ({{par}}). |
-| 5.4 | The proven key appears in the reviewed document's `jwks` or at its `jwks_uri`. | The proven key is the endorsed instance key ({{attestation-validation}}), and the document carries no key material ({{client-metadata}}). |
+| 5.4 | The proven key appears in the reviewed document's `jwks` or at its `jwks_uri`. | The proven key is the endorsed key ({{attestation-validation}}), and the document carries no key material ({{client-metadata}}). |
 | 5.4.1 | A redirection URI another application could claim makes a presentation review-only, and a document declaring `none` is bound by its redirection URIs. | A presentation processed under {{par}} whose redirects meet {{loopback}} is not review-only. The client is confidential and authenticates with the method of {{selection}}, so the public-client rules do not apply. |
 | 5.6 | Expiry after presentation does not invalidate an establishment, and redemption checks the client identifier and key. | Redemption also requires the recorded statement to be unexpired and unrefused, and the current document to match the recorded digest ({{redemption}}). |
 | 5.6.1 | A current statement on refresh is a local-policy option, the document is checked for the proven key, and its digest is checked only for a replacement. | Every refresh requires a current statement, re-checks the document against the recorded digests, and verifies continued endorsement of the key instead of its presence in the document ({{refresh}}). |
@@ -443,7 +443,7 @@ grant_type=authorization_code
 &code_verifier=<PKCE-verifier>
 ~~~
 
-The server verifies the original endorsed key and all continuation checks. It does not accept another installation's valid attestation for this code.
+The server verifies the proven key and all continuation checks. It does not accept another installation's valid attestation for this code.
 
 ## Refresh and Replacement
 
@@ -475,7 +475,7 @@ This profile cannot ensure benign user intent, prevent an approved application f
 
 ## Loopback and Transaction Theft
 
-An attacker can attempt to occupy a loopback port, intercept a response, or initiate its own authorization transaction using the published client identifier. PKCE and proof of the endorsed key protect redemption of an intercepted code. Admission of a new transaction additionally requires an acceptable instance attestation; PKCE or an unendorsed DPoP key alone supplies no software identity.
+An attacker can attempt to occupy a loopback port, intercept a response, or initiate its own authorization transaction using the published client identifier. PKCE and proof of the recorded key protect redemption of an intercepted code. Admission of a new transaction additionally requires an acceptable instance attestation; PKCE or an unendorsed DPoP key alone supplies no software identity.
 
 The client MUST keep its verifier and transaction state confidential and unpredictable as their respective specifications require. A launcher that handles authorization for another process has to bind the authenticated caller, intended authorization server, callback, verifier, and resulting grant state to the same local session. A reusable signing capability handed to that caller without equivalent controls is insufficient.
 
