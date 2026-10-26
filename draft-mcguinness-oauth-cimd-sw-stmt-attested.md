@@ -100,10 +100,18 @@ informative:
     author:
       - org: Apple Inc.
   APPLE-APPATTEST:
-    target: https://developer.apple.com/documentation/devicecheck/dcappattestservice/issupported
-    title: "isSupported"
+    target: https://developer.apple.com/documentation/devicecheck/establishing-your-app-s-integrity
+    title: "Establishing your app's integrity"
     author:
       - org: Apple Inc.
+  APPLE-WWDC26:
+    target: https://developer.apple.com/videos/play/wwdc2026/201/
+    title: "Secure your apps with App Attest"
+    author:
+      - org: Apple Inc.
+    date: 2026
+    seriesinfo:
+      WWDC26: Session 201
 
 --- abstract
 
@@ -828,7 +836,7 @@ Key use:
 : The launcher performs the OAuth exchange for the connected client and produces DPoP proofs only as {{software-evidence}} describes. It keeps the refresh token itself and returns the access token only to the connected client whose session obtained it.
 
 Evidence and renewal:
-: The device holds a hardware-bound identity enrolled through Managed Device Attestation, which lets the enterprise service confirm a genuine Apple device that the organization manages {{APPLE-MDA}}. The launcher authenticates to the service with that identity and reports the instance key and the client's verified signing identity. Apple's App Attest reports itself unsupported on a Mac {{APPLE-APPATTEST}}, so no Apple attestation covers the instance key itself, and the service relies on the managed launcher for the statement that the key is in the Secure Enclave and usable only by the launcher. Before the evidence policy's maximum evidence age expires, the launcher re-checks the device's management state and the client's signature and obtains an attestation on that new evidence.
+: The device holds a hardware-bound identity enrolled through Managed Device Attestation, which lets the enterprise service confirm a genuine Apple device that the organization manages {{APPLE-MDA}}. The launcher authenticates to the service with that identity and reports the instance key and the client's verified signing identity. App Attest, available on macOS 27 and later {{APPLE-WWDC26}}, certifies a key that an application generates for its own requests {{APPLE-APPATTEST}}, not a key such as the instance key, so no Apple attestation covers the instance key itself. The service relies on the launcher for the statement that the instance key is in the Secure Enclave and usable only by the launcher. Before the evidence policy's maximum evidence age expires, the launcher re-checks the device's management state and the client's signature and obtains an attestation on that new evidence.
 
 Unsupported case:
 : A script run by a signed interpreter, such as a Python program that can import any module on the system, is not covered. The signature the launcher verifies is the interpreter's, and library validation constrains the native code the interpreter loads, not the scripts and modules it reads. The evidence therefore does not identify the software a statement covers. Such a client remains review-only under {{STATEMENT}}, or needs an execution environment whose policy covers its interpreter, script, and dependencies.
