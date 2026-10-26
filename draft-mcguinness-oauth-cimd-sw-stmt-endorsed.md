@@ -566,7 +566,7 @@ The `iss`, `sub`, `iat`, `exp`, and `cnf` claims are defined elsewhere and are n
 
 ## OAuth Extensions Error Registry
 
-This specification requests that IANA add this specification as a reference for the `use_fresh_attestation` error, registered by {{ABCA}}, and extend its usage locations to include the pushed authorization request error response:
+For completeness of the registry, this specification requests that IANA add this specification as a reference for each of the following errors and extend its usage locations to include the pushed authorization request error response, which can already carry it under {{RFC9126}}.
 
 Error Name:
 : `use_fresh_attestation`
@@ -582,6 +582,51 @@ Change Controller:
 
 Specification Document(s):
 : {{ABCA}}, this specification ({{errors}})
+
+Error Name:
+: `invalid_client_attestation`
+
+Existing Registration:
+: {{ABCA}}
+
+Error Usage Location:
+: pushed authorization request error response, in addition to the locations already registered
+
+Change Controller:
+: IETF
+
+Specification Document(s):
+: {{ABCA}}, this specification ({{errors}})
+
+Error Name:
+: `use_dpop_nonce`
+
+Existing Registration:
+: {{RFC9449}}
+
+Error Usage Location:
+: pushed authorization request error response, in addition to the locations already registered
+
+Change Controller:
+: IETF
+
+Specification Document(s):
+: {{RFC9449}}, this specification ({{errors}})
+
+Error Name:
+: `invalid_dpop_proof`
+
+Existing Registration:
+: {{RFC9449}}
+
+Error Usage Location:
+: pushed authorization request error response, in addition to the locations already registered
+
+Change Controller:
+: IETF
+
+Specification Document(s):
+: {{RFC9449}}, this specification ({{errors}})
 
 ## Media Type Registration
 
