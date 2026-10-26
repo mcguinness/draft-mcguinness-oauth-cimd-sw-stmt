@@ -61,7 +61,7 @@ informative:
 
 --- abstract
 
-A software statement for a Client ID Metadata Document (CIMD) binds a review of client software to the exact bytes of that document. It does not, by itself, bind an installation of that software to a key. This specification defines an instance-binding extension in which an independently trusted client attester endorses an installation key for the reviewed document. The client proves that key through attestation-based client authentication when opening and continuing an authorization code grant. Where an attester can verify which software controls an installation's key, as on managed devices, this permits native applications, including command-line clients, to use loopback redirects while satisfying a policy requiring reviewed software. The specification defines attestation and metadata requirements, processing at the pushed authorization request and token endpoints, and the exceptions to the base software statement rules needed for endorsed keys.
+A software statement for a Client ID Metadata Document (CIMD) binds a review of client software to the exact bytes of that document. It does not, by itself, bind an installation of that software to a key. This specification defines an instance-binding extension in which an independently trusted client attester endorses an installation's key for the reviewed document. The client proves that key through attestation-based client authentication when opening and continuing an authorization code grant. Where an attester can verify which software controls an installation's key, as on managed devices, this permits native applications, including command-line clients, to use loopback redirects while satisfying a policy requiring reviewed software. The specification defines attestation and metadata requirements, processing at the pushed authorization request and token endpoints, and the exceptions to the base software statement rules needed for endorsed keys.
 
 --- middle
 
@@ -100,7 +100,7 @@ The following sequence is non-normative:
 
 {::boilerplate bcp14-tagged}
 
-This specification uses terminology from {{RFC6749}}, {{CIMD}}, and {{ABCA}}, and the terms Runtime Presentation, Effective Expiry, Refusal Record, Current Statement, Review-Only, Establishment, and Proven Key from {{STATEMENT}}. It also uses the `iat` floor of {{STATEMENT}}: the `iat` of the most recent statement a server has accepted for an `iss` and `sub`, below which it rejects a newly presented, pulled, or replacement statement, kept per tenant on a multi-tenant server.
+This specification uses terminology from {{RFC6749}}, {{CIMD}}, and {{ABCA}}, and the terms Runtime Presentation, Effective Expiry, Refusal Record, Current Statement, Review-Only, Establishment, and Proven Key from {{STATEMENT}}. It also uses the `iat` floor of {{STATEMENT}}: the `iat` of the most recent statement a server has accepted for an `iss` and `sub`, below which it rejects a newly presented, pulled, or replacement statement, kept per tenant on a multi-tenant server. An installation is a Client Instance as defined by {{ABCA}}.
 
 Instance Binding:
 : The association of a proven instance key with the reviewed software and metadata under this specification. It does not assign a global installation identifier.
