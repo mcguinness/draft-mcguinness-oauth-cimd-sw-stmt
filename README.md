@@ -14,13 +14,14 @@ New to the drafts? Start with the [FAQ](https://github.com/mcguinness/draft-mcgu
 | CIMD Software Statement Registration | Consuming a statement in an RFC 7591 registration: metadata taken from the reviewed document, validity bounded by the statement, and renewal by a replacement statement | [HTML](https://mcguinness.github.io/draft-mcguinness-oauth-software-statement-issuance/draft-mcguinness-oauth-cimd-sw-stmt-registration.html), [TXT](https://mcguinness.github.io/draft-mcguinness-oauth-software-statement-issuance/draft-mcguinness-oauth-cimd-sw-stmt-registration.txt) |
 | CIMD Software Statement Issuance | How a client obtains a statement: token exchange, a redirect flow returning a `software_statement_code`, and asynchronous review under Deferred Token Response | [HTML](https://mcguinness.github.io/draft-mcguinness-oauth-software-statement-issuance/draft-mcguinness-oauth-cimd-sw-stmt-issuance.html), [TXT](https://mcguinness.github.io/draft-mcguinness-oauth-software-statement-issuance/draft-mcguinness-oauth-cimd-sw-stmt-issuance.txt) |
 | CIMD Software Statement Status | Optional withdrawal mechanisms: Token Status List as the authority on whether a statement stands, and a Shared Signals event telling an authorization server to check at once rather than on its next scheduled check | [HTML](https://mcguinness.github.io/draft-mcguinness-oauth-software-statement-issuance/draft-mcguinness-oauth-cimd-sw-stmt-status.html), [TXT](https://mcguinness.github.io/draft-mcguinness-oauth-software-statement-issuance/draft-mcguinness-oauth-cimd-sw-stmt-status.txt) |
+| [Endorsed Instance Keys for CIMD Software Statements](draft-mcguinness-oauth-cimd-sw-stmt-instance.md) | Binding a native installation's attested key to reviewed metadata, permitting loopback callbacks through PAR with the same binding enforced at code redemption and refresh | Local working draft |
 
-The statement draft is the core. The other three build on it, and it depends on none of them.
+The statement draft is the core. The other drafts build on it, and it depends on none of them.
 
 The statement and registration drafts are planned for submission; their Datatracker pages will be available after first submission:
 [statement](https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt/),
 [registration](https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration/).
-The issuance and status drafts are working drafts kept here for discussion and are not planned for submission yet.
+The issuance, status, and instance-binding drafts are working drafts kept here for discussion and are not planned for submission yet.
 
 ## MCP Profile
 
@@ -45,13 +46,13 @@ Dependencies:
 
 * [OAuth Client ID Metadata Document](https://datatracker.ietf.org/doc/draft-ietf-oauth-client-id-metadata-document/), for every draft
 * [Token Status List](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/), for the status draft only
+* [OAuth 2.0 Attestation-Based Client Authentication](https://datatracker.ietf.org/doc/draft-ietf-oauth-attestation-based-client-auth/), for the instance-binding draft
 * [Identity Assertion Authorization Grant](https://datatracker.ietf.org/doc/draft-ietf-oauth-identity-assertion-authz-grant/), for the `aud_tenant` claim
 * [Deferred Token Response](https://datatracker.ietf.org/doc/draft-ietf-oauth-deferred-token-response/), for asynchronous issuance only
 * [OpenID Shared Signals Framework](https://openid.net/specs/openid-sharedsignals-framework-1_0.html), for the status draft only
 
 Related work:
 
-* [OAuth 2.0 Attestation-Based Client Authentication](https://datatracker.ietf.org/doc/draft-ietf-oauth-attestation-based-client-auth/), which attests a running client instance and composes with a statement
 * [Client Instance Identification for Attestation-Based Client Authentication](https://datatracker.ietf.org/doc/draft-mcguinness-oauth-client-instance-id/), which identifies instances within one client
 * [OpenID Federation 1.0](https://openid.net/specs/openid-federation-1_0.html), sketched above
 * [OAuth Identity Assertion Trust Framework](https://datatracker.ietf.org/doc/draft-mcguinness-oauth-id-assertion-framework/), which generalizes issuer trust
