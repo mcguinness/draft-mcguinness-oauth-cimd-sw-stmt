@@ -57,7 +57,7 @@ informative:
 
 --- abstract
 
-A CIMD software statement binds a review of client software to the exact bytes of its Client ID Metadata Document. It does not, by itself, bind an installation of that software to a key. This specification defines an instance-binding extension in which an independently trusted client attester endorses an installation key for the reviewed document. The client proves that key through attestation-based client authentication when opening and continuing an authorization code grant. This permits native applications, including command-line clients, to use loopback redirects while satisfying a policy requiring reviewed software. The specification defines attestation and metadata requirements, processing at the pushed authorization request and token endpoints, and the exceptions to the core software statement rules needed for endorsed keys.
+A CIMD software statement binds a review of client software to the exact bytes of its Client ID Metadata Document. It does not, by itself, bind an installation of that software to a key. This specification defines an instance-binding extension in which an independently trusted client attester endorses an installation key for the reviewed document. The client proves that key through attestation-based client authentication when opening and continuing an authorization code grant. Where an attester can verify which software controls an installation's key, as on managed devices, this permits native applications, including command-line clients, to use loopback redirects while satisfying a policy requiring reviewed software. The specification defines attestation and metadata requirements, processing at the pushed authorization request and token endpoints, and the exceptions to the core software statement rules needed for endorsed keys.
 
 --- middle
 
@@ -70,6 +70,8 @@ A native application's installations cannot safely authenticate by a private key
 This specification defines an alternative binding. A software statement identifies the review and the exact metadata bytes. An independently trusted client attester associates a particular instance key with that software and those bytes under an evidence policy the authorization server accepts. Attestation-based client authentication {{ABCA}} proves possession of the endorsed key. The callback delivers the authorization response; it supplies no evidence of the presenter's software identity.
 
 The extension serves authorization code flows using pushed authorization requests (PAR) {{RFC9126}} and refresh of the resulting grants. It defines neither registration nor new token-endpoint presentations for other grants. {{REGISTRATION}} is unchanged. Core and registration do not depend on this extension.
+
+The binding is only as strong as the attester's evidence that the software, not merely the device or the user, controls the key ({{software-evidence}}). Such evidence is available today mainly on managed endpoints, through an enterprise agent or launcher ({{launcher}}). On an unmanaged desktop, or for an interpreted command-line client, an attester typically cannot meet the requirements of {{trust}}, and the client remains review-only under {{STATEMENT}}.
 
 ## Protocol Overview
 
