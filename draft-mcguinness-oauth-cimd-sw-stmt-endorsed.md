@@ -466,7 +466,7 @@ client_id=https%3A%2F%2Fcli.example%2Fclient.json
 &state=<transaction-state>
 ~~~
 
-Here the server pulls the software statement. It binds the accepted request, key, attester, policy, and tenant to its returned `request_uri`. After authorization in the browser, the CLI receives a code at `http://127.0.0.1:51004/callback` and validates the response issuer and state. The following is an example of the request that redeems the code (line breaks for display purposes only):
+Here the server pulls the software statement. It binds the accepted request, key, attester, policy, and tenant to its returned `request_uri`. After authorization in the browser, the client receives a code at `http://127.0.0.1:51004/callback` and validates the response issuer and state. The following is an example of the request that redeems the code (line breaks for display purposes only):
 
 ~~~ http
 POST /token HTTP/1.1
@@ -741,7 +741,7 @@ This specification uses the authentication method, HTTP fields, and error codes 
 
 --- back
 
-# Managed CLI Deployment {#launcher}
+# Managed Command-Line Client Deployment {#launcher}
 
 This appendix is non-normative. A managed desktop can implement the evidence boundary with a trusted launcher or enterprise agent and an enterprise attestation service. Other mechanisms are possible if they meet {{trust}}.
 
@@ -751,7 +751,7 @@ The launcher creates or provisions the instance key in protected storage and obt
 
 For each authorization transaction, the launcher performs the OAuth exchange on behalf of the verified caller. For resource requests, it produces DPoP proofs only for resource endpoints the caller is authorized to reach and only with that caller's own access token. It never signs arbitrary input, and produces a proof for the authorization server only within its own transaction processing. The local session binds caller identity, server, callback, PKCE verifier, and resulting grant. It rechecks caller authorization when the key is used, including refresh, and protects returned tokens from other processes.
 
-An implementation must address changes between checking software and using the key, dynamic code loading, and the ability of an approved executable to proxy requests for others. Platforms without reliable process identity and key-use isolation cannot obtain that assurance merely by running the launcher with more privileges. A script-based CLI may require an execution environment whose policy covers its interpreter, script, and dependencies, or a narrower assurance than reviewed executable identity.
+An implementation must address changes between checking software and using the key, dynamic code loading, and the ability of an approved executable to proxy requests for others. Platforms without reliable process identity and key-use isolation cannot obtain that assurance merely by running the launcher with more privileges. A script-based command-line client may require an execution environment whose policy covers its interpreter, script, and dependencies, or a narrower assurance than reviewed executable identity.
 
 # Verification Scenarios
 
