@@ -684,70 +684,6 @@ Specification Document(s):
 
 This specification also requests that the `cimd_digest` registration requested by {{STATEMENT}} list this specification ({{attestation}}) as an additional reference.
 
-## OAuth Extensions Error Registry
-
-This specification requests that IANA update the following entries in the "OAuth Extensions Error Registry" established by {{RFC6749}}. In each entry, the pushed authorization request error response, which can already carry the error under {{RFC9126}}, is added to the usage locations, and this specification is added as a reference.
-
-Error Name:
-: `use_fresh_attestation`
-
-Error Usage Location:
-: pushed authorization request error response, in addition to the locations already registered
-
-Related Protocol Extension:
-: OAuth 2.0 Attestation-Based Client Authentication
-
-Change Controller:
-: IETF
-
-Specification Document(s):
-: {{ABCA}}, this specification ({{errors}})
-
-Error Name:
-: `invalid_client_attestation`
-
-Error Usage Location:
-: pushed authorization request error response, in addition to the locations already registered
-
-Related Protocol Extension:
-: OAuth 2.0 Attestation-Based Client Authentication
-
-Change Controller:
-: IETF
-
-Specification Document(s):
-: {{ABCA}}, this specification ({{errors}})
-
-Error Name:
-: `use_dpop_nonce`
-
-Error Usage Location:
-: pushed authorization request error response, in addition to the locations already registered
-
-Related Protocol Extension:
-: Demonstrating Proof of Possession (DPoP)
-
-Change Controller:
-: IETF
-
-Specification Document(s):
-: {{RFC9449}}, this specification ({{errors}})
-
-Error Name:
-: `invalid_dpop_proof`
-
-Error Usage Location:
-: pushed authorization request error response, in addition to the locations already registered
-
-Related Protocol Extension:
-: Demonstrating Proof of Possession (DPoP)
-
-Change Controller:
-: IETF
-
-Specification Document(s):
-: {{RFC9449}}, this specification ({{errors}})
-
 ## Media Type Registration {#media-type}
 
 This specification requests registration of the following media type in the "Media Types" registry, in the manner described in {{RFC6838}}:
@@ -802,7 +738,7 @@ Change controller:
 
 ## Values Defined Elsewhere
 
-The `iss`, `sub`, `aud`, `iat`, `exp`, and `cnf` claims are defined elsewhere and are not re-registered here. This specification uses the authentication method, HTTP fields, and error codes of {{ABCA}} without registering replacements.
+The `iss`, `sub`, `aud`, `iat`, `exp`, and `cnf` claims are defined elsewhere and are not re-registered here. This specification uses the authentication method, HTTP fields, and error codes of {{ABCA}} without registering replacements. Section 2.3 of {{RFC9126}} lets a pushed authorization request error response carry the error codes of an extension involved in processing the request, so this specification requests no change to the registrations of the error codes it uses there.
 
 --- back
 
