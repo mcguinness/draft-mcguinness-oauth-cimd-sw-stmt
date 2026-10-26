@@ -102,6 +102,8 @@ The following sequence is non-normative:
 
 This specification uses terminology from {{RFC6749}}, {{CIMD}}, and {{ABCA}}, and the terms Runtime Presentation, Effective Expiry, Refusal Record, Current Statement, Review-Only, Establishment, and Proven Key from {{STATEMENT}}. It also uses the `iat` floor of {{STATEMENT}}: the `iat` of the most recent statement a server has accepted for an `iss` and `sub`, below which it rejects a newly presented, pulled, or replacement statement, kept per tenant on a multi-tenant server. An installation is a Client Instance as defined by {{ABCA}}.
 
+This specification defines the following terms:
+
 Instance Binding:
 : The association of a proven instance key with the reviewed software and metadata under this specification. It does not assign a global installation identifier.
 
