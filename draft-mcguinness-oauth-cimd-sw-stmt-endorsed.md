@@ -351,7 +351,13 @@ An implementation of {{STATEMENT}} alone does not gain these exceptions. Its rev
 
 # Error Responses {#errors}
 
-The endpoint-specific syntax and response rules of {{RFC6749}}, {{RFC9126}}, {{STATEMENT}}, {{ABCA}}, and {{RFC9449}} apply. This specification defines no new error code. The following table applies to pushed authorization requests, code redemption, and refresh, except where a condition names a particular endpoint. Other OAuth errors, such as `invalid_scope`, continue to apply to their respective failures.
+A rejection uses the error response format and HTTP status codes specified for the endpoint where it occurs:
+
+* At the pushed authorization request endpoint, Section 2.3 of {{RFC9126}} applies.
+* At the token endpoint, Section 5.2 of {{RFC6749}} applies.
+* At the authorization endpoint, Section 4.1.2.1 of {{RFC6749}} applies.
+
+The error rules of {{STATEMENT}}, {{ABCA}}, and {{RFC9449}} also apply. This specification defines no new error code. The following table applies to pushed authorization requests, code redemption, and refresh, except where a condition names a particular endpoint. Other OAuth errors, such as `invalid_scope`, continue to apply to their respective failures.
 
 | Error | Condition |
 | --- | --- |
