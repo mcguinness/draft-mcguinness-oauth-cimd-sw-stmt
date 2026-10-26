@@ -104,7 +104,7 @@ Evidence Policy:
 : A versioned set of requirements for establishing the association between software, an instance key, and reviewed metadata. It covers evidence collection, verification, freshness, and protection of key use.
 
 Attestation Effective Expiry:
-: An instance attestation's `exp`, which the authorization server accepts only if it lies no further in the future than the maximum lifetime the server accepts for the attester and evidence policy ({{attestation}}).
+: An instance attestation's `exp`. An accepted evidence policy sets it no later than the time the attester's evidence was collected plus the policy's maximum evidence age ({{trust}}), so an attestation before its `exp` rests on evidence no older than that maximum.
 
 The software statement's issuer and the client attester are separate roles. One entity can perform both, but neither role implies trust in the other.
 
@@ -162,7 +162,7 @@ An authorization server MUST establish attester trust independently of the reque
 * The exact attester `iss` identifier and how its verification keys are resolved, as Section 10.8 of {{ABCA}} asks a profile to fix: an `x5c` certificate chain ({{RFC7515}}) validated to a configured trust anchor, or a `kid` matched against a configured JWK Set. A `jku` is followed only if it names that configured JWK Set.
 * Accepted asymmetric signing algorithms.
 * Client identifier namespaces the attester may endorse.
-* Accepted evidence-policy identifiers and, for each, a finite maximum attestation lifetime and a finite maximum evidence age.
+* Accepted evidence-policy identifiers and, for each, a finite maximum evidence age.
 * Tenant restrictions and any requirements for a particular attester or policy within a tenant.
 * Clock-skew and evidence-freshness requirements and any local denial rules for instance keys.
 
@@ -171,7 +171,7 @@ The server MUST use the tenant determined for the grant by its own trusted proce
 The server cannot observe how an attester reached its decision, so it relies on the evidence policy. An evidence policy is acceptable for reviewed-software admission only if it meets all of the following requirements:
 
 * Before issuing each instance attestation, the attester verifies control of the private instance key through an authenticated, replay-resistant exchange bound to the submitted public key.
-* The attester evaluates evidence about the software instance and protection of key use, and that evidence is no older than the policy's maximum evidence age. A previous attestation is not evidence: a renewal rests on evidence that meets the same bound.
+* The attester evaluates evidence about the software instance and protection of key use, and sets each attestation's `exp` no later than the time that evidence was collected plus the policy's maximum evidence age. Rounding or randomizing `exp` (Section 11.1 of {{ABCA}}) only moves it earlier. A previous attestation is not evidence: a renewal rests on new evidence under the same bound.
 * The attester establishes an authenticated association between the software identity and the CIMD URL, retrieves and validates the document under {{CIMD}}, and calculates its digest under {{STATEMENT}}.
 * The attester confirms that the artifact or package identity established by the evidence is covered by that association for the document version being endorsed. A publisher-controlled manifest accepted under the policy, or a separately approved enterprise inventory, can supply the association. A URL, file path, digest, or publisher name asserted only by the requesting process does not suffice. The metadata digest is not an executable digest.
 * The policy defines what identifies the software, how evidence authenticates that identity and the instance key, how use of the key is restricted to the software instance the evidence covers, a finite maximum evidence age, and the treatment of updates, scripts, plugins, and other executable extensions.
@@ -197,7 +197,7 @@ The attestation retains the `sub`, `cnf` ({{RFC7800}}), `iat`, and `exp` require
 `cimd_instance_policy`:
 : A string containing an absolute URI identifying the evidence policy under which the attester endorsed the instance key. The URI is an identifier, not a retrieval instruction. It MUST be compared exactly with an accepted policy identifier.
 
-The attestation MUST have `exp` later than `iat`. An attester can round or randomize `iat` and `exp`, as Section 11.1 of {{ABCA}} recommends, so a server bounds acceptance by `exp`: it MUST reject an attestation whose `exp` has passed, or lies further in the future than the maximum lifetime it accepts for the attester and evidence policy, and MUST NOT reject an attestation only because its `iat` was rounded or randomized. The attester selects the lifetime consistently with the validity of its evidence and the evidence policy. No field supplied by the client can extend the server's maximum accepted lifetime.
+The attestation MUST have `exp` later than `iat`. Its `exp` bounds the age of the evidence behind it, as the accepted evidence policy requires ({{trust}}). Its `iat` is not an evidence timestamp, and an attester can round or randomize it as Section 11.1 of {{ABCA}} recommends. A server MUST reject an attestation whose `exp` has passed, or lies further in the future than the maximum evidence age it accepts for the attester and evidence policy, and MUST NOT reject an attestation only because its `iat` was rounded or randomized. No field supplied by the client can extend these bounds.
 
 This specification does not require an attestation audience or installation identifier. If an `aud` is present, the receiving server MUST validate it under {{RFC7519}}. The proof targets a particular endpoint ({{proof}}); the attestation can be usable at more than one trusting server. An attestation is not tied to a statement's `jti`, so a statement renewed over unchanged bytes need not cause re-attestation.
 
