@@ -197,7 +197,7 @@ When a request under an expired registration carries no replacement, its rejecti
 
 A request whose replacement fails the rules above is rejected whether or not the registration has expired. The client then learns of the failure at once and can tell a bad replacement from a missing one. At the token and pushed authorization request endpoints, such a request is rejected with `statement_required`, or with `temporarily_unavailable` if a retrieval needed to check the replacement did not complete for a reason other than the size bound of {{STATEMENT}}. At the client configuration endpoint, it is rejected with the codes of {{errors}}. A rejected delivery leaves the governing statement unchanged.
 
-A registration request without an {{RFC7592}} registration access token creates a new registration and never renews an existing one, except for a public-client registration ({{public-client-registration}}).
+A registration request is not a delivery: it never renews an existing registration, except a public-client registration ({{public-client-registration}}).
 
 # Statements from a Registered or Admitted Client {#registered-delivery}
 
