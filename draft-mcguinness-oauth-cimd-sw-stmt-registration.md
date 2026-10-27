@@ -161,8 +161,6 @@ A client renews a statement-governed registration by delivering a replacement st
 * The `software_statement` parameter of an authenticated pushed authorization request {{RFC9126}} under the registration.
 * The `software_statement` member of an authenticated {{RFC7592}} update request, if the deployment offers registration management.
 
-The update request carries the complete client metadata that {{RFC7592}} requires, which the server does not take ({{dcr-presentation}}).
-
 A statement with the governing statement's `iss` and `sub` and an `iat` no later than the governing statement's `iat` is not a replacement. The authorization server leaves the registration unchanged and treats a request as carrying no replacement in either of the following cases, so that the request proceeds while the registration is valid and is rejected as {{registration-validity}} provides once it is not:
 
 * The request carries the governing statement itself, identified by its `iss` and `jti`. A client sends it, for example, after losing the response to the request that renewed the registration, or by attaching its current statement to later requests.
