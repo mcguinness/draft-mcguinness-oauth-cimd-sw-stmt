@@ -104,7 +104,7 @@ A trusting authorization server MUST NOT accept an event from an issuer it has n
 
 The Transmitter configuration's `jwks_uri` MUST differ both from the issuer's `software_statement_jwks_uri` ({{STATEMENT}}) and from the `jwks_uri` in its authorization server metadata {{RFC8414}}, whose keys verify its Status List Tokens. A receiver MUST NOT create or keep a stream whose Transmitter configuration names either of those locations.
 
-A SET carrying an event defined here MUST use the explicit `typ` JOSE header parameter value `secevent+jwt` ({{RFC8417}}). Its `aud` claim MUST contain the receiving authorization server's issuer identifier {{RFC8414}}. A stream audience negotiated under {{SSF}} does not replace that identifier.
+A SET carrying an event defined here MUST use the explicit `typ` JOSE header parameter value `secevent+jwt` ({{RFC8417}}). Its `aud` claim MUST contain the audience of the stream that delivers it, which {{SSF}} lets the transmitter and receiver agree. A receiver MUST NOT create or keep a stream whose audience does not identify it.
 
 # Subject Identification {#subjects}
 
@@ -160,7 +160,7 @@ The following non-normative example shows the payload of a SET carrying this eve
 A trusting authorization server that receives an event defined here MUST process it as follows:
 
 1. Verify the SET as {{RFC8417}} requires, including its `typ`, and verify that the SET's issuer is configured and its keys were obtained as {{relationship}} requires.
-2. Reject an event whose `aud` does not contain the server's own issuer identifier ({{relationship}}) or whose type is not recognized.
+2. Reject an event whose `aud` does not contain the audience of the stream that delivered it ({{relationship}}) or whose type is not recognized.
 3. Resolve the subject ({{subjects}}).
 4. Resolve the status of the affected statements from the issuer's Status List Token as {{STATUSLIST}} defines, without waiting for the schedule that would otherwise apply, and apply the resolved status as {{status-resolution}} defines.
 
