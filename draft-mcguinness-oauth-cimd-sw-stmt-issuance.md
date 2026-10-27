@@ -308,7 +308,7 @@ The client sends an authorization request as described in Section 4.1.1 of {{RFC
 : REQUIRED. The value MUST exactly match one of the redirection URIs in the Client ID Metadata Document, subject to the redirect URI rules of {{CIMD}}. Whatever authentication method the document declares, the value MUST NOT be a redirection URI that another application on the same device could claim, as the public-client presentation rules of {{STATEMENT}} define ({{authorization-response-security}}).
 
 `state`:
-: REQUIRED. An opaque value used by the client to bind the authorization response to its request.
+: OPTIONAL. An opaque value used by the client to bind the authorization response to its request. Because the authorization server requires PKCE, a client can rely on PKCE for CSRF protection instead, as Section 2.1 of {{RFC9700}} permits.
 
 `code_challenge`:
 : REQUIRED. A PKCE challenge as defined by {{RFC7636}}.
@@ -374,7 +374,7 @@ The software statement code response applies the authorization response protecti
   The value MUST contain at least 128 bits of entropy from a cryptographically secure random source, be opaque to the client, expire shortly after issuance, and not be accepted more than once.
 
 `state`:
-: REQUIRED. The exact value received in the authorization request.
+: REQUIRED if the authorization request contained `state`. The exact value received in the authorization request.
 
 `iss`:
 : REQUIRED. The authorization server issuer identification parameter defined by {{RFC9207}}.
@@ -587,7 +587,7 @@ Fetching a Client ID Metadata Document and the resources it references exposes t
 
 The software statement is a signed credential and can contain sensitive deployment information, so it is never returned in an authorization response ({{authorization-response}}).
 
-Before redeeming a software statement code, the client MUST verify `state` and MUST validate the authorization response `iss` parameter according to {{RFC9207}}.
+Before redeeming a software statement code, the client MUST verify `state`, if it sent one, and MUST validate the authorization response `iss` parameter according to {{RFC9207}}.
 
 A public client presents no client authentication, so its association with the software depends on delivery to a metadata-listed redirection endpoint. Another application can claim a private-use or loopback endpoint ({{RFC8252}}). PKCE and DPoP bind the code to the initiator but cannot stop an attacker from initiating under another party's `client_id`. Only an `https` endpoint no other application can claim demonstrates control of the publisher's origin, so {{authorization-request}} requires one. A native public client can host such an endpoint or use the token exchange profile ({{token-exchange-profile}}).
 

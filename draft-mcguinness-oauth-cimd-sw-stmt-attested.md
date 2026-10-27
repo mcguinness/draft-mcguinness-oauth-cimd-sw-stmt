@@ -307,7 +307,7 @@ This section specifies processing at the pushed authorization request, authoriza
 
 ## Pushed Authorization Request {#par}
 
-The client MUST start every grant under this profile at the PAR endpoint. Its request MUST include `client_id`, `response_type=code`, `redirect_uri`, a PKCE `code_challenge` with `code_challenge_method=S256`, and a transaction-specific `state`. It MUST authenticate under {{proof}}. A request using a Request Object MUST meet {{RFC9126}} and MUST NOT provide conflicting parameter values; the following checks apply to the effective authorization request.
+The client MUST start every grant under this profile at the PAR endpoint. Its request MUST include `client_id`, `response_type=code`, `redirect_uri`, and a PKCE `code_challenge` with `code_challenge_method=S256`. It MAY include `state`: the server requires PKCE ({{server-metadata}}), so the client can rely on PKCE for CSRF protection, as Section 2.1 of {{RFC9700}} permits. It MUST authenticate under {{proof}}. A request using a Request Object MUST meet {{RFC9126}} and MUST NOT provide conflicting parameter values; the following checks apply to the effective authorization request.
 
 The client presents its software statement using `software_statement` as defined by {{STATEMENT}}, or the server obtains a statement through that specification's pulled-statement mechanism.
 
@@ -343,7 +343,7 @@ The client MUST use an external user-agent under {{RFC8252}}. The browser author
 
 The server MUST reject a direct authorization request without a PAR `request_uri` governed by this profile when the client document selects this profile or server policy requires it. A statement pulled at the authorization endpoint cannot create an exception to that requirement.
 
-The server authenticates the resource owner and applies authorization policy independently of the software and instance checks. It MUST return the authorization response with the issuer identifier defined by {{RFC9207}}. The client MUST validate that identifier and `state` against the transaction before redeeming a code. Callback validation and OAuth security requirements in {{RFC8252}} and {{RFC9700}} continue to apply.
+The server authenticates the resource owner and applies authorization policy independently of the software and instance checks. It MUST return the authorization response with the issuer identifier defined by {{RFC9207}}. The client MUST validate that identifier, and `state` if it sent one, against the transaction before redeeming a code. Callback validation and OAuth security requirements in {{RFC8252}} and {{RFC9700}} continue to apply.
 
 ## Authorization Code Redemption {#redemption}
 
