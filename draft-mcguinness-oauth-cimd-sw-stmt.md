@@ -231,6 +231,7 @@ For each trusted issuer, a trusting authorization server records at least the fo
 * The signing algorithms it will accept from the issuer.
 * The client identifier namespaces the issuer can attest through `sub`.
 * The audience identifiers the issuer can name.
+* Any tenant to which it confines the issuer's decisions.
 * The maximum statement lifetime it will honor, which sets each statement's effective expiry.
 * Its own policy on repeated consumption of one statement ({{multi-instance}}).
 
