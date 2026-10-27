@@ -593,7 +593,7 @@ The client MUST keep its verifier and transaction state confidential and unpredi
 
 ## Downgrade Prevention {#downgrade}
 
-A server requiring reviewed software for a client namespace or tenant MUST enforce that requirement even when the requester omits every review artifact or presents an earlier document. A server requiring this binding MUST reject attempts to open a grant under an alternative authentication method, through a direct authorization request, or through another grant type. These requirements MUST be based on server policy, not inferred only from artifacts a requester can withhold.
+A server requiring reviewed software for a client namespace or tenant MUST enforce that requirement even when the requester omits every review artifact or presents a statement over an earlier document. A server requiring this binding MUST reject attempts to open a grant under an alternative authentication method, through a direct authorization request, or through another grant type. These requirements MUST be based on server policy, not inferred only from artifacts a requester can withhold.
 
 The server MUST enforce the reviewed binding selection on every new admission under a reviewed document that selects this profile. A deployment permitting unrelated unreviewed clients MAY continue to do so under its own policy, but a failed request under this profile is rejected rather than admitted under that policy ({{par}}). Any independently admitted unreviewed client carries none of the assurance of this specification.
 
