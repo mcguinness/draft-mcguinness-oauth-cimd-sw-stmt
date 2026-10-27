@@ -340,8 +340,6 @@ This specification requires a reviewed document to declare its client authentica
 
 A document carrying a redirection URI another application could claim is presented review-only whatever its authentication method ({{public-client-presentation}}), and the requirements above do not apply to that presentation. Two rejections still apply to such a document: a presentation under a document that omits `token_endpoint_auth_method`, as above, and a presentation that opens a new grant at the token endpoint from a client whose reviewed document carries no key material ({{public-client-presentation}}).
 
-A statement whose reviewed document carries no key material is consumed at runtime under {{public-client-presentation}} and, if its `statement_uses` claim permits, at registration under the comparable rules of {{REGISTRATION}}.
-
 A key at the document's `jwks_uri` is retrieved at presentation time. If that retrieval fails, the presentation is rejected with `temporarily_unavailable`. A server MAY reuse a retrieved key set only within ordinary HTTP caching bounds and a maximum reuse period of its own choosing, and MUST NOT let the client's cache directives alone determine how long a removed key continues to verify ({{statement-validation}}).
 
 ### Public Clients {#public-client-presentation}
