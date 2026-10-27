@@ -163,7 +163,7 @@ A trusting authorization server that receives an event defined here MUST process
 1. Verify the SET as {{RFC8417}} requires, including its `typ` JOSE header parameter, and verify that the SET's issuer is configured and that the keys verifying the SET were obtained as {{relationship}} requires.
 2. Reject an event whose `aud` claim does not contain the audience of the stream that delivered it ({{relationship}}) or whose event type is not recognized.
 3. Resolve the subject ({{subjects}}).
-4. Resolve the status of the affected statements from the issuer's Status List Token as {{STATUSLIST}} defines, using a copy retrieved or revalidated by a request begun after the event arrived, without waiting for the schedule that would otherwise apply, and apply the resolved status as {{status-resolution}} defines.
+4. Resolve the status of the affected statements from the issuer's Status List Token as {{STATUSLIST}} defines, using a copy that the status list URI served, or confirmed by revalidation, in response to a request begun after the event arrived, without waiting for the schedule that would otherwise apply, and apply the resolved status as {{status-resolution}} defines.
 
 The affected statements are those the transmitting issuer made about the subject, never statements another issuer made about the same software. They are the statement the event's `software_statement_jti` claim names or, if the event names none, those the receiver holds or has cached a status for. An event about a subject for which the receiver holds no state requires nothing of it. A receiver discards events for subjects outside the identifier scope for which it accepts the transmitting issuer ({{STATEMENT}}).
 
