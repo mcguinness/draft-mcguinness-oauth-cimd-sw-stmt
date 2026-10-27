@@ -1583,7 +1583,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <dt id="section-6-2.7">
 <code>state</code>:</dt>
         <dd style="margin-left: 1.5em" id="section-6-2.8">
-          <p id="section-6-2.8.1"><span class="bcp14">REQUIRED</span>. An opaque value used by the client to bind the authorization response to its request.<a href="#section-6-2.8.1" class="pilcrow">¶</a></p>
+          <p id="section-6-2.8.1"><span class="bcp14">OPTIONAL</span>. An opaque value used by the client to bind the authorization response to its request. Because the authorization server requires PKCE, a client can rely on PKCE for CSRF protection instead, as Section 2.1 of <span>[<a href="#RFC9700" class="cite xref">RFC9700</a>]</span> permits.<a href="#section-6-2.8.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 <dt id="section-6-2.9">
@@ -1676,7 +1676,7 @@ Host: server.example.com
 <dt id="section-7.1-2.3">
 <code>state</code>:</dt>
           <dd style="margin-left: 1.5em" id="section-7.1-2.4">
-            <p id="section-7.1-2.4.1"><span class="bcp14">REQUIRED</span>. The exact value received in the authorization request.<a href="#section-7.1-2.4.1" class="pilcrow">¶</a></p>
+            <p id="section-7.1-2.4.1"><span class="bcp14">REQUIRED</span> if the authorization request contained <code>state</code>. The exact value received in the authorization request.<a href="#section-7.1-2.4.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 <dt id="section-7.1-2.5">
@@ -1903,31 +1903,8 @@ Pragma: no-cache
 <a href="#section-12" class="section-number selfRef">12. </a><a href="#name-issuer-and-consumer-as-one-" class="section-name selfRef">Issuer and Consumer as One Server</a>
       </h2>
 <p id="section-12-1">An authorization server that issued a statement already holds the decision that statement records. If it is also a trusting authorization server, it <span class="bcp14">MAY</span> admit the client on that record rather than require the statement to be presented back to it, at registration or at runtime.<a href="#section-12-1" class="pilcrow">¶</a></p>
-<p id="section-12-2">Because a decision a server made is not a document it has re-read, a server admitting a client on the record of a statement it issued <span class="bcp14">MUST</span> apply the conditions it would apply to a statement presented under <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>:<a href="#section-12-2" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-12-3.1">
-          <p id="section-12-3.1.1">The decision's issuer is one this server accepts for the request's tenant and for the decision's <code>sub</code>, as <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> requires of <code>iss</code> and <code>sub</code>, and, if this server records a required issuer for that tenant and <code>sub</code>, is that issuer.<a href="#section-12-3.1.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="section-12-3.2">
-          <p id="section-12-3.2.1">The effective expiry the decision's statement would have at this server has not passed, and the registration has not expired if the validity model of <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span> governs it.<a href="#section-12-3.2.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="section-12-3.3">
-          <p id="section-12-3.3.1">The decision's audience, tenant, and permitted uses admit this server, the request's tenant, and this use, as <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> requires of <code>aud</code>, <code>aud_tenant</code>, and <code>statement_uses</code>.<a href="#section-12-3.3.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="section-12-3.4">
-          <p id="section-12-3.4.1">The decision is not superseded under the <code>iat</code> floor of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, which admission on it advances as acceptance of a statement would.<a href="#section-12-3.4.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="section-12-3.5">
-          <p id="section-12-3.5.1">This server has not withdrawn the decision and holds no refusal record for its statement.<a href="#section-12-3.5.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="section-12-3.6">
-          <p id="section-12-3.6.1">The document at <code>sub</code> has been obtained and contains no duplicate member names.<a href="#section-12-3.6.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="section-12-3.7">
-          <p id="section-12-3.7.1">That document's metadata digest equals the one recorded.<a href="#section-12-3.7.1" class="pilcrow">¶</a></p>
-</li>
-      </ul>
-<p id="section-12-4">At runtime, the recorded decision replaces the presented statement, not the proof of who is making the request. The request <span class="bcp14">MUST</span> meet the sender constraint of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> against the reviewed document, as a presentation would, and a successful admission creates an establishment. At registration, the rules of <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span> apply as they do to a statement presented there.<a href="#section-12-4" class="pilcrow">¶</a></p>
+<p id="section-12-2">Because a decision a server made is not a document it has re-read, a server admitting a client on the record of a statement it issued <span class="bcp14">MUST</span> apply every check <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> applies to a presented statement, and at registration every check <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span> applies, taking the statement's claims from its record of the decision. The record replaces only the signature: the server still obtains the document at <code>sub</code> and compares its digest with the recorded one.<a href="#section-12-2" class="pilcrow">¶</a></p>
+<p id="section-12-3">At runtime, the recorded decision replaces the presented statement, not the proof of who is making the request. The request <span class="bcp14">MUST</span> meet the sender constraint of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> against the reviewed document, as a presentation would, and a successful admission creates an establishment. At registration, the rules of <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span> apply as they do to a statement presented there.<a href="#section-12-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="authorization-server-metadata">
@@ -2006,7 +1983,7 @@ Pragma: no-cache
 <a href="#section-14.4" class="section-number selfRef">14.4. </a><a href="#name-authorization-response-secu" class="section-name selfRef">Authorization Response Security</a>
         </h3>
 <p id="section-14.4-1">The software statement is a signed credential and can contain sensitive deployment information, so it is never returned in an authorization response (<a href="#authorization-response" class="auto internal xref">Section 7</a>).<a href="#section-14.4-1" class="pilcrow">¶</a></p>
-<p id="section-14.4-2">Before redeeming a software statement code, the client <span class="bcp14">MUST</span> verify <code>state</code> and <span class="bcp14">MUST</span> validate the authorization response <code>iss</code> parameter according to <span>[<a href="#RFC9207" class="cite xref">RFC9207</a>]</span>.<a href="#section-14.4-2" class="pilcrow">¶</a></p>
+<p id="section-14.4-2">Before redeeming a software statement code, the client <span class="bcp14">MUST</span> verify <code>state</code>, if it sent one, and <span class="bcp14">MUST</span> validate the authorization response <code>iss</code> parameter according to <span>[<a href="#RFC9207" class="cite xref">RFC9207</a>]</span>.<a href="#section-14.4-2" class="pilcrow">¶</a></p>
 <p id="section-14.4-3">A public client presents no client authentication, so its association with the software depends on delivery to a metadata-listed redirection endpoint. Another application can claim a private-use or loopback endpoint (<span>[<a href="#RFC8252" class="cite xref">RFC8252</a>]</span>). PKCE and DPoP bind the code to the initiator but cannot stop an attacker from initiating under another party's <code>client_id</code>. Only an <code>https</code> endpoint no other application can claim demonstrates control of the publisher's origin, so <a href="#authorization-request" class="auto internal xref">Section 6</a> requires one. A native public client can host such an endpoint or use the token exchange profile (<a href="#token-exchange-profile" class="auto internal xref">Section 5</a>).<a href="#section-14.4-3" class="pilcrow">¶</a></p>
 <p id="section-14.4-4">A confidential client's authentication proves possession of a key, not that the key is absent from software distributed to end users, so the requirement applies to it as well. A statement over a document listing an endpoint another application can claim is in any case review-only at a trusting authorization server (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-14.4-4" class="pilcrow">¶</a></p>
 <p id="section-14.4-5">An authorization server <span class="bcp14">SHOULD</span> relate the redirection URI's origin to the client identifier URL or the metadata document's <code>client_uri</code> according to policy. Endpoint or key control informs issuance policy but does not determine issuance.<a href="#section-14.4-5" class="pilcrow">¶</a></p>

@@ -216,9 +216,9 @@ Table of Contents
 
    A SET carrying an event defined here MUST use the explicit typ JOSE
    header parameter value secevent+jwt ([RFC8417]).  Its aud claim MUST
-   contain the receiving authorization server's issuer identifier
-   [RFC8414].  A stream audience negotiated under [SSF] does not replace
-   that identifier.
+   contain the audience of the stream that delivers it, which [SSF] lets
+   the transmitter and receiver agree.  A receiver MUST NOT create or
+   keep a stream whose audience does not identify it.
 
 5.  Subject Identification
 
@@ -236,10 +236,9 @@ Table of Contents
    The payload ([RFC8417]) of an event defined here has the following
    claims:
 
-   event_timestamp:  REQUIRED.  A NumericDate value giving the time the
-      issuer changed the status the event reports.  This narrows the
-      [CAEP] member, which is optional and gives the time the event
-      occurred.  It is informational: a receiver does not use it to
+   event_timestamp:  OPTIONAL.  The [CAEP] member, a NumericDate value,
+      here giving the time the issuer changed the status the event
+      reports.  It is informational: a receiver does not use it to
       order, bound, or scope anything.
 
    software_statement_jti:  OPTIONAL.  The jti of a single statement
@@ -294,8 +293,9 @@ Table of Contents
        verify that the SET's issuer is configured and its keys were
        obtained as Section 4 requires.
 
-   2.  Reject an event whose aud does not contain the server's own
-       issuer identifier (Section 4) or whose type is not recognized.
+   2.  Reject an event whose aud does not contain the audience of the
+       stream that delivered it (Section 4) or whose type is not
+       recognized.
 
    3.  Resolve the subject (Section 5).
 
@@ -344,19 +344,19 @@ Table of Contents
    delivery follow [SSF].
 
    A trusting authorization server that supports these events SHOULD
-   create one stream per configured issuer that offers them, covering
-   every subject that issuer attests rather than an enumerated set.
-   Under runtime presentation ([STATEMENT]), the server holds no state
-   for software until its first presentation, by which time an event
-   about that software would already have been missed.
+   create one stream per configured issuer that offers them.  The stream
+   can cover every subject that issuer attests, or the server can add
+   each subject through the subject management of [SSF] when it first
+   admits that software.  Admission checks and the receiver's own status
+   resolution (Section 3.2, Section 7) remain independent of
+   subscriptions, so a withdrawal whose event arrived before a
+   subscription became active is found at a later resolution.
 
-   A transmitter supporting these events MUST therefore advertise
-   default_subjects as ALL in its Transmitter configuration [SSF].  The
-   subjects appropriate to a stream are those of the issuer's statements
-   whose aud is absent or names the receiving authorization server, and
-   a transmitter SHOULD scope each stream to them.  A receiver discards
-   events for subjects outside the identifier scope for which it accepts
-   that issuer ([STATEMENT]).
+   The subjects appropriate to a stream are those of the issuer's
+   statements whose aud is absent or names the receiving authorization
+   server, and a transmitter SHOULD scope each stream to them.  A
+   receiver discards events for subjects outside the identifier scope
+   for which it accepts that issuer ([STATEMENT]).
 
    A receiver SHOULD request the event this specification defines, and
    SHOULD use the stream verification facility of [SSF] on a schedule.

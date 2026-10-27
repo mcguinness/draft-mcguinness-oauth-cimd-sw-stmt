@@ -503,8 +503,10 @@ Table of Contents
       public-client presentation rules of [STATEMENT] define
       (Section 14.4).
 
-   state:  REQUIRED.  An opaque value used by the client to bind the
-      authorization response to its request.
+   state:  OPTIONAL.  An opaque value used by the client to bind the
+      authorization response to its request.  Because the authorization
+      server requires PKCE, a client can rely on PKCE for CSRF
+      protection instead, as Section 2.1 of [RFC9700] permits.
 
    code_challenge:  REQUIRED.  A PKCE challenge as defined by [RFC7636].
 
@@ -608,8 +610,8 @@ Table of Contents
       cryptographically secure random source, be opaque to the client,
       expire shortly after issuance, and not be accepted more than once.
 
-   state:  REQUIRED.  The exact value received in the authorization
-      request.
+   state:  REQUIRED if the authorization request contained state.  The
+      exact value received in the authorization request.
 
    iss:  REQUIRED.  The authorization server issuer identification
       parameter defined by [RFC9207].
@@ -851,32 +853,11 @@ Table of Contents
 
    Because a decision a server made is not a document it has re-read, a
    server admitting a client on the record of a statement it issued MUST
-   apply the conditions it would apply to a statement presented under
-   [STATEMENT]:
-
-   *  The decision's issuer is one this server accepts for the request's
-      tenant and for the decision's sub, as [STATEMENT] requires of iss
-      and sub, and, if this server records a required issuer for that
-      tenant and sub, is that issuer.
-
-   *  The effective expiry the decision's statement would have at this
-      server has not passed, and the registration has not expired if the
-      validity model of [REGISTRATION] governs it.
-
-   *  The decision's audience, tenant, and permitted uses admit this
-      server, the request's tenant, and this use, as [STATEMENT]
-      requires of aud, aud_tenant, and statement_uses.
-
-   *  The decision is not superseded under the iat floor of [STATEMENT],
-      which admission on it advances as acceptance of a statement would.
-
-   *  This server has not withdrawn the decision and holds no refusal
-      record for its statement.
-
-   *  The document at sub has been obtained and contains no duplicate
-      member names.
-
-   *  That document's metadata digest equals the one recorded.
+   apply every check [STATEMENT] applies to a presented statement, and
+   at registration every check [REGISTRATION] applies, taking the
+   statement's claims from its record of the decision.  The record
+   replaces only the signature: the server still obtains the document at
+   sub and compares its digest with the recorded one.
 
    At runtime, the recorded decision replaces the presented statement,
    not the proof of who is making the request.  The request MUST meet
@@ -990,8 +971,8 @@ Table of Contents
    authorization response (Section 7).
 
    Before redeeming a software statement code, the client MUST verify
-   state and MUST validate the authorization response iss parameter
-   according to [RFC9207].
+   state, if it sent one, and MUST validate the authorization response
+   iss parameter according to [RFC9207].
 
    A public client presents no client authentication, so its association
    with the software depends on delivery to a metadata-listed
