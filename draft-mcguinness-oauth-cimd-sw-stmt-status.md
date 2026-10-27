@@ -240,7 +240,7 @@ The distinct key sets of {{relationship}} separate SET keys from statement and S
 
 # Privacy Considerations
 
-The privacy considerations of {{STATEMENT}}, {{STATUSLIST}}, {{SSF}}, and {{RFC8417}} apply. Retrieving a Status List Token on its own schedule keeps request timing from disclosing the client population a server serves ({{resolution-schedule}}).
+The privacy considerations of {{STATEMENT}}, {{STATUSLIST}}, {{SSF}}, and {{RFC8417}} apply. {{resolution-schedule}} describes how the resolution schedule limits what retrieval discloses. A retrieval that an event prompts shows the issuer that the receiver holds a statement or a cached status for the event's subject.
 
 Subject identifiers in these events name reviewed software and, in aggregate, describe an organization's approved software estate. For this reason, a stream is scoped as {{configuration}} provides. Event logs deserve the same care as statements ({{event-logs}}).
 
