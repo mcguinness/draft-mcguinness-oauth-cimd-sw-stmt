@@ -634,7 +634,7 @@ When an approval interface is shown, it MUST NOT imply that the approver is gran
 
 ## What Issuance Attests {#what-issuance-attests}
 
-A software statement means only that its issuer evaluated the document captured in the metadata snapshot ({{metadata-snapshot}}) under its issuance policy and decided to vouch for it, not that the document's contents are true. Because the client authors the metadata document, verification depth is part of the trust relationship ({{review-practice}}).
+A software statement means only that its issuer evaluated the document captured in the metadata snapshot ({{metadata-snapshot}}) under its issuance policy and decided to vouch for it, not that the document's contents are true. Because the client authors the metadata document, the document alone does not establish its contents ({{review-practice}}). Verification depth is part of the trust relationship.
 
 ## Client Metadata Retrieval
 
