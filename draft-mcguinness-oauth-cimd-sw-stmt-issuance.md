@@ -269,7 +269,7 @@ A use of an initial access token is consumed when the authorization server commi
 
 The authorization server MUST validate the subject token before retrieving client-controlled metadata or enqueueing any processing. A subject token MUST result in the `invalid_request` error code (Section 2.2.2 of {{RFC8693}}) if any of the following holds:
 
-* It is invalid or revoked.
+* It is invalid, revoked, or, for a statement, one that {{renewal}} forbids accepting.
 * It has expired, unless it is a prior software statement accepted under {{renewal}}.
 * It does not authorize issuance for the presented `client_id` parameter.
 
