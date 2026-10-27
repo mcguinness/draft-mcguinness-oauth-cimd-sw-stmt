@@ -49,7 +49,7 @@ normative:
 
 --- abstract
 
-This specification defines how the status of a CIMD software statement is published and checked. Token Status List supplies the authoritative status: an issuer publishes it, and a trusting authorization server resolves it on the list's own schedule and refuses a withdrawn statement. Optional Shared Signals events tell the servers relying on an issuer's statements that a status has changed, prompting them to check at once. An event only says when to look, so a server that misses every event reaches the same result on its ordinary schedule.
+This specification defines how the status of a software statement for a Client ID Metadata Document is published and checked. Token Status List supplies the authoritative status: an issuer publishes it, and a trusting authorization server resolves it on the list's own schedule and refuses a withdrawn statement. Optional Shared Signals events tell the servers relying on an issuer's statements that a status has changed, prompting them to check at once. An event only says when to look, so a server that misses every event reaches the same result on its ordinary schedule.
 
 --- middle
 
@@ -57,7 +57,7 @@ This specification defines how the status of a CIMD software statement is publis
 
 {{STATEMENT}} lets an issuer withdraw a decision before the statement's expiry but requires and defines no withdrawal mechanism. This specification defines two. {{token-status-list}} profiles Token Status List {{STATUSLIST}}: an issuer withdraws a decision by setting the statement's status, and a trusting authorization server learns of the change when it next resolves the list.
 
-A withdrawal therefore takes effect only as quickly as consumers poll. As an optional addition, this specification defines a Shared Signals Framework {{SSF}} event by which an issuer tells the trusting authorization servers that have configured it ({{STATEMENT}}) that a status has changed, prompting them to resolve it at once. An event carries no status, and the status list remains the authority on whether a statement stands ({{processing}}).
+A withdrawal therefore takes effect only as quickly as trusting authorization servers resolve the list. As an optional addition, this specification defines a Shared Signals Framework {{SSF}} event by which an issuer tells the trusting authorization servers that have configured it ({{STATEMENT}}) that a status has changed, prompting them to resolve it at once. An event carries no status, and the status list remains the authority on whether a statement stands ({{processing}}).
 
 The requirements of {{relationship}} through {{configuration}} apply only to implementations that support the events. This specification defines no new endpoint, transport, subject identifier format, or trust establishment mechanism. {{STATEMENT}} does not depend on this specification.
 
@@ -65,13 +65,13 @@ The requirements of {{relationship}} through {{configuration}} apply only to imp
 
 {::boilerplate bcp14-tagged}
 
-Transmitter, Receiver, Stream, and the delivery and configuration mechanisms are defined by {{SSF}}. Security Event Token, or SET, is defined by {{RFC8417}}. Subject identifier formats are defined by {{RFC9493}}. Status List Token, and the validation that resolves a status, are defined by {{STATUSLIST}}. The software statement, its claims, its validation, Issuer, Trusting Authorization Server, issuer trust configuration, runtime presentation, withdrawal, and Refusal Record are defined by {{STATEMENT}}.
+Transmitter, Receiver, Stream, and the delivery and configuration mechanisms are defined by {{SSF}}. Security Event Token (SET) is defined by {{RFC8417}}. Subject identifier formats are defined by {{RFC9493}}. Status List Token, and the validation that resolves a status, are defined by {{STATUSLIST}}. The terms Issuer, Trusting Authorization Server, Runtime Presentation, Effective Expiry, and Refusal Record are defined by {{STATEMENT}}, as are the software statement, its claims, its validation, issuer trust configuration, and withdrawal.
 
 For the events defined here, the issuer acts as a Transmitter, and a trusting authorization server that has configured it acts as a Receiver.
 
 # Token Status List {#token-status-list}
 
-An issuer may use Token Status List {{STATUSLIST}} as the withdrawal mechanism of {{STATEMENT}} for its statements. A trusting authorization server may resolve those statuses for any issuer it has configured.
+An issuer can use Token Status List {{STATUSLIST}} as a withdrawal mechanism ({{STATEMENT}}) for its statements. A trusting authorization server can resolve those statuses for any issuer it has configured.
 
 ## Status Publication {#status-publication}
 
@@ -96,7 +96,7 @@ Resolution follows {{STATUSLIST}}. In particular:
 
 To prevent a host serving an older token from restoring a status the issuer has withdrawn, a server MUST NOT replace a Status List Token it holds with one whose `iat` claim is earlier, and MUST treat one whose `iat` claim is equal but whose contents differ as a resolution failure. A statement whose status the server cannot resolve is bounded by its effective expiry, as {{STATEMENT}} provides.
 
-A server MUST obtain a Status List Token's verification keys from the `jwks_uri` of the issuer's authorization server metadata {{RFC8414}}, reached from the configured `iss`, never from the list itself.
+A server MUST obtain a Status List Token's verification keys from the `jwks_uri` of the issuer's authorization server metadata {{RFC8414}}, discovered from the configured `iss`, and never from the Status List Token itself.
 
 # Event Issuer Trust and Keys {#relationship}
 
@@ -117,13 +117,13 @@ A trusting authorization server MUST match the subject by exact comparison of th
 The payload ({{RFC8417}}) of an event defined here has the following claims:
 
 `event_timestamp`:
-: OPTIONAL. The {{CAEP}} member, a NumericDate value, here giving the time the issuer changed the status the event reports. It is informational: a receiver does not use it to order, bound, or scope anything.
+: OPTIONAL. The claim defined by {{CAEP}}, a NumericDate value that here gives the time at which the issuer changed the status the event reports. It is informational: a receiver does not use it to order, bound, or scope anything.
 
 `software_statement_jti`:
 : OPTIONAL. The `jti` claim value of a single statement whose status changed ({{processing}}).
 
 `reason_admin`:
-: OPTIONAL. An administrative message, as {{CAEP}} defines the member.
+: OPTIONAL. An administrative message, as {{CAEP}} defines the claim.
 
 ## Status Changed {#status-changed}
 
@@ -172,14 +172,14 @@ A receiver MUST treat an event it has already applied as successfully delivered 
 
 Two constraints bound every event:
 
-* An event MUST NOT by itself create standing, extend a statement's lifetime, or otherwise increase what a client may do. A receiver MUST ignore any payload member that would have such an effect.
+* An event MUST NOT by itself create standing, extend a statement's lifetime, or otherwise increase what a client can do. A receiver MUST ignore any payload claim that would have such an effect.
 * A receiver MUST continue to resolve status on its own schedule, and to enforce statement expiry, independently of this mechanism. Stream loss, transmitter unavailability, or delivery failure then leaves both controls in force.
 
 # Stream Configuration {#configuration}
 
 An issuer that supports the events defined here publishes Transmitter configuration metadata as {{SSF}} defines, discoverable from its issuer identifier. Stream creation, subject management, verification, and delivery follow {{SSF}}.
 
-A trusting authorization server that supports these events SHOULD create one stream per configured issuer that offers them. The stream can cover every subject that issuer attests, or the server can add each subject through the subject management of {{SSF}} when it first admits that software. Admission checks and the receiver's own status resolution ({{status-resolution}}, {{processing}}) remain independent of subscriptions, so a withdrawal whose event arrived before a subscription became active is found at a later resolution.
+A trusting authorization server that supports these events SHOULD create one stream per configured issuer that offers them. The stream can cover every subject that issuer attests, or the server can add each subject through the subject management of {{SSF}} when it first admits that software. Admission checks and the receiver's own status resolution ({{status-resolution}}, {{processing}}) remain independent of the subjects a stream covers, so a withdrawal whose event was transmitted before the subject was added to the stream is found at a later resolution.
 
 The subjects appropriate to a stream are those of the issuer's statements whose `aud` is absent or names the receiving authorization server, and a transmitter SHOULD scope each stream to them. A receiver discards events for subjects outside the identifier scope for which it accepts that issuer ({{STATEMENT}}).
 
@@ -201,7 +201,7 @@ The remaining exposure is resource cost: an attacker holding the issuer's SET si
 
 ## Status Remains the Authority
 
-Because a receiver resolves status independently ({{processing}}), an attacker who suppresses events delays a withdrawal at most until the receiver's next scheduled resolution and, for new presentations, never beyond the affected statements' expiry. Grants already open continue as the refresh policy of {{STATEMENT}} allows. Deployments therefore choose a resolution schedule and statement lifetimes they would accept with no event stream.
+Because a receiver resolves status independently ({{processing}}), an attacker who suppresses events delays a withdrawal at most until the receiver's next scheduled resolution and, for new admissions, never beyond the affected statements' effective expiry. Grants already open continue as the refresh policy of {{STATEMENT}} allows. Deployments therefore choose a resolution schedule and statement lifetimes they would accept with no event stream.
 
 A receiver SHOULD alert on stream loss rather than assume quiescence. The absence of events looks the same on a healthy stream and a suppressed one. Periodic stream verification ({{configuration}}) makes the difference observable.
 
