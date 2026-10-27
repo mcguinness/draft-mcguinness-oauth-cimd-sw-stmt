@@ -338,7 +338,7 @@ An establishment records all state required by {{STATEMENT}} and, in addition:
 
 * That this instance-binding profile governs the grant.
 * The exact attester identifier and evidence-policy identifier.
-* The attester trust decision and, for each grant, the attestation effective expiry most recently accepted.
+* The attester trust decision.
 
 The proven key is the attested key, which is also the DPoP key. Authorization transactions that share an establishment ({{grant-state}}) still retain separate PKCE challenges, redirects, `state`, resource-owner decisions, and continuation state.
 
@@ -372,7 +372,7 @@ The recorded statement can remain applicable while it is unexpired, not refused,
 
 A replacement MUST satisfy the replacement validation of {{STATEMENT}}, including identical statement `iss` and `sub` claims, a later `iat` claim, and current metadata. Its decision MUST apply to the establishment's recorded tenant and runtime use. Instead of authorizing a document key or preserving the public-client conditions of {{STATEMENT}}, the replacement MUST preserve this profile and authorize the establishment's proven key through a current attestation from the recorded attester under the recorded policy. The replacement and attestation MUST name the same current metadata digest. A replacement cannot expand access beyond the original grant, resource-owner authorization, or current server policy.
 
-On success, the server MUST apply the replacement to the refreshed grant alone, as {{STATEMENT}} does, atomically updating that grant's recorded statement, metadata, digest, and trust decisions under the concurrency rules of {{STATEMENT}}. It also records the newly accepted attestation effective expiry for that grant. A failed attempt MUST NOT replace the recorded binding or rotate a refresh token. This does not prevent the server from recording a withdrawal or trust removal learned during processing, or applying independent refresh-token replay protections.
+On success, the server MUST apply the replacement to the refreshed grant alone, as {{STATEMENT}} does, atomically updating that grant's recorded statement, metadata, digest, and trust decisions under the concurrency rules of {{STATEMENT}}. A failed attempt MUST NOT replace the recorded binding or rotate a refresh token. This does not prevent the server from recording a withdrawal or trust removal learned during processing, or applying independent refresh-token replay protections.
 
 Attestation renewal for the proven key is not key rotation and does not reset the `iat` floor or an establishment count.
 
