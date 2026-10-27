@@ -526,7 +526,7 @@ Under an establishment, a refresh-token request rejected for a reason this speci
 `invalid_request`:
 : The request carries `software_statement` in a role {{runtime-presentation}} does not permit.
 
-None of these rejections indicates refresh-token replay ({{RFC9700}}), and neither does a rejection reporting registration validity ({{REGISTRATION}}). A refresh-token request rejected for another reason, such as an expired or revoked refresh token, uses the error codes of Section 5.2 of {{RFC6749}}. This specification does not change how an authorization server detects refresh-token replay.
+None of these rejections indicates refresh-token replay ({{RFC9700}}). A refresh-token request rejected for another reason, such as an expired or revoked refresh token, uses the error codes of Section 5.2 of {{RFC6749}}. This specification does not change how an authorization server detects refresh-token replay.
 
 ## Authorization Endpoint {#authorization-errors}
 
