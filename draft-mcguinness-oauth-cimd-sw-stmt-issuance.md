@@ -189,7 +189,7 @@ At (C), the client redeems the code with its PKCE verifier. The response at (D) 
 
 # Client Identification and Authentication {#client-identity}
 
-The `client_id` in every request defined by this specification MUST be a client identifier URL conforming to {{CIMD}}. The authorization server MUST obtain and validate the corresponding Client ID Metadata Document according to {{CIMD}}.
+The `client_id` parameter in every request defined by this specification MUST be a client identifier URL conforming to {{CIMD}}. The authorization server MUST obtain and validate the corresponding Client ID Metadata Document according to {{CIMD}}.
 
 In the redirect flow, a client identifier whose metadata document cannot be retrieved or validated, including a document rejected for duplicate member names ({{metadata-snapshot}}), is invalid for the purposes of Section 4.1.2.1 of {{RFC6749}}. If the client identifier or redirection URI is missing or invalid, the authorization server MUST NOT redirect the user agent.
 
@@ -217,7 +217,7 @@ Replacing the snapshot does not alter the sender-constraint context fixed for a 
 
 The authorization server MUST reject duplicate object member names. Parsers can interpret duplicate members differently despite an identical digest.
 
-A document carries its keys inline through `jwks`, which the digest binds, or by reference through `jwks_uri`, which it binds only as a location. {{STATEMENT}} weighs the trade-off, and an issuer can require either.
+A document carries its keys inline through the `jwks` member, which the digest binds, or by reference through the `jwks_uri` member, which the digest binds only as a location. {{STATEMENT}} weighs the trade-off, and an issuer can require either.
 
 {{CIMD}} permits a document to carry a `software_statement` member. An issuer evaluates the document as served and MUST NOT refuse a document because it carries the member. Consumers ignore a statement embedded there ({{STATEMENT}}), and refusing would leave a client that published its statement unable to renew it.
 
@@ -305,7 +305,7 @@ The client sends an authorization request as described in Section 4.1.1 of {{RFC
 : REQUIRED. The client identifier URL described in {{client-identity}}.
 
 `redirect_uri`:
-: REQUIRED. The value MUST exactly match one of the redirection URIs in the Client ID Metadata Document, subject to the redirect URI rules of {{CIMD}}. Whatever authentication method the document declares, the value MUST NOT be a redirection URI that another application on the same device could claim, as the public-client presentation rules of {{STATEMENT}} define ({{authorization-response-security}}).
+: REQUIRED. The value MUST exactly match one of the redirection URIs in the Client ID Metadata Document, subject to the redirection URI rules of {{CIMD}}. Whatever authentication method the document declares, the value MUST NOT be a redirection URI that another application on the same device could claim, as the public-client presentation rules of {{STATEMENT}} define ({{authorization-response-security}}).
 
 `state`:
 : OPTIONAL. An opaque value used by the client to bind the authorization response to its request. Because the authorization server requires PKCE, a client can rely on PKCE for CSRF protection instead, as Section 2.1 of {{RFC9700}} permits.
@@ -369,7 +369,7 @@ A denial is never signaled in the authorization response: the authorization serv
 The software statement code response applies the authorization response protections of {{RFC9700}}. The authorization server returns the following parameters to the client's redirection endpoint, using the selected response mode:
 
 `software_statement_code`:
-: REQUIRED. A short-lived, single-use artifact redeemed at the token endpoint ({{software-statement-code-redemption}}). It MUST be bound to the client identifier, redirect URI, PKCE challenge, metadata snapshot, requested audience, and, when `dpop_jkt` was present, that JWK thumbprint.
+: REQUIRED. A short-lived, single-use artifact redeemed at the token endpoint ({{software-statement-code-redemption}}). It MUST be bound to the client identifier, redirection URI, PKCE challenge, metadata snapshot, requested audience, and, when the `dpop_jkt` parameter was present, that JWK thumbprint.
 
   The value MUST contain at least 128 bits of entropy from a cryptographically secure random source, be opaque to the client, expire shortly after issuance, and not be accepted more than once.
 
@@ -381,7 +381,7 @@ The software statement code response applies the authorization response protecti
 
 A software statement code is not an authorization code and MUST NOT be redeemable as one.
 
-Because scripts at the redirection endpoint can access the fragment, the fragment response mode SHOULD NOT be used. A client MAY request `form_post` {{FORM-POST}}.
+Because scripts at the redirection endpoint can access the fragment, the `fragment` response mode SHOULD NOT be used. A client MAY request the `form_post` response mode {{FORM-POST}}.
 
 The following is an example of a software statement code response using the default `query` response mode (line breaks are for display purposes only):
 
@@ -485,7 +485,7 @@ client-assertion-type%3Ajwt-bearer
 A successful response has HTTP status code 200, a media type of `application/json`, and the following members:
 
 `access_token`:
-: REQUIRED. The software statement issued by the authorization server. It MUST conform to {{STATEMENT}}, with `cimd_digest` the digest of the bound metadata snapshot, `aud` the selected audience if one is restricted, and `statement_uses` the uses issuance policy permits.
+: REQUIRED. The software statement issued by the authorization server. It MUST conform to {{STATEMENT}}, with the `cimd_digest` claim set to the digest of the bound metadata snapshot, the `aud` claim set to the selected audience if one is restricted, and the `statement_uses` claim set to the uses issuance policy permits.
 
 `issued_token_type`:
 : REQUIRED. The value MUST be `urn:ietf:params:oauth:token-type:software-statement`.
@@ -520,7 +520,7 @@ Pragma: no-cache
 
 The `access_token` member is a security-token container ({{RFC8693}}), not an OAuth access token. The software statement it carries is consumed only as {{STATEMENT}} provides, MUST NOT be attached to a request as an `Authorization: Bearer` credential, and is not subject to refresh.
 
-Implementations that cache issued tokens by type SHOULD key this artifact on its `issued_token_type` so that generic access-token handling does not apply to it, and SHOULD treat it as a sensitive credential in logs.
+Implementations that cache issued tokens by type SHOULD key this artifact on the response's `issued_token_type` member so that generic access-token handling does not apply to it, and SHOULD treat it as a sensitive credential in logs.
 
 ## Terminal Denial {#terminal-denial}
 
@@ -589,7 +589,7 @@ Fetching a Client ID Metadata Document and the resources it references exposes t
 
 The software statement is a signed credential and can contain sensitive deployment information, so it is never returned in an authorization response ({{authorization-response}}).
 
-Before redeeming a software statement code, the client MUST verify `state`, if it sent one, and MUST validate the authorization response `iss` parameter according to {{RFC9207}}.
+Before redeeming a software statement code, the client MUST verify the `state` parameter, if it sent one, and MUST validate the authorization response `iss` parameter according to {{RFC9207}}.
 
 A public client presents no client authentication, so its association with the software depends on delivery to a metadata-listed redirection endpoint. Another application can claim a private-use or loopback endpoint ({{RFC8252}}). PKCE and DPoP bind the code to the initiator but cannot stop an attacker from initiating under another party's `client_id`. Only an `https` endpoint no other application can claim demonstrates control of the publisher's origin, so {{authorization-request}} requires one. A native public client can host such an endpoint or use the token exchange profile ({{token-exchange-profile}}).
 
