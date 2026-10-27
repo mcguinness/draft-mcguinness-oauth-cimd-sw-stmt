@@ -338,7 +338,7 @@ Except as {{public-client-presentation}} provides, the proven key MUST appear in
 
 This specification requires a reviewed document to declare its client authentication method, so that the issuer's review and the trusting authorization server's treatment of the client do not depend on a default. The authorization server MUST reject a presentation under a reviewed document that omits the `token_endpoint_auth_method` member. It treats a statement pulled for such a document as review-only ({{public-client-presentation}}).
 
-A document carrying a redirection URI another application could claim is presented review-only whatever its authentication method ({{public-client-presentation}}), and the requirements above do not apply to that presentation. Two rejections still apply to such a document: a presentation under a document that omits `token_endpoint_auth_method`, as above, and a presentation at the token endpoint from a client whose reviewed document carries no key material ({{public-client-presentation}}).
+A document carrying a redirection URI another application could claim is presented review-only whatever its authentication method ({{public-client-presentation}}), and the requirements above do not apply to that presentation. Two rejections still apply to such a document: a presentation under a document that omits `token_endpoint_auth_method`, as above, and a presentation that opens a new grant at the token endpoint from a client whose reviewed document carries no key material ({{public-client-presentation}}).
 
 A statement whose reviewed document carries no key material is consumed at runtime under {{public-client-presentation}} and, if its `statement_uses` claim permits, at registration under the comparable rules of {{REGISTRATION}}.
 
@@ -362,7 +362,7 @@ A review-only presentation creates no establishment, admits nothing, and does no
 
 The statement of a review-only presentation MUST NOT satisfy a policy requiring reviewed software. If the server's policy requires reviewed software, it rejects a review-only client with `unauthorized_client`.
 
-An authorization server MUST reject, with the `invalid_client` error code, a presentation at the token endpoint under {{runtime-presentation}} from a client whose reviewed document carries no key material. Such a presentation opens no redirect and has nothing to bind it. A statement pulled for such a client at the token endpoint is instead review-only ({{pulled-statements}}).
+An authorization server MUST reject, with the `invalid_client` error code, a presentation that opens a new grant at the token endpoint ({{runtime-presentation}}) from a client whose reviewed document carries no key material. Such a presentation opens no redirect and has nothing to bind it. A statement pulled for such a client at the token endpoint is instead review-only ({{pulled-statements}}).
 
 ## Reviewed Metadata {#effective-metadata}
 
