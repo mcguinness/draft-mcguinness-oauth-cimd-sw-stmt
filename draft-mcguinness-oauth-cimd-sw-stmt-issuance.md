@@ -263,7 +263,7 @@ The initial access token is subject to the following:
 * A bearer one MUST be single-use.
 * The authorization server MUST enforce every restriction the credential carries and MUST prevent replay beyond its permitted number of uses.
 
-A DPoP proof on the exchange constrains any resulting deferral but neither authenticates the presenter nor protects the subject token (Section 3 of {{RFC9449}}). The initial access token therefore needs its own sender constraint or single-use restriction. {{iat-practice}} covers protecting the token in transit and at rest.
+A DPoP proof on the exchange constrains any resulting deferral but does not authenticate the presenter (Section 3 of {{RFC9449}}), and it protects the subject token only if that token is bound to the proof's key. {{iat-practice}} covers protecting the token in transit and at rest.
 
 A use of an initial access token is consumed when the authorization server commits to an outcome: issuing a statement, creating a deferral, or denying issuance. Concurrent presentations of a single-use credential MUST NOT both be committed.
 
