@@ -293,7 +293,7 @@ That authentication is the holder binding: without it, whoever held a copy of th
 
 A client rotating keys inline renews while its document carries both the old and the new key. For a document naming `jwks_uri`, the binding is to whatever that location serves. A public client holds no such key and obtains a replacement through the redirect flow ({{authorization-request}}).
 
-A replacement carries the subject statement's `aud_tenant` claim while the decision is confined to that tenant. It also carries the uses the subject statement permits, unless issuance policy narrows them. A replacement MUST NOT permit a use the subject statement does not. It is matched to the statement it replaces by `iss` and `sub` ({{STATEMENT}}).
+A replacement carries the subject statement's `aud_tenant` claim if the decision is confined to that tenant. It also carries the uses the subject statement permits, unless issuance policy narrows them. A replacement MUST NOT permit a use the subject statement does not. It is matched to the statement it replaces by `iss` and `sub` ({{STATEMENT}}).
 
 An issuer MUST NOT accept as the subject token a statement it has withdrawn ({{STATEMENT}}), or one whose status it publishes under {{STATUS}} as other than `VALID`. Renewing such a statement would reissue the decision that withdrawal ended.
 
