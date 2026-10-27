@@ -171,7 +171,7 @@ Evidence Policy:
 : A versioned set of requirements for establishing the association between software, an instance key, and reviewed metadata. It covers evidence collection, verification, freshness, and protection of key use.
 
 Attested Key:
-: The key an instance attestation's `cnf` claim names. Once an establishment records it, it is the establishment's proven key ({{STATEMENT}}), which this specification also calls the recorded key.
+: The key an instance attestation's `cnf` claim names. Once an establishment records it, it is the establishment's proven key ({{STATEMENT}}).
 
 Attestation Effective Expiry:
 : An instance attestation's `exp`, which an accepted evidence policy bounds by the age of the attester's evidence ({{trust}}).
@@ -298,7 +298,7 @@ At each pushed authorization request, code redemption, and refresh, the authoriz
 * The attestation's `cimd_digest`, the applicable software statement's `cimd_digest`, and the digest of the reviewed document are equal.
 * The attested key and the key of the DPoP proof are equal under the key-comparison rules of Section 7.3 of {{ABCA}}.
 
-On continuation, the recorded key, attester, policy, and tenant constraints of {{establishment}} also apply. The server MUST NOT treat an attestation for another digest as permission to update metadata without the software statement replacement required by {{refresh}}.
+On continuation, the proven key and the recorded attester, policy, and tenant constraints of {{establishment}} also apply. The server MUST NOT treat an attestation for another digest as permission to update metadata without the software statement replacement required by {{refresh}}.
 
 A server MUST NOT accept a software statement as an instance attestation, or an instance attestation as a software statement. Software statement signing keys retain the separation requirements of {{STATEMENT}}, so they never sign instance attestations, even if one organization performs both roles.
 
@@ -354,7 +354,7 @@ The server authenticates the resource owner and applies authorization policy ind
 
 ## Authorization Code Redemption {#redemption}
 
-The client sends `grant_type=authorization_code`, the code, the same `client_id` and `redirect_uri`, and the PKCE `code_verifier`. It MUST authenticate with a current instance attestation and a fresh proof under the recorded key. It does not send the `software_statement` parameter, which {{STATEMENT}} prohibits on code redemption.
+The client sends `grant_type=authorization_code`, the code, the same `client_id` and `redirect_uri`, and the PKCE `code_verifier`. It MUST authenticate with a current instance attestation and a fresh proof under the proven key. It does not send the `software_statement` parameter, which {{STATEMENT}} prohibits on code redemption.
 
 Before issuing tokens, the server MUST verify the code and PKCE binding and every fixed establishment value in {{establishment}}. It MUST re-evaluate both trust decisions, require the recorded statement to be unexpired and not refused, and confirm that the current Client ID Metadata Document still matches its recorded digest and meets {{client-metadata}}. Retrieval and cache reuse use the reuse bounds of {{STATEMENT}}. The attestation MUST match that digest and be within its attestation effective expiry.
 
@@ -442,7 +442,7 @@ The following error codes apply to pushed authorization requests, code redemptio
 
 Invalid statements and reviewed documents at the PAR endpoint otherwise use the error rules of {{STATEMENT}}. At refresh, an unacceptable replacement uses `statement_required` as in {{STATEMENT}}. A document exceeding a configured size bound is not a transient failure: it is rejected with `invalid_client` at the PAR endpoint, as {{STATEMENT}} rejects a presentation, and with `invalid_grant` at code redemption and refresh. An invalid or expired code or refresh token, failed PKCE check, or mismatched redemption redirect uses `invalid_grant`.
 
-A DPoP proof that fails the checks of Section 4.3 of {{RFC9449}} is rejected with `invalid_dpop_proof` (Section 5 of {{RFC9449}}), and a missing or unacceptable nonce with `use_dpop_nonce`, in place of any code listed above, as {{STATEMENT}} provides for proof-mechanism errors. A valid proof under a key other than the attestation's `cnf` key is not an invalid proof: authentication fails (Section 7.3 of {{ABCA}}), and the request is rejected with `invalid_client`. At code redemption and refresh, an instance that authenticates under a key other than the establishment's recorded key fails the grant binding and is rejected with `invalid_grant`.
+A DPoP proof that fails the checks of Section 4.3 of {{RFC9449}} is rejected with `invalid_dpop_proof` (Section 5 of {{RFC9449}}), and a missing or unacceptable nonce with `use_dpop_nonce`, in place of any code listed above, as {{STATEMENT}} provides for proof-mechanism errors. A valid proof under a key other than the attestation's `cnf` key is not an invalid proof: authentication fails (Section 7.3 of {{ABCA}}), and the request is rejected with `invalid_client`. At code redemption and refresh, an instance that authenticates under a key other than the establishment's proven key fails the grant binding and is rejected with `invalid_grant`.
 
 A `use_dpop_nonce` response MUST include the `DPoP-Nonce` HTTP header field.
 
@@ -567,7 +567,7 @@ grant_type=refresh_token
 &refresh_token=<refresh-token>
 ~~~
 
-If the recorded statement has expired, the server pulls a current replacement as {{STATEMENT}} permits for a grant established from a pulled statement. If the replacement names changed metadata, the attestation needs to name that same new digest while retaining the recorded key, attester, and policy. Otherwise the refresh fails without changing the binding.
+If the recorded statement has expired, the server pulls a current replacement as {{STATEMENT}} permits for a grant established from a pulled statement. If the replacement names changed metadata, the attestation needs to name that same new digest while retaining the proven key and the recorded attester and policy. Otherwise the refresh fails without changing the binding.
 
 # Authorization Server Metadata {#server-metadata}
 
@@ -632,7 +632,7 @@ This profile cannot ensure benign user intent, prevent an approved application f
 
 ## Loopback and Transaction Theft
 
-An attacker can attempt to occupy a loopback port, intercept a response, or initiate its own authorization transaction using the published client identifier. PKCE and proof of the recorded key protect redemption of an intercepted code. Admission of a new transaction additionally requires an acceptable instance attestation; PKCE or an unattested DPoP key alone supplies no software identity.
+An attacker can attempt to occupy a loopback port, intercept a response, or initiate its own authorization transaction using the published client identifier. PKCE and proof of the proven key protect redemption of an intercepted code. Admission of a new transaction additionally requires an acceptable instance attestation; PKCE or an unattested DPoP key alone supplies no software identity.
 
 The client keeps its verifier and transaction state confidential and unpredictable, as their respective specifications provide. A launcher handling authorization for another process acts as the signing broker of {{signing-brokers}}.
 
