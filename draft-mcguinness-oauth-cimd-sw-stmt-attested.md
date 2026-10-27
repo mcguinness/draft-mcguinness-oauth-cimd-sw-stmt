@@ -650,7 +650,7 @@ Attester authorization is scoped independently to client namespaces and tenants.
 
 ## Freshness and Availability
 
-Short effective lifetimes limit stale evidence but make attester availability important. A fresh proof demonstrates current access to a key, not that software was re-evaluated at proof time.
+Short effective lifetimes limit stale evidence but make attester availability important. The maximum evidence age ({{attestation}}), the trust-data reuse bound ({{trust}}), and {{withdrawal}} limit how long stale evidence or trust data is accepted. A fresh proof demonstrates current access to a key, not that software was re-evaluated at proof time.
 
 An access token cannot outlive the attestation accepted when it was issued ({{redemption}}), but it can outlive a review withdrawn or attester trust removed after issuance ({{withdrawal}}).
 
