@@ -39,6 +39,9 @@ normative:
     title: "Client ID Metadata Document Software Statement"
     author:
       - fullname: Karl McGuinness
+    date: 2026-10
+    seriesinfo:
+      Internet-Draft: draft-mcguinness-oauth-cimd-sw-stmt-00
   STATUSLIST: I-D.ietf-oauth-status-list
   SSF:
     target: https://openid.net/specs/openid-sharedsignals-framework-1_0.html
