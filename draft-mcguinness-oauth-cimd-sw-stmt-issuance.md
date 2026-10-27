@@ -98,7 +98,7 @@ The client presents the statement at registration or at runtime, or publishes it
 
 A statement makes one issuer's decision portable to the authorization servers in its audience that trust the issuer ({{STATEMENT}}). If the trust decision is local to one authorization server, an initial access token {{RFC7591}}, pre-registration {{CIMD}}, or approval-based registration {{APPROVAL-DCR}} can establish the client directly.
 
-Approval workflow, approver identity, external approval integration, acceptance of any particular issuer, and issuer discovery are out of scope.
+Approval workflow, approver identity, external approval integration, acceptance of any particular issuer, and issuer discovery are out of scope. {{STATEMENT}} does not depend on this specification.
 
 # Conventions and Definitions
 
@@ -191,7 +191,7 @@ At (C), the client redeems the code with its PKCE verifier. The response at (D) 
 
 The `client_id` parameter in every request defined by this specification MUST be a client identifier URL conforming to {{CIMD}}. The authorization server MUST obtain and validate the corresponding Client ID Metadata Document according to {{CIMD}}.
 
-In the redirect flow, a client identifier whose metadata document cannot be retrieved or validated, including a document rejected for duplicate member names ({{metadata-snapshot}}), is invalid for the purposes of Section 4.1.2.1 of {{RFC6749}}. If the client identifier or redirection URI is missing or invalid, the authorization server MUST NOT redirect the user agent.
+In the redirect flow, a client identifier whose Client ID Metadata Document cannot be retrieved or validated, including a document rejected for duplicate member names ({{metadata-snapshot}}), is invalid for the purposes of Section 4.1.2.1 of {{RFC6749}}. If the client identifier or redirection URI is missing or invalid, the authorization server MUST NOT redirect the user agent.
 
 The client authenticates to the token endpoint using the `token_endpoint_auth_method` and related key metadata in its Client ID Metadata Document. The authorization server classifies the client from that member:
 
@@ -207,7 +207,7 @@ A public client binds its requests with DPoP {{RFC9449}}: in the redirect flow t
 
 ## Metadata Snapshot {#metadata-snapshot}
 
-Client metadata documents can change while a request is pending. Before returning a software statement code or a deferral code, the authorization server MUST bind it to the exact octets of the document it retrieved and validated, and to their metadata digest ({{STATEMENT}}). The bound octets constitute the metadata snapshot for the request.
+Client ID Metadata Documents can change while a request is pending. Before returning a software statement code or a deferral code, the authorization server MUST bind it to the exact octets of the document it retrieved and validated, and to their metadata digest ({{STATEMENT}}). The bound octets constitute the metadata snapshot for the request.
 
 The authorization server MAY retrieve the document again before issuing the software statement. If it does so and the digest differs, it MUST either re-evaluate the request under the new document, binding the new document as the snapshot, or reject the request. This applies even if the change touches no member its policy examines. A statement over a superseded snapshot fails at registration ({{REGISTRATION}}).
 
@@ -532,7 +532,7 @@ The denial is terminal for the request. A denied deferral behaves as {{DTR}} spe
 
 An issuer that ends a decision before its expiry does so through a withdrawal mechanism ({{STATEMENT}}), such as the Token Status List binding of {{STATUS}}. Withdrawing a statement does not withdraw a replacement obtained through {{renewal}}, and withdrawing a replacement does not restore its predecessor.
 
-# Issuer and Consumer as One Server {#same-server}
+# Issuer as Trusting Authorization Server {#same-server}
 
 An authorization server that issued a statement already holds the decision that statement records. If it is also a trusting authorization server, it MAY admit the client on that record rather than require the statement to be presented back to it, at registration or at runtime.
 
@@ -542,7 +542,7 @@ At runtime, the recorded decision replaces the presented statement, not the proo
 
 # Authorization Server Metadata {#authorization-server-metadata}
 
-An authorization server that issues software statements under this specification advertises `true` for `client_id_metadata_document_supported` ({{CIMD}}) and publishes the issuer metadata of {{STATEMENT}}.
+An authorization server that issues software statements under this specification advertises `true` for `client_id_metadata_document_supported` ({{CIMD}}) and publishes the authorization server metadata that {{STATEMENT}} requires of an issuer.
 
 An issuer that may defer a request ({{deferred-processing}}) publishes the metadata {{DTR}} requires, including `true` for `deferred_token_response_supported`. A synchronous issuer advertises neither that value nor deferral-code revocation, and need not implement {{DTR}}.
 
@@ -561,11 +561,11 @@ This specification defines the following additional authorization server metadat
 
 The security considerations of {{STATEMENT}} apply.
 
-## Client Establishment Is Not an Access Grant
+## A Software Statement Is Not an Access Grant
 
 A software statement grants no resource access or consent on behalf of the software's users. A protected resource MUST NOT accept a software statement returned in the `access_token` member ({{software-statement-response}}) as an access token.
 
-When an approval interface is shown, it SHOULD state that the decision vouches for the client's metadata document. It MUST NOT imply that the approver is granting the client access to resources.
+When an approval interface is shown, it SHOULD state that the decision vouches for the client's Client ID Metadata Document. It MUST NOT imply that the approver is granting the client access to resources.
 
 An erroneous approval affects every authorization server in the statement's audience until expiry. The approval interface therefore SHOULD present the following:
 
@@ -595,7 +595,7 @@ A public client presents no client authentication, so its association with the s
 
 A confidential client's authentication proves possession of a key, not that the key is absent from software distributed to end users, so the requirement applies to it as well. Presentations of a statement over a document listing an endpoint another application can claim are in any case review-only at a trusting authorization server ({{STATEMENT}}).
 
-An authorization server SHOULD relate the redirection URI's origin to the client identifier URL or the metadata document's `client_uri` according to policy. Endpoint or key control informs issuance policy but does not determine issuance.
+An authorization server SHOULD relate the redirection URI's origin to the client identifier URL or the Client ID Metadata Document's `client_uri` according to policy. Endpoint or key control informs issuance policy but does not determine issuance.
 
 A software statement code in a URL is visible to browser history, referrer fields, logs, and other observers. It is short lived, single use, and unredeemable without the PKCE verifier and any bound `dpop_jkt` key. The `form_post` response mode ({{software-statement-code-response}}) keeps the code out of URLs.
 
@@ -630,7 +630,7 @@ A compromised software statement signing key lets an attacker mint statements fo
 
 A software statement does not identify the human or system that approved issuance. Deployments that require approver attribution retain it in an audit record or define a statement claim and its privacy semantics.
 
-An approved statement is accepted at every authorization server in its audience, not only within the approver's own scope. The policy governing who may approve issuance MUST be at least as restrictive as the policy governing manual client establishment at the issuer. Approval by a party authorized only for a personal or organizational scope MUST NOT produce a statement whose audience exceeds that scope, or whose `aud_tenant` names a tenant outside it.
+An approved statement is accepted at every authorization server in its audience, not only within the approver's own scope. The policy governing who may approve issuance MUST be at least as restrictive as the policy under which the issuer establishes a client manually. Approval by a party authorized only for a personal or organizational scope MUST NOT produce a statement whose audience exceeds that scope, or whose `aud_tenant` names a tenant outside it.
 
 To keep a look-alike document from reaching approval, an issuer SHOULD limit what an approver may approve to client identifiers under publisher namespaces it has enrolled.
 
@@ -647,11 +647,11 @@ Authorization servers SHOULD retain the exact retrieved octets of the approved d
 
 The privacy considerations of {{STATEMENT}} apply.
 
-The authorization server learns the client identifier URL, the client's metadata document, and information about the party interacting with the authorization endpoint. It SHOULD collect and retain only the information required for issuance, security monitoring, and audit obligations.
+The authorization server learns the client identifier URL, the client's Client ID Metadata Document, and information about the party interacting with the authorization endpoint. It SHOULD collect and retain only the information required for issuance, security monitoring, and audit obligations.
 
 An `aud` claim reveals which authorization servers the client intends to use. {{STATEMENT}} weighs that disclosure against omitting the claim and recommends naming an audience, which an issuer does by requiring one in the request ({{authorization-request}}).
 
-Clients SHOULD NOT present statements outside their intended deployment context. If the relationship is sensitive, a redirect-flow client SHOULD use Pushed Authorization Requests {{RFC9126}}.
+Clients SHOULD NOT present statements outside their intended deployment context. If the relationship is sensitive, a redirect-flow client SHOULD use pushed authorization requests {{RFC9126}}.
 
 Approval records can link a person to a client and deployment. Such records SHOULD be access-controlled and retained only as long as required.
 
@@ -777,7 +777,7 @@ Specification Document(s):
 
 **Why not a profile of attestation-based client authentication.** An attester vouches for a running instance and its key, for as long as it chooses, to the server in front of it; a statement issuer vouches for reviewed software, for days, to every server that trusts it. Profiling one as the other would give the reviewed-software decision an instance-scoped trust model, or give instance attestation unwarranted portability.
 
-**Why not OpenID Federation trust marks.** A trust mark {{OPENID-FED}} is a signed third-party assertion about an entity, resolved through a federation that supplies key discovery, policy, and delegation and requires both parties to enroll. This specification is pairwise: a consumer configures an issuer directly. Federation standardizes trust resolution, not enrollment, approval, or deferred completion. Ecosystems already operating a federation are better served by trust marks.
+**Why not OpenID Federation trust marks.** A trust mark {{OPENID-FED}} is a signed third-party assertion about an entity, resolved through a federation that supplies key discovery, policy, and delegation and requires both parties to enroll. This specification is pairwise: a trusting authorization server configures an issuer directly. Federation standardizes trust resolution, not enrollment, approval, or deferred completion. Ecosystems already operating a federation are better served by trust marks.
 
 **Deferred capabilities.** This version omits callback delivery for deferral.
 
