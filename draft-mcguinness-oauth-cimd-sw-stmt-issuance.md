@@ -367,7 +367,7 @@ Hybrid response types that combine `software_statement_code` with `code`, `token
 
 After validating the request and performing any immediate interaction, the authorization server returns the software statement code response or an error. The authorization server MUST NOT place the software statement or approval-sensitive information in any response from the authorization endpoint.
 
-A denial is never signaled in the authorization response: the authorization server returns a software statement code whether the issuance decision is approved, pending, or already denied, and delivers any denial at redemption ({{terminal-denial}}).
+A denial of issuance is never signaled in the authorization response: the authorization server returns a software statement code whether the issuance decision is approved, pending, or already denied, and delivers any denial at redemption ({{terminal-denial}}).
 
 ## Software Statement Code Response {#software-statement-code-response}
 
