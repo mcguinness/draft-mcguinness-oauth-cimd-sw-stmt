@@ -556,8 +556,6 @@ An authorization server supporting the redirect flow advertises `urn:ietf:params
 
 An authorization server supporting the token exchange profile ({{token-exchange-profile}}) advertises `urn:ietf:params:oauth:grant-type:token-exchange` in `grant_types_supported` and publishes the `software_statement_subject_token_types_supported` metadata value defined in this section. An implementation supporting only that profile advertises neither the software statement grant nor the `software_statement_code` response type.
 
-An authorization server that does not advertise the `deferred_token_response_supported` metadata value answers with a statement or a terminal denial, never a deferral.
-
 This specification defines the following additional authorization server metadata {{RFC8414}} value:
 
 `software_statement_subject_token_types_supported`:
