@@ -163,7 +163,7 @@ A trusting authorization server that receives an event defined here MUST process
 1. Verify the SET as {{RFC8417}} requires, including its `typ` JOSE header parameter, and verify that the SET's issuer is configured and that the keys verifying the SET were obtained as {{relationship}} requires.
 2. Reject an event whose `aud` claim does not contain the audience of the stream that delivered it ({{relationship}}) or whose event type is not recognized.
 3. Resolve the subject ({{subjects}}).
-4. Resolve the status of the affected statements from the issuer's Status List Token as {{STATUSLIST}} defines, using a copy that the status list URI served, or confirmed by revalidation, in response to a request begun after the event arrived, without waiting for the schedule that would otherwise apply, and apply the resolved status as {{status-resolution}} defines.
+4. Resolve the status of the affected statements from the Status List Token each statement's `status` claim references, as {{STATUSLIST}} defines, using a copy that the status list URI served, or confirmed by revalidation, in response to a request begun after the event arrived, without waiting for the schedule that would otherwise apply, and apply the resolved status as {{status-resolution}} defines.
 
 If step 1 or 2 fails, the receiver reports a SET error as {{RFC8935}} or {{RFC8936}} provides. Otherwise, it acknowledges the SET, whatever steps 3 and 4 produce.
 
