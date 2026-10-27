@@ -139,7 +139,7 @@ An authorization server MUST apply the following validity model to every registr
   * An authorization request carrying the `software_statement` parameter is rejected with `invalid_request` instead, as {{STATEMENT}} provides.
   * {{RFC7592}} read and delete requests remain available for a client to learn its registration's state and end it.
   * At the token and pushed authorization request endpoints, the client is first authenticated against the retained registration, and a request that fails that authentication is rejected with `invalid_client`, as for an unknown client.
-* The authorization server SHOULD retain the expired record for a later authenticated revalidation ({{oracle-considerations}}). A valid replacement restores the registration ({{revalidation}}), so no grace period is needed.
+* The authorization server SHOULD retain the expired registration for a later authenticated revalidation ({{oracle-considerations}}). A valid replacement restores the registration ({{revalidation}}), so no grace period is needed.
 
 At the authorization endpoint, the rejection is returned in the authorization error response (Section 4.1.2.1 of {{RFC6749}}). The authorization server redirects with it only after validating the request's `redirect_uri` against the retained registration. If it cannot do so, it MUST NOT redirect and reports the error to the resource owner instead. The client then delivers a replacement as {{revalidation}} provides.
 
