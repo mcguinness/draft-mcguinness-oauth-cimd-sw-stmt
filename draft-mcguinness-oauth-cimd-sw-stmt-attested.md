@@ -131,7 +131,7 @@ A native application's installations cannot safely authenticate by a private key
 
 Existing mechanisms do not provide reviewed-software admission for loopback clients. Loopback redirects with Proof Key for Code Exchange (PKCE) {{RFC7636}} protect an authorization code from interception, but any application can start a transaction with a native client's identifier, the client impersonation that Section 8.6 of {{RFC8252}} describes. Attestation-based client authentication {{ABCA}} alone shows that an installation holds a key an attester vouches for, not that the installation runs the software a statement issuer approved for a particular document. The public-client binding of {{STATEMENT}} relies on redirection URIs no other application can claim, which loopback URIs are not.
 
-This specification defines an alternative binding made of three checks, which stay separate even when one organization operates both issuing roles:
+This specification defines an alternative binding made of three elements, which stay separate even when one organization operates both issuing roles:
 
 * The software statement records approval of the software, as its publisher identifies it ({{trust}}), and its exact metadata.
 * An instance attestation, from an independently trusted client attester under an evidence policy the authorization server accepts, associates an installation's key with that software and metadata.
@@ -233,7 +233,7 @@ The server MUST use the tenant determined for the grant by its own trusted proce
 The server cannot observe how an attester reached its decision, so it relies on the evidence policy. An evidence policy is acceptable for reviewed-software admission only if it meets all of the following requirements:
 
 * Before issuing each instance attestation, the attester verifies control of the private instance key through an authenticated, replay-resistant exchange bound to the submitted public key.
-* The attester evaluates evidence about the software instance and protection of key use, and sets each attestation's `exp` no later than the time that evidence was collected plus the policy's maximum evidence age. Rounding or randomizing `exp` (Section 11.1 of {{ABCA}}) only moves it earlier. A previous attestation is not evidence: a renewal rests on new evidence under the same bound.
+* The attester evaluates evidence about the software instance and protection of key use, and sets each attestation's `exp` no later than the time that evidence was collected plus the policy's maximum evidence age. The attester rounds or randomizes `exp` (Section 11.1 of {{ABCA}}) only toward an earlier time. A previous attestation is not evidence: a renewal rests on new evidence under the same bound.
 * The attester establishes an authenticated association between the software identity and the CIMD URL, retrieves and validates the document under {{CIMD}}, and calculates its digest under {{STATEMENT}}.
 * The attester confirms that the artifact or package identity established by the evidence is covered by that association for the document version the attestation names. The association is authorized by whoever controls the origin of the CIMD URL, or by an authority that controller has explicitly delegated, for example through a manifest served from that origin or signed under that controller's or delegate's authority. An enterprise inventory can authenticate or record such an authorization; listing a package and someone else's CIMD URL together does not create one. A URL, file path, digest, or publisher name asserted only by the requesting process does not suffice. The metadata digest is not an executable digest.
 * The policy defines what identifies the software, how evidence authenticates that identity and the instance key, how use of the key is restricted to the software instance the evidence covers, a finite maximum evidence age, and the treatment of updates, scripts, plugins, and other executable extensions.
@@ -315,7 +315,7 @@ Before returning a successful PAR response, the server MUST:
 
 1. Validate request syntax and the client identifier, resolve the applicable tenant, and authenticate the instance under {{trust}}, {{attestation}}, and {{proof}}. Checks needing no client-controlled retrieval precede such retrieval.
 2. Validate the selected statement under {{STATEMENT}}, including issuer and tenant policy, audience, effective expiry, permission for runtime presentation, refusal records, and the applicable `iat` floor. If statements are pulled, step 3 resolves the document first, since the document names where statements are published, and that specification's retrieval and selection rules apply.
-3. Resolve the Client ID Metadata Document and perform the digest and metadata checks of {{STATEMENT}}. Parse the same bytes it digested, enforce {{client-metadata}}, and complete the cross-artifact checks of {{attestation-validation}}.
+3. Resolve the Client ID Metadata Document and perform the digest and metadata checks of {{STATEMENT}}. Parse the same bytes the server digested, enforce {{client-metadata}}, and complete the cross-artifact checks of {{attestation-validation}}.
 4. Validate the requested redirect under {{loopback}}, require PKCE `S256`, and evaluate the request against the reviewed metadata and authorization policy.
 5. Create or reuse an establishment under {{establishment}}, bind the accepted request to it, and return a PAR response under {{RFC9126}}.
 
@@ -373,7 +373,7 @@ Attestation renewal for the proven key is not key rotation and does not reset th
 
 A known refusal record for the software statement is enforced as {{STATEMENT}} requires. A current acceptable replacement can restore continuation only under {{refresh}}. A server using a statement withdrawal mechanism SHOULD consult it at code redemption and refresh within that mechanism's freshness rules. Failure to consult it does not clear an existing refusal.
 
-Because {{attestation-validation}} checks current attester trust and local denial rules at each pushed authorization request, code redemption, and refresh, removing an attester's authorization for this client and tenant, removing the policy, or denying the instance key prevents further use of the affected binding. A fresh attestation does not override those decisions. A deployment that cannot refresh trust data MUST NOT accept it beyond a configured maximum staleness bound.
+Because {{attestation-validation}} checks current attester trust and local denial rules at each pushed authorization request, code redemption, and refresh, removing an attester's authorization for this client and tenant, removing the policy, or denying the instance key prevents further use of the affected binding. A fresh attestation does not override those decisions. A deployment that cannot refresh trust data MUST NOT accept that trust data beyond a configured maximum staleness bound.
 
 This specification defines no interoperable attestation or instance revocation protocol. Deployments MAY use independently established mechanisms or local denial lists. In their absence, attestation effective expiry bounds acceptance of evidence that has become stale without the server learning of it. Withdrawal of a review, removal of trust, and expiry of evidence do not themselves revoke access tokens already issued, so deployments requiring prompt enforcement need short token lifetimes or independent token revocation.
 
@@ -441,13 +441,13 @@ A `use_dpop_nonce` response MUST include the `DPoP-Nonce` HTTP header field.
 
 ## Error Precedence and Disclosure {#error-precedence}
 
-Servers MUST check basic request syntax before reporting errors requiring authentication. They MUST authenticate the instance before reporting errors about a code, refresh token, or the review governing that grant. Within authentication, they MUST verify attester identity, signature, and policy before returning `use_fresh_attestation`. Nonce challenges MAY precede completion of authentication and MUST NOT reveal tenant trust configuration. When several failures remain at one stage, a server MAY choose any applicable error without disclosing additional failed checks.
+Servers MUST check basic request syntax before reporting errors requiring authentication. They MUST authenticate the instance before reporting errors about a code, a refresh token, or the review governing the grant. Within authentication, they MUST verify attester identity, signature, and policy before returning `use_fresh_attestation`. Nonce challenges MAY precede completion of authentication and MUST NOT reveal tenant trust configuration. When several failures remain at one stage, a server MAY choose any applicable error without disclosing additional failed checks.
 
 Details of configured issuers, attesters, evidence policies, and tenant restrictions MUST NOT be exposed in error descriptions to unauthenticated callers, as {{STATEMENT}} requires of its issuer trust configuration.
 
 ## Authorization Endpoint {#authorization-errors}
 
-At the authorization endpoint, a missing or invalid required pushed authorization request is rejected with `invalid_request`. The server MUST NOT redirect an error unless it has validated the redirect under the applicable client metadata and transaction. Front-channel carriage of the statement or instance-attestation artifacts is rejected with `invalid_request`.
+At the authorization endpoint, when {{authorization}} requires a PAR `request_uri`, a request without a valid one is rejected with `invalid_request`. The server MUST NOT redirect with an error unless it has validated the redirect URI under the applicable client metadata and transaction. Front-channel carriage of the statement or instance-attestation artifacts is rejected with `invalid_request`.
 
 # Examples {#examples}
 
@@ -581,7 +581,7 @@ The security requirements of {{STATEMENT}}, {{ABCA}}, {{CIMD}}, {{RFC8252}}, and
 
 A valid signature proves that an accepted attester made an assertion; it does not improve the evidence behind it. An attester accepting self-reported executable hashes would let a copied statement and an arbitrary key satisfy the binding. The evidence and mapping requirements in {{trust}} prevent that substitution only when the deployment actually enforces them.
 
-A key's non-exportability does not prove which process can use it. An acceptable evidence policy therefore requires key storage and any signing broker to restrict use to the software instance the policy covers ({{trust}}). A general signing service reachable by arbitrary local processes would let unreviewed software authenticate through an approved installation. A signing broker therefore exposes constrained operations rather than arbitrary signing: it produces proofs for the authorization server only within its own processing of an OAuth transaction, and proofs for resource requests only for resource endpoints the caller is authorized to reach and only with that caller's own access token. A broker that handles authorization for another process binds the authenticated caller, intended authorization server, callback, PKCE verifier, and resulting grant to one local session. Remote attestation of a device without an application-to-key binding has the same limitation.
+A key's non-exportability does not prove which process can use it. An acceptable evidence policy therefore requires key storage and any signing broker to restrict use to the software instance the policy covers ({{trust}}). A general signing service reachable by arbitrary local processes would let unreviewed software authenticate through an approved installation. A signing broker therefore exposes constrained operations rather than arbitrary signing: it produces proofs for the authorization server only within its own processing of an OAuth transaction, and proofs for resource requests only for resource endpoints the caller is authorized to reach and only with that caller's own access token. A broker that handles authorization for another process binds the authenticated caller, intended authorization server, callback, PKCE verifier, and resulting grant to one local session. Remote attestation of a device without an application-to-key binding likewise does not prove which process can use the key.
 
 This profile cannot ensure benign user intent, prevent an approved application from being used as a proxy, or preserve an assurance after compromise of the platform on which its evidence depends. A server MUST present assurances no stronger than the accepted policy supports. Plugins, scripts, dynamic libraries, debuggers, and injected code can change the effective software identity and require explicit treatment in that policy.
 
@@ -595,15 +595,15 @@ The client MUST keep its verifier and transaction state confidential and unpredi
 
 A server requiring reviewed software for a client namespace or tenant MUST enforce that requirement even when the requester omits every review artifact or presents an earlier document. A server requiring this binding MUST reject attempts to open a grant under an alternative authentication method, through a direct authorization request, or through another grant type. These requirements MUST be based on server policy, not inferred only from artifacts a requester can withhold.
 
-The server MUST enforce the reviewed binding selection on every new admission under that document. A deployment permitting unrelated unreviewed clients MAY continue to do so under its own policy, but a failed request under this profile is rejected rather than admitted under that policy ({{par}}). Any independently admitted unreviewed client carries none of the assurance of this specification.
+The server MUST enforce the reviewed binding selection on every new admission under a reviewed document that selects this profile. A deployment permitting unrelated unreviewed clients MAY continue to do so under its own policy, but a failed request under this profile is rejected rather than admitted under that policy ({{par}}). Any independently admitted unreviewed client carries none of the assurance of this specification.
 
-Existing grants retain their recorded binding ({{selection}}, {{establishment}}). A server implementing only {{STATEMENT}} continues to reject these clients where review is required.
+Existing grants retain their recorded binding ({{selection}}, {{establishment}}). A server implementing only {{STATEMENT}} continues to reject clients that select this profile where review is required.
 
 ## Artifact Substitution and Key Separation
 
 The distinct attestation type, digest binding, subject equality, and fixed establishment values prevent a generic attestation or one for another reviewed document from being substituted. Implementations MUST apply mutually exclusive validation rules for software statements and instance attestations. Software-statement signing keys retain the separation requirements of {{STATEMENT}} and MUST NOT sign instance attestations, even if one organization performs both roles.
 
-Attester authorization is scoped independently to client namespaces and tenants. An over-broad attester can undermine the binding for every namespace for which it may issue instance attestations. A statement issuer and an attester colluding or both being compromised can make false assertions within the authority the server has assigned them.
+Attester authorization is scoped independently to client namespaces and tenants. An over-broad attester can undermine the binding for every namespace for which it may issue instance attestations. A statement issuer and an attester that collude, or that are both compromised, can make false assertions within the authority the server has assigned them.
 
 ## Freshness and Availability
 
@@ -741,7 +741,7 @@ The `iss`, `sub`, `aud`, `iat`, `exp`, and `cnf` claims are defined elsewhere an
 
 This appendix is non-normative. A managed desktop can implement the evidence boundary with a trusted launcher or enterprise agent and an enterprise attestation service. Other mechanisms are possible if they meet {{trust}}.
 
-The enterprise enrolls the launcher through an authenticated management channel. It records a manifest, authorized by the controller of the CIMD URL's origin or its delegate, associating a signed package or exact artifact with that CIMD identifier, and approves it for the applicable evidence policy. The launcher uses platform facilities to authenticate the actual calling process and validate that association. It does not trust a process's own claim about its executable path or hash.
+The enterprise enrolls the launcher through an authenticated management channel. It records a manifest, authorized by the controller of the CIMD URL's origin or its delegate, that associates a signed package or exact artifact with that CIMD URL. It approves the manifest for the applicable evidence policy. The launcher uses platform facilities to authenticate the actual calling process and validate that association. It does not trust a process's own claim about its executable path or hash.
 
 The launcher creates or provisions the instance key in protected storage and obtains an attestation through an authenticated exchange with the enterprise service. That service verifies the evidence, the binding to the key, and the document digest before issuing the attestation. The service's signing key is distinct from the instance key and is accepted through the authorization server's attester trust configuration.
 
@@ -757,7 +757,7 @@ Software identity:
 : The publisher signs each release with an Apple-issued developer certificate, under the hardened runtime {{APPLE-RUNTIME}} and one signing identifier. A manifest served from the CIMD URL's origin and naming the publisher's Team ID and that identifier covers each such release. A manifest naming code directory hashes covers only the listed builds.
 
 Key isolation:
-: The launcher is a per-user application whose provisioning profile authorizes a data protection keychain access group for the launcher alone. macOS grants such groups only through entitlements a provisioning profile authorizes, and only in a user context {{APPLE-KEYCHAIN}}. It creates a P-256 instance key in the Secure Enclave, from which key material cannot be transferred {{APPLE-ENCLAVE}}, and keeps it under that access group, so the client cannot use the key directly.
+: The launcher is a per-user application whose provisioning profile authorizes a data protection keychain access group for the launcher alone. macOS grants such groups only through entitlements a provisioning profile authorizes, and only in a user context {{APPLE-KEYCHAIN}}. The launcher creates a P-256 instance key in the Secure Enclave, from which key material cannot be transferred {{APPLE-ENCLAVE}}, and keeps it under that access group, so the client cannot use the key directly.
 
 Caller identification:
 : The client connects to the launcher over XPC. The launcher sets a code-signing requirement on the connection that requires an Apple-issued certificate chain, the publisher's Team ID, and the client's signing identifier, and the system invalidates a connection whose peer does not satisfy it {{APPLE-XPC}}. The launcher never relies on a process ID or a reported path.
