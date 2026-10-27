@@ -244,7 +244,7 @@ The privacy considerations of {{STATEMENT}}, {{STATUSLIST}}, {{SSF}}, and {{RFC8
 
 Subject identifiers in these events name reviewed software and, in aggregate, describe an organization's approved software estate. For this reason, a stream is scoped as {{configuration}} provides. Event logs deserve the same care as statements ({{event-logs}}).
 
-Because this specification defines no durable receiver-side record, it adds no negative state about a client identifier that outlives the issuer's own published status. A receiver that logs events creates such a record ({{event-logs}}).
+Because the events this specification defines create no durable receiver-side record, they add no negative state about a client identifier that outlives the issuer's own published status. A receiver that logs events creates such a record ({{event-logs}}).
 
 # IANA Considerations
 
