@@ -343,7 +343,7 @@ The proven key is the attested key, which is also the DPoP key. A server MAY reu
 
 The client identifier, tenant, key, attester, policy, and binding profile MUST remain fixed for the lifetime of the grant. Changing any of them requires a new grant opened through PAR. A fresh attestation that keeps these values can renew the grant's evidence, and a software statement replacement can update the grant's reviewed metadata only as {{refresh}} permits. Neither operation changes these values.
 
-The server MUST bind its `request_uri`, code, refresh token, and other grant continuation state to the establishment. Servers SHOULD bound establishments as {{STATEMENT}} describes, and also per resource owner and tenant so that one installation cannot exhaust the capacity available to other installations.
+The server MUST bind its `request_uri`, code, refresh token, and other grant continuation state to the establishment ({{resource-bounds}}).
 
 ## Browser Authorization {#authorization}
 
@@ -581,6 +581,14 @@ A supporting server MUST publish its `pushed_authorization_request_endpoint` met
 
 A client MUST confirm support for this specification before starting a grant under it. The generic attestation method advertisement alone is insufficient. This profile requires PAR for its clients even when the server also serves other clients without PAR; it does not require the server's global `require_pushed_authorization_requests` value to be `true`.
 
+# Implementation Considerations {#implementation-considerations}
+
+This section gives guidance to implementers. It adds no requirement.
+
+## Bounding Establishments and Pending Requests {#resource-bounds}
+
+A server can bound establishments as {{STATEMENT}} describes, and also per resource owner and tenant, so that one installation cannot exhaust the capacity available to other installations. It can limit pending pushed authorization requests separately from any bound on establishments, and its rate limits can account for client, instance key, tenant, and authenticated resource owner as available.
+
 # Security Considerations {#security-considerations}
 
 The security considerations of {{STATEMENT}}, {{ABCA}}, {{CIMD}}, {{RFC8252}}, and {{RFC9700}} apply. This section describes the additional trust boundary introduced by this specification.
@@ -621,7 +629,7 @@ Metadata digest binding can require coordinated publication of a new document, r
 
 ## Resource Exhaustion
 
-Attestations do not remove the need for bounded document retrieval, statement selection, proof replay caches, and PAR storage. Servers SHOULD limit pending PAR transactions separately from any bound on establishments ({{STATEMENT}}). Rate limits SHOULD account for client, instance key, tenant, and authenticated resource owner as available. An attester SHOULD limit enrollment and renewal so one approved installation cannot obtain unlimited keys to evade per-key controls.
+Attestations do not remove the need for bounded document retrieval, statement selection, proof replay caches, and PAR storage ({{resource-bounds}}). An attester SHOULD limit enrollment and renewal so one approved installation cannot obtain unlimited keys to evade per-key controls.
 
 # Privacy Considerations {#privacy}
 
