@@ -477,7 +477,7 @@ The following is a non-normative example of a first polling request for a deferr
 
 ~~~ http
 POST /token HTTP/1.1
-Host: issuer.example
+Host: server.example.com
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Adeferred
