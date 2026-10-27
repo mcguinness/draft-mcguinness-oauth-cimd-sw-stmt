@@ -200,12 +200,12 @@ A document selecting this profile MUST meet all of the following requirements:
 
 * Its `client_id` is its HTTPS document URL, as required by {{CIMD}}.
 * Its `token_endpoint_auth_method` is the single string `attest_jwt_client_auth_dpop`. No alternative authentication method is offered under this profile.
-* Its `grant_types` explicitly contains `authorization_code` and MAY also contain `refresh_token`. It contains no other grant type.
+* Its `grant_types` member explicitly contains `authorization_code` and MAY also contain `refresh_token`. It contains no other grant type.
 * Its `response_types` explicitly contains only `code`.
 * Its `redirect_uris` is a nonempty array, every member of which meets {{loopback}}.
-* It MUST NOT contain `jwks` or `jwks_uri`. Instance keys are authorized only through {{attestation-validation}}, not by document key material.
+* It MUST NOT contain the `jwks` or `jwks_uri` member. Instance keys are authorized only through {{attestation-validation}}, not by document key material.
 
-The document MAY contain `software_statements_uri` as defined by {{STATEMENT}}. Metadata governing requested access, such as `scope`, remains subject to that specification. Every member, including the binding selection, is covered by the statement's digest.
+The document MAY contain the `software_statements_uri` member as defined by {{STATEMENT}}. Metadata governing requested access, such as `scope`, remains subject to that specification. Every member, including the binding selection, is covered by the statement's digest.
 
 ## Loopback Redirects {#loopback}
 
@@ -265,7 +265,7 @@ The attestation contains the following claims. The `sub`, `iat`, `exp`, and `cnf
 : REQUIRED. It is not an evidence timestamp, and an attester can round or randomize it as Section 11.1 of {{ABCA}} recommends.
 
 `exp`:
-: REQUIRED. It MUST be later than `iat`. It bounds the age of the evidence behind the attestation, as the accepted evidence policy requires ({{trust}}).
+: REQUIRED. It MUST be later than the `iat` claim. It bounds the age of the evidence behind the attestation, as the accepted evidence policy requires ({{trust}}).
 
 `cnf`:
 : REQUIRED. The attested key ({{RFC7800}}), in the form Section 4 of {{ABCA}} requires.
@@ -276,7 +276,7 @@ The attestation contains the following claims. The `sub`, `iat`, `exp`, and `cnf
 `cimd_instance_policy`:
 : REQUIRED. A string containing an absolute URI identifying the evidence policy under which the attester attested the instance key. The URI is an identifier, not a retrieval instruction. It MUST be compared exactly with an accepted policy identifier.
 
-A server MUST reject an attestation whose `exp` has passed or is later than the current time plus the maximum evidence age it accepts for the attester and evidence policy. It MUST NOT reject an attestation only because its `iat` was rounded or randomized. No field supplied by the client can extend these bounds.
+A server MUST reject an attestation whose `exp` claim has passed or is later than the current time plus the maximum evidence age it accepts for the attester and evidence policy. It MUST NOT reject an attestation only because its `iat` claim was rounded or randomized. No field supplied by the client can extend these bounds.
 
 An attestation is not tied to a statement's `jti`, so a statement renewed over unchanged bytes need not cause re-attestation.
 
@@ -307,7 +307,7 @@ This section specifies processing at the pushed authorization request, authoriza
 
 ## Pushed Authorization Request {#par}
 
-The client MUST start every grant under this profile at the PAR endpoint. Its request MUST include `client_id`, `response_type=code`, `redirect_uri`, and a PKCE `code_challenge` with `code_challenge_method=S256`. It MAY include `state`: the server requires PKCE ({{server-metadata}}), so the client can rely on PKCE for CSRF protection, as Section 2.1 of {{RFC9700}} permits. It MUST authenticate under {{proof}}. A request using a Request Object MUST meet {{RFC9126}} and MUST NOT provide conflicting parameter values; the following checks apply to the effective authorization request.
+The client MUST start every grant under this profile at the PAR endpoint. Its request MUST include `client_id`, `response_type=code`, `redirect_uri`, and a PKCE `code_challenge` with `code_challenge_method=S256`. It MAY include the `state` parameter: the server requires PKCE ({{server-metadata}}), so the client can rely on PKCE for CSRF protection, as Section 2.1 of {{RFC9700}} permits. It MUST authenticate under {{proof}}. A request using a Request Object MUST meet {{RFC9126}} and MUST NOT provide conflicting parameter values; the following checks apply to the effective authorization request.
 
 The client presents its software statement using `software_statement` as defined by {{STATEMENT}}, or the server obtains a statement through that specification's pulled-statement mechanism.
 
@@ -339,15 +339,15 @@ The server MUST bind its `request_uri`, code, refresh token, and other grant con
 
 ## Browser Authorization {#authorization}
 
-The client MUST use an external user-agent under {{RFC8252}}. The browser authorization request MUST use the `request_uri` from the PAR response and the same `client_id`. It MUST NOT carry the software statement, instance attestation, or an instance proof. The server MUST use the stored PAR parameters and MUST NOT allow front-channel parameters to change the redirect, PKCE challenge, key binding, or tenant.
+The client MUST use an external user-agent under {{RFC8252}}. The browser authorization request MUST use the `request_uri` parameter from the PAR response and the same `client_id` parameter. It MUST NOT carry the software statement, instance attestation, or an instance proof. The server MUST use the stored PAR parameters and MUST NOT allow front-channel parameters to change the redirect, PKCE challenge, key binding, or tenant.
 
 When the client's Client ID Metadata Document selects this profile or server policy requires it, the server MUST reject a direct authorization request without a PAR `request_uri` governed by this profile. A statement pulled at the authorization endpoint cannot create an exception to that requirement.
 
-The server authenticates the resource owner and applies authorization policy independently of the software and instance checks. It MUST return the authorization response with the issuer identifier in the `iss` parameter defined by {{RFC9207}}. The client MUST validate that identifier, and `state` if it sent one, against the transaction before redeeming a code. Callback validation and OAuth security requirements in {{RFC8252}} and {{RFC9700}} continue to apply.
+The server authenticates the resource owner and applies authorization policy independently of the software and instance checks. It MUST return the authorization response with the issuer identifier in the `iss` parameter defined by {{RFC9207}}. The client MUST validate that identifier, and the `state` parameter if it sent one, against the transaction before redeeming a code. Callback validation and OAuth security requirements in {{RFC8252}} and {{RFC9700}} continue to apply.
 
 ## Authorization Code Redemption {#redemption}
 
-The client sends `grant_type=authorization_code`, the code, the same `client_id` and `redirect_uri`, and the PKCE `code_verifier`. It MUST authenticate with a currently acceptable instance attestation and a fresh proof under the recorded key. It MUST NOT send `software_statement` on this request, as {{STATEMENT}} prohibits a presentation during code redemption.
+The client sends `grant_type=authorization_code`, the code, the same `client_id` and `redirect_uri`, and the PKCE `code_verifier`. It MUST authenticate with a currently acceptable instance attestation and a fresh proof under the recorded key. It MUST NOT send the `software_statement` parameter on this request, as {{STATEMENT}} prohibits a presentation during code redemption.
 
 Before issuing tokens, the server MUST verify the code and PKCE binding and every fixed establishment value in {{establishment}}. It MUST re-evaluate both trust decisions, require the recorded statement to be unexpired and not refused, and confirm that the current Client ID Metadata Document still matches its recorded digest and meets {{client-metadata}}. Retrieval and cache reuse use the freshness bounds of {{STATEMENT}}. The attestation MUST match that digest and be within its attestation effective expiry.
 
@@ -363,7 +363,7 @@ On every refresh the server MUST require a current, unexpired, unrefused softwar
 
 The recorded statement can remain applicable while it is unexpired, not refused, and matches the current document, even if a newer statement has raised the `iat` floor for new admissions. If it no longer qualifies, a replacement is required. The client can present a replacement in `software_statement` or, for an establishment created from a pulled statement, the server pulls one as {{STATEMENT}} specifies. A statement with the same `iss` and `jti` as the recorded statement is a recheck, not a replacement.
 
-A replacement MUST satisfy the replacement validation of {{STATEMENT}}, including identical statement `iss` and `sub`, a later `iat`, and current metadata. Its decision MUST apply to the establishment's recorded tenant and runtime use. Instead of authorizing a document key or preserving the public-client conditions of {{STATEMENT}}, the replacement MUST preserve this profile and authorize the establishment's proven key through a current attestation from the recorded attester under the recorded policy. The replacement and attestation MUST name the same current metadata digest. A replacement cannot expand access beyond the original grant, resource-owner authorization, or current server policy.
+A replacement MUST satisfy the replacement validation of {{STATEMENT}}, including identical statement `iss` and `sub` claims, a later `iat` claim, and current metadata. Its decision MUST apply to the establishment's recorded tenant and runtime use. Instead of authorizing a document key or preserving the public-client conditions of {{STATEMENT}}, the replacement MUST preserve this profile and authorize the establishment's proven key through a current attestation from the recorded attester under the recorded policy. The replacement and attestation MUST name the same current metadata digest. A replacement cannot expand access beyond the original grant, resource-owner authorization, or current server policy.
 
 On success, the server MUST apply the replacement to the refreshed grant alone, as {{STATEMENT}} does, atomically updating that grant's recorded statement, metadata, digest, and trust decisions under the concurrency rules of {{STATEMENT}}. It also records the newly accepted attestation effective expiry for that grant. A failed attempt MUST NOT replace the recorded binding or rotate a refresh token. This does not prevent the server from recording a withdrawal or trust removal learned during processing, or applying independent refresh-token replay protections.
 
@@ -441,7 +441,7 @@ A `use_dpop_nonce` response MUST include the `DPoP-Nonce` HTTP header field.
 
 ## Error Precedence and Disclosure {#error-precedence}
 
-Servers MUST check basic request syntax before reporting errors requiring authentication. They MUST authenticate the instance before reporting errors about a code, a refresh token, or the review governing the grant. Within authentication, they MUST verify attester identity, signature, and policy before returning `use_fresh_attestation`. Nonce challenges MAY precede completion of authentication and MUST NOT reveal tenant trust configuration. When several failures remain at one stage, a server MAY choose any applicable error without disclosing additional failed checks.
+Servers MUST check basic request syntax before reporting errors requiring authentication. They MUST authenticate the instance before reporting errors about a code, a refresh token, or the review governing the grant. Within authentication, they MUST verify attester identity, signature, and policy before returning the `use_fresh_attestation` error code. Nonce challenges MAY precede completion of authentication and MUST NOT reveal tenant trust configuration. When several failures remain at one stage, a server MAY choose any applicable error without disclosing additional failed checks.
 
 Details of configured issuers, attesters, evidence policies, and tenant restrictions MUST NOT be exposed in error descriptions to unauthenticated callers, as {{STATEMENT}} requires of its issuer trust configuration.
 
@@ -569,7 +569,7 @@ This specification defines the following authorization server metadata {{RFC8414
 `software_statement_instance_binding_supported`:
 : OPTIONAL. Boolean value indicating whether the authorization server supports this specification. If omitted, the default value is `false`. A server advertising `true` MUST implement the requirements of this specification. Support does not promise acceptance of any particular client, statement issuer, attester, evidence policy, or tenant.
 
-A supporting server MUST publish its `pushed_authorization_request_endpoint`, include `attest_jwt_client_auth_dpop` in `token_endpoint_auth_methods_supported`, advertise `S256` in `code_challenge_methods_supported`, and publish `dpop_signing_alg_values_supported` ({{RFC9449}}) and `client_attestation_signing_alg_values_supported` (Section 8 of {{ABCA}}). It MUST support {{RFC9207}} and publish `authorization_response_iss_parameter_supported` as `true`.
+A supporting server MUST publish its `pushed_authorization_request_endpoint` metadata value, include `attest_jwt_client_auth_dpop` in the `token_endpoint_auth_methods_supported` metadata value, advertise `S256` in the `code_challenge_methods_supported` metadata value, and publish the `dpop_signing_alg_values_supported` ({{RFC9449}}) and `client_attestation_signing_alg_values_supported` metadata values (Section 8 of {{ABCA}}). It MUST support {{RFC9207}} and publish the `authorization_response_iss_parameter_supported` metadata value as `true`.
 
 A client MUST confirm support for this specification before starting a grant under it. The generic attestation method advertisement alone is insufficient. This profile requires PAR for its clients even when the server also serves other clients without PAR; it does not require the server's global `require_pushed_authorization_requests` value to be `true`.
 
