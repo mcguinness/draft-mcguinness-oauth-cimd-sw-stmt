@@ -273,7 +273,7 @@ The authorization server MUST validate the subject token before retrieving clien
 * It has expired, unless it is a prior software statement accepted under {{renewal}}.
 * It does not authorize issuance for the presented `client_id` parameter.
 
-An unacceptable requested audience results in `invalid_target` {{RFC8693}}.
+If no requested audience is acceptable, the request is rejected with the `invalid_target` error code (Section 2.2.2 of {{RFC8693}}).
 
 An error response to a token exchange MUST NOT contain the subject token.
 
