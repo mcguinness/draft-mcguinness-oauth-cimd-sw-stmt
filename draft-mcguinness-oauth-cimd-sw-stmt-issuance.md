@@ -565,6 +565,14 @@ This specification defines the following additional authorization server metadat
 `software_statement_subject_token_types_supported`:
 : REQUIRED for an authorization server that supports the token exchange profile ({{token-exchange-profile}}), and absent otherwise. A JSON array of the `subject_token_type` values the authorization server accepts when `requested_token_type` is `urn:ietf:params:oauth:token-type:software-statement`. Publishing this member signals support for the profile. Listing `urn:ietf:params:oauth:token-type:software-statement` among its values advertises renewal by prior statement ({{renewal}}).
 
+# Implementation Considerations {#implementation-considerations}
+
+This section gives guidance to implementers. It adds no requirement.
+
+## Retrieval and Approval-Queue Bounds {#processing-bounds}
+
+An authorization server can rate-limit token exchanges, cache successful retrieval results within the bounds {{STATEMENT}} describes, back off after failures rather than caching them, since {{CIMD}} forbids caching failures, and bound pending deferrals per client identifier and requester. Because the redirect flow reaches the approval queue before any client-authenticated step, the same rate limits and pending-approval bounds per client identifier can apply there.
+
 # Security Considerations {#security-considerations}
 
 The security considerations of {{STATEMENT}} apply.
@@ -607,13 +615,7 @@ A software statement code in a URL is visible to browser history, referrer field
 
 ## Token Exchange Considerations {#te-considerations}
 
-Validating the subject token before metadata retrieval or enqueueing ({{token-exchange-profile}}) limits resource consumption by unauthorized requesters. Authorization servers SHOULD still do the following:
-
-* Rate-limit these exchanges.
-* Cache successful retrieval results and, because {{CIMD}} forbids caching failures, back off after failures instead of caching them.
-* Bound pending deferrals per client identifier and requester.
-
-Because the redirect flow reaches the approval queue before any client-authenticated step, authorization servers SHOULD apply the same rate limits and pending-approval bounds per client identifier there.
+Validating the subject token before metadata retrieval or enqueueing ({{token-exchange-profile}}) limits resource consumption by unauthorized requesters. Other bounds are local ({{processing-bounds}}).
 
 A subject token is an authorization credential, not a client identifier. If the Client ID Metadata Document declares a method, a subject token does not substitute for client authentication.
 
