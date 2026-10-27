@@ -84,25 +84,35 @@ Table of Contents
    11. Withdrawal
    12. Issuer as Trusting Authorization Server
    13. Authorization Server Metadata
-   14. Security Considerations
-     14.1.  A Software Statement Is Not an Access Grant
-     14.2.  What Issuance Attests
-     14.3.  Client Metadata Retrieval
-     14.4.  Authorization Response Security
-     14.5.  Token Exchange Considerations
-     14.6.  Renewal by Prior Statement
-     14.7.  Signing Keys and Algorithms
-     14.8.  Approver Identity and Audit
-   15. Privacy Considerations
-   16. IANA Considerations
-     16.1.  OAuth Authorization Endpoint Response Types Registry
-     16.2.  OAuth URI Registry
-     16.3.  OAuth Parameters Registry
-     16.4.  OAuth Extensions Error Registry
-     16.5.  OAuth Authorization Server Metadata Registry
-   17. References
-     17.1.  Normative References
-     17.2.  Informative References
+   14. Implementation Considerations
+     14.1.  Retrieval and Approval-Queue Bounds
+     14.2.  Handling the Issued Statement
+     14.3.  Approval Interface
+     14.4.  Audit and Logging
+   15. Deployment Considerations
+     15.1.  Initial Access Tokens
+     15.2.  Review and Approval Practice
+     15.3.  Deferral Lifetimes
+     15.4.  Signing Keys
+   16. Security Considerations
+     16.1.  A Software Statement Is Not an Access Grant
+     16.2.  What Issuance Attests
+     16.3.  Client Metadata Retrieval
+     16.4.  Authorization Response Security
+     16.5.  Token Exchange Considerations
+     16.6.  Renewal by Prior Statement
+     16.7.  Signing Keys and Algorithms
+     16.8.  Approver Authority
+   17. Privacy Considerations
+   18. IANA Considerations
+     18.1.  OAuth Authorization Endpoint Response Types Registry
+     18.2.  OAuth URI Registry
+     18.3.  OAuth Parameters Registry
+     18.4.  OAuth Extensions Error Registry
+     18.5.  OAuth Authorization Server Metadata Registry
+   19. References
+     19.1.  Normative References
+     19.2.  Informative References
    Appendix A.  Design Rationale
    Acknowledgments
    Author's Address
@@ -409,9 +419,6 @@ Table of Contents
 
    *  A bearer one MUST be single-use.
 
-   *  It SHOULD be integrity protected and kept confidential in transit
-      and at rest, and MAY further restrict audiences or metadata.
-
    *  The authorization server MUST enforce every restriction the
       credential carries and MUST prevent replay beyond its permitted
       number of uses.
@@ -419,7 +426,8 @@ Table of Contents
    A DPoP proof on the exchange constrains any resulting deferral but
    neither authenticates the presenter nor protects the subject token
    (Section 3 of [RFC9449]).  The initial access token therefore needs
-   its own sender constraint or single-use restriction.
+   its own sender constraint or single-use restriction.  Section 15.1
+   covers protecting the token in transit and at rest.
 
    A use of an initial access token is consumed when the authorization
    server commits to an outcome: issuing a statement, creating a
@@ -441,6 +449,9 @@ Table of Contents
 
    An unacceptable requested audience results in invalid_target
    [RFC8693].
+
+   An error response to a token exchange MUST NOT contain the subject
+   token.
 
    The authorization server MUST bind a fresh metadata snapshot
    (Section 4.1) and the requested audience before returning either the
@@ -517,7 +528,7 @@ Table of Contents
       method the document declares, the value MUST NOT be a redirection
       URI that another application on the same device could claim, as
       the public-client presentation rules of [STATEMENT] define
-      (Section 14.4).
+      (Section 16.4).
 
    state:  OPTIONAL.  An opaque value used by the client to bind the
       authorization response to its request.  Because the authorization
@@ -606,9 +617,9 @@ Table of Contents
    the software statement or approval-sensitive information in any
    response from the authorization endpoint.
 
-   A denial is never signaled in the authorization response: the
-   authorization server returns a software statement code whether the
-   issuance decision is approved, pending, or already denied, and
+   A denial of issuance is never signaled in the authorization response:
+   the authorization server returns a software statement code whether
+   the issuance decision is approved, pending, or already denied, and
    delivers any denial at redemption (Section 10.1).
 
 7.1.  Software Statement Code Response
@@ -636,6 +647,10 @@ Table of Contents
 
    A software statement code is not an authorization code and MUST NOT
    be redeemable as one.
+
+   Before redeeming a software statement code, the client MUST verify
+   the state parameter, if it sent one, and MUST validate the
+   authorization response iss parameter according to [RFC9207].
 
    Because scripts at the redirection endpoint can access the fragment,
    the fragment response mode SHOULD NOT be used.  A client MAY request
@@ -697,7 +712,7 @@ Table of Contents
    A redemption attempt consumes the software statement code whenever
    the presented code value is one the authorization server issued that
    has neither expired nor been consumed, including when its PKCE, DPoP,
-   or client-authentication bindings fail (Section 14.4).  A DPoP nonce
+   or client-authentication bindings fail (Section 16.4).  A DPoP nonce
    challenge [RFC9449] is not a binding failure: an authorization server
    requiring a nonce issues the use_dpop_nonce challenge before
    evaluating the code, which remains unconsumed.
@@ -746,7 +761,8 @@ Table of Contents
    deferred token response [DTR] instead of a statement.
 
    Deferral follows [DTR], including the sender constraint it fixes at
-   origination, with the following additions:
+   origination, with the following additions (Section 15.3 covers
+   choosing a deferral code lifetime):
 
    *  A deferral created under this specification MUST be delivered by
       polling.  Callback delivery is omitted from this version
@@ -759,10 +775,6 @@ Table of Contents
 
    *  A successful polling response is the software statement token
       response of Section 10, not an access token response.
-
-   *  Issuers SHOULD set deferral code lifetimes that reflect their
-      actual approval latency, which for a review involving human
-      judgment can be hours or days.
 
    The following is a non-normative example of a first polling request
    for a deferral created by a token exchange, from a confidential
@@ -831,12 +843,8 @@ Table of Contents
    not an OAuth access token.  The software statement it carries is
    consumed only as [STATEMENT] provides, MUST NOT be attached to a
    request as an Authorization: Bearer credential, and is not subject to
-   refresh.
-
-   Implementations that cache issued tokens by type SHOULD key this
-   artifact on the response's issued_token_type member so that generic
-   access-token handling does not apply to it, and SHOULD treat it as a
-   sensitive credential in logs.
+   refresh.  A protected resource MUST NOT accept a software statement
+   returned in the access_token member as an access token.
 
 10.1.  Terminal Denial
 
@@ -913,10 +921,9 @@ Table of Contents
    profile advertises neither the software statement grant nor the
    software_statement_code response type.
 
-   A client that requires deferral MUST NOT send a request to an
-   authorization server that does not advertise the
-   deferred_token_response_supported metadata value.  Such an issuer
-   answers with a statement or a terminal denial, never a deferral.
+   An authorization server that does not advertise the
+   deferred_token_response_supported metadata value answers with a
+   statement or a terminal denial, never a deferral.
 
    This specification defines the following additional authorization
    server metadata [RFC8414] value:
@@ -931,25 +938,33 @@ Table of Contents
       statement among its values advertises renewal by prior statement
       (Section 5.1).
 
-14.  Security Considerations
+14.  Implementation Considerations
 
-   The security considerations of [STATEMENT] apply.
+   This section gives guidance to implementers.  It adds no requirement.
 
-14.1.  A Software Statement Is Not an Access Grant
+14.1.  Retrieval and Approval-Queue Bounds
 
-   A software statement grants no resource access or consent on behalf
-   of the software's users.  A protected resource MUST NOT accept a
-   software statement returned in the access_token member (Section 10)
-   as an access token.
+   An authorization server can rate-limit token exchanges, cache
+   successful retrieval results within the document's caching
+   directives, as [STATEMENT] describes, back off after failures rather
+   than caching them, since [CIMD] forbids caching failures, and bound
+   pending deferrals per client identifier and requester.  Because the
+   redirect flow reaches the approval queue before any client-
+   authenticated step, the same rate limits and pending-approval bounds
+   per client identifier can apply there.
 
-   When an approval interface is shown, it SHOULD state that the
-   decision vouches for the client's Client ID Metadata Document.  It
-   MUST NOT imply that the approver is granting the client access to
-   resources.
+14.2.  Handling the Issued Statement
 
-   An erroneous approval affects every authorization server in the
-   statement's audience until expiry.  The approval interface therefore
-   SHOULD present the following:
+   A client that caches issued tokens by type ought to key the issued
+   software statement (Section 10) on the response's issued_token_type
+   member, so that generic access-token handling does not apply to it,
+   and ought to treat it as a sensitive credential in logs.
+
+14.3.  Approval Interface
+
+   An approval interface ought to state that the decision vouches for
+   the client's Client ID Metadata Document, and ought to present the
+   following:
 
    *  The client identifier URL, with its origin shown as the client's
       identity, and with display metadata such as the client_name and
@@ -967,36 +982,105 @@ Table of Contents
    *  The intended lifetime.
 
    If the client requested a different or broader audience, the
-   interface SHOULD make narrowing visible.  A document naming attesters
-   in client_attesters ([ATTESTERS]) endorses them for the software
-   under review and deserves particular scrutiny.
+   interface ought to make narrowing visible.
 
-14.2.  What Issuance Attests
+14.4.  Audit and Logging
+
+   An authorization server ought to keep an audit record that binds each
+   decision, whether approval or denial, to the following:
+
+   *  The metadata digest (Section 4.1) of the document the deciding
+      party evaluated.
+
+   *  The policy under which the decision was made.
+
+   *  The identity of the deciding party.
+
+   *  The time of decision.
+
+   An authorization server ought to retain the exact retrieved octets of
+   the approved document for audit, because a re-serialized copy cannot
+   reproduce the digest.  A deployment that requires approver
+   attribution can retain it in an audit record or define a statement
+   claim and its privacy semantics.
+
+   Authorization servers ought to keep subject tokens out of logs,
+   traces, and audit records.
+
+15.  Deployment Considerations
+
+   This section gives guidance to operators and issuers.  It adds no
+   requirement.
+
+15.1.  Initial Access Tokens
+
+   An initial access token ought to be integrity protected and kept
+   confidential in transit and at rest.  It can further restrict
+   audiences or metadata, and the authorization server enforces every
+   restriction the token carries (Section 5).
+
+15.2.  Review and Approval Practice
+
+   Because the client authors the metadata document, an issuer ought to
+   corroborate security-relevant metadata through evidence beyond the
+   document itself.  Issuance policy can relate the redirection URI's
+   origin to the client identifier URL or the Client ID Metadata
+   Document's client_uri member.
+
+   To keep a look-alike document from reaching approval, an issuer ought
+   to limit what an approver can approve to client identifiers under
+   publisher namespaces it has enrolled.  A document naming attesters in
+   client_attesters ([ATTESTERS]) endorses them for the software under
+   review and deserves particular scrutiny.
+
+15.3.  Deferral Lifetimes
+
+   Issuers ought to set deferral code lifetimes that reflect their
+   actual approval latency, which for a review involving human judgment
+   can be hours or days (Section 9).
+
+15.4.  Signing Keys
+
+   An issuer ought to protect its signing keys according to the scope of
+   its trust relationships and support controlled key rotation.
+
+16.  Security Considerations
+
+   The security considerations of [STATEMENT] apply.
+
+16.1.  A Software Statement Is Not an Access Grant
+
+   A software statement grants no resource access or consent on behalf
+   of the software's users, and a protected resource does not accept one
+   as an access token (Section 10).
+
+   When an approval interface is shown, it MUST NOT imply that the
+   approver is granting the client access to resources.  An erroneous
+   approval affects every authorization server in the statement's
+   audience until expiry (Section 14.3, Section 15.2).
+
+16.2.  What Issuance Attests
 
    A software statement means only that its issuer evaluated the
    document captured in the metadata snapshot (Section 4.1) under its
    issuance policy and decided to vouch for it, not that the document's
    contents are true.  Because the client authors the metadata document,
-   an issuer SHOULD corroborate security-relevant metadata through
-   evidence beyond the document itself.  Verification depth is part of
-   the trust relationship.
+   the document alone does not establish its contents (Section 15.2).
+   Verification depth is part of the trust relationship.
 
-14.3.  Client Metadata Retrieval
+16.3.  Client Metadata Retrieval
 
    Fetching a Client ID Metadata Document and the resources it
    references exposes the authorization server to server-side request
    forgery, resource exhaustion, malicious content, and client
    impersonation.  The considerations of [CIMD] apply.
 
-14.4.  Authorization Response Security
+16.4.  Authorization Response Security
 
    The software statement is a signed credential and can contain
    sensitive deployment information, so it is never returned in an
-   authorization response (Section 7).
-
-   Before redeeming a software statement code, the client MUST verify
-   the state parameter, if it sent one, and MUST validate the
-   authorization response iss parameter according to [RFC9207].
+   authorization response (Section 7).  The client's state and iss
+   checks (Section 7.1) counter cross-site request forgery and mix-up.
 
    A public client presents no client authentication, so its association
    with the software depends on delivery to a metadata-listed
@@ -1015,10 +1099,8 @@ Table of Contents
    in any case review-only at a trusting authorization server
    ([STATEMENT]).
 
-   An authorization server SHOULD relate the redirection URI's origin to
-   the client identifier URL or the Client ID Metadata Document's
-   client_uri member according to policy.  Endpoint or key control
-   informs issuance policy but does not determine issuance.
+   Endpoint or key control informs issuance policy but does not
+   determine issuance (Section 15.2).
 
    A software statement code in a URL is visible to browser history,
    referrer fields, logs, and other observers.  It is short lived,
@@ -1026,40 +1108,28 @@ Table of Contents
    dpop_jkt key.  The form_post response mode (Section 7.1) keeps the
    code out of URLs.
 
-14.5.  Token Exchange Considerations
+16.5.  Token Exchange Considerations
 
    Validating the subject token before metadata retrieval or enqueueing
    (Section 5) limits resource consumption by unauthorized requesters.
-   Authorization servers SHOULD still do the following:
-
-   *  Rate-limit these exchanges.
-
-   *  Cache successful retrieval results and, because [CIMD] forbids
-      caching failures, back off after failures instead of caching them.
-
-   *  Bound pending deferrals per client identifier and requester.
-
-   Because the redirect flow reaches the approval queue before any
-   client-authenticated step, authorization servers SHOULD apply the
-   same rate limits and pending-approval bounds per client identifier
-   there.
+   Other bounds are local policy (Section 14.1).
 
    A subject token is an authorization credential, not a client
    identifier.  If the Client ID Metadata Document declares a method, a
    subject token does not substitute for client authentication.
 
    A subject token appears in a form body, so any component recording
-   request bodies can expose it.  Authorization servers MUST exclude
-   subject tokens from logs, traces, error messages, and audit records.
-   Clients and authorization servers MUST protect a subject token as a
-   bearer credential unless its format provides proof of possession.
+   request bodies can expose it (Section 5, Section 14.4).  Clients and
+   authorization servers MUST protect a subject token as a bearer
+   credential unless its format provides proof of possession.
 
    A token exchange carries no in-band evidence of user participation.
    An authorization server MUST NOT treat a token exchange as implying
-   prior user consent and MUST apply the same issuance and approval
-   policy as for the redirect flow.
+   prior user consent.  An initial access token that authorizes issuance
+   (Section 5) records a decision made, when the token was issued, under
+   the policy that governs approval in the redirect flow.
 
-14.6.  Renewal by Prior Statement
+16.6.  Renewal by Prior Statement
 
    If both the reviewed document and the current document carry their
    keys inline, a party able to change the current document cannot
@@ -1070,24 +1140,21 @@ Table of Contents
    spares automated renewal a long-lived reusable initial access token,
    a standing credential to mint statements.
 
-14.7.  Signing Keys and Algorithms
+16.7.  Signing Keys and Algorithms
 
    A compromised software statement signing key lets an attacker mint
-   statements for every audience that trusts it.
+   statements for every audience that trusts it (Section 15.4).
 
-   *  Issuers SHOULD protect signing keys according to the scope of
-      their trust relationships and support controlled key rotation.
+   Issuers SHOULD prefer signature algorithms with modern security
+   properties, such as PS256, ES256, or EdDSA, over RSASSA-PKCS1-v1_5
+   (RS256), and MUST follow [RFC8725] when signing.
 
-   *  Issuers SHOULD prefer signature algorithms with modern security
-      properties, such as PS256, ES256, or EdDSA, over RSASSA-PKCS1-v1_5
-      (RS256), and MUST follow [RFC8725] when signing.
-
-14.8.  Approver Identity and Audit
+16.8.  Approver Authority
 
    A software statement does not identify the human or system that
-   approved issuance.  Deployments that require approver attribution
-   retain it in an audit record or define a statement claim and its
-   privacy semantics.
+   approved issuance (Section 14.4).  A look-alike document, or one
+   naming attesters in client_attesters ([ATTESTERS]), can reach an
+   approver (Section 15.2).
 
    An approved statement is accepted at every authorization server in
    its audience, not only within the approver's own scope.  The policy
@@ -1097,54 +1164,32 @@ Table of Contents
    scope MUST NOT produce a statement whose audience exceeds that scope,
    or whose aud_tenant claim names a tenant outside it.
 
-   To keep a look-alike document from reaching approval, an issuer
-   SHOULD limit what an approver can approve to client identifiers under
-   publisher namespaces it has enrolled.
-
-   Authorization servers SHOULD keep an audit record that binds each
-   decision, whether approval or denial, to the following:
-
-   *  The metadata digest (Section 4.1) of the document the deciding
-      party evaluated.
-
-   *  The policy under which the decision was made.
-
-   *  The identity of the deciding party.
-
-   *  The time of decision.
-
-   Authorization servers SHOULD retain the exact retrieved octets of the
-   approved document for audit.  A re-serialized copy cannot reproduce
-   the digest.
-
-15.  Privacy Considerations
+17.  Privacy Considerations
 
    The privacy considerations of [STATEMENT] apply.
 
    The authorization server learns the client identifier URL, the
    client's Client ID Metadata Document, and information about the party
-   interacting with the authorization endpoint.  It SHOULD collect and
+   interacting with the authorization endpoint.  It ought to collect and
    retain only the information required for issuance, security
    monitoring, and audit obligations.
 
    An aud claim reveals which authorization servers the client intends
    to use.  [STATEMENT] weighs that disclosure against omitting the
-   claim and recommends naming an audience, which an issuer does by
+   claim and advises naming an audience, which an issuer does by
    requiring one in the request (Section 6).
 
-   Clients SHOULD NOT present statements outside their intended
-   deployment context.  If the client's relationship with the
-   authorization servers its audience parameter names is sensitive, a
-   redirect-flow client SHOULD use pushed authorization requests
-   [RFC9126].
+   If the client's relationship with the authorization servers its
+   audience parameter names is sensitive, a redirect-flow client SHOULD
+   use pushed authorization requests [RFC9126].
 
    Approval records can link a person to a client and deployment.  Such
-   records SHOULD be access-controlled and retained only as long as
+   records ought to be access-controlled and retained only as long as
    required.
 
-16.  IANA Considerations
+18.  IANA Considerations
 
-16.1.  OAuth Authorization Endpoint Response Types Registry
+18.1.  OAuth Authorization Endpoint Response Types Registry
 
    This specification requests registration of the following value in
    the IANA "OAuth Authorization Endpoint Response Types" registry
@@ -1157,7 +1202,7 @@ Table of Contents
    Specification Document(s):  This specification, Section 6 and
       Section 7
 
-16.2.  OAuth URI Registry
+18.2.  OAuth URI Registry
 
    This specification requests registration of the following values in
    the IANA "OAuth URI" registry:
@@ -1179,7 +1224,7 @@ Table of Contents
    Specification Document(s):  This specification, Section 10 and
       Section 5
 
-16.3.  OAuth Parameters Registry
+18.3.  OAuth Parameters Registry
 
    This specification requests that IANA add this specification,
    Section 6 and Section 5, as an additional reference for the existing
@@ -1205,7 +1250,7 @@ Table of Contents
    Specification Document(s):  This specification, Section 7.1 and
       Section 8
 
-16.4.  OAuth Extensions Error Registry
+18.4.  OAuth Extensions Error Registry
 
    Both error codes this specification uses at new locations are already
    registered.  This specification requests that IANA add it as an
@@ -1232,7 +1277,7 @@ Table of Contents
 
    Specification Document(s):  [RFC8707], this specification (Section 6)
 
-16.5.  OAuth Authorization Server Metadata Registry
+18.5.  OAuth Authorization Server Metadata Registry
 
    This specification requests registration of the following values in
    the IANA "OAuth Authorization Server Metadata" registry established
@@ -1249,9 +1294,9 @@ Table of Contents
    Specification Document(s):  This specification, Section 13 and
       Section 5
 
-17.  References
+19.  References
 
-17.1.  Normative References
+19.1.  Normative References
 
    [CIMD]     Parecki, A. and E. Smith, "OAuth Client ID Metadata
               Document", Work in Progress, Internet-Draft, draft-ietf-
@@ -1358,7 +1403,7 @@ Table of Contents
               Statement", n.d., <https://datatracker.ietf.org/doc/draft-
               mcguinness-oauth-cimd-sw-stmt>.
 
-17.2.  Informative References
+19.2.  Informative References
 
    [APPROVAL-DCR]
               Dellaert, P., "OAuth 2.0 Approval-Based Dynamic Client
