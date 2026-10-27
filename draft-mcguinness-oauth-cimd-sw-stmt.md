@@ -180,7 +180,7 @@ Retrieval for digest purposes follows {{CIMD}} and MUST NOT use content negotiat
 
 A trusting authorization server MUST treat a response exceeding its configured size bound (Section 8.7 of {{CIMD}}) as a retrieval failure rather than digesting what it read. For a runtime presentation, retrying cannot succeed, so the request is rejected with `invalid_client` rather than `temporarily_unavailable` ({{errors}}), except on refresh-token use, for which {{refresh}} takes precedence.
 
-A server MUST NOT compare a digest against any representation other than one it retrieved itself or stored under this section. A shared cache might hold a variant selected for another request. A `304 Not Modified` response shows that stored octets, and their digest, are still current only if it carries a strong entity tag that matches the one stored with them under strong comparison (Section 8.8.3.2 of {{RFC9110}}). Otherwise, the server retrieves the body again.
+A server MUST NOT compare a digest against any representation other than one it retrieved itself or stored under this section. A shared cache might hold a variant selected for another request. Revalidating stored octets is described in {{caching}}.
 
 ## Validating a Statement {#validation}
 
@@ -294,9 +294,8 @@ An authorization server that supports pulled statements MAY retrieve this URL wh
 * Apply the protections {{CIMD}} sets for URLs a document contains and the bounds of {{external-retrieval}}.
 * Bound the response size and the number of statements examined separately from the document's. Several issuers' statements outgrow a document-sized bound, and a host can pad the array.
 * Discard statements from unconfigured issuers before verifying any signature.
-* Cache a successful response no longer than the document is cached, and cache a failure no longer than {{CIMD}} permits for the document.
 
-The authorization server can revalidate a cached response from that URL with a conditional request, as it can the document ({{metadata-digest}}). Both the document and this URL are retrieved before any statement exists to validate, so the ordering of {{processing}} applies from the first statement verified onward.
+Both the document and this URL are retrieved before any statement exists to validate, so the ordering of {{processing}} applies from the first statement verified onward.
 
 The server considers only statements that meet all of the following conditions:
 
@@ -348,7 +347,7 @@ A document carrying a redirection URI another application could claim is present
 
 A statement whose reviewed document carries no key material can be consumed at registration if its `statement_uses` claim permits. {{REGISTRATION}} permits registering a document declaring `token_endpoint_auth_method` of `none` only under rules that bind it as {{public-client-presentation}} does. At runtime, a statement for such a document is consumed under {{public-client-presentation}}.
 
-A key at the document's `jwks_uri` is retrieved at presentation time. If that retrieval fails, the presentation is rejected with `temporarily_unavailable`. A server MAY reuse a recently retrieved key set within ordinary HTTP caching bounds, subject to a maximum reuse period of its own choosing. The server MUST NOT let the client's cache directives alone determine how long a removed key continues to verify ({{external-retrieval}}).
+A key at the document's `jwks_uri` is retrieved at presentation time. If that retrieval fails, the presentation is rejected with `temporarily_unavailable`. A server can reuse a retrieved key set ({{caching}}), but MUST NOT let the client's cache directives alone determine how long a removed key continues to verify ({{external-retrieval}}).
 
 ### Public Clients {#public-client-presentation}
 
@@ -376,7 +375,7 @@ An authorization server MUST reject, with the `invalid_client` error code, a pre
 
 Having validated the statement, and before verifying the proof ({{processing}}), the authorization server MUST obtain the Client ID Metadata Document at the statement's `sub`, only by retrieval or from octets it has already digested for that identifier, and compare its digest with the `cimd_digest` claim. If octets it already holds do not match, it retrieves the document once more before treating the mismatch as a change, since a statement over an updated document would otherwise fail at a server still holding older bytes.
 
-Octets the authorization server already holds serve for that comparison only within a maximum reuse period of its own choosing, as a key set does ({{sender-constraint}}). The authorization server MUST NOT let the client's cache directives alone determine how long held octets continue to match a statement. Without this rule, a key the document carries inline would continue to verify after the publisher removes it.
+Octets the authorization server already holds serve for that comparison only within a maximum reuse period of its own choosing, as a key set does ({{caching}}). The authorization server MUST NOT let the client's cache directives alone determine how long held octets continue to match a statement. Without this rule, a key the document carries inline would continue to verify after the publisher removes it.
 
 A match means the served document is the reviewed one, and its members are the client's metadata for the request. A mismatch means the document changed after review, and the authorization server MUST NOT treat the changed document as reviewed. It rejects the presentation with `invalid_client` or, by local policy, proceeds without the statement. If it proceeds, it applies its policy for Client ID Metadata Document clients it has not reviewed to the current document and creates no establishment for the statement.
 
@@ -648,6 +647,18 @@ The following extensions are left to separate specifications:
 * Partial review, by which an issuer vouches for particular members rather than a whole document ({{profiles}}).
 * Withdrawal mechanisms ({{withdrawal}}), such as Token Status List {{STATUSLIST}}.
 
+# Implementation Considerations {#implementation-considerations}
+
+This section gives guidance to implementers. It adds no requirement.
+
+## Caching and Reuse of Retrieved Content {#caching}
+
+An authorization server can reuse a recently retrieved key set within ordinary HTTP caching bounds, up to a maximum reuse period of its own choosing ({{sender-constraint}}). Octets of a Client ID Metadata Document it already holds serve for the digest comparison under the same kind of bound ({{effective-metadata}}).
+
+A `304 Not Modified` response shows that stored octets, and their digest, are still current only if it carries a strong entity tag that matches the one stored with them under strong comparison (Section 8.8.3.2 of {{RFC9110}}). Otherwise, the server retrieves the body again ({{metadata-digest}}).
+
+Successful retrievals can be cached within the document's caching directives. A failure is followed by back-off rather than caching, which {{CIMD}} forbids. A response from a `software_statements_uri` is cached no longer than the document is, and can be revalidated with a conditional request, as the document can ({{pulled-statements}}).
+
 # Security Considerations {#security-considerations}
 
 The security considerations of {{CIMD}} and Section 5 of {{RFC7591}} apply.
@@ -656,7 +667,7 @@ The security considerations of {{CIMD}} and Section 5 of {{RFC7591}} apply.
 
 A copied statement admits nothing without the sender constraint ({{sender-constraint}}). Admitting only keys the reviewed document carries also prevents a downgrade to a key the issuer did not review. An extension admitting attested keys ({{extensions}}) has to address downgrade itself.
 
-Attesting a `jwks_uri` attests the location, not its contents: a compromised key host can add keys that satisfy the proof without a digest change. If that matters, an issuer attests `jwks` inline and accepts that rotation changes the digest. A server reusing a cached key set ({{sender-constraint}}) also accepts that a just-removed key can briefly continue to verify.
+Attesting a `jwks_uri` attests the location, not its contents: a compromised key host can add keys that satisfy the proof without a digest change. If that matters, an issuer attests `jwks` inline and accepts that rotation changes the digest. A server reusing a cached key set ({{caching}}) also accepts that a just-removed key can briefly continue to verify.
 
 ## Servers That Do Not Implement This Specification {#legacy-servers}
 
@@ -685,7 +696,6 @@ These retrievals occur before any client is registered or any user has interacte
 * Rate-limit presentations per statement identity, per subject, and per source, and pulls ({{pulled-statements}}) per client identifier and per source, before spending retrieval or storage on a new presentation.
 * Refuse a presentation that would create a new establishment, before spending retrieval or storage on it, once the bound of {{multi-instance}} for its `iss` and `sub` is reached.
 * Bound JWT size and parsing work, concurrent retrievals, response size, and response time.
-* Cache successful retrieval results within the document's caching directives, and back off after a failure without caching it, which {{CIMD}} forbids.
 
 A retrieval failure leaves the relevant metadata or proof unverified, so the authorization server MUST reject the request and MUST NOT fall back to a weaker proof. A failed pull of statements for a request that opens a new grant is the exception: it leaves the client unreviewed, as {{pulled-statements}} describes. A failed pull of a replacement that a refresh requires is not an exception: the refresh fails ({{refresh}}).
 
