@@ -39,7 +39,6 @@ normative:
   RFC8252:
   RFC8414:
   RFC8725:
-  RFC9111:
   RFC9126:
   RFC9207:
   RFC9449:
@@ -327,7 +326,7 @@ Before returning a successful PAR response, the server MUST:
 4. Validate the requested redirect under {{loopback}}, require PKCE `S256`, and evaluate the request against the reviewed metadata and authorization policy.
 5. Create or reuse an establishment under {{establishment}}, bind the accepted request to it, and return a PAR response under {{RFC9126}}.
 
-For step 1, authentication establishes the attester, policy, client identifier, and attested key; it is not yet reviewed-software admission. An attestation whose digest has not been checked cannot establish the client. The ordering of statement checks before client-controlled retrieval in {{STATEMENT}} applies once a statement is available. External-retrieval bounds, HTTP caching rules ({{RFC9111}}), and protection against server-side request forgery from {{STATEMENT}} and {{CIMD}} apply throughout.
+For step 1, authentication establishes the attester, policy, client identifier, and attested key; it is not yet reviewed-software admission. An attestation whose digest has not been checked cannot establish the client. The ordering of statement checks before client-controlled retrieval in {{STATEMENT}} applies once a statement is available. The retrieval rules of {{STATEMENT}} and {{CIMD}}, including their protections against server-side request forgery, apply throughout, and {{STATEMENT}} describes how a server can bound the work they cause.
 
 If any required check fails, the server MUST NOT fall back to review-only or unreviewed admission for the same request. A request that carries no instance attestation for a document selecting this profile is an example: the server learns from the document (step 3) that this profile applies, then rejects the request with `invalid_client`. If the instance authenticates but no acceptable statement is available, it returns `statement_required` ({{error-precedence}}). A failed request MUST NOT advance the `iat` floor or alter an existing establishment.
 
@@ -357,7 +356,7 @@ The server authenticates the resource owner and applies authorization policy ind
 
 The client sends `grant_type=authorization_code`, the code, the same `client_id` and `redirect_uri`, and the PKCE `code_verifier`. It MUST authenticate with a current instance attestation and a fresh proof under the recorded key. It MUST NOT send the `software_statement` parameter on this request, as {{STATEMENT}} prohibits a presentation during code redemption.
 
-Before issuing tokens, the server MUST verify the code and PKCE binding and every fixed establishment value in {{establishment}}. It MUST re-evaluate both trust decisions, require the recorded statement to be unexpired and not refused, and confirm that the current Client ID Metadata Document still matches its recorded digest and meets {{client-metadata}}. Retrieval and cache reuse use the freshness bounds of {{STATEMENT}}. The attestation MUST match that digest and be within its attestation effective expiry.
+Before issuing tokens, the server MUST verify the code and PKCE binding and every fixed establishment value in {{establishment}}. It MUST re-evaluate both trust decisions, require the recorded statement to be unexpired and not refused, and confirm that the current Client ID Metadata Document still matches its recorded digest and meets {{client-metadata}}. Retrieval and cache reuse use the reuse bounds of {{STATEMENT}}. The attestation MUST match that digest and be within its attestation effective expiry.
 
 If the metadata changed or the recorded statement needs replacement, the client MUST start a new PAR transaction; code redemption cannot replace the governing review. A raised `iat` floor alone does not invalidate a code already bound to an acceptable recorded statement.
 
