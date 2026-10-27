@@ -70,20 +70,25 @@ Table of Contents
    7.  Example
      7.1.  Revalidating a Statement-Governed Registration
    8.  Authorization Server Metadata
-   9.  Security Considerations
-     9.1.  Statements at Registration
-     9.2.  Renewal Authenticates the Credential
-     9.3.  Registration Fraud and Impersonation
-     9.4.  Observable State
-   10. Privacy Considerations
-   11. IANA Considerations
-     11.1.  OAuth Dynamic Client Registration Metadata Registry
-     11.2.  OAuth Parameters Registry
-     11.3.  OAuth Authorization Server Metadata Registry
-     11.4.  OAuth Extensions Error Registry
-   12. References
-     12.1.  Normative References
-     12.2.  Informative References
+   9.  Implementation Considerations
+     9.1.  Registration State
+   10. Deployment Considerations
+     10.1.  Repeated Registration Policy
+     10.2.  Credentials for Statement-Governed Registrations
+   11. Security Considerations
+     11.1.  Statements at Registration
+     11.2.  Renewal Authenticates the Credential
+     11.3.  Registration Fraud and Impersonation
+     11.4.  Observable State
+   12. Privacy Considerations
+   13. IANA Considerations
+     13.1.  OAuth Dynamic Client Registration Metadata Registry
+     13.2.  OAuth Parameters Registry
+     13.3.  OAuth Authorization Server Metadata Registry
+     13.4.  OAuth Extensions Error Registry
+   14. References
+     14.1.  Normative References
+     14.2.  Informative References
    Acknowledgments
    Author's Address
 
@@ -265,10 +270,10 @@ Table of Contents
    beside a document naming only jwks_uri, would give any holder of a
    copy a registration with reviewed branding and the holder's own key.
 
-   The external-retrieval protections and resource bounds of [STATEMENT]
-   apply to retrieving the document as they apply to a runtime
-   presentation.  The authorization server completes every check of
-   [STATEMENT] that needs no client-controlled retrieval before
+   The retrieval requirements of [STATEMENT], and the bounds it
+   describes, apply to retrieving the document as they apply to a
+   runtime presentation.  The authorization server completes every check
+   of [STATEMENT] that needs no client-controlled retrieval before
    resolving the document.
 
 3.1.  Public Clients
@@ -331,13 +336,11 @@ Table of Contents
    every registration it creates from a statement validated under
    [STATEMENT], whichever issuer signed it:
 
-   *  The authorization server MUST record, with the registration, the
-      governing statement's iss, jti, sub, and iat claims, and any claim
-      by which a withdrawal mechanism locates that statement, such as
-      status, together with the registration's effective expiry.  That
-      effective expiry is the governing statement's effective expiry
-      ([STATEMENT]), what a renewal extends, and what
-      registration_expires_at reports.
+   *  The authorization server MUST bind the registration to its
+      governing statement, identified by the statement's iss and jti
+      claims (Section 9.1).  The registration's effective expiry is the
+      governing statement's effective expiry ([STATEMENT]), which a
+      renewal extends and registration_expires_at reports.
 
    *  The registration is valid until that effective expiry.
 
@@ -364,8 +367,8 @@ Table of Contents
          registration, and a request that fails that authentication is
          rejected with invalid_client, as for an unknown client.
 
-   *  The authorization server SHOULD retain the expired record for a
-      later authenticated revalidation (Section 9.4).  A valid
+   *  The authorization server SHOULD retain the expired registration
+      for a later authenticated revalidation (Section 11.4).  A valid
       replacement restores the registration (Section 3.3), so no grace
       period is needed.
 
@@ -559,15 +562,12 @@ Table of Contents
 
 5.  Repeated Registration
 
-   One unexpired statement can be consumed more than once, within the
-   bounds of [STATEMENT].  The safe default is one registration per
-   (iss, sub) at one authorization server.  On repeated consumption,
-   local policy can reject the request, treat it as idempotent, or
-   create another registration.  A repeated public-client registration
-   is answered with the existing registration as Section 3.1 provides.
-   An idempotent response MUST NOT return the existing registration's
-   credentials, such as its registration_access_token member.  A
-   repeated request can come from any holder of a copy of the statement.
+   One unexpired statement can be consumed more than once, subject to
+   the bounds [STATEMENT] describes and the server's registration policy
+   (Section 10.1).  A repeated public-client registration is answered
+   with the existing registration as Section 3.1 provides.  An
+   idempotent response MUST NOT return the existing registration's
+   credentials, such as its registration_access_token member.
 
 6.  Error Responses
 
@@ -673,19 +673,54 @@ Table of Contents
       If omitted, the default value is false.  A value of true does not
       imply support for runtime presentation.
 
-9.  Security Considerations
+9.  Implementation Considerations
+
+   This section gives guidance to implementers.  It adds no requirement.
+
+9.1.  Registration State
+
+   To apply the validity model (Section 3.2), an authorization server
+   stores with each statement-governed registration the governing
+   statement's iss, jti, sub, and iat claims, any claim by which a
+   withdrawal mechanism locates that statement, such as status, and the
+   registration's effective expiry.  Renewal compares a delivered
+   statement against these (Section 3.3).
+
+10.  Deployment Considerations
+
+   This section gives guidance to operators.  It adds no requirement.
+
+10.1.  Repeated Registration Policy
+
+   The safe default is one registration per (iss, sub) at one
+   authorization server.  On repeated consumption, except for a public-
+   client registration (Section 3.1), local policy can reject the
+   request, treat it as idempotent, or create another registration.  A
+   repeated request can come from any holder of a copy of the statement.
+
+10.2.  Credentials for Statement-Governed Registrations
+
+   Renewal proves possession of the registration's credential, not that
+   the renewing party is the reviewed software (Section 11.2).
+   Deployments ought to pair statement-governed registrations with
+   credential rotation, sender-constrained client authentication, and
+   the repeated-consumption limits of [STATEMENT] and Section 10.1, and
+   ought to treat a credential compromise as requiring re-registration
+   rather than renewal.
+
+11.  Security Considerations
 
    The security considerations of [STATEMENT] and Section 5 of [RFC7591]
    apply.
 
-9.1.  Statements at Registration
+11.1.  Statements at Registration
 
    A statement consumed at registration is a reusable bearer artifact
    until it expires.  Its audience, lifetime, and statement_uses claim
-   ([STATEMENT]) and the bounds of Section 5 limit what a stolen
-   statement can create.
+   ([STATEMENT]) and the registration policy of Section 10.1 limit what
+   a stolen statement can create.
 
-   Under the one-registration default (Section 5), whoever first
+   Under the one-registration default (Section 10.1), whoever first
    registers with a copy of a statement holds that registration and its
    registration access token, and can keep the software's publisher from
    registering at that server.  Such a holder cannot authenticate as the
@@ -709,7 +744,7 @@ Table of Contents
    considerations of [STATEMENT] describe for a holder that controls the
    user agent.
 
-9.2.  Renewal Authenticates the Credential
+11.2.  Renewal Authenticates the Credential
 
    Renewal proves possession of the registration's credential and the
    currency of a statement sharing the governing statement's iss and
@@ -721,15 +756,11 @@ Table of Contents
    replacement is current.  No protection is lost, since any party can
    already use that registration.
 
-   Deployments ought to pair statement-governed registrations with
-   credential rotation, sender-constrained client authentication, and
-   the repeated-consumption limits of [STATEMENT] and Section 5, and
-   should treat a credential compromise as requiring re-registration
-   rather than renewal.  Runtime presentation ([STATEMENT]) binds every
-   presenter to the reviewed document and so does not have this
-   limitation.
+   Section 10.2 describes deployment practice that limits this exposure.
+   Runtime presentation ([STATEMENT]) binds every presenter to the
+   reviewed document and so does not have this limitation.
 
-9.3.  Registration Fraud and Impersonation
+11.3.  Registration Fraud and Impersonation
 
    Open registration permits client_name, logo_uri, and client_uri
    values that imitate trusted software on consent screens (Section 5 of
@@ -746,7 +777,7 @@ Table of Contents
    statement for fraudulent metadata, so a statement is only as reliable
    as the issuer's verification.
 
-9.4.  Observable State
+11.4.  Observable State
 
    A retained expired registration is distinguishable from an unknown
    client (Section 3.2).  At the token and pushed authorization request
@@ -773,15 +804,15 @@ Table of Contents
    configuration, which [STATEMENT] keeps from unauthenticated
    requesters.
 
-10.  Privacy Considerations
+12.  Privacy Considerations
 
    The privacy considerations of [STATEMENT] and Section 6 of [RFC7591]
    apply.  A registration request reveals to the authorization server
    the same information as a runtime presentation.
 
-11.  IANA Considerations
+13.  IANA Considerations
 
-11.1.  OAuth Dynamic Client Registration Metadata Registry
+13.1.  OAuth Dynamic Client Registration Metadata Registry
 
    This specification requests registration of the following value in
    the IANA "OAuth Dynamic Client Registration Metadata" registry
@@ -801,7 +832,7 @@ Table of Contents
 
    Specification Document(s):  This specification, Section 3.2
 
-11.2.  OAuth Parameters Registry
+13.2.  OAuth Parameters Registry
 
    This specification requests registration of the following parameter
    in the IANA "OAuth Parameters" registry established by [RFC6749], for
@@ -817,7 +848,7 @@ Table of Contents
 
    Specification Document(s):  This specification, Section 3.2
 
-11.3.  OAuth Authorization Server Metadata Registry
+13.3.  OAuth Authorization Server Metadata Registry
 
    This specification requests registration of the following value in
    the IANA "OAuth Authorization Server Metadata" registry established
@@ -834,7 +865,7 @@ Table of Contents
 
    Specification Document(s):  This specification, Section 8
 
-11.4.  OAuth Extensions Error Registry
+13.4.  OAuth Extensions Error Registry
 
    This specification requests that IANA update the existing
    temporarily_unavailable entry, adding the client registration error
@@ -852,9 +883,9 @@ Table of Contents
 
    Specification Document(s):  [RFC6749], this specification (Section 6)
 
-12.  References
+14.  References
 
-12.1.  Normative References
+14.1.  Normative References
 
    [CIMD]     Parecki, A. and E. Smith, "OAuth Client ID Metadata
               Document", Work in Progress, Internet-Draft, draft-ietf-
@@ -914,7 +945,7 @@ Table of Contents
               Statement", n.d., <https://datatracker.ietf.org/doc/draft-
               mcguinness-oauth-cimd-sw-stmt>.
 
-12.2.  Informative References
+14.2.  Informative References
 
    [RFC7592]  Richer, J., Ed., Jones, M., Bradley, J., and M. Machulak,
               "OAuth 2.0 Dynamic Client Registration Management
