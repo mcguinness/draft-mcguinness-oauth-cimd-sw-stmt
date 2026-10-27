@@ -176,9 +176,9 @@ Table of Contents
    grants.  It defines neither registration nor new token-endpoint
    presentations for other grants.  [REGISTRATION] is unchanged: it
    rejects loopback redirects, so a document selecting this profile is
-   never registered, and an issuer omits registration from the
-   statement_uses of a statement over one.  Neither [STATEMENT] nor
-   [REGISTRATION] depends on this specification.
+   never registered, whatever the statement_uses claim of a statement
+   over it permits.  Neither [STATEMENT] nor [REGISTRATION] depends on
+   this specification.
 
    The binding is only as strong as the attester's evidence that the
    software, not merely the device or the user, controls the key
@@ -253,8 +253,7 @@ Table of Contents
 
    Attested Key:  The key an instance attestation's cnf claim names.
       Once an establishment records it, it is the establishment's proven
-      key ([STATEMENT]), which this specification also calls the
-      recorded key.
+      key ([STATEMENT]).
 
    Attestation Effective Expiry:  An instance attestation's exp, which
       an accepted evidence policy bounds by the age of the attester's
@@ -272,10 +271,12 @@ Table of Contents
    as the proof of possession (Sections 5.2 and 7.3 of [ABCA]).  Clients
    MUST use that method at the PAR endpoint and at every token request
    under this specification.  This profile does not support the Client
-   Attestation PoP JWT (Section 5.1 of [ABCA]).  Each installation holds
-   its own credential, the attested key, so a client under this profile
-   is a confidential client although it is a native application, as
-   Section 8.4 of [RFC8252] contemplates for per-instance credentials.
+   Attestation PoP JWT (Section 5.1 of [ABCA]).
+
+   Each installation holds its own credential, the attested key, so a
+   client under this profile is a confidential client although it is a
+   native application, as Section 8.4 of [RFC8252] contemplates for per-
+   instance credentials.
 
    The client selects this profile by publishing the
    software_statement_instance_binding client metadata member with the
@@ -344,8 +345,8 @@ Table of Contents
    *  Its redirect_uris is a nonempty array, every member of which meets
       Section 4.1.
 
-   *  It MUST NOT contain the jwks or jwks_uri member.  Instance keys
-      are authorized only through Section 6.1, not by document key
+   *  It contains neither the jwks nor the jwks_uri member.  Instance
+      keys are authorized only through Section 6.1, not by document key
       material.
 
    The document MAY contain the software_statements_uri member as
@@ -385,9 +386,9 @@ Table of Contents
    of the request.  For each accepted attester it MUST configure:
 
    *  The exact attester iss identifier and how the attester's
-      verification keys are resolved, which Section 10.8 of [ABCA]
-      recommends that a profile fix.  Keys are resolved by one of the
-      following:
+      verification keys are resolved.  Section 10.8 of [ABCA] recommends
+      that a profile fix key resolution.  Keys are resolved by one of
+      the following:
 
       -  An x5c certificate chain ([RFC7515]) validated to a configured
          trust anchor, together with a configured mapping from the
@@ -419,10 +420,10 @@ Table of Contents
    or from a key-location value in the attestation.  An iss, a jku or
    x5u header parameter ([RFC7515]), or a similar value in an unverified
    JWT MUST NOT cause unconfigured key discovery.  Retrieval from a
-   configured key source remains subject to the retrieval protections of
-   [STATEMENT], and the server MUST NOT reuse retrieved trust data,
-   including an attester's key set, beyond a finite maximum reuse period
-   of its own choosing.
+   configured key source is subject to the retrieval protections that
+   [STATEMENT] applies to the retrievals it causes, and the server MUST
+   NOT reuse retrieved trust data, including an attester's key set,
+   beyond a finite maximum reuse period of its own choosing.
 
    The server cannot observe how an attester reached its decision, so it
    relies on the evidence policy.  An evidence policy is acceptable for
@@ -437,9 +438,9 @@ Table of Contents
       protection of key use, and sets each attestation's exp no later
       than the time that evidence was collected plus the policy's
       maximum evidence age.  The attester rounds or randomizes exp
-      (Section 11.1 of [ABCA]) only toward an earlier time.  A previous
-      attestation is not evidence: a renewal rests on new evidence under
-      the same bound.
+      (Section 11.1 of [ABCA]) only toward an earlier time, a constraint
+      this profile adds.  A previous attestation is not evidence: a
+      renewal rests on new evidence under the same bound.
 
    *  The attester establishes an authenticated association between the
       software identity and the client identifier URL, retrieves and
@@ -475,9 +476,8 @@ Table of Contents
       association.
 
    A server MUST NOT accept for this profile an evidence policy that
-   does not meet these requirements.  A deployment can use weaker
-   evidence for other purposes but MUST NOT report it as satisfying this
-   profile.
+   does not meet these requirements.  A server can use weaker evidence
+   for other purposes but MUST NOT report it as satisfying this profile.
 
    A statement approves the document and the software that its publisher
    (the controller of the document URL's origin, or a delegate)
@@ -578,16 +578,17 @@ Table of Contents
    *  The attested key and the key of the DPoP proof are equal under the
       key-comparison rules of Section 7.3 of [ABCA].
 
-   On continuation, the recorded key, attester, policy, and tenant
-   constraints of Section 7.2 also apply.  The server MUST NOT treat an
-   attestation for another digest as permission to update metadata
-   without the software statement replacement required by Section 8.
+   On continuation, the proven key and the recorded attester, policy,
+   and tenant constraints of Section 7.2 also apply.  The server MUST
+   NOT treat an attestation for another digest as permission to update
+   metadata without the software statement replacement required by
+   Section 8.
 
-   Implementations MUST apply mutually exclusive validation rules for
-   software statements and instance attestations.  Software statement
-   signing keys retain the separation requirements of [STATEMENT] and
-   MUST NOT sign instance attestations, even if one organization
-   performs both roles.
+   A server MUST NOT accept a software statement as an instance
+   attestation, or an instance attestation as a software statement.
+   Software statement signing keys retain the separation requirements of
+   [STATEMENT], so they never sign instance attestations, even if one
+   organization performs both roles.
 
 6.2.  Proof of Possession
 
@@ -612,13 +613,14 @@ Table of Contents
    effects either, so the client can retry with a fresh attestation.
 
    If the pushed authorization request also carries the dpop_jkt
-   parameter, its JWK thumbprint ([RFC7638]) MUST identify the attested
-   key.  If the thumbprint does not identify that key, the server
-   rejects the request.  A client MUST generate a new proof for each
-   request, including a retry.  TLS protects request contents.  DPoP
-   does not sign the request body, and implementations MUST NOT treat a
-   valid proof as a signature over the redirection URI, PKCE challenge,
-   or statement.
+   parameter, Section 10.1 of [RFC9449] requires the server to reject
+   the request unless the dpop_jkt value is the JWK thumbprint
+   ([RFC7638]) of the DPoP proof's key, which Section 6.1 makes the
+   attested key.  A client MUST generate a new proof for each request,
+   including a retry.  TLS protects request contents.  DPoP does not
+   sign the request body, and implementations MUST NOT treat a valid
+   proof as a signature over the redirection URI, PKCE challenge, or
+   statement.
 
 7.  Runtime Admission
 
@@ -685,9 +687,10 @@ Table of Contents
    carries no instance attestation for a document selecting this profile
    is an example: the server learns from the document (step 3) that this
    profile applies, then rejects the request with invalid_client.  If
-   the instance authenticates (step 1) but no acceptable statement is
-   available, it returns statement_required.  A failed request MUST NOT
-   advance the iat floor or alter an existing establishment.
+   the instance authenticates (step 1) but no statement is presented or
+   remains after selection, it returns statement_required.  A failed
+   request MUST NOT advance the iat floor or alter an existing
+   establishment.
 
 7.2.  Establishment
 
@@ -698,8 +701,7 @@ Table of Contents
 
    *  The exact attester identifier and evidence-policy identifier.
 
-   *  The attester trust decision and, for each grant, the attestation
-      effective expiry most recently accepted.
+   *  The attester trust decision.
 
    The proven key is the attested key, which is also the DPoP key.
    Authorization transactions that share an establishment (Section 14.2)
@@ -713,9 +715,6 @@ Table of Contents
    and a software statement replacement can update the grant's reviewed
    metadata only as Section 8 permits.  Neither operation changes these
    values.
-
-   The server MUST bind its request_uri, code, refresh token, and other
-   grant continuation state to the establishment.
 
 7.3.  Browser Authorization
 
@@ -746,9 +745,8 @@ Table of Contents
    The client sends grant_type=authorization_code, the code, the same
    client_id and redirect_uri, and the PKCE code_verifier.  It MUST
    authenticate with a current instance attestation and a fresh proof
-   under the recorded key.  It MUST NOT send the software_statement
-   parameter on this request, as [STATEMENT] prohibits a presentation
-   during code redemption.
+   under the proven key.  It does not send the software_statement
+   parameter, which [STATEMENT] prohibits on code redemption.
 
    Before issuing tokens, the server MUST verify the code and PKCE
    binding and every fixed establishment value in Section 7.2.  It MUST
@@ -768,11 +766,11 @@ Table of Contents
    tenant policy, and reviewed metadata.  It MUST bind any refresh token
    to the establishment, and MUST issue access tokens, at redemption and
    on refresh (Section 8), bound to the proven key with a token_type of
-   DPoP (Section 5 of [RFC9449]).  The effective expiry of each access
-   token, whether the token is a JWT or an opaque reference, MUST NOT be
-   later than the attestation effective expiry accepted for the request
-   that obtained it (Section 15.3).  A resource server that does not
-   accept DPoP-bound access tokens cannot be used under this profile.
+   DPoP (Section 5 of [RFC9449]).  The expiry of each access token,
+   whether the token is a JWT or an opaque reference, MUST NOT be later
+   than the attestation effective expiry accepted for the request that
+   obtained it (Section 15.3).  A resource server that does not accept
+   DPoP-bound access tokens cannot be used under this profile.
 
 8.  Refresh
 
@@ -784,14 +782,17 @@ Table of Contents
 
    On every refresh the server MUST require a current software statement
    and re-evaluate its issuer trust decision.  This strengthens the
-   optional statement-currency check of [STATEMENT].  It MUST also
-   verify that the currently served document matches the applicable
-   statement and attestation digests and continues to meet Section 4.
-   Removal of the software_statement_instance_binding member, or a
-   change to another authentication method, ends continuation under this
-   profile.  The refresh is then rejected with invalid_grant without
-   seeking a replacement, as [STATEMENT] rejects a refresh whose
-   document no longer carries the proven key.
+   statement-currency check of [STATEMENT], which is a local-policy
+   option until the recorded statement expires and recommended after.
+   It MUST also verify that the currently served document matches the
+   applicable statement and attestation digests and continues to meet
+   Section 4.  A document that no longer selects this profile or meets
+   Section 4, for example one that omits the
+   software_statement_instance_binding member or names another
+   authentication method, fails the refresh.  The refresh is then
+   rejected with invalid_grant without seeking a replacement, as
+   [STATEMENT] rejects a refresh whose document no longer carries the
+   proven key.
 
    The recorded statement can remain applicable while it is unexpired,
    not refused, and matches the current document, even if a newer
@@ -799,8 +800,7 @@ Table of Contents
    longer qualifies, a replacement is required.  The client can present
    a replacement in software_statement or, for an establishment created
    from a pulled statement, the server pulls one as [STATEMENT]
-   specifies.  A statement with the same iss and jti as the recorded
-   statement is a recheck, not a replacement.
+   specifies.
 
    A replacement MUST satisfy the replacement validation of [STATEMENT],
    including identical statement iss and sub claims, a later iat claim,
@@ -817,12 +817,11 @@ Table of Contents
    On success, the server MUST apply the replacement to the refreshed
    grant alone, as [STATEMENT] does, atomically updating that grant's
    recorded statement, metadata, digest, and trust decisions under the
-   concurrency rules of [STATEMENT].  It also records the newly accepted
-   attestation effective expiry for that grant.  A failed attempt MUST
-   NOT replace the recorded binding or rotate a refresh token.  This
-   does not prevent the server from recording a withdrawal or trust
-   removal learned during processing, or applying independent refresh-
-   token replay protections.
+   concurrency rules of [STATEMENT].  A failed attempt MUST NOT replace
+   the recorded binding or rotate a refresh token.  This does not
+   prevent the server from recording a withdrawal or trust removal
+   learned during processing, or applying independent refresh-token
+   replay protections.
 
    Attestation renewal for the proven key is not key rotation and does
    not reset the iat floor or an establishment count.
@@ -832,120 +831,118 @@ Table of Contents
    A known refusal record for the software statement is enforced as
    [STATEMENT] requires.  A current replacement can restore continuation
    only under Section 8.  A server using a statement withdrawal
-   mechanism SHOULD consult it at code redemption and refresh within
-   that mechanism's freshness rules.  Failure to consult it does not
-   clear an existing refusal.  A failure to retrieve metadata,
-   statements or their status, or trust updates MUST NOT extend a
-   recorded expiry or remove a refusal.
+   mechanism SHOULD consult it at code redemption, within that
+   mechanism's freshness rules, as [STATEMENT] provides for refresh.  A
+   failure to retrieve metadata, statements or their status, or trust
+   updates MUST NOT extend a recorded expiry or remove a refusal.
 
    Because Section 6.1 checks current attester trust and local denial
    rules at each pushed authorization request, code redemption, and
    refresh, removing an attester's authorization for this client and
    tenant, removing the policy, or denying the instance key prevents
    further use of the affected binding.  A fresh attestation does not
-   override those decisions.  A deployment that cannot refresh trust
-   data MUST NOT accept that trust data beyond a configured finite
-   maximum staleness bound.
+   override those decisions.  A server that cannot refresh trust data
+   remains bound by the maximum reuse period of Section 5.
 
    This specification defines no interoperable attestation or instance
    revocation protocol.  Without an instance revocation mechanism,
    attestation effective expiry bounds acceptance of evidence that has
    become stale without the server learning of it.  Withdrawal of a
-   review, removal of trust, and expiry of evidence do not themselves
-   revoke access tokens already issued (Section 15.1).
+   review, removal of trust, and denial of an instance key do not
+   themselves revoke access tokens already issued (Section 15.1).
 
 10.  Exceptions to Software Statement Processing
 
    For establishments governed by this specification, the following
    rules replace or add to the corresponding rules of [STATEMENT]:
 
-    +=========+==========================+============================+
-    | Section | Rule                     | Under this profile         |
-    +=========+==========================+============================+
-    | 4       | A required issuer        | A presentation processed   |
-    |         | configured for software  | under Section 7.1 is not   |
-    |         | whose documents are      | review-only, so a current  |
-    |         | presented review-only    | statement from the         |
-    |         | excludes that software   | required issuer can admit  |
-    |         | from the tenant.         | the software.              |
-    +---------+--------------------------+----------------------------+
-    | 5.2     | A statement pulled at    | The binding is set at the  |
-    |         | the authorization        | PAR endpoint; an           |
-    |         | endpoint binds the       | authorization request      |
-    |         | presenter at code        | without a PAR request_uri  |
-    |         | redemption.              | governed by this profile   |
-    |         |                          | is rejected (Section 7.3). |
-    +---------+--------------------------+----------------------------+
-    | 5.3,    | The statement and the    | The instance is            |
-    | 5.5     | document are checked     | authenticated first        |
-    |         | before the proof.        | (Section 7.1, step 1).     |
-    |         |                          | Statement and document     |
-    |         |                          | checks follow, and checks  |
-    |         |                          | needing no client-         |
-    |         |                          | controlled retrieval still |
-    |         |                          | precede such retrieval.    |
-    +---------+--------------------------+----------------------------+
-    | 5.2,    | A request without an     | No fallback: any failed    |
-    | 5.4.1,  | acceptable statement can | check rejects the request  |
-    | 5.5     | proceed under the policy | (Section 7.1).             |
-    |         | for unreviewed clients,  |                            |
-    |         | a review-only            |                            |
-    |         | presentation proceeds as |                            |
-    |         | a client presenting no   |                            |
-    |         | statement, and a digest  |                            |
-    |         | mismatch can proceed     |                            |
-    |         | without the statement.   |                            |
-    +---------+--------------------------+----------------------------+
-    | 5.4     | The proven key appears   | The proven key is the      |
-    |         | in the reviewed          | attested key               |
-    |         | document's jwks or at    | (Section 6.1), and the     |
-    |         | its jwks_uri.            | document carries no key    |
-    |         |                          | material (Section 4).      |
-    +---------+--------------------------+----------------------------+
-    | 5.4.1   | A redirection URI        | A presentation processed   |
-    |         | another application      | under Section 7.1 whose    |
-    |         | could claim makes a      | redirects meet Section 4.1 |
-    |         | presentation review-     | is not review-only.  The   |
-    |         | only, and a document     | client is confidential and |
-    |         | declaring none is bound  | authenticates with the     |
-    |         | by its redirection URIs. | method of Section 3, so    |
-    |         |                          | the public-client rules do |
-    |         |                          | not apply.                 |
-    +---------+--------------------------+----------------------------+
-    | 5.6     | Expiry after             | Redemption also requires   |
-    |         | presentation does not    | the recorded statement to  |
-    |         | invalidate an            | be unexpired and           |
-    |         | establishment, and       | unrefused, and the current |
-    |         | redemption checks the    | document to match the      |
-    |         | client identifier and    | recorded digest            |
-    |         | key.                     | (Section 7.4).             |
-    +---------+--------------------------+----------------------------+
-    | 5.6.1   | A current statement on   | Every refresh requires a   |
-    |         | refresh is a local-      | current statement, re-     |
-    |         | policy option, the       | checks the document        |
-    |         | document is checked for  | against the recorded       |
-    |         | the proven key, and its  | digests, and verifies a    |
-    |         | digest is checked only   | current attestation of the |
-    |         | for a replacement.       | key instead of its         |
-    |         |                          | presence in the document   |
-    |         |                          | (Section 8).               |
-    +---------+--------------------------+----------------------------+
-    | 8.3     | Code redemption is       | Redemption can also return |
-    |         | rejected with            | invalid_client or          |
-    |         | invalid_request,         | invalid_client_attestation |
-    |         | invalid_grant, or, at    | for failed authentication, |
-    |         | the establishment bound, | statement_required,        |
-    |         | invalid_client.          | use_fresh_attestation, or  |
-    |         |                          | temporarily_unavailable    |
-    |         |                          | (Section 11.1).            |
-    +---------+--------------------------+----------------------------+
-    | 8.4     | A client not admitted on | A missing or invalid       |
-    |         | a statement receives     | required pushed            |
-    |         | statement_required.      | authorization request is   |
-    |         |                          | rejected with              |
-    |         |                          | invalid_request            |
-    |         |                          | (Section 11.3).            |
-    +---------+--------------------------+----------------------------+
+    +=======+============================+============================+
+    |Section| Rule                       | Under this profile         |
+    +=======+============================+============================+
+    |4      | A required issuer          | A presentation processed   |
+    |       | configured for software    | under Section 7.1 is not   |
+    |       | whose documents are        | review-only, so a current  |
+    |       | presented review-only      | statement from the         |
+    |       | excludes that software     | required issuer can admit  |
+    |       | from the tenant.           | the software.              |
+    +-------+----------------------------+----------------------------+
+    |5.2    | A statement pulled at the  | The binding is set at the  |
+    |       | authorization endpoint     | PAR endpoint; an           |
+    |       | binds the presenter at     | authorization request      |
+    |       | code redemption.           | without a PAR request_uri  |
+    |       |                            | governed by this profile   |
+    |       |                            | is rejected (Section 7.3). |
+    +-------+----------------------------+----------------------------+
+    |5.3,   | The statement and the      | The instance is            |
+    |5.5    | document are checked       | authenticated first        |
+    |       | before the proof.          | (Section 7.1, step 1).     |
+    |       |                            | Statement and document     |
+    |       |                            | checks follow, and checks  |
+    |       |                            | needing no client-         |
+    |       |                            | controlled retrieval still |
+    |       |                            | precede such retrieval.    |
+    +-------+----------------------------+----------------------------+
+    |5.2,   | A request without an       | No fallback: any failed    |
+    |5.4.1, | acceptable statement can   | check rejects the request  |
+    |5.5    | proceed under the policy   | (Section 7.1).             |
+    |       | for unreviewed clients, a  |                            |
+    |       | review-only presentation   |                            |
+    |       | proceeds as a client       |                            |
+    |       | presenting no statement,   |                            |
+    |       | and a digest mismatch can  |                            |
+    |       | proceed without the        |                            |
+    |       | statement.                 |                            |
+    +-------+----------------------------+----------------------------+
+    |5.4    | The proven key appears in  | The proven key is the      |
+    |       | the reviewed document's    | attested key               |
+    |       | jwks or at its jwks_uri.   | (Section 6.1), and the     |
+    |       |                            | document carries no key    |
+    |       |                            | material (Section 4).      |
+    +-------+----------------------------+----------------------------+
+    |5.4.1  | A redirection URI another  | A presentation processed   |
+    |       | application could claim    | under Section 7.1 whose    |
+    |       | makes a presentation       | redirects meet Section 4.1 |
+    |       | review-only, and a         | is not review-only.  The   |
+    |       | document declaring         | client is confidential and |
+    |       | token_endpoint_auth_method | authenticates with the     |
+    |       | of none without such a URI | method of Section 3, so    |
+    |       | is bound by its            | the public-client rules do |
+    |       | redirection URIs.          | not apply.                 |
+    +-------+----------------------------+----------------------------+
+    |5.6    | Expiry after presentation  | Redemption also requires   |
+    |       | does not invalidate an     | the recorded statement to  |
+    |       | establishment, and         | be unexpired and           |
+    |       | redemption checks the      | unrefused, and the current |
+    |       | client identifier and key. | document to match the      |
+    |       |                            | recorded digest            |
+    |       |                            | (Section 7.4).             |
+    +-------+----------------------------+----------------------------+
+    |5.6.1  | A current statement on     | Every refresh requires a   |
+    |       | refresh is a local-policy  | current statement, re-     |
+    |       | option, recommended once   | checks the document        |
+    |       | the recorded statement     | against the recorded       |
+    |       | expires; the document is   | digests, and verifies a    |
+    |       | checked for the proven     | current attestation of the |
+    |       | key; and its digest is     | key instead of its         |
+    |       | checked only for a         | presence in the document   |
+    |       | replacement.               | (Section 8).               |
+    +-------+----------------------------+----------------------------+
+    |8.3    | Code redemption is         | Redemption can also return |
+    |       | rejected with              | invalid_client or          |
+    |       | invalid_request,           | invalid_client_attestation |
+    |       | invalid_grant, or, at the  | for failed authentication, |
+    |       | establishment bound,       | statement_required,        |
+    |       | invalid_client.            | use_fresh_attestation, or  |
+    |       |                            | temporarily_unavailable    |
+    |       |                            | (Section 11.1).            |
+    +-------+----------------------------+----------------------------+
+    |8.4    | A client not admitted on a | A missing or invalid       |
+    |       | statement receives         | required pushed            |
+    |       | statement_required.        | authorization request is   |
+    |       |                            | rejected with              |
+    |       |                            | invalid_request            |
+    |       |                            | (Section 11.3).            |
+    +-------+----------------------------+----------------------------+
 
                                   Table 1
 
@@ -963,19 +960,8 @@ Table of Contents
 
 11.  Error Responses
 
-   A rejection uses the error response and HTTP status codes specified
-   for the endpoint where it occurs:
-
-   *  At the token endpoint, Section 5.2 of [RFC6749] applies.
-
-   *  At the pushed authorization request endpoint, Section 2.3 of
-      [RFC9126] applies.
-
-   *  At the authorization endpoint, Section 4.1.2.1 of [RFC6749]
-      applies.
-
-   The error rules of [STATEMENT], [ABCA], and [RFC9449] also apply.
-   This specification defines no new error code.
+   The error rules of [STATEMENT], [ABCA], and [RFC9449] apply.  This
+   specification defines no new error code.
 
 11.1.  Error Codes
 
@@ -983,12 +969,13 @@ Table of Contents
    code redemption, and refresh, except where a condition names a
    particular endpoint.  They are defined by Section 5.2 of [RFC6749]
    (invalid_request, invalid_client, and invalid_grant), Section 7.4 of
-   [ABCA] (use_fresh_attestation), Section 8 of [RFC9449]
-   (use_dpop_nonce), and [STATEMENT] (statement_required, and
-   temporarily_unavailable at the token and pushed authorization request
-   endpoints, extending Section 4.1.2.1 of [RFC6749]).  Other OAuth
-   errors, such as invalid_scope, continue to apply to their respective
-   failures.
+   [ABCA] (use_fresh_attestation, and invalid_client_attestation, which
+   can replace invalid_client for a failed attestation or proof),
+   Section 8 of [RFC9449] (use_dpop_nonce), and [STATEMENT]
+   (statement_required, and temporarily_unavailable at the token and
+   pushed authorization request endpoints, extending Section 4.1.2.1 of
+   [RFC6749]).  Other OAuth errors, such as invalid_scope, continue to
+   apply to their respective failures.
 
    invalid_request:  Malformed or conflicting request parameters, or a
       software_statement parameter on code redemption.
@@ -1009,26 +996,26 @@ Table of Contents
    use_dpop_nonce:  Missing or unacceptable server DPoP nonce.
 
    invalid_grant:  At redemption or refresh, a validly authenticated
-      instance does not match the recorded key, attester, policy, or
-      client; or, at redemption, the current document no longer matches
-      the recorded digest; or, at refresh, the current document no
-      longer selects this profile or meets Section 4.
+      instance does not match a fixed establishment value of
+      Section 7.2; or, at redemption, the current document no longer
+      matches the recorded digest; or, at refresh, the current document
+      no longer selects this profile or meets Section 4.
 
-   statement_required:  A required statement is missing, expired, or
-      refused, or, at the PAR endpoint, superseded, or, at refresh, a
-      needed replacement is missing or unacceptable.
+   statement_required:  A required statement is missing, expired,
+      refused, or (at the PAR endpoint) superseded; at code redemption
+      or refresh, the recorded statement's issuer is no longer trusted;
+      or, at refresh, a needed replacement is missing or unacceptable.
 
    temporarily_unavailable:  A retrieval needed for validation
       temporarily fails.
 
    Invalid statements and reviewed documents at the PAR endpoint
-   otherwise use the error rules of [STATEMENT].  At refresh, an
-   unacceptable replacement uses statement_required as in [STATEMENT].
-   A document exceeding a configured size bound is not a transient
-   failure, and the server uses the non-transient retrieval and refresh
-   errors of [STATEMENT].  An invalid or expired code or refresh token,
-   failed PKCE check, or mismatched redemption redirect uses
-   invalid_grant.
+   otherwise use the error rules of [STATEMENT].  A document exceeding a
+   configured size bound is not a transient failure: it is rejected with
+   invalid_client at the PAR endpoint, as [STATEMENT] rejects a
+   presentation, and with invalid_grant at code redemption and refresh.
+   An invalid or expired code or refresh token, failed PKCE check, or
+   mismatched redemption redirect uses invalid_grant.
 
    A DPoP proof that fails the checks of Section 4.3 of [RFC9449] is
    rejected with invalid_dpop_proof (Section 5 of [RFC9449]), and a
@@ -1036,11 +1023,10 @@ Table of Contents
    code listed above, as [STATEMENT] provides for proof-mechanism
    errors.  A valid proof under a key other than the attestation's cnf
    key is not an invalid proof: authentication fails (Section 7.3 of
-   [ABCA]), and the request is rejected with invalid_client, or with
-   invalid_client_attestation as Section 7.4 of [ABCA] permits.  At code
+   [ABCA]), and the request is rejected with invalid_client.  At code
    redemption and refresh, an instance that authenticates under a key
-   other than the establishment's recorded key fails the grant binding
-   and is rejected with invalid_grant.
+   other than the establishment's proven key fails the grant binding and
+   is rejected with invalid_grant.
 
    A use_dpop_nonce response MUST include the DPoP-Nonce HTTP header
    field.
@@ -1060,8 +1046,8 @@ Table of Contents
 
    Details of configured issuers, attesters, evidence policies, and
    tenant restrictions MUST NOT be exposed in error descriptions to
-   unauthenticated callers, as [STATEMENT] requires of its issuer trust
-   configuration.
+   unauthenticated requesters, as [STATEMENT] requires of its issuer
+   trust configuration.
 
 11.3.  Authorization Endpoint
 
@@ -1194,8 +1180,8 @@ Table of Contents
    replacement as [STATEMENT] permits for a grant established from a
    pulled statement.  If the replacement names changed metadata, the
    attestation needs to name that same new digest while retaining the
-   recorded key, attester, and policy.  Otherwise the refresh fails
-   without changing the binding.
+   proven key and the recorded attester and policy.  Otherwise the
+   refresh fails without changing the binding.
 
 13.  Authorization Server Metadata
 
@@ -1216,8 +1202,8 @@ Table of Contents
    token_endpoint_auth_methods_supported metadata value, advertise S256
    in the code_challenge_methods_supported metadata value, and publish
    the dpop_signing_alg_values_supported ([RFC9449]) and
-   client_attestation_signing_alg_values_supported metadata values
-   (Section 8 of [ABCA]).  It MUST support [RFC9207] and publish the
+   client_attestation_signing_alg_values_supported (Section 8 of [ABCA])
+   metadata values.  It MUST support [RFC9207] and publish the
    authorization_response_iss_parameter_supported metadata value as
    true.
 
@@ -1279,8 +1265,8 @@ Table of Contents
    A deployment can use independently established revocation mechanisms
    or local denial lists.  A deployment that requires prompt enforcement
    needs short token lifetimes or independent token revocation, because
-   withdrawal of a review, removal of trust, and expiry of evidence do
-   not revoke access tokens already issued (Section 9).
+   withdrawal of a review, removal of trust, and denial of an instance
+   key do not revoke access tokens already issued (Section 9).
 
 15.2.  Attester Enrollment
 
@@ -1334,13 +1320,13 @@ Table of Contents
 
    An attacker can attempt to occupy a loopback port, intercept a
    response, or initiate its own authorization transaction using the
-   published client identifier.  PKCE and proof of the recorded key
+   published client identifier.  PKCE and proof of the proven key
    protect redemption of an intercepted code.  Admission of a new
    transaction additionally requires an acceptable instance attestation;
    PKCE or an unattested DPoP key alone supplies no software identity.
 
-   The client MUST keep its verifier and transaction state confidential
-   and unpredictable as their respective specifications require.  A
+   The client keeps its verifier and transaction state confidential and
+   unpredictable, as their respective specifications provide.  A
    launcher handling authorization for another process acts as the
    signing broker of Section 14.3.
 
@@ -1629,8 +1615,10 @@ Table of Contents
 
    [STATEMENT]
               McGuinness, K., "Client ID Metadata Document Software
-              Statement", n.d., <https://datatracker.ietf.org/doc/draft-
-              mcguinness-oauth-cimd-sw-stmt>.
+              Statement", Work in Progress, Internet-Draft, draft-
+              mcguinness-oauth-cimd-sw-stmt-00, October 2026,
+              <https://datatracker.ietf.org/doc/draft-mcguinness-oauth-
+              cimd-sw-stmt>.
 
 19.2.  Informative References
 
@@ -1697,9 +1685,10 @@ Table of Contents
 
    [REGISTRATION]
               McGuinness, K., "Client ID Metadata Document Software
-              Statement Registration", n.d.,
-              <https://datatracker.ietf.org/doc/draft-mcguinness-oauth-
-              cimd-sw-stmt-registration>.
+              Statement Registration", Work in Progress, Internet-Draft,
+              draft-mcguinness-oauth-cimd-sw-stmt-registration-00,
+              October 2026, <https://datatracker.ietf.org/doc/draft-
+              mcguinness-oauth-cimd-sw-stmt-registration>.
 
 Appendix A.  Managed Command-Line Client Deployment
 

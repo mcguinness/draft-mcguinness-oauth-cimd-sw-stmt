@@ -125,10 +125,9 @@ Table of Contents
    defined by [RFC8417].  Subject identifier formats are defined by
    [RFC9493].  Status List Token, and the validation that resolves a
    status, are defined by [STATUSLIST].  The terms Issuer, Trusting
-   Authorization Server, Runtime Presentation, Effective Expiry, and
-   Refusal Record are defined by [STATEMENT], as are the software
-   statement, its claims, its validation, issuer trust configuration,
-   and withdrawal.
+   Authorization Server, Effective Expiry, and Refusal Record are
+   defined by [STATEMENT], as are the software statement, its claims,
+   its validation, issuer trust configuration, and withdrawal.
 
    For the events defined here, the issuer acts as a Transmitter, and a
    trusting authorization server that has configured it acts as a
@@ -156,9 +155,7 @@ Table of Contents
    *  MUST NOT assign the same combination of status list URI and index
       to more than one statement, including across successive Status
       List Tokens published at that URI.  Withdrawing a statement then
-      affects no other: withdrawing a superseded statement does not
-      withdraw its replacement, and issuing a replacement does not
-      restore a withdrawn predecessor.
+      affects no other.
 
    *  MUST sign the Status List Token with a key published at the
       jwks_uri metadata value of its authorization server metadata
@@ -208,8 +205,10 @@ Table of Contents
    issuer has withdrawn, a server MUST NOT replace a Status List Token
    it holds with one whose iat claim is earlier, and MUST treat one
    whose iat claim is equal but whose contents differ as a resolution
-   failure.  A statement whose status the server cannot resolve is
-   bounded by its effective expiry, as [STATEMENT] provides.
+   failure.  Section 8.3 of [STATUSLIST] recommends rejecting a
+   statement whose status the server cannot resolve.  A statement the
+   server accepts without a resolved status remains bounded by its
+   effective expiry ([STATEMENT]).
 
    A server MUST obtain a Status List Token's verification keys from the
    jwks_uri metadata value of the issuer's authorization server metadata
@@ -316,24 +315,29 @@ Table of Contents
        requires.
 
    2.  Reject an event whose aud claim does not contain the audience of
-       the stream that delivered it (Section 4) or whose event type is
-       not recognized.
+       the stream that delivered it (Section 4).
 
    3.  Resolve the subject (Section 5).
 
-   4.  Resolve the status of the affected statements from the issuer's
-       Status List Token as [STATUSLIST] defines, using a copy that the
-       status list URI served, or confirmed by revalidation, in response
-       to a request begun after the event arrived, without waiting for
-       the schedule that would otherwise apply, and apply the resolved
-       status as Section 3.2 defines.
+   4.  Resolve the status of the affected statements from the Status
+       List Token each statement's status claim references, as
+       [STATUSLIST] defines, using a copy that the status list URI
+       served, or confirmed by revalidation, in response to a request
+       begun after the event arrived, without waiting for the schedule
+       that would otherwise apply, and apply the resolved status as
+       Section 3.2 defines.
+
+   If step 1 or 2 fails, the receiver reports a SET error as [RFC8935]
+   or [RFC8936] provides.  Otherwise, it acknowledges the SET, whatever
+   steps 3 and 4 produce.  A receiver ignores any other member of the
+   SET's events claim.
 
    The affected statements are those the transmitting issuer made about
    the subject, never statements another issuer made about the same
    software.  They are the statement the event's software_statement_jti
    claim names or, if the event names none, those the receiver holds or
    has cached a status for.  An event about a subject for which the
-   receiver holds no state requires nothing of it.  A receiver discards
+   receiver holds no state requires nothing of it.  A receiver ignores
    events for subjects outside the identifier scope for which it accepts
    the transmitting issuer ([STATEMENT]).
 
@@ -355,14 +359,15 @@ Table of Contents
 
    Two constraints bound every event:
 
-   *  An event MUST NOT by itself create standing, extend a statement's
-      lifetime, or otherwise increase what a client can do.  A receiver
-      MUST ignore any payload claim that would have such an effect.
+   *  A receiver MUST NOT let an event by itself create standing, extend
+      a statement's lifetime, or otherwise increase what a client can
+      do.  A receiver MUST ignore any payload claim that would have such
+      an effect.
 
-   *  A receiver MUST continue to resolve status on its own schedule,
-      and to enforce statement expiry, independently of this mechanism.
-      Stream loss, transmitter unavailability, or delivery failure then
-      leaves both controls in force.
+   *  A receiver MUST continue to resolve status as Section 3.2
+      provides, and to enforce statement expiry, independently of this
+      mechanism.  Stream loss, transmitter unavailability, or delivery
+      failure then leaves both controls in force.
 
 8.  Stream Configuration
 
@@ -397,10 +402,10 @@ Table of Contents
 
 9.2.  Event Logs
 
-   A receiver ought to handle event logs as it handles statements
-   ([STATEMENT]).  A log of events is a record about client identifiers
-   that can outlive the issuer's own published status, so a receiver
-   ought to bound its retention.
+   A receiver ought to treat event logs as sensitive at rest, as
+   [STATEMENT] treats statements.  A log of events is a record about
+   client identifiers that can outlive the issuer's own published
+   status, so a receiver ought to bound its retention.
 
 10.  Deployment Considerations
 
@@ -409,13 +414,13 @@ Table of Contents
 
 10.1.  Stream Coverage and Monitoring
 
-   A stream can cover every subject an issuer attests, or the receiver
-   can add each subject through the subject management of [SSF] when it
-   first admits that software.  Admission checks and the receiver's own
-   status resolution (Section 3.2, Section 7) remain independent of the
-   subjects a stream covers, so a withdrawal whose event was transmitted
-   before the subject was added to the stream is found at a later
-   resolution.
+   A stream can cover every subject appropriate to it (Section 8), or
+   the receiver can add each subject through the subject management of
+   [SSF] when it first admits that software.  Admission checks and the
+   receiver's own status resolution (Section 3.2, Section 7) remain
+   independent of the subjects a stream covers, so a withdrawal whose
+   event was transmitted before the subject was added to the stream is
+   found at a later resolution.
 
    A receiver ought to alert on stream loss rather than assume
    quiescence.
@@ -457,8 +462,9 @@ Table of Contents
    attacker who suppresses events delays a withdrawal at most until the
    receiver's next scheduled resolution and, for new admissions, never
    beyond the affected statements' effective expiry (Section 10.2).
-   Grants already open continue as the refresh policy of [STATEMENT]
-   allows.
+   Grants already open continue until a refresh at which the receiver
+   holds a refusal record, which [STATEMENT] then rejects unless it
+   carries an acceptable replacement.
 
    The absence of events looks the same on a healthy stream and a
    suppressed one.  Periodic stream verification (Section 8) makes the
@@ -475,19 +481,20 @@ Table of Contents
 12.  Privacy Considerations
 
    The privacy considerations of [STATEMENT], [STATUSLIST], [SSF], and
-   [RFC8417] apply.  Retrieving a Status List Token on its own schedule
-   keeps request timing from disclosing the client population a server
-   serves (Section 11.1).
+   [RFC8417] apply.  Section 11.1 describes how the resolution schedule
+   limits what retrieval discloses.  A retrieval that an event prompts
+   shows the issuer that the receiver holds a statement or a cached
+   status for the event's subject.
 
    Subject identifiers in these events name reviewed software and, in
    aggregate, describe an organization's approved software estate.  For
    this reason, a stream is scoped as Section 8 provides.  Event logs
    deserve the same care as statements (Section 9.2).
 
-   Because this specification defines no durable receiver-side record,
-   it adds no negative state about a client identifier that outlives the
-   issuer's own published status.  A receiver that logs events creates
-   such a record (Section 9.2).
+   Because the events this specification defines create no durable
+   receiver-side record, they add no negative state about a client
+   identifier that outlives the issuer's own published status.  A
+   receiver that logs events creates such a record (Section 9.2).
 
 13.  IANA Considerations
 
@@ -570,8 +577,10 @@ Table of Contents
 
    [STATEMENT]
               McGuinness, K., "Client ID Metadata Document Software
-              Statement", n.d., <https://datatracker.ietf.org/doc/draft-
-              mcguinness-oauth-cimd-sw-stmt>.
+              Statement", Work in Progress, Internet-Draft, draft-
+              mcguinness-oauth-cimd-sw-stmt-00, October 2026,
+              <https://datatracker.ietf.org/doc/draft-mcguinness-oauth-
+              cimd-sw-stmt>.
 
    [STATUSLIST]
               Looker, T., Bastian, P., and C. Bormann, "Token Status

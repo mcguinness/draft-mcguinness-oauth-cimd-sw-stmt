@@ -8,8 +8,8 @@
 <meta content="Karl McGuinness" name="author">
 <meta content="
        RFC 7591 defines how a client presents a software statement and how a registration endpoint consumes it, but not how the client obtains one. This specification defines OAuth 2.0 flows for issuing a software statement to a client identified by a Client ID Metadata Document and not registered with the authorization server. 
-       A client holding an initial access token that authorizes issuance, or a statement it can renew, uses OAuth 2.0 Token Exchange (RFC 8693) without a redirect. Any client can instead use a redirect flow: the authorization endpoint returns a short-lived  software_statement_code , which the client redeems through a new token endpoint grant. In both flows, a completed decision returns a statement, and a pending decision uses Deferred Token Response and polling. The statement never appears in an authorization response URL. 
-       The client presents the statement at registration or at runtime, or publishes it for servers to pull. A companion specification defines the statement, its validation, and its consumption. 
+       A client holding an initial access token that authorizes issuance, or a statement it can renew, uses OAuth 2.0 Token Exchange (RFC 8693) without a redirect. A client can instead use a redirect flow: the authorization endpoint returns a short-lived  software_statement_code , which the client redeems through a new token endpoint grant. In both flows, a completed decision returns a statement, and a pending decision uses Deferred Token Response and polling. The statement never appears in an authorization response URL. 
+       The client presents the statement at registration or at runtime, or publishes it for servers to pull. Companion specifications define the statement, its validation, and its consumption. 
     " name="description">
 <meta content="xml2rfc 3.34.1" name="generator">
 <meta content="OAuth" name="keyword">
@@ -1084,8 +1084,8 @@ svg {
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
 <p id="section-abstract-1">RFC 7591 defines how a client presents a software statement and how a registration endpoint consumes it, but not how the client obtains one. This specification defines OAuth 2.0 flows for issuing a software statement to a client identified by a Client ID Metadata Document and not registered with the authorization server.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
-<p id="section-abstract-2">A client holding an initial access token that authorizes issuance, or a statement it can renew, uses OAuth 2.0 Token Exchange (RFC 8693) without a redirect. Any client can instead use a redirect flow: the authorization endpoint returns a short-lived <code>software_statement_code</code>, which the client redeems through a new token endpoint grant. In both flows, a completed decision returns a statement, and a pending decision uses Deferred Token Response and polling. The statement never appears in an authorization response URL.<a href="#section-abstract-2" class="pilcrow">¶</a></p>
-<p id="section-abstract-3">The client presents the statement at registration or at runtime, or publishes it for servers to pull. A companion specification defines the statement, its validation, and its consumption.<a href="#section-abstract-3" class="pilcrow">¶</a></p>
+<p id="section-abstract-2">A client holding an initial access token that authorizes issuance, or a statement it can renew, uses OAuth 2.0 Token Exchange (RFC 8693) without a redirect. A client can instead use a redirect flow: the authorization endpoint returns a short-lived <code>software_statement_code</code>, which the client redeems through a new token endpoint grant. In both flows, a completed decision returns a statement, and a pending decision uses Deferred Token Response and polling. The statement never appears in an authorization response URL.<a href="#section-abstract-2" class="pilcrow">¶</a></p>
+<p id="section-abstract-3">The client presents the statement at registration or at runtime, or publishes it for servers to pull. Companion specifications define the statement, its validation, and its consumption.<a href="#section-abstract-3" class="pilcrow">¶</a></p>
 </section>
 <div id="status-of-memo">
 <section id="section-boilerplate.1">
@@ -1334,7 +1334,7 @@ svg {
 "<span class="bcp14">MAY</span>", and "<span class="bcp14">OPTIONAL</span>" in this document are to be interpreted as
 described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="cite xref">RFC8174</a>]</span> when, and only when, they
 appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶</a></p>
-<p id="section-2-2">This specification uses terminology defined in <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>, <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>, and <span>[<a href="#DTR" class="cite xref">DTR</a>]</span>. The terms Issuer, Trusting Authorization Server, Metadata Digest, Effective Expiry, Establishment, Refusal Record, and Review-Only are defined by <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>.<a href="#section-2-2" class="pilcrow">¶</a></p>
+<p id="section-2-2">This specification uses terminology defined in <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>, <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>, and <span>[<a href="#DTR" class="cite xref">DTR</a>]</span>. The terms Issuer, Trusting Authorization Server, Establishment, and Review-Only are defined by <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>.<a href="#section-2-2" class="pilcrow">¶</a></p>
 <p id="section-2-3">This specification defines the following terms:<a href="#section-2-3" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-2-4">
         <dt id="section-2-4.1">Software Statement Request:</dt>
@@ -1375,7 +1375,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
       <h2 id="name-protocol-overview">
 <a href="#section-3" class="section-number selfRef">3. </a><a href="#name-protocol-overview" class="section-name selfRef">Protocol Overview</a>
       </h2>
-<p id="section-3-1">A client that holds an initial access token authorizing issuance, or a statement it can renew, uses token exchange at the token endpoint without a user agent (<a href="#token-exchange-profile" class="auto internal xref">Section 5</a>). Any client can instead initiate the redirect flow at the authorization endpoint (<a href="#authorization-request" class="auto internal xref">Section 6</a>) and redeem the resulting software statement code at the token endpoint.<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-3-1">A client that holds an initial access token authorizing issuance, or a statement it can renew, uses token exchange at the token endpoint without a user agent (<a href="#token-exchange-profile" class="auto internal xref">Section 5</a>). A client can instead initiate the redirect flow at the authorization endpoint (<a href="#authorization-request" class="auto internal xref">Section 6</a>) and redeem the resulting software statement code at the token endpoint.<a href="#section-3-1" class="pilcrow">¶</a></p>
 <p id="section-3-2">The issuer fetches and snapshots the client's Client ID Metadata Document (<a href="#metadata-snapshot" class="auto internal xref">Section 4.1</a>), decides whether to issue, and signs the statement. The client carries the statement to trusting authorization servers in its audience, at registration (<span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>) or at runtime (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). A publisher's backend acting for a client is not a party this specification authenticates. Issuance that such a backend authorizes on a client's behalf is out of scope.<a href="#section-3-2" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3-3">
 <pre>
@@ -1393,7 +1393,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 |          |&lt;-(2) software statement -----------|   (approval)  |
 +----------+      (signed JWT)                  +---------------+
      |
-     | (3) RFC 7591 registration request
+     | (3) registration or runtime presentation
      |     carrying the software statement
      v
 +---------------+  +---------------+       +---------------+
@@ -1469,7 +1469,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
           </ul>
 </li>
         <li class="normal" id="section-4-4.3">
-          <p id="section-4-4.3.1">An omitted value establishes neither, and any request identifying such a client <span class="bcp14">MUST</span> be rejected with the <code>invalid_request</code> error code, returned at the authorization endpoint to the redirection URI validated against the document.<a href="#section-4-4.3.1" class="pilcrow">¶</a></p>
+          <p id="section-4-4.3.1">An omitted value establishes neither, and any request identifying such a client <span class="bcp14">MUST</span> be rejected, with the <code>invalid_request</code> error code at the authorization endpoint, returned to the redirection URI validated against the document, and with the <code>invalid_client</code> error code (Section 5.2 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>) at the token endpoint.<a href="#section-4-4.3.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 <p id="section-4-5">Classification uses the singular <code>token_endpoint_auth_method</code>. A list of declared supported methods is not interpreted.<a href="#section-4-5" class="pilcrow">¶</a></p>
@@ -1552,12 +1552,12 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
           <p id="section-5-8.3.1">The authorization server <span class="bcp14">MUST</span> enforce every restriction the credential carries and <span class="bcp14">MUST</span> prevent replay beyond its permitted number of uses.<a href="#section-5-8.3.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
-<p id="section-5-9">A DPoP proof on the exchange constrains any resulting deferral but neither authenticates the presenter nor protects the subject token (Section 3 of <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>). The initial access token therefore needs its own sender constraint or single-use restriction. <a href="#iat-practice" class="auto internal xref">Section 15.1</a> covers protecting the token in transit and at rest.<a href="#section-5-9" class="pilcrow">¶</a></p>
+<p id="section-5-9">A DPoP proof on the exchange constrains any resulting deferral but does not authenticate the presenter (Section 3 of <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>), and it protects the subject token only if that token is bound to the proof's key. <a href="#iat-practice" class="auto internal xref">Section 15.1</a> covers protecting the token in transit and at rest.<a href="#section-5-9" class="pilcrow">¶</a></p>
 <p id="section-5-10">A use of an initial access token is consumed when the authorization server commits to an outcome: issuing a statement, creating a deferral, or denying issuance. Concurrent presentations of a single-use credential <span class="bcp14">MUST NOT</span> both be committed.<a href="#section-5-10" class="pilcrow">¶</a></p>
 <p id="section-5-11">The authorization server <span class="bcp14">MUST</span> validate the subject token before retrieving client-controlled metadata or enqueueing any processing. A subject token <span class="bcp14">MUST</span> result in the <code>invalid_request</code> error code (Section 2.2.2 of <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>) if any of the following holds:<a href="#section-5-11" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-5-12.1">
-          <p id="section-5-12.1.1">It is invalid or revoked.<a href="#section-5-12.1.1" class="pilcrow">¶</a></p>
+          <p id="section-5-12.1.1">It is invalid, revoked, or, for a statement, one that <a href="#renewal" class="auto internal xref">Section 5.1</a> forbids accepting.<a href="#section-5-12.1.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-5-12.2">
           <p id="section-5-12.2.1">It has expired, unless it is a prior software statement accepted under <a href="#renewal" class="auto internal xref">Section 5.1</a>.<a href="#section-5-12.2.1" class="pilcrow">¶</a></p>
@@ -1566,9 +1566,9 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
           <p id="section-5-12.3.1">It does not authorize issuance for the presented <code>client_id</code> parameter.<a href="#section-5-12.3.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
-<p id="section-5-13">An unacceptable requested audience results in <code>invalid_target</code> <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>.<a href="#section-5-13" class="pilcrow">¶</a></p>
+<p id="section-5-13">If no requested audience is acceptable, the request is rejected with the <code>invalid_target</code> error code (Section 2.2.2 of <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>).<a href="#section-5-13" class="pilcrow">¶</a></p>
 <p id="section-5-14">An error response to a token exchange <span class="bcp14">MUST NOT</span> contain the subject token.<a href="#section-5-14" class="pilcrow">¶</a></p>
-<p id="section-5-15">The authorization server <span class="bcp14">MUST</span> bind a fresh metadata snapshot (<a href="#metadata-snapshot" class="auto internal xref">Section 4.1</a>) and the requested audience before returning either the software statement or a deferral code.<a href="#section-5-15" class="pilcrow">¶</a></p>
+<p id="section-5-15">The authorization server <span class="bcp14">MUST</span> bind a metadata snapshot taken for this request (<a href="#metadata-snapshot" class="auto internal xref">Section 4.1</a>) and the requested audience before returning either the software statement or a deferral code.<a href="#section-5-15" class="pilcrow">¶</a></p>
 <p id="section-5-16">Issuance policy determines whether an initial access token authorizes the client only to request a statement or also authorizes its issuance. The exchange results in a software statement token response (<a href="#software-statement-response" class="auto internal xref">Section 10</a>), a deferral at a deferring issuer (<a href="#deferred-processing" class="auto internal xref">Section 9</a>), or the terminal denial of <a href="#terminal-denial" class="auto internal xref">Section 10.1</a>.<a href="#section-5-16" class="pilcrow">¶</a></p>
 <div id="renewal">
 <section id="section-5.1">
@@ -1587,10 +1587,10 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
             <p id="section-5.1-2.3.1">The client authenticated with a key carried both by the document the statement's <code>cimd_digest</code> claim names and by the current document.<a href="#section-5.1-2.3.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-5.1-3">That authentication is the holder binding: without it, whoever held a copy of the statement could renew. To check the reviewed document's keys, an issuer offering renewal retains the octets of each document it issues a statement over.<a href="#section-5.1-3" class="pilcrow">¶</a></p>
+<p id="section-5.1-3">That authentication is the holder binding: without it, whoever held a copy of the statement could renew. To check the reviewed document's keys, an issuer offering renewal needs the octets of each document it issues a statement over (<a href="#audit-logging" class="auto internal xref">Section 14.4</a>).<a href="#section-5.1-3" class="pilcrow">¶</a></p>
 <p id="section-5.1-4">A client rotating keys inline renews while its document carries both the old and the new key. For a document naming <code>jwks_uri</code>, the binding is to whatever that location serves. A public client holds no such key and obtains a replacement through the redirect flow (<a href="#authorization-request" class="auto internal xref">Section 6</a>).<a href="#section-5.1-4" class="pilcrow">¶</a></p>
-<p id="section-5.1-5">A replacement carries the subject statement's <code>aud_tenant</code> claim while the decision is confined to that tenant. It also carries the uses the subject statement permits, unless issuance policy narrows them. A replacement <span class="bcp14">MUST NOT</span> permit a use the subject statement does not. It is matched to the statement it replaces by <code>iss</code> and <code>sub</code> (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-5.1-5" class="pilcrow">¶</a></p>
-<p id="section-5.1-6">An issuer <span class="bcp14">MUST NOT</span> accept as the subject token a statement it has withdrawn (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), including one whose status it publishes under <span>[<a href="#STATUS" class="cite xref">STATUS</a>]</span> as other than <code>VALID</code>. Renewing such a statement would reissue the decision that withdrawal ended.<a href="#section-5.1-6" class="pilcrow">¶</a></p>
+<p id="section-5.1-5">A replacement carries the subject statement's <code>aud_tenant</code> claim if the decision is confined to that tenant. It also carries the uses the subject statement permits, unless issuance policy narrows them. A replacement <span class="bcp14">MUST NOT</span> permit a use the subject statement does not. It is matched to the statement it replaces by <code>iss</code> and <code>sub</code> (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-5.1-5" class="pilcrow">¶</a></p>
+<p id="section-5.1-6">An issuer <span class="bcp14">MUST NOT</span> accept as the subject token a statement it has withdrawn (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), or one whose status it publishes under <span>[<a href="#STATUS" class="cite xref">STATUS</a>]</span> as other than <code>VALID</code>. Renewing such a statement would reissue the decision that withdrawal ended.<a href="#section-5.1-6" class="pilcrow">¶</a></p>
 <p id="section-5.1-7">The authorization server <span class="bcp14">MAY</span> accept a statement that has expired, and <span class="bcp14">SHOULD</span> bound how long after expiry it will do so. A renewal after an extended absence amounts to a new issuance request.<a href="#section-5.1-7" class="pilcrow">¶</a></p>
 <p id="section-5.1-8">If the current document's digest equals the subject statement's <code>cimd_digest</code>, whether renewal requires fresh review is issuer policy. If the digests differ, the issuer <span class="bcp14">MUST</span> apply the decision it would apply to a first issuance for that document, and <span class="bcp14">MUST NOT</span> renew on the strength of the prior statement alone. Without this rule, whoever can change the document could obtain the issuer's signature over an unreviewed change.<a href="#section-5.1-8" class="pilcrow">¶</a></p>
 </section>
@@ -1666,7 +1666,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 </dd>
       <dd class="break"></dd>
 </dl>
-<p id="section-6-3">The authorization server selects the final audience according to policy. It <span class="bcp14">MUST NOT</span> place in the statement's <code>aud</code> claim any value the request did not carry, except that a renewal request carrying no <code>audience</code> parameter counts as carrying the subject statement's <code>aud</code> claim (<a href="#token-exchange-profile" class="auto internal xref">Section 5</a>). An issuer narrows a requested audience and never widens it.<a href="#section-6-3" class="pilcrow">¶</a></p>
+<p id="section-6-3">The authorization server selects the final audience according to policy. It <span class="bcp14">MUST NOT</span> place in the statement's <code>aud</code> claim any value the request did not carry, except as <a href="#token-exchange-profile" class="auto internal xref">Section 5</a> provides for a renewal request. An issuer narrows a requested audience and never widens it.<a href="#section-6-3" class="pilcrow">¶</a></p>
 <p id="section-6-4">If no requested audience is acceptable, the authorization server <span class="bcp14">MUST</span> reject the request with the <code>invalid_target</code> error code <span>[<a href="#RFC8707" class="cite xref">RFC8707</a>]</span>. An authorization server whose policy requires a restricted audience rejects a request carrying none with the same error.<a href="#section-6-4" class="pilcrow">¶</a></p>
 <p id="section-6-5">The <code>audience</code> semantics of this section apply only to software statement requests and do not affect proprietary uses of the parameter for access-token targeting.<a href="#section-6-5" class="pilcrow">¶</a></p>
 <p id="section-6-6">The authorization server <span class="bcp14">MUST</span> reject with the <code>invalid_request</code> error code a request that omits a required PKCE parameter or a required <code>dpop_jkt</code> parameter.<a href="#section-6-6" class="pilcrow">¶</a></p>
@@ -1736,7 +1736,7 @@ Host: server.example.com
 <pre>
 HTTP/1.1 302 Found
 Location: https://client.example.org/cb?
-  software_statement_code=V7e1gP8zT2mN4qR6sW9xY3aB5cD7fH0jK2pL4uQ6vX8&amp;
+  software_statement_code=V7e1gP8zT2mN4qR6sW9xY3aB5cD7fH0jK2pL4uQ6vX&amp;
   state=4L7xQ2mN9pR6sT1vW8yZ3aB5cD0fG2hJ&amp;
   iss=https%3A%2F%2Fserver.example.com
 </pre><a href="#section-7.1-7" class="pilcrow">¶</a>
@@ -1786,7 +1786,7 @@ Location: https://client.example.org/cb?
 <dt id="section-8-2.11">
 <code>completion_mode</code>:</dt>
         <dd style="margin-left: 1.5em" id="section-8-2.12">
-          <p id="section-8-2.12.1"><span class="bcp14">REQUIRED</span> when the authorization server advertises the <code>deferred_token_response_supported</code> metadata value (<a href="#authorization-server-metadata" class="auto internal xref">Section 13</a>), and not used otherwise. A synchronous issuer ignores it. When present, the value <span class="bcp14">MUST</span> include <code>deferred</code>. A deferring issuer rejects a redemption that omits it with <code>invalid_request</code>.<a href="#section-8-2.12.1" class="pilcrow">¶</a></p>
+          <p id="section-8-2.12.1"><span class="bcp14">REQUIRED</span> at a deferring issuer (<a href="#authorization-server-metadata" class="auto internal xref">Section 13</a>), and not used otherwise. A synchronous issuer ignores it. When present, the value <span class="bcp14">MUST</span> include <code>deferred</code>. A deferring issuer rejects a request that omits it with <code>invalid_request</code>.<a href="#section-8-2.12.1" class="pilcrow">¶</a></p>
 </dd>
       <dd class="break"></dd>
 </dl>
@@ -1817,7 +1817,7 @@ Content-Type: application/x-www-form-urlencoded
 
 grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3A
   software-statement
-  &amp;software_statement_code=V7e1gP8zT2mN4qR6sW9xY3aB5cD7fH0jK2pL4uQ6vX8
+  &amp;software_statement_code=V7e1gP8zT2mN4qR6sW9xY3aB5cD7fH0jK2pL4uQ6vX
   &amp;redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb
   &amp;client_id=https%3A%2F%2Fclient.example.org%2Fmetadata.json
   &amp;code_verifier=dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk
@@ -1838,7 +1838,7 @@ grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3A
 <p id="section-9-2">Deferral follows <span>[<a href="#DTR" class="cite xref">DTR</a>]</span>, including the sender constraint it fixes at origination, with the following additions (<a href="#lifetime-practice" class="auto internal xref">Section 15.3</a> covers choosing a deferral code lifetime):<a href="#section-9-2" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-9-3.1">
-          <p id="section-9-3.1.1">A deferral created under this specification <span class="bcp14">MUST</span> be delivered by polling. Callback delivery is omitted from this version (<a href="#design-rationale" class="auto internal xref">Appendix A</a>).<a href="#section-9-3.1.1" class="pilcrow">¶</a></p>
+          <p id="section-9-3.1.1">A deferral created under this specification <span class="bcp14">MUST</span> be delivered by polling. Callback delivery is omitted from this version.<a href="#section-9-3.1.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-9-3.2">
           <p id="section-9-3.2.1">A client <span class="bcp14">MUST NOT</span> send the <code>client_notification_token</code> parameter of <span>[<a href="#DTR" class="cite xref">DTR</a>]</span>. An authorization server rejects a request carrying it with the <code>invalid_request</code> error code and <span class="bcp14">MUST NOT</span> deliver a callback, whatever the client's metadata says.<a href="#section-9-3.2.1" class="pilcrow">¶</a></p>
@@ -1851,7 +1851,7 @@ grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3A
 <div class="lang-http sourcecode" id="section-9-5">
 <pre>
 POST /token HTTP/1.1
-Host: issuer.example
+Host: server.example.com
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Adeferred
@@ -1916,13 +1916,13 @@ Pragma: no-cache
 }
 </pre><a href="#section-10-6" class="pilcrow">¶</a>
 </div>
-<p id="section-10-7">The <code>access_token</code> member is a security-token container (<span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>), not an OAuth access token. The software statement it carries is consumed only as <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> provides, <span class="bcp14">MUST NOT</span> be attached to a request as an <code>Authorization: Bearer</code> credential, and is not subject to refresh. A protected resource <span class="bcp14">MUST NOT</span> accept a software statement returned in the <code>access_token</code> member as an access token.<a href="#section-10-7" class="pilcrow">¶</a></p>
+<p id="section-10-7">The <code>access_token</code> member is a security-token container (<span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>), not an OAuth access token. The software statement it carries is consumed only as <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> and <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span> provide, <span class="bcp14">MUST NOT</span> be attached to a request as an <code>Authorization: Bearer</code> credential, and is not subject to refresh. A protected resource <span class="bcp14">MUST NOT</span> accept a software statement returned in the <code>access_token</code> member as an access token.<a href="#section-10-7" class="pilcrow">¶</a></p>
 <div id="terminal-denial">
 <section id="section-10.1">
         <h3 id="name-terminal-denial">
 <a href="#section-10.1" class="section-number selfRef">10.1. </a><a href="#name-terminal-denial" class="section-name selfRef">Terminal Denial</a>
         </h3>
-<p id="section-10.1-1">When the authorization server decides not to issue the requested software statement, it returns a token error response as defined in Section 5.2 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> with the error code <code>access_denied</code> and HTTP status code 400, and <span class="bcp14">MUST</span> include the <code>Cache-Control: no-store</code> response header field. This applies to both kinds of originating request, including when the denial answers a polling request (<a href="#deferred-processing" class="auto internal xref">Section 9</a>).<a href="#section-10.1-1" class="pilcrow">¶</a></p>
+<p id="section-10.1-1">When the authorization server decides not to issue the requested software statement, it returns a token error response as defined in Section 5.2 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> with the <code>access_denied</code> error code (Section 3.5 of <span>[<a href="#RFC8628" class="cite xref">RFC8628</a>]</span>) and HTTP status code 400, and <span class="bcp14">MUST</span> include the <code>Cache-Control: no-store</code> response header field. This applies to both kinds of originating request, including when the denial answers a polling request (<a href="#deferred-processing" class="auto internal xref">Section 9</a>).<a href="#section-10.1-1" class="pilcrow">¶</a></p>
 <p id="section-10.1-2">The denial is terminal for the request. A denied deferral behaves as <span>[<a href="#DTR" class="cite xref">DTR</a>]</span> specifies for a request resolved with an error, and a client that receives the <code>access_denied</code> error code in response to a polling request <span class="bcp14">MUST NOT</span> send another polling request with that <code>deferral_code</code>. A denial does not preclude a later issuance request. Whether to accept one is issuance policy.<a href="#section-10.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1933,7 +1933,7 @@ Pragma: no-cache
       <h2 id="name-withdrawal">
 <a href="#section-11" class="section-number selfRef">11. </a><a href="#name-withdrawal" class="section-name selfRef">Withdrawal</a>
       </h2>
-<p id="section-11-1">An issuer that ends a decision before its expiry does so through a withdrawal mechanism (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), such as the Token Status List binding of <span>[<a href="#STATUS" class="cite xref">STATUS</a>]</span>. Withdrawing a statement does not withdraw a replacement obtained through <a href="#renewal" class="auto internal xref">Section 5.1</a>, and withdrawing a replacement does not restore its predecessor.<a href="#section-11-1" class="pilcrow">¶</a></p>
+<p id="section-11-1">An issuer that ends a decision before its expiry does so through a withdrawal mechanism (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), such as the Token Status List profile of <span>[<a href="#STATUS" class="cite xref">STATUS</a>]</span>. Withdrawing a statement does not withdraw a replacement obtained through <a href="#renewal" class="auto internal xref">Section 5.1</a>, and withdrawing a replacement does not restore its predecessor.<a href="#section-11-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="same-server">
@@ -1943,7 +1943,7 @@ Pragma: no-cache
       </h2>
 <p id="section-12-1">An authorization server that issued a statement already holds the decision that statement records. If it is also a trusting authorization server, it <span class="bcp14">MAY</span> admit the client on that record rather than require the statement to be presented back to it, at registration or at runtime.<a href="#section-12-1" class="pilcrow">¶</a></p>
 <p id="section-12-2">Because the record of a decision is not a fresh retrieval of the document, a server admitting a client on the record of a statement it issued <span class="bcp14">MUST</span> apply every check <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> applies to a presented statement, and at registration every check <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span> applies, taking the statement's claims from its record of the decision. The record replaces only the signature: the server still obtains the document at <code>sub</code> and compares its digest with the recorded one.<a href="#section-12-2" class="pilcrow">¶</a></p>
-<p id="section-12-3">At runtime, the recorded decision replaces the presented statement, not the proof of who is making the request. The request <span class="bcp14">MUST</span> meet the sender constraint of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> against the reviewed document, as a presentation would, and a successful admission creates an establishment. At registration, the rules of <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span> apply as they do to a statement presented there.<a href="#section-12-3" class="pilcrow">¶</a></p>
+<p id="section-12-3">At runtime, the recorded decision replaces the presented statement, not the proof of who is making the request. The request <span class="bcp14">MUST</span> meet the sender constraint of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> against the reviewed document, as a presentation would, and a successful admission creates an establishment.<a href="#section-12-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="authorization-server-metadata">
@@ -1952,16 +1952,15 @@ Pragma: no-cache
 <a href="#section-13" class="section-number selfRef">13. </a><a href="#name-authorization-server-metada" class="section-name selfRef">Authorization Server Metadata</a>
       </h2>
 <p id="section-13-1">An authorization server that issues software statements under this specification advertises <code>true</code> for <code>client_id_metadata_document_supported</code> (<span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>) and publishes the authorization server metadata that <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> requires of an issuer.<a href="#section-13-1" class="pilcrow">¶</a></p>
-<p id="section-13-2">A deferring issuer publishes the metadata <span>[<a href="#DTR" class="cite xref">DTR</a>]</span> requires, including <code>true</code> for <code>deferred_token_response_supported</code>. A synchronous issuer advertises neither that value nor deferral-code revocation, and need not implement <span>[<a href="#DTR" class="cite xref">DTR</a>]</span>.<a href="#section-13-2" class="pilcrow">¶</a></p>
+<p id="section-13-2">A deferring issuer publishes the metadata <span>[<a href="#DTR" class="cite xref">DTR</a>]</span> requires, including <code>true</code> for <code>deferred_token_response_supported</code>. A synchronous issuer advertises neither that value nor the deferral-code token type in the <code>revocation_endpoint_token_type_values_supported</code> metadata value, and need not implement <span>[<a href="#DTR" class="cite xref">DTR</a>]</span>.<a href="#section-13-2" class="pilcrow">¶</a></p>
 <p id="section-13-3">An authorization server supporting the redirect flow advertises <code>urn:ietf:params:oauth:grant-type:software-statement</code> in <code>grant_types_supported</code>, <code>software_statement_code</code> in <code>response_types_supported</code>, and <code>true</code> for <code>authorization_response_iss_parameter_supported</code> as defined by <span>[<a href="#RFC9207" class="cite xref">RFC9207</a>]</span>.<a href="#section-13-3" class="pilcrow">¶</a></p>
 <p id="section-13-4">An authorization server supporting the token exchange profile (<a href="#token-exchange-profile" class="auto internal xref">Section 5</a>) advertises <code>urn:ietf:params:oauth:grant-type:token-exchange</code> in <code>grant_types_supported</code> and publishes the <code>software_statement_subject_token_types_supported</code> metadata value defined in this section. An implementation supporting only that profile advertises neither the software statement grant nor the <code>software_statement_code</code> response type.<a href="#section-13-4" class="pilcrow">¶</a></p>
-<p id="section-13-5">An authorization server that does not advertise the <code>deferred_token_response_supported</code> metadata value answers with a statement or a terminal denial, never a deferral.<a href="#section-13-5" class="pilcrow">¶</a></p>
-<p id="section-13-6">This specification defines the following additional authorization server metadata <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span> value:<a href="#section-13-6" class="pilcrow">¶</a></p>
-<span class="break"></span><dl class="dlParallel" id="section-13-7">
-        <dt id="section-13-7.1">
+<p id="section-13-5">This specification defines the following additional authorization server metadata <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span> value:<a href="#section-13-5" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-13-6">
+        <dt id="section-13-6.1">
 <code>software_statement_subject_token_types_supported</code>:</dt>
-        <dd style="margin-left: 1.5em" id="section-13-7.2">
-          <p id="section-13-7.2.1"><span class="bcp14">REQUIRED</span> for an authorization server that supports the token exchange profile (<a href="#token-exchange-profile" class="auto internal xref">Section 5</a>), and absent otherwise. A JSON array of the <code>subject_token_type</code> values the authorization server accepts when <code>requested_token_type</code> is <code>urn:ietf:params:oauth:token-type:software-statement</code>. Publishing this member signals support for the profile. Listing <code>urn:ietf:params:oauth:token-type:software-statement</code> among its values advertises renewal by prior statement (<a href="#renewal" class="auto internal xref">Section 5.1</a>).<a href="#section-13-7.2.1" class="pilcrow">¶</a></p>
+        <dd style="margin-left: 1.5em" id="section-13-6.2">
+          <p id="section-13-6.2.1"><span class="bcp14">REQUIRED</span> for an authorization server that supports the token exchange profile (<a href="#token-exchange-profile" class="auto internal xref">Section 5</a>), and absent otherwise. A JSON array of the <code>subject_token_type</code> values the authorization server accepts when <code>requested_token_type</code> is <code>urn:ietf:params:oauth:token-type:software-statement</code>. Publishing this member signals support for the profile. Listing <code>urn:ietf:params:oauth:token-type:software-statement</code> among its values advertises renewal by prior statement (<a href="#renewal" class="auto internal xref">Section 5.1</a>).<a href="#section-13-6.2.1" class="pilcrow">¶</a></p>
 </dd>
       <dd class="break"></dd>
 </dl>
@@ -1978,7 +1977,7 @@ Pragma: no-cache
         <h3 id="name-retrieval-and-approval-queu">
 <a href="#section-14.1" class="section-number selfRef">14.1. </a><a href="#name-retrieval-and-approval-queu" class="section-name selfRef">Retrieval and Approval-Queue Bounds</a>
         </h3>
-<p id="section-14.1-1">An authorization server can rate-limit token exchanges, cache successful retrieval results within the document's caching directives, as <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> describes, back off after failures rather than caching them, since <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> forbids caching failures, and bound pending deferrals per client identifier and requester. Because the redirect flow reaches the approval queue before any client-authenticated step, the same rate limits and pending-approval bounds per client identifier can apply there.<a href="#section-14.1-1" class="pilcrow">¶</a></p>
+<p id="section-14.1-1">An authorization server can rate-limit token exchanges, cache successful retrievals and back off after failures as <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> describes, and bound pending deferrals per client identifier and requester. Because the redirect flow reaches the approval queue before any client-authenticated step, the same rate limits and pending-approval bounds per client identifier can apply there.<a href="#section-14.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="issued-statement-handling">
@@ -2094,7 +2093,7 @@ Pragma: no-cache
 <a href="#section-16.1" class="section-number selfRef">16.1. </a><a href="#name-a-software-statement-is-not" class="section-name selfRef">A Software Statement Is Not an Access Grant</a>
         </h3>
 <p id="section-16.1-1">A software statement grants no resource access or consent on behalf of the software's users, and a protected resource does not accept one as an access token (<a href="#software-statement-response" class="auto internal xref">Section 10</a>).<a href="#section-16.1-1" class="pilcrow">¶</a></p>
-<p id="section-16.1-2">When an approval interface is shown, it <span class="bcp14">MUST NOT</span> imply that the approver is granting the client access to resources. An erroneous approval affects every authorization server in the statement's audience until expiry (<a href="#approval-interface" class="auto internal xref">Section 14.3</a>, <a href="#review-practice" class="auto internal xref">Section 15.2</a>).<a href="#section-16.1-2" class="pilcrow">¶</a></p>
+<p id="section-16.1-2">An authorization server that shows an approval interface <span class="bcp14">MUST NOT</span> imply through that interface that the approver is granting the client access to resources. An erroneous approval affects every authorization server in the statement's audience until expiry (<a href="#approval-interface" class="auto internal xref">Section 14.3</a>, <a href="#review-practice" class="auto internal xref">Section 15.2</a>).<a href="#section-16.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="what-issuance-attests">
@@ -2118,7 +2117,7 @@ Pragma: no-cache
         <h3 id="name-authorization-response-secu">
 <a href="#section-16.4" class="section-number selfRef">16.4. </a><a href="#name-authorization-response-secu" class="section-name selfRef">Authorization Response Security</a>
         </h3>
-<p id="section-16.4-1">The software statement is a signed credential and can contain sensitive deployment information, so it is never returned in an authorization response (<a href="#authorization-response" class="auto internal xref">Section 7</a>). The client's <code>state</code> and <code>iss</code> checks (<a href="#software-statement-code-response" class="auto internal xref">Section 7.1</a>) counter cross-site request forgery and mix-up.<a href="#section-16.4-1" class="pilcrow">¶</a></p>
+<p id="section-16.4-1">The software statement is a signed credential and can contain sensitive deployment information, so it is never returned in an authorization response (<a href="#authorization-response" class="auto internal xref">Section 7</a>). PKCE, or the client's <code>state</code> check, counters cross-site request forgery, and the client's <code>iss</code> check (<a href="#software-statement-code-response" class="auto internal xref">Section 7.1</a>) counters mix-up.<a href="#section-16.4-1" class="pilcrow">¶</a></p>
 <p id="section-16.4-2">A public client presents no client authentication, so its association with the software depends on delivery to a metadata-listed redirection endpoint. Another application can claim a private-use or loopback endpoint (<span>[<a href="#RFC8252" class="cite xref">RFC8252</a>]</span>). PKCE and DPoP bind the code to the initiator but cannot stop an attacker from initiating under another party's <code>client_id</code>. Only an <code>https</code> endpoint no other application can claim demonstrates control of the publisher's origin, so <a href="#authorization-request" class="auto internal xref">Section 6</a> requires one. A native public client can host such an endpoint or use the token exchange profile (<a href="#token-exchange-profile" class="auto internal xref">Section 5</a>).<a href="#section-16.4-2" class="pilcrow">¶</a></p>
 <p id="section-16.4-3">A confidential client's authentication proves possession of a key, not that the key is absent from software distributed to end users, so the requirement applies to it as well. Presentations of a statement over a document listing an endpoint another application can claim are in any case review-only at a trusting authorization server (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-16.4-3" class="pilcrow">¶</a></p>
 <p id="section-16.4-4">Endpoint or key control informs issuance policy but does not determine issuance (<a href="#review-practice" class="auto internal xref">Section 15.2</a>).<a href="#section-16.4-4" class="pilcrow">¶</a></p>
@@ -2150,7 +2149,7 @@ Pragma: no-cache
 <a href="#section-16.7" class="section-number selfRef">16.7. </a><a href="#name-signing-keys-and-algorithms" class="section-name selfRef">Signing Keys and Algorithms</a>
         </h3>
 <p id="section-16.7-1">A compromised software statement signing key lets an attacker mint statements for every audience that trusts it (<a href="#signing-key-practice" class="auto internal xref">Section 15.4</a>).<a href="#section-16.7-1" class="pilcrow">¶</a></p>
-<p id="section-16.7-2">Issuers <span class="bcp14">SHOULD</span> prefer signature algorithms with modern security properties, such as <code>PS256</code>, <code>ES256</code>, or <code>EdDSA</code>, over RSASSA-PKCS1-v1_5 (<code>RS256</code>), and <span class="bcp14">MUST</span> follow <span>[<a href="#RFC8725" class="cite xref">RFC8725</a>]</span> when signing.<a href="#section-16.7-2" class="pilcrow">¶</a></p>
+<p id="section-16.7-2">Issuers <span class="bcp14">SHOULD</span> prefer signature algorithms with modern security properties, such as <code>PS256</code>, <code>ES256</code>, or <code>Ed25519</code> <span>[<a href="#RFC9864" class="cite xref">RFC9864</a>]</span>, over RSASSA-PKCS1-v1_5 (<code>RS256</code>).<a href="#section-16.7-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="approver-authority">
@@ -2293,36 +2292,36 @@ Pragma: no-cache
         <h3 id="name-oauth-extensions-error-regi">
 <a href="#section-18.4" class="section-number selfRef">18.4. </a><a href="#name-oauth-extensions-error-regi" class="section-name selfRef">OAuth Extensions Error Registry</a>
         </h3>
-<p id="section-18.4-1">Both error codes this specification uses at new locations are already registered. This specification requests that IANA add it as an additional reference for each, and extend the usage location of <code>invalid_target</code> to authorization error responses:<a href="#section-18.4-1" class="pilcrow">¶</a></p>
+<p id="section-18.4-1">The <code>access_denied</code> and <code>invalid_target</code> error codes are already registered. This specification requests that IANA add this specification as a reference to the existing <code>access_denied</code> entry, and update the existing <code>invalid_target</code> entry, adding authorization error responses to its usage locations and this specification as a reference:<a href="#section-18.4-1" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-18.4-2">
           <dt id="section-18.4-2.1">Error Name:</dt>
           <dd style="margin-left: 1.5em" id="section-18.4-2.2">
             <p id="section-18.4-2.2.1"><code>access_denied</code><a href="#section-18.4-2.2.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-18.4-2.3">Existing Registration:</dt>
+<dt id="section-18.4-2.3">Error Usage Location:</dt>
           <dd style="margin-left: 1.5em" id="section-18.4-2.4">
-            <p id="section-18.4-2.4.1"><span>[<a href="#RFC8628" class="cite xref">RFC8628</a>]</span><a href="#section-18.4-2.4.1" class="pilcrow">¶</a></p>
+            <p id="section-18.4-2.4.1">token error response<a href="#section-18.4-2.4.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-18.4-2.5">Change Controller:</dt>
+<dt id="section-18.4-2.5">Related Protocol Extension:</dt>
           <dd style="margin-left: 1.5em" id="section-18.4-2.6">
-            <p id="section-18.4-2.6.1">IETF<a href="#section-18.4-2.6.1" class="pilcrow">¶</a></p>
+            <p id="section-18.4-2.6.1">RFC 8628<a href="#section-18.4-2.6.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-18.4-2.7">Specification Document(s):</dt>
+<dt id="section-18.4-2.7">Change Controller:</dt>
           <dd style="margin-left: 1.5em" id="section-18.4-2.8">
-            <p id="section-18.4-2.8.1"><span>[<a href="#RFC8628" class="cite xref">RFC8628</a>]</span>, this specification (<a href="#terminal-denial" class="auto internal xref">Section 10.1</a>)<a href="#section-18.4-2.8.1" class="pilcrow">¶</a></p>
+            <p id="section-18.4-2.8.1">IETF<a href="#section-18.4-2.8.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-18.4-2.9">Error Name:</dt>
+<dt id="section-18.4-2.9">Specification Document(s):</dt>
           <dd style="margin-left: 1.5em" id="section-18.4-2.10">
-            <p id="section-18.4-2.10.1"><code>invalid_target</code><a href="#section-18.4-2.10.1" class="pilcrow">¶</a></p>
+            <p id="section-18.4-2.10.1"><span>[<a href="#RFC8628" class="cite xref">RFC8628</a>]</span>, this specification (<a href="#terminal-denial" class="auto internal xref">Section 10.1</a>)<a href="#section-18.4-2.10.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-18.4-2.11">Existing Registration:</dt>
+<dt id="section-18.4-2.11">Error Name:</dt>
           <dd style="margin-left: 1.5em" id="section-18.4-2.12">
-            <p id="section-18.4-2.12.1"><span>[<a href="#RFC8707" class="cite xref">RFC8707</a>]</span><a href="#section-18.4-2.12.1" class="pilcrow">¶</a></p>
+            <p id="section-18.4-2.12.1"><code>invalid_target</code><a href="#section-18.4-2.12.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 <dt id="section-18.4-2.13">Error Usage Location:</dt>
@@ -2330,14 +2329,19 @@ Pragma: no-cache
             <p id="section-18.4-2.14.1">authorization error response, in addition to the locations already registered<a href="#section-18.4-2.14.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-18.4-2.15">Change Controller:</dt>
+<dt id="section-18.4-2.15">Related Protocol Extension:</dt>
           <dd style="margin-left: 1.5em" id="section-18.4-2.16">
-            <p id="section-18.4-2.16.1">IESG<a href="#section-18.4-2.16.1" class="pilcrow">¶</a></p>
+            <p id="section-18.4-2.16.1">resource parameter<a href="#section-18.4-2.16.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-18.4-2.17">Specification Document(s):</dt>
+<dt id="section-18.4-2.17">Change Controller:</dt>
           <dd style="margin-left: 1.5em" id="section-18.4-2.18">
-            <p id="section-18.4-2.18.1"><span>[<a href="#RFC8707" class="cite xref">RFC8707</a>]</span>, this specification (<a href="#authorization-request" class="auto internal xref">Section 6</a>)<a href="#section-18.4-2.18.1" class="pilcrow">¶</a></p>
+            <p id="section-18.4-2.18.1">IESG<a href="#section-18.4-2.18.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-18.4-2.19">Specification Document(s):</dt>
+          <dd style="margin-left: 1.5em" id="section-18.4-2.20">
+            <p id="section-18.4-2.20.1"><span>[<a href="#RFC8707" class="cite xref">RFC8707</a>]</span>, this specification (<a href="#authorization-request" class="auto internal xref">Section 6</a>)<a href="#section-18.4-2.20.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
@@ -2396,15 +2400,15 @@ Pragma: no-cache
 <dd class="break"></dd>
 <dt id="FORM-POST">[FORM-POST]</dt>
         <dd>
-<span class="refTitle">"OAuth 2.0 Form Post Response Mode"</span>, <span>n.d.</span>, <span>&lt;<a href="https://openid.net/specs/oauth-v2-form-post-response-mode-1_0.html">https://openid.net/specs/oauth-v2-form-post-response-mode-1_0.html</a>&gt;</span>. </dd>
+<span class="refAuthor">Jones, M. B.</span> and <span class="refAuthor">B. Campbell</span>, <span class="refTitle">"OAuth 2.0 Form Post Response Mode"</span>, <time datetime="2015-04-27" class="refDate">27 April 2015</time>, <span>&lt;<a href="https://openid.net/specs/oauth-v2-form-post-response-mode-1_0.html">https://openid.net/specs/oauth-v2-form-post-response-mode-1_0.html</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="OAUTH-MRT">[OAUTH-MRT]</dt>
         <dd>
-<span class="refTitle">"OAuth 2.0 Multiple Response Type Encoding Practices"</span>, <span>n.d.</span>, <span>&lt;<a href="https://openid.net/specs/oauth-v2-multiple-response-types-1_0.html">https://openid.net/specs/oauth-v2-multiple-response-types-1_0.html</a>&gt;</span>. </dd>
+<span class="refAuthor">de Medeiros, B., Ed.</span>, <span class="refAuthor">Scurtescu, M.</span>, <span class="refAuthor">Tarjan, P.</span>, and <span class="refAuthor">M. B. Jones</span>, <span class="refTitle">"OAuth 2.0 Multiple Response Type Encoding Practices"</span>, <time datetime="2014-02-25" class="refDate">25 February 2014</time>, <span>&lt;<a href="https://openid.net/specs/oauth-v2-multiple-response-types-1_0.html">https://openid.net/specs/oauth-v2-multiple-response-types-1_0.html</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="REGISTRATION">[REGISTRATION]</dt>
         <dd>
-<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"Client ID Metadata Document Software Statement Registration"</span>, <span>n.d.</span>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration">https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration</a>&gt;</span>. </dd>
+<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"Client ID Metadata Document Software Statement Registration"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-mcguinness-oauth-cimd-sw-stmt-registration-00</span>, <time datetime="2026-10" class="refDate">October 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration">https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC2119">[RFC2119]</dt>
         <dd>
@@ -2438,6 +2442,10 @@ Pragma: no-cache
         <dd>
 <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Sakimura, N.</span>, and <span class="refAuthor">J. Bradley</span>, <span class="refTitle">"OAuth 2.0 Authorization Server Metadata"</span>, <span class="seriesInfo">RFC 8414</span>, <span class="seriesInfo">DOI 10.17487/RFC8414</span>, <time datetime="2018-06" class="refDate">June 2018</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8414">https://www.rfc-editor.org/rfc/rfc8414</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="RFC8628">[RFC8628]</dt>
+        <dd>
+<span class="refAuthor">Denniss, W.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Jones, M.</span>, and <span class="refAuthor">H. Tschofenig</span>, <span class="refTitle">"OAuth 2.0 Device Authorization Grant"</span>, <span class="seriesInfo">RFC 8628</span>, <span class="seriesInfo">DOI 10.17487/RFC8628</span>, <time datetime="2019-08" class="refDate">August 2019</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8628">https://www.rfc-editor.org/rfc/rfc8628</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC8693">[RFC8693]</dt>
         <dd>
 <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Nadalin, A.</span>, <span class="refAuthor">Campbell, B., Ed.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">C. Mortimore</span>, <span class="refTitle">"OAuth 2.0 Token Exchange"</span>, <span class="seriesInfo">RFC 8693</span>, <span class="seriesInfo">DOI 10.17487/RFC8693</span>, <time datetime="2020-01" class="refDate">January 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8693">https://www.rfc-editor.org/rfc/rfc8693</a>&gt;</span>. </dd>
@@ -2446,9 +2454,9 @@ Pragma: no-cache
         <dd>
 <span class="refAuthor">Campbell, B.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">H. Tschofenig</span>, <span class="refTitle">"Resource Indicators for OAuth 2.0"</span>, <span class="seriesInfo">RFC 8707</span>, <span class="seriesInfo">DOI 10.17487/RFC8707</span>, <time datetime="2020-02" class="refDate">February 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8707">https://www.rfc-editor.org/rfc/rfc8707</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="RFC8725">[RFC8725]</dt>
+<dt id="RFC9126">[RFC9126]</dt>
         <dd>
-<span class="refAuthor">Sheffer, Y.</span>, <span class="refAuthor">Hardt, D.</span>, and <span class="refAuthor">M. Jones</span>, <span class="refTitle">"JSON Web Token Best Current Practices"</span>, <span class="seriesInfo">BCP 225</span>, <span class="seriesInfo">RFC 8725</span>, <span class="seriesInfo">DOI 10.17487/RFC8725</span>, <time datetime="2020-02" class="refDate">February 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8725">https://www.rfc-editor.org/rfc/rfc8725</a>&gt;</span>. </dd>
+<span class="refAuthor">Lodderstedt, T.</span>, <span class="refAuthor">Campbell, B.</span>, <span class="refAuthor">Sakimura, N.</span>, <span class="refAuthor">Tonge, D.</span>, and <span class="refAuthor">F. Skokan</span>, <span class="refTitle">"OAuth 2.0 Pushed Authorization Requests"</span>, <span class="seriesInfo">RFC 9126</span>, <span class="seriesInfo">DOI 10.17487/RFC9126</span>, <time datetime="2021-09" class="refDate">September 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9126">https://www.rfc-editor.org/rfc/rfc9126</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC9207">[RFC9207]</dt>
         <dd>
@@ -2468,7 +2476,7 @@ Pragma: no-cache
 <dd class="break"></dd>
 <dt id="STATEMENT">[STATEMENT]</dt>
       <dd>
-<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"Client ID Metadata Document Software Statement"</span>, <span>n.d.</span>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt">https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt</a>&gt;</span>. </dd>
+<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"Client ID Metadata Document Software Statement"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-mcguinness-oauth-cimd-sw-stmt-00</span>, <time datetime="2026-10" class="refDate">October 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt">https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
@@ -2499,17 +2507,13 @@ Pragma: no-cache
         <dd>
 <span class="refAuthor">Denniss, W.</span> and <span class="refAuthor">J. Bradley</span>, <span class="refTitle">"OAuth 2.0 for Native Apps"</span>, <span class="seriesInfo">BCP 212</span>, <span class="seriesInfo">RFC 8252</span>, <span class="seriesInfo">DOI 10.17487/RFC8252</span>, <time datetime="2017-10" class="refDate">October 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8252">https://www.rfc-editor.org/rfc/rfc8252</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="RFC8628">[RFC8628]</dt>
+<dt id="RFC9864">[RFC9864]</dt>
         <dd>
-<span class="refAuthor">Denniss, W.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Jones, M.</span>, and <span class="refAuthor">H. Tschofenig</span>, <span class="refTitle">"OAuth 2.0 Device Authorization Grant"</span>, <span class="seriesInfo">RFC 8628</span>, <span class="seriesInfo">DOI 10.17487/RFC8628</span>, <time datetime="2019-08" class="refDate">August 2019</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8628">https://www.rfc-editor.org/rfc/rfc8628</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="RFC9126">[RFC9126]</dt>
-        <dd>
-<span class="refAuthor">Lodderstedt, T.</span>, <span class="refAuthor">Campbell, B.</span>, <span class="refAuthor">Sakimura, N.</span>, <span class="refAuthor">Tonge, D.</span>, and <span class="refAuthor">F. Skokan</span>, <span class="refTitle">"OAuth 2.0 Pushed Authorization Requests"</span>, <span class="seriesInfo">RFC 9126</span>, <span class="seriesInfo">DOI 10.17487/RFC9126</span>, <time datetime="2021-09" class="refDate">September 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9126">https://www.rfc-editor.org/rfc/rfc9126</a>&gt;</span>. </dd>
+<span class="refAuthor">Jones, M.B.</span> and <span class="refAuthor">O. Steele</span>, <span class="refTitle">"Fully-Specified Algorithms for JSON Object Signing and Encryption (JOSE) and CBOR Object Signing and Encryption (COSE)"</span>, <span class="seriesInfo">RFC 9864</span>, <span class="seriesInfo">DOI 10.17487/RFC9864</span>, <time datetime="2025-10" class="refDate">October 2025</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9864">https://www.rfc-editor.org/rfc/rfc9864</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="STATUS">[STATUS]</dt>
         <dd>
-<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"Client ID Metadata Document Software Statement Status"</span>, <span>n.d.</span>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-status">https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-status</a>&gt;</span>. </dd>
+<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"Client ID Metadata Document Software Statement Status"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-mcguinness-oauth-cimd-sw-stmt-status-00</span>, <time datetime="2026-10" class="refDate">October 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-status">https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-status</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="UK-OPEN-BANKING">[UK-OPEN-BANKING]</dt>
       <dd>
@@ -2530,7 +2534,6 @@ Pragma: no-cache
 <p id="appendix-A-3"><strong>Why not the device authorization grant.</strong> <span>[<a href="#RFC8628" class="cite xref">RFC8628</a>]</span> fits a human decision that outlives a request, and an issuer whose approval is always out of band can use it. It assumes a user co-present with a constrained device who enters a user code elsewhere. Issuance approval is made by an administrator or reviewer who does not operate the client and is often not present, and the client already has a browser. The redirect flow covers an approver reachable through that browser. The token exchange profile covers the case with no browser.<a href="#appendix-A-3" class="pilcrow">¶</a></p>
 <p id="appendix-A-4"><strong>Why not a profile of attestation-based client authentication.</strong> An attester vouches for a running instance and its key, for as long as it chooses, to the server in front of it. A statement issuer vouches for reviewed software, for days, to every server that trusts it. Profiling one as the other would give the reviewed-software decision an instance-scoped trust model, or give instance attestation unwarranted portability.<a href="#appendix-A-4" class="pilcrow">¶</a></p>
 <p id="appendix-A-5"><strong>Why not OpenID Federation trust marks.</strong> A trust mark <span>[<a href="#OPENID-FED" class="cite xref">OPENID-FED</a>]</span> is a signed third-party assertion about an entity, resolved through a federation that supplies key discovery, policy, and delegation and requires both parties to enroll. This specification is pairwise: a trusting authorization server configures an issuer directly. Federation standardizes trust resolution, not enrollment, approval, or deferred completion. Ecosystems already operating a federation are better served by trust marks.<a href="#appendix-A-5" class="pilcrow">¶</a></p>
-<p id="appendix-A-6"><strong>Deferred capabilities.</strong> This version omits callback delivery for deferral.<a href="#appendix-A-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="acknowledgments">
