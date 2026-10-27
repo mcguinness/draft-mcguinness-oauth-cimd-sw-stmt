@@ -187,7 +187,7 @@ For a replacement, the authorization server MUST do the following:
 
 Renewing on the statement alone would leave in the registration a key, redirection URI, or scope that the new review removed.
 
-On success, the replacement becomes the governing statement: the authorization server MUST replace the recorded identity, `iat`, effective expiry, and derived metadata with the replacement's in a single atomic update, and concurrent deliveries resolve to the most recently issued statement.
+On success, the replacement becomes the governing statement: the authorization server MUST replace the recorded identity, `iat`, effective expiry, and derived metadata with the replacement's, and apply any tenant restriction it adds ({{dcr-presentation}}), in a single atomic update, and concurrent deliveries resolve to the most recently issued statement.
 
 Access issued under the registration after that update, including on refresh of a grant issued before it, MUST fall within the re-derived metadata, as {{STATEMENT}} requires of a refreshed grant.
 
@@ -275,7 +275,7 @@ This section gives guidance to implementers. It adds no requirement.
 
 ## Registration State {#registration-state}
 
-To apply the validity model ({{registration-validity}}), an authorization server stores with each statement-governed registration the governing statement's `iss`, `jti`, `sub`, and `iat` claims, any claim by which a withdrawal mechanism locates that statement, such as `status`, and the registration's effective expiry. Renewal compares a delivered statement against these ({{revalidation}}).
+To apply the validity model ({{registration-validity}}), an authorization server stores with each statement-governed registration the governing statement's `iss`, `jti`, `sub`, and `iat` claims, any claim by which a withdrawal mechanism locates that statement, such as `status`, the registration's effective expiry, and any tenant the registration is restricted to. Renewal compares a delivered statement against these ({{revalidation}}).
 
 # Deployment Considerations {#deployment-considerations}
 
