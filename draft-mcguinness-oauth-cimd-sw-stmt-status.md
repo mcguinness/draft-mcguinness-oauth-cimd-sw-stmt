@@ -189,9 +189,9 @@ A receiver SHOULD request the event this specification defines, and SHOULD use t
 
 The security considerations of {{STATEMENT}}, {{STATUSLIST}}, {{SSF}}, and {{RFC8417}} apply.
 
-## Status Resolution Schedule
+## Status Resolution Schedule {#resolution-schedule}
 
-Because {{STATUSLIST}} aggregates many statements into one list, a retrieval tells the issuer only that some trusting authorization server is checking. A server SHOULD retrieve the list on the list's own schedule rather than once per request. The server's request timing then does not disclose the client population it serves, and each request a statement governs does not depend on issuer availability.
+Because {{STATUSLIST}} aggregates many statements into one list, a retrieval tells the issuer only that some trusting authorization server is checking. A server SHOULD retrieve the list on the list's own schedule, within the expiration and caching bounds its `exp` and `ttl` claims set (Section 11.5 of {{STATUSLIST}}), rather than once per request. The server's request timing then does not disclose the client population it serves, and each request a statement governs does not depend on issuer availability.
 
 ## What an Event Cannot Do
 
@@ -211,7 +211,7 @@ The distinct key set locations of {{relationship}} separate SET keys from statem
 
 # Privacy Considerations
 
-The privacy considerations of {{STATEMENT}}, {{STATUSLIST}}, {{SSF}}, and {{RFC8417}} apply.
+The privacy considerations of {{STATEMENT}}, {{STATUSLIST}}, {{SSF}}, and {{RFC8417}} apply. Retrieving a Status List Token on its own schedule keeps request timing from disclosing the client population a server serves ({{resolution-schedule}}).
 
 Subject identifiers in these events name reviewed software and, in aggregate, describe an organization's approved software estate. For this reason, a stream is scoped as {{configuration}} provides. A receiver SHOULD apply to event logs the handling it applies to statements ({{STATEMENT}}).
 
