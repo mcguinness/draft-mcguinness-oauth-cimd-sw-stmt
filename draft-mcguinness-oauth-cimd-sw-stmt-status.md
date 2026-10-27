@@ -180,7 +180,7 @@ Two constraints bound every event:
 
 An issuer that supports the events defined here publishes Transmitter configuration metadata as {{SSF}} defines, discoverable from its issuer identifier. Stream creation, subject management, verification, and delivery follow {{SSF}}.
 
-A trusting authorization server that supports these events SHOULD create one stream per configured issuer that offers them. The stream can cover every subject that issuer attests, or the server can add each subject through the subject management of {{SSF}} when it first admits that software. Admission checks and the receiver's own status resolution ({{status-resolution}}, {{processing}}) remain independent of the subjects a stream covers, so a withdrawal whose event was transmitted before the subject was added to the stream is found at a later resolution.
+A trusting authorization server that supports these events SHOULD create one stream per configured issuer that offers them ({{stream-practice}}).
 
 The subjects appropriate to a stream are those of the issuer's statements whose `aud` claim is absent or names the receiving authorization server. A transmitter SHOULD scope each stream to those subjects. A receiver discards events for subjects outside the identifier scope for which it accepts that issuer ({{STATEMENT}}).
 
@@ -197,6 +197,16 @@ A receiver can bound the rate of the retrievals that events cause by deferring a
 ## Event Logs {#event-logs}
 
 A receiver ought to handle event logs as it handles statements ({{STATEMENT}}). A log of events is a record about client identifiers that can outlive the issuer's own published status, so a receiver ought to bound its retention.
+
+# Deployment Considerations {#deployment-considerations}
+
+This section gives guidance to operators and issuers. It adds no requirement.
+
+## Stream Coverage and Monitoring {#stream-practice}
+
+A stream can cover every subject an issuer attests, or the receiver can add each subject through the subject management of {{SSF}} when it first admits that software. Admission checks and the receiver's own status resolution ({{status-resolution}}, {{processing}}) remain independent of the subjects a stream covers, so a withdrawal whose event was transmitted before the subject was added to the stream is found at a later resolution.
+
+A receiver ought to alert on stream loss rather than assume quiescence.
 
 # Security Considerations
 
@@ -216,7 +226,7 @@ The remaining exposure is resource cost: an attacker holding the issuer's SET si
 
 Because a receiver resolves status independently ({{processing}}), an attacker who suppresses events delays a withdrawal at most until the receiver's next scheduled resolution and, for new admissions, never beyond the affected statements' effective expiry. Grants already open continue as the refresh policy of {{STATEMENT}} allows. Deployments therefore choose a resolution schedule and statement lifetimes they would accept with no event stream.
 
-A receiver SHOULD alert on stream loss rather than assume quiescence. The absence of events looks the same on a healthy stream and a suppressed one. Periodic stream verification ({{configuration}}) makes the difference observable.
+The absence of events looks the same on a healthy stream and a suppressed one. Periodic stream verification ({{configuration}}) makes the difference observable ({{stream-practice}}).
 
 ## Key Separation and Compromise
 
