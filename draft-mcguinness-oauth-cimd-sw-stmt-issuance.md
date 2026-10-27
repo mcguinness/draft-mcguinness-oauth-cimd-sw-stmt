@@ -674,7 +674,7 @@ Issuers SHOULD prefer signature algorithms with modern security properties, such
 
 ## Approver Authority
 
-A software statement does not identify the human or system that approved issuance ({{audit-logging}}).
+A software statement does not identify the human or system that approved issuance ({{audit-logging}}). A look-alike document, or one naming attesters in `client_attesters` ({{ATTESTERS}}), can reach an approver ({{review-practice}}).
 
 An approved statement is accepted at every authorization server in its audience, not only within the approver's own scope. The policy governing who can approve issuance MUST be at least as restrictive as the policy under which the issuer establishes a client manually. Approval by a party authorized only for a personal or organizational scope MUST NOT produce a statement whose audience exceeds that scope, or whose `aud_tenant` claim names a tenant outside it.
 
