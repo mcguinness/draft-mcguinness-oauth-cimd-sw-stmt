@@ -194,6 +194,10 @@ This section gives guidance to implementers. It adds no requirement.
 
 A receiver can bound the rate of the retrievals that events cause by deferring a retrieval briefly and coalescing events that concern the same status list URI, since one request begun after those events serves all of them ({{processing}}). Its scheduled resolution continues regardless.
 
+## Event Logs {#event-logs}
+
+A receiver ought to handle event logs as it handles statements ({{STATEMENT}}). A log of events is a record about client identifiers that can outlive the issuer's own published status, so a receiver ought to bound its retention.
+
 # Security Considerations
 
 The security considerations of {{STATEMENT}}, {{STATUSLIST}}, {{SSF}}, and {{RFC8417}} apply.
@@ -222,9 +226,9 @@ The distinct key set locations of {{relationship}} separate SET keys from statem
 
 The privacy considerations of {{STATEMENT}}, {{STATUSLIST}}, {{SSF}}, and {{RFC8417}} apply. Retrieving a Status List Token on its own schedule keeps request timing from disclosing the client population a server serves ({{resolution-schedule}}).
 
-Subject identifiers in these events name reviewed software and, in aggregate, describe an organization's approved software estate. For this reason, a stream is scoped as {{configuration}} provides. A receiver SHOULD apply to event logs the handling it applies to statements ({{STATEMENT}}).
+Subject identifiers in these events name reviewed software and, in aggregate, describe an organization's approved software estate. For this reason, a stream is scoped as {{configuration}} provides. Event logs deserve the same care as statements ({{event-logs}}).
 
-Because this specification defines no durable receiver-side record, it adds no negative state about a client identifier that outlives the issuer's own published status. A receiver that logs events creates such a record, and SHOULD bound its retention accordingly.
+Because this specification defines no durable receiver-side record, it adds no negative state about a client identifier that outlives the issuer's own published status. A receiver that logs events creates such a record ({{event-logs}}).
 
 # IANA Considerations
 
