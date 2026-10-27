@@ -55,9 +55,9 @@ This specification defines how the status of a software statement for a Client I
 
 # Introduction
 
-{{STATEMENT}} lets an issuer withdraw a decision before the statement's expiry but requires and defines no withdrawal mechanism. This specification defines two. {{token-status-list}} profiles Token Status List {{STATUSLIST}}: an issuer withdraws a decision by setting the statement's status, and a trusting authorization server learns of the change when it next resolves the list.
+{{STATEMENT}} lets an issuer withdraw a statement's decision before the statement's expiry but requires and defines no withdrawal mechanism. This specification defines one, and an optional event that prompts a trusting authorization server to consult it at once. {{token-status-list}} profiles Token Status List {{STATUSLIST}}: an issuer withdraws a decision by setting the statement's status, and a trusting authorization server learns of the change when it next resolves the list.
 
-A withdrawal therefore takes effect only as quickly as trusting authorization servers resolve the list. As an optional addition, this specification defines a Shared Signals Framework {{SSF}} event by which an issuer tells the trusting authorization servers that have configured it ({{STATEMENT}}) that a status has changed, prompting them to resolve it at once. An event carries no status, and the status list remains the authority on whether a statement stands ({{processing}}).
+A withdrawal therefore takes effect only as quickly as trusting authorization servers resolve the list. As an optional addition, this specification defines a Shared Signals Framework {{SSF}} event by which an issuer tells the trusting authorization servers that have configured it ({{STATEMENT}}) that a status has changed, prompting them to resolve that status at once. An event carries no status, and the status list remains the authority on whether a statement stands ({{processing}}).
 
 The requirements of {{relationship}} through {{configuration}} apply only to implementations that support the events. This specification defines no new endpoint, transport, subject identifier format, or trust establishment mechanism. {{STATEMENT}} does not depend on this specification.
 
@@ -85,13 +85,13 @@ An issuer that uses Token Status List publishes the status of its statements as 
 
 ## Status Resolution {#status-resolution}
 
-If the statement carries `status` and the trusting authorization server resolves statuses for that issuer, it MUST reject a statement whose status is `INVALID`, and MUST apply its configured policy for that issuer to a statement whose status is `SUSPENDED` or any other value except `VALID` and `INVALID`.
+If a statement carries the `status` claim and the trusting authorization server resolves statuses for the statement's issuer, the server MUST reject the statement if its status is `INVALID`, and MUST apply its configured policy for that issuer to the statement if its status is `SUSPENDED` or any other value except `VALID` and `INVALID`.
 
-A status of `INVALID`, or any other status except `VALID` if the policy configured for that issuer refuses the statement, is a withdrawal: the server holds a refusal record ({{STATEMENT}}). Token Status List defines no expiry for a withdrawal, so the refusal ends only when a later resolution returns a status that no longer refuses the statement.
+A status of `INVALID` is a withdrawal, as is any other status except `VALID` when the policy configured for that issuer refuses the statement. On a withdrawal, the server holds a refusal record ({{STATEMENT}}). Token Status List defines no expiry for a withdrawal, so the refusal ends only when a later resolution returns a status that no longer refuses the statement.
 
 Resolution follows {{STATUSLIST}}. In particular:
 
-* If the referenced index lies outside the list, the statement is rejected as {{STATUSLIST}} requires, with the error code {{STATEMENT}} assigns to a statement refused by a refusal record.
+* If the referenced index lies outside the list, the server rejects the statement as {{STATUSLIST}} requires, with the error code that {{STATEMENT}} assigns to a statement refused by a refusal record.
 * The caching rules of {{STATUSLIST}} apply to resolution, and also apply when the server checks a recorded statement at refresh ({{STATEMENT}}).
 
 To prevent a host serving an older token from restoring a status the issuer has withdrawn, a server MUST NOT replace a Status List Token it holds with one whose `iat` claim is earlier, and MUST treat one whose `iat` claim is equal but whose contents differ as a resolution failure. A statement whose status the server cannot resolve is bounded by its effective expiry, as {{STATEMENT}} provides.
@@ -102,13 +102,13 @@ A server MUST obtain a Status List Token's verification keys from the `jwks_uri`
 
 A trusting authorization server MUST NOT accept an event from an issuer it has not configured. It MUST verify the SET using keys from the `jwks_uri` of the issuer's Transmitter configuration {{SSF}}, discovered from the issuer identifier it has configured, and never from a key-location value carried in the event. The SET's `iss` claim is that issuer identifier, which is also the `iss` claim value of the statements the event concerns.
 
-The Transmitter configuration's `jwks_uri` MUST differ both from the issuer's `software_statement_jwks_uri` ({{STATEMENT}}) and from the `jwks_uri` in its authorization server metadata {{RFC8414}}, whose keys verify its Status List Tokens. A receiver MUST NOT create or keep a stream whose Transmitter configuration names either of those locations.
+An issuer MUST ensure that its Transmitter configuration's `jwks_uri` differs both from the issuer's `software_statement_jwks_uri` ({{STATEMENT}}) and from the `jwks_uri` in its authorization server metadata {{RFC8414}}, whose keys verify its Status List Tokens. A receiver MUST NOT create or keep a stream whose Transmitter configuration names either of those locations.
 
 A SET carrying an event defined here MUST use the explicit `typ` JOSE header parameter value `secevent+jwt` (Section 2.3 of {{RFC8417}}). Its `aud` claim MUST contain the audience of the stream that delivers it, which {{SSF}} lets the transmitter and receiver agree. A receiver MUST NOT create or keep a stream whose audience does not identify it.
 
 # Subject Identification {#subjects}
 
-The subject of every event defined here is client software. Events carry it in the `sub_id` claim of {{SSF}} using the `uri` format of {{RFC9493}}, whose `uri` member carries the Client ID Metadata Document URL {{CIMD}} exactly as it appears in the `sub` of the statements the event concerns.
+The subject of every event defined here is client software. Events carry it in the `sub_id` claim of {{SSF}} using the `uri` subject identifier format of {{RFC9493}}. The `uri` member carries the Client ID Metadata Document URL {{CIMD}} exactly as it appears in the `sub` claim of the statements the event concerns.
 
 A trusting authorization server MUST match the subject by exact comparison of the `uri` member against a statement's `sub` claim.
 
@@ -131,7 +131,7 @@ The event type identifier is `urn:ietf:params:oauth:event-type:software-statemen
 
 The event reports that the issuer has changed the published status of one or more statements for the subject. A transmitter MUST NOT transmit the event until a Status List Token reflecting the change is retrievable at the status list URI, including through any caching layer it operates. A receiver resolving before then would fetch the state the event exists to correct.
 
-The event does not say what the new status is, and a receiver MUST NOT infer one from it. A receiver that resolves a status of `VALID` after an event has applied the event correctly.
+The event does not say what the new status is, and a receiver MUST NOT infer one from it. A receiver that resolves a status of `VALID` after receiving an event has applied that event correctly.
 
 The following non-normative example shows the payload of a SET carrying this event for one statement:
 
@@ -164,9 +164,9 @@ A trusting authorization server that receives an event defined here MUST process
 3. Resolve the subject ({{subjects}}).
 4. Resolve the status of the affected statements from the issuer's Status List Token as {{STATUSLIST}} defines, without waiting for the schedule that would otherwise apply, and apply the resolved status as {{status-resolution}} defines.
 
-The affected statements are those the transmitting issuer made about the subject, never statements another issuer made about the same software: the one the event's `software_statement_jti` names or, if the event names none, those the receiver holds or has cached a status for. An event about a subject for which the receiver holds no state requires nothing of it.
+The affected statements are those the transmitting issuer made about the subject, never statements another issuer made about the same software. They are the statement the event's `software_statement_jti` claim names or, if the event names none, those the receiver holds or has cached a status for. An event about a subject for which the receiver holds no state requires nothing of it.
 
-A receiver MUST fetch the Status List Token for the affected statements afresh rather than answer from a cached copy. A cached copy is what the event exists to correct. An event is never grounds for refusal: until the fetch succeeds, the copy the receiver holds remains in effect within its validity, and if resolution does not complete, the receiver applies the rules of {{STATEMENT}} as it would had no event arrived.
+A receiver MUST fetch the Status List Token for the affected statements afresh rather than answer from a cached copy. A cached copy is what the event exists to correct. An event is never grounds for refusal. Until the fetch succeeds, the copy the receiver holds remains in effect within its validity. If resolution does not complete, the receiver applies the rules of {{STATEMENT}} as it would had no event arrived.
 
 A receiver MUST treat an event it has already applied as successfully delivered and acknowledge it as {{RFC8935}} or {{RFC8936}} requires, rather than reporting a delivery error. Rejecting a retry can stall or disable a stream carrying later events. Duplicate detection is per transmitting issuer.
 
@@ -181,7 +181,7 @@ An issuer that supports the events defined here publishes Transmitter configurat
 
 A trusting authorization server that supports these events SHOULD create one stream per configured issuer that offers them. The stream can cover every subject that issuer attests, or the server can add each subject through the subject management of {{SSF}} when it first admits that software. Admission checks and the receiver's own status resolution ({{status-resolution}}, {{processing}}) remain independent of the subjects a stream covers, so a withdrawal whose event was transmitted before the subject was added to the stream is found at a later resolution.
 
-The subjects appropriate to a stream are those of the issuer's statements whose `aud` is absent or names the receiving authorization server, and a transmitter SHOULD scope each stream to them. A receiver discards events for subjects outside the identifier scope for which it accepts that issuer ({{STATEMENT}}).
+The subjects appropriate to a stream are those of the issuer's statements whose `aud` claim is absent or names the receiving authorization server. A transmitter SHOULD scope each stream to those subjects. A receiver discards events for subjects outside the identifier scope for which it accepts that issuer ({{STATEMENT}}).
 
 A receiver SHOULD request the event this specification defines, and SHOULD use the stream verification facility of {{SSF}} on a schedule.
 
@@ -213,7 +213,7 @@ The distinct key set locations of {{relationship}} separate SET keys from statem
 
 The privacy considerations of {{STATEMENT}}, {{STATUSLIST}}, {{SSF}}, and {{RFC8417}} apply.
 
-Subject identifiers in these events name reviewed software and, in aggregate, describe an organization's approved software estate, which is why a stream is scoped as {{configuration}} provides. A receiver SHOULD apply to event logs the handling it applies to statements ({{STATEMENT}}).
+Subject identifiers in these events name reviewed software and, in aggregate, describe an organization's approved software estate. For this reason, a stream is scoped as {{configuration}} provides. A receiver SHOULD apply to event logs the handling it applies to statements ({{STATEMENT}}).
 
 Because this specification defines no durable receiver-side record, it adds no negative state about a client identifier that outlives the issuer's own published status. A receiver that logs events does create such a record, and SHOULD bound its retention accordingly.
 
