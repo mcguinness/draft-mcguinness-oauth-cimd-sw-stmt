@@ -611,7 +611,7 @@ An authorization server can reuse a recently retrieved key set within ordinary H
 
 A server can revalidate octets it holds with a conditional request rather than retrieving them again. {{metadata-digest}} states when a `304 Not Modified` response confirms them.
 
-Successful retrievals can be cached within the document's caching directives. A failure is followed by back-off rather than caching, which {{CIMD}} forbids. A response from a `software_statements_uri` is cached no longer than the document is, and can be revalidated with a conditional request, as the document can ({{pulled-statements}}).
+Successful retrievals can be cached within the document's caching directives. A failure is followed by back-off rather than caching, which {{CIMD}} forbids. A response from a `software_statements_uri` ought to be cached no longer than the document is, and can be revalidated with a conditional request, as the document can ({{pulled-statements}}).
 
 ## Retrieval and Processing Bounds {#processing-bounds}
 
