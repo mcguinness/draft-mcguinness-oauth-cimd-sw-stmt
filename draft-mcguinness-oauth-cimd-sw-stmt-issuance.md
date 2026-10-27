@@ -682,7 +682,7 @@ The privacy considerations of {{STATEMENT}} apply.
 
 The authorization server learns the client identifier URL, the client's Client ID Metadata Document, and information about the party interacting with the authorization endpoint. It ought to collect and retain only the information required for issuance, security monitoring, and audit obligations.
 
-An `aud` claim reveals which authorization servers the client intends to use. {{STATEMENT}} weighs that disclosure against omitting the claim and recommends naming an audience, which an issuer does by requiring one in the request ({{authorization-request}}).
+An `aud` claim reveals which authorization servers the client intends to use. {{STATEMENT}} weighs that disclosure against omitting the claim and advises naming an audience, which an issuer does by requiring one in the request ({{authorization-request}}).
 
 If the client's relationship with the authorization servers its `audience` parameter names is sensitive, a redirect-flow client SHOULD use pushed authorization requests {{RFC9126}}.
 
