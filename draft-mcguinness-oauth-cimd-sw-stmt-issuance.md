@@ -198,12 +198,12 @@ The client authenticates to the token endpoint using the `token_endpoint_auth_me
 * `none` (explicit) establishes a public client.
 * Any other value establishes a confidential client:
   * The authorization server MUST require exactly that method. {{CIMD}} states this rule for `private_key_jwt`, and this specification applies it to every declared method.
-  * If the authorization server does not support the declared method, it MUST reject the request rather than treat the client as public, with `unauthorized_client` at the authorization endpoint and with `invalid_client` (Section 5.2 of {{RFC6749}}) at the token endpoint.
-* An omitted value establishes neither, and any request identifying such a client MUST be rejected with `invalid_request`, returned at the authorization endpoint to the redirection URI validated against the document.
+  * If the authorization server does not support the declared method, it MUST reject the request rather than treat the client as public, with the `unauthorized_client` error code at the authorization endpoint and with the `invalid_client` error code (Section 5.2 of {{RFC6749}}) at the token endpoint.
+* An omitted value establishes neither, and any request identifying such a client MUST be rejected with the `invalid_request` error code, returned at the authorization endpoint to the redirection URI validated against the document.
 
 Classification uses the singular `token_endpoint_auth_method`. A list of declared supported methods is not interpreted.
 
-A public client binds its requests with DPoP {{RFC9449}}: in the redirect flow through `dpop_jkt` ({{authorization-request}}), and in the token exchange profile ({{token-exchange-profile}}) by a DPoP proof, which a public client MUST include on the exchange request. A confidential client MAY use DPoP in addition to its client authentication method.
+A public client binds its requests with DPoP {{RFC9449}}: in the redirect flow through the `dpop_jkt` parameter ({{authorization-request}}), and in the token exchange profile ({{token-exchange-profile}}) by a DPoP proof, which a public client MUST include on the exchange request. A confidential client MAY use DPoP in addition to its client authentication method.
 
 ## Metadata Snapshot {#metadata-snapshot}
 
@@ -245,7 +245,7 @@ The client sends a token exchange request as defined in Section 2.1 of {{RFC8693
 `completion_mode`:
 : As defined for software statement code redemption ({{software-statement-code-redemption}}).
 
-The request MUST NOT contain `actor_token` or `actor_token_type`, nor the `scope`, `resource`, or `authorization_details` parameters prohibited by {{prohibited-parameters}}.
+The request MUST NOT contain the `actor_token` or `actor_token_type` parameters, nor the `scope`, `resource`, or `authorization_details` parameters prohibited by {{prohibited-parameters}}.
 
 The client authenticates, and a public client constrains the request, as described in {{client-identity}}. An assertion-based method such as `private_key_jwt` {{RFC7521}} {{RFC7523}} serves if the document specifies one.
 
@@ -262,11 +262,11 @@ A DPoP proof on the exchange constrains any resulting deferral but neither authe
 
 A use of an initial access token is consumed when the authorization server commits to an outcome: issuing a statement, creating a deferral, or denying issuance. Concurrent presentations of a single-use credential MUST NOT both be committed.
 
-The authorization server MUST validate the subject token before retrieving client-controlled metadata or enqueueing any processing. A subject token MUST result in `invalid_request` (Section 2.2.2 of {{RFC8693}}) if any of the following holds:
+The authorization server MUST validate the subject token before retrieving client-controlled metadata or enqueueing any processing. A subject token MUST result in the `invalid_request` error code (Section 2.2.2 of {{RFC8693}}) if any of the following holds:
 
 * It is invalid or revoked.
 * It has expired, unless it is a prior software statement accepted under {{renewal}}.
-* It does not authorize issuance for the presented `client_id`.
+* It does not authorize issuance for the presented `client_id` parameter.
 
 An unacceptable requested audience results in `invalid_target` {{RFC8693}}.
 
@@ -279,8 +279,8 @@ Issuance policy determines whether an initial access token authorizes the client
 A client renews by presenting its current or most recent software statement as the subject token. The authorization server MUST verify the following:
 
 * The authorization server issued the statement.
-* The statement's `sub` equals the request's `client_id`.
-* The client authenticated with a key carried both by the document the statement's `cimd_digest` names and by the current document.
+* The statement's `sub` claim equals the request's `client_id` parameter.
+* The client authenticated with a key carried both by the document the statement's `cimd_digest` claim names and by the current document.
 
 That authentication is the holder binding: without it, whoever held a copy of the statement could renew. To check the reviewed document's keys, an issuer offering renewal retains the octets of each document it issues a statement over.
 
@@ -330,13 +330,13 @@ The client sends an authorization request as described in Section 4.1.1 of {{RFC
 `dpop_jkt`:
 : REQUIRED for a public client and OPTIONAL otherwise. The parameter has the semantics of Section 10 of {{RFC9449}}.
 
-The authorization server selects the final audience according to policy. It MUST NOT place in the statement's `aud` claim any value the request did not carry, except that a renewal request carrying no `audience` counts as carrying the subject statement's `aud` ({{token-exchange-profile}}). An issuer narrows a requested audience and never widens it.
+The authorization server selects the final audience according to policy. It MUST NOT place in the statement's `aud` claim any value the request did not carry, except that a renewal request carrying no `audience` parameter counts as carrying the subject statement's `aud` claim ({{token-exchange-profile}}). An issuer narrows a requested audience and never widens it.
 
-If no requested audience is acceptable, the authorization server MUST reject the request with `invalid_target` {{RFC8707}}. An authorization server whose policy requires a restricted audience rejects a request carrying none with the same error.
+If no requested audience is acceptable, the authorization server MUST reject the request with the `invalid_target` error code {{RFC8707}}. An authorization server whose policy requires a restricted audience rejects a request carrying none with the same error.
 
 The `audience` semantics of this section apply only to software statement requests and do not affect proprietary uses of the parameter for access-token targeting.
 
-The authorization server MUST reject with `invalid_request` a request that omits a required PKCE parameter or a required `dpop_jkt`.
+The authorization server MUST reject with the `invalid_request` error code a request that omits a required PKCE parameter or a required `dpop_jkt` parameter.
 
 The following is a non-normative example of an authorization request from a confidential client (line breaks for display purposes only):
 
@@ -354,9 +354,9 @@ Host: server.example.com
 
 A software statement request does not grant access to a protected resource. The following authorization request parameters MUST NOT be present: `scope`, `resource` as defined by {{RFC8707}}, and `authorization_details` as defined by {{RFC9396}}.
 
-An authorization server MUST reject a request containing any of these parameters with `invalid_request`. The same prohibition and error apply to a software statement code redemption ({{software-statement-code-redemption}}) and to a token exchange under {{token-exchange-profile}}. The `audience` parameter ({{authorization-request}}) is not prohibited: it describes the requested artifact rather than requesting access.
+An authorization server MUST reject a request containing any of these parameters with the `invalid_request` error code. The same prohibition and error apply to a software statement code redemption ({{software-statement-code-redemption}}) and to a token exchange under {{token-exchange-profile}}. The `audience` parameter ({{authorization-request}}) is not prohibited: it describes the requested artifact rather than requesting access.
 
-Hybrid response types that combine `software_statement_code` with `code`, `token`, `id_token`, or any other response type are not defined. An authorization server MUST reject such a request with `unsupported_response_type`.
+Hybrid response types that combine `software_statement_code` with `code`, `token`, `id_token`, or any other response type are not defined. An authorization server MUST reject such a request with the `unsupported_response_type` error code.
 
 # Authorization Response {#authorization-response}
 
@@ -374,7 +374,7 @@ The software statement code response applies the authorization response protecti
   The value MUST contain at least 128 bits of entropy from a cryptographically secure random source, be opaque to the client, expire shortly after issuance, and not be accepted more than once.
 
 `state`:
-: REQUIRED if the authorization request contained `state`. The exact value received in the authorization request.
+: REQUIRED if the authorization request contained the `state` parameter. The exact value received in the authorization request.
 
 `iss`:
 : REQUIRED. The authorization server issuer identification parameter defined by {{RFC9207}}.
@@ -415,11 +415,11 @@ The client redeems a software statement code by sending an HTTP `POST` request t
 : REQUIRED. The PKCE verifier corresponding to the `code_challenge` in the authorization request.
 
 `completion_mode`:
-: REQUIRED when the authorization server advertises `deferred_token_response_supported` ({{authorization-server-metadata}}), and not used otherwise. An authorization server that does not defer ignores it. When present, the value MUST include `deferred`. A deferral-capable issuer rejects a redemption that omits it with `invalid_request`.
+: REQUIRED when the authorization server advertises the `deferred_token_response_supported` metadata value ({{authorization-server-metadata}}), and not used otherwise. An authorization server that does not defer ignores it. When present, the value MUST include `deferred`. A deferral-capable issuer rejects a redemption that omits it with `invalid_request`.
 
-The request MUST NOT contain `audience`, which was bound at the authorization endpoint. A request containing it is rejected with `invalid_request`.
+The request MUST NOT contain the `audience` parameter, which was bound at the authorization endpoint. A request containing it is rejected with `invalid_request`.
 
-The client authenticates according to {{client-identity}}. When `dpop_jkt` was included in the authorization request, the client MUST send a DPoP proof for the token endpoint using the same key.
+The client authenticates according to {{client-identity}}. When the `dpop_jkt` parameter was included in the authorization request, the client MUST send a DPoP proof for the token endpoint using the same key.
 
 The authorization server MUST validate the software statement code and all of its bindings before processing the request. An invalid, expired, previously used, or incorrectly bound code MUST result in an `invalid_grant` error. A PKCE or DPoP binding failure is handled according to {{RFC7636}} or {{RFC9449}}, respectively.
 
@@ -461,7 +461,7 @@ An authorization server MAY answer an originating request with a deferred token 
 Deferral follows {{DTR}}, including the sender constraint it fixes at origination, with the following additions:
 
 * A deferral created under this specification MUST be delivered by polling. Callback delivery is omitted from this version ({{design-rationale}}).
-* A client MUST NOT send the `client_notification_token` parameter of {{DTR}}. An authorization server rejects a request carrying it with `invalid_request` and MUST NOT deliver a callback, whatever the client's metadata says.
+* A client MUST NOT send the `client_notification_token` parameter of {{DTR}}. An authorization server rejects a request carrying it with the `invalid_request` error code and MUST NOT deliver a callback, whatever the client's metadata says.
 * A successful polling response is the software statement token response of {{software-statement-response}}, not an access token response.
 * Issuers SHOULD set deferral code lifetimes that reflect their actual approval latency, which for a review involving human judgment can be hours or days.
 
@@ -496,7 +496,7 @@ A successful response has HTTP status code 200, a media type of `application/jso
 `expires_in`:
 : RECOMMENDED. The remaining lifetime of the software statement in seconds. If present, it MUST be consistent with the statement's `exp` claim.
 
-The response MUST NOT contain `refresh_token` or `scope`. The authorization server MUST include `Cache-Control: no-store` and SHOULD also include `Pragma: no-cache`.
+The response MUST NOT contain the `refresh_token` or `scope` members. The authorization server MUST include the `Cache-Control` HTTP header field with the value `no-store` and SHOULD also include the `Pragma` HTTP header field with the value `no-cache`.
 
 DPoP under this specification binds requests and deferral state, not the issued artifact. {{DTR}}'s requirement that a final access token inherit the originating DPoP binding does not apply.
 
@@ -526,7 +526,7 @@ Implementations that cache issued tokens by type SHOULD key this artifact on the
 
 When the authorization server decides not to issue the requested software statement, it returns a token error response as defined in Section 5.2 of {{RFC6749}} with the error code `access_denied` and HTTP status code 400, and MUST include the `Cache-Control: no-store` response header field. This applies to both kinds of originating request, including when the denial answers a polling request ({{deferred-processing}}).
 
-The denial is terminal for the request. A denied deferral behaves as {{DTR}} specifies for a request resolved with an error, and a client that receives `access_denied` in response to a polling request MUST NOT send another polling request with that `deferral_code`. A denial does not preclude a later issuance request. Whether to accept one is issuance policy.
+The denial is terminal for the request. A denied deferral behaves as {{DTR}} specifies for a request resolved with an error, and a client that receives the `access_denied` error code in response to a polling request MUST NOT send another polling request with that `deferral_code`. A denial does not preclude a later issuance request. Whether to accept one is issuance policy.
 
 # Withdrawal {#status-publication}
 
@@ -550,7 +550,7 @@ An authorization server supporting the redirect flow advertises `urn:ietf:params
 
 An authorization server supporting the token exchange profile ({{token-exchange-profile}}) advertises `urn:ietf:params:oauth:grant-type:token-exchange` in `grant_types_supported` and publishes `software_statement_subject_token_types_supported` (below). An implementation supporting only that profile advertises neither the software statement grant nor the `software_statement_code` response type.
 
-A client that requires deferral MUST NOT send a request to an authorization server that does not advertise `deferred_token_response_supported`. Such an issuer answers with a statement or a terminal denial, never a deferral.
+A client that requires deferral MUST NOT send a request to an authorization server that does not advertise the `deferred_token_response_supported` metadata value. Such an issuer answers with a statement or a terminal denial, never a deferral.
 
 This specification defines the following additional authorization server metadata {{RFC8414}} value:
 
@@ -569,10 +569,10 @@ When an approval interface is shown, it SHOULD state that the decision vouches f
 
 An erroneous approval affects every authorization server in the statement's audience until expiry. The approval interface therefore SHOULD present the following:
 
-* The client identifier URL, with its origin shown as the client's identity, and with display metadata such as `client_name` and `logo_uri` marked as asserted by the client (a look-alike document can carry another vendor's name).
+* The client identifier URL, with its origin shown as the client's identity, and with display metadata such as the `client_name` and `logo_uri` members marked as asserted by the client (a look-alike document can carry another vendor's name).
 * The document content the statement will vouch for, identified by its metadata digest.
 * The audience the issuer intends to place in the statement.
-* The tenant the decision is confined to, if the statement will carry `aud_tenant` ({{STATEMENT}}).
+* The tenant the decision is confined to, if the statement will carry the `aud_tenant` claim ({{STATEMENT}}).
 * The intended lifetime.
 
 If the client requested a different or broader audience, the interface SHOULD make narrowing visible. A document naming attesters in `client_attesters` ({{ATTESTERS}}) endorses them for the software under review and deserves particular scrutiny.
@@ -595,7 +595,7 @@ A public client presents no client authentication, so its association with the s
 
 A confidential client's authentication proves possession of a key, not that the key is absent from software distributed to end users, so the requirement applies to it as well. Presentations of a statement over a document listing an endpoint another application can claim are in any case review-only at a trusting authorization server ({{STATEMENT}}).
 
-An authorization server SHOULD relate the redirection URI's origin to the client identifier URL or the Client ID Metadata Document's `client_uri` according to policy. Endpoint or key control informs issuance policy but does not determine issuance.
+An authorization server SHOULD relate the redirection URI's origin to the client identifier URL or the Client ID Metadata Document's `client_uri` member according to policy. Endpoint or key control informs issuance policy but does not determine issuance.
 
 A software statement code in a URL is visible to browser history, referrer fields, logs, and other observers. It is short lived, single use, and unredeemable without the PKCE verifier and any bound `dpop_jkt` key. The `form_post` response mode ({{software-statement-code-response}}) keeps the code out of URLs.
 
@@ -630,7 +630,7 @@ A compromised software statement signing key lets an attacker mint statements fo
 
 A software statement does not identify the human or system that approved issuance. Deployments that require approver attribution retain it in an audit record or define a statement claim and its privacy semantics.
 
-An approved statement is accepted at every authorization server in its audience, not only within the approver's own scope. The policy governing who can approve issuance MUST be at least as restrictive as the policy under which the issuer establishes a client manually. Approval by a party authorized only for a personal or organizational scope MUST NOT produce a statement whose audience exceeds that scope, or whose `aud_tenant` names a tenant outside it.
+An approved statement is accepted at every authorization server in its audience, not only within the approver's own scope. The policy governing who can approve issuance MUST be at least as restrictive as the policy under which the issuer establishes a client manually. Approval by a party authorized only for a personal or organizational scope MUST NOT produce a statement whose audience exceeds that scope, or whose `aud_tenant` claim names a tenant outside it.
 
 To keep a look-alike document from reaching approval, an issuer SHOULD limit what an approver can approve to client identifiers under publisher namespaces it has enrolled.
 
