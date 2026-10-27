@@ -86,7 +86,7 @@ RFC 7591 defines how a client presents a software statement and how a registrati
 
 A client holding an initial access token that authorizes issuance, or a statement it can renew, uses OAuth 2.0 Token Exchange (RFC 8693) without a redirect. A client can instead use a redirect flow: the authorization endpoint returns a short-lived `software_statement_code`, which the client redeems through a new token endpoint grant. In both flows, a completed decision returns a statement, and a pending decision uses Deferred Token Response and polling. The statement never appears in an authorization response URL.
 
-The client presents the statement at registration or at runtime, or publishes it for servers to pull. A companion specification defines the statement, its validation, and its consumption.
+The client presents the statement at registration or at runtime, or publishes it for servers to pull. Companion specifications define the statement, its validation, and its consumption.
 
 --- middle
 
@@ -147,7 +147,7 @@ The issuer fetches and snapshots the client's Client ID Metadata Document ({{met
 |          |<-(2) software statement -----------|   (approval)  |
 +----------+      (signed JWT)                  +---------------+
      |
-     | (3) RFC 7591 registration request
+     | (3) registration or runtime presentation
      |     carrying the software statement
      v
 +---------------+  +---------------+       +---------------+
@@ -526,7 +526,7 @@ Pragma: no-cache
 }
 ~~~
 
-The `access_token` member is a security-token container ({{RFC8693}}), not an OAuth access token. The software statement it carries is consumed only as {{STATEMENT}} provides, MUST NOT be attached to a request as an `Authorization: Bearer` credential, and is not subject to refresh. A protected resource MUST NOT accept a software statement returned in the `access_token` member as an access token.
+The `access_token` member is a security-token container ({{RFC8693}}), not an OAuth access token. The software statement it carries is consumed only as {{STATEMENT}} and {{REGISTRATION}} provide, MUST NOT be attached to a request as an `Authorization: Bearer` credential, and is not subject to refresh. A protected resource MUST NOT accept a software statement returned in the `access_token` member as an access token.
 
 ## Terminal Denial {#terminal-denial}
 
