@@ -111,7 +111,7 @@ If the statement's decision is confined to one of the authorization server's ten
 
 Unlike runtime presentation ({{STATEMENT}}), registration has no review-only form: the registration is the admission.
 
-Taking every value from the document prevents metadata substitution. At registration a statement is a bearer artifact, so a request-supplied value for a member the document omits, such as a `jwks` beside a document naming only `jwks_uri`, would give any holder of a copy a registration with reviewed branding and its own key.
+Taking every value from the document prevents metadata substitution. At registration a statement is a bearer artifact, so a request-supplied value for a member the document omits, such as a `jwks` member beside a document naming only `jwks_uri`, would give any holder of a copy a registration with reviewed branding and the holder's own key.
 
 The external-retrieval protections and resource bounds of {{STATEMENT}} apply to retrieving the document as to a runtime presentation. The authorization server completes every check of {{STATEMENT}} that needs no client-controlled retrieval before resolving the document.
 
@@ -141,7 +141,7 @@ An authorization server MUST apply the following validity model to every registr
   * At the token and pushed authorization request endpoints, the client is first authenticated against the retained registration, and a request that fails that authentication is rejected with `invalid_client`, as for an unknown client.
 * The authorization server SHOULD retain the expired record for a later authenticated revalidation ({{oracle-considerations}}). A valid replacement restores the registration ({{revalidation}}), so no grace period is needed.
 
-At the authorization endpoint, the rejection is returned in the authorization error response {{RFC6749}}. The authorization server redirects with it only after validating the request's `redirect_uri` against the retained registration. If it cannot do so, it MUST NOT redirect and reports the error to the resource owner instead. The client then delivers a replacement as {{revalidation}} provides.
+At the authorization endpoint, the rejection is returned in the authorization error response (Section 4.1.2.1 of {{RFC6749}}). The authorization server redirects with it only after validating the request's `redirect_uri` against the retained registration. If it cannot do so, it MUST NOT redirect and reports the error to the resource owner instead. The client then delivers a replacement as {{revalidation}} provides.
 
 If the server holds a refusal record for the governing statement ({{STATEMENT}}), the registration ceases to be valid as it does at its effective expiry, and {{revalidation}} is the recovery path. The client learns of the withdrawal only from the rejection. The disposition of outstanding grants is local policy.
 
@@ -201,7 +201,7 @@ A registration request without an {{RFC7592}} registration access token creates 
 
 # Statements from a Registered or Admitted Client {#registered-delivery}
 
-A client registered through {{RFC7591}}, or admitted under its Client ID Metadata Document URL as its `client_id`, can still carry a statement. Runtime presentation ({{STATEMENT}}) does not alter a registration's metadata. At the token and pushed authorization request endpoints, a statement carried under a registration that is neither a runtime presentation nor a delivery ({{revalidation}}) is rejected with `invalid_request` ({{STATEMENT}}). At the registration management endpoint, a statement from an issuer the server does not accept for the client is rejected with `unapproved_software_statement` ({{errors}}).
+A client registered through {{RFC7591}}, or admitted under its Client ID Metadata Document URL as its `client_id`, can still carry a statement. Runtime presentation ({{STATEMENT}}) does not alter a registration's metadata. At the token and pushed authorization request endpoints, a statement carried under a registration that is neither a runtime presentation nor a delivery ({{revalidation}}) is rejected with `invalid_request` ({{STATEMENT}}). At the client configuration endpoint, a statement from an issuer the server does not accept for the client is rejected with `unapproved_software_statement` ({{errors}}).
 
 For a statement-governed registration, a statement carried in a location {{revalidation}} lists is a delivery: one from the governing issuer can renew the registration, and one from another issuer fails the replacement rules of {{revalidation}}. While the registration is valid, its governing statement is current, even after a later statement has raised the `iat` floor of {{STATEMENT}}, and satisfies any requirement the server has for a current statement on refresh.
 
@@ -213,7 +213,7 @@ One unexpired statement can be consumed more than once, within the bounds of {{S
 
 # Error Responses {#errors}
 
-A rejection this specification defines, at a registration endpoint or at the registration management endpoint of {{RFC7592}}, uses the error response of Section 3.2.2 of {{RFC7591}}, with the HTTP status code that section specifies. An authorization server SHOULD respond with HTTP status code 503 to a request it rejects with `temporarily_unavailable`.
+A rejection this specification defines, at a client registration endpoint or at the client configuration endpoint of {{RFC7592}}, uses the error response of Section 3.2.2 of {{RFC7591}}, with the HTTP status code that section specifies. An authorization server SHOULD respond with HTTP status code 503 to a request it rejects with `temporarily_unavailable`.
 
 Rejections of a registration management request for other reasons use the responses {{RFC7592}} specifies. Rejections at other endpoints use the error responses of {{STATEMENT}}, and registration expiry is reported as {{registration-validity}} defines.
 
@@ -244,7 +244,7 @@ An authorization server rejecting a registration request, or a registration mana
 
 ## Revalidating a Statement-Governed Registration
 
-The following non-normative example shows a registered client, `client_id` `s6BhdRkqt3`, renewing its registration by delivering a replacement statement on an ordinary refresh, authenticated under its registered `private_key_jwt` method (line breaks are for display purposes only):
+The following is a non-normative example of a registered client, whose `client_id` is `s6BhdRkqt3`, renewing its registration by delivering a replacement statement on an ordinary refresh, authenticated under its registered `private_key_jwt` method (line breaks for display purposes only):
 
 ~~~ http
 POST /token HTTP/1.1
