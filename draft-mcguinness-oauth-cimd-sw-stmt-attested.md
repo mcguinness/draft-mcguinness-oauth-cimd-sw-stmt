@@ -158,7 +158,7 @@ The following sequence is non-normative:
 
 {::boilerplate bcp14-tagged}
 
-This specification uses terminology from {{RFC6749}}, {{CIMD}}, and {{ABCA}}, and the terms Runtime Presentation, Effective Expiry, Refusal Record, Current Statement, Review-Only, Establishment, and Proven Key from {{STATEMENT}}. It also uses the `iat` floor of {{STATEMENT}}: the `iat` of the most recent statement a server has accepted for an `iss` and `sub`, below which it rejects a newly presented, pulled, or replacement statement, kept per tenant on a multi-tenant server. An installation is a Client Instance as defined by {{ABCA}}.
+This specification uses terminology from {{RFC6749}}, {{CIMD}}, and {{ABCA}}, and the terms Runtime Presentation, Effective Expiry, Refusal Record, Current Statement, Review-Only, Establishment, and Proven Key from {{STATEMENT}}. It also uses the `iat` floor of {{STATEMENT}}: the `iat` of the most recent statement a server has accepted for an `iss` and `sub`, below which it rejects a newly presented, pulled, or replacement statement. A multi-tenant server keeps the `iat` floor per tenant. An installation is a Client Instance as defined by {{ABCA}}.
 
 This specification defines the following terms:
 
@@ -219,7 +219,7 @@ The client MUST bind its listener only to the selected loopback interface, open 
 
 An authorization server MUST establish attester trust independently of the request. For each accepted attester it MUST configure:
 
-* The exact attester `iss` identifier and how its verification keys are resolved, as Section 10.8 of {{ABCA}} recommends that a profile fix, by one of the following:
+* The exact attester `iss` identifier and how the attester's verification keys are resolved, which Section 10.8 of {{ABCA}} recommends that a profile fix. Keys are resolved by one of the following:
   * An `x5c` certificate chain ({{RFC7515}}) validated to a configured trust anchor, together with a configured mapping from the certificate to this attester, such as an exact subject or subject alternative name. Sharing a trust anchor with another attester does not authorize a key for this attester's `iss`.
   * A `kid` matched against a JWK Set configured for this attester. A `jku` is followed only if it names that configured JWK Set.
 * Accepted asymmetric signing algorithms.
@@ -248,12 +248,12 @@ Attestation acquisition and platform evidence formats are out of scope. They req
 
 # Instance Attestation {#attestation}
 
-An instance attestation is a Client Attestation JWT (Section 4 of {{ABCA}}) with the following additional requirements. Section 4 of {{ABCA}} permits additional claims, and Section 13 of {{ABCA}} permits a profile its own `typ`. Together with the document's selection of this profile ({{selection}}), its type tells a server that this profile applies. Its `typ` JOSE header parameter MUST have the value `cimd-instance-attestation+jwt`, which is the media type of {{media-type}} without its `application/` prefix. It MUST be digitally signed using an accepted asymmetric algorithm; a MAC or `none` MUST NOT be accepted. Its header and claims MUST contain no duplicate member names. Validation MUST apply {{RFC8725}}.
+An instance attestation is a Client Attestation JWT (Section 4 of {{ABCA}}) with the following additional requirements. Section 4 of {{ABCA}} permits additional claims, and Section 13 of {{ABCA}} permits a profile its own `typ`. Together with the document's selection of this profile ({{selection}}), its type tells a server that this profile applies. Its `typ` JOSE header parameter MUST have the value `cimd-instance-attestation+jwt`, which is the media type of {{media-type}} without its `application/` prefix. It MUST be digitally signed using an accepted asymmetric algorithm. A MAC or `none` MUST NOT be accepted. Its header and claims MUST contain no duplicate member names. Validation MUST apply {{RFC8725}}.
 
 The attestation contains the following claims. The `sub`, `iat`, `exp`, and `cnf` claims also retain the requirements of Section 4 of {{ABCA}}.
 
 `iss`:
-: REQUIRED. The attester's identifier, an HTTPS URL without a fragment. It is matched exactly against configured trust; URL normalization MUST NOT be used to broaden that match.
+: REQUIRED. The attester's identifier, an HTTPS URL without a fragment. It is matched exactly against the configured attester `iss` identifier ({{trust}}). URL normalization MUST NOT be used to broaden that match.
 
 `sub`:
 : REQUIRED. It MUST be the exact client identifier URL.
@@ -276,7 +276,7 @@ The attestation contains the following claims. The `sub`, `iat`, `exp`, and `cnf
 `cimd_instance_policy`:
 : REQUIRED. A string containing an absolute URI identifying the evidence policy under which the attester attested the instance key. The URI is an identifier, not a retrieval instruction. It MUST be compared exactly with an accepted policy identifier.
 
-A server MUST reject an attestation whose `exp` has passed, or lies further in the future than the maximum evidence age it accepts for the attester and evidence policy, and MUST NOT reject an attestation only because its `iat` was rounded or randomized. No field supplied by the client can extend these bounds.
+A server MUST reject an attestation whose `exp` has passed or is later than the current time plus the maximum evidence age it accepts for the attester and evidence policy. It MUST NOT reject an attestation only because its `iat` was rounded or randomized. No field supplied by the client can extend these bounds.
 
 An attestation is not tied to a statement's `jti`, so a statement renewed over unchanged bytes need not cause re-attestation.
 
@@ -299,7 +299,7 @@ The client sends the instance attestation in the `OAuth-Client-Attestation` HTTP
 
 The authorization server MUST require a server-issued DPoP nonce at the PAR endpoint and on every token request under this profile. It MUST enforce endpoint and method binding and reject replay of a proof within its acceptance window under {{RFC9449}}. Nonce challenges and retries use the `use_dpop_nonce` error code and the `DPoP-Nonce` HTTP header field. They do not consume a code, rotate a refresh token, create an establishment, or advance the `iat` floor. A request rejected before the instance is authenticated, or rejected with `use_fresh_attestation` or `temporarily_unavailable`, has none of these effects either, so the client can retry with a fresh attestation.
 
-If the pushed authorization request also carries `dpop_jkt`, its JWK thumbprint ({{RFC7638}}) MUST identify the attested key; otherwise the server rejects the request. A client MUST generate a new proof for each request, including a retry. TLS protects request contents. DPoP does not sign the request body, and implementations MUST NOT treat a valid proof as a signature over the redirect URI, PKCE challenge, or statement.
+If the pushed authorization request also carries the `dpop_jkt` parameter, its JWK thumbprint ({{RFC7638}}) MUST identify the attested key. Otherwise, the server rejects the request. A client MUST generate a new proof for each request, including a retry. TLS protects request contents. DPoP does not sign the request body, and implementations MUST NOT treat a valid proof as a signature over the redirect URI, PKCE challenge, or statement.
 
 # Runtime Admission {#admission}
 
@@ -321,7 +321,7 @@ Before returning a successful PAR response, the server MUST:
 
 For step 1, authentication establishes the attester, policy, client identifier, and attested key; it is not yet reviewed-software admission. An attestation whose digest has not been checked cannot establish the client. The ordering of statement checks before client-controlled retrieval in {{STATEMENT}} applies once a statement is available. External-retrieval bounds, HTTP caching rules ({{RFC9111}}), and protection against server-side request forgery from {{STATEMENT}} and {{CIMD}} apply throughout.
 
-The server MUST NOT fall back to review-only or unreviewed admission for the same request if any required check fails. A request that carries no instance attestation for a document selecting this profile is an example: the server learns from the document (step 3) that this profile applies, then rejects the request with `invalid_client`. If no acceptable statement is available, it returns `statement_required`. A failed request MUST NOT advance the `iat` floor or alter an existing establishment.
+If any required check fails, the server MUST NOT fall back to review-only or unreviewed admission for the same request. A request that carries no instance attestation for a document selecting this profile is an example: the server learns from the document (step 3) that this profile applies, then rejects the request with `invalid_client`. If no acceptable statement is available, it returns `statement_required`. A failed request MUST NOT advance the `iat` floor or alter an existing establishment.
 
 ## Establishment {#establishment}
 
@@ -341,7 +341,7 @@ The server MUST bind its `request_uri`, code, refresh token, and other grant con
 
 The client MUST use an external user-agent under {{RFC8252}}. The browser authorization request MUST use the `request_uri` from the PAR response and the same `client_id`. It MUST NOT carry the software statement, instance attestation, or an instance proof. The server MUST use the stored PAR parameters and MUST NOT allow front-channel parameters to change the redirect, PKCE challenge, key binding, or tenant.
 
-The server MUST reject a direct authorization request without a PAR `request_uri` governed by this profile when the client document selects this profile or server policy requires it. A statement pulled at the authorization endpoint cannot create an exception to that requirement.
+When the client's Client ID Metadata Document selects this profile or server policy requires it, the server MUST reject a direct authorization request without a PAR `request_uri` governed by this profile. A statement pulled at the authorization endpoint cannot create an exception to that requirement.
 
 The server authenticates the resource owner and applies authorization policy independently of the software and instance checks. It MUST return the authorization response with the issuer identifier in the `iss` parameter defined by {{RFC9207}}. The client MUST validate that identifier, and `state` if it sent one, against the transaction before redeeming a code. Callback validation and OAuth security requirements in {{RFC8252}} and {{RFC9700}} continue to apply.
 
@@ -359,7 +359,7 @@ The server MUST issue tokens only within the user's authorization, tenant policy
 
 Every refresh request MUST carry the original client identifier, the refresh token, a current instance attestation, and a fresh DPoP proof under the establishment's proven key. The server MUST authenticate the instance, verify the refresh-token binding, and enforce the fixed values of {{establishment}} before accepting any replacement statement.
 
-On every refresh the server MUST require a current, unexpired, unrefused software statement and re-evaluate its issuer trust decision. This strengthens the optional statement-currency check of {{STATEMENT}}. It MUST also verify that the currently served document matches the applicable statement and attestation digests and continues to meet {{client-metadata}}. Removal of the binding member or a change to another authentication method ends continuation under this profile, and the refresh is rejected with `invalid_grant` without seeking a replacement, as {{STATEMENT}} rejects a refresh whose document no longer carries the proven key.
+On every refresh the server MUST require a current, unexpired, unrefused software statement and re-evaluate its issuer trust decision. This strengthens the optional statement-currency check of {{STATEMENT}}. It MUST also verify that the currently served document matches the applicable statement and attestation digests and continues to meet {{client-metadata}}. Removal of the `software_statement_instance_binding` member, or a change to another authentication method, ends continuation under this profile. The refresh is then rejected with `invalid_grant` without seeking a replacement, as {{STATEMENT}} rejects a refresh whose document no longer carries the proven key.
 
 The recorded statement can remain applicable while it is unexpired, not refused, and matches the current document, even if a newer statement has raised the `iat` floor for new admissions. If it no longer qualifies, a replacement is required. The client can present a replacement in `software_statement` or, for an establishment created from a pulled statement, the server pulls one as {{STATEMENT}} specifies. A statement with the same `iss` and `jti` as the recorded statement is a recheck, not a replacement.
 
@@ -419,7 +419,7 @@ The following error codes apply to pushed authorization requests, code redemptio
 : Missing or unacceptable attestation, untrusted attester or policy, a request carrying the `OAuth-Client-Attestation-PoP` header field, a DPoP proof under a key other than the attested key, or, at the PAR endpoint, a request carrying an instance attestation for a document that does not select this profile or violates {{client-metadata}}.
 
 `use_fresh_attestation`:
-: An otherwise valid attestation whose `exp` has passed, or that names a digest other than that of the document currently served while that document matches the applicable statement, which this profile treats as not fresh enough (Section 7.4 of {{ABCA}}).
+: An otherwise valid attestation that this profile treats as not fresh enough (Section 7.4 of {{ABCA}}): its `exp` has passed, or it names a digest other than that of the document currently served while that document matches the applicable statement.
 
 `use_dpop_nonce`:
 : Missing or unacceptable server DPoP nonce.
