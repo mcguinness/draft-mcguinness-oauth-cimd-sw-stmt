@@ -429,6 +429,28 @@ The first presentation of a replacement that establishes the client supersedes i
 
 Software whose instances authenticate as the client with keys of their own, which the reviewed document does not carry, can neither prove nor register those keys ({{sender-constraint}}, {{REGISTRATION}}) and depends on the attested-key extension of {{extensions}}.
 
+# Relationship to Other Work {#relationship}
+
+This section is non-normative.
+
+## Client Attestation {#relationship-attestation}
+
+A software statement and a client attestation {{ABCA}} are both signed third-party assertions. A statement attests client software and the metadata its issuer evaluated. It is signed by an issuer trusted for a set of client identifiers and accepted wherever that issuer is trusted. A client attestation attests a running instance and the key it holds, and is presented with a proof bound to the request.
+
+Neither assertion grants access nor substitutes for the other. Runtime presentation therefore always requires a sender constraint ({{sender-constraint}}). Binding a presenter attestation defined elsewhere is an extension ({{extensions}}).
+
+## Identity Assertions {#identity-assertions}
+
+A statement records that a named party reviewed software, not that a particular customer currently permits that software to act in its tenant. A tenant-scoped decision (`aud_tenant`) authorizes no particular user or transaction. When a customer's identity provider mediates a grant, as with a cross-domain identity assertion {{IDJAG}}, it already answers the customer's question per grant by issuing assertions only for clients the customer permits. A statement serves when the issuer is not in the request path, as in the following cases:
+
+* A publisher program vouches to servers it will never see.
+* A provider admits software it has never registered.
+* A customer wants a portable record of what its review covered.
+
+## OpenID Federation {#relationship-federation}
+
+A trust mark {{OPENID-FED}} is also a signed third-party assertion about an entity, but it is resolved through a federation that supplies key discovery, policy, and delegation, and in which both parties enroll. A statement needs no federation: a trusting authorization server configures its issuer directly ({{issuer-trust}}), and the statement binds the exact octets of the client's own document rather than metadata the federation resolves.
+
 # Error Responses {#errors}
 
 A rejection uses the error response and HTTP status codes specified for the endpoint where it occurs:
@@ -934,28 +956,6 @@ Specification Document(s):
 : This specification, {{authorization-server-metadata}}
 
 --- back
-
-# Relationship to Other Work {#relationship}
-
-This section is non-normative.
-
-## Client Attestation {#relationship-attestation}
-
-A software statement and a client attestation {{ABCA}} are both signed third-party assertions. A statement attests client software and the metadata its issuer evaluated. It is signed by an issuer trusted for a set of client identifiers and accepted wherever that issuer is trusted. A client attestation attests a running instance and the key it holds, and is presented with a proof bound to the request.
-
-Neither assertion grants access nor substitutes for the other. Runtime presentation therefore always requires a sender constraint ({{sender-constraint}}). Binding a presenter attestation defined elsewhere is an extension ({{extensions}}).
-
-## Identity Assertions {#identity-assertions}
-
-A statement records that a named party reviewed software, not that a particular customer currently permits that software to act in its tenant. A tenant-scoped decision (`aud_tenant`) authorizes no particular user or transaction. When a customer's identity provider mediates a grant, as with a cross-domain identity assertion {{IDJAG}}, it already answers the customer's question per grant by issuing assertions only for clients the customer permits. A statement serves when the issuer is not in the request path, as in the following cases:
-
-* A publisher program vouches to servers it will never see.
-* A provider admits software it has never registered.
-* A customer wants a portable record of what its review covered.
-
-## OpenID Federation {#relationship-federation}
-
-A trust mark {{OPENID-FED}} is also a signed third-party assertion about an entity, but it is resolved through a federation that supplies key discovery, policy, and delegation, and in which both parties enroll. A statement needs no federation: a trusting authorization server configures its issuer directly ({{issuer-trust}}), and the statement binds the exact octets of the client's own document rather than metadata the federation resolves.
 
 # Acknowledgments
 {:numbered="false"}
