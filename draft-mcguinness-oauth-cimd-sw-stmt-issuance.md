@@ -536,7 +536,7 @@ The denial is terminal for the request. A denied deferral behaves as {{DTR}} spe
 
 # Withdrawal {#status-publication}
 
-An issuer that ends a decision before its expiry does so through a withdrawal mechanism ({{STATEMENT}}), such as the Token Status List binding of {{STATUS}}. Withdrawing a statement does not withdraw a replacement obtained through {{renewal}}, and withdrawing a replacement does not restore its predecessor.
+An issuer that ends a decision before its expiry does so through a withdrawal mechanism ({{STATEMENT}}), such as the Token Status List profile of {{STATUS}}. Withdrawing a statement does not withdraw a replacement obtained through {{renewal}}, and withdrawing a replacement does not restore its predecessor.
 
 # Issuer as Trusting Authorization Server {#same-server}
 
