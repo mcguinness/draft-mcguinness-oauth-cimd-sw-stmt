@@ -193,7 +193,7 @@ This specification permits only the authorization code grant opened through PAR,
 
 A server requiring reviewed software for a client namespace or tenant MUST enforce that requirement even when the requester omits every review artifact or presents a statement over an earlier document. A server requiring this binding MUST reject attempts to open a grant under an alternative authentication method, through a direct authorization request, or through another grant type. These requirements MUST be based on server policy, not inferred only from artifacts a requester can withhold.
 
-The server MUST enforce the reviewed binding selection on every new admission under a reviewed document that selects this profile. A deployment permitting unrelated unreviewed clients MAY continue to do so under its own policy, but a failed request under this profile is rejected rather than admitted under that policy ({{par}}). Any independently admitted unreviewed client carries none of the assurance of this specification.
+The server MUST enforce the reviewed binding selection on every new admission under a reviewed document that selects this profile. A deployment permitting unrelated unreviewed clients can continue to do so under its own policy, but a failed request under this profile is rejected rather than admitted under that policy ({{par}}). Any independently admitted unreviewed client carries none of the assurance of this specification.
 
 # Client Metadata {#client-metadata}
 
@@ -246,7 +246,7 @@ The server cannot observe how an attester reached its decision, so it relies on 
 * The policy's identifier denotes immutable policy semantics: a material policy change requires a new identifier.
 * The policy establishes an association between the software the statement covers and control of the attested key. User approval of a key, a publisher account login, possession of a shared embedded secret, or device integrity alone does not establish that association.
 
-A server MUST NOT accept for this profile an evidence policy that does not meet these requirements. A deployment MAY use weaker evidence for other purposes but MUST NOT report it as satisfying this profile.
+A server MUST NOT accept for this profile an evidence policy that does not meet these requirements. A deployment can use weaker evidence for other purposes but MUST NOT report it as satisfying this profile.
 
 A statement approves the document and the software that its publisher (the controller of the document URL's origin, or a delegate) associates with it, not a particular executable. The publisher decides which releases that association covers, under the evidence policy's treatment of updates, so a new release with unchanged metadata needs no new statement. This profile cannot enforce an issuer's approval of particular releases.
 
