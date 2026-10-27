@@ -174,7 +174,7 @@ An {{RFC7592}} read or update response returns the governing statement as its `s
 
 The replacement MUST satisfy the following:
 
-* It validates under the validation rules of {{STATEMENT}}, including its audience if it carries one.
+* It validates under the validation rules of {{STATEMENT}}, including its audience if it carries one, and is not superseded under the `iat` floor of {{STATEMENT}}.
 * The `iss` and `sub` claims equal those of the governing statement.
 * The `iat` claim is later than that of the governing statement.
 * Its document declares `token_endpoint_auth_method` of `none` if and only if the governing statement's document does.
