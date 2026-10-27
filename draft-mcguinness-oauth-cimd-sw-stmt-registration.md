@@ -60,7 +60,7 @@ A software statement (Section 2.3 of {{RFC7591}}) carries a third party's approv
 
 * Consumption: the registration takes every metadata value from the reviewed document, never from the request ({{dcr-presentation}}).
 * Validity: a registration is valid only while a current statement governs it ({{registration-validity}}).
-* Renewal: the client extends the registration by delivering a replacement statement, which also brings the registration's metadata up to date with the new review ({{revalidation}}).
+* Renewal: the client renews the registration by delivering a replacement statement, which also brings the registration's metadata up to date with the new review ({{revalidation}}).
 
 Under this specification, an authorization server never registers software whose document lists a redirection URI that another application could claim ({{dcr-presentation}}). Such a document is presented review-only under {{STATEMENT}} and cannot satisfy a policy requiring reviewed software. A server can register a public client, whose document declares `token_endpoint_auth_method` of `none`, only under rules that bind it as {{STATEMENT}} binds a public client at runtime ({{public-client-registration}}). This specification depends on {{STATEMENT}}, which does not depend on it.
 
@@ -70,7 +70,7 @@ The following non-normative sequence summarizes a statement-governed registratio
 
 1. The client registers through {{RFC7591}}, carrying a statement in the `software_statement` member.
 2. The authorization server derives the registration's metadata from the reviewed document and records the statement's identity. The registration is valid until the statement's effective expiry ({{registration-validity}}).
-3. The client delivers a replacement statement in a token or pushed authorization request under the registration or, if supported, an {{RFC7592}} update request, extending the registration's validity to the replacement's effective expiry.
+3. The client delivers a replacement statement in a token or pushed authorization request under the registration or, if supported, an {{RFC7592}} update request, which sets the registration's validity to the replacement's effective expiry.
 4. If no replacement arrives, the registration expires and requests under it fail.
 
 # Conventions and Definitions
@@ -132,14 +132,14 @@ Such a registration has no {{RFC7592}} management, and the deliveries that {{rev
 
 An authorization server MUST apply the following validity model to every registration it creates from a statement validated under {{STATEMENT}}, whichever issuer signed it:
 
-* The authorization server MUST bind the registration to its governing statement, identified by the statement's `iss` and `jti` claims ({{registration-state}}). The registration's effective expiry is the governing statement's effective expiry ({{STATEMENT}}), which a renewal extends and `registration_expires_at` reports.
+* The authorization server MUST bind the registration to its governing statement, identified by the statement's `iss` and `jti` claims ({{registration-state}}). The registration's effective expiry is the governing statement's effective expiry ({{STATEMENT}}), which a renewal replaces and `registration_expires_at` reports.
 * The registration is valid until that effective expiry.
 * Once the effective expiry passes without a replacement ({{revalidation}}), the authorization server MUST reject authorization, token, and pushed authorization requests and {{RFC7592}} update requests under the registration, other than a request carrying a replacement, which {{revalidation}} evaluates before this rejection:
   * They are rejected with `statement_required` ({{STATEMENT}}), except that an {{RFC7592}} update request is rejected with `invalid_software_statement`, since the governing statement is expired or refused.
   * An authorization request carrying the `software_statement` parameter is rejected with `invalid_request` instead, as {{STATEMENT}} provides.
   * {{RFC7592}} read and delete requests remain available for a client to learn its registration's state and end it.
   * At the token and pushed authorization request endpoints, the client is first authenticated against the retained registration, and a request that fails that authentication is rejected with `invalid_client`, as for an unknown client.
-* The authorization server SHOULD retain the expired registration for a later authenticated revalidation ({{oracle-considerations}}). A valid replacement restores the registration ({{revalidation}}), so no grace period is needed.
+* The authorization server SHOULD retain the expired registration for a later authenticated renewal ({{oracle-considerations}}). A valid replacement restores the registration ({{revalidation}}), so no grace period is needed.
 
 At the authorization endpoint, the rejection is returned in the authorization error response (Section 4.1.2.1 of {{RFC6749}}). The authorization server redirects with it only after validating the request's `redirect_uri` against the retained registration. If it cannot do so, it MUST NOT redirect and reports the error to the resource owner instead. The client then delivers a replacement as {{revalidation}} provides.
 
@@ -153,7 +153,7 @@ The authorization server MUST return a `registration_expires_at` member in the {
 
 A server that records a required issuer for a tenant ({{STATEMENT}}) MUST reject an authorization, token, or pushed authorization request, or an {{RFC7592}} update request, in that tenant under any registration for software in a covered namespace unless, once any replacement the request delivers has been evaluated ({{revalidation}}), a current statement from the required issuer governs the registration. This rule applies whatever tenant the registration was created in and whenever the requirement was configured. The server rejects such a request as this section rejects one under an expired registration: with `statement_required` ({{STATEMENT}}), or with `invalid_software_statement` for an {{RFC7592}} update request. Without this rule, withholding the required issuer's statement would keep such a registration in use after the issuer withdrew or stopped renewing its decision. A registration governed by another issuer's statement cannot satisfy the requirement, since a replacement keeps the governing statement's `iss`.
 
-## Revalidation {#revalidation}
+## Renewal {#revalidation}
 
 A client renews a statement-governed registration by delivering a replacement statement in one of the following:
 
@@ -242,7 +242,7 @@ An authorization server rejecting a registration request, or a registration mana
 
 # Example {#example}
 
-## Revalidating a Statement-Governed Registration
+## Renewing a Statement-Governed Registration
 
 The following is a non-normative example of a registered client, whose `client_id` is `s6BhdRkqt3`, renewing its registration by delivering a replacement statement on an ordinary refresh, authenticated under its registered `private_key_jwt` method (line breaks for display purposes only):
 
@@ -267,7 +267,7 @@ The authorization server validates the replacement and re-derives the registrati
 This specification defines the following authorization server metadata {{RFC8414}} value:
 
 `software_statement_registration_validity_supported`:
-: OPTIONAL. Boolean value indicating whether the authorization server supports this specification, under which every registration it creates from a statement validated under {{STATEMENT}} is governed by the validity and revalidation rules of {{registration-validity}} and {{revalidation}}. If omitted, the default value is `false`. A value of `true` does not imply support for runtime presentation.
+: OPTIONAL. Boolean value indicating whether the authorization server supports this specification, under which every registration it creates from a statement validated under {{STATEMENT}} is governed by the validity and renewal rules of {{registration-validity}} and {{revalidation}}. If omitted, the default value is `false`. A value of `true` does not imply support for runtime presentation.
 
 # Implementation Considerations {#implementation-considerations}
 
