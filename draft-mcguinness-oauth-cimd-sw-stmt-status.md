@@ -80,8 +80,8 @@ An issuer that uses Token Status List publishes the status of its statements as 
 * MUST publish status, and carry the `status` claim, for every statement it issues under a given `iss` from the point it begins publishing. Once statements issued before that point have expired, a trusting authorization server can read an absent claim as meaning the issuer publishes no status.
 * MUST NOT reuse an index across statements. Withdrawing a statement then affects no other: withdrawing a superseded statement does not withdraw its replacement, and withdrawing a replacement does not restore its predecessor.
 * MUST sign the Status List Token with a key published at the `jwks_uri` of its authorization server metadata {{RFC8414}}, which {{STATEMENT}} keeps apart from its statement signing keys.
-* MUST include `exp` in every Status List Token it publishes, to prevent an older token from standing in for a newer one indefinitely.
-* MUST give each Status List Token it publishes at a given list URI an `iat` later than that of any token it published there before ({{status-resolution}}).
+* MUST include the `exp` claim in every Status List Token it publishes, to prevent an older token from standing in for a newer one indefinitely.
+* MUST give each Status List Token it publishes at a given list URI an `iat` claim value later than that of any token it published there before ({{status-resolution}}).
 
 ## Status Resolution {#status-resolution}
 
@@ -94,23 +94,23 @@ Resolution follows {{STATUSLIST}}. In particular:
 * If the referenced index lies outside the list, the statement is rejected as {{STATUSLIST}} requires, with the error code {{STATEMENT}} assigns to a statement refused by a refusal record.
 * The caching rules of {{STATUSLIST}} apply to resolution, and also apply when the server checks a recorded statement at refresh ({{STATEMENT}}).
 
-To prevent a host serving an older token from restoring a status the issuer has withdrawn, a server MUST NOT replace a Status List Token it holds with one whose `iat` is earlier, and MUST treat one whose `iat` is equal but whose contents differ as a resolution failure. A statement whose status the server cannot resolve is bounded by its effective expiry, as {{STATEMENT}} provides.
+To prevent a host serving an older token from restoring a status the issuer has withdrawn, a server MUST NOT replace a Status List Token it holds with one whose `iat` claim is earlier, and MUST treat one whose `iat` claim is equal but whose contents differ as a resolution failure. A statement whose status the server cannot resolve is bounded by its effective expiry, as {{STATEMENT}} provides.
 
 A server MUST obtain a Status List Token's verification keys from the `jwks_uri` of the issuer's authorization server metadata {{RFC8414}}, reached from the configured `iss`, never from the list itself.
 
 # Event Issuer Trust and Keys {#relationship}
 
-A trusting authorization server MUST NOT accept an event from an issuer it has not configured. It MUST verify the SET using keys from the `jwks_uri` of the issuer's Transmitter configuration {{SSF}}, discovered from the issuer identifier it has configured, and never from a key-location value carried in the event. The SET's `iss` is that issuer identifier, which is also the `iss` of the statements the event concerns.
+A trusting authorization server MUST NOT accept an event from an issuer it has not configured. It MUST verify the SET using keys from the `jwks_uri` of the issuer's Transmitter configuration {{SSF}}, discovered from the issuer identifier it has configured, and never from a key-location value carried in the event. The SET's `iss` claim is that issuer identifier, which is also the `iss` claim value of the statements the event concerns.
 
 The Transmitter configuration's `jwks_uri` MUST differ both from the issuer's `software_statement_jwks_uri` ({{STATEMENT}}) and from the `jwks_uri` in its authorization server metadata {{RFC8414}}, whose keys verify its Status List Tokens. A receiver MUST NOT create or keep a stream whose Transmitter configuration names either of those locations.
 
-A SET carrying an event defined here MUST use the explicit `typ` JOSE header parameter value `secevent+jwt` ({{RFC8417}}). Its `aud` claim MUST contain the audience of the stream that delivers it, which {{SSF}} lets the transmitter and receiver agree. A receiver MUST NOT create or keep a stream whose audience does not identify it.
+A SET carrying an event defined here MUST use the explicit `typ` JOSE header parameter value `secevent+jwt` (Section 2.3 of {{RFC8417}}). Its `aud` claim MUST contain the audience of the stream that delivers it, which {{SSF}} lets the transmitter and receiver agree. A receiver MUST NOT create or keep a stream whose audience does not identify it.
 
 # Subject Identification {#subjects}
 
 The subject of every event defined here is client software. Events carry it in the `sub_id` claim of {{SSF}} using the `uri` format of {{RFC9493}}, whose `uri` member carries the Client ID Metadata Document URL {{CIMD}} exactly as it appears in the `sub` of the statements the event concerns.
 
-A trusting authorization server MUST match the subject by exact comparison of the `uri` member against a statement's `sub`.
+A trusting authorization server MUST match the subject by exact comparison of the `uri` member against a statement's `sub` claim.
 
 # Event Types {#events}
 
@@ -120,7 +120,7 @@ The payload ({{RFC8417}}) of an event defined here has the following claims:
 : OPTIONAL. The {{CAEP}} member, a NumericDate value, here giving the time the issuer changed the status the event reports. It is informational: a receiver does not use it to order, bound, or scope anything.
 
 `software_statement_jti`:
-: OPTIONAL. The `jti` of a single statement whose status changed ({{processing}}).
+: OPTIONAL. The `jti` claim value of a single statement whose status changed ({{processing}}).
 
 `reason_admin`:
 : OPTIONAL. An administrative message, as {{CAEP}} defines the member.
@@ -159,8 +159,8 @@ The following non-normative example shows the payload of a SET carrying this eve
 
 A trusting authorization server that receives an event defined here MUST process it as follows:
 
-1. Verify the SET as {{RFC8417}} requires, including its `typ`, and verify that the SET's issuer is configured and its keys were obtained as {{relationship}} requires.
-2. Reject an event whose `aud` does not contain the audience of the stream that delivered it ({{relationship}}) or whose type is not recognized.
+1. Verify the SET as {{RFC8417}} requires, including its `typ` JOSE header parameter, and verify that the SET's issuer is configured and that the keys verifying the SET were obtained as {{relationship}} requires.
+2. Reject an event whose `aud` claim does not contain the audience of the stream that delivered it ({{relationship}}) or whose event type is not recognized.
 3. Resolve the subject ({{subjects}}).
 4. Resolve the status of the affected statements from the issuer's Status List Token as {{STATUSLIST}} defines, without waiting for the schedule that would otherwise apply, and apply the resolved status as {{status-resolution}} defines.
 
