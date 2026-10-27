@@ -181,7 +181,7 @@ The replacement MUST satisfy the following:
 
 For a replacement, the authorization server MUST do the following:
 
-* Obtain the Client ID Metadata Document at the replacement's `sub` by retrieval, as {{dcr-presentation}} requires.
+* Obtain the Client ID Metadata Document at the replacement's `sub` as {{dcr-presentation}} requires.
 * Verify that the digest of the retrieved octets equals the replacement's `cimd_digest`.
 * Re-derive the registration's metadata from those same octets, under the rules of {{dcr-presentation}}.
 
