@@ -712,7 +712,7 @@ The `aud_tenant` claim names a tenant at the trusting authorization server, not 
 
 ## External Retrieval and Resource Exhaustion {#external-retrieval}
 
-Runtime presentation can cause the authorization server to retrieve the Client ID Metadata Document, a `jwks_uri` it names, or the statements its `software_statements_uri` names. A trusted signature does not make a URL safe, so {{processing}} applies the server's retrieval policy to every referenced location and rejects a request whose retrieval fails.
+Runtime presentation can cause the authorization server to retrieve the Client ID Metadata Document, a `jwks_uri` it names, or the statements its `software_statements_uri` names. A trusted signature does not make a URL safe, so {{processing}} applies the server's retrieval policy to every referenced location and rejects a request whose retrieval fails, except as {{pulled-statements}} provides.
 
 These retrievals happen before any client is registered or any user has interacted, so an unauthenticated requester holding one acceptable statement can cause this work. {{processing-bounds}} describes how an authorization server can bound it.
 
