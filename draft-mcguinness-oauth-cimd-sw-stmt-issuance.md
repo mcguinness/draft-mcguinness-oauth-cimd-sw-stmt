@@ -587,6 +587,17 @@ An approval interface ought to state that the decision vouches for the client's 
 
 If the client requested a different or broader audience, the interface ought to make narrowing visible.
 
+## Audit and Logging {#audit-logging}
+
+An authorization server ought to keep an audit record that binds each decision, whether approval or denial, to the following:
+
+* The metadata digest ({{metadata-snapshot}}) of the document the deciding party evaluated.
+* The policy under which the decision was made.
+* The identity of the deciding party.
+* The time of decision.
+
+It ought to retain the exact retrieved octets of the approved document for audit, because a re-serialized copy cannot reproduce the digest. A deployment that requires approver attribution can retain it in an audit record or define a statement claim and its privacy semantics.
+
 # Security Considerations {#security-considerations}
 
 The security considerations of {{STATEMENT}} apply.
@@ -638,22 +649,13 @@ A compromised software statement signing key lets an attacker mint statements fo
 * Issuers SHOULD protect signing keys according to the scope of their trust relationships and support controlled key rotation.
 * Issuers SHOULD prefer signature algorithms with modern security properties, such as `PS256`, `ES256`, or `EdDSA`, over RSASSA-PKCS1-v1_5 (`RS256`), and MUST follow {{RFC8725}} when signing.
 
-## Approver Identity and Audit
+## Approver Authority
 
-A software statement does not identify the human or system that approved issuance. Deployments that require approver attribution retain it in an audit record or define a statement claim and its privacy semantics.
+A software statement does not identify the human or system that approved issuance ({{audit-logging}}).
 
 An approved statement is accepted at every authorization server in its audience, not only within the approver's own scope. The policy governing who can approve issuance MUST be at least as restrictive as the policy under which the issuer establishes a client manually. Approval by a party authorized only for a personal or organizational scope MUST NOT produce a statement whose audience exceeds that scope, or whose `aud_tenant` claim names a tenant outside it.
 
 To keep a look-alike document from reaching approval, an issuer SHOULD limit what an approver can approve to client identifiers under publisher namespaces it has enrolled.
-
-Authorization servers SHOULD keep an audit record that binds each decision, whether approval or denial, to the following:
-
-* The metadata digest ({{metadata-snapshot}}) of the document the deciding party evaluated.
-* The policy under which the decision was made.
-* The identity of the deciding party.
-* The time of decision.
-
-Authorization servers SHOULD retain the exact retrieved octets of the approved document for audit. A re-serialized copy cannot reproduce the digest.
 
 # Privacy Considerations
 
