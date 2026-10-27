@@ -205,7 +205,7 @@ The client authenticates to the token endpoint using the `token_endpoint_auth_me
 * Any other value establishes a confidential client:
   * The authorization server MUST require exactly that method. {{CIMD}} states this rule for `private_key_jwt`, and this specification applies it to every declared method.
   * If the authorization server does not support the declared method, it MUST reject the request rather than treat the client as public, with the `unauthorized_client` error code at the authorization endpoint and with the `invalid_client` error code (Section 5.2 of {{RFC6749}}) at the token endpoint.
-* An omitted value establishes neither, and any request identifying such a client MUST be rejected with the `invalid_request` error code, returned at the authorization endpoint to the redirection URI validated against the document.
+* An omitted value establishes neither, and any request identifying such a client MUST be rejected, with the `invalid_request` error code at the authorization endpoint, returned to the redirection URI validated against the document, and with the `invalid_client` error code (Section 5.2 of {{RFC6749}}) at the token endpoint.
 
 Classification uses the singular `token_endpoint_auth_method`. A list of declared supported methods is not interpreted.
 
