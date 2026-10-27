@@ -479,7 +479,7 @@ A presentation rejected at the token or pushed authorization request endpoint fo
 `invalid_client`:
 : The statement or the client cannot be established, in any of the following cases:
 
-  * The statement is malformed, or fails signature or claim validation ({{validation}}) for a reason other than expiry.
+  * The statement is malformed, or fails signature or claim validation ({{validation}}) for a reason other than expiry or a refusal record.
   * The statement is valid but not acceptable here: its issuer is not configured, its `aud` excludes this server, its `sub` is outside the issuer's scope, its `aud_tenant` is not this request's tenant or is absent when required, or its `statement_uses` excludes this use.
   * The request's `client_id` differs from the statement's `sub` ({{runtime-presentation}}).
   * The reviewed document contains duplicate member names ({{validation}}) or exceeds the server's size bound ({{metadata-digest}}).
