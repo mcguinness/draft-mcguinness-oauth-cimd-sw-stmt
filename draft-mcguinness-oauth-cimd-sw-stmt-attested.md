@@ -651,7 +651,7 @@ The privacy considerations of {{STATEMENT}} and Section 11 of {{ABCA}} apply.
 
 An instance key reused at multiple servers can correlate installations across them. Clients SHOULD use separate instance keys for separate server relationships where the evidence mechanism permits, and SHOULD avoid adding stable installation identifiers unless needed by the deployment. This profile does not require a globally stable instance identifier or an attestation audience.
 
-An attester might learn the target server from enrollment traffic, key-scoping choices, or timing even when no audience is carried. Deployments SHOULD minimize evidence and identifier disclosure to both attesters and authorization servers. An evidence-policy identifier can reveal enterprise management practices; it ought to identify policy semantics without embedding user or device identifiers.
+An attester might learn the target server from enrollment traffic, key-scoping choices, or timing even when no audience is carried. Deployments ought to minimize evidence and identifier disclosure to both attesters and authorization servers. An evidence-policy identifier can reveal enterprise management practices; it ought to identify policy semantics without embedding user or device identifiers.
 
 Instance attestations and proofs never appear in browser URLs ({{authorization}}). Logs and audit records can link installations to people and devices ({{ui-audit}}).
 
