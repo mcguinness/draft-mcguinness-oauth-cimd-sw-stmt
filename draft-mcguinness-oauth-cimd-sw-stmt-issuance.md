@@ -467,7 +467,7 @@ grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3A
 
 An authorization server MAY answer an originating request with a deferred token response {{DTR}} instead of a statement.
 
-Deferral follows {{DTR}}, including the sender constraint it fixes at origination, with the following additions:
+Deferral follows {{DTR}}, including the sender constraint it fixes at origination, with the following additions ({{lifetime-practice}} covers choosing a deferral code lifetime):
 
 * A deferral created under this specification MUST be delivered by polling. Callback delivery is omitted from this version ({{design-rationale}}).
 * A client MUST NOT send the `client_notification_token` parameter of {{DTR}}. An authorization server rejects a request carrying it with the `invalid_request` error code and MUST NOT deliver a callback, whatever the client's metadata says.
@@ -654,7 +654,7 @@ A software statement code in a URL is visible to browser history, referrer field
 
 ## Token Exchange Considerations {#te-considerations}
 
-Validating the subject token before metadata retrieval or enqueueing ({{token-exchange-profile}}) limits resource consumption by unauthorized requesters. Other bounds are local ({{processing-bounds}}).
+Validating the subject token before metadata retrieval or enqueueing ({{token-exchange-profile}}) limits resource consumption by unauthorized requesters. Other bounds are local policy ({{processing-bounds}}).
 
 A subject token is an authorization credential, not a client identifier. If the Client ID Metadata Document declares a method, a subject token does not substitute for client authentication.
 
