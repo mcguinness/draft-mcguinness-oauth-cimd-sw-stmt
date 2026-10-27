@@ -292,8 +292,6 @@ An authorization server that supports pulled statements MAY retrieve this URL wh
 
 * Send a `GET` request with `Accept: application/json`, do not automatically follow redirects, and accept only a `200` response with a JSON media type.
 * Apply the protections {{CIMD}} sets for URLs a document contains and the bounds of {{external-retrieval}}.
-* Bound the response size and the number of statements examined separately from the document's. Several issuers' statements outgrow a document-sized bound, and a host can pad the array.
-* Discard statements from unconfigured issuers before verifying any signature.
 
 Both the document and this URL are retrieved before any statement exists to validate, so the ordering of {{processing}} applies from the first statement verified onward.
 
@@ -659,6 +657,16 @@ A `304 Not Modified` response shows that stored octets, and their digest, are st
 
 Successful retrievals can be cached within the document's caching directives. A failure is followed by back-off rather than caching, which {{CIMD}} forbids. A response from a `software_statements_uri` is cached no longer than the document is, and can be revalidated with a conditional request, as the document can ({{pulled-statements}}).
 
+## Retrieval and Processing Bounds {#processing-bounds}
+
+Retrievals happen before any client is registered or any user has interacted, so an unauthenticated requester holding one acceptable statement can cause this work ({{external-retrieval}}). An authorization server can bound it as follows:
+
+* Rate-limit presentations per statement identity, per subject, and per source, and pulls ({{pulled-statements}}) per client identifier and per source, before spending retrieval or storage on a new presentation.
+* Refuse a presentation that would create a new establishment, before spending retrieval or storage on it, once a bound on establishments ({{multi-instance}}) is reached.
+* Bound JWT size and parsing work, concurrent retrievals, response size, and response time.
+* Bound the size of a `software_statements_uri` response and the number of statements examined separately from the document's. Several issuers' statements outgrow a document-sized bound, and a host can pad the array.
+* Discard pulled statements from unconfigured issuers before verifying any signature.
+
 # Security Considerations {#security-considerations}
 
 The security considerations of {{CIMD}} and Section 5 of {{RFC7591}} apply.
@@ -675,7 +683,7 @@ A statement carries no client metadata, so an {{RFC7591}} server that verified o
 
 ## Copied Statements and Public Clients {#public-client-security}
 
-A party holding a copied statement for a public client can open a pushed authorization request in the reviewed software's name. It cannot receive an authorization code that another resource owner approves in a user agent the party does not control ({{public-client-presentation}}), so other users are exposed only to a consent prompt carrying the reviewed software's name and branding. Rate limits ({{external-retrieval}}) and the issuer's choice of audience and lifetime bound that exposure.
+A party holding a copied statement for a public client can open a pushed authorization request in the reviewed software's name. It cannot receive an authorization code that another resource owner approves in a user agent the party does not control ({{public-client-presentation}}), so other users are exposed only to a consent prompt carrying the reviewed software's name and branding. Rate limits ({{processing-bounds}}) and the issuer's choice of audience and lifetime bound that exposure.
 
 A party that controls the user agent receives the code: an application embedding a user agent (Section 8.12 of {{RFC8252}}), or a holder authorizing with its own account. It redeems the code with a PKCE verifier and key of its own choosing. An admission under {{public-client-presentation}} therefore shows where codes are delivered, not which software holds the grant, and a tenant's required issuer ({{issuer-trust}}) cannot keep unreviewed software out for a user who chooses to run it. This is the client impersonation that Section 8.6 of {{RFC8252}} describes for public clients. An attested-key extension ({{extensions}}) would strengthen the binding by giving the instance a key a third party vouches for.
 
@@ -691,11 +699,7 @@ The `aud_tenant` claim names a tenant at the trusting authorization server, not 
 
 Runtime presentation can cause the authorization server to retrieve the Client ID Metadata Document, a `jwks_uri` it names, or the statements its `software_statements_uri` names. Every such retrieval inherits the server-side request forgery protections of {{CIMD}}. A trusted signature does not make a URL safe: the authorization server MUST apply its URL, redirect, address-range, transport, and content-type policy independently to every referenced location.
 
-These retrievals occur before any client is registered or any user has interacted, so an unauthenticated requester holding one acceptable statement can cause this work. An authorization server SHOULD therefore bound this work as follows:
-
-* Rate-limit presentations per statement identity, per subject, and per source, and pulls ({{pulled-statements}}) per client identifier and per source, before spending retrieval or storage on a new presentation.
-* Refuse a presentation that would create a new establishment, before spending retrieval or storage on it, once the bound of {{multi-instance}} for its `iss` and `sub` is reached.
-* Bound JWT size and parsing work, concurrent retrievals, response size, and response time.
+These retrievals happen before any client is registered or any user has interacted, so an unauthenticated requester holding one acceptable statement can cause this work. {{processing-bounds}} describes how an authorization server can bound it.
 
 A retrieval failure leaves the relevant metadata or proof unverified, so the authorization server MUST reject the request and MUST NOT fall back to a weaker proof. A failed pull of statements for a request that opens a new grant is the exception: it leaves the client unreviewed, as {{pulled-statements}} describes. A failed pull of a replacement that a refresh requires is not an exception: the refresh fails ({{refresh}}).
 
