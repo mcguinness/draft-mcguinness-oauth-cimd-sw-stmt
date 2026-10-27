@@ -342,7 +342,7 @@ The proven key is the attested key, which is also the DPoP key. Authorization tr
 
 The client identifier, tenant, key, attester, policy, and binding profile MUST remain fixed for the lifetime of the grant. Changing any of them requires a new grant opened through PAR. A fresh attestation that keeps these values can renew the grant's evidence, and a software statement replacement can update the grant's reviewed metadata only as {{refresh}} permits. Neither operation changes these values.
 
-The server MUST bind its `request_uri`, code, refresh token, and other grant continuation state to the establishment ({{resource-bounds}}).
+The server MUST bind its `request_uri`, code, refresh token, and other grant continuation state to the establishment.
 
 ## Browser Authorization {#authorization}
 
