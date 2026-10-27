@@ -152,7 +152,7 @@ A statement asserts that its issuer evaluated the Client ID Metadata Document wh
 : OPTIONAL. A JSON array identifying the permitted uses of the statement: `registration` ({{REGISTRATION}}) and `presentation` ({{cimd-presentation}}). If the claim is absent, only `presentation` is permitted. A delivery renewing a registration ({{REGISTRATION}}) is a use at registration. A refresh replacement ({{refresh}}) and a pulled statement ({{pulled-statements}}) are presentation.
 
 `iat`:
-: REQUIRED. A NumericDate value, which MUST be an integer, giving the time the statement was issued. An issuer MUST NOT issue two statements for given `iss` and `sub` claims with the same `iat` claim, and MUST ensure that the `iat` claim values of its statements for a given `iss` and `sub` increase strictly ({{refresh}}, {{multi-instance}}).
+: REQUIRED. A NumericDate value, which MUST be an integer, giving the time the statement was issued. An issuer MUST NOT issue two statements for given `iss` and `sub` claims with the same `iat` claim, and MUST ensure that the `iat` claim values of its statements for a given `iss` and `sub` increase strictly ({{refresh}}, {{multi-instance}}, {{signing-nodes}}).
 
 `exp`:
 : REQUIRED. A NumericDate value giving the expiration time.
@@ -214,7 +214,7 @@ How a trusting authorization server learns of a withdrawal is a withdrawal mecha
 
 A refusal derived from a withdrawal mechanism lasts until a later authoritative result from that mechanism supersedes it, or until an expiry the mechanism itself defines for the withdrawal. A server MUST NOT retain such a refusal once it is superseded or expired in that way. A failure to consult the mechanism, or cached evidence that has lapsed, neither supersedes nor expires a refusal.
 
-A withdrawal constrains and never relaxes. A statement for which no withdrawal mechanism reports a withdrawal, or for which the server cannot consult the mechanism it uses, is bounded by its effective expiry as it would be otherwise, and a server MUST NOT treat any withdrawal mechanism as grounds to accept a statement past its effective expiry.
+A withdrawal constrains and never relaxes. A statement for which no withdrawal mechanism reports a withdrawal, or for which the server cannot consult the mechanism it uses ({{withdrawal-practice}}), is bounded by its effective expiry as it would be otherwise, and a server MUST NOT treat any withdrawal mechanism as grounds to accept a statement past its effective expiry.
 
 An issuer that uses a withdrawal mechanism and issues a replacement narrower than the statement it replaces SHOULD withdraw the earlier statement. A replacement is narrower if the document it names no longer carries a key, redirection URI, or scope the earlier document carried, if its `aud`, `aud_tenant`, or `statement_uses` is narrower, or if its remaining lifetime is shorter.
 
@@ -354,7 +354,7 @@ The reviewed redirection URIs, not the proven key, bind such a presentation ({{p
 
 A presentation is review-only if the reviewed document carries any redirection URI that another application on the same device could claim: a non-`https` URI, such as a private-use scheme or an `http` loopback redirection URI (Sections 7.1 and 7.3 of {{RFC8252}}), or an `https` URI whose host is a loopback address or `localhost`. One such URI makes every presentation and pulled statement for the document review-only, whatever authentication method the document declares. The application that claims such a URI receives the code, so neither the reviewed redirection URIs nor a key shipped in every copy of the software can bind the presenter.
 
-A review-only presentation creates no establishment, admits nothing, and does not advance the `iat` floor of {{multi-instance}}, since it changes nothing for the software's other instances. The authorization server proceeds as it would for the same Client ID Metadata Document client presenting no statement.
+A review-only presentation creates no establishment, admits nothing, and does not advance the `iat` floor of {{multi-instance}}, since it changes nothing for the software's other instances. The authorization server proceeds as it would for the same Client ID Metadata Document client presenting no statement ({{ui-audit}}).
 
 The statement of a review-only presentation MUST NOT satisfy a policy requiring reviewed software. If the server's policy requires reviewed software, it rejects a review-only client with `unauthorized_client`.
 
@@ -730,7 +730,7 @@ The privacy considerations of {{CIMD}} and Section 6 of {{RFC7591}} apply.
 
 A presentation or delivery reveals to the authorization server the client's issuer relationship and, if the statement carries an `aud` claim, the other authorization servers the client intends to use. Omitting that claim discloses nothing beyond the review. Pushed authorization requests ({{authorization-requests}}) keep statements out of browser history, referrers, and front-channel logs.
 
-A central issuer also learns from renewals which of its statements are in active use, so issuance and renewal logs deserve the same care as the statements.
+A central issuer also learns from renewals which of its statements are in active use, so issuance and renewal logs deserve the same care as the statements ({{ui-audit}}).
 
 Retrieving the document tells its host that the server is resolving the client. Pulling statements ({{pulled-statements}}) tells the host of `software_statements_uri` the same. That host is an additional party only if the URL is on another origin. Published statements are readable by anyone, so their `aud` and `aud_tenant` claims disclose which servers and tenants a review names. A statement whose audience is sensitive is presented rather than published.
 
