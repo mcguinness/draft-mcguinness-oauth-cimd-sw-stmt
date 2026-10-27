@@ -115,7 +115,13 @@ Software Statement Code:
 : The short-lived, single-use artifact returned by the software statement code response ({{software-statement-code-response}}) and redeemed at the token endpoint ({{software-statement-code-redemption}}).
 
 Originating Request:
-: A request that can produce a software statement: a software statement code redemption ({{software-statement-code-redemption}}) or a token exchange ({{token-exchange-profile}}). Each yields a statement, a terminal denial, or, at a deferred issuer, a deferral.
+: A request that can produce a software statement: a software statement code redemption ({{software-statement-code-redemption}}) or a token exchange ({{token-exchange-profile}}). Each yields a statement, a terminal denial, or, at a deferring issuer, a deferral.
+
+Deferring Issuer:
+: An issuer that advertises `true` for `deferred_token_response_supported` ({{authorization-server-metadata}}) and so can defer a decision ({{deferred-processing}}).
+
+Synchronous Issuer:
+: An issuer that does not defer, and so completes every decision before responding.
 
 Metadata Snapshot:
 : The exact retrieved octets of a validated Client ID Metadata Document, and their metadata digest, bound to a request, as defined in {{metadata-snapshot}}.
@@ -272,7 +278,7 @@ An unacceptable requested audience results in `invalid_target` {{RFC8693}}.
 
 The authorization server MUST bind a fresh metadata snapshot ({{metadata-snapshot}}) and the requested audience before returning either the software statement or a deferral code.
 
-Issuance policy determines whether an initial access token authorizes the client only to request a statement or also authorizes its issuance. The exchange results in a software statement token response ({{software-statement-response}}), a deferral at a deferred issuer ({{deferred-processing}}), or the terminal denial of {{terminal-denial}}.
+Issuance policy determines whether an initial access token authorizes the client only to request a statement or also authorizes its issuance. The exchange results in a software statement token response ({{software-statement-response}}), a deferral at a deferring issuer ({{deferred-processing}}), or the terminal denial of {{terminal-denial}}.
 
 ## Renewal {#renewal}
 
@@ -415,7 +421,7 @@ The client redeems a software statement code by sending an HTTP `POST` request t
 : REQUIRED. The PKCE verifier corresponding to the `code_challenge` in the authorization request.
 
 `completion_mode`:
-: REQUIRED when the authorization server advertises the `deferred_token_response_supported` metadata value ({{authorization-server-metadata}}), and not used otherwise. An authorization server that does not defer ignores it. When present, the value MUST include `deferred`. A deferral-capable issuer rejects a redemption that omits it with `invalid_request`.
+: REQUIRED when the authorization server advertises the `deferred_token_response_supported` metadata value ({{authorization-server-metadata}}), and not used otherwise. A synchronous issuer ignores it. When present, the value MUST include `deferred`. A deferring issuer rejects a redemption that omits it with `invalid_request`.
 
 The request MUST NOT contain the `audience` parameter, which was bound at the authorization endpoint. A request containing it is rejected with `invalid_request`.
 
@@ -433,9 +439,9 @@ For a valid, unconsumed code, the authorization server returns the following, ac
 * **Denied.** The terminal denial of {{terminal-denial}}.
 * **Pending.** The deferred token response of {{DTR}}, with the deferral bound to the code's metadata snapshot and audience in addition to the bindings {{DTR}} requires. The client then polls ({{deferred-processing}}).
 
-An authorization server that does not defer completes the decision before responding.
+A synchronous issuer completes the decision before responding.
 
-The following is a non-normative example of a redemption request from a confidential client at a deferred issuer (line breaks for display purposes only):
+The following is a non-normative example of a redemption request from a confidential client at a deferring issuer (line breaks for display purposes only):
 
 ~~~ http
 POST /token HTTP/1.1
@@ -544,7 +550,7 @@ At runtime, the recorded decision replaces the presented statement, not the proo
 
 An authorization server that issues software statements under this specification advertises `true` for `client_id_metadata_document_supported` ({{CIMD}}) and publishes the authorization server metadata that {{STATEMENT}} requires of an issuer.
 
-An issuer that can defer a request ({{deferred-processing}}) publishes the metadata {{DTR}} requires, including `true` for `deferred_token_response_supported`. A synchronous issuer advertises neither that value nor deferral-code revocation, and need not implement {{DTR}}.
+A deferring issuer publishes the metadata {{DTR}} requires, including `true` for `deferred_token_response_supported`. A synchronous issuer advertises neither that value nor deferral-code revocation, and need not implement {{DTR}}.
 
 An authorization server supporting the redirect flow advertises `urn:ietf:params:oauth:grant-type:software-statement` in `grant_types_supported`, `software_statement_code` in `response_types_supported`, and `true` for `authorization_response_iss_parameter_supported` as defined by {{RFC9207}}.
 
