@@ -210,7 +210,7 @@ A document selecting this profile MUST meet all of the following requirements:
 * Its `grant_types` member explicitly contains `authorization_code` and MAY also contain `refresh_token`. It contains no other grant type.
 * Its `response_types` explicitly contains only `code`.
 * Its `redirect_uris` is a nonempty array, every member of which meets {{loopback}}.
-* It MUST NOT contain the `jwks` or `jwks_uri` member. Instance keys are authorized only through {{attestation-validation}}, not by document key material.
+* It contains neither the `jwks` nor the `jwks_uri` member. Instance keys are authorized only through {{attestation-validation}}, not by document key material.
 
 The document MAY contain the `software_statements_uri` member as defined by {{STATEMENT}}. Metadata governing requested access, such as `scope`, remains subject to that specification. Every member, including the binding selection, is covered by the statement's digest.
 
