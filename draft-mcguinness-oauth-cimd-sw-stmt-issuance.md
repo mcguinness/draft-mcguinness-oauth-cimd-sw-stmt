@@ -1,5 +1,5 @@
 ---
-title: "CIMD Software Statement Issuance"
+title: "Client ID Metadata Document Software Statement Issuance"
 abbrev: oauth-cimd-sw-stmt-issuance
 docname: draft-mcguinness-oauth-cimd-sw-stmt-issuance-latest
 category: std
@@ -29,7 +29,7 @@ author:
 normative:
   STATEMENT:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt
-    title: "CIMD Software Statement"
+    title: "Client ID Metadata Document Software Statement"
     author:
       - fullname: Karl McGuinness
   RFC6749:
@@ -57,12 +57,12 @@ normative:
 informative:
   STATUS:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-status
-    title: "CIMD Software Statement Status"
+    title: "Client ID Metadata Document Software Statement Status"
     author:
       - fullname: Karl McGuinness
   REGISTRATION:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration
-    title: "CIMD Software Statement Registration"
+    title: "Client ID Metadata Document Software Statement Registration"
     author:
       - fullname: Karl McGuinness
   RFC8628:

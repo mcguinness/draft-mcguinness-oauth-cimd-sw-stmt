@@ -1,5 +1,5 @@
 ---
-title: "CIMD Software Statement Registration"
+title: "Client ID Metadata Document Software Statement Registration"
 abbrev: oauth-cimd-sw-stmt-registration
 docname: draft-mcguinness-oauth-cimd-sw-stmt-registration-latest
 category: std
@@ -36,7 +36,7 @@ normative:
   RFC9700:
   STATEMENT:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt
-    title: "CIMD Software Statement"
+    title: "Client ID Metadata Document Software Statement"
     author:
       - fullname: Karl McGuinness
   CIMD: I-D.ietf-oauth-client-id-metadata-document
@@ -46,7 +46,7 @@ informative:
 
 --- abstract
 
-The CIMD Software Statement specification defines a software statement for a Client ID Metadata Document. The statement carries no client metadata: it binds an issuer's review to the exact bytes of the client's own document. This specification defines how an authorization server consumes such a statement in an RFC 7591 registration request, taking every metadata value from the reviewed document rather than from the request. It also defines how the statement's expiry can bound the resulting registration, which RFC 7591 leaves unbounded, and how a client renews the registration by delivering a replacement statement, which also updates the registration's metadata.
+A companion specification defines a software statement for a Client ID Metadata Document. The statement carries no client metadata: it binds an issuer's review to the exact bytes of the client's own document. This specification defines how an authorization server consumes such a statement in an RFC 7591 registration request, taking every metadata value from the reviewed document rather than from the request. It also defines how the statement's expiry can bound the resulting registration, which RFC 7591 leaves unbounded, and how a client renews the registration by delivering a replacement statement, which also updates the registration's metadata.
 
 --- middle
 

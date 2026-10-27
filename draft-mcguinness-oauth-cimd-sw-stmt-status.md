@@ -1,5 +1,5 @@
 ---
-title: "CIMD Software Statement Status"
+title: "Client ID Metadata Document Software Statement Status"
 abbrev: oauth-cimd-sw-stmt-status
 docname: draft-mcguinness-oauth-cimd-sw-stmt-status-latest
 category: std
@@ -36,7 +36,7 @@ normative:
   CIMD: I-D.ietf-oauth-client-id-metadata-document
   STATEMENT:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt
-    title: "CIMD Software Statement"
+    title: "Client ID Metadata Document Software Statement"
     author:
       - fullname: Karl McGuinness
   STATUSLIST: I-D.ietf-oauth-status-list

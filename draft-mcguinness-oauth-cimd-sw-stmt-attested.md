@@ -1,5 +1,5 @@
 ---
-title: "Attested Instance Keys for CIMD Software Statements"
+title: "Attested Instance Keys for Client ID Metadata Document Software Statements"
 abbrev: CIMD Attested Keys
 docname: draft-mcguinness-oauth-cimd-sw-stmt-attested-latest
 category: std
@@ -48,14 +48,14 @@ normative:
   ABCA: I-D.ietf-oauth-attestation-based-client-auth
   STATEMENT:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt
-    title: "CIMD Software Statement"
+    title: "Client ID Metadata Document Software Statement"
     author:
       - fullname: Karl McGuinness
 
 informative:
   REGISTRATION:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration
-    title: "CIMD Software Statement Registration"
+    title: "Client ID Metadata Document Software Statement Registration"
     author:
       - fullname: Karl McGuinness
   APPLE-ENCLAVE:
