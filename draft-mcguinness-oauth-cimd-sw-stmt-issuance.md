@@ -524,7 +524,7 @@ Pragma: no-cache
 }
 ~~~
 
-The `access_token` member is a security-token container ({{RFC8693}}), not an OAuth access token. The software statement it carries is consumed only as {{STATEMENT}} provides, MUST NOT be attached to a request as an `Authorization: Bearer` credential, and is not subject to refresh.
+The `access_token` member is a security-token container ({{RFC8693}}), not an OAuth access token. The software statement it carries is consumed only as {{STATEMENT}} provides, MUST NOT be attached to a request as an `Authorization: Bearer` credential, and is not subject to refresh. A protected resource MUST NOT accept a software statement returned in the `access_token` member as an access token.
 
 Implementations that cache issued tokens by type SHOULD key this artifact on the response's `issued_token_type` member so that generic access-token handling does not apply to it, and SHOULD treat it as a sensitive credential in logs.
 
@@ -569,7 +569,7 @@ The security considerations of {{STATEMENT}} apply.
 
 ## A Software Statement Is Not an Access Grant
 
-A software statement grants no resource access or consent on behalf of the software's users. A protected resource MUST NOT accept a software statement returned in the `access_token` member ({{software-statement-response}}) as an access token.
+A software statement grants no resource access or consent on behalf of the software's users, and a protected resource does not accept one as an access token ({{software-statement-response}}).
 
 When an approval interface is shown, it SHOULD state that the decision vouches for the client's Client ID Metadata Document. It MUST NOT imply that the approver is granting the client access to resources.
 
