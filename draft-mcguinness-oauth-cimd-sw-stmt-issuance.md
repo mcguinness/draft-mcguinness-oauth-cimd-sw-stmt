@@ -273,7 +273,9 @@ The authorization server MUST validate the subject token before retrieving clien
 * It has expired, unless it is a prior software statement accepted under {{renewal}}.
 * It does not authorize issuance for the presented `client_id` parameter.
 
-An unacceptable requested audience results in `invalid_target` {{RFC8693}}. An error response MUST NOT contain the subject token.
+An unacceptable requested audience results in `invalid_target` {{RFC8693}}.
+
+An error response to a token exchange MUST NOT contain the subject token.
 
 The authorization server MUST bind a fresh metadata snapshot ({{metadata-snapshot}}) and the requested audience before returning either the software statement or a deferral code.
 
