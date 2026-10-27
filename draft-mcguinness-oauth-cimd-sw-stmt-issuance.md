@@ -638,7 +638,7 @@ A subject token is an authorization credential, not a client identifier. If the 
 
 A subject token appears in a form body, so any component recording request bodies can expose it ({{audit-logging}}). Clients and authorization servers MUST protect a subject token as a bearer credential unless its format provides proof of possession.
 
-A token exchange carries no in-band evidence of user participation. An authorization server MUST NOT treat a token exchange as implying prior user consent and MUST apply the same issuance and approval policy as for the redirect flow.
+A token exchange carries no in-band evidence of user participation. An authorization server MUST NOT treat a token exchange as implying prior user consent. An initial access token that authorizes issuance ({{token-exchange-profile}}) records a decision made, when the token was issued, under the policy that governs approval in the redirect flow.
 
 ## Renewal by Prior Statement
 
