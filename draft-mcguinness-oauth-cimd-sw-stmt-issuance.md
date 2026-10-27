@@ -607,6 +607,12 @@ This section gives guidance to operators and issuers. It adds no requirement.
 
 An initial access token ought to be integrity protected and kept confidential in transit and at rest. It can further restrict audiences or metadata, and the authorization server enforces every restriction it carries ({{token-exchange-profile}}).
 
+## Review and Approval Practice {#review-practice}
+
+Because the client authors the metadata document, an issuer ought to corroborate security-relevant metadata through evidence beyond the document itself. Issuance policy can relate the redirection URI's origin to the client identifier URL or the Client ID Metadata Document's `client_uri` member.
+
+To keep a look-alike document from reaching approval, an issuer ought to limit what an approver can approve to client identifiers under publisher namespaces it has enrolled. A document naming attesters in `client_attesters` ({{ATTESTERS}}) endorses them for the software under review and deserves particular scrutiny.
+
 # Security Considerations {#security-considerations}
 
 The security considerations of {{STATEMENT}} apply.
@@ -615,11 +621,11 @@ The security considerations of {{STATEMENT}} apply.
 
 A software statement grants no resource access or consent on behalf of the software's users, and a protected resource does not accept one as an access token ({{software-statement-response}}).
 
-When an approval interface is shown, it MUST NOT imply that the approver is granting the client access to resources. An erroneous approval affects every authorization server in the statement's audience until expiry ({{approval-interface}}). A document naming attesters in `client_attesters` ({{ATTESTERS}}) endorses them for the software under review and deserves particular scrutiny.
+When an approval interface is shown, it MUST NOT imply that the approver is granting the client access to resources. An erroneous approval affects every authorization server in the statement's audience until expiry ({{approval-interface}}, {{review-practice}}).
 
 ## What Issuance Attests {#what-issuance-attests}
 
-A software statement means only that its issuer evaluated the document captured in the metadata snapshot ({{metadata-snapshot}}) under its issuance policy and decided to vouch for it, not that the document's contents are true. Because the client authors the metadata document, an issuer SHOULD corroborate security-relevant metadata through evidence beyond the document itself. Verification depth is part of the trust relationship.
+A software statement means only that its issuer evaluated the document captured in the metadata snapshot ({{metadata-snapshot}}) under its issuance policy and decided to vouch for it, not that the document's contents are true. Because the client authors the metadata document, verification depth is part of the trust relationship ({{review-practice}}).
 
 ## Client Metadata Retrieval
 
@@ -633,7 +639,7 @@ A public client presents no client authentication, so its association with the s
 
 A confidential client's authentication proves possession of a key, not that the key is absent from software distributed to end users, so the requirement applies to it as well. Presentations of a statement over a document listing an endpoint another application can claim are in any case review-only at a trusting authorization server ({{STATEMENT}}).
 
-An authorization server SHOULD relate the redirection URI's origin to the client identifier URL or the Client ID Metadata Document's `client_uri` member according to policy. Endpoint or key control informs issuance policy but does not determine issuance.
+Endpoint or key control informs issuance policy but does not determine issuance ({{review-practice}}).
 
 A software statement code in a URL is visible to browser history, referrer fields, logs, and other observers. It is short lived, single use, and unredeemable without the PKCE verifier and any bound `dpop_jkt` key. The `form_post` response mode ({{software-statement-code-response}}) keeps the code out of URLs.
 
@@ -663,8 +669,6 @@ A compromised software statement signing key lets an attacker mint statements fo
 A software statement does not identify the human or system that approved issuance ({{audit-logging}}).
 
 An approved statement is accepted at every authorization server in its audience, not only within the approver's own scope. The policy governing who can approve issuance MUST be at least as restrictive as the policy under which the issuer establishes a client manually. Approval by a party authorized only for a personal or organizational scope MUST NOT produce a statement whose audience exceeds that scope, or whose `aud_tenant` claim names a tenant outside it.
-
-To keep a look-alike document from reaching approval, an issuer SHOULD limit what an approver can approve to client identifiers under publisher namespaces it has enrolled.
 
 # Privacy Considerations
 
