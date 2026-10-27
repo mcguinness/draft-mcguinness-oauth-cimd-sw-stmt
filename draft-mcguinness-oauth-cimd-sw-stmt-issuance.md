@@ -630,7 +630,7 @@ The security considerations of {{STATEMENT}} apply.
 
 A software statement grants no resource access or consent on behalf of the software's users, and a protected resource does not accept one as an access token ({{software-statement-response}}).
 
-When an approval interface is shown, it MUST NOT imply that the approver is granting the client access to resources. An erroneous approval affects every authorization server in the statement's audience until expiry ({{approval-interface}}, {{review-practice}}).
+An authorization server that shows an approval interface MUST NOT imply through that interface that the approver is granting the client access to resources. An erroneous approval affects every authorization server in the statement's audience until expiry ({{approval-interface}}, {{review-practice}}).
 
 ## What Issuance Attests {#what-issuance-attests}
 
