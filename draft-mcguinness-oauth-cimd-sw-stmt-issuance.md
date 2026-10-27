@@ -53,16 +53,16 @@ normative:
   FORM-POST:
     target: https://openid.net/specs/oauth-v2-form-post-response-mode-1_0.html
     title: "OAuth 2.0 Form Post Response Mode"
+  REGISTRATION:
+    target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration
+    title: "Client ID Metadata Document Software Statement Registration"
+    author:
+      - fullname: Karl McGuinness
 
 informative:
   STATUS:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-status
     title: "Client ID Metadata Document Software Statement Status"
-    author:
-      - fullname: Karl McGuinness
-  REGISTRATION:
-    target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration
-    title: "Client ID Metadata Document Software Statement Registration"
     author:
       - fullname: Karl McGuinness
   RFC8628:
