@@ -1,6 +1,6 @@
 ---
 title: "Attested Instance Keys for Client ID Metadata Document Software Statements"
-abbrev: CIMD Attested Keys
+abbrev: oauth-cimd-sw-stmt-attested
 docname: draft-mcguinness-oauth-cimd-sw-stmt-attested-latest
 category: std
 submissiontype: IETF
