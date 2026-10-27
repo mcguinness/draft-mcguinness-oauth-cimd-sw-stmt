@@ -209,13 +209,13 @@ A public client binds its requests with DPoP {{RFC9449}}: in the redirect flow t
 
 Client metadata documents can change while a request is pending. Before returning a software statement code or a deferral code, the authorization server MUST bind it to the exact octets of the document it retrieved and validated, and to their metadata digest ({{STATEMENT}}). The bound octets constitute the metadata snapshot for the request.
 
-The authorization server MAY retrieve the document again before issuing the software statement. If it does so and the digest differs, it MUST either re-evaluate the request under the new document, binding it as the snapshot, or reject the request. This applies even if the change touches no member its policy examines. A statement over a superseded snapshot fails at registration ({{REGISTRATION}}).
+The authorization server MAY retrieve the document again before issuing the software statement. If it does so and the digest differs, it MUST either re-evaluate the request under the new document, binding the new document as the snapshot, or reject the request. This applies even if the change touches no member its policy examines. A statement over a superseded snapshot fails at registration ({{REGISTRATION}}).
 
 The authorization server MUST NOT silently combine values from different document versions. An approval recorded against a superseded snapshot does not carry forward without a fresh issuance-policy decision.
 
 Replacing the snapshot does not alter the sender-constraint context fixed for a deferral at origination ({{deferred-processing}}). If a replacement snapshot no longer authorizes the key material behind that context, for example because the client-authentication key is absent from the new document, the authorization server MUST invalidate the deferral. The client then makes a new request under its current keys.
 
-The authorization server MUST reject duplicate object member names. Parsers can interpret duplicate members differently despite an identical digest.
+The authorization server MUST reject a document containing duplicate object member names. Parsers can interpret duplicate members differently despite an identical digest.
 
 A document carries its keys inline through the `jwks` member, which the digest binds, or by reference through the `jwks_uri` member, which the digest binds only as a location. {{STATEMENT}} weighs the trade-off, and an issuer can require either.
 
@@ -234,7 +234,7 @@ The client sends a token exchange request as defined in Section 2.1 of {{RFC8693
 : REQUIRED. One of the following:
 
   * **First issuance.** An initial access token, presented with a `subject_token_type` of `urn:ietf:params:oauth:token-type:access_token`: an authorization credential issued out of band by this authorization server that pre-authorizes software statement issuance, analogous to the initial access token of {{RFC7591}}. The credential itself is deployment-defined.
-  * **Renewal.** A software statement this authorization server previously issued for the same `sub`, presented with a `subject_token_type` of `urn:ietf:params:oauth:token-type:software-statement` ({{renewal}}).
+  * **Renewal.** A software statement this authorization server previously issued with a `sub` claim equal to the request's `client_id`, presented with a `subject_token_type` of `urn:ietf:params:oauth:token-type:software-statement` ({{renewal}}).
 
 `client_id`:
 : REQUIRED. The client identifier URL described in {{client-identity}}.
@@ -260,7 +260,7 @@ The initial access token is subject to the following:
 
 A DPoP proof on the exchange constrains any resulting deferral but neither authenticates the presenter nor protects the subject token (Section 3 of {{RFC9449}}). The initial access token therefore needs its own sender constraint or single-use restriction.
 
-A use is consumed when the authorization server commits to an outcome: issuing a statement, creating a deferral, or denying issuance. Concurrent presentations of a single-use credential MUST NOT both be committed.
+A use of an initial access token is consumed when the authorization server commits to an outcome: issuing a statement, creating a deferral, or denying issuance. Concurrent presentations of a single-use credential MUST NOT both be committed.
 
 The authorization server MUST validate the subject token before retrieving client-controlled metadata or enqueueing any processing. A subject token MUST result in `invalid_request` (Section 2.2.2 of {{RFC8693}}) if any of the following holds:
 
@@ -272,7 +272,7 @@ An unacceptable requested audience results in `invalid_target` {{RFC8693}}.
 
 The authorization server MUST bind a fresh metadata snapshot ({{metadata-snapshot}}) and the requested audience before returning either the software statement or a deferral code.
 
-Issuance policy determines whether an initial access token authorizes only the request or issuance itself. The exchange results in a software statement token response ({{software-statement-response}}), a deferral at a deferred issuer ({{deferred-processing}}), or the terminal denial of {{terminal-denial}}.
+Issuance policy determines whether an initial access token authorizes the client only to request a statement or also authorizes its issuance. The exchange results in a software statement token response ({{software-statement-response}}), a deferral at a deferred issuer ({{deferred-processing}}), or the terminal denial of {{terminal-denial}}.
 
 ## Renewal {#renewal}
 
@@ -286,13 +286,13 @@ That authentication is the holder binding: without it, whoever held a copy of th
 
 A client rotating keys inline renews while its document carries both the old and the new key. For a document naming `jwks_uri`, the binding is to whatever that location serves. A public client holds no such key and obtains a replacement through the redirect flow ({{authorization-request}}).
 
-A replacement carries the subject statement's `aud_tenant` while the decision is confined to that tenant, and the uses the subject statement permits unless issuance policy narrows them. A replacement MUST NOT permit a use the subject statement does not. It is matched to the statement it replaces by `iss` and `sub` ({{STATEMENT}}).
+A replacement carries the subject statement's `aud_tenant` claim while the decision is confined to that tenant. It also carries the uses the subject statement permits, unless issuance policy narrows them. A replacement MUST NOT permit a use the subject statement does not. It is matched to the statement it replaces by `iss` and `sub` ({{STATEMENT}}).
 
 An issuer MUST NOT accept as subject token a statement it has withdrawn ({{STATEMENT}}), including one whose status it publishes under {{STATUS}} as other than `VALID`. Renewing such a statement would reissue the decision that withdrawal ended.
 
 The authorization server MAY accept a statement that has expired, and SHOULD bound how long after expiry it will do so. A renewal after an extended absence amounts to a new issuance request.
 
-If the current document's digest equals the subject statement's `cimd_digest`, whether renewal requires fresh review is issuer policy. If the digests differ, the issuer MUST apply the decision it would apply to a first issuance for that document, and MUST NOT renew on the strength of the prior statement alone. Otherwise, whoever can change the document could obtain the issuer's signature over an unreviewed change.
+If the current document's digest equals the subject statement's `cimd_digest`, whether renewal requires fresh review is issuer policy. If the digests differ, the issuer MUST apply the decision it would apply to a first issuance for that document, and MUST NOT renew on the strength of the prior statement alone. Without this rule, whoever can change the document could obtain the issuer's signature over an unreviewed change.
 
 # Software Statement Authorization Request {#authorization-request}
 
@@ -362,7 +362,7 @@ Hybrid response types that combine `software_statement_code` with `code`, `token
 
 After validating the request and performing any immediate interaction, the authorization server returns the software statement code response or an error. The authorization server MUST NOT place the software statement or approval-sensitive information in any response from the authorization endpoint.
 
-A denial is never signaled in the authorization response: the authorization server returns a software statement code whether the issuance decision is complete, pending, or already a denial, and delivers any denial at redemption ({{terminal-denial}}).
+A denial is never signaled in the authorization response: the authorization server returns a software statement code whether the issuance decision is approved, pending, or already denied, and delivers any denial at redemption ({{terminal-denial}}).
 
 ## Software Statement Code Response {#software-statement-code-response}
 
@@ -524,7 +524,7 @@ Implementations that cache issued tokens by type SHOULD key this artifact on the
 
 ## Terminal Denial {#terminal-denial}
 
-When the authorization server decides not to issue the requested software statement, it returns a token error response as defined in Section 5.2 of {{RFC6749}} with the error code `access_denied` and HTTP status code 400, and MUST include the `Cache-Control: no-store` response header field. This applies to both originating requests, including when the denial answers a polling request ({{deferred-processing}}).
+When the authorization server decides not to issue the requested software statement, it returns a token error response as defined in Section 5.2 of {{RFC6749}} with the error code `access_denied` and HTTP status code 400, and MUST include the `Cache-Control: no-store` response header field. This applies to both kinds of originating request, including when the denial answers a polling request ({{deferred-processing}}).
 
 The denial is terminal for the request. A denied deferral behaves as {{DTR}} specifies for a request resolved with an error, and a client that receives `access_denied` in response to a polling request MUST NOT send another polling request with that `deferral_code`. A denial does not preclude a later issuance request. Whether to accept one is issuance policy.
 
@@ -536,7 +536,7 @@ An issuer that ends a decision before its expiry does so through a withdrawal me
 
 An authorization server that issued a statement already holds the decision that statement records. If it is also a trusting authorization server, it MAY admit the client on that record rather than require the statement to be presented back to it, at registration or at runtime.
 
-Because a decision a server made is not a document it has re-read, a server admitting a client on the record of a statement it issued MUST apply every check {{STATEMENT}} applies to a presented statement, and at registration every check {{REGISTRATION}} applies, taking the statement's claims from its record of the decision. The record replaces only the signature: the server still obtains the document at `sub` and compares its digest with the recorded one.
+Because the record of a decision is not a fresh retrieval of the document, a server admitting a client on the record of a statement it issued MUST apply every check {{STATEMENT}} applies to a presented statement, and at registration every check {{REGISTRATION}} applies, taking the statement's claims from its record of the decision. The record replaces only the signature: the server still obtains the document at `sub` and compares its digest with the recorded one.
 
 At runtime, the recorded decision replaces the presented statement, not the proof of who is making the request. The request MUST meet the sender constraint of {{STATEMENT}} against the reviewed document, as a presentation would, and a successful admission creates an establishment. At registration, the rules of {{REGISTRATION}} apply as they do to a statement presented there.
 
@@ -570,7 +570,7 @@ When an approval interface is shown, it SHOULD state that the decision vouches f
 An erroneous approval affects every authorization server in the statement's audience until expiry. The approval interface therefore SHOULD present the following:
 
 * The client identifier URL, with its origin shown as the client's identity, and with display metadata such as `client_name` and `logo_uri` marked as asserted by the client (a look-alike document can carry another vendor's name).
-* The document content it will vouch for, identified by its digest.
+* The document content the statement will vouch for, identified by its metadata digest.
 * The audience the issuer intends to place in the statement.
 * The tenant the decision is confined to, if the statement will carry `aud_tenant` ({{STATEMENT}}).
 * The intended lifetime.
@@ -604,10 +604,10 @@ A software statement code in a URL is visible to browser history, referrer field
 Validating the subject token before metadata retrieval or enqueueing ({{token-exchange-profile}}) limits resource consumption by unauthorized requesters. Authorization servers SHOULD still do the following:
 
 * Rate-limit these exchanges.
-* Cache successful retrieval results and back off after failures rather than caching them, which {{CIMD}} forbids.
+* Cache successful retrieval results and, because {{CIMD}} forbids caching failures, back off after failures instead of caching them.
 * Bound pending deferrals per client identifier and requester.
 
-Because the redirect flow reaches the approval queue before any client-authenticated step, the same rate limits and pending-approval bounds SHOULD apply per client identifier there.
+Because the redirect flow reaches the approval queue before any client-authenticated step, authorization servers SHOULD apply the same rate limits and pending-approval bounds per client identifier there.
 
 A subject token is an authorization credential, not a client identifier. If the Client ID Metadata Document declares a method, a subject token does not substitute for client authentication.
 
@@ -617,7 +617,7 @@ A token exchange carries no in-band evidence of user participation. An authoriza
 
 ## Renewal by Prior Statement
 
-If both documents carry their keys inline, a party able to change the current document cannot supply a key that satisfies the holder binding of {{renewal}}. If they name a `jwks_uri`, whoever controls that location can supply such a key. For this reason, a changed document receives the decision a first issuance receives. Binding renewal to the client's key also spares automated renewal a long-lived reusable initial access token, a standing credential to mint statements.
+If both the reviewed document and the current document carry their keys inline, a party able to change the current document cannot supply a key that satisfies the holder binding of {{renewal}}. If they name a `jwks_uri`, whoever controls that location can supply such a key. For this reason, a changed document receives the decision a first issuance receives. Binding renewal to the client's key also spares automated renewal a long-lived reusable initial access token, a standing credential to mint statements.
 
 ## Signing Keys and Algorithms
 
