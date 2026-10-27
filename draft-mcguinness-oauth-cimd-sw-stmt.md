@@ -338,7 +338,7 @@ A document carrying a redirection URI another application could claim is present
 
 A statement whose reviewed document carries no key material is consumed at runtime under {{public-client-presentation}} and, if its `statement_uses` claim permits, at registration under the comparable rules of {{REGISTRATION}}.
 
-A key at the document's `jwks_uri` is retrieved at presentation time. If that retrieval fails, the presentation is rejected with `temporarily_unavailable`. A server can reuse a retrieved key set ({{caching}}), but MUST NOT let the client's cache directives alone determine how long a removed key continues to verify ({{statement-validation}}).
+A key at the document's `jwks_uri` is retrieved at presentation time. If that retrieval fails, the presentation is rejected with `temporarily_unavailable`. A server MAY reuse a retrieved key set only within ordinary HTTP caching bounds and a maximum reuse period of its own choosing, and MUST NOT let the client's cache directives alone determine how long a removed key continues to verify ({{statement-validation}}).
 
 ### Public Clients {#public-client-presentation}
 
@@ -364,7 +364,7 @@ An authorization server MUST reject, with the `invalid_client` error code, a pre
 
 Having validated the statement, and before verifying the proof ({{processing}}), the authorization server MUST obtain the Client ID Metadata Document at the statement's `sub`, only by retrieval or from octets it has already digested for that identifier, and compare its digest with the `cimd_digest` claim. If octets it already holds do not match, it retrieves the document once more before treating the mismatch as a change, since a statement over an updated document would otherwise fail at a server still holding older bytes.
 
-Octets the authorization server already holds serve for that comparison only within a maximum reuse period of its own choosing, as a key set does ({{caching}}). The authorization server MUST NOT let the client's cache directives alone determine how long held octets continue to match a statement. Without this rule, a key the document carries inline would continue to verify after the publisher removes it.
+Octets the authorization server already holds serve for that comparison only within a maximum reuse period of its own choosing, as a key set does ({{sender-constraint}}). The authorization server MUST NOT let the client's cache directives alone determine how long held octets continue to match a statement. Without this rule, a key the document carries inline would continue to verify after the publisher removes it.
 
 A match means the served document is the reviewed one, and its members are the client's metadata for the request. A mismatch means the document changed after review, and the authorization server MUST NOT treat the changed document as reviewed. It rejects the presentation with `invalid_client` or, by local policy, proceeds without the statement. If it proceeds, it applies its policy for Client ID Metadata Document clients it has not reviewed to the current document and creates no establishment for the statement.
 
@@ -629,8 +629,6 @@ This section gives guidance to implementers. It adds no requirement.
 
 ## Caching and Reuse of Retrieved Content {#caching}
 
-An authorization server can reuse a recently retrieved key set within ordinary HTTP caching bounds, up to a maximum reuse period of its own choosing ({{sender-constraint}}). Octets of a Client ID Metadata Document it already holds serve for the digest comparison under the same kind of bound ({{effective-metadata}}).
-
 A server can revalidate octets it holds with a conditional request rather than retrieving them again. {{metadata-digest}} states when a `304 Not Modified` response confirms them.
 
 Successful retrievals can be cached within the document's caching directives. A failure is followed by back-off rather than caching, which {{CIMD}} forbids. A response from a `software_statements_uri` ought to be cached no longer than the document is, and can be revalidated with a conditional request, as the document can ({{pulled-statements}}).
@@ -712,7 +710,7 @@ The security considerations of {{CIMD}} and Section 5 of {{RFC7591}} apply.
 
 A copied statement admits nothing without the sender constraint ({{sender-constraint}}). Admitting only keys the reviewed document carries also prevents a downgrade to a key the issuer did not review. An extension admitting attested keys ({{extensions}}) has to address downgrade itself.
 
-Attesting a `jwks_uri` attests the location, not its contents: a compromised key host can add keys that satisfy the proof without a digest change. If that matters, an issuer attests `jwks` inline and accepts that rotation changes the digest. A server reusing a cached key set ({{caching}}) also accepts that a just-removed key can briefly continue to verify.
+Attesting a `jwks_uri` attests the location, not its contents: a compromised key host can add keys that satisfy the proof without a digest change. If that matters, an issuer attests `jwks` inline and accepts that rotation changes the digest. A server reusing a cached key set ({{sender-constraint}}) also accepts that a just-removed key can briefly continue to verify.
 
 ## Servers That Do Not Implement This Specification {#legacy-servers}
 
