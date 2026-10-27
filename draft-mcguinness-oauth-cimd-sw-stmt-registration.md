@@ -359,7 +359,7 @@ Specification Document(s):
 
 ## OAuth Extensions Error Registry
 
-This specification requests that IANA add this specification as a reference for the `temporarily_unavailable` error and extend its usage location to include the client registration error response:
+This specification requests that IANA update the existing `temporarily_unavailable` entry, adding the client registration error response to its usage locations and this specification as a reference:
 
 Error Name:
 : `temporarily_unavailable`
