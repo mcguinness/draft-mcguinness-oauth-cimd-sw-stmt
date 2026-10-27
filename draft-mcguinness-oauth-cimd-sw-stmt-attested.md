@@ -50,6 +50,9 @@ normative:
     title: "Client ID Metadata Document Software Statement"
     author:
       - fullname: Karl McGuinness
+    date: 2026-10
+    seriesinfo:
+      Internet-Draft: draft-mcguinness-oauth-cimd-sw-stmt-00
 
 informative:
   REGISTRATION:
@@ -57,6 +60,9 @@ informative:
     title: "Client ID Metadata Document Software Statement Registration"
     author:
       - fullname: Karl McGuinness
+    date: 2026-10
+    seriesinfo:
+      Internet-Draft: draft-mcguinness-oauth-cimd-sw-stmt-registration-00
   APPLE-ENCLAVE:
     target: https://developer.apple.com/documentation/security/protecting-keys-with-the-secure-enclave
     title: "Protecting keys with the Secure Enclave"
