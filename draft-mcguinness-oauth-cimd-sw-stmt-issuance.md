@@ -536,15 +536,7 @@ An issuer that ends a decision before its expiry does so through a withdrawal me
 
 An authorization server that issued a statement already holds the decision that statement records. If it is also a trusting authorization server, it MAY admit the client on that record rather than require the statement to be presented back to it, at registration or at runtime.
 
-Because a decision a server made is not a document it has re-read, a server admitting a client on the record of a statement it issued MUST apply the conditions it would apply to a statement presented under {{STATEMENT}}:
-
-* The decision's issuer is one this server accepts for the request's tenant and for the decision's `sub`, as {{STATEMENT}} requires of `iss` and `sub`, and, if this server records a required issuer for that tenant and `sub`, is that issuer.
-* The effective expiry the decision's statement would have at this server has not passed, and the registration has not expired if the validity model of {{REGISTRATION}} governs it.
-* The decision's audience, tenant, and permitted uses admit this server, the request's tenant, and this use, as {{STATEMENT}} requires of `aud`, `aud_tenant`, and `statement_uses`.
-* The decision is not superseded under the `iat` floor of {{STATEMENT}}, which admission on it advances as acceptance of a statement would.
-* This server has not withdrawn the decision and holds no refusal record for its statement.
-* The document at `sub` has been obtained and contains no duplicate member names.
-* That document's metadata digest equals the one recorded.
+Because a decision a server made is not a document it has re-read, a server admitting a client on the record of a statement it issued MUST apply every check {{STATEMENT}} applies to a presented statement, and at registration every check {{REGISTRATION}} applies, taking the statement's claims from its record of the decision. The record replaces only the signature: the server still obtains the document at `sub` and compares its digest with the recorded one.
 
 At runtime, the recorded decision replaces the presented statement, not the proof of who is making the request. The request MUST meet the sender constraint of {{STATEMENT}} against the reviewed document, as a presentation would, and a successful admission creates an establishment. At registration, the rules of {{REGISTRATION}} apply as they do to a statement presented there.
 
