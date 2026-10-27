@@ -145,7 +145,7 @@ The binding is only as strong as the attester's evidence that the software, not 
 
 ## Protocol Overview
 
-The following sequence is non-normative:
+The following non-normative sequence summarizes admission under this profile:
 
 1. A publisher serves a Client ID Metadata Document declaring this instance binding, attestation-based client authentication, and loopback redirects. A statement issuer signs a software statement over its exact bytes.
 2. An installation obtains an attestation from an accepted attester. The attestation names the CIMD URL, metadata digest, instance key, and evidence policy.
@@ -158,7 +158,7 @@ The following sequence is non-normative:
 
 {::boilerplate bcp14-tagged}
 
-This specification uses terminology from {{RFC6749}}, {{CIMD}}, and {{ABCA}}, and the terms Runtime Presentation, Effective Expiry, Refusal Record, Current Statement, Review-Only, Establishment, and Proven Key from {{STATEMENT}}. It also uses the `iat` floor of {{STATEMENT}}: the `iat` of the most recent statement a server has accepted for an `iss` and `sub`, below which it rejects a newly presented, pulled, or replacement statement. A multi-tenant server keeps the `iat` floor per tenant. An installation is a Client Instance as defined by {{ABCA}}.
+This specification uses terminology from {{RFC6749}}, {{RFC7591}}, {{CIMD}}, and {{ABCA}}, and the terms Issuer, Runtime Presentation, Effective Expiry, Refusal Record, Current Statement, Review-Only, Establishment, and Proven Key from {{STATEMENT}}. It also uses the `iat` floor of {{STATEMENT}}: the `iat` of the most recent statement a server has accepted for an `iss` and `sub`, below which it rejects a newly presented, pulled, or replacement statement. A multi-tenant server keeps the `iat` floor per tenant. An installation is a Client Instance as defined by {{ABCA}}.
 
 This specification defines the following terms:
 
@@ -172,7 +172,7 @@ Evidence Policy:
 : A versioned set of requirements for establishing the association between software, an instance key, and reviewed metadata. It covers evidence collection, verification, freshness, and protection of key use.
 
 Attested Key:
-: The key an instance attestation's `cnf` claim names. Once an establishment records it, it is the establishment's Proven Key ({{STATEMENT}}), which this specification also calls the recorded key.
+: The key an instance attestation's `cnf` claim names. Once an establishment records it, it is the establishment's proven key ({{STATEMENT}}), which this specification also calls the recorded key.
 
 Attestation Effective Expiry:
 : An instance attestation's `exp`, which an accepted evidence policy bounds by the age of the attester's evidence ({{trust}}).
@@ -209,11 +209,11 @@ The document MAY contain `software_statements_uri` as defined by {{STATEMENT}}. 
 
 ## Loopback Redirects {#loopback}
 
-Every reviewed redirect URI MUST use `http`, have the host exactly `127.0.0.1` or `[::1]`, and contain an absolute path. User information and fragments MUST NOT be present. A reviewed entry MUST NOT contain a port: the client uses the port of its listener, which Section 7.3 of {{RFC8252}} lets the server accept. The document MAY list both address forms.
+Every reviewed redirection URI MUST use `http`, have the host exactly `127.0.0.1` or `[::1]`, and contain an absolute path. User information and fragments MUST NOT be present. A reviewed entry MUST NOT contain a port: the client uses the port of its listener, which Section 7.3 of {{RFC8252}} lets the server accept. The document MAY list both address forms.
 
 The server MUST compare a requested redirect with a reviewed entry using exact string matching, except for the port variation permitted by Section 7.3 of {{RFC8252}}. No other component can vary: the address form, path, and any query remain fixed. In particular, a wildcard path, a hostname resolving to loopback, an alternative numerical spelling of the address, and a different loopback address do not match.
 
-The client MUST bind its listener only to the selected loopback interface, open it before sending the pushed authorization request, and close it when the transaction completes or is abandoned. It SHOULD obtain an available ephemeral port from the operating system. The authorization code is delivered to that listener; the authorization server MUST NOT fetch the redirect URI to test the listener.
+The client MUST bind its listener only to the selected loopback interface, open it before sending the pushed authorization request, and close it when the transaction completes or is abandoned. It SHOULD obtain an available ephemeral port from the operating system. The authorization code is delivered to that listener; the authorization server MUST NOT fetch the redirection URI to test the listener.
 
 # Attester Trust and Evidence {#trust}
 
@@ -299,7 +299,7 @@ The client sends the instance attestation in the `OAuth-Client-Attestation` HTTP
 
 The authorization server MUST require a server-issued DPoP nonce at the PAR endpoint and on every token request under this profile. It MUST enforce endpoint and method binding and reject replay of a proof within its acceptance window under {{RFC9449}}. Nonce challenges and retries use the `use_dpop_nonce` error code and the `DPoP-Nonce` HTTP header field. They do not consume a code, rotate a refresh token, create an establishment, or advance the `iat` floor. A request rejected before the instance is authenticated, or rejected with `use_fresh_attestation` or `temporarily_unavailable`, has none of these effects either, so the client can retry with a fresh attestation.
 
-If the pushed authorization request also carries the `dpop_jkt` parameter, its JWK thumbprint ({{RFC7638}}) MUST identify the attested key. Otherwise, the server rejects the request. A client MUST generate a new proof for each request, including a retry. TLS protects request contents. DPoP does not sign the request body, and implementations MUST NOT treat a valid proof as a signature over the redirect URI, PKCE challenge, or statement.
+If the pushed authorization request also carries the `dpop_jkt` parameter, its JWK thumbprint ({{RFC7638}}) MUST identify the attested key. Otherwise, the server rejects the request. A client MUST generate a new proof for each request, including a retry. TLS protects request contents. DPoP does not sign the request body, and implementations MUST NOT treat a valid proof as a signature over the redirection URI, PKCE challenge, or statement.
 
 # Runtime Admission {#admission}
 
@@ -400,10 +400,10 @@ A supporting server MUST NOT infer this profile's assurance from successful gene
 
 # Error Responses {#errors}
 
-A rejection uses the error response format and HTTP status codes specified for the endpoint where it occurs:
+A rejection uses the error response and HTTP status codes specified for the endpoint where it occurs:
 
-* At the pushed authorization request endpoint, Section 2.3 of {{RFC9126}} applies.
 * At the token endpoint, Section 5.2 of {{RFC6749}} applies.
+* At the pushed authorization request endpoint, Section 2.3 of {{RFC9126}} applies.
 * At the authorization endpoint, Section 4.1.2.1 of {{RFC6749}} applies.
 
 The error rules of {{STATEMENT}}, {{ABCA}}, and {{RFC9449}} also apply. This specification defines no new error code.
@@ -564,7 +564,7 @@ If the recorded statement has expired, the server pulls a current replacement as
 
 # Authorization Server Metadata {#server-metadata}
 
-This specification defines the following authorization server metadata member under {{RFC8414}}:
+This specification defines the following authorization server metadata {{RFC8414}} value:
 
 `software_statement_instance_binding_supported`:
 : OPTIONAL. Boolean value indicating whether the authorization server supports this specification. If omitted, the default value is `false`. A server advertising `true` MUST implement the requirements of this specification. Support does not promise acceptance of any particular client, statement issuer, attester, evidence policy, or tenant.
@@ -601,7 +601,7 @@ Existing grants retain their recorded binding ({{selection}}, {{establishment}})
 
 ## Artifact Substitution and Key Separation
 
-The distinct attestation type, digest binding, subject equality, and fixed establishment values prevent a generic attestation or one for another reviewed document from being substituted. Implementations MUST apply mutually exclusive validation rules for software statements and instance attestations. Software-statement signing keys retain the separation requirements of {{STATEMENT}} and MUST NOT sign instance attestations, even if one organization performs both roles.
+The distinct attestation type, digest binding, subject equality, and fixed establishment values prevent a generic attestation or one for another reviewed document from being substituted. Implementations MUST apply mutually exclusive validation rules for software statements and instance attestations. Software statement signing keys retain the separation requirements of {{STATEMENT}} and MUST NOT sign instance attestations, even if one organization performs both roles.
 
 Attester authorization is scoped independently to client namespaces and tenants. An over-broad attester can undermine the binding for every namespace for which it may issue instance attestations. A statement issuer and an attester that collude, or that are both compromised, can make false assertions within the authority the server has assigned them.
 
@@ -631,7 +631,7 @@ Instance attestations and proofs MUST NOT be placed in browser URLs. Operators S
 
 ## OAuth Dynamic Client Registration Metadata Registry
 
-This specification requests registration of the following value in the "OAuth Dynamic Client Registration Metadata" registry established by {{RFC7591}}:
+This specification requests registration of the following value in the IANA "OAuth Dynamic Client Registration Metadata" registry established by {{RFC7591}}:
 
 Client Metadata Name:
 : `software_statement_instance_binding`
@@ -647,7 +647,7 @@ Specification Document(s):
 
 ## OAuth Authorization Server Metadata Registry
 
-This specification requests registration of the following value in the "OAuth Authorization Server Metadata" registry established by {{RFC8414}}:
+This specification requests registration of the following value in the IANA "OAuth Authorization Server Metadata" registry established by {{RFC8414}}:
 
 Metadata Name:
 : `software_statement_instance_binding_supported`
@@ -663,7 +663,7 @@ Specification Document(s):
 
 ## JSON Web Token Claims Registry
 
-This specification requests registration of the following claim in the "JSON Web Token Claims" registry established by {{RFC7519}}:
+This specification requests registration of the following claim in the IANA "JSON Web Token Claims" registry established by {{RFC7519}}:
 
 Claim Name:
 : `cimd_instance_policy`
@@ -681,7 +681,7 @@ This specification also requests that the `cimd_digest` registration requested b
 
 ## Media Type Registration {#media-type}
 
-This specification requests registration of the following media type in the "Media Types" registry, in the manner described in {{RFC6838}}:
+This specification requests registration of the `application/cimd-instance-attestation+jwt` media type in the IANA "Media Types" registry {{RFC6838}}.
 
 Type name:
 : application
