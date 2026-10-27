@@ -212,17 +212,13 @@ An issuer can end a decision before the statement's `exp` by withdrawing the sta
 
 How a trusting authorization server learns of a withdrawal is a withdrawal mechanism. This specification requires no withdrawal mechanism and defines none. Extensions define how a mechanism applies to these statements ({{extensions}}).
 
-A refusal derived from a withdrawal mechanism lasts until a later authoritative result from that mechanism supersedes it, or until an expiry the mechanism itself defines for the withdrawal. A server MUST NOT retain such a refusal once it is superseded or expired in that way. A failure to consult the mechanism, or cached evidence that has lapsed, neither supersedes nor expires a refusal. A refusal that the server's operator entered persists on that operator's own terms.
+A refusal derived from a withdrawal mechanism lasts until a later authoritative result from that mechanism supersedes it, or until an expiry the mechanism itself defines for the withdrawal. A server MUST NOT retain such a refusal once it is superseded or expired in that way. A failure to consult the mechanism, or cached evidence that has lapsed, neither supersedes nor expires a refusal.
 
 A withdrawal constrains and never relaxes. A statement for which no withdrawal mechanism reports a withdrawal, or for which the server cannot consult the mechanism it uses, is bounded by its effective expiry as it would be otherwise, and a server MUST NOT treat any withdrawal mechanism as grounds to accept a statement past its effective expiry.
-
-What a server does when it cannot consult a mechanism it relies on is local policy. Refusing makes issuer availability a precondition for every request the statement governs. Proceeding leaves a withdrawn statement acceptable until it expires.
 
 An issuer that uses a withdrawal mechanism and issues a replacement narrower than the statement it replaces SHOULD withdraw the earlier statement. A replacement is narrower if the document it names no longer carries a key, redirection URI, or scope the earlier document carried, if its `aud`, `aud_tenant`, or `statement_uses` is narrower, or if its remaining lifetime is shorter.
 
 What was removed might be why the replacement was issued. A trusting authorization server that has not yet seen the replacement, or at which it does not validate, would otherwise accept the earlier statement until it expires.
-
-Withdrawal does not replace lifetime: an issuer chooses `exp` assuming no trusting authorization server uses a withdrawal mechanism.
 
 # Issuer Trust Establishment {#issuer-trust}
 
@@ -699,6 +695,14 @@ Short lifetimes tighten an issuer's control and increase renewal traffic. At a s
 Because an issuer reviews the document it retrieves, a changed document is always served before a statement over it exists. Until the new statement exists, a presentation under the earlier one fails the digest comparison ({{effective-metadata}}), and at registration a mismatch is fatal ({{REGISTRATION}}). The statement's lifetime bounds how stale an unobserved review can become.
 
 Instances need the current statement from a shared source rather than a copy fixed at build or install time, because the first presentation of a replacement supersedes its predecessor for every instance ({{multi-instance}}).
+
+## Withdrawal Practice {#withdrawal-practice}
+
+What a server does when it cannot consult a withdrawal mechanism it relies on is local policy ({{withdrawal}}). Refusing makes issuer availability a precondition for every request the statement governs. Proceeding leaves a withdrawn statement acceptable until it expires.
+
+A refusal that the server's operator entered, rather than one derived from a withdrawal mechanism, persists on the operator's own terms.
+
+Withdrawal does not replace lifetime: an issuer chooses `exp` assuming no trusting authorization server uses a withdrawal mechanism.
 
 # Security Considerations {#security-considerations}
 
