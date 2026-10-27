@@ -361,7 +361,7 @@ Before issuing tokens, the server MUST verify the code and PKCE binding and ever
 
 If the metadata changed or the recorded statement needs replacement, the client MUST start a new PAR transaction; code redemption cannot replace the governing review. A raised `iat` floor alone does not invalidate a code already bound to an acceptable recorded statement.
 
-The server MUST issue tokens only within the user's authorization, tenant policy, and reviewed metadata. It MUST bind any refresh token to the establishment, and MUST issue access tokens, at redemption and on refresh ({{refresh}}), bound to the proven key with a `token_type` of `DPoP` (Section 5 of {{RFC9449}}). The effective expiry of each access token, whether the token is a JWT or an opaque reference, MUST NOT be later than the attestation effective expiry accepted for the request that obtained it. A client holding a refresh token therefore refreshes, with a fresh attestation, at least as often as its attester's evidence age allows, and a client without one starts a new authorization request at the PAR endpoint. A resource server that does not accept DPoP-bound access tokens cannot be used under this profile. A DPoP proof shows possession of the attested key at the resource server; it does not show that the software was re-evaluated at that moment.
+The server MUST issue tokens only within the user's authorization, tenant policy, and reviewed metadata. It MUST bind any refresh token to the establishment, and MUST issue access tokens, at redemption and on refresh ({{refresh}}), bound to the proven key with a `token_type` of `DPoP` (Section 5 of {{RFC9449}}). The effective expiry of each access token, whether the token is a JWT or an opaque reference, MUST NOT be later than the attestation effective expiry accepted for the request that obtained it. A resource server that does not accept DPoP-bound access tokens cannot be used under this profile ({{lifetime-practice}}).
 
 # Refresh {#refresh}
 
@@ -614,6 +614,10 @@ A deployment can use independently established revocation mechanisms or local de
 ## Attester Enrollment {#attester-practice}
 
 An attester ought to limit enrollment and renewal so that one approved installation cannot obtain unlimited keys to evade per-key controls, such as denial of an instance key ({{withdrawal}}).
+
+## Evidence Age and Token Lifetime {#lifetime-practice}
+
+Because an access token expires no later than the attestation accepted for it ({{redemption}}), a client holding a refresh token refreshes, with a fresh attestation, at least as often as its attester's evidence age allows, and a client without one starts a new authorization request at the PAR endpoint. {{operations}} works through an example.
 
 # Security Considerations {#security-considerations}
 
