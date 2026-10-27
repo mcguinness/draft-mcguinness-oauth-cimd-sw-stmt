@@ -372,8 +372,6 @@ Octets the authorization server already holds serve for that comparison only wit
 
 A match means the served document is the reviewed one, and its members are the client's metadata for the request. A mismatch means the document changed after review, and the authorization server MUST NOT treat the changed document as reviewed. It rejects the presentation with `invalid_client` or, by local policy, proceeds without the statement. If it proceeds, it applies its policy for Client ID Metadata Document clients it has not reviewed to the current document and creates no establishment for the statement.
 
-At registration, a mismatch is fatal ({{REGISTRATION}}). Either way, the remedy is a statement over the current document. Because an issuer reviews the document it retrieves, a changed document is always served before a statement over it exists, and the statement's lifetime bounds how stale an unobserved review can become.
-
 The request is evaluated against the reviewed metadata as against any client's registered metadata ({{RFC6749}}, {{CIMD}}): any requested grant type, response type, or scope MUST fall within it. A document that omits `scope` sets no ceiling on scope beyond the server's own policy.
 
 ## Grant Lifecycle {#grant-lifecycle}
@@ -431,7 +429,7 @@ To prevent an issuer's statements for different tenants from superseding one ano
 
 A trusting authorization server MUST retain, per `iss` and `sub` claims, the `iat` claim of the most recent statement it has accepted, as its `iat` floor. It MUST reject a statement whose `iat` claim is earlier than the retained `iat`, whether it arrives as a replacement, a new registration, or a new presentation. A client holding a superseded, broader statement therefore cannot defer a narrowing by opening a fresh registration or establishment with it. The server retains the `iat` floor at least as long as the maximum statement lifetime it honors for that issuer.
 
-The first presentation of a replacement that establishes the client supersedes its predecessor for new admissions by every instance of the software at that server, so instances need the current statement from a shared source rather than a copy fixed at build or install time. Grants the predecessor already opened continue under {{refresh}}.
+The first presentation of a replacement that establishes the client supersedes its predecessor for new admissions by every instance of the software at that server ({{lifetime-practice}}). Grants the predecessor already opened continue under {{refresh}}.
 
 Software whose instances authenticate as the client with keys of their own, which the reviewed document does not carry, can neither prove nor register those keys ({{sender-constraint}}, {{REGISTRATION}}) and depends on the attested-key extension of {{extensions}}.
 
@@ -694,6 +692,14 @@ An issuer ought to name an audience, and to omit the `aud` claim only if it acce
 
 A statement whose review applies wherever its `aud` reaches, such as a marketplace listing, carries no `aud_tenant` claim. An issuer also omits the claim if the authorization server has one tenant, or if the server's trust configuration confines the issuer to a tenant, as it can for an issuer that does not know the tenant's identifier.
 
+## Statement Lifetime and Renewal {#lifetime-practice}
+
+Short lifetimes tighten an issuer's control and increase renewal traffic. At a server that registers clients under {{REGISTRATION}}, the lifetime also sets the registration's renewal cadence. A fleet of statements issued together expires together, so issuers ought to stagger expiries or renew ahead of the boundary.
+
+Because an issuer reviews the document it retrieves, a changed document is always served before a statement over it exists. Until the new statement exists, a presentation under the earlier one fails the digest comparison ({{effective-metadata}}), and at registration a mismatch is fatal ({{REGISTRATION}}). The statement's lifetime bounds how stale an unobserved review can become.
+
+Instances need the current statement from a shared source rather than a copy fixed at build or install time, because the first presentation of a replacement supersedes its predecessor for every instance ({{multi-instance}}).
+
 # Security Considerations {#security-considerations}
 
 The security considerations of {{CIMD}} and Section 5 of {{RFC7591}} apply.
@@ -731,8 +737,6 @@ These retrievals happen before any client is registered or any user has interact
 ## Statement Lifetime {#enforcement-bounds}
 
 Expiry and withdrawal ({{withdrawal}}) govern new admissions. Neither revokes an issued access token. A grant opened by a statement lasts for the life of its refresh tokens, whatever the statement's lifetime, unless the server requires a current statement on refresh, holds a refusal record, or finds the proven key gone from the client's document ({{refresh}}). A narrowed review takes effect when the client publishes the narrower document and obtains a statement over it.
-
-Short lifetimes tighten an issuer's control and increase renewal traffic. At a server that registers clients under {{REGISTRATION}}, the lifetime also sets the registration's renewal cadence. A fleet of statements issued together expires together, so issuers ought to stagger expiries or renew ahead of the boundary.
 
 ## Observable State {#oracle-considerations}
 
