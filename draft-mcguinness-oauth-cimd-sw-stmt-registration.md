@@ -113,7 +113,7 @@ Unlike runtime presentation ({{STATEMENT}}), registration has no review-only for
 
 Taking every value from the document prevents metadata substitution. At registration a statement is a bearer artifact, so a request-supplied value for a member the document omits, such as a `jwks` member beside a document naming only `jwks_uri`, would give any holder of a copy a registration with reviewed branding and the holder's own key.
 
-The retrieval requirements of {{STATEMENT}}, and the bounds it describes, apply to retrieving the document as they apply to a runtime presentation. The authorization server completes every check of {{STATEMENT}} that needs no client-controlled retrieval before resolving the document.
+The retrieval requirements of {{STATEMENT}} apply to retrieving the document as they apply to a runtime presentation, and a server can apply the bounds that specification describes. The authorization server completes every check of {{STATEMENT}} that needs no client-controlled retrieval before resolving the document.
 
 ## Public Clients {#public-client-registration}
 
@@ -287,7 +287,7 @@ The safe default is one registration per (`iss`, `sub`) at one authorization ser
 
 ## Credentials for Statement-Governed Registrations {#credential-practice}
 
-Renewal proves possession of the registration's credential, not that the renewing party is the reviewed software ({{renewal-credential}}). Deployments ought to pair statement-governed registrations with credential rotation, sender-constrained client authentication, and the repeated-consumption limits of {{STATEMENT}} and {{registration-policy}}, and ought to treat a credential compromise as requiring re-registration rather than renewal.
+Renewal proves possession of the registration's credential, not that the renewing party is the reviewed software ({{renewal-credential}}). Deployments ought to pair statement-governed registrations with credential rotation, sender-constrained client authentication, and the bounds that {{STATEMENT}} and {{registration-policy}} describe, and ought to treat a credential compromise as requiring re-registration rather than renewal.
 
 # Security Considerations {#security-considerations}
 
