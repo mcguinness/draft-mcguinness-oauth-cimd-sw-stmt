@@ -229,7 +229,7 @@ An authorization server rejecting a registration request, or a registration mana
 : Any of the following holds for the reviewed document:
 
   * It contains duplicate member names ({{STATEMENT}}).
-  * Its `client_id` member does not match the statement's `sub` ({{dcr-presentation}}).
+  * It fails validation as {{CIMD}} requires, including a `client_id` member that does not match the statement's `sub` ({{dcr-presentation}}).
   * It carries metadata this server's policy refuses.
   * It exceeds the server's size bound ({{STATEMENT}}). Retrying cannot succeed.
   * It omits `token_endpoint_auth_method` ({{dcr-presentation}}).
