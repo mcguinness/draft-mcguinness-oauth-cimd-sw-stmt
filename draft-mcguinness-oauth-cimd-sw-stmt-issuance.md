@@ -559,6 +559,8 @@ This specification defines the following additional authorization server metadat
 
 # Security Considerations {#security-considerations}
 
+The security considerations of {{STATEMENT}} apply.
+
 ## Client Establishment Is Not an Access Grant
 
 A software statement grants no resource access or consent on behalf of the software's users. A protected resource MUST NOT accept a software statement returned in the `access_token` member ({{software-statement-response}}) as an access token.
@@ -642,6 +644,8 @@ Authorization servers SHOULD keep an audit record that binds each decision, whet
 Authorization servers SHOULD retain the exact retrieved octets of the approved document for audit. A re-serialized copy cannot reproduce the digest.
 
 # Privacy Considerations
+
+The privacy considerations of {{STATEMENT}} apply.
 
 The authorization server learns the client identifier URL, the client's metadata document, and information about the party interacting with the authorization endpoint. It SHOULD collect and retain only the information required for issuance, security monitoring, and audit obligations.
 
