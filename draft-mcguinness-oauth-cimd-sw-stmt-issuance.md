@@ -616,6 +616,10 @@ To keep a look-alike document from reaching approval, an issuer ought to limit w
 
 Issuers ought to set deferral code lifetimes that reflect their actual approval latency, which for a review involving human judgment can be hours or days ({{deferred-processing}}).
 
+## Signing Keys {#signing-key-practice}
+
+An issuer ought to protect its signing keys according to the scope of its trust relationships and support controlled key rotation.
+
 # Security Considerations {#security-considerations}
 
 The security considerations of {{STATEMENT}} apply.
@@ -662,10 +666,9 @@ If both the reviewed document and the current document carry their keys inline, 
 
 ## Signing Keys and Algorithms
 
-A compromised software statement signing key lets an attacker mint statements for every audience that trusts it.
+A compromised software statement signing key lets an attacker mint statements for every audience that trusts it ({{signing-key-practice}}).
 
-* Issuers SHOULD protect signing keys according to the scope of their trust relationships and support controlled key rotation.
-* Issuers SHOULD prefer signature algorithms with modern security properties, such as `PS256`, `ES256`, or `EdDSA`, over RSASSA-PKCS1-v1_5 (`RS256`), and MUST follow {{RFC8725}} when signing.
+Issuers SHOULD prefer signature algorithms with modern security properties, such as `PS256`, `ES256`, or `EdDSA`, over RSASSA-PKCS1-v1_5 (`RS256`), and MUST follow {{RFC8725}} when signing.
 
 ## Approver Authority
 
