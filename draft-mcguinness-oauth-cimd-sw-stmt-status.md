@@ -176,7 +176,7 @@ A receiver MUST treat an event it has already applied as successfully delivered 
 Two constraints bound every event:
 
 * An event MUST NOT by itself create standing, extend a statement's lifetime, or otherwise increase what a client can do. A receiver MUST ignore any payload claim that would have such an effect.
-* A receiver MUST continue to resolve status on its own schedule, and to enforce statement expiry, independently of this mechanism. Stream loss, transmitter unavailability, or delivery failure then leaves both controls in force.
+* A receiver MUST continue to resolve status as {{status-resolution}} provides, and to enforce statement expiry, independently of this mechanism. Stream loss, transmitter unavailability, or delivery failure then leaves both controls in force.
 
 # Stream Configuration {#configuration}
 
