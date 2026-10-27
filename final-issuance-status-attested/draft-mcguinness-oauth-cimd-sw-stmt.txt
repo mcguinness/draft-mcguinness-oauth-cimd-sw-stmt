@@ -161,12 +161,13 @@ Table of Contents
    software, such as an agent, that obtains tokens with the
    client_credentials grant.  An admitted client is treated as reviewed,
    rather than under the authorization server's policy for Client ID
-   Metadata Document clients it has not reviewed.  A native application
-   whose redirection URIs another application on the device could claim,
-   such as a loopback or private-use URI, gains only a record of the
-   review: its presentations are review-only (Section 5.4.1) until an
-   extension binds an installation key that a third party vouches for
-   (Section 11).
+   Metadata Document clients it has not reviewed.
+
+   A native application whose redirection URIs another application on
+   the device could claim, such as a loopback or private-use URI, gains
+   only a record of the review: its presentations are review-only
+   (Section 5.4.1) until an extension binds an installation key that a
+   third party vouches for (Section 11).
 
    A statement vouches for metadata, not for its presenter.  Possession
    of a statement alone admits nothing: the presenter is bound to the
@@ -253,8 +254,10 @@ Table of Contents
 
    iat Floor:  For a trusting authorization server, the iat claim value
       of the most recent statement it has accepted for a given iss and
-      sub, kept per tenant on a multi-tenant server.  The server rejects
-      a statement whose iat claim is earlier (Section 6).
+      sub, kept per tenant on a multi-tenant server.  For the floor, a
+      statement is accepted once the server admits a client on it,
+      applies it as a replacement, or registers a client with it.  The
+      server rejects a statement whose iat claim is earlier (Section 6).
 
 3.  The Software Statement
 
@@ -440,8 +443,7 @@ Table of Contents
    chooses.
 
    A trusting authorization server MUST reject a statement for which it
-   holds a refusal record (Section 3.3).  Outside registration, the
-   rejection is statement_required (Section 8).  A server that uses a
+   holds a refusal record (Section 3.3).  A server that uses a
    withdrawal mechanism for the statement's issuer SHOULD consult it
    before accepting the statement for a new admission, within the
    caching and freshness rules that mechanism defines.
@@ -517,6 +519,8 @@ Table of Contents
       sub.
 
    *  The audience identifiers the issuer can name.
+
+   *  Any tenant to which it confines the issuer's decisions.
 
    *  The maximum statement lifetime it will honor, which sets each
       statement's effective expiry.
@@ -634,9 +638,7 @@ Table of Contents
    follow redirects.  It MUST accept a new representation only from a
    200 response with a JSON media type, and can instead reuse a stored
    representation that a 304 Not Modified response revalidates
-   (Section 15.4.5 of [RFC9110]).  It applies the protections [CIMD]
-   sets for URLs a document contains and the retrieval rules of
-   Section 5.3.
+   (Section 15.4.5 of [RFC9110]).
 
    Both the document and this URL are retrieved before any statement
    exists to validate, so the ordering of Section 5.3 applies from the
@@ -653,15 +655,16 @@ Table of Contents
    *  The cimd_digest claim equals the digest of the document the server
       resolved.
 
+   *  The iat floor of Section 6 does not supersede it.
+
    The server ignores the rest.
 
    If the server's trust configuration requires an issuer for this
    client (Section 4), it applies only that issuer's statement, and if
    none remains, the client is not reviewed.  Otherwise, if more than
    one statement remains, the server keeps only the statement with the
-   latest iat from each issuer and applies any one of those, subject to
-   the iat floor of Section 6.  A pulled statement the server does not
-   apply does not advance the iat floor.
+   latest iat from each issuer and applies any one of those.  A pulled
+   statement the server does not apply does not advance the iat floor.
 
    Having selected a statement, the server continues from step 4 of
    Section 5.3, with the pulled statement in place of a presented one
@@ -707,10 +710,10 @@ Table of Contents
    If retrieval does not complete or no statement remains, the server
    applies its policy for Client ID Metadata Document clients it has not
    reviewed, subject to any required issuer (Section 4).  If that policy
-   requires reviewed software, the server rejects the request with
-   temporarily_unavailable if retrieval did not complete and with
-   statement_required if no statement remains.  A retrieval failure is
-   never a withdrawal.
+   or a required issuer (Section 4) requires reviewed software, the
+   server rejects the request with temporarily_unavailable if retrieval
+   did not complete and with statement_required if no statement remains.
+   A retrieval failure is never a withdrawal.
 
    When a refresh needs a replacement (Section 5.6.1) for an
    establishment created from a pulled statement, the server pulls again
@@ -757,9 +760,7 @@ Table of Contents
    so the authorization server MUST reject the request and MUST NOT fall
    back to a weaker proof.  A failed pull of statements for a request
    that opens a new grant is the exception: it leaves the client
-   unreviewed, as Section 5.2 describes.  A failed pull of a replacement
-   that a refresh requires is not an exception: the refresh fails
-   (Section 5.6.1).
+   unreviewed, as Section 5.2 describes.
 
 5.4.  Sender Constraint
 
@@ -791,13 +792,9 @@ Table of Contents
    (Section 5.4.1), and the requirements above do not apply to that
    presentation.  Two rejections still apply to such a document: a
    presentation under a document that omits token_endpoint_auth_method,
-   as above, and a presentation at the token endpoint from a client
-   whose reviewed document carries no key material (Section 5.4.1).
-
-   A statement whose reviewed document carries no key material is
-   consumed at runtime under Section 5.4.1 and, if its statement_uses
-   claim permits, at registration under the comparable rules of
-   [REGISTRATION].
+   as above, and a presentation that opens a new grant at the token
+   endpoint from a client whose reviewed document carries no key
+   material (Section 5.4.1).
 
    A key at the document's jwks_uri is retrieved at presentation time.
    If that retrieval fails, the presentation is rejected with
@@ -858,11 +855,11 @@ Table of Contents
    unauthorized_client.
 
    An authorization server MUST reject, with the invalid_client error
-   code, a presentation at the token endpoint under Section 5.1 from a
-   client whose reviewed document carries no key material.  Such a
-   presentation opens no redirect and has nothing to bind it.  A
-   statement pulled for such a client at the token endpoint is instead
-   review-only (Section 5.2).
+   code, a presentation that opens a new grant at the token endpoint
+   (Section 5.1) from a client whose reviewed document carries no key
+   material.  Such a presentation opens no redirect and has nothing to
+   bind it.  A statement pulled for such a client at the token endpoint
+   is instead review-only (Section 5.2).
 
 5.5.  Reviewed Metadata
 
@@ -917,6 +914,8 @@ Table of Contents
 
    *  The sender-constraint mechanism and proven key.
 
+   *  Whether the statement was presented or pulled (Section 5.2).
+
    The establishment persists while the grant depends on it.  The
    authorization server MUST bind the resulting request_uri,
    authorization code, refresh token, and other grant continuation state
@@ -962,16 +961,18 @@ Table of Contents
    establishment's sub still carries that key, in its jwks or at its
    jwks_uri, within the reuse bounds of Section 5.4, and rejects the
    refresh with the invalid_grant error code if that document does not
-   carry the key or exceeds the size bound of Section 3.1.
+   carry the key or exceeds the size bound of Section 3.1, or with
+   temporarily_unavailable if a retrieval needed to check the key did
+   not complete.
 
    On refresh-token use, the authorization server MAY, by local policy,
-   additionally require a current unexpired statement, and SHOULD
-   require one once the establishment's recorded statement has expired
-   (Section 14.6).  The recorded statement satisfies that requirement
-   while it is unexpired and no refusal record covers it, even after a
-   later statement has raised the iat floor of Section 6.  A replacement
-   is needed only once the recorded statement expires or a refusal
-   record covers it.
+   additionally require a current statement, and SHOULD require one once
+   the establishment's recorded statement has expired (Section 14.6).
+   The recorded statement satisfies that requirement while it is
+   unexpired and no refusal record covers it, even after a later
+   statement has raised the iat floor of Section 6.  A replacement is
+   needed only once the recorded statement expires or a refusal record
+   covers it.
 
    If the authorization server holds a refusal record for the
    establishment's recorded statement, it MUST reject a refresh without
@@ -1011,13 +1012,13 @@ Table of Contents
 
    On success, the refreshed grant's statement identity, iat, effective
    expiry, reviewed metadata, and trust decision become those of the
-   replacement in a single atomic update, and concurrent replacements
-   resolve to the most recently issued statement (Section 12.4).  A
-   refresh that fails these requirements, or omits a replacement that is
-   needed, leaves the grant's state unchanged and is rejected with
-   statement_required, or with temporarily_unavailable if a retrieval
-   needed to check the replacement did not complete for a reason other
-   than the size bound of Section 3.1.
+   replacement (Section 12.4) in a single atomic update, and concurrent
+   replacements resolve to the most recently issued statement.  A
+   refresh whose replacement fails these requirements, or that omits a
+   replacement that is needed, leaves the grant's state unchanged and is
+   rejected with statement_required, or with temporarily_unavailable if
+   a retrieval needed to check the replacement did not complete for a
+   reason other than the size bound of Section 3.1.
 
    Refresh never rotates the establishment's key.  A client that needs a
    new key performs a new presentation.
@@ -1031,20 +1032,20 @@ Table of Contents
    if the server registers clients ([REGISTRATION]) and its policy
    permits, in more than one registration at that server.
 
-   To prevent an issuer's statements for different tenants from
-   superseding one another, a multi-tenant authorization server keeps
-   the iat floor, and any bound on establishments (Section 12.3), per
-   tenant (Section 14.4).
+   A trusting authorization server MUST retain, per iss and sub claims
+   and, on a multi-tenant server, per tenant, the iat claim of the most
+   recent statement it has accepted, as its iat floor.  It MUST reject a
+   statement whose iat claim is earlier than the retained iat, whether
+   it arrives as a replacement, a new registration, or a new
+   presentation.  A client holding a superseded, broader statement
+   therefore cannot defer a narrowing by opening a fresh registration or
+   establishment with it.  The server retains the iat floor at least as
+   long as the maximum statement lifetime it honors for that issuer.
 
-   A trusting authorization server MUST retain, per iss and sub claims,
-   the iat claim of the most recent statement it has accepted, as its
-   iat floor.  It MUST reject a statement whose iat claim is earlier
-   than the retained iat, whether it arrives as a replacement, a new
-   registration, or a new presentation.  A client holding a superseded,
-   broader statement therefore cannot defer a narrowing by opening a
-   fresh registration or establishment with it.  The server retains the
-   iat floor at least as long as the maximum statement lifetime it
-   honors for that issuer.
+   Keeping the floor per tenant prevents an issuer's statements for
+   different tenants from superseding one another (Section 14.4).  A
+   multi-tenant server also keeps any bound on establishments
+   (Section 12.3) per tenant for the same reason.
 
    The first presentation of a replacement that establishes the client
    supersedes its predecessor for new admissions by every instance of
@@ -1151,7 +1152,8 @@ Table of Contents
       in any of the following cases:
 
       *  The statement is malformed, or fails signature or claim
-         validation (Section 3.2) for a reason other than expiry.
+         validation (Section 3.2) for a reason other than expiry or a
+         refusal record.
 
       *  The statement is valid but not acceptable here: its issuer is
          not configured, its aud excludes this server, its sub is
@@ -1234,12 +1236,11 @@ Table of Contents
    invalid_request:  The request carries software_statement in a role
       Section 5.1 does not permit.
 
-   None of these rejections indicates refresh-token replay ([RFC9700]),
-   and neither does a rejection reporting registration validity
-   ([REGISTRATION]).  A refresh-token request rejected for another
-   reason, such as an expired or revoked refresh token, uses the error
-   codes of Section 5.2 of [RFC6749].  This specification does not
-   change how an authorization server detects refresh-token replay.
+   None of these rejections indicates refresh-token replay ([RFC9700]).
+   A refresh-token request rejected for another reason, such as an
+   expired or revoked refresh token, uses the error codes of Section 5.2
+   of [RFC6749].  This specification does not change how an
+   authorization server detects refresh-token replay.
 
 8.4.  Authorization Endpoint
 
@@ -1430,10 +1431,8 @@ Table of Contents
 
 12.2.  Retrieval and Processing Bounds
 
-   Retrievals happen before any client is registered or any user has
-   interacted, so an unauthenticated requester holding one acceptable
-   statement can cause this work (Section 14.5).  An authorization
-   server can bound it as follows:
+   An authorization server can bound the retrieval and processing work
+   of Section 14.5 as follows:
 
    *  Rate-limit presentations per statement identity, per subject, and
       per source, and pulls (Section 5.2) per client identifier and per
@@ -1480,9 +1479,9 @@ Table of Contents
    software's other users share.
 
    A request refused at a bound is rejected with invalid_client
-   (Section 8.2).  Its statement and proof are sound, so the
-   authorization server ought to state that reason in error_description,
-   and the client can retry once earlier establishments are released.
+   (Section 8.2).  Its statement is valid, so the authorization server
+   ought to state that reason in error_description, and the client can
+   retry once earlier establishments are released.
 
 12.4.  Grant State
 
@@ -1537,7 +1536,8 @@ Table of Contents
 
 13.2.  Audience and Tenant Claims
 
-   An issuer ought to name an audience, and to omit the aud claim only
+   An issuer ought to name an audience and, for a statement whose
+   statement_uses claim permits registration, to omit the aud claim only
    if it accepts that any server trusting the issuer can register the
    software on the strength of a copy ([REGISTRATION]).
 
@@ -1671,9 +1671,10 @@ Table of Contents
    whose retrieval fails, except as Section 5.2 provides.
 
    These retrievals happen before any client is registered or any user
-   has interacted, so an unauthenticated requester holding one
-   acceptable statement can cause this work.  Section 12.2 describes how
-   an authorization server can bound it.
+   has interacted, so an unauthenticated requester can cause them with
+   one acceptable statement or, at a server that pulls statements, with
+   none.  The bounds that Section 12.2 describes limit this work but do
+   not prevent it.
 
 14.6.  Statement Lifetime
 
@@ -2027,9 +2028,10 @@ Table of Contents
 
    [REGISTRATION]
               McGuinness, K., "Client ID Metadata Document Software
-              Statement Registration", n.d.,
-              <https://datatracker.ietf.org/doc/draft-mcguinness-oauth-
-              cimd-sw-stmt-registration>.
+              Statement Registration", Work in Progress, Internet-Draft,
+              draft-mcguinness-oauth-cimd-sw-stmt-registration-00,
+              October 2026, <https://datatracker.ietf.org/doc/draft-
+              mcguinness-oauth-cimd-sw-stmt-registration>.
 
    [RFC7009]  Lodderstedt, T., Ed., Dronia, S., and M. Scurtescu, "OAuth
               2.0 Token Revocation", RFC 7009, DOI 10.17487/RFC7009,
