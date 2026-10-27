@@ -337,7 +337,7 @@ The client sends an authorization request as described in Section 4.1.1 of {{RFC
 `dpop_jkt`:
 : REQUIRED for a public client and OPTIONAL otherwise. The parameter has the semantics of Section 10 of {{RFC9449}}.
 
-The authorization server selects the final audience according to policy. It MUST NOT place in the statement's `aud` claim any value the request did not carry, except that a renewal request carrying no `audience` parameter counts as carrying the subject statement's `aud` claim ({{token-exchange-profile}}). An issuer narrows a requested audience and never widens it.
+The authorization server selects the final audience according to policy. It MUST NOT place in the statement's `aud` claim any value the request did not carry, except as {{token-exchange-profile}} provides for a renewal request. An issuer narrows a requested audience and never widens it.
 
 If no requested audience is acceptable, the authorization server MUST reject the request with the `invalid_target` error code {{RFC8707}}. An authorization server whose policy requires a restricted audience rejects a request carrying none with the same error.
 
