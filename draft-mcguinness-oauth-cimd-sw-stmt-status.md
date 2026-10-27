@@ -198,7 +198,7 @@ A receiver can bound the rate of the retrievals that events cause by deferring a
 
 ## Event Logs {#event-logs}
 
-A receiver ought to handle event logs as it handles statements ({{STATEMENT}}). A log of events is a record about client identifiers that can outlive the issuer's own published status, so a receiver ought to bound its retention.
+A receiver ought to treat event logs as sensitive at rest, as {{STATEMENT}} treats statements. A log of events is a record about client identifiers that can outlive the issuer's own published status, so a receiver ought to bound its retention.
 
 # Deployment Considerations {#deployment-considerations}
 
