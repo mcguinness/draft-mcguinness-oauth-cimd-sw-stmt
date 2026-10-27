@@ -329,7 +329,7 @@ Before returning a successful PAR response, the server MUST:
 
 For step 1, authentication establishes the attester, policy, client identifier, and attested key; it is not yet reviewed-software admission. An attestation whose digest has not been checked cannot establish the client. The ordering of statement checks before client-controlled retrieval in {{STATEMENT}} applies once a statement is available. External-retrieval bounds, HTTP caching rules ({{RFC9111}}), and protection against server-side request forgery from {{STATEMENT}} and {{CIMD}} apply throughout.
 
-If any required check fails, the server MUST NOT fall back to review-only or unreviewed admission for the same request. A request that carries no instance attestation for a document selecting this profile is an example: the server learns from the document (step 3) that this profile applies, then rejects the request with `invalid_client`. If no acceptable statement is available, it returns `statement_required`. A failed request MUST NOT advance the `iat` floor or alter an existing establishment.
+If any required check fails, the server MUST NOT fall back to review-only or unreviewed admission for the same request. A request that carries no instance attestation for a document selecting this profile is an example: the server learns from the document (step 3) that this profile applies, then rejects the request with `invalid_client`. If the instance authenticates but no acceptable statement is available, it returns `statement_required` ({{error-precedence}}). A failed request MUST NOT advance the `iat` floor or alter an existing establishment.
 
 ## Establishment {#establishment}
 
