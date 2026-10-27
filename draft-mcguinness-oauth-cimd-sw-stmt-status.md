@@ -208,6 +208,10 @@ A stream can cover every subject an issuer attests, or the receiver can add each
 
 A receiver ought to alert on stream loss rather than assume quiescence.
 
+## Resolution Schedule and Lifetimes {#schedule-practice}
+
+Because events can be suppressed, a deployment ought to choose a resolution schedule and statement lifetimes it would accept with no event stream ({{processing}}).
+
 # Security Considerations
 
 The security considerations of {{STATEMENT}}, {{STATUSLIST}}, {{SSF}}, and {{RFC8417}} apply.
@@ -224,7 +228,7 @@ The remaining exposure is resource cost: an attacker holding the issuer's SET si
 
 ## Status Remains the Authority
 
-Because a receiver resolves status independently ({{processing}}), an attacker who suppresses events delays a withdrawal at most until the receiver's next scheduled resolution and, for new admissions, never beyond the affected statements' effective expiry. Grants already open continue as the refresh policy of {{STATEMENT}} allows. Deployments therefore choose a resolution schedule and statement lifetimes they would accept with no event stream.
+Because a receiver resolves status independently ({{processing}}), an attacker who suppresses events delays a withdrawal at most until the receiver's next scheduled resolution and, for new admissions, never beyond the affected statements' effective expiry. Grants already open continue as the refresh policy of {{STATEMENT}} allows ({{schedule-practice}}).
 
 The absence of events looks the same on a healthy stream and a suppressed one. Periodic stream verification ({{configuration}}) makes the difference observable ({{stream-practice}}).
 
