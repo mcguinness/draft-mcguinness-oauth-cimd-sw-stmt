@@ -228,7 +228,7 @@ The remaining exposure is resource cost: an attacker holding the issuer's SET si
 
 ## Status Remains the Authority
 
-Because a receiver resolves status independently ({{processing}}), an attacker who suppresses events delays a withdrawal at most until the receiver's next scheduled resolution and, for new admissions, never beyond the affected statements' effective expiry. Grants already open continue as the refresh policy of {{STATEMENT}} allows ({{schedule-practice}}).
+Because a receiver resolves status independently ({{processing}}), an attacker who suppresses events delays a withdrawal at most until the receiver's next scheduled resolution and, for new admissions, never beyond the affected statements' effective expiry ({{schedule-practice}}). Grants already open continue as the refresh policy of {{STATEMENT}} allows.
 
 The absence of events looks the same on a healthy stream and a suppressed one. Periodic stream verification ({{configuration}}) makes the difference observable ({{stream-practice}}).
 
