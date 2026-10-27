@@ -211,7 +211,7 @@ Client ID Metadata Documents can change while a request is pending. Before retur
 
 The authorization server MAY retrieve the document again before issuing the software statement. If it does so and the digest differs, it MUST either re-evaluate the request under the new document, binding the new document as the snapshot, or reject the request. This applies even if the change touches no member its policy examines. A statement over a superseded snapshot fails at registration ({{REGISTRATION}}).
 
-The authorization server MUST NOT silently combine values from different document versions. An approval recorded against a superseded snapshot does not carry forward without a fresh issuance-policy decision.
+The authorization server MUST NOT combine values from different document versions. An approval recorded against a superseded snapshot does not carry forward without a fresh issuance-policy decision.
 
 Replacing the snapshot does not alter the sender-constraint context fixed for a deferral at origination ({{deferred-processing}}). If a replacement snapshot no longer authorizes the key material behind that context, for example because the client-authentication key is absent from the new document, the authorization server MUST invalidate the deferral. The client then makes a new request under its current keys.
 
