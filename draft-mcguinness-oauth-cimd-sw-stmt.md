@@ -413,7 +413,7 @@ When a replacement is needed, the client presents it in the `software_statement`
 
 The refreshed access MUST fall within the metadata of the document the replacement names.
 
-On success, the refreshed grant's statement identity, `iat`, effective expiry, reviewed metadata, and trust decision become those of the replacement, and concurrent replacements resolve to the most recently issued statement ({{grant-state}}). A refresh that fails these requirements, or omits a replacement that is needed, leaves the grant's state unchanged and is rejected with `statement_required`, or with `temporarily_unavailable` if a retrieval needed to check the replacement did not complete for a reason other than the size bound of {{metadata-digest}}.
+On success, the refreshed grant's statement identity, `iat`, effective expiry, reviewed metadata, and trust decision become those of the replacement in a single atomic update, and concurrent replacements resolve to the most recently issued statement ({{grant-state}}). A refresh that fails these requirements, or omits a replacement that is needed, leaves the grant's state unchanged and is rejected with `statement_required`, or with `temporarily_unavailable` if a retrieval needed to check the replacement did not complete for a reason other than the size bound of {{metadata-digest}}.
 
 Refresh never rotates the establishment's key. A client that needs a new key performs a new presentation.
 
@@ -638,7 +638,7 @@ A request refused at a bound is rejected with `invalid_client` ({{presentation-e
 
 An authorization server can reuse an establishment across presentations that resolve to the same `sub`, statement, and proven key, rather than creating one per request, and can discard it once no `request_uri`, authorization code, refresh token, or other continuation state references it ({{grant-lifecycle}}).
 
-A server that shares an establishment among grants applies a replacement accepted on refresh by giving the refreshed grant its own establishment, so that no other grant or outstanding authorization code changes ({{refresh}}). It updates the refreshed grant's state in a single atomic step.
+A server that shares an establishment among grants applies a replacement accepted on refresh by giving the refreshed grant its own establishment, so that no other grant or outstanding authorization code changes ({{refresh}}).
 
 ## Issuer Signing Nodes {#signing-nodes}
 
