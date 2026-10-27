@@ -647,6 +647,8 @@ The following extensions are left to separate specifications:
 
 # Security Considerations {#security-considerations}
 
+The security considerations of {{CIMD}} and Section 5 of {{RFC7591}} apply.
+
 ## Statement Theft and Replay {#statement-validation}
 
 A copied statement admits nothing without the sender constraint ({{sender-constraint}}). Admitting only keys the reviewed document carries also prevents downgrade. An extension admitting attested keys ({{extensions}}) has to address downgrade itself.
@@ -699,6 +701,8 @@ A `statement_required` refusal at the authorization endpoint ({{errors}}) travel
 Servers should avoid logging software statements, which are sensitive in transit and at rest. A statement names reviewed software and, if it carries an audience, that software's intended relationships.
 
 # Privacy Considerations
+
+The privacy considerations of {{CIMD}} and Section 6 of {{RFC7591}} apply.
 
 A presentation or delivery reveals to the authorization server the client's issuer relationship and, if the statement carries an `aud` claim, the other authorization servers the client intends to use. Omitting that claim discloses nothing beyond the review. Pushed authorization requests ({{authorization-requests}}) keep statements out of browser history, referrers, and front-channel logs.
 
