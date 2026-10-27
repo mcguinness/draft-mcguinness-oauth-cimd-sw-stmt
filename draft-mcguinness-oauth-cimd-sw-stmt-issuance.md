@@ -40,7 +40,6 @@ normative:
   RFC8414:
   RFC8693:
   RFC8707:
-  RFC8725:
   RFC9207:
   RFC8628:
   RFC9396:
@@ -67,6 +66,7 @@ informative:
     author:
       - fullname: Karl McGuinness
   RFC9126:
+  RFC9864:
   ATTESTERS: I-D.mcguinness-oauth-client-attesters
   RFC8252:
   APPROVAL-DCR: I-D.dellaert-oauth-approval-based-dcr
@@ -670,7 +670,7 @@ If both the reviewed document and the current document carry their keys inline, 
 
 A compromised software statement signing key lets an attacker mint statements for every audience that trusts it ({{signing-key-practice}}).
 
-Issuers SHOULD prefer signature algorithms with modern security properties, such as `PS256`, `ES256`, or `EdDSA`, over RSASSA-PKCS1-v1_5 (`RS256`), and MUST follow {{RFC8725}} when signing.
+Issuers SHOULD prefer signature algorithms with modern security properties, such as `PS256`, `ES256`, or `Ed25519` {{RFC9864}}, over RSASSA-PKCS1-v1_5 (`RS256`).
 
 ## Approver Authority
 
