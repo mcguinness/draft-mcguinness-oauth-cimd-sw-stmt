@@ -435,7 +435,7 @@ The following error codes apply to pushed authorization requests, code redemptio
 : At redemption or refresh, a validly authenticated instance does not match the recorded key, attester, policy, or client; or, at redemption, the current document no longer matches the recorded digest; or, at refresh, the current document no longer selects this profile or meets {{client-metadata}}.
 
 `statement_required`:
-: A required statement is missing, expired, or refused, or at the PAR endpoint is superseded, or, at refresh, a needed replacement is missing or unacceptable.
+: A required statement is missing, expired, or refused, or, at the PAR endpoint, superseded, or, at refresh, a needed replacement is missing or unacceptable.
 
 `temporarily_unavailable`:
 : A retrieval needed for validation temporarily fails.
