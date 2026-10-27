@@ -186,6 +186,14 @@ The subjects appropriate to a stream are those of the issuer's statements whose 
 
 A receiver SHOULD request the event this specification defines, and SHOULD use the stream verification facility of {{SSF}} periodically.
 
+# Implementation Considerations {#implementation-considerations}
+
+This section gives guidance to implementers. It adds no requirement.
+
+## Resolution in Response to Events {#event-resolution}
+
+A receiver can bound the rate of the retrievals that events cause by deferring a retrieval briefly and coalescing events that concern the same status list URI, since one request begun after those events serves all of them ({{processing}}). Its scheduled resolution continues regardless.
+
 # Security Considerations
 
 The security considerations of {{STATEMENT}}, {{STATUSLIST}}, {{SSF}}, and {{RFC8417}} apply.
@@ -198,7 +206,7 @@ Because {{STATUSLIST}} aggregates many statements into one list, a retrieval tel
 
 An event names no status, so a forged, replayed, delayed, or reordered event cannot change whether any statement stands. Its only effect is a resolution the receiver would otherwise have performed on its own schedule.
 
-The remaining exposure is resource cost: an attacker holding the issuer's SET signing key, or a misbehaving transmitter, can trigger resolutions. A receiver SHOULD bound the rate at which it resolves in response to events, coalescing events for the same issuer.
+The remaining exposure is resource cost: an attacker holding the issuer's SET signing key, or a misbehaving transmitter, can trigger resolutions ({{event-resolution}}).
 
 ## Status Remains the Authority
 
