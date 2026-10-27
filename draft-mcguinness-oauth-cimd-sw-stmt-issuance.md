@@ -51,9 +51,21 @@ normative:
   OAUTH-MRT:
     target: https://openid.net/specs/oauth-v2-multiple-response-types-1_0.html
     title: "OAuth 2.0 Multiple Response Type Encoding Practices"
+    author:
+      - ins: B. de Medeiros
+        name: Breno de Medeiros
+        role: editor
+      - fullname: Marius Scurtescu
+      - fullname: Paul Tarjan
+      - fullname: Michael B. Jones
+    date: 2014-02-25
   FORM-POST:
     target: https://openid.net/specs/oauth-v2-form-post-response-mode-1_0.html
     title: "OAuth 2.0 Form Post Response Mode"
+    author:
+      - fullname: Michael B. Jones
+      - fullname: Brian Campbell
+    date: 2015-04-27
   REGISTRATION:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration
     title: "Client ID Metadata Document Software Statement Registration"
