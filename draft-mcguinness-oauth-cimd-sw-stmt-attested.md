@@ -593,6 +593,10 @@ A server can bound establishments as {{STATEMENT}} describes, and also per resou
 
 A server can reuse an establishment only across presentations that resolve to the same `sub`, statement, and proven key and that match in profile, attester, policy, and tenant ({{establishment}}).
 
+## Signing Brokers {#signing-brokers}
+
+A signing broker ought to expose constrained operations rather than arbitrary signing: it produces proofs for the authorization server only within its own processing of an OAuth transaction, and proofs for resource requests only for resource endpoints the caller is authorized to reach and only with that caller's own access token. A broker that handles authorization for another process ought to bind the authenticated caller, intended authorization server, callback, PKCE verifier, and resulting grant to one local session ({{software-evidence}}).
+
 # Security Considerations {#security-considerations}
 
 The security considerations of {{STATEMENT}}, {{ABCA}}, {{CIMD}}, {{RFC8252}}, and {{RFC9700}} apply. This section describes the additional trust boundary introduced by this specification.
@@ -601,7 +605,7 @@ The security considerations of {{STATEMENT}}, {{ABCA}}, {{CIMD}}, {{RFC8252}}, a
 
 A valid signature proves that an accepted attester made an assertion; it does not improve the evidence behind it. An attester accepting self-reported executable hashes would let a copied statement and an arbitrary key satisfy the binding. The evidence and mapping requirements in {{trust}} prevent that substitution only when the deployment enforces them.
 
-A key's non-exportability does not prove which process can use it. An acceptable evidence policy therefore requires key storage and any signing broker to restrict use to the software instance the policy covers ({{trust}}). A general signing service reachable by arbitrary local processes would let unreviewed software authenticate through an approved installation. A signing broker therefore exposes constrained operations rather than arbitrary signing: it produces proofs for the authorization server only within its own processing of an OAuth transaction, and proofs for resource requests only for resource endpoints the caller is authorized to reach and only with that caller's own access token. A broker that handles authorization for another process binds the authenticated caller, intended authorization server, callback, PKCE verifier, and resulting grant to one local session. Remote attestation of a device without an application-to-key binding likewise does not prove which process can use the key.
+A key's non-exportability does not prove which process can use it. An acceptable evidence policy therefore requires key storage and any signing broker to restrict use to the software instance the policy covers ({{trust}}). A general signing service reachable by arbitrary local processes would let unreviewed software authenticate through an approved installation ({{signing-brokers}}). Remote attestation of a device without an application-to-key binding likewise does not prove which process can use the key.
 
 This profile cannot ensure benign user intent, prevent an approved application from being used as a proxy, or preserve an assurance after compromise of the platform on which its evidence depends. A server MUST present assurances no stronger than the accepted policy supports. Plugins, scripts, dynamic libraries, debuggers, and injected code can change the effective software identity and require explicit treatment in that policy.
 
@@ -609,7 +613,7 @@ This profile cannot ensure benign user intent, prevent an approved application f
 
 An attacker can attempt to occupy a loopback port, intercept a response, or initiate its own authorization transaction using the published client identifier. PKCE and proof of the recorded key protect redemption of an intercepted code. Admission of a new transaction additionally requires an acceptable instance attestation; PKCE or an unattested DPoP key alone supplies no software identity.
 
-The client MUST keep its verifier and transaction state confidential and unpredictable as their respective specifications require. A launcher handling authorization for another process acts as the signing broker of {{software-evidence}}.
+The client MUST keep its verifier and transaction state confidential and unpredictable as their respective specifications require. A launcher handling authorization for another process acts as the signing broker of {{signing-brokers}}.
 
 ## Downgrade Prevention {#downgrade}
 
@@ -763,7 +767,7 @@ The enterprise enrolls the launcher through an authenticated management channel.
 
 The launcher creates or provisions the instance key in protected storage and obtains an attestation through an authenticated exchange with the enterprise service. That service verifies the evidence, the binding to the key, and the document digest before issuing the attestation. The service's signing key is distinct from the instance key and is accepted through the authorization server's attester trust configuration.
 
-For each authorization transaction, the launcher performs the OAuth exchange on behalf of the verified caller, as the signing broker of {{software-evidence}}. It rechecks caller authorization when the key is used, including refresh, and protects returned tokens from other processes.
+For each authorization transaction, the launcher performs the OAuth exchange on behalf of the verified caller, as the signing broker of {{signing-brokers}}. It rechecks caller authorization when the key is used, including refresh, and protects returned tokens from other processes.
 
 An implementation needs to address changes between checking software and using the key, dynamic code loading, and the ability of an executable the evidence policy covers to proxy requests for others. Platforms without reliable process identity and key-use isolation cannot obtain this profile's assurance by running the launcher with more privileges. A script-based command-line client might require an execution environment whose policy covers its interpreter, script, and dependencies, or a narrower assurance than verified executable identity.
 
@@ -787,7 +791,7 @@ Launcher authentication:
 : Managed Device Attestation shows that the device is a genuine Apple device the organization manages {{APPLE-MDA}}, not which program is reporting. The launcher therefore registers an App Attest key, which Apple certifies as belonging to the launcher {{APPLE-APPATTEST}}. To tie that key to the managed device, the launcher returns with the attestation a single-use secret that the device management service delivered through managed app configuration, which macOS applies only to an application with a matching code signature {{APPLE-APPCONFIG}}. Each later report, carrying the instance public key and the client's signing identity, bears an App Attest assertion.
 
 Evidence and renewal:
-: No Apple attestation covers the instance key, so the enterprise service relies on the authenticated launcher's report that the key is in the Secure Enclave and usable only by the launcher. The launcher acts as the signing broker of {{software-evidence}}. Before the maximum evidence age expires, it re-checks the device's management state and the client's signature and obtains an attestation on that new evidence.
+: No Apple attestation covers the instance key, so the enterprise service relies on the authenticated launcher's report that the key is in the Secure Enclave and usable only by the launcher. The launcher acts as the signing broker of {{signing-brokers}}. Before the maximum evidence age expires, it re-checks the device's management state and the client's signature and obtains an attestation on that new evidence.
 
 Unsupported case:
 : A script run by a signed interpreter with unrestricted imports is not covered. The verified signature is the interpreter's, and library validation does not constrain the scripts and modules it reads. Such a client remains review-only under {{STATEMENT}}.
