@@ -651,7 +651,7 @@ The authorization server learns the client identifier URL, the client's Client I
 
 An `aud` claim reveals which authorization servers the client intends to use. {{STATEMENT}} weighs that disclosure against omitting the claim and recommends naming an audience, which an issuer does by requiring one in the request ({{authorization-request}}).
 
-Clients SHOULD NOT present statements outside their intended deployment context. If the relationship is sensitive, a redirect-flow client SHOULD use pushed authorization requests {{RFC9126}}.
+Clients SHOULD NOT present statements outside their intended deployment context. If the client's relationship with the authorization servers its `audience` parameter names is sensitive, a redirect-flow client SHOULD use pushed authorization requests {{RFC9126}}.
 
 Approval records can link a person to a client and deployment. Such records SHOULD be access-controlled and retained only as long as required.
 
