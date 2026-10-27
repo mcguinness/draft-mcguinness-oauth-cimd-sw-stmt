@@ -382,8 +382,6 @@ At registration, a mismatch is fatal ({{REGISTRATION}}). Either way, the remedy 
 
 The request is evaluated against the reviewed metadata as against any client's registered metadata ({{RFC6749}}, {{CIMD}}): any requested grant type, response type, or scope MUST fall within it. A document that omits `scope` sets no ceiling on scope beyond the server's own policy.
 
-A request refused because the bound on establishments of {{multi-instance}} is reached is rejected with `invalid_client`. Its statement and proof are sound, so the authorization server ought to state that reason in `error_description`, and the client can retry once earlier establishments are released.
-
 ## Grant Lifecycle {#grant-lifecycle}
 
 A successful presentation creates an establishment comprising the following:
@@ -437,18 +435,11 @@ Refresh never rotates the establishment's key. A client that needs a new key per
 
 A statement attests client software, identified by `sub`, not its runtime instances. This specification defines no instance identifier. One unexpired statement is therefore consumable more than once: at each trusting authorization server in its audience and, if the server registers clients ({{REGISTRATION}}) and its policy permits, in more than one registration at that server.
 
-To prevent an issuer's statements for different tenants from superseding one another, a multi-tenant authorization server keeps the `iat` floor and the bounds described below per tenant ({{tenant-confusion}}).
+To prevent an issuer's statements for different tenants from superseding one another, a multi-tenant authorization server keeps the `iat` floor, and any bound on establishments ({{establishment-bounds}}), per tenant ({{tenant-confusion}}).
 
 A trusting authorization server MUST retain, per `iss` and `sub` claims, the `iat` claim of the most recent statement it has accepted, as its `iat` floor. It MUST reject a statement whose `iat` claim is earlier than the retained `iat`, whether it arrives as a replacement, a new registration, or a new presentation. A client holding a superseded, broader statement therefore cannot defer a narrowing by opening a fresh registration or establishment with it. The server retains the `iat` floor at least as long as the maximum statement lifetime it honors for that issuer.
 
 The first presentation of a replacement that establishes the client supersedes its predecessor for new admissions by every instance of the software at that server, so instances need the current statement from a shared source rather than a copy fixed at build or install time. Grants the predecessor already opened continue under {{refresh}}.
-
-A trusting authorization server SHOULD bound the number of establishments, and any registrations ({{REGISTRATION}}), derived from one issuer's statements about one piece of software, identified by `iss` and `sub` claims. How the server counts toward a bound is local policy, within two limits:
-
-* State that anyone holding a copy of a statement can create does not count: a pushed authorization request and its unredeemed code, which anyone holding a copy of a public client's statement can approve with their own account, or a registration under which no access token has been issued. Otherwise a holder of a copy could exhaust the bound for the software's other instances.
-* A count persists across replacements: an establishment created for a refreshed grant does not add to it, and one keyed on `jti` would reset at every renewal.
-
-For software admitted under {{public-client-presentation}}, whose every installation opens its own establishment, the server SHOULD also bound establishments per resource owner, so that one user cannot exhaust a bound the software's other users share.
 
 Software whose instances authenticate as the client with keys of their own, which the reviewed document does not carry, can neither prove nor register those keys ({{sender-constraint}}, {{REGISTRATION}}) and depends on the attested-key extension of {{extensions}}.
 
@@ -506,7 +497,7 @@ A presentation rejected at the token or pushed authorization request endpoint fo
   * The reviewed document contains duplicate member names ({{validation}}) or exceeds the server's size bound ({{metadata-digest}}).
   * The document's digest does not match `cimd_digest` and the server does not proceed without the statement ({{effective-metadata}}).
   * The request fails the sender constraint, including a presentation under a document that omits `token_endpoint_auth_method` and one at the token endpoint under a document with no key material ({{sender-constraint}}, {{public-client-presentation}}).
-  * The bound on establishments of {{multi-instance}} is reached ({{effective-metadata}}).
+  * The server's bound on establishments is reached ({{establishment-bounds}}).
 
 `statement_required`:
 : The statement is expired, refused by a refusal record, or superseded, or a required statement is absent, including one from an issuer required for the tenant ({{issuer-trust}}).
@@ -527,7 +518,7 @@ A request rejected for another reason, such as an assertion grant whose assertio
 
 ## Code Redemption and Refresh {#continuation-errors}
 
-A token request that redeems an authorization code opened by a presentation is rejected with `invalid_request` if it carries `software_statement`, with `invalid_grant` if its client identifier or key binding fails ({{grant-lifecycle}}), and with `invalid_client` if the bound on establishments of {{multi-instance}} is reached ({{effective-metadata}}).
+A token request that redeems an authorization code opened by a presentation is rejected with `invalid_request` if it carries `software_statement`, with `invalid_grant` if its client identifier or key binding fails ({{grant-lifecycle}}), and with `invalid_client` if the server's bound on establishments is reached ({{establishment-bounds}}).
 
 Under an establishment, a refresh-token request rejected for a reason this specification defines uses the following error codes:
 
@@ -663,10 +654,21 @@ Successful retrievals can be cached within the document's caching directives. A 
 Retrievals happen before any client is registered or any user has interacted, so an unauthenticated requester holding one acceptable statement can cause this work ({{external-retrieval}}). An authorization server can bound it as follows:
 
 * Rate-limit presentations per statement identity, per subject, and per source, and pulls ({{pulled-statements}}) per client identifier and per source, before spending retrieval or storage on a new presentation.
-* Refuse a presentation that would create a new establishment, before spending retrieval or storage on it, once a bound on establishments ({{multi-instance}}) is reached.
+* Refuse a presentation that would create a new establishment, before spending retrieval or storage on it, once a bound on establishments ({{establishment-bounds}}) is reached.
 * Bound JWT size and parsing work, concurrent retrievals, response size, and response time.
 * Bound the size of a `software_statements_uri` response and the number of statements examined separately from the document's. Several issuers' statements outgrow a document-sized bound, and a host can pad the array.
 * Discard pulled statements from unconfigured issuers before verifying any signature.
+
+## Bounding Establishments {#establishment-bounds}
+
+A trusting authorization server can bound the number of establishments, and any registrations ({{REGISTRATION}}), derived from one issuer's statements about one piece of software, identified by `iss` and `sub` claims. How it counts toward a bound is local policy. Two choices keep a bound effective:
+
+* State that anyone holding a copy of a statement can create does not count: a pushed authorization request and its unredeemed code, which anyone holding a copy of a public client's statement can approve with their own account, or a registration under which no access token has been issued. Otherwise a holder of a copy could exhaust the bound for the software's other instances.
+* A count persists across replacements: an establishment created for a refreshed grant does not add to it, and one keyed on `jti` would reset at every renewal.
+
+For software admitted under {{public-client-presentation}}, whose every installation opens its own establishment, a server can also bound establishments per resource owner, so that one user cannot exhaust a bound the software's other users share.
+
+A request refused at a bound is rejected with `invalid_client` ({{presentation-errors}}). Its statement and proof are sound, so the authorization server ought to state that reason in `error_description`, and the client can retry once earlier establishments are released.
 
 # Security Considerations {#security-considerations}
 
