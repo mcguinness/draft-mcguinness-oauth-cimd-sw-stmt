@@ -330,6 +330,10 @@ On receiving a presentation, the authorization server proceeds as follows, rejec
 4. Verify the sender constraint against that document ({{sender-constraint}}), then evaluate the request against its metadata ({{effective-metadata}}).
 5. On success, create the establishment ({{grant-lifecycle}}).
 
+Every retrieval this processing causes, of the Client ID Metadata Document, a `jwks_uri` it names, or the statements its `software_statements_uri` names, inherits the server-side request forgery protections of {{CIMD}}. A trusted signature does not make a URL safe: the authorization server MUST apply its URL, redirect, address-range, transport, and content-type policy independently to every referenced location.
+
+A retrieval failure leaves the relevant metadata or proof unverified, so the authorization server MUST reject the request and MUST NOT fall back to a weaker proof. A failed pull of statements for a request that opens a new grant is the exception: it leaves the client unreviewed, as {{pulled-statements}} describes. A failed pull of a replacement that a refresh requires is not an exception: the refresh fails ({{refresh}}).
+
 ## Sender Constraint {#sender-constraint}
 
 A runtime presentation MUST be sender-constrained by a key the statement attests or, under {{public-client-presentation}}, by the key the presenter binds there. The presenter proves possession of that key through the applicable client authentication method or a DPoP proof {{RFC9449}}. If a request carries both, the key its client authentication proves is the proven key. The proof MUST be bound to the current request and validated with the replay protections of that mechanism.
@@ -694,11 +698,9 @@ The `aud_tenant` claim names a tenant at the trusting authorization server, not 
 
 ## External Retrieval and Resource Exhaustion {#external-retrieval}
 
-Runtime presentation can cause the authorization server to retrieve the Client ID Metadata Document, a `jwks_uri` it names, or the statements its `software_statements_uri` names. Every such retrieval inherits the server-side request forgery protections of {{CIMD}}. A trusted signature does not make a URL safe: the authorization server MUST apply its URL, redirect, address-range, transport, and content-type policy independently to every referenced location.
+Runtime presentation can cause the authorization server to retrieve the Client ID Metadata Document, a `jwks_uri` it names, or the statements its `software_statements_uri` names. A trusted signature does not make a URL safe, so {{processing}} applies the server's retrieval policy to every referenced location and rejects a request whose retrieval fails.
 
 These retrievals happen before any client is registered or any user has interacted, so an unauthenticated requester holding one acceptable statement can cause this work. {{processing-bounds}} describes how an authorization server can bound it.
-
-A retrieval failure leaves the relevant metadata or proof unverified, so the authorization server MUST reject the request and MUST NOT fall back to a weaker proof. A failed pull of statements for a request that opens a new grant is the exception: it leaves the client unreviewed, as {{pulled-statements}} describes. A failed pull of a replacement that a refresh requires is not an exception: the refresh fails ({{refresh}}).
 
 ## Statement Lifetime {#enforcement-bounds}
 
