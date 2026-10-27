@@ -354,7 +354,7 @@ The server authenticates the resource owner and applies authorization policy ind
 
 ## Authorization Code Redemption {#redemption}
 
-The client sends `grant_type=authorization_code`, the code, the same `client_id` and `redirect_uri`, and the PKCE `code_verifier`. It MUST authenticate with a current instance attestation and a fresh proof under the recorded key. It MUST NOT send the `software_statement` parameter on this request, as {{STATEMENT}} prohibits a presentation during code redemption.
+The client sends `grant_type=authorization_code`, the code, the same `client_id` and `redirect_uri`, and the PKCE `code_verifier`. It MUST authenticate with a current instance attestation and a fresh proof under the recorded key. It does not send the `software_statement` parameter, which {{STATEMENT}} prohibits on code redemption.
 
 Before issuing tokens, the server MUST verify the code and PKCE binding and every fixed establishment value in {{establishment}}. It MUST re-evaluate both trust decisions, require the recorded statement to be unexpired and not refused, and confirm that the current Client ID Metadata Document still matches its recorded digest and meets {{client-metadata}}. Retrieval and cache reuse use the reuse bounds of {{STATEMENT}}. The attestation MUST match that digest and be within its attestation effective expiry.
 
