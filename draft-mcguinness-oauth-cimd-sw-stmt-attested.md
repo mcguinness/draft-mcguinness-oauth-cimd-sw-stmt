@@ -634,7 +634,7 @@ This profile cannot ensure benign user intent, prevent an approved application f
 
 An attacker can attempt to occupy a loopback port, intercept a response, or initiate its own authorization transaction using the published client identifier. PKCE and proof of the recorded key protect redemption of an intercepted code. Admission of a new transaction additionally requires an acceptable instance attestation; PKCE or an unattested DPoP key alone supplies no software identity.
 
-The client MUST keep its verifier and transaction state confidential and unpredictable as their respective specifications require. A launcher handling authorization for another process acts as the signing broker of {{signing-brokers}}.
+The client keeps its verifier and transaction state confidential and unpredictable, as their respective specifications provide. A launcher handling authorization for another process acts as the signing broker of {{signing-brokers}}.
 
 ## Downgrade Prevention {#downgrade}
 
