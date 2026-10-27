@@ -338,7 +338,7 @@ A document carrying a redirection URI another application could claim is present
 
 A statement whose reviewed document carries no key material is consumed at runtime under {{public-client-presentation}} and, if its `statement_uses` claim permits, at registration under the comparable rules of {{REGISTRATION}}.
 
-A key at the document's `jwks_uri` is retrieved at presentation time. If that retrieval fails, the presentation is rejected with `temporarily_unavailable`. A server can reuse a retrieved key set ({{caching}}), but MUST NOT let the client's cache directives alone determine how long a removed key continues to verify ({{external-retrieval}}).
+A key at the document's `jwks_uri` is retrieved at presentation time. If that retrieval fails, the presentation is rejected with `temporarily_unavailable`. A server can reuse a retrieved key set ({{caching}}), but MUST NOT let the client's cache directives alone determine how long a removed key continues to verify ({{statement-validation}}).
 
 ### Public Clients {#public-client-presentation}
 
