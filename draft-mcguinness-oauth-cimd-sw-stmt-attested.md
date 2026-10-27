@@ -299,6 +299,8 @@ At each pushed authorization request, code redemption, and refresh, the authoriz
 
 On continuation, the recorded key, attester, policy, and tenant constraints of {{establishment}} also apply. The server MUST NOT treat an attestation for another digest as permission to update metadata without the software statement replacement required by {{refresh}}.
 
+Implementations MUST apply mutually exclusive validation rules for software statements and instance attestations. Software statement signing keys retain the separation requirements of {{STATEMENT}} and MUST NOT sign instance attestations, even if one organization performs both roles.
+
 ## Proof of Possession {#proof}
 
 The client sends the instance attestation in the `OAuth-Client-Attestation` HTTP header field and uses DPoP combined mode under Section 7.3 of {{ABCA}}. It MUST NOT also send the `OAuth-Client-Attestation-PoP` HTTP header field, and the server MUST reject a request under this profile that does. A `dpop_jkt` parameter alone is not a proof. The authentication method and its validation remain those defined by {{ABCA}}; this profile supplies the attestation's type and additional bindings.
@@ -605,7 +607,7 @@ Existing grants retain their recorded binding ({{selection}}, {{establishment}})
 
 ## Artifact Substitution and Key Separation
 
-The distinct attestation type, digest binding, subject equality, and fixed establishment values prevent a generic attestation or one for another reviewed document from being substituted. Implementations MUST apply mutually exclusive validation rules for software statements and instance attestations. Software statement signing keys retain the separation requirements of {{STATEMENT}} and MUST NOT sign instance attestations, even if one organization performs both roles.
+The distinct attestation type, digest binding, subject equality, and fixed establishment values prevent a generic attestation or one for another reviewed document from being substituted ({{attestation-validation}}).
 
 Attester authorization is scoped independently to client namespaces and tenants. An over-broad attester can undermine the binding for every namespace for which it can issue instance attestations. A statement issuer and an attester that collude, or that are both compromised, can make false assertions within the authority the server has assigned them.
 
