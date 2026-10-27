@@ -638,7 +638,7 @@ The client MUST keep its verifier and transaction state confidential and unpredi
 
 ## Downgrade Prevention {#downgrade}
 
-A requester can try to avoid this profile by omitting every review artifact, by presenting a statement over an earlier document, or by opening a grant another way. Because {{required-binding}} bases the requirement on server policy, withholding an artifact does not avoid it.
+A requester can try to avoid this profile by omitting every review artifact, by presenting a statement over an earlier document, or by opening a grant another way. Because {{required-binding}} bases a server's requirement for reviewed software on its own policy, withholding an artifact does not avoid it.
 
 Existing grants retain their recorded binding ({{selection}}, {{establishment}}). A server implementing only {{STATEMENT}} continues to reject clients that select this profile where review is required.
 
