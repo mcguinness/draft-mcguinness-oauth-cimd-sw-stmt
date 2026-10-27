@@ -364,9 +364,7 @@ A presentation is review-only if the reviewed document carries any redirection U
 
 A review-only presentation creates no establishment, admits nothing, and does not advance the `iat` floor of {{multi-instance}}, since it changes nothing for the software's other instances. The authorization server proceeds as it would for the same Client ID Metadata Document client presenting no statement.
 
-The statement of a review-only presentation MUST NOT satisfy a policy requiring reviewed software, and the authorization server SHOULD NOT present that review to the user as an assurance about the presenter. If the server's policy requires reviewed software, it rejects a review-only client with `unauthorized_client`.
-
-For a review-only presentation, the authorization server can record the statement's issuer for audit and inventory.
+The statement of a review-only presentation MUST NOT satisfy a policy requiring reviewed software. If the server's policy requires reviewed software, it rejects a review-only client with `unauthorized_client`.
 
 An authorization server MUST reject, with the `invalid_client` error code, a presentation at the token endpoint under {{runtime-presentation}} from a client whose reviewed document carries no key material. Such a presentation opens no redirect and has nothing to bind it. A statement pulled for such a client at the token endpoint is instead review-only ({{pulled-statements}}).
 
@@ -678,6 +676,12 @@ A server that shares an establishment among grants applies a replacement accepte
 
 An issuer with several signing nodes coordinates `iat` values across them, so that the values of its statements for a given `iss` and `sub` increase strictly whichever node signs ({{profiles}}).
 
+## User Interface, Audit, and Logging {#ui-audit}
+
+An authorization server ought not to present the review in a review-only presentation to the user as an assurance about the presenter ({{public-client-presentation}}). It can record the statement's issuer for audit and inventory.
+
+Authorization servers ought to avoid logging software statements, which are sensitive in transit and at rest. A statement names reviewed software and, if it carries an audience, that software's intended relationships.
+
 # Security Considerations {#security-considerations}
 
 The security considerations of {{CIMD}} and Section 5 of {{RFC7591}} apply.
@@ -721,10 +725,6 @@ Short lifetimes tighten an issuer's control and increase renewal traffic. At a s
 ## Observable State {#oracle-considerations}
 
 A `statement_required` refusal at the authorization endpoint ({{errors}}) travels through the user agent, so anyone who can see the redirection learns that this client has no established standing at this server. The disclosure is accepted because a client that cannot learn why it was refused cannot act. The disclosure carries no detail of the server's issuer trust configuration, which {{errors}} keeps from unauthenticated requesters.
-
-## Statement Handling
-
-Authorization servers ought to avoid logging software statements, which are sensitive in transit and at rest. A statement names reviewed software and, if it carries an audience, that software's intended relationships.
 
 # Privacy Considerations
 
