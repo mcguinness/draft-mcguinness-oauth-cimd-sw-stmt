@@ -91,7 +91,7 @@ A status of `INVALID` is a withdrawal, as is any other status except `VALID` whe
 
 Resolution follows {{STATUSLIST}}. In particular:
 
-* If the referenced index lies outside the list, the server rejects the statement as {{STATUSLIST}} requires, with the error code that {{STATEMENT}} assigns to a statement refused by a refusal record.
+* If the referenced index lies outside the list, the server rejects the statement as {{STATUSLIST}} requires, with the error code that the consuming specification, such as {{STATEMENT}}, assigns to a statement refused by a refusal record.
 * The caching rules of {{STATUSLIST}} apply to resolution, and also apply when the server checks a recorded statement at refresh ({{STATEMENT}}).
 * A server SHOULD retrieve the list on the list's own schedule, within the expiration and caching bounds its `exp` and `ttl` claims set (Section 11.5 of {{STATUSLIST}}), rather than once per request ({{resolution-schedule}}).
 
