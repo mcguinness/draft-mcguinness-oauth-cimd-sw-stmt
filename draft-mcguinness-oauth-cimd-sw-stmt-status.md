@@ -49,7 +49,7 @@ normative:
 
 --- abstract
 
-This specification defines how the status of a software statement for a Client ID Metadata Document is published and checked. Token Status List supplies the authoritative status: an issuer publishes it, and a trusting authorization server resolves it on the list's own schedule and refuses a withdrawn statement. Optional Shared Signals events tell the servers relying on an issuer's statements that a status has changed, prompting them to check at once. An event only says when to look, so a server that misses every event reaches the same result on its ordinary schedule.
+This specification defines how the status of a software statement for a Client ID Metadata Document is published and checked. Token Status List supplies the authoritative status: an issuer publishes it, and a trusting authorization server resolves it on the list's own schedule and refuses a withdrawn statement. Optional Shared Signals events tell the servers relying on an issuer's statements that a status has changed, prompting them to check at once. An event indicates only when to check, so a server that misses every event reaches the same result on its ordinary schedule.
 
 --- middle
 
@@ -104,7 +104,7 @@ A trusting authorization server MUST NOT accept an event from an issuer it has n
 
 An issuer MUST ensure that its Transmitter configuration's `jwks_uri` differs both from the issuer's `software_statement_jwks_uri` ({{STATEMENT}}) and from the `jwks_uri` in its authorization server metadata {{RFC8414}}, whose keys verify its Status List Tokens. A receiver MUST NOT create or keep a stream whose Transmitter configuration names either of those locations.
 
-A SET carrying an event defined here MUST use the explicit `typ` JOSE header parameter value `secevent+jwt` (Section 2.3 of {{RFC8417}}). Its `aud` claim MUST contain the audience of the stream that delivers it, which {{SSF}} lets the transmitter and receiver agree. A receiver MUST NOT create or keep a stream whose audience does not identify it.
+A SET carrying an event defined here MUST use the explicit `typ` JOSE header parameter value `secevent+jwt` (Section 2.3 of {{RFC8417}}). Its `aud` claim MUST contain the audience of the stream that delivers it, which {{SSF}} lets the transmitter and receiver agree on. A receiver MUST NOT create or keep a stream whose audience does not identify it.
 
 # Subject Identification {#subjects}
 
@@ -133,7 +133,7 @@ The event reports that the issuer has changed the published status of one or mor
 
 The event does not say what the new status is, and a receiver MUST NOT infer one from it. A receiver that resolves a status of `VALID` after receiving an event has applied that event correctly.
 
-The following non-normative example shows the payload of a SET carrying this event for one statement:
+The following is a non-normative example of the payload of a SET carrying this event for one statement:
 
 ~~~ json
 {
@@ -183,7 +183,7 @@ A trusting authorization server that supports these events SHOULD create one str
 
 The subjects appropriate to a stream are those of the issuer's statements whose `aud` claim is absent or names the receiving authorization server. A transmitter SHOULD scope each stream to those subjects. A receiver discards events for subjects outside the identifier scope for which it accepts that issuer ({{STATEMENT}}).
 
-A receiver SHOULD request the event this specification defines, and SHOULD use the stream verification facility of {{SSF}} on a schedule.
+A receiver SHOULD request the event this specification defines, and SHOULD use the stream verification facility of {{SSF}} periodically.
 
 # Security Considerations
 
@@ -195,9 +195,9 @@ Because {{STATUSLIST}} aggregates many statements into one list, a retrieval tel
 
 ## What an Event Cannot Do
 
-An event names no status, so a forged, replayed, delayed, or reordered event cannot change whether any statement stands. Its only effect is a resolution the receiver would have performed anyway.
+An event names no status, so a forged, replayed, delayed, or reordered event cannot change whether any statement stands. Its only effect is a resolution the receiver would otherwise have performed on its own schedule.
 
-The remaining exposure is resource cost: an attacker holding the issuer's SET signing key, or a misbehaving transmitter, can drive resolutions. A receiver SHOULD bound the rate at which it resolves in response to events, coalescing events for the same issuer.
+The remaining exposure is resource cost: an attacker holding the issuer's SET signing key, or a misbehaving transmitter, can trigger resolutions. A receiver SHOULD bound the rate at which it resolves in response to events, coalescing events for the same issuer.
 
 ## Status Remains the Authority
 
@@ -207,7 +207,7 @@ A receiver SHOULD alert on stream loss rather than assume quiescence. The absenc
 
 ## Key Separation and Compromise
 
-The distinct key set locations of {{relationship}} separate SET keys from statement and Status List Token keys only while the transmitter publishes no SET key in either of the other key sets. With the keys separated, compromise of a SET key lets an attacker drive resolutions and nothing more, while compromise of a statement signing key has wider effect, because statements grant standing and events cannot.
+The distinct key set locations of {{relationship}} separate SET keys from statement and Status List Token keys only while the transmitter publishes no SET key in either of the other key sets. With the keys separated, compromise of a SET key lets an attacker trigger resolutions and nothing more. Compromise of a statement signing key has wider effect, because statements grant standing and events do not.
 
 # Privacy Considerations
 
@@ -215,7 +215,7 @@ The privacy considerations of {{STATEMENT}}, {{STATUSLIST}}, {{SSF}}, and {{RFC8
 
 Subject identifiers in these events name reviewed software and, in aggregate, describe an organization's approved software estate. For this reason, a stream is scoped as {{configuration}} provides. A receiver SHOULD apply to event logs the handling it applies to statements ({{STATEMENT}}).
 
-Because this specification defines no durable receiver-side record, it adds no negative state about a client identifier that outlives the issuer's own published status. A receiver that logs events does create such a record, and SHOULD bound its retention accordingly.
+Because this specification defines no durable receiver-side record, it adds no negative state about a client identifier that outlives the issuer's own published status. A receiver that logs events creates such a record, and SHOULD bound its retention accordingly.
 
 # IANA Considerations
 
