@@ -288,10 +288,7 @@ A client can publish its statements rather than present them. Its Client ID Meta
 `software_statements_uri`:
 : OPTIONAL. URL, in a Client ID Metadata Document, at which the client publishes software statements about itself. The member has no meaning in a registration request. The URL MUST use the `https` scheme. A request to it returns a JSON object whose `software_statements` member is an array of statements ({{profiles}}), each a string in JWS compact serialization. The metadata digest covers this member ({{metadata-digest}}), so changing where statements are found changes the document's digest, and statements over the earlier document no longer match.
 
-An authorization server that supports pulled statements MAY retrieve this URL when it resolves the document of a client that presented no statement. In retrieving this URL, the server does the following:
-
-* Send a `GET` request with `Accept: application/json`, do not automatically follow redirects, and accept only a `200` response with a JSON media type.
-* Apply the protections {{CIMD}} sets for URLs a document contains and the bounds of {{external-retrieval}}.
+An authorization server that supports pulled statements MAY retrieve this URL when it resolves the document of a client that presented no statement. In retrieving this URL, the server MUST send a `GET` request with `Accept: application/json`, MUST NOT automatically follow redirects, and MUST accept only a `200` response with a JSON media type. It applies the protections {{CIMD}} sets for URLs a document contains and the retrieval rules of {{processing}}.
 
 Both the document and this URL are retrieved before any statement exists to validate, so the ordering of {{processing}} applies from the first statement verified onward.
 
