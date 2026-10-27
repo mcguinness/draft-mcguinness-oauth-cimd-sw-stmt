@@ -209,7 +209,7 @@ A registration created without a statement is not statement-governed: a statemen
 
 # Repeated Registration {#repeated-registration}
 
-One unexpired statement can be consumed more than once, within the bounds of {{STATEMENT}}. The safe default is one registration per (`iss`, `sub`) at one authorization server. On repeated consumption, local policy can reject the request, treat it as idempotent, or create another registration. A repeated public-client registration is answered with the existing registration as {{public-client-registration}} provides. An idempotent response MUST NOT return the existing registration's credentials, such as its `registration_access_token` member. A repeated request can come from any holder of a copy of the statement.
+One unexpired statement can be consumed more than once, within the bounds of {{STATEMENT}} and the server's registration policy ({{registration-policy}}). A repeated public-client registration is answered with the existing registration as {{public-client-registration}} provides. An idempotent response MUST NOT return the existing registration's credentials, such as its `registration_access_token` member.
 
 # Error Responses {#errors}
 
@@ -277,15 +277,23 @@ This section gives guidance to implementers. It adds no requirement.
 
 To apply the validity model ({{registration-validity}}), an authorization server stores with each statement-governed registration the governing statement's `iss`, `jti`, `sub`, and `iat` claims, any claim by which a withdrawal mechanism locates that statement, such as `status`, and the registration's effective expiry. Renewal compares a delivered statement against these ({{revalidation}}).
 
+# Deployment Considerations {#deployment-considerations}
+
+This section gives guidance to operators. It adds no requirement.
+
+## Repeated Registration Policy {#registration-policy}
+
+The safe default is one registration per (`iss`, `sub`) at one authorization server. On repeated consumption, local policy can reject the request, treat it as idempotent, or create another registration. A repeated request can come from any holder of a copy of the statement.
+
 # Security Considerations {#security-considerations}
 
 The security considerations of {{STATEMENT}} and Section 5 of {{RFC7591}} apply.
 
 ## Statements at Registration {#statement-bearer}
 
-A statement consumed at registration is a reusable bearer artifact until it expires. Its audience, lifetime, and `statement_uses` claim ({{STATEMENT}}) and the bounds of {{repeated-registration}} limit what a stolen statement can create.
+A statement consumed at registration is a reusable bearer artifact until it expires. Its audience, lifetime, and `statement_uses` claim ({{STATEMENT}}) and the registration policy of {{registration-policy}} limit what a stolen statement can create.
 
-Under the one-registration default ({{repeated-registration}}), whoever first registers with a copy of a statement holds that registration and its registration access token, and can keep the software's publisher from registering at that server. Such a holder cannot authenticate as the client if the reviewed document's authentication method requires a key the document carries.
+Under the one-registration default ({{registration-policy}}), whoever first registers with a copy of a statement holds that registration and its registration access token, and can keep the software's publisher from registering at that server. Such a holder cannot authenticate as the client if the reviewed document's authentication method requires a key the document carries.
 
 If the publisher's statement permits presentation and the server supports it, the publisher's software can still be admitted through runtime presentation ({{STATEMENT}}). Otherwise, recovery requires intervention by the server's operator or a registration policy other than the one-registration default. This specification defines no way to displace such a registration.
 
