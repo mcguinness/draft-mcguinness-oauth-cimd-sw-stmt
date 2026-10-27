@@ -141,12 +141,12 @@ A statement asserts that its issuer evaluated the Client ID Metadata Document wh
 : REQUIRED. The exact client identifier URL of the Client ID Metadata Document the issuer reviewed, not a `client_id` assigned through {{RFC7591}} registration.
 
 `aud`:
-: OPTIONAL. One or more authorization server issuer identifiers ({{RFC8414}}) restricting which authorization servers can accept the statement. If the claim is absent, any authorization server that trusts the issuer for the subject can accept it ({{issuer-trust}}), and any holder of a copy can use it wherever `statement_uses` permits registration, which requires no key. An issuer therefore ought to name an audience, and omit the claim only if it accepts that any server trusting the issuer may register the software on the strength of a copy ({{REGISTRATION}}).
+: OPTIONAL. One or more authorization server issuer identifiers ({{RFC8414}}) restricting which authorization servers can accept the statement. If the claim is absent, any authorization server that trusts the issuer for the subject can accept it ({{issuer-trust}}), and any holder of a copy can use it wherever `statement_uses` permits registration, which requires no key.
 
 `aud_tenant`:
 : OPTIONAL. A tenant identifier at a trusting authorization server, as {{IDJAG}} defines the claim, naming the tenant in which the statement's decision applies. A statement whose decision is confined to one of a server's tenants MUST carry an `aud` claim naming exactly one authorization server and, unless that server confines the issuer to the tenant through its own trust configuration ({{issuer-trust}}), an `aud_tenant` claim naming the tenant. A tenant identifier is meaningful only at one authorization server.
 
-  A statement whose review applies wherever its `aud` reaches, such as a marketplace listing, carries no `aud_tenant`. Its absence does not mean that the statement applies in every tenant: an issuer also omits it if the authorization server has one tenant, or if the server's trust configuration confines the issuer to a tenant, as it can for an issuer that does not know the tenant's identifier.
+  The absence of `aud_tenant` does not mean that the statement applies in every tenant ({{audience-practice}}).
 
 `statement_uses`:
 : OPTIONAL. A JSON array identifying the permitted uses of the statement: `registration` ({{REGISTRATION}}) and `presentation` ({{cimd-presentation}}). If the claim is absent, only `presentation` is permitted. A delivery renewing a registration ({{REGISTRATION}}) is a use at registration. A refresh replacement ({{refresh}}) and a pulled statement ({{pulled-statements}}) are presentation.
@@ -687,6 +687,12 @@ This section gives guidance to operators and issuers. It adds no requirement.
 Trust configuration ought to constrain each issuer to the client identifier namespaces it is expected to attest, for example URLs under the domains of the software publishers it serves. {{validation}} rejects a statement outside that scope. Without such a scope, a compromised or over-broad issuer can mint acceptable statements about any client software.
 
 When a trusting authorization server configures an issuer whose decisions are confined to one of its tenants, as a customer's own issuer is, it ought to record with that configuration the client identifier namespaces for which the issuer's decision is required in that tenant ({{issuer-trust}}).
+
+## Audience and Tenant Claims {#audience-practice}
+
+An issuer ought to name an audience, and to omit the `aud` claim only if it accepts that any server trusting the issuer can register the software on the strength of a copy ({{REGISTRATION}}).
+
+A statement whose review applies wherever its `aud` reaches, such as a marketplace listing, carries no `aud_tenant` claim. An issuer also omits the claim if the authorization server has one tenant, or if the server's trust configuration confines the issuer to a tenant, as it can for an issuer that does not know the tenant's identifier.
 
 # Security Considerations {#security-considerations}
 
