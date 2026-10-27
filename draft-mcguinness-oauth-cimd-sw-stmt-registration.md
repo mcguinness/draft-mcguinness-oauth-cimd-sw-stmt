@@ -285,6 +285,10 @@ This section gives guidance to operators. It adds no requirement.
 
 The safe default is one registration per (`iss`, `sub`) at one authorization server. On repeated consumption, local policy can reject the request, treat it as idempotent, or create another registration. A repeated request can come from any holder of a copy of the statement.
 
+## Credentials for Statement-Governed Registrations {#credential-practice}
+
+Renewal proves possession of the registration's credential, not that the renewing party is the reviewed software ({{security-considerations}}). Deployments ought to pair statement-governed registrations with credential rotation, sender-constrained client authentication, and the repeated-consumption limits of {{STATEMENT}} and {{registration-policy}}, and ought to treat a credential compromise as requiring re-registration rather than renewal.
+
 # Security Considerations {#security-considerations}
 
 The security considerations of {{STATEMENT}} and Section 5 of {{RFC7591}} apply.
@@ -303,7 +307,7 @@ A public-client registration ({{public-client-registration}}) has no credential 
 
 Renewal proves possession of the registration's credential and the currency of a statement sharing the governing statement's `iss` and `sub`, not that the renewing party is the reviewed software. An attacker holding a stolen client credential can renew indefinitely with any current statement for that software. Such statements are distributed to every deployment of the software. A public-client registration has no credential, so its renewal proves only that the replacement is current. No protection is lost, since any party can already use that registration.
 
-Deployments ought to pair statement-governed registrations with credential rotation, sender-constrained client authentication, and the repeated-consumption limits of {{STATEMENT}} and {{repeated-registration}}, and should treat a credential compromise as requiring re-registration rather than renewal. Runtime presentation ({{STATEMENT}}) binds every presenter to the reviewed document and so does not have this limitation.
+Runtime presentation ({{STATEMENT}}) binds every presenter to the reviewed document and so does not have this limitation.
 
 ## Registration Fraud and Impersonation {#registration-fraud}
 
