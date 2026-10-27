@@ -382,7 +382,7 @@ A known refusal record for the software statement is enforced as {{STATEMENT}} r
 
 Because {{attestation-validation}} checks current attester trust and local denial rules at each pushed authorization request, code redemption, and refresh, removing an attester's authorization for this client and tenant, removing the policy, or denying the instance key prevents further use of the affected binding. A fresh attestation does not override those decisions. A deployment that cannot refresh trust data MUST NOT accept that trust data beyond a configured finite maximum staleness bound.
 
-This specification defines no interoperable attestation or instance revocation protocol. Without an instance revocation mechanism, attestation effective expiry bounds acceptance of evidence that has become stale without the server learning of it. Withdrawal of a review, removal of trust, and expiry of evidence do not themselves revoke access tokens already issued ({{revocation-practice}}).
+This specification defines no interoperable attestation or instance revocation protocol. Without an instance revocation mechanism, attestation effective expiry bounds acceptance of evidence that has become stale without the server learning of it. Withdrawal of a review, removal of trust, and denial of an instance key do not themselves revoke access tokens already issued ({{revocation-practice}}).
 
 # Exceptions to Software Statement Processing {#core-exceptions}
 
@@ -608,7 +608,7 @@ This section gives guidance to operators and issuers. It adds no requirement.
 
 ## Revocation and Enforcement Latency {#revocation-practice}
 
-A deployment can use independently established revocation mechanisms or local denial lists. A deployment that requires prompt enforcement needs short token lifetimes or independent token revocation, because withdrawal of a review, removal of trust, and expiry of evidence do not revoke access tokens already issued ({{withdrawal}}).
+A deployment can use independently established revocation mechanisms or local denial lists. A deployment that requires prompt enforcement needs short token lifetimes or independent token revocation, because withdrawal of a review, removal of trust, and denial of an instance key do not revoke access tokens already issued ({{withdrawal}}).
 
 ## Attester Enrollment {#attester-practice}
 
