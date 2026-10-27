@@ -654,7 +654,7 @@ A trusting authorization server can bound the number of establishments, and any 
 
 For software admitted under {{public-client-presentation}}, whose every installation opens its own establishment, a server can also bound establishments per resource owner, so that one user cannot exhaust a bound the software's other users share.
 
-A request refused at a bound is rejected with `invalid_client` ({{presentation-errors}}). Its statement and proof are sound, so the authorization server ought to state that reason in `error_description`, and the client can retry once earlier establishments are released.
+A request refused at a bound is rejected with `invalid_client` ({{presentation-errors}}). Its statement is valid, so the authorization server ought to state that reason in `error_description`, and the client can retry once earlier establishments are released.
 
 ## Grant State {#grant-state}
 
