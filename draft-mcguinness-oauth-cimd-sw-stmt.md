@@ -126,7 +126,7 @@ Review-Only:
 : Describes a presentation, or a pulled statement, that the authorization server evaluates but that admits nothing ({{public-client-presentation}}).
 
 `iat` Floor:
-: For a trusting authorization server, the `iat` claim value of the most recent statement it has accepted for a given `iss` and `sub`, kept per tenant on a multi-tenant server. The server rejects a statement whose `iat` claim is earlier ({{multi-instance}}).
+: For a trusting authorization server, the `iat` claim value of the most recent statement it has accepted for a given `iss` and `sub`, kept per tenant on a multi-tenant server. For the floor, a statement is accepted once the server admits a client on it, applies it as a replacement, or registers a client with it. The server rejects a statement whose `iat` claim is earlier ({{multi-instance}}).
 
 # The Software Statement {#profiles}
 
