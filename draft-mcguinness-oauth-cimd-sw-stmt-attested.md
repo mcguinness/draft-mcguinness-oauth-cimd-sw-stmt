@@ -300,7 +300,7 @@ At each pushed authorization request, code redemption, and refresh, the authoriz
 
 On continuation, the recorded key, attester, policy, and tenant constraints of {{establishment}} also apply. The server MUST NOT treat an attestation for another digest as permission to update metadata without the software statement replacement required by {{refresh}}.
 
-Implementations MUST apply mutually exclusive validation rules for software statements and instance attestations. Software statement signing keys retain the separation requirements of {{STATEMENT}} and MUST NOT sign instance attestations, even if one organization performs both roles.
+A server MUST NOT accept a software statement as an instance attestation, or an instance attestation as a software statement. Software statement signing keys retain the separation requirements of {{STATEMENT}}, so they never sign instance attestations, even if one organization performs both roles.
 
 ## Proof of Possession {#proof}
 
