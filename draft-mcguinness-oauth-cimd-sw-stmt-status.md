@@ -206,7 +206,7 @@ This section gives guidance to operators and issuers. It adds no requirement.
 
 ## Stream Coverage and Monitoring {#stream-practice}
 
-A stream can cover every subject an issuer attests, or the receiver can add each subject through the subject management of {{SSF}} when it first admits that software. Admission checks and the receiver's own status resolution ({{status-resolution}}, {{processing}}) remain independent of the subjects a stream covers, so a withdrawal whose event was transmitted before the subject was added to the stream is found at a later resolution.
+A stream can cover every subject appropriate to it ({{configuration}}), or the receiver can add each subject through the subject management of {{SSF}} when it first admits that software. Admission checks and the receiver's own status resolution ({{status-resolution}}, {{processing}}) remain independent of the subjects a stream covers, so a withdrawal whose event was transmitted before the subject was added to the stream is found at a later resolution.
 
 A receiver ought to alert on stream loss rather than assume quiescence.
 
