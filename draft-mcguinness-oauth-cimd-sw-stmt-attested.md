@@ -615,7 +615,7 @@ Attester authorization is scoped independently to client namespaces and tenants.
 
 Short effective lifetimes limit stale evidence but make attester availability important. A fresh proof demonstrates current access to a key, not that software was re-evaluated at proof time.
 
-Servers MUST enforce finite evidence and trust-data reuse bounds. A failure to retrieve metadata, statements or their status, or trust updates MUST NOT extend a recorded expiry or remove a refusal. An access token cannot outlive the attestation accepted when it was issued ({{redemption}}), but it can outlive a review withdrawn or attester trust removed after issuance ({{withdrawal}}).
+A failure to retrieve metadata, statements or their status, or trust updates MUST NOT extend a recorded expiry or remove a refusal. An access token cannot outlive the attestation accepted when it was issued ({{redemption}}), but it can outlive a review withdrawn or attester trust removed after issuance ({{withdrawal}}).
 
 Metadata digest binding can require coordinated publication of a new document, review, and attestation ({{operations}}). During an incomplete transition a request fails: {{STATEMENT}} does not treat the changed document as reviewed, and this profile does not fall back ({{par}}).
 
