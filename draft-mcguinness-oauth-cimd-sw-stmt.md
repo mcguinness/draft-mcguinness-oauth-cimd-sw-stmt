@@ -575,7 +575,7 @@ Both examples are non-normative.
 
 ## Presenting at the Token Endpoint
 
-The following example shows a client presenting a statement at the token endpoint of a server holding no record for it. The reviewed document names a `jwks_uri`, the `private_key_jwt` authentication method, and the `client_credentials` grant type, so the client authenticates with a key that document carries. The `client_id` is the statement's `sub` (line breaks are for display purposes only).
+The following is an example of a client presenting a statement at the token endpoint of a server holding no record for the client (line breaks for display purposes only). The reviewed document names a `jwks_uri`, the `private_key_jwt` authentication method, and the `client_credentials` grant type, so the client authenticates with a key that document carries. The `client_id` is the statement's `sub`.
 
 ~~~ http
 POST /token HTTP/1.1
@@ -595,7 +595,7 @@ The authorization server validates the statement, retrieves the document its dig
 
 ## Publishing a Statement for Servers to Pull
 
-The following example shows a Client ID Metadata Document naming where its statements are published:
+The following is an example of a Client ID Metadata Document that names where its statements are published:
 
 ~~~ json
 {
@@ -633,7 +633,7 @@ This specification defines the following authorization server metadata {{RFC8414
 : REQUIRED for an authorization server that issues statements under this specification. A JSON array containing the asymmetric JWS `alg` values that the authorization server can use to sign them. The array MUST NOT contain `none` or a symmetric algorithm. An authorization server that only accepts software statements does not publish it.
 
 `software_statement_pull_supported`:
-: OPTIONAL. Boolean value indicating whether the authorization server retrieves statements from a client's `software_statements_uri` when admitting a client that presented none ({{pulled-statements}}). If omitted, the default value is false.
+: OPTIONAL. Boolean value indicating whether the authorization server retrieves statements from a client's `software_statements_uri` when admitting a client that presented none ({{pulled-statements}}). If omitted, the default value is `false`.
 
 # Extension Points {#extensions}
 
@@ -871,7 +871,7 @@ Specification Document(s):
 
 ## OAuth Authorization Server Metadata Registry
 
-This specification requests registration of the following values in the IANA "OAuth Authorization Server Metadata" registry established by {{RFC8414}}.
+This specification requests registration of the following values in the IANA "OAuth Authorization Server Metadata" registry established by {{RFC8414}}:
 
 Metadata Name:
 : `software_statement_signing_alg_values_supported`
