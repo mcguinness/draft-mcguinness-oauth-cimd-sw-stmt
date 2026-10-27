@@ -381,6 +381,7 @@ A successful presentation creates an establishment comprising the following:
 * The reviewed metadata and the digest it matched ({{effective-metadata}}).
 * The issuer trust decision.
 * The sender-constraint mechanism and proven key.
+* Whether the statement was presented or pulled ({{pulled-statements}}).
 
 The establishment persists while the grant depends on it. The authorization server MUST bind the resulting `request_uri`, authorization code, refresh token, and other grant continuation state to the establishment, as applicable ({{grant-state}}).
 
