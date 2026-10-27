@@ -311,7 +311,7 @@ The privacy considerations of {{STATEMENT}} and Section 6 of {{RFC7591}} apply. 
 
 ## OAuth Dynamic Client Registration Metadata Registry
 
-This specification requests registration of the following client metadata member, returned by an authorization server in a registration response:
+This specification requests registration of the following value in the IANA "OAuth Dynamic Client Registration Metadata" registry established by {{RFC7591}}. An authorization server returns this member in a registration response:
 
 Client Metadata Name:
 : `registration_expires_at`

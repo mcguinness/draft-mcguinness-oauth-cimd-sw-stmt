@@ -858,7 +858,7 @@ Specification Document(s):
 
 ## OAuth Dynamic Client Registration Metadata Registry
 
-This specification requests registration of the following client metadata member, published by a client in its Client ID Metadata Document:
+This specification requests registration of the following value in the IANA "OAuth Dynamic Client Registration Metadata" registry established by {{RFC7591}}. A client publishes this member in its Client ID Metadata Document:
 
 Client Metadata Name:
 : `software_statements_uri`
