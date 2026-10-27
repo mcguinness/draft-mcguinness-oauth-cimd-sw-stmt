@@ -1050,7 +1050,7 @@ svg {
 </tr></thead>
 <tfoot><tr>
 <td class="left">McGuinness</td>
-<td class="center">Expires 29 April 2027</td>
+<td class="center">Expires 30 April 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1063,12 +1063,12 @@ svg {
 <dd class="internet-draft">draft-mcguinness-oauth-cimd-sw-stmt-attested-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-10-26" class="published">26 October 2026</time>
+<time datetime="2026-10-27" class="published">27 October 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2027-04-29">29 April 2027</time></dd>
+<dd class="expires"><time datetime="2027-04-30">30 April 2027</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1102,7 +1102,7 @@ svg {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 29 April 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 30 April 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1671,7 +1671,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
             <p id="section-7.2-2.2.1">The exact attester identifier and evidence-policy identifier.<a href="#section-7.2-2.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-7.2-2.3">
-            <p id="section-7.2-2.3.1">The attester trust decision and the attestation effective expiry most recently accepted.<a href="#section-7.2-2.3.1" class="pilcrow">¶</a></p>
+            <p id="section-7.2-2.3.1">The attester trust decision and, for each grant, the attestation effective expiry most recently accepted.<a href="#section-7.2-2.3.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <p id="section-7.2-3">The proven key is the attested key, which is also the DPoP key. A server <span class="bcp14">MAY</span> reuse an establishment only when the reuse conditions of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> hold and the profile, attester, policy, and tenant also match. Individual authorization transactions still retain separate PKCE challenges, redirects, <code>state</code>, resource-owner decisions, and continuation state.<a href="#section-7.2-3" class="pilcrow">¶</a></p>
@@ -1696,7 +1696,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         </h3>
 <p id="section-7.4-1">The client sends <code>grant_type=authorization_code</code>, the code, the same <code>client_id</code> and <code>redirect_uri</code>, and the PKCE <code>code_verifier</code>. It <span class="bcp14">MUST</span> authenticate with a currently acceptable instance attestation and a fresh proof under the recorded key. It <span class="bcp14">MUST NOT</span> send <code>software_statement</code> on this request, as <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> prohibits a presentation during code redemption.<a href="#section-7.4-1" class="pilcrow">¶</a></p>
 <p id="section-7.4-2">Before issuing tokens, the server <span class="bcp14">MUST</span> verify the code and PKCE binding and every fixed establishment value in <a href="#establishment" class="auto internal xref">Section 7.2</a>. It <span class="bcp14">MUST</span> re-evaluate both trust decisions, require the recorded statement to be unexpired and not refused, and confirm that the current Client ID Metadata Document still matches its recorded digest and meets <a href="#client-metadata" class="auto internal xref">Section 4</a>. Retrieval and cache reuse use the freshness bounds of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>. The attestation <span class="bcp14">MUST</span> match that digest and be within its effective expiry.<a href="#section-7.4-2" class="pilcrow">¶</a></p>
-<p id="section-7.4-3">If the metadata changed or the recorded statement needs replacement, the client <span class="bcp14">MUST</span> start a new PAR transaction; code redemption cannot replace the governing review. This includes a digest change made by another grant's refresh, for which <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> rejects the code with <code>invalid_grant</code>. A raised <code>iat</code> floor alone does not invalidate a code already bound to an acceptable recorded statement.<a href="#section-7.4-3" class="pilcrow">¶</a></p>
+<p id="section-7.4-3">If the metadata changed or the recorded statement needs replacement, the client <span class="bcp14">MUST</span> start a new PAR transaction; code redemption cannot replace the governing review. A raised <code>iat</code> floor alone does not invalidate a code already bound to an acceptable recorded statement.<a href="#section-7.4-3" class="pilcrow">¶</a></p>
 <p id="section-7.4-4">The server <span class="bcp14">MUST</span> issue tokens only within the user's authorization, tenant policy, and reviewed metadata. It <span class="bcp14">MUST</span> bind any refresh token to the establishment, and <span class="bcp14">MUST</span> issue access tokens, at redemption and on refresh (<a href="#refresh" class="auto internal xref">Section 8</a>), bound to the proven key with a <code>token_type</code> of <code>DPoP</code> (Section 5 of <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>). The effective expiry of each access token, whether the token is a JWT or an opaque reference, <span class="bcp14">MUST NOT</span> be later than the attestation effective expiry accepted for the request that obtained it. A client holding a refresh token therefore refreshes, with a fresh attestation, at least as often as its attester's evidence age allows, and a client without one starts a new authorization request at the PAR endpoint. A resource server that does not accept DPoP-bound access tokens cannot be used under this profile. A DPoP proof shows possession of the attested key at the resource server; it does not show that the software was re-evaluated at that moment.<a href="#section-7.4-4" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1711,7 +1711,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <p id="section-8-2">On every refresh the server <span class="bcp14">MUST</span> require a current, unexpired, unrefused software statement and re-evaluate its issuer trust decision. This strengthens the optional statement-currency check of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>. It <span class="bcp14">MUST</span> also verify that the currently served document matches the applicable statement and attestation digests and continues to meet <a href="#client-metadata" class="auto internal xref">Section 4</a>. Removal of the binding member or a change to another authentication method ends continuation under this profile, and the refresh is rejected with <code>invalid_grant</code> without seeking a replacement, as <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> rejects a refresh whose document no longer carries the proven key.<a href="#section-8-2" class="pilcrow">¶</a></p>
 <p id="section-8-3">The recorded statement can remain applicable while it is unexpired, not refused, and matches the current document, even if a newer statement has raised the <code>iat</code> floor for new admissions. If it no longer qualifies, a replacement is required. The client can present a replacement in <code>software_statement</code> or, for an establishment created from a pulled statement, the server pulls one as <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> specifies. A request carrying the same <code>iss</code> and <code>jti</code> as the recorded statement is a recheck, not a replacement.<a href="#section-8-3" class="pilcrow">¶</a></p>
 <p id="section-8-4">A replacement <span class="bcp14">MUST</span> satisfy the replacement validation of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, including identical statement <code>iss</code> and <code>sub</code>, a later <code>iat</code>, and current metadata. Its decision <span class="bcp14">MUST</span> apply to the establishment's recorded tenant and runtime use. Instead of authorizing a document key or preserving the public-client conditions of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, the replacement <span class="bcp14">MUST</span> preserve this profile and authorize the establishment's proven key through a current attestation from the recorded attester under the recorded policy. The replacement and attestation <span class="bcp14">MUST</span> name the same current metadata digest. A replacement cannot expand access beyond the original grant, resource-owner authorization, or current server policy.<a href="#section-8-4" class="pilcrow">¶</a></p>
-<p id="section-8-5">On success, the server <span class="bcp14">MUST</span> atomically update the recorded statement, metadata, digest, and trust decisions and apply the concurrency rules of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> for replacements. It also records the newly accepted attestation effective expiry. A failed attempt <span class="bcp14">MUST NOT</span> replace the recorded binding or rotate a refresh token. This does not prevent the server from recording a withdrawal or trust removal learned during processing, or applying independent refresh-token replay protections.<a href="#section-8-5" class="pilcrow">¶</a></p>
+<p id="section-8-5">On success, the server <span class="bcp14">MUST</span> apply the replacement to the refreshed grant alone, as <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> does, atomically updating that grant's recorded statement, metadata, digest, and trust decisions under the concurrency rules of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>. It also records the newly accepted attestation effective expiry for that grant. A failed attempt <span class="bcp14">MUST NOT</span> replace the recorded binding or rotate a refresh token. This does not prevent the server from recording a withdrawal or trust removal learned during processing, or applying independent refresh-token replay protections.<a href="#section-8-5" class="pilcrow">¶</a></p>
 <p id="section-8-6">Attestation renewal for the proven key is not key rotation and does not reset the <code>iat</code> floor or an establishment count.<a href="#section-8-6" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1849,7 +1849,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <dt id="section-11.1-2.9">
 <code>invalid_grant</code>:</dt>
           <dd style="margin-left: 1.5em" id="section-11.1-2.10">
-            <p id="section-11.1-2.10.1">At redemption or refresh, a validly authenticated instance does not match the recorded key, attester, policy, or client; or, at redemption, the current document no longer matches the recorded digest, or that digest differs from the one recorded with the code (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>); or, at refresh, the current document no longer selects this profile or meets <a href="#client-metadata" class="auto internal xref">Section 4</a>.<a href="#section-11.1-2.10.1" class="pilcrow">¶</a></p>
+            <p id="section-11.1-2.10.1">At redemption or refresh, a validly authenticated instance does not match the recorded key, attester, policy, or client; or, at redemption, the current document no longer matches the recorded digest; or, at refresh, the current document no longer selects this profile or meets <a href="#client-metadata" class="auto internal xref">Section 4</a>.<a href="#section-11.1-2.10.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 <dt id="section-11.1-2.11">

@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         26 October 2026
-Expires: 29 April 2027
+Intended status: Standards Track                         27 October 2026
+Expires: 30 April 2027
 
 
           Attested Instance Keys for CIMD Software Statements
@@ -44,7 +44,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 29 April 2027.
+   This Internet-Draft will expire on 30 April 2027.
 
 Copyright Notice
 
@@ -650,8 +650,8 @@ Table of Contents
 
    *  The exact attester identifier and evidence-policy identifier.
 
-   *  The attester trust decision and the attestation effective expiry
-      most recently accepted.
+   *  The attester trust decision and, for each grant, the attestation
+      effective expiry most recently accepted.
 
    The proven key is the attested key, which is also the DPoP key.  A
    server MAY reuse an establishment only when the reuse conditions of
@@ -719,10 +719,8 @@ Table of Contents
 
    If the metadata changed or the recorded statement needs replacement,
    the client MUST start a new PAR transaction; code redemption cannot
-   replace the governing review.  This includes a digest change made by
-   another grant's refresh, for which [STATEMENT] rejects the code with
-   invalid_grant.  A raised iat floor alone does not invalidate a code
-   already bound to an acceptable recorded statement.
+   replace the governing review.  A raised iat floor alone does not
+   invalidate a code already bound to an acceptable recorded statement.
 
    The server MUST issue tokens only within the user's authorization,
    tenant policy, and reviewed metadata.  It MUST bind any refresh token
@@ -780,14 +778,15 @@ Table of Contents
    replacement cannot expand access beyond the original grant, resource-
    owner authorization, or current server policy.
 
-   On success, the server MUST atomically update the recorded statement,
-   metadata, digest, and trust decisions and apply the concurrency rules
-   of [STATEMENT] for replacements.  It also records the newly accepted
-   attestation effective expiry.  A failed attempt MUST NOT replace the
-   recorded binding or rotate a refresh token.  This does not prevent
-   the server from recording a withdrawal or trust removal learned
-   during processing, or applying independent refresh-token replay
-   protections.
+   On success, the server MUST apply the replacement to the refreshed
+   grant alone, as [STATEMENT] does, atomically updating that grant's
+   recorded statement, metadata, digest, and trust decisions under the
+   concurrency rules of [STATEMENT].  It also records the newly accepted
+   attestation effective expiry for that grant.  A failed attempt MUST
+   NOT replace the recorded binding or rotate a refresh token.  This
+   does not prevent the server from recording a withdrawal or trust
+   removal learned during processing, or applying independent refresh-
+   token replay protections.
 
    Attestation renewal for the proven key is not key rotation and does
    not reset the iat floor or an establishment count.
@@ -975,9 +974,8 @@ Table of Contents
    invalid_grant:  At redemption or refresh, a validly authenticated
       instance does not match the recorded key, attester, policy, or
       client; or, at redemption, the current document no longer matches
-      the recorded digest, or that digest differs from the one recorded
-      with the code ([STATEMENT]); or, at refresh, the current document
-      no longer selects this profile or meets Section 4.
+      the recorded digest; or, at refresh, the current document no
+      longer selects this profile or meets Section 4.
 
    statement_required:  A required statement is missing, expired,
       refused, or superseded, or, at refresh, a needed replacement is
