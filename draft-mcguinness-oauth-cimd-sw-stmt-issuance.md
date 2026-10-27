@@ -32,6 +32,9 @@ normative:
     title: "Client ID Metadata Document Software Statement"
     author:
       - fullname: Karl McGuinness
+    date: 2026-10
+    seriesinfo:
+      Internet-Draft: draft-mcguinness-oauth-cimd-sw-stmt-00
   RFC6749:
   RFC7521:
   RFC7523:
@@ -71,6 +74,9 @@ normative:
     title: "Client ID Metadata Document Software Statement Registration"
     author:
       - fullname: Karl McGuinness
+    date: 2026-10
+    seriesinfo:
+      Internet-Draft: draft-mcguinness-oauth-cimd-sw-stmt-registration-00
 
 informative:
   STATUS:
@@ -78,6 +84,9 @@ informative:
     title: "Client ID Metadata Document Software Statement Status"
     author:
       - fullname: Karl McGuinness
+    date: 2026-10
+    seriesinfo:
+      Internet-Draft: draft-mcguinness-oauth-cimd-sw-stmt-status-00
   RFC9864:
   ATTESTERS: I-D.mcguinness-oauth-client-attesters
   RFC8252:
