@@ -338,7 +338,7 @@ The `audience` semantics of this section apply only to software statement reques
 
 The authorization server MUST reject with `invalid_request` a request that omits a required PKCE parameter or a required `dpop_jkt`.
 
-The following is a non-normative example of an authorization request from a confidential client (line breaks are for display purposes only):
+The following is a non-normative example of an authorization request from a confidential client (line breaks for display purposes only):
 
 ~~~ http
 GET /authorize?response_type=software_statement_code
@@ -383,7 +383,7 @@ A software statement code is not an authorization code and MUST NOT be redeemabl
 
 Because scripts at the redirection endpoint can access the fragment, the `fragment` response mode SHOULD NOT be used. A client MAY request the `form_post` response mode {{FORM-POST}}.
 
-The following is an example of a software statement code response using the default `query` response mode (line breaks are for display purposes only):
+The following is an example of a software statement code response using the default `query` response mode (line breaks for display purposes only):
 
 ~~~ http
 HTTP/1.1 302 Found
@@ -435,7 +435,7 @@ For a valid, unconsumed code, the authorization server returns the following, ac
 
 An authorization server that does not defer completes the decision before responding.
 
-The following is a non-normative example of a redemption request from a confidential client at a deferred issuer (line breaks are for display purposes only):
+The following is a non-normative example of a redemption request from a confidential client at a deferred issuer (line breaks for display purposes only):
 
 ~~~ http
 POST /token HTTP/1.1
@@ -465,7 +465,7 @@ Deferral follows {{DTR}}, including the sender constraint it fixes at originatio
 * A successful polling response is the software statement token response of {{software-statement-response}}, not an access token response.
 * Issuers SHOULD set deferral code lifetimes that reflect their actual approval latency, which for a review involving human judgment can be hours or days.
 
-The following is a non-normative example of a first polling request for a deferral created by a token exchange, from a confidential client authenticating with the same `private_key_jwt` method as the exchange:
+The following is a non-normative example of a first polling request for a deferral created by a token exchange, from a confidential client authenticating with the same `private_key_jwt` method as the exchange (line breaks for display purposes only):
 
 ~~~ http
 POST /token HTTP/1.1
