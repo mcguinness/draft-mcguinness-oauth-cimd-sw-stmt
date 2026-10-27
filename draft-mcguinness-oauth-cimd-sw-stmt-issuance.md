@@ -42,6 +42,7 @@ normative:
   RFC8707:
   RFC9207:
   RFC8628:
+  RFC9126:
   RFC9396:
   RFC9449:
   RFC9700:
@@ -65,7 +66,6 @@ informative:
     title: "Client ID Metadata Document Software Statement Status"
     author:
       - fullname: Karl McGuinness
-  RFC9126:
   RFC9864:
   ATTESTERS: I-D.mcguinness-oauth-client-attesters
   RFC8252:
