@@ -271,6 +271,8 @@ This specification defines the following authorization server metadata {{RFC8414
 
 # Security Considerations {#security-considerations}
 
+The security considerations of {{STATEMENT}} and Section 5 of {{RFC7591}} apply.
+
 ## Statements at Registration {#statement-bearer}
 
 A statement consumed at registration is a reusable bearer artifact until it expires. Its audience, lifetime, and `statement_uses` claim ({{STATEMENT}}) and the bounds of {{repeated-registration}} limit what a stolen statement can create.
@@ -303,7 +305,7 @@ The disclosures above are accepted for the reason {{STATEMENT}} gives for its ow
 
 # Privacy Considerations
 
-A registration request reveals to the authorization server what a runtime presentation does ({{STATEMENT}}).
+The privacy considerations of {{STATEMENT}} and Section 6 of {{RFC7591}} apply. A registration request reveals to the authorization server the same information as a runtime presentation.
 
 # IANA Considerations {#iana}
 
