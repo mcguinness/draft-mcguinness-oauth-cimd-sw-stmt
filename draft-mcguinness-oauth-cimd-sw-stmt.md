@@ -336,7 +336,7 @@ This specification requires a reviewed document to declare its client authentica
 
 A document carrying a redirection URI another application could claim is presented review-only whatever its authentication method ({{public-client-presentation}}), and the requirements above do not apply to that presentation. Two rejections still apply to such a document: a presentation under a document that omits `token_endpoint_auth_method`, as above, and a presentation at the token endpoint from a client whose reviewed document carries no key material ({{public-client-presentation}}).
 
-A statement whose reviewed document carries no key material can be consumed at registration if its `statement_uses` claim permits. {{REGISTRATION}} permits registering a document declaring `token_endpoint_auth_method` of `none` only under rules that bind it as {{public-client-presentation}} does. At runtime, a statement for such a document is consumed under {{public-client-presentation}}.
+A statement whose reviewed document carries no key material is consumed at runtime under {{public-client-presentation}} and, if its `statement_uses` claim permits, at registration under the comparable rules of {{REGISTRATION}}.
 
 A key at the document's `jwks_uri` is retrieved at presentation time. If that retrieval fails, the presentation is rejected with `temporarily_unavailable`. A server can reuse a retrieved key set ({{caching}}), but MUST NOT let the client's cache directives alone determine how long a removed key continues to verify ({{external-retrieval}}).
 
@@ -350,7 +350,7 @@ If the client's reviewed document declares `token_endpoint_auth_method` of `none
 * MUST require the presenter to bind a key it holds, through the `dpop_jkt` parameter or, at the pushed authorization request endpoint, a DPoP proof (Section 10.1 of {{RFC9449}}), and records that key as the proven key of the establishment ({{grant-lifecycle}}).
 * MUST NOT require that key to appear in the reviewed document.
 
-The reviewed document, not the proven key, binds the presentation here: an authorization code opened by such a presentation is delivered only to a redirection URI the issuer reviewed, so a holder of a copied statement cannot receive a code that another resource owner approves in a user agent the holder does not control ({{public-client-security}}). The proven key identifies the installation the grant belongs to. Code redemption and refresh prove that key ({{grant-lifecycle}}, {{refresh}}).
+The reviewed redirection URIs, not the proven key, bind such a presentation ({{public-client-security}}). The proven key identifies the installation the grant belongs to, and code redemption and refresh prove it ({{grant-lifecycle}}, {{refresh}}).
 
 A presentation is review-only if the reviewed document carries any redirection URI that another application on the same device could claim: a non-`https` URI, such as a private-use scheme or an `http` loopback redirection URI (Sections 7.1 and 7.3 of {{RFC8252}}), or an `https` URI whose host is a loopback address or `localhost`. One such URI makes every presentation and pulled statement for the document review-only, whatever authentication method the document declares. The application that claims such a URI receives the code, so neither the reviewed redirection URIs nor a key shipped in every copy of the software can bind the presenter.
 
