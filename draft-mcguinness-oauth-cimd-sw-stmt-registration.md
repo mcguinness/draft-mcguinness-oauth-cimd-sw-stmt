@@ -283,7 +283,7 @@ This section gives guidance to operators. It adds no requirement.
 
 ## Repeated Registration Policy {#registration-policy}
 
-The safe default is one registration per (`iss`, `sub`) at one authorization server. On repeated consumption, local policy can reject the request, treat it as idempotent, or create another registration. A repeated request can come from any holder of a copy of the statement.
+The safe default is one registration per (`iss`, `sub`) at one authorization server. On repeated consumption, except for a public-client registration ({{public-client-registration}}), local policy can reject the request, treat it as idempotent, or create another registration. A repeated request can come from any holder of a copy of the statement.
 
 ## Credentials for Statement-Governed Registrations {#credential-practice}
 
