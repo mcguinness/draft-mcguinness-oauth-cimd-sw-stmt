@@ -240,11 +240,7 @@ For each trusted issuer, a trusting authorization server records at least the fo
 
 These inputs, not the signature alone, define acceptance. A trusting authorization server MUST derive trust from this local configuration and MUST NOT derive it from an `iss`, `jku`, `x5u`, or other key-location value carried in a presented statement.
 
-Trust configuration SHOULD constrain each issuer to the client identifier namespaces it is expected to attest, for example URLs under the domains of the software publishers it serves. {{validation}} rejects a statement outside that scope. Without such a scope, a compromised or over-broad issuer can mint acceptable statements about any client software.
-
-When a trusting authorization server configures an issuer whose decisions are confined to one of its tenants, as a customer's own issuer is, it SHOULD record with that configuration the client identifier namespaces for which the issuer's decision is required in that tenant.
-
-A server that records such a requirement MUST NOT admit software in a covered namespace in that tenant without a current statement from the required issuer, whatever its policy for clients it has not reviewed. Without this rule, withholding the statement would restore access the customer withdrew. The requirement is configured rather than inferred from the statements the server sees, so a holder cannot evade a customer's withdrawal by presenting or publishing only a broader statement, such as a marketplace listing.
+A server that records, for one of its tenants, client identifier namespaces for which a configured issuer's decision is required ({{trust-configuration}}) MUST NOT admit software in a covered namespace in that tenant without a current statement from the required issuer, whatever its policy for clients it has not reviewed. Without this rule, withholding the statement would restore access the customer withdrew. The requirement is configured rather than inferred from the statements the server sees, so a holder cannot evade a customer's withdrawal by presenting or publishing only a broader statement, such as a marketplace listing.
 
 A required issuer configured for software whose documents are presented review-only ({{public-client-presentation}}) excludes that software from the tenant.
 
@@ -681,6 +677,16 @@ An issuer with several signing nodes coordinates `iat` values across them, so th
 An authorization server ought not to present the review in a review-only presentation to the user as an assurance about the presenter ({{public-client-presentation}}). It can record the statement's issuer for audit and inventory.
 
 Authorization servers ought to avoid logging software statements, which are sensitive in transit and at rest. A statement names reviewed software and, if it carries an audience, that software's intended relationships.
+
+# Deployment Considerations {#deployment-considerations}
+
+This section gives guidance to operators and issuers. It adds no requirement.
+
+## Configuring Issuer Trust {#trust-configuration}
+
+Trust configuration ought to constrain each issuer to the client identifier namespaces it is expected to attest, for example URLs under the domains of the software publishers it serves. {{validation}} rejects a statement outside that scope. Without such a scope, a compromised or over-broad issuer can mint acceptable statements about any client software.
+
+When a trusting authorization server configures an issuer whose decisions are confined to one of its tenants, as a customer's own issuer is, it ought to record with that configuration the client identifier namespaces for which the issuer's decision is required in that tenant ({{issuer-trust}}).
 
 # Security Considerations {#security-considerations}
 
