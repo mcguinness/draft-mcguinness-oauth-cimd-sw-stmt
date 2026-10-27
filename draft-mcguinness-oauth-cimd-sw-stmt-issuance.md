@@ -274,7 +274,7 @@ The authorization server MUST validate the subject token before retrieving clien
 * It has expired, unless it is a prior software statement accepted under {{renewal}}.
 * It does not authorize issuance for the presented `client_id` parameter.
 
-An unacceptable requested audience results in `invalid_target` {{RFC8693}}.
+An unacceptable requested audience results in `invalid_target` {{RFC8693}}. An error response MUST NOT contain the subject token.
 
 The authorization server MUST bind a fresh metadata snapshot ({{metadata-snapshot}}) and the requested audience before returning either the software statement or a deferral code.
 
@@ -598,6 +598,8 @@ An authorization server ought to keep an audit record that binds each decision, 
 
 It ought to retain the exact retrieved octets of the approved document for audit, because a re-serialized copy cannot reproduce the digest. A deployment that requires approver attribution can retain it in an audit record or define a statement claim and its privacy semantics.
 
+Authorization servers ought to keep subject tokens out of logs, traces, and audit records.
+
 # Security Considerations {#security-considerations}
 
 The security considerations of {{STATEMENT}} apply.
@@ -634,7 +636,7 @@ Validating the subject token before metadata retrieval or enqueueing ({{token-ex
 
 A subject token is an authorization credential, not a client identifier. If the Client ID Metadata Document declares a method, a subject token does not substitute for client authentication.
 
-A subject token appears in a form body, so any component recording request bodies can expose it. Authorization servers MUST exclude subject tokens from logs, traces, error messages, and audit records. Clients and authorization servers MUST protect a subject token as a bearer credential unless its format provides proof of possession.
+A subject token appears in a form body, so any component recording request bodies can expose it ({{audit-logging}}). Clients and authorization servers MUST protect a subject token as a bearer credential unless its format provides proof of possession.
 
 A token exchange carries no in-band evidence of user participation. An authorization server MUST NOT treat a token exchange as implying prior user consent and MUST apply the same issuance and approval policy as for the redirect flow.
 
