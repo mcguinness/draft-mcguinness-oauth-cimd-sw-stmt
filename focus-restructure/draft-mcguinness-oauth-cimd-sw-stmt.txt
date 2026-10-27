@@ -630,10 +630,13 @@ Table of Contents
    An authorization server that supports pulled statements MAY retrieve
    this URL when it resolves the document of a client that presented no
    statement.  In retrieving this URL, the server MUST send a GET
-   request with Accept: application/json, MUST NOT automatically follow
-   redirects, and MUST accept only a 200 response with a JSON media
-   type.  It applies the protections [CIMD] sets for URLs a document
-   contains and the retrieval rules of Section 5.3.
+   request with Accept: application/json and MUST NOT automatically
+   follow redirects.  It MUST accept a new representation only from a
+   200 response with a JSON media type, and can instead reuse a stored
+   representation that a 304 Not Modified response revalidates
+   (Section 15.4.5 of [RFC9110]).  It applies the protections [CIMD]
+   sets for URLs a document contains and the retrieval rules of
+   Section 5.3.
 
    Both the document and this URL are retrieved before any statement
    exists to validate, so the ordering of Section 5.3 applies from the
@@ -798,8 +801,9 @@ Table of Contents
 
    A key at the document's jwks_uri is retrieved at presentation time.
    If that retrieval fails, the presentation is rejected with
-   temporarily_unavailable.  A server can reuse a retrieved key set
-   (Section 12.1), but MUST NOT let the client's cache directives alone
+   temporarily_unavailable.  A server MAY reuse a retrieved key set only
+   within ordinary HTTP caching bounds and a maximum reuse period of its
+   own choosing, and MUST NOT let the client's cache directives alone
    determine how long a removed key continues to verify (Section 14.1).
 
 5.4.1.  Public Clients
@@ -873,7 +877,7 @@ Table of Contents
 
    Octets the authorization server already holds serve for that
    comparison only within a maximum reuse period of its own choosing, as
-   a key set does (Section 12.1).  The authorization server MUST NOT let
+   a key set does (Section 5.4).  The authorization server MUST NOT let
    the client's cache directives alone determine how long held octets
    continue to match a statement.  Without this rule, a key the document
    carries inline would continue to verify after the publisher removes
@@ -1413,12 +1417,6 @@ Table of Contents
 
 12.1.  Caching and Reuse of Retrieved Content
 
-   An authorization server can reuse a recently retrieved key set within
-   ordinary HTTP caching bounds, up to a maximum reuse period of its own
-   choosing (Section 5.4).  Octets of a Client ID Metadata Document it
-   already holds serve for the digest comparison under the same kind of
-   bound (Section 5.5).
-
    A server can revalidate octets it holds with a conditional request
    rather than retrieving them again.  Section 3.1 states when a 304 Not
    Modified response confirms them.
@@ -1600,7 +1598,7 @@ Table of Contents
    compromised key host can add keys that satisfy the proof without a
    digest change.  If that matters, an issuer attests jwks inline and
    accepts that rotation changes the digest.  A server reusing a cached
-   key set (Section 12.1) also accepts that a just-removed key can
+   key set (Section 5.4) also accepts that a just-removed key can
    briefly continue to verify.
 
 14.2.  Servers That Do Not Implement This Specification
