@@ -593,9 +593,10 @@ Table of Contents
       code also applies when the digest of the retrieved document does
       not match the statement's cimd_digest claim, and, at the client
       configuration endpoint, when a delivered replacement fails a
-      replacement rule of Section 3.3, such as a sub claim that differs
-      from the governing statement's or a change in whether the document
-      declares a token_endpoint_auth_method value of none.
+      replacement-specific rule of Section 3.3 that this section assigns
+      no other code, such as a sub claim that differs from the governing
+      statement's or a change in whether the document declares a
+      token_endpoint_auth_method value of none.
 
    unapproved_software_statement:  The statement is valid but not
       acceptable here: its issuer is not configured, its aud excludes

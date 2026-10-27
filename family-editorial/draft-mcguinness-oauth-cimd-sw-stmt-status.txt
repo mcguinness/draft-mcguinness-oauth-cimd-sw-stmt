@@ -147,11 +147,12 @@ Table of Contents
       expired, a trusting authorization server can read an absent claim
       as meaning the issuer publishes no status.
 
-   *  MUST NOT reuse an index within a Status List Token across
-      statements.  Withdrawing a statement then affects no other:
-      withdrawing a superseded statement does not withdraw its
-      replacement, and issuing a replacement does not restore a
-      withdrawn predecessor.
+   *  MUST NOT assign the same combination of status list URI and index
+      to more than one statement, including across successive Status
+      List Tokens published at that URI.  Withdrawing a statement then
+      affects no other: withdrawing a superseded statement does not
+      withdraw its replacement, and issuing a replacement does not
+      restore a withdrawn predecessor.
 
    *  MUST sign the Status List Token with a key published at the
       jwks_uri metadata value of its authorization server metadata
