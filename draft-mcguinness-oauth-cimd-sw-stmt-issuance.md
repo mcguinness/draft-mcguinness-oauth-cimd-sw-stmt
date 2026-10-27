@@ -397,7 +397,7 @@ The following is an example of a software statement code response using the defa
 ~~~ http
 HTTP/1.1 302 Found
 Location: https://client.example.org/cb?
-  software_statement_code=V7e1gP8zT2mN4qR6sW9xY3aB5cD7fH0jK2pL4uQ6vX8&
+  software_statement_code=V7e1gP8zT2mN4qR6sW9xY3aB5cD7fH0jK2pL4uQ6vX&
   state=4L7xQ2mN9pR6sT1vW8yZ3aB5cD0fG2hJ&
   iss=https%3A%2F%2Fserver.example.com
 ~~~
@@ -453,7 +453,7 @@ Content-Type: application/x-www-form-urlencoded
 
 grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3A
   software-statement
-  &software_statement_code=V7e1gP8zT2mN4qR6sW9xY3aB5cD7fH0jK2pL4uQ6vX8
+  &software_statement_code=V7e1gP8zT2mN4qR6sW9xY3aB5cD7fH0jK2pL4uQ6vX
   &redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb
   &client_id=https%3A%2F%2Fclient.example.org%2Fmetadata.json
   &code_verifier=dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk
