@@ -658,7 +658,7 @@ Metadata digest binding can require coordinated publication of a new document, r
 
 ## Resource Exhaustion
 
-Attestations do not remove the need for bounded document retrieval, statement selection, proof replay caches, and PAR storage ({{resource-bounds}}). An installation that can enroll unlimited keys evades per-key controls ({{attester-practice}}).
+Attestations do not remove the need for bounded document retrieval, statement selection, proof replay caches, and PAR storage ({{STATEMENT}}, {{resource-bounds}}). An installation that can enroll unlimited keys evades per-key controls ({{attester-practice}}).
 
 # Privacy Considerations {#privacy}
 
