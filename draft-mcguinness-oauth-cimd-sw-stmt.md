@@ -664,7 +664,7 @@ When a trusting authorization server configures an issuer whose decisions are co
 
 An issuer ought to name an audience, and to omit the `aud` claim only if it accepts that any server trusting the issuer can register the software on the strength of a copy ({{REGISTRATION}}).
 
-A statement whose review applies wherever its `aud` reaches, such as a marketplace listing, carries no `aud_tenant` claim. An issuer also omits the claim if the authorization server has one tenant, or if the server's trust configuration confines the issuer to a tenant, as it can for an issuer that does not know the tenant's identifier.
+An issuer ought to omit the `aud_tenant` claim from a statement whose review applies wherever its `aud` reaches, such as a marketplace listing. The claim is also unnecessary if the authorization server has one tenant, or if the server's trust configuration confines the issuer to a tenant, as it can for an issuer that does not know the tenant's identifier.
 
 ## Statement Lifetime and Renewal {#lifetime-practice}
 
