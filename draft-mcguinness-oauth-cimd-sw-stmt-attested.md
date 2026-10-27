@@ -407,13 +407,7 @@ A supporting server MUST NOT infer this profile's assurance from successful gene
 
 # Error Responses {#errors}
 
-A rejection uses the error response and HTTP status codes specified for the endpoint where it occurs:
-
-* At the token endpoint, Section 5.2 of {{RFC6749}} applies.
-* At the pushed authorization request endpoint, Section 2.3 of {{RFC9126}} applies.
-* At the authorization endpoint, Section 4.1.2.1 of {{RFC6749}} applies.
-
-The error rules of {{STATEMENT}}, {{ABCA}}, and {{RFC9449}} also apply. This specification defines no new error code.
+The error rules of {{STATEMENT}}, {{ABCA}}, and {{RFC9449}} apply. This specification defines no new error code.
 
 ## Error Codes {#error-codes}
 
