@@ -369,7 +369,7 @@ Metadata Name:
 : `software_statement_registration_validity_supported`
 
 Metadata Description:
-: Boolean value indicating whether the authorization server supports this specification, under which every registration created from a validated software statement is governed by its statement validity and revalidation rules.
+: Boolean value indicating whether the authorization server supports this specification, under which every registration it creates from a Client ID Metadata Document software statement is governed by this specification's validity and renewal rules.
 
 Change Controller:
 : IETF
