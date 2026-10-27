@@ -611,6 +611,10 @@ This section gives guidance to operators and issuers. It adds no requirement.
 
 A deployment can use independently established revocation mechanisms or local denial lists. A deployment that requires prompt enforcement needs short token lifetimes or independent token revocation, because withdrawal of a review, removal of trust, and expiry of evidence do not revoke access tokens already issued ({{withdrawal}}).
 
+## Attester Enrollment {#attester-practice}
+
+An attester ought to limit enrollment and renewal so that one approved installation cannot obtain unlimited keys to evade per-key controls, such as denial of an instance key ({{withdrawal}}).
+
 # Security Considerations {#security-considerations}
 
 The security considerations of {{STATEMENT}}, {{ABCA}}, {{CIMD}}, {{RFC8252}}, and {{RFC9700}} apply. This section describes the additional trust boundary introduced by this specification.
@@ -651,7 +655,7 @@ Metadata digest binding can require coordinated publication of a new document, r
 
 ## Resource Exhaustion
 
-Attestations do not remove the need for bounded document retrieval, statement selection, proof replay caches, and PAR storage ({{resource-bounds}}). An attester SHOULD limit enrollment and renewal so one approved installation cannot obtain unlimited keys to evade per-key controls.
+Attestations do not remove the need for bounded document retrieval, statement selection, proof replay caches, and PAR storage ({{resource-bounds}}). An installation that can enroll unlimited keys evades per-key controls ({{attester-practice}}).
 
 # Privacy Considerations {#privacy}
 
