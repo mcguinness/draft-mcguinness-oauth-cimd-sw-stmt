@@ -187,6 +187,8 @@ A receiver SHOULD request the event this specification defines, and SHOULD use t
 
 # Security Considerations
 
+The security considerations of {{STATEMENT}}, {{STATUSLIST}}, {{SSF}}, and {{RFC8417}} apply.
+
 ## Status Resolution Schedule
 
 Because {{STATUSLIST}} aggregates many statements into one list, a retrieval tells the issuer only that some trusting authorization server is checking. A server SHOULD retrieve the list on the list's own schedule rather than once per request. The server's request timing then does not disclose the client population it serves, and each request a statement governs does not depend on issuer availability.
@@ -208,6 +210,8 @@ A receiver SHOULD alert on stream loss rather than assume quiescence. The absenc
 The distinct key set locations of {{relationship}} separate SET keys from statement and Status List Token keys only while the transmitter publishes no SET key in either of the other key sets. With the keys separated, compromise of a SET key lets an attacker drive resolutions and nothing more, while compromise of a statement signing key has wider effect, because statements grant standing and events cannot.
 
 # Privacy Considerations
+
+The privacy considerations of {{STATEMENT}}, {{STATUSLIST}}, {{SSF}}, and {{RFC8417}} apply.
 
 Subject identifiers in these events name reviewed software and, in aggregate, describe an organization's approved software estate, which is why a stream is scoped as {{configuration}} provides. A receiver SHOULD apply to event logs the handling it applies to statements ({{STATEMENT}}).
 
