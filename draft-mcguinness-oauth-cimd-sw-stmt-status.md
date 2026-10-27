@@ -230,7 +230,7 @@ Common Name:
 : CIMD Software Statement Status Changed Event Type
 
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : This specification, {{status-changed}}

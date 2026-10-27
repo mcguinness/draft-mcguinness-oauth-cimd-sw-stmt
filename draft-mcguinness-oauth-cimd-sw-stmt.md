@@ -800,7 +800,7 @@ Claim Description:
 : Unpadded base64url-encoded SHA-256 digest of the retrieved octets of the Client ID Metadata Document evaluated during software statement issuance
 
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : This specification, {{profiles}}
@@ -812,7 +812,7 @@ Claim Description:
 : Permitted uses of a software statement
 
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : This specification, {{profiles}}
@@ -864,7 +864,7 @@ Client Metadata Description:
 : URL, in a Client ID Metadata Document, at which the client publishes software statements about itself for an authorization server to retrieve. It is not meaningful in a registration request.
 
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : This specification, {{pulled-statements}}
@@ -880,7 +880,7 @@ Metadata Description:
 : JSON array containing the asymmetric JWS algorithms supported by the authorization server for signing software statements.
 
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : This specification, {{authorization-server-metadata}}
@@ -892,7 +892,7 @@ Metadata Description:
 : URL of the JWK Set containing only the keys with which the authorization server signs software statements.
 
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : This specification, {{authorization-server-metadata}}
@@ -904,7 +904,7 @@ Metadata Description:
 : Boolean value indicating whether the authorization server retrieves software statements from a client's `software_statements_uri`.
 
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : This specification, {{authorization-server-metadata}}

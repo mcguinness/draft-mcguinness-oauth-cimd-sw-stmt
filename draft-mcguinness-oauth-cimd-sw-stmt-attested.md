@@ -640,7 +640,7 @@ Client Metadata Description:
 : Boolean value selecting attested instance-key binding for runtime admission using a software statement for a Client ID Metadata Document. It is defined for Client ID Metadata Documents and does not enable registration under this specification.
 
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : This specification, {{client-metadata}}
@@ -656,7 +656,7 @@ Metadata Description:
 : Boolean value indicating support for attested instance-key binding of software statements for Client ID Metadata Documents.
 
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : This specification, {{server-metadata}}
@@ -672,7 +672,7 @@ Claim Description:
 : Absolute URI identifying the evidence policy under which an attester associates an instance key with software identified by a Client ID Metadata Document.
 
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : This specification, {{attestation}}

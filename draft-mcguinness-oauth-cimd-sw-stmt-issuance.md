@@ -665,7 +665,7 @@ Response Type Name:
 : `software_statement_code`
 
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : This specification, {{authorization-request}} and {{authorization-response}}
@@ -681,7 +681,7 @@ Common Name:
 : OAuth Software Statement Grant Type
 
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : This specification, {{software-statement-code-redemption}}
@@ -693,7 +693,7 @@ Common Name:
 : OAuth Software Statement Token Type
 
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : This specification, {{software-statement-response}} and {{token-exchange-profile}}
@@ -713,7 +713,7 @@ Parameter Usage Location:
 : authorization response, token request
 
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : This specification, {{software-statement-code-response}} and {{software-statement-code-redemption}}
@@ -729,7 +729,7 @@ Existing Registration:
 : {{RFC8628}}
 
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : {{RFC8628}}, this specification ({{terminal-denial}})
@@ -760,7 +760,7 @@ Metadata Description:
 : JSON array of subject token type values accepted for exchanging into software statements; signals support for the token exchange profile.
 
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : This specification, {{authorization-server-metadata}} and {{token-exchange-profile}}

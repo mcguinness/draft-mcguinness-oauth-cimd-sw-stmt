@@ -320,7 +320,7 @@ Client Metadata Description:
 : Latest time at which a statement-governed registration remains valid, as a NumericDate. A withdrawal can end it earlier. Returned in a client registration response, in a registration management response, and in the token or pushed authorization request response to a request that renews the registration or carries its governing statement.
 
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : This specification, {{registration-validity}}
@@ -352,7 +352,7 @@ Metadata Description:
 : Boolean value indicating whether the authorization server supports this specification, under which every registration created from a validated software statement is governed by its statement validity and revalidation rules.
 
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : This specification, {{authorization-server-metadata}}
