@@ -132,7 +132,7 @@ Such a registration has no {{RFC7592}} management, and the deliveries that {{rev
 
 An authorization server MUST apply the following validity model to every registration it creates from a statement validated under {{STATEMENT}}, whichever issuer signed it:
 
-* The authorization server MUST record, with the registration, the governing statement's `iss`, `jti`, `sub`, and `iat` claims, and any claim by which a withdrawal mechanism locates that statement, such as `status`, together with the registration's effective expiry. That effective expiry is the governing statement's effective expiry ({{STATEMENT}}), what a renewal extends, and what `registration_expires_at` reports.
+* The authorization server MUST bind the registration to its governing statement, identified by the statement's `iss` and `jti` claims ({{registration-state}}). The registration's effective expiry is the governing statement's effective expiry ({{STATEMENT}}), which a renewal extends and `registration_expires_at` reports.
 * The registration is valid until that effective expiry.
 * Once the effective expiry passes without a replacement ({{revalidation}}), the authorization server MUST reject authorization, token, and pushed authorization requests and {{RFC7592}} update requests under the registration, other than a request carrying a replacement, which {{revalidation}} evaluates before this rejection:
   * They are rejected with `statement_required` ({{STATEMENT}}), except that an {{RFC7592}} update request is rejected with `invalid_software_statement`, since the governing statement is expired or refused.
@@ -268,6 +268,14 @@ This specification defines the following authorization server metadata {{RFC8414
 
 `software_statement_registration_validity_supported`:
 : OPTIONAL. Boolean value indicating whether the authorization server supports this specification, under which every registration it creates from a statement validated under {{STATEMENT}} is governed by the validity and revalidation rules of {{registration-validity}} and {{revalidation}}. If omitted, the default value is `false`. A value of `true` does not imply support for runtime presentation.
+
+# Implementation Considerations {#implementation-considerations}
+
+This section gives guidance to implementers. It adds no requirement.
+
+## Registration State {#registration-state}
+
+To apply the validity model ({{registration-validity}}), an authorization server stores with each statement-governed registration the governing statement's `iss`, `jti`, `sub`, and `iat` claims, any claim by which a withdrawal mechanism locates that statement, such as `status`, and the registration's effective expiry. Renewal compares a delivered statement against these ({{revalidation}}).
 
 # Security Considerations {#security-considerations}
 
