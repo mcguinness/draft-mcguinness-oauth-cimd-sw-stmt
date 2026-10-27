@@ -1266,13 +1266,10 @@ svg {
                 <p id="section-toc.1-1.16.2.3.1"><a href="#section-16.3" class="auto internal xref">16.3</a>.  <a href="#name-json-web-token-claims-regis" class="internal xref">JSON Web Token Claims Registry</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.16.2.4">
-                <p id="section-toc.1-1.16.2.4.1"><a href="#section-16.4" class="auto internal xref">16.4</a>.  <a href="#name-oauth-extensions-error-regi" class="internal xref">OAuth Extensions Error Registry</a></p>
+                <p id="section-toc.1-1.16.2.4.1"><a href="#section-16.4" class="auto internal xref">16.4</a>.  <a href="#name-media-type-registration" class="internal xref">Media Type Registration</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.16.2.5">
-                <p id="section-toc.1-1.16.2.5.1"><a href="#section-16.5" class="auto internal xref">16.5</a>.  <a href="#name-media-type-registration" class="internal xref">Media Type Registration</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.16.2.6">
-                <p id="section-toc.1-1.16.2.6.1"><a href="#section-16.6" class="auto internal xref">16.6</a>.  <a href="#name-values-defined-elsewhere" class="internal xref">Values Defined Elsewhere</a></p>
+                <p id="section-toc.1-1.16.2.5.1"><a href="#section-16.5" class="auto internal xref">16.5</a>.  <a href="#name-values-defined-elsewhere" class="internal xref">Values Defined Elsewhere</a></p>
 </li>
             </ul>
 </li>
@@ -1299,13 +1296,10 @@ svg {
             <p id="section-toc.1-1.19.1"><a href="#appendix-B" class="auto internal xref">Appendix B</a>.  <a href="#name-operational-consequences" class="internal xref">Operational Consequences</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.20">
-            <p id="section-toc.1-1.20.1"><a href="#appendix-C" class="auto internal xref">Appendix C</a>.  <a href="#name-verification-scenarios" class="internal xref">Verification Scenarios</a></p>
+            <p id="section-toc.1-1.20.1"><a href="#appendix-C" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.21">
-            <p id="section-toc.1-1.21.1"><a href="#appendix-D" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
-</li>
-          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.22">
-            <p id="section-toc.1-1.22.1"><a href="#appendix-E" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
+            <p id="section-toc.1-1.21.1"><a href="#appendix-D" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
 </li>
         </ul>
 </nav>
@@ -1499,34 +1493,33 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 </li>
       </ul>
 <p id="section-5-3">The server <span class="bcp14">MUST</span> use the tenant determined for the grant by its own trusted processing, as <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> requires. A client-supplied tenant label is not sufficient. The server <span class="bcp14">MUST NOT</span> infer attester trust from a statement issuer's signature, from the client document, or from a key-location claim in the attestation. An <code>iss</code>, a <code>jku</code> or <code>x5u</code> header parameter (<span>[<a href="#RFC7515" class="cite xref">RFC7515</a>]</span>), or a similar value in an unverified JWT <span class="bcp14">MUST NOT</span> cause unconfigured key discovery. Retrieval from a configured key source remains subject to external-retrieval protections and bounded cache reuse.<a href="#section-5-3" class="pilcrow">¶</a></p>
-<p id="section-5-4">A server <span class="bcp14">MAY</span> also require, before accepting an attester for a client, that the reviewed document's <code>client_attesters</code> member (<span>[<a href="#ATTESTERS" class="cite xref">ATTESTERS</a>]</span>) list that attester. This requirement adds to the configuration above and does not replace it. Of the key-trust policies of Section 2.1 of <span>[<a href="#ATTESTERS" class="cite xref">ATTESTERS</a>]</span>, only "AS-configured attester trust" is compatible with this profile: the configured key source remains the only source of keys, and the listed <code>jwks_uri</code> is compared with it but never retrieved. "Publisher-authorized key selection" infers attester trust from the client document, which the previous paragraph prohibits. Because Section 5.3 of <span>[<a href="#ATTESTERS" class="cite xref">ATTESTERS</a>]</span> resolves keys only by <code>kid</code> against a JWK Set, an attester whose keys the server resolves through an <code>x5c</code> certificate chain cannot satisfy this requirement. The server evaluates the listing in the reviewed document's digested bytes, not in a separately retrieved copy. The statement's digest covers the listing, so the statement issuer reviews it, and a change to the listing requires a replacement statement (<a href="#refresh" class="auto internal xref">Section 8</a>) and instance attestations over the new digest.<a href="#section-5-4" class="pilcrow">¶</a></p>
-<p id="section-5-5">The server cannot observe how an attester reached its decision, so it relies on the evidence policy. An evidence policy is acceptable for reviewed-software admission only if it meets all of the following requirements:<a href="#section-5-5" class="pilcrow">¶</a></p>
+<p id="section-5-4">The server cannot observe how an attester reached its decision, so it relies on the evidence policy. An evidence policy is acceptable for reviewed-software admission only if it meets all of the following requirements:<a href="#section-5-4" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5-6.1">
-          <p id="section-5-6.1.1">Before issuing each instance attestation, the attester verifies control of the private instance key through an authenticated, replay-resistant exchange bound to the submitted public key.<a href="#section-5-6.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5-5.1">
+          <p id="section-5-5.1.1">Before issuing each instance attestation, the attester verifies control of the private instance key through an authenticated, replay-resistant exchange bound to the submitted public key.<a href="#section-5-5.1.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-5-6.2">
-          <p id="section-5-6.2.1">The attester evaluates evidence about the software instance and protection of key use, and sets each attestation's <code>exp</code> no later than the time that evidence was collected plus the policy's maximum evidence age. Rounding or randomizing <code>exp</code> (Section 11.1 of <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span>) only moves it earlier. A previous attestation is not evidence: a renewal rests on new evidence under the same bound.<a href="#section-5-6.2.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="section-5-5.2">
+          <p id="section-5-5.2.1">The attester evaluates evidence about the software instance and protection of key use, and sets each attestation's <code>exp</code> no later than the time that evidence was collected plus the policy's maximum evidence age. Rounding or randomizing <code>exp</code> (Section 11.1 of <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span>) only moves it earlier. A previous attestation is not evidence: a renewal rests on new evidence under the same bound.<a href="#section-5-5.2.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-5-6.3">
-          <p id="section-5-6.3.1">The attester establishes an authenticated association between the software identity and the CIMD URL, retrieves and validates the document under <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>, and calculates its digest under <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>.<a href="#section-5-6.3.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="section-5-5.3">
+          <p id="section-5-5.3.1">The attester establishes an authenticated association between the software identity and the CIMD URL, retrieves and validates the document under <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>, and calculates its digest under <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>.<a href="#section-5-5.3.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-5-6.4">
-          <p id="section-5-6.4.1">The attester confirms that the artifact or package identity established by the evidence is covered by that association for the document version the attestation names. The association is authorized by whoever controls the origin of the CIMD URL, or by an authority that controller has explicitly delegated, for example through a manifest served from that origin or signed under that controller's or delegate's authority. An enterprise inventory can authenticate or record such an authorization; listing a package and someone else's CIMD URL together does not create one. A URL, file path, digest, or publisher name asserted only by the requesting process does not suffice. The metadata digest is not an executable digest.<a href="#section-5-6.4.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="section-5-5.4">
+          <p id="section-5-5.4.1">The attester confirms that the artifact or package identity established by the evidence is covered by that association for the document version the attestation names. The association is authorized by whoever controls the origin of the CIMD URL, or by an authority that controller has explicitly delegated, for example through a manifest served from that origin or signed under that controller's or delegate's authority. An enterprise inventory can authenticate or record such an authorization; listing a package and someone else's CIMD URL together does not create one. A URL, file path, digest, or publisher name asserted only by the requesting process does not suffice. The metadata digest is not an executable digest.<a href="#section-5-5.4.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-5-6.5">
-          <p id="section-5-6.5.1">The policy defines what identifies the software, how evidence authenticates that identity and the instance key, how use of the key is restricted to the software instance the evidence covers, a finite maximum evidence age, and the treatment of updates, scripts, plugins, and other executable extensions.<a href="#section-5-6.5.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="section-5-5.5">
+          <p id="section-5-5.5.1">The policy defines what identifies the software, how evidence authenticates that identity and the instance key, how use of the key is restricted to the software instance the evidence covers, a finite maximum evidence age, and the treatment of updates, scripts, plugins, and other executable extensions.<a href="#section-5-5.5.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-5-6.6">
-          <p id="section-5-6.6.1">The policy's identifier denotes immutable policy semantics: a material policy change requires a new identifier.<a href="#section-5-6.6.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="section-5-5.6">
+          <p id="section-5-5.6.1">The policy's identifier denotes immutable policy semantics: a material policy change requires a new identifier.<a href="#section-5-5.6.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-5-6.7">
-          <p id="section-5-6.7.1">The policy establishes an association between the software the statement covers and control of the attested key. User approval of a key, a publisher account login, possession of a shared embedded secret, or device integrity alone does not establish that association.<a href="#section-5-6.7.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="section-5-5.7">
+          <p id="section-5-5.7.1">The policy establishes an association between the software the statement covers and control of the attested key. User approval of a key, a publisher account login, possession of a shared embedded secret, or device integrity alone does not establish that association.<a href="#section-5-5.7.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
-<p id="section-5-7">A server <span class="bcp14">MUST NOT</span> accept for this profile an evidence policy that does not meet these requirements. A deployment <span class="bcp14">MAY</span> use weaker evidence for other purposes but <span class="bcp14">MUST NOT</span> report it as satisfying this profile.<a href="#section-5-7" class="pilcrow">¶</a></p>
-<p id="section-5-8">A statement approves the document and the software that its publisher (the controller of the document URL's origin, or a delegate) associates with it, not a particular executable. The publisher decides which releases that association covers, under the evidence policy's treatment of updates, so a new release with unchanged metadata needs no new statement. This profile cannot enforce an issuer's approval of particular releases.<a href="#section-5-8" class="pilcrow">¶</a></p>
-<p id="section-5-9">Attestation acquisition and platform evidence formats are out of scope. They require an interoperable agreement between the installation and its attester; the wire format below does not by itself supply a software-verification mechanism. <a href="#launcher" class="auto internal xref">Appendix A</a> gives an implementation model and its prerequisites.<a href="#section-5-9" class="pilcrow">¶</a></p>
+<p id="section-5-6">A server <span class="bcp14">MUST NOT</span> accept for this profile an evidence policy that does not meet these requirements. A deployment <span class="bcp14">MAY</span> use weaker evidence for other purposes but <span class="bcp14">MUST NOT</span> report it as satisfying this profile.<a href="#section-5-6" class="pilcrow">¶</a></p>
+<p id="section-5-7">A statement approves the document and the software that its publisher (the controller of the document URL's origin, or a delegate) associates with it, not a particular executable. The publisher decides which releases that association covers, under the evidence policy's treatment of updates, so a new release with unchanged metadata needs no new statement. This profile cannot enforce an issuer's approval of particular releases.<a href="#section-5-7" class="pilcrow">¶</a></p>
+<p id="section-5-8">Attestation acquisition and platform evidence formats are out of scope. They require an interoperable agreement between the installation and its attester; the wire format below does not by itself supply a software-verification mechanism. <a href="#launcher" class="auto internal xref">Appendix A</a> gives an implementation model and its prerequisites.<a href="#section-5-8" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="attestation">
@@ -1534,7 +1527,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
       <h2 id="name-instance-attestation">
 <a href="#section-6" class="section-number selfRef">6. </a><a href="#name-instance-attestation" class="section-name selfRef">Instance Attestation</a>
       </h2>
-<p id="section-6-1">An instance attestation is a Client Attestation JWT (Section 4 of <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span>) with the following additional requirements. Section 4 of <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span> permits additional claims, and Section 13 of <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span> permits a profile its own <code>typ</code>. Together with the document's selection of this profile (<a href="#selection" class="auto internal xref">Section 3</a>), its type tells a server that this profile applies. Its <code>typ</code> JOSE header parameter <span class="bcp14">MUST</span> have the value <code>cimd-instance-attestation+jwt</code>, which is the media type of <a href="#media-type" class="auto internal xref">Section 16.5</a> without its <code>application/</code> prefix. It <span class="bcp14">MUST</span> be digitally signed using an accepted asymmetric algorithm; a MAC or <code>none</code> <span class="bcp14">MUST NOT</span> be accepted. Its header and claims <span class="bcp14">MUST</span> contain no duplicate member names. Validation <span class="bcp14">MUST</span> apply <span>[<a href="#RFC8725" class="cite xref">RFC8725</a>]</span>.<a href="#section-6-1" class="pilcrow">¶</a></p>
+<p id="section-6-1">An instance attestation is a Client Attestation JWT (Section 4 of <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span>) with the following additional requirements. Section 4 of <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span> permits additional claims, and Section 13 of <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span> permits a profile its own <code>typ</code>. Together with the document's selection of this profile (<a href="#selection" class="auto internal xref">Section 3</a>), its type tells a server that this profile applies. Its <code>typ</code> JOSE header parameter <span class="bcp14">MUST</span> have the value <code>cimd-instance-attestation+jwt</code>, which is the media type of <a href="#media-type" class="auto internal xref">Section 16.4</a> without its <code>application/</code> prefix. It <span class="bcp14">MUST</span> be digitally signed using an accepted asymmetric algorithm; a MAC or <code>none</code> <span class="bcp14">MUST NOT</span> be accepted. Its header and claims <span class="bcp14">MUST</span> contain no duplicate member names. Validation <span class="bcp14">MUST</span> apply <span>[<a href="#RFC8725" class="cite xref">RFC8725</a>]</span>.<a href="#section-6-1" class="pilcrow">¶</a></p>
 <p id="section-6-2">The attestation contains the following claims. The <code>sub</code>, <code>iat</code>, <code>exp</code>, and <code>cnf</code> claims also retain the requirements of Section 4 of <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span>.<a href="#section-6-2" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-6-3">
         <dt id="section-6-3.1">
@@ -1678,7 +1671,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
             <p id="section-7.2-2.2.1">The exact attester identifier and evidence-policy identifier.<a href="#section-7.2-2.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-7.2-2.3">
-            <p id="section-7.2-2.3.1">The attester trust decision and the attestation effective expiry most recently accepted.<a href="#section-7.2-2.3.1" class="pilcrow">¶</a></p>
+            <p id="section-7.2-2.3.1">The attester trust decision and, for each grant, the attestation effective expiry most recently accepted.<a href="#section-7.2-2.3.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <p id="section-7.2-3">The proven key is the attested key, which is also the DPoP key. A server <span class="bcp14">MAY</span> reuse an establishment only when the reuse conditions of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> hold and the profile, attester, policy, and tenant also match. Individual authorization transactions still retain separate PKCE challenges, redirects, <code>state</code>, resource-owner decisions, and continuation state.<a href="#section-7.2-3" class="pilcrow">¶</a></p>
@@ -1703,7 +1696,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         </h3>
 <p id="section-7.4-1">The client sends <code>grant_type=authorization_code</code>, the code, the same <code>client_id</code> and <code>redirect_uri</code>, and the PKCE <code>code_verifier</code>. It <span class="bcp14">MUST</span> authenticate with a currently acceptable instance attestation and a fresh proof under the recorded key. It <span class="bcp14">MUST NOT</span> send <code>software_statement</code> on this request, as <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> prohibits a presentation during code redemption.<a href="#section-7.4-1" class="pilcrow">¶</a></p>
 <p id="section-7.4-2">Before issuing tokens, the server <span class="bcp14">MUST</span> verify the code and PKCE binding and every fixed establishment value in <a href="#establishment" class="auto internal xref">Section 7.2</a>. It <span class="bcp14">MUST</span> re-evaluate both trust decisions, require the recorded statement to be unexpired and not refused, and confirm that the current Client ID Metadata Document still matches its recorded digest and meets <a href="#client-metadata" class="auto internal xref">Section 4</a>. Retrieval and cache reuse use the freshness bounds of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>. The attestation <span class="bcp14">MUST</span> match that digest and be within its effective expiry.<a href="#section-7.4-2" class="pilcrow">¶</a></p>
-<p id="section-7.4-3">If the metadata changed or the recorded statement needs replacement, the client <span class="bcp14">MUST</span> start a new PAR transaction; code redemption cannot replace the governing review. This includes a digest change made by another grant's refresh, for which <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> rejects the code with <code>invalid_grant</code>. A raised <code>iat</code> floor alone does not invalidate a code already bound to an acceptable recorded statement.<a href="#section-7.4-3" class="pilcrow">¶</a></p>
+<p id="section-7.4-3">If the metadata changed or the recorded statement needs replacement, the client <span class="bcp14">MUST</span> start a new PAR transaction; code redemption cannot replace the governing review. A raised <code>iat</code> floor alone does not invalidate a code already bound to an acceptable recorded statement.<a href="#section-7.4-3" class="pilcrow">¶</a></p>
 <p id="section-7.4-4">The server <span class="bcp14">MUST</span> issue tokens only within the user's authorization, tenant policy, and reviewed metadata. It <span class="bcp14">MUST</span> bind any refresh token to the establishment, and <span class="bcp14">MUST</span> issue access tokens, at redemption and on refresh (<a href="#refresh" class="auto internal xref">Section 8</a>), bound to the proven key with a <code>token_type</code> of <code>DPoP</code> (Section 5 of <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>). The effective expiry of each access token, whether the token is a JWT or an opaque reference, <span class="bcp14">MUST NOT</span> be later than the attestation effective expiry accepted for the request that obtained it. A client holding a refresh token therefore refreshes, with a fresh attestation, at least as often as its attester's evidence age allows, and a client without one starts a new authorization request at the PAR endpoint. A resource server that does not accept DPoP-bound access tokens cannot be used under this profile. A DPoP proof shows possession of the attested key at the resource server; it does not show that the software was re-evaluated at that moment.<a href="#section-7.4-4" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1718,7 +1711,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <p id="section-8-2">On every refresh the server <span class="bcp14">MUST</span> require a current, unexpired, unrefused software statement and re-evaluate its issuer trust decision. This strengthens the optional statement-currency check of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>. It <span class="bcp14">MUST</span> also verify that the currently served document matches the applicable statement and attestation digests and continues to meet <a href="#client-metadata" class="auto internal xref">Section 4</a>. Removal of the binding member or a change to another authentication method ends continuation under this profile, and the refresh is rejected with <code>invalid_grant</code> without seeking a replacement, as <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> rejects a refresh whose document no longer carries the proven key.<a href="#section-8-2" class="pilcrow">¶</a></p>
 <p id="section-8-3">The recorded statement can remain applicable while it is unexpired, not refused, and matches the current document, even if a newer statement has raised the <code>iat</code> floor for new admissions. If it no longer qualifies, a replacement is required. The client can present a replacement in <code>software_statement</code> or, for an establishment created from a pulled statement, the server pulls one as <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> specifies. A request carrying the same <code>iss</code> and <code>jti</code> as the recorded statement is a recheck, not a replacement.<a href="#section-8-3" class="pilcrow">¶</a></p>
 <p id="section-8-4">A replacement <span class="bcp14">MUST</span> satisfy the replacement validation of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, including identical statement <code>iss</code> and <code>sub</code>, a later <code>iat</code>, and current metadata. Its decision <span class="bcp14">MUST</span> apply to the establishment's recorded tenant and runtime use. Instead of authorizing a document key or preserving the public-client conditions of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, the replacement <span class="bcp14">MUST</span> preserve this profile and authorize the establishment's proven key through a current attestation from the recorded attester under the recorded policy. The replacement and attestation <span class="bcp14">MUST</span> name the same current metadata digest. A replacement cannot expand access beyond the original grant, resource-owner authorization, or current server policy.<a href="#section-8-4" class="pilcrow">¶</a></p>
-<p id="section-8-5">On success, the server <span class="bcp14">MUST</span> atomically update the recorded statement, metadata, digest, and trust decisions and apply the concurrency rules of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> for replacements. It also records the newly accepted attestation effective expiry. A failed attempt <span class="bcp14">MUST NOT</span> replace the recorded binding or rotate a refresh token. This does not prevent the server from recording a withdrawal or trust removal learned during processing, or applying independent refresh-token replay protections.<a href="#section-8-5" class="pilcrow">¶</a></p>
+<p id="section-8-5">On success, the server <span class="bcp14">MUST</span> apply the replacement to the refreshed grant alone, as <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> does, atomically updating that grant's recorded statement, metadata, digest, and trust decisions under the concurrency rules of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>. It also records the newly accepted attestation effective expiry for that grant. A failed attempt <span class="bcp14">MUST NOT</span> replace the recorded binding or rotate a refresh token. This does not prevent the server from recording a withdrawal or trust removal learned during processing, or applying independent refresh-token replay protections.<a href="#section-8-5" class="pilcrow">¶</a></p>
 <p id="section-8-6">Attestation renewal for the proven key is not key rotation and does not reset the <code>iat</code> floor or an establishment count.<a href="#section-8-6" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1856,7 +1849,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <dt id="section-11.1-2.9">
 <code>invalid_grant</code>:</dt>
           <dd style="margin-left: 1.5em" id="section-11.1-2.10">
-            <p id="section-11.1-2.10.1">At redemption or refresh, a validly authenticated instance does not match the recorded key, attester, policy, or client; or, at redemption, the current document no longer matches the recorded digest, or that digest differs from the one recorded with the code (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>); or, at refresh, the current document no longer selects this profile or meets <a href="#client-metadata" class="auto internal xref">Section 4</a>.<a href="#section-11.1-2.10.1" class="pilcrow">¶</a></p>
+            <p id="section-11.1-2.10.1">At redemption or refresh, a validly authenticated instance does not match the recorded key, attester, policy, or client; or, at redemption, the current document no longer matches the recorded digest; or, at refresh, the current document no longer selects this profile or meets <a href="#client-metadata" class="auto internal xref">Section 4</a>.<a href="#section-11.1-2.10.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 <dt id="section-11.1-2.11">
@@ -1874,8 +1867,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 </dl>
 <p id="section-11.1-3">Invalid statements and reviewed documents at the PAR endpoint otherwise use the error rules of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>. At refresh, an unacceptable replacement uses <code>statement_required</code> as in <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>. A document exceeding a configured size bound is not a transient failure, and the server uses the non-transient retrieval and refresh errors of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>. An invalid or expired code or refresh token, failed PKCE check, or mismatched redemption redirect uses <code>invalid_grant</code>.<a href="#section-11.1-3" class="pilcrow">¶</a></p>
 <p id="section-11.1-4">A DPoP proof that fails the checks of Section 4.3 of <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span> is rejected with <code>invalid_dpop_proof</code> (Section 5 of <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>), and a missing or unacceptable nonce with <code>use_dpop_nonce</code>, in place of any code listed above, as <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> provides for proof-mechanism errors. A valid proof under a key other than the attestation's <code>cnf</code> key is not an invalid proof: authentication fails (Section 7.3 of <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span>), and the request is rejected with <code>invalid_client</code>, or with <code>invalid_client_attestation</code> as Section 7.4 of <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span> permits. At code redemption and refresh, an instance that authenticates under a key other than the establishment's recorded key fails the grant binding and is rejected with <code>invalid_grant</code>.<a href="#section-11.1-4" class="pilcrow">¶</a></p>
-<p id="section-11.1-5">A request that fails a required <code>client_attesters</code> listing (<a href="#trust" class="auto internal xref">Section 5</a>) is rejected with <code>invalid_client_attestation</code>. Such a request has a listing that is malformed, omits the attester, or names a <code>jwks_uri</code> that does not match the configured key source (Section 5.3 of <span>[<a href="#ATTESTERS" class="cite xref">ATTESTERS</a>]</span>). As Section 5.4 of <span>[<a href="#ATTESTERS" class="cite xref">ATTESTERS</a>]</span> requires, that code also replaces <code>invalid_client</code> for each other attestation failure for which Section 7.4 of <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span> permits it. Retrieval failures are not listing failures: they keep the error codes of this section and <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, including <code>temporarily_unavailable</code>. The order of <a href="#error-precedence" class="auto internal xref">Section 11.2</a> still applies. The listing is checked in the reviewed document, after the checks of step 1 of <a href="#par" class="auto internal xref">Section 7.1</a>, so a response from that step, such as <code>use_fresh_attestation</code>, does not indicate whether the attester is listed.<a href="#section-11.1-5" class="pilcrow">¶</a></p>
-<p id="section-11.1-6">A <code>use_dpop_nonce</code> response <span class="bcp14">MUST</span> include the <code>DPoP-Nonce</code> HTTP header field.<a href="#section-11.1-6" class="pilcrow">¶</a></p>
+<p id="section-11.1-5">A <code>use_dpop_nonce</code> response <span class="bcp14">MUST</span> include the <code>DPoP-Nonce</code> HTTP header field.<a href="#section-11.1-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="error-precedence">
@@ -2220,212 +2212,102 @@ grant_type=refresh_token
 <p id="section-16.3-3">This specification also requests that the <code>cimd_digest</code> registration requested by <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> list this specification (<a href="#attestation" class="auto internal xref">Section 6</a>) as an additional reference.<a href="#section-16.3-3" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="oauth-extensions-error-registry">
-<section id="section-16.4">
-        <h3 id="name-oauth-extensions-error-regi">
-<a href="#section-16.4" class="section-number selfRef">16.4. </a><a href="#name-oauth-extensions-error-regi" class="section-name selfRef">OAuth Extensions Error Registry</a>
-        </h3>
-<p id="section-16.4-1">This specification requests that IANA update the following entries in the "OAuth Extensions Error Registry" established by <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>. In each entry, the pushed authorization request error response, which can already carry the error under <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span>, is added to the usage locations, and this specification is added as a reference.<a href="#section-16.4-1" class="pilcrow">¶</a></p>
-<span class="break"></span><dl class="dlParallel" id="section-16.4-2">
-          <dt id="section-16.4-2.1">Error Name:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.4-2.2">
-            <p id="section-16.4-2.2.1"><code>use_fresh_attestation</code><a href="#section-16.4-2.2.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-16.4-2.3">Error Usage Location:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.4-2.4">
-            <p id="section-16.4-2.4.1">pushed authorization request error response, in addition to the locations already registered<a href="#section-16.4-2.4.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-16.4-2.5">Related Protocol Extension:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.4-2.6">
-            <p id="section-16.4-2.6.1">OAuth 2.0 Attestation-Based Client Authentication<a href="#section-16.4-2.6.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-16.4-2.7">Change Controller:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.4-2.8">
-            <p id="section-16.4-2.8.1">IETF<a href="#section-16.4-2.8.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-16.4-2.9">Specification Document(s):</dt>
-          <dd style="margin-left: 1.5em" id="section-16.4-2.10">
-            <p id="section-16.4-2.10.1"><span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span>, this specification (<a href="#errors" class="auto internal xref">Section 11</a>)<a href="#section-16.4-2.10.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-16.4-2.11">Error Name:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.4-2.12">
-            <p id="section-16.4-2.12.1"><code>invalid_client_attestation</code><a href="#section-16.4-2.12.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-16.4-2.13">Error Usage Location:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.4-2.14">
-            <p id="section-16.4-2.14.1">pushed authorization request error response, in addition to the locations already registered<a href="#section-16.4-2.14.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-16.4-2.15">Related Protocol Extension:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.4-2.16">
-            <p id="section-16.4-2.16.1">OAuth 2.0 Attestation-Based Client Authentication<a href="#section-16.4-2.16.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-16.4-2.17">Change Controller:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.4-2.18">
-            <p id="section-16.4-2.18.1">IETF<a href="#section-16.4-2.18.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-16.4-2.19">Specification Document(s):</dt>
-          <dd style="margin-left: 1.5em" id="section-16.4-2.20">
-            <p id="section-16.4-2.20.1"><span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span>, this specification (<a href="#errors" class="auto internal xref">Section 11</a>)<a href="#section-16.4-2.20.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-16.4-2.21">Error Name:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.4-2.22">
-            <p id="section-16.4-2.22.1"><code>use_dpop_nonce</code><a href="#section-16.4-2.22.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-16.4-2.23">Error Usage Location:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.4-2.24">
-            <p id="section-16.4-2.24.1">pushed authorization request error response, in addition to the locations already registered<a href="#section-16.4-2.24.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-16.4-2.25">Related Protocol Extension:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.4-2.26">
-            <p id="section-16.4-2.26.1">Demonstrating Proof of Possession (DPoP)<a href="#section-16.4-2.26.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-16.4-2.27">Change Controller:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.4-2.28">
-            <p id="section-16.4-2.28.1">IETF<a href="#section-16.4-2.28.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-16.4-2.29">Specification Document(s):</dt>
-          <dd style="margin-left: 1.5em" id="section-16.4-2.30">
-            <p id="section-16.4-2.30.1"><span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>, this specification (<a href="#errors" class="auto internal xref">Section 11</a>)<a href="#section-16.4-2.30.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-16.4-2.31">Error Name:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.4-2.32">
-            <p id="section-16.4-2.32.1"><code>invalid_dpop_proof</code><a href="#section-16.4-2.32.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-16.4-2.33">Error Usage Location:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.4-2.34">
-            <p id="section-16.4-2.34.1">pushed authorization request error response, in addition to the locations already registered<a href="#section-16.4-2.34.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-16.4-2.35">Related Protocol Extension:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.4-2.36">
-            <p id="section-16.4-2.36.1">Demonstrating Proof of Possession (DPoP)<a href="#section-16.4-2.36.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-16.4-2.37">Change Controller:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.4-2.38">
-            <p id="section-16.4-2.38.1">IETF<a href="#section-16.4-2.38.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-16.4-2.39">Specification Document(s):</dt>
-          <dd style="margin-left: 1.5em" id="section-16.4-2.40">
-            <p id="section-16.4-2.40.1"><span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>, this specification (<a href="#errors" class="auto internal xref">Section 11</a>)<a href="#section-16.4-2.40.1" class="pilcrow">¶</a></p>
-</dd>
-        <dd class="break"></dd>
-</dl>
-</section>
-</div>
 <div id="media-type">
-<section id="section-16.5">
+<section id="section-16.4">
         <h3 id="name-media-type-registration">
-<a href="#section-16.5" class="section-number selfRef">16.5. </a><a href="#name-media-type-registration" class="section-name selfRef">Media Type Registration</a>
+<a href="#section-16.4" class="section-number selfRef">16.4. </a><a href="#name-media-type-registration" class="section-name selfRef">Media Type Registration</a>
         </h3>
-<p id="section-16.5-1">This specification requests registration of the following media type in the "Media Types" registry, in the manner described in <span>[<a href="#RFC6838" class="cite xref">RFC6838</a>]</span>:<a href="#section-16.5-1" class="pilcrow">¶</a></p>
-<span class="break"></span><dl class="dlParallel" id="section-16.5-2">
-          <dt id="section-16.5-2.1">Type name:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.5-2.2">
-            <p id="section-16.5-2.2.1">application<a href="#section-16.5-2.2.1" class="pilcrow">¶</a></p>
+<p id="section-16.4-1">This specification requests registration of the following media type in the "Media Types" registry, in the manner described in <span>[<a href="#RFC6838" class="cite xref">RFC6838</a>]</span>:<a href="#section-16.4-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-16.4-2">
+          <dt id="section-16.4-2.1">Type name:</dt>
+          <dd style="margin-left: 1.5em" id="section-16.4-2.2">
+            <p id="section-16.4-2.2.1">application<a href="#section-16.4-2.2.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-16.5-2.3">Subtype name:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.5-2.4">
-            <p id="section-16.5-2.4.1">cimd-instance-attestation+jwt<a href="#section-16.5-2.4.1" class="pilcrow">¶</a></p>
+<dt id="section-16.4-2.3">Subtype name:</dt>
+          <dd style="margin-left: 1.5em" id="section-16.4-2.4">
+            <p id="section-16.4-2.4.1">cimd-instance-attestation+jwt<a href="#section-16.4-2.4.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-16.5-2.5">Required parameters:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.5-2.6">
-            <p id="section-16.5-2.6.1">n/a<a href="#section-16.5-2.6.1" class="pilcrow">¶</a></p>
+<dt id="section-16.4-2.5">Required parameters:</dt>
+          <dd style="margin-left: 1.5em" id="section-16.4-2.6">
+            <p id="section-16.4-2.6.1">n/a<a href="#section-16.4-2.6.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-16.5-2.7">Optional parameters:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.5-2.8">
-            <p id="section-16.5-2.8.1">n/a<a href="#section-16.5-2.8.1" class="pilcrow">¶</a></p>
+<dt id="section-16.4-2.7">Optional parameters:</dt>
+          <dd style="margin-left: 1.5em" id="section-16.4-2.8">
+            <p id="section-16.4-2.8.1">n/a<a href="#section-16.4-2.8.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-16.5-2.9">Encoding considerations:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.5-2.10">
-            <p id="section-16.5-2.10.1">8bit. Values are JWTs in compact serialization.<a href="#section-16.5-2.10.1" class="pilcrow">¶</a></p>
+<dt id="section-16.4-2.9">Encoding considerations:</dt>
+          <dd style="margin-left: 1.5em" id="section-16.4-2.10">
+            <p id="section-16.4-2.10.1">8bit. Values are JWTs in compact serialization.<a href="#section-16.4-2.10.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-16.5-2.11">Security considerations:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.5-2.12">
-            <p id="section-16.5-2.12.1">See <a href="#security-considerations" class="auto internal xref">Section 14</a> of this specification, Section 12 of <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span>, and Section 11 of <span>[<a href="#RFC7519" class="cite xref">RFC7519</a>]</span>.<a href="#section-16.5-2.12.1" class="pilcrow">¶</a></p>
+<dt id="section-16.4-2.11">Security considerations:</dt>
+          <dd style="margin-left: 1.5em" id="section-16.4-2.12">
+            <p id="section-16.4-2.12.1">See <a href="#security-considerations" class="auto internal xref">Section 14</a> of this specification, Section 12 of <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span>, and Section 11 of <span>[<a href="#RFC7519" class="cite xref">RFC7519</a>]</span>.<a href="#section-16.4-2.12.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-16.5-2.13">Interoperability considerations:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.5-2.14">
-            <p id="section-16.5-2.14.1">n/a<a href="#section-16.5-2.14.1" class="pilcrow">¶</a></p>
+<dt id="section-16.4-2.13">Interoperability considerations:</dt>
+          <dd style="margin-left: 1.5em" id="section-16.4-2.14">
+            <p id="section-16.4-2.14.1">n/a<a href="#section-16.4-2.14.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-16.5-2.15">Published specification:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.5-2.16">
-            <p id="section-16.5-2.16.1">This specification<a href="#section-16.5-2.16.1" class="pilcrow">¶</a></p>
+<dt id="section-16.4-2.15">Published specification:</dt>
+          <dd style="margin-left: 1.5em" id="section-16.4-2.16">
+            <p id="section-16.4-2.16.1">This specification<a href="#section-16.4-2.16.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-16.5-2.17">Applications that use this media type:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.5-2.18">
-            <p id="section-16.5-2.18.1">Native OAuth clients, client attesters, and authorization servers using CIMD software statements with attested instance keys.<a href="#section-16.5-2.18.1" class="pilcrow">¶</a></p>
+<dt id="section-16.4-2.17">Applications that use this media type:</dt>
+          <dd style="margin-left: 1.5em" id="section-16.4-2.18">
+            <p id="section-16.4-2.18.1">Native OAuth clients, client attesters, and authorization servers using CIMD software statements with attested instance keys.<a href="#section-16.4-2.18.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-16.5-2.19">Fragment identifier considerations:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.5-2.20">
-            <p id="section-16.5-2.20.1">n/a<a href="#section-16.5-2.20.1" class="pilcrow">¶</a></p>
+<dt id="section-16.4-2.19">Fragment identifier considerations:</dt>
+          <dd style="margin-left: 1.5em" id="section-16.4-2.20">
+            <p id="section-16.4-2.20.1">n/a<a href="#section-16.4-2.20.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-16.5-2.21">Additional information:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.5-2.22">
-            <p id="section-16.5-2.22.1">Magic number(s): n/a. File extension(s): n/a. Macintosh file type code(s): n/a.<a href="#section-16.5-2.22.1" class="pilcrow">¶</a></p>
+<dt id="section-16.4-2.21">Additional information:</dt>
+          <dd style="margin-left: 1.5em" id="section-16.4-2.22">
+            <p id="section-16.4-2.22.1">Magic number(s): n/a. File extension(s): n/a. Macintosh file type code(s): n/a.<a href="#section-16.4-2.22.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-16.5-2.23">Person &amp; email address to contact for further information:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.5-2.24">
-            <p id="section-16.5-2.24.1">Karl McGuinness, public@karlmcguinness.com<a href="#section-16.5-2.24.1" class="pilcrow">¶</a></p>
+<dt id="section-16.4-2.23">Person &amp; email address to contact for further information:</dt>
+          <dd style="margin-left: 1.5em" id="section-16.4-2.24">
+            <p id="section-16.4-2.24.1">Karl McGuinness, public@karlmcguinness.com<a href="#section-16.4-2.24.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-16.5-2.25">Intended usage:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.5-2.26">
-            <p id="section-16.5-2.26.1">COMMON<a href="#section-16.5-2.26.1" class="pilcrow">¶</a></p>
+<dt id="section-16.4-2.25">Intended usage:</dt>
+          <dd style="margin-left: 1.5em" id="section-16.4-2.26">
+            <p id="section-16.4-2.26.1">COMMON<a href="#section-16.4-2.26.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-16.5-2.27">Restrictions on usage:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.5-2.28">
-            <p id="section-16.5-2.28.1">none<a href="#section-16.5-2.28.1" class="pilcrow">¶</a></p>
+<dt id="section-16.4-2.27">Restrictions on usage:</dt>
+          <dd style="margin-left: 1.5em" id="section-16.4-2.28">
+            <p id="section-16.4-2.28.1">none<a href="#section-16.4-2.28.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-16.5-2.29">Author:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.5-2.30">
-            <p id="section-16.5-2.30.1">Karl McGuinness, public@karlmcguinness.com<a href="#section-16.5-2.30.1" class="pilcrow">¶</a></p>
+<dt id="section-16.4-2.29">Author:</dt>
+          <dd style="margin-left: 1.5em" id="section-16.4-2.30">
+            <p id="section-16.4-2.30.1">Karl McGuinness, public@karlmcguinness.com<a href="#section-16.4-2.30.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-16.5-2.31">Change controller:</dt>
-          <dd style="margin-left: 1.5em" id="section-16.5-2.32">
-            <p id="section-16.5-2.32.1">IETF<a href="#section-16.5-2.32.1" class="pilcrow">¶</a></p>
+<dt id="section-16.4-2.31">Change controller:</dt>
+          <dd style="margin-left: 1.5em" id="section-16.4-2.32">
+            <p id="section-16.4-2.32.1">IETF<a href="#section-16.4-2.32.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
 </section>
 </div>
 <div id="values-defined-elsewhere">
-<section id="section-16.6">
+<section id="section-16.5">
         <h3 id="name-values-defined-elsewhere">
-<a href="#section-16.6" class="section-number selfRef">16.6. </a><a href="#name-values-defined-elsewhere" class="section-name selfRef">Values Defined Elsewhere</a>
+<a href="#section-16.5" class="section-number selfRef">16.5. </a><a href="#name-values-defined-elsewhere" class="section-name selfRef">Values Defined Elsewhere</a>
         </h3>
-<p id="section-16.6-1">The <code>iss</code>, <code>sub</code>, <code>aud</code>, <code>iat</code>, <code>exp</code>, and <code>cnf</code> claims are defined elsewhere and are not re-registered here. This specification uses the authentication method, HTTP fields, and error codes of <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span> without registering replacements.<a href="#section-16.6-1" class="pilcrow">¶</a></p>
+<p id="section-16.5-1">The <code>iss</code>, <code>sub</code>, <code>aud</code>, <code>iat</code>, <code>exp</code>, and <code>cnf</code> claims are defined elsewhere and are not re-registered here. This specification uses the authentication method, HTTP fields, and error codes of <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span> without registering replacements. Section 2.3 of <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span> lets a pushed authorization request error response carry the error codes of an extension involved in processing the request, so this specification requests no change to the registrations of the error codes it uses there.<a href="#section-16.5-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2444,10 +2326,6 @@ grant_type=refresh_token
 <dt id="ABCA">[ABCA]</dt>
         <dd>
 <span class="refAuthor">Looker, T.</span>, <span class="refAuthor">Bastian, P.</span>, and <span class="refAuthor">C. Bormann</span>, <span class="refTitle">"OAuth 2.0 Attestation-Based Client Authentication"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-attestation-based-client-auth-12</span>, <time datetime="2026-10-12" class="refDate">12 October 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="ATTESTERS">[ATTESTERS]</dt>
-        <dd>
-<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"OAuth 2.0 Client Attester Endorsement"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-mcguinness-oauth-client-attesters-00</span>, <time datetime="2026-09-28" class="refDate">28 September 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-mcguinness-oauth-client-attesters-00">https://datatracker.ietf.org/doc/html/draft-mcguinness-oauth-client-attesters-00</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="CIMD">[CIMD]</dt>
         <dd>
@@ -2667,65 +2545,16 @@ grant_type=refresh_token
       </ul>
 </section>
 </div>
-<div id="verification-scenarios">
-<section id="appendix-C">
-      <h2 id="name-verification-scenarios">
-<a href="#appendix-C" class="section-number selfRef">Appendix C. </a><a href="#name-verification-scenarios" class="section-name selfRef">Verification Scenarios</a>
-      </h2>
-<p id="appendix-C-1">This appendix is non-normative. An implementation exercise should include the following cases in addition to successful admission and refresh:<a href="#appendix-C-1" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="appendix-C-2.1">
-          <p id="appendix-C-2.1.1">A copied statement with an unattested key fails before creating an establishment.<a href="#appendix-C-2.1.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-2.2">
-          <p id="appendix-C-2.2.1">A copied attestation with a different proof key fails authentication.<a href="#appendix-C-2.2.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-2.3">
-          <p id="appendix-C-2.3.1">A valid attestation for another client, digest, tenant authorization, or policy fails its corresponding binding check.<a href="#appendix-C-2.3.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-2.4">
-          <p id="appendix-C-2.4.1">A loopback code intercepted by another process cannot be redeemed without both the verifier and recorded key.<a href="#appendix-C-2.4.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-2.5">
-          <p id="appendix-C-2.5.1">A repeated proof and a proof intended for another endpoint are rejected.<a href="#appendix-C-2.5.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-2.6">
-          <p id="appendix-C-2.6.1">A nonce retry neither consumes grant state nor advances the <code>iat</code> floor.<a href="#appendix-C-2.6.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-2.7">
-          <p id="appendix-C-2.7.1">A refresh with a renewed attestation for the original key, attester, and policy succeeds when the review remains current.<a href="#appendix-C-2.7.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-2.8">
-          <p id="appendix-C-2.8.1">A metadata replacement without a matching current attestation fails without changing the establishment.<a href="#appendix-C-2.8.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-2.9">
-          <p id="appendix-C-2.9.1">A code outstanding while another grant sharing its establishment refreshes onto a replacement over new metadata is rejected at redemption, and the client restarts at the PAR endpoint.<a href="#appendix-C-2.9.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-2.10">
-          <p id="appendix-C-2.10.1">A new key, attester, policy, or tenant cannot take over an existing grant.<a href="#appendix-C-2.10.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-2.11">
-          <p id="appendix-C-2.11.1">Withdrawal or removal of trust prevents continuation despite a fresh proof.<a href="#appendix-C-2.11.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-2.12">
-          <p id="appendix-C-2.12.1">Omitting attestations or using direct authorization cannot bypass a server requirement for this binding.<a href="#appendix-C-2.12.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-2.13">
-          <p id="appendix-C-2.13.1">An unapproved local process cannot obtain usable signatures or tokens through the trusted launcher.<a href="#appendix-C-2.13.1" class="pilcrow">¶</a></p>
-</li>
-      </ul>
-</section>
-</div>
 <div id="acknowledgments">
-<section id="appendix-D">
+<section id="appendix-C">
       <h2 id="name-acknowledgments">
 <a href="#name-acknowledgments" class="section-name selfRef">Acknowledgments</a>
       </h2>
-<p id="appendix-D-1">This specification develops the attested-key extension point in <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> and composes it with attestation-based client authentication. The initial deployment question was how a command-line application could retain loopback callbacks while demonstrating an association with reviewed software.<a href="#appendix-D-1" class="pilcrow">¶</a></p>
+<p id="appendix-C-1">This specification develops the attested-key extension point in <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> and composes it with attestation-based client authentication. The initial deployment question was how a command-line application could retain loopback callbacks while demonstrating an association with reviewed software.<a href="#appendix-C-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="authors-addresses">
-<section id="appendix-E">
+<section id="appendix-D">
       <h2 id="name-authors-address">
 <a href="#name-authors-address" class="section-name selfRef">Author's Address</a>
       </h2>

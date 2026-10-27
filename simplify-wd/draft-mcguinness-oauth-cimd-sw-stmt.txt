@@ -211,7 +211,8 @@ Table of Contents
       (Section 5.2), without creating a client registration.
 
    Establishment:  The durable state a successful runtime presentation
-      creates for the grant it opens, enumerated in Section 5.6.
+      creates for the grant it opens, or that a replacement accepted on
+      refresh gives that grant, enumerated in Section 5.6.
 
    Proven Key:  The key for which the presenter demonstrates possession
       during runtime presentation (Section 5.4).
@@ -319,9 +320,11 @@ Table of Contents
       withdrawal mechanism that uses the claim processes it.  This
       specification does not (Section 3.3).
 
-   A statement issued under this specification MUST NOT contain client
-   metadata claims: the reviewed metadata is the document the digest
-   names.
+   A statement issued under this specification MUST NOT contain a claim
+   named in the IANA "OAuth Dynamic Client Registration Metadata"
+   registry, and a trusting authorization server MUST NOT take client
+   metadata from a statement's claims: the reviewed metadata is the
+   document the digest names.
 
    [CIMD] permits a Client ID Metadata Document to carry a
    software_statement member.  A trusting authorization server MUST NOT
@@ -412,10 +415,8 @@ Table of Contents
       falls within the identifier scope for which this server accepts
       the issuer (Section 4).
 
-   *  The statement carries no claim registered in the IANA "OAuth
-      Dynamic Client Registration Metadata" registry, which Section 3
-      forbids.  Any other claim the server does not recognize is
-      ignored.
+   *  Any claim the server does not recognize, and any client metadata
+      claim, which Section 3 forbids an issuer to include, is ignored.
 
    *  The JWT validation guidance in [RFC8725] has been applied.
 
@@ -940,8 +941,7 @@ Table of Contents
 
    An authorization server can reuse an establishment across
    presentations that resolve to the same sub, statement, and proven
-   key, rather than creating one per request.  The bounds of Section 6
-   count distinct establishments, not presentations.
+   key, rather than creating one per request.
 
    The establishment persists while the grant depends on it.  The
    authorization server MUST bind the resulting request_uri,
@@ -949,14 +949,10 @@ Table of Contents
    to the establishment, as applicable, and can discard it once no such
    state references it.
 
-   The authorization server MUST also record, with each request_uri and
-   authorization code, the digest of the reviewed metadata its request
-   was evaluated against (Section 5.5).  A replacement accepted on
-   refresh of another grant sharing the establishment (Section 5.6.1)
-   can change the establishment's digest while a code is outstanding.
-   Redemption of a code whose recorded digest differs from the
-   establishment's is rejected with invalid_grant, and the client starts
-   a new authorization request.
+   A replacement accepted on refresh MUST apply only to the grant
+   refreshed (Section 5.6.1).  Any other grant, request_uri, or
+   authorization code bound to the same establishment keeps the state
+   its request was evaluated against.
 
    A token request that redeems an authorization code opened by a
    presentation:
@@ -1040,15 +1036,17 @@ Table of Contents
    The refreshed access MUST fall within the metadata of the document
    the replacement names.
 
-   On success, the establishment's statement identity, iat, effective
+   On success, the refreshed grant's statement identity, iat, effective
    expiry, reviewed metadata, and trust decision are replaced in a
    single atomic update, and concurrent replacements resolve to the most
-   recently issued statement.  A refresh that fails these requirements,
-   or omits a replacement that is needed, leaves the establishment
-   unchanged and is rejected with statement_required, or with
-   temporarily_unavailable if a retrieval needed to check the
-   replacement did not complete for a reason other than the size bound
-   of Section 3.1.
+   recently issued statement.  A server that shares the establishment
+   with other grants gives the refreshed grant its own establishment, so
+   no other grant or outstanding authorization code changes
+   (Section 5.6).  A refresh that fails these requirements, or omits a
+   replacement that is needed, leaves the grant's state unchanged and is
+   rejected with statement_required, or with temporarily_unavailable if
+   a retrieval needed to check the replacement did not complete for a
+   reason other than the size bound of Section 3.1.
 
    Refresh never rotates the establishment's key.  A client that needs a
    new key performs a new presentation.
@@ -1084,20 +1082,19 @@ Table of Contents
    A trusting authorization server SHOULD bound the number of
    establishments, and any registrations ([REGISTRATION]), derived from
    one issuer's statements about one piece of software, identified by
-   iss and sub.  An establishment counts toward a bound from the time an
-   access token is first issued from it (in a redirect flow, once its
-   authorization code is redeemed) until the server discards it
-   (Section 5.6), and the server checks the bound before issuing that
-   first token.  A registration counts from the time an access token is
-   first issued under it until the server deletes the registration.  Any
-   holder of a copy of a statement permitting registration can create
-   one.
+   iss and sub.  How the server counts toward a bound is local policy,
+   within two limits:
 
-   State created by a pushed authorization request does not count toward
-   a bound, even if its code was issued but never redeemed.  Anyone
-   holding a copy of a public client's statement can create such state
-   and approve it with their own account.  A bound is counted across
-   replacements.  A bound keyed on jti would reset at every renewal.
+   *  State that anyone holding a copy of a statement can create does
+      not count: a pushed authorization request and its unredeemed code,
+      which anyone holding a copy of a public client's statement can
+      approve with their own account, or a registration under which no
+      access token has been issued.  Otherwise a holder of a copy could
+      exhaust the bound for the software's other instances.
+
+   *  A count persists across replacements: an establishment created for
+      a refreshed grant does not add to it, and one keyed on jti would
+      reset at every renewal.
 
    For software admitted under Section 5.4.1, whose every installation
    opens its own establishment, the server SHOULD also bound
@@ -1257,8 +1254,7 @@ Table of Contents
    A token request that redeems an authorization code opened by a
    presentation is rejected with invalid_request if it carries
    software_statement, with invalid_grant if its client identifier or
-   key binding fails or its recorded digest differs from the
-   establishment's (Section 5.6), and with invalid_client if the bound
+   key binding fails (Section 5.6), and with invalid_client if the bound
    on establishments of Section 6 is reached (Section 5.5).
 
    Under an establishment, a refresh-token request rejected for a reason
@@ -1591,10 +1587,10 @@ Table of Contents
    statement over it.
 
    Short lifetimes tighten an issuer's control and increase renewal
-   traffic.  At a server implementing the registration-validity model of
-   [REGISTRATION], the lifetime also sets the registration's renewal
-   cadence.  A fleet of statements issued together expires together, so
-   issuers should stagger expiries or renew ahead of the boundary.
+   traffic.  At a server that registers clients under [REGISTRATION],
+   the lifetime also sets the registration's renewal cadence.  A fleet
+   of statements issued together expires together, so issuers should
+   stagger expiries or renew ahead of the boundary.
 
 12.7.  Observable State
 
