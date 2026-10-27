@@ -432,7 +432,7 @@ The following error codes apply to pushed authorization requests, code redemptio
 : Missing or unacceptable server DPoP nonce.
 
 `invalid_grant`:
-: At redemption or refresh, a validly authenticated instance does not match the recorded key, attester, policy, or client; or, at redemption, the current document no longer matches the recorded digest; or, at refresh, the current document no longer selects this profile or meets {{client-metadata}}.
+: At redemption or refresh, a validly authenticated instance does not match a fixed establishment value of {{establishment}}; or, at redemption, the current document no longer matches the recorded digest; or, at refresh, the current document no longer selects this profile or meets {{client-metadata}}.
 
 `statement_required`:
 : A required statement is missing, expired, or refused, or, at the PAR endpoint, superseded, or, at refresh, a needed replacement is missing or unacceptable.
