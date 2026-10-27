@@ -544,7 +544,7 @@ At runtime, the recorded decision replaces the presented statement, not the proo
 
 An authorization server that issues software statements under this specification advertises `true` for `client_id_metadata_document_supported` ({{CIMD}}) and publishes the authorization server metadata that {{STATEMENT}} requires of an issuer.
 
-An issuer that may defer a request ({{deferred-processing}}) publishes the metadata {{DTR}} requires, including `true` for `deferred_token_response_supported`. A synchronous issuer advertises neither that value nor deferral-code revocation, and need not implement {{DTR}}.
+An issuer that can defer a request ({{deferred-processing}}) publishes the metadata {{DTR}} requires, including `true` for `deferred_token_response_supported`. A synchronous issuer advertises neither that value nor deferral-code revocation, and need not implement {{DTR}}.
 
 An authorization server supporting the redirect flow advertises `urn:ietf:params:oauth:grant-type:software-statement` in `grant_types_supported`, `software_statement_code` in `response_types_supported`, and `true` for `authorization_response_iss_parameter_supported` as defined by {{RFC9207}}.
 
@@ -630,9 +630,9 @@ A compromised software statement signing key lets an attacker mint statements fo
 
 A software statement does not identify the human or system that approved issuance. Deployments that require approver attribution retain it in an audit record or define a statement claim and its privacy semantics.
 
-An approved statement is accepted at every authorization server in its audience, not only within the approver's own scope. The policy governing who may approve issuance MUST be at least as restrictive as the policy under which the issuer establishes a client manually. Approval by a party authorized only for a personal or organizational scope MUST NOT produce a statement whose audience exceeds that scope, or whose `aud_tenant` names a tenant outside it.
+An approved statement is accepted at every authorization server in its audience, not only within the approver's own scope. The policy governing who can approve issuance MUST be at least as restrictive as the policy under which the issuer establishes a client manually. Approval by a party authorized only for a personal or organizational scope MUST NOT produce a statement whose audience exceeds that scope, or whose `aud_tenant` names a tenant outside it.
 
-To keep a look-alike document from reaching approval, an issuer SHOULD limit what an approver may approve to client identifiers under publisher namespaces it has enrolled.
+To keep a look-alike document from reaching approval, an issuer SHOULD limit what an approver can approve to client identifiers under publisher namespaces it has enrolled.
 
 Authorization servers SHOULD keep an audit record that binds each decision, whether approval or denial, to the following:
 
