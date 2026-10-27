@@ -287,7 +287,7 @@ The safe default is one registration per (`iss`, `sub`) at one authorization ser
 
 ## Credentials for Statement-Governed Registrations {#credential-practice}
 
-Renewal proves possession of the registration's credential, not that the renewing party is the reviewed software ({{renewal-credential}}). Deployments ought to pair statement-governed registrations with credential rotation, sender-constrained client authentication, and the bounds that {{STATEMENT}} and {{registration-policy}} describe, and ought to treat a credential compromise as requiring re-registration rather than renewal.
+Deployments ought to pair statement-governed registrations with credential rotation, sender-constrained client authentication, and the bounds that {{STATEMENT}} and {{registration-policy}} describe, and ought to treat a credential compromise as requiring re-registration rather than renewal ({{renewal-credential}}).
 
 # Security Considerations {#security-considerations}
 
