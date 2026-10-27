@@ -227,7 +227,7 @@ URN:
 : `urn:ietf:params:oauth:event-type:software-statement-status-changed`
 
 Common Name:
-: CIMD Software Statement Status Changed Event Type
+: Client ID Metadata Document Software Statement Status Changed Event Type
 
 Change Controller:
 : IETF
