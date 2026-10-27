@@ -331,11 +331,11 @@ An establishment records all state required by {{STATEMENT}} and, in addition:
 * The exact attester identifier and evidence-policy identifier.
 * The attester trust decision and, for each grant, the attestation effective expiry most recently accepted.
 
-The proven key is the attested key, which is also the DPoP key. A server MAY reuse an establishment only when the reuse conditions of {{STATEMENT}} hold and the profile, attester, policy, and tenant also match. Individual authorization transactions still retain separate PKCE challenges, redirects, `state`, resource-owner decisions, and continuation state.
+The proven key is the attested key, which is also the DPoP key. A server MAY reuse an establishment only for presentations that resolve to the same `sub`, statement, and proven key, and only when the profile, attester, policy, and tenant also match. Individual authorization transactions still retain separate PKCE challenges, redirects, `state`, resource-owner decisions, and continuation state.
 
 The client identifier, tenant, key, attester, policy, and binding profile MUST remain fixed for the lifetime of the grant. Changing any of them requires a new grant opened through PAR. A fresh attestation that keeps these values can renew the grant's evidence, and a software statement replacement can update the grant's reviewed metadata only as {{refresh}} permits. Neither operation changes these values.
 
-The server MUST bind its `request_uri`, code, refresh token, and other grant continuation state to the establishment. The establishment limits and counting rules of {{STATEMENT}} apply. Servers SHOULD also bound establishments per resource owner and tenant so that one installation cannot exhaust the capacity available to other installations.
+The server MUST bind its `request_uri`, code, refresh token, and other grant continuation state to the establishment. Servers SHOULD bound establishments as {{STATEMENT}} describes, and also per resource owner and tenant so that one installation cannot exhaust the capacity available to other installations.
 
 ## Browser Authorization {#authorization}
 
@@ -615,7 +615,7 @@ Metadata digest binding can require coordinated publication of a new document, r
 
 ## Resource Exhaustion
 
-Attestations do not remove the need for bounded document retrieval, statement selection, proof replay caches, and PAR storage. Servers SHOULD limit pending PAR transactions separately from the limits of {{STATEMENT}} on establishments. Rate limits SHOULD account for client, instance key, tenant, and authenticated resource owner as available. An attester SHOULD limit enrollment and renewal so one approved installation cannot obtain unlimited keys to evade per-key controls.
+Attestations do not remove the need for bounded document retrieval, statement selection, proof replay caches, and PAR storage. Servers SHOULD limit pending PAR transactions separately from any bound on establishments ({{STATEMENT}}). Rate limits SHOULD account for client, instance key, tenant, and authenticated resource owner as available. An attester SHOULD limit enrollment and renewal so one approved installation cannot obtain unlimited keys to evade per-key controls.
 
 # Privacy Considerations {#privacy}
 

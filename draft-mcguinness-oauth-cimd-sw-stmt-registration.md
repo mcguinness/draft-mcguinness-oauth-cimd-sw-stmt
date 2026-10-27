@@ -113,7 +113,7 @@ Unlike runtime presentation ({{STATEMENT}}), registration has no review-only for
 
 Taking every value from the document prevents metadata substitution. At registration a statement is a bearer artifact, so a request-supplied value for a member the document omits, such as a `jwks` member beside a document naming only `jwks_uri`, would give any holder of a copy a registration with reviewed branding and the holder's own key.
 
-The external-retrieval protections and resource bounds of {{STATEMENT}} apply to retrieving the document as they apply to a runtime presentation. The authorization server completes every check of {{STATEMENT}} that needs no client-controlled retrieval before resolving the document.
+The retrieval requirements of {{STATEMENT}}, and the bounds it describes, apply to retrieving the document as they apply to a runtime presentation. The authorization server completes every check of {{STATEMENT}} that needs no client-controlled retrieval before resolving the document.
 
 ## Public Clients {#public-client-registration}
 
@@ -209,7 +209,7 @@ A registration created without a statement is not statement-governed: a statemen
 
 # Repeated Registration {#repeated-registration}
 
-One unexpired statement can be consumed more than once, within the bounds of {{STATEMENT}} and the server's registration policy ({{registration-policy}}). A repeated public-client registration is answered with the existing registration as {{public-client-registration}} provides. An idempotent response MUST NOT return the existing registration's credentials, such as its `registration_access_token` member.
+One unexpired statement can be consumed more than once, subject to the bounds {{STATEMENT}} describes and the server's registration policy ({{registration-policy}}). A repeated public-client registration is answered with the existing registration as {{public-client-registration}} provides. An idempotent response MUST NOT return the existing registration's credentials, such as its `registration_access_token` member.
 
 # Error Responses {#errors}
 
