@@ -80,7 +80,7 @@ This specification serves deployments in which a party other than the client dec
 
 A native application whose redirection URIs another application on the device could claim, such as a loopback or private-use URI, gains only a record of the review: its presentations are review-only ({{public-client-presentation}}) until an extension binds an installation key that a third party vouches for ({{extensions}}).
 
-A statement vouches for metadata, not for its presenter. Possession of a statement alone admits nothing: the presenter is bound to the reviewed document ({{sender-constraint}}).
+A statement vouches for metadata, not for its presenter. It records approval of a client configuration, not of the software's code or behavior ({{what-statement-attests}}). Possession of a statement alone admits nothing: the presenter is bound to the reviewed document ({{sender-constraint}}).
 
 This specification does not define how a client obtains a statement. {{REGISTRATION}} defines consumption of the same statement in an {{RFC7591}} registration request. It builds on this specification, which does not depend on it. {{relationship}} relates this specification to other work.
 
@@ -711,6 +711,10 @@ Withdrawal does not replace lifetime: an issuer chooses `exp` assuming no trusti
 # Security Considerations {#security-considerations}
 
 The security considerations of {{CIMD}} and Section 5 of {{RFC7591}} apply.
+
+## What a Statement Attests {#what-statement-attests}
+
+A statement binds an issuer's review to the octets of a Client ID Metadata Document, which describes an OAuth client configuration, such as its redirection URIs, keys, grant types, and scope. It does not bind the software's code, dependencies, or behavior. Software can change while its document stays the same, and the statement remains acceptable until it expires or is withdrawn ({{withdrawal}}). Assurance about the software itself rests on the issuer's review process and, where an extension provides one, an attestation of the running instance ({{extensions}}). Any change to the document's octets, including one that changes no metadata value, makes statements over the earlier octets fail the digest comparison ({{effective-metadata}}).
 
 ## Statement Theft and Replay {#statement-validation}
 
