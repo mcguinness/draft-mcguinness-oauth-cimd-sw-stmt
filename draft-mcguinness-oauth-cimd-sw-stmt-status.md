@@ -93,6 +93,7 @@ Resolution follows {{STATUSLIST}}. In particular:
 
 * If the referenced index lies outside the list, the server rejects the statement as {{STATUSLIST}} requires, with the error code that {{STATEMENT}} assigns to a statement refused by a refusal record.
 * The caching rules of {{STATUSLIST}} apply to resolution, and also apply when the server checks a recorded statement at refresh ({{STATEMENT}}).
+* A server SHOULD retrieve the list on the list's own schedule, within the expiration and caching bounds its `exp` and `ttl` claims set (Section 11.5 of {{STATUSLIST}}), rather than once per request ({{resolution-schedule}}).
 
 To prevent a host serving an older token from restoring a status the issuer has withdrawn, a server MUST NOT replace a Status List Token it holds with one whose `iat` claim is earlier, and MUST treat one whose `iat` claim is equal but whose contents differ as a resolution failure. A statement whose status the server cannot resolve is bounded by its effective expiry, as {{STATEMENT}} provides.
 
@@ -191,7 +192,7 @@ The security considerations of {{STATEMENT}}, {{STATUSLIST}}, {{SSF}}, and {{RFC
 
 ## Status Resolution Schedule {#resolution-schedule}
 
-Because {{STATUSLIST}} aggregates many statements into one list, a retrieval tells the issuer only that some trusting authorization server is checking. A server SHOULD retrieve the list on the list's own schedule, within the expiration and caching bounds its `exp` and `ttl` claims set (Section 11.5 of {{STATUSLIST}}), rather than once per request. The server's request timing then does not disclose the client population it serves, and each request a statement governs does not depend on issuer availability.
+Because {{STATUSLIST}} aggregates many statements into one list, a retrieval tells the issuer only that some trusting authorization server is checking. Retrieving the list on its own schedule ({{status-resolution}}) keeps the server's request timing from disclosing the client population it serves, and keeps each request a statement governs independent of issuer availability.
 
 ## What an Event Cannot Do
 
