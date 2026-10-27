@@ -165,7 +165,7 @@ A trusting authorization server that receives an event defined here MUST process
 3. Resolve the subject ({{subjects}}).
 4. Resolve the status of the affected statements from the issuer's Status List Token as {{STATUSLIST}} defines, using a copy retrieved or revalidated by a request begun after the event arrived, without waiting for the schedule that would otherwise apply, and apply the resolved status as {{status-resolution}} defines.
 
-The affected statements are those the transmitting issuer made about the subject, never statements another issuer made about the same software. They are the statement the event's `software_statement_jti` claim names or, if the event names none, those the receiver holds or has cached a status for. An event about a subject for which the receiver holds no state requires nothing of it.
+The affected statements are those the transmitting issuer made about the subject, never statements another issuer made about the same software. They are the statement the event's `software_statement_jti` claim names or, if the event names none, those the receiver holds or has cached a status for. An event about a subject for which the receiver holds no state requires nothing of it. A receiver discards events for subjects outside the identifier scope for which it accepts that issuer ({{STATEMENT}}).
 
 Revalidation suffices because a transmitter sends the event only once a token reflecting the change is retrievable ({{status-changed}}). One request begun after several events arrived serves all of them. An event is never grounds for refusal. Until the request succeeds, the copy the receiver holds remains in effect within its validity. If resolution does not complete, the receiver proceeds as it would had no event arrived: a refusal record it holds stands, and the statement remains bounded by its effective expiry ({{STATEMENT}}).
 
@@ -182,7 +182,7 @@ An issuer that supports the events defined here publishes Transmitter configurat
 
 A trusting authorization server that supports these events SHOULD create one stream per configured issuer that offers them ({{stream-practice}}).
 
-The subjects appropriate to a stream are those of the issuer's statements whose `aud` claim is absent or names the receiving authorization server. A transmitter SHOULD scope each stream to those subjects. A receiver discards events for subjects outside the identifier scope for which it accepts that issuer ({{STATEMENT}}).
+The subjects appropriate to a stream are those of the issuer's statements whose `aud` claim is absent or names the receiving authorization server. A transmitter SHOULD scope each stream to those subjects.
 
 A receiver SHOULD request the event this specification defines, and SHOULD use the stream verification facility of {{SSF}} periodically.
 
