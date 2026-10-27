@@ -65,7 +65,7 @@ The requirements of {{relationship}} through {{configuration}} apply only to imp
 
 {::boilerplate bcp14-tagged}
 
-Transmitter, Receiver, Stream, and the delivery and configuration mechanisms are defined by {{SSF}}. Security Event Token (SET) is defined by {{RFC8417}}. Subject identifier formats are defined by {{RFC9493}}. Status List Token, and the validation that resolves a status, are defined by {{STATUSLIST}}. The terms Issuer, Trusting Authorization Server, Runtime Presentation, Effective Expiry, and Refusal Record are defined by {{STATEMENT}}, as are the software statement, its claims, its validation, issuer trust configuration, and withdrawal.
+Transmitter, Receiver, Stream, and the delivery and configuration mechanisms are defined by {{SSF}}. Security Event Token (SET) is defined by {{RFC8417}}. Subject identifier formats are defined by {{RFC9493}}. Status List Token, and the validation that resolves a status, are defined by {{STATUSLIST}}. The terms Issuer, Trusting Authorization Server, Effective Expiry, and Refusal Record are defined by {{STATEMENT}}, as are the software statement, its claims, its validation, issuer trust configuration, and withdrawal.
 
 For the events defined here, the issuer acts as a Transmitter, and a trusting authorization server that has configured it acts as a Receiver.
 
