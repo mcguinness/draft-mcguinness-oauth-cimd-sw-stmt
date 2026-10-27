@@ -191,7 +191,7 @@ The issuer fetches and snapshots the client's Client ID Metadata Document ({{met
 
 At (A), the authorization server validates the request, performs any user-agent interaction or initiates an approval workflow, and returns a software statement code at (B).
 
-At (C), the client redeems the code with its PKCE verifier. The response at (D) carries the statement or a {{DTR}} `deferral_code`, with which the client polls at (E). Errors follow {{RFC6749}} and {{DTR}}.
+At (C), the client redeems the code with its Proof Key for Code Exchange (PKCE) verifier. The response at (D) carries the statement or a {{DTR}} `deferral_code`, with which the client polls at (E). Errors follow {{RFC6749}} and {{DTR}}.
 
 # Client Identification and Authentication {#client-identity}
 
@@ -209,7 +209,7 @@ The client authenticates to the token endpoint using the `token_endpoint_auth_me
 
 Classification uses the singular `token_endpoint_auth_method`. A list of declared supported methods is not interpreted.
 
-A public client binds its requests with DPoP {{RFC9449}}: in the redirect flow through the `dpop_jkt` parameter ({{authorization-request}}), and in the token exchange profile ({{token-exchange-profile}}) by a DPoP proof, which a public client MUST include on the exchange request. A confidential client MAY use DPoP in addition to its client authentication method.
+A public client binds its requests with Demonstrating Proof of Possession (DPoP) {{RFC9449}}: in the redirect flow through the `dpop_jkt` parameter ({{authorization-request}}), and in the token exchange profile ({{token-exchange-profile}}) by a DPoP proof, which a public client MUST include on the exchange request. A confidential client MAY use DPoP in addition to its client authentication method.
 
 ## Metadata Snapshot {#metadata-snapshot}
 
@@ -504,7 +504,7 @@ A successful response has HTTP status code 200, a media type of `application/jso
 
 The response MUST NOT contain the `refresh_token` or `scope` members. The authorization server MUST include the `Cache-Control` HTTP header field with the value `no-store` and SHOULD also include the `Pragma` HTTP header field with the value `no-cache`.
 
-DPoP under this specification binds requests and deferral state, not the issued artifact. {{DTR}}'s requirement that a final access token inherit the originating DPoP binding does not apply.
+DPoP under this specification binds requests and deferral state, not the issued artifact. The requirement of {{DTR}} that a final access token inherit the originating DPoP binding does not apply.
 
 The following is an example of a software statement token response:
 
@@ -554,7 +554,7 @@ A deferring issuer publishes the metadata {{DTR}} requires, including `true` for
 
 An authorization server supporting the redirect flow advertises `urn:ietf:params:oauth:grant-type:software-statement` in `grant_types_supported`, `software_statement_code` in `response_types_supported`, and `true` for `authorization_response_iss_parameter_supported` as defined by {{RFC9207}}.
 
-An authorization server supporting the token exchange profile ({{token-exchange-profile}}) advertises `urn:ietf:params:oauth:grant-type:token-exchange` in `grant_types_supported` and publishes `software_statement_subject_token_types_supported` (below). An implementation supporting only that profile advertises neither the software statement grant nor the `software_statement_code` response type.
+An authorization server supporting the token exchange profile ({{token-exchange-profile}}) advertises `urn:ietf:params:oauth:grant-type:token-exchange` in `grant_types_supported` and publishes the `software_statement_subject_token_types_supported` metadata value defined in this section. An implementation supporting only that profile advertises neither the software statement grant nor the `software_statement_code` response type.
 
 A client that requires deferral MUST NOT send a request to an authorization server that does not advertise the `deferred_token_response_supported` metadata value. Such an issuer answers with a statement or a terminal denial, never a deferral.
 
@@ -779,9 +779,9 @@ Specification Document(s):
 
 **Why the response uses `access_token`.** {{RFC8693}} defines the container, so existing token endpoint machinery carries the artifact. The `issued_token_type` identifies what it is.
 
-**Why not the device authorization grant.** {{RFC8628}} fits a human decision that outlives a request, and an issuer whose approval is always out of band can use it. It assumes a user co-present with a constrained device who enters a user code elsewhere. Issuance approval is made by an administrator or reviewer who does not operate the client and is often not present, and the client already has a browser. The redirect flow covers an approver reachable through that browser; the token exchange profile covers the case with no browser.
+**Why not the device authorization grant.** {{RFC8628}} fits a human decision that outlives a request, and an issuer whose approval is always out of band can use it. It assumes a user co-present with a constrained device who enters a user code elsewhere. Issuance approval is made by an administrator or reviewer who does not operate the client and is often not present, and the client already has a browser. The redirect flow covers an approver reachable through that browser. The token exchange profile covers the case with no browser.
 
-**Why not a profile of attestation-based client authentication.** An attester vouches for a running instance and its key, for as long as it chooses, to the server in front of it; a statement issuer vouches for reviewed software, for days, to every server that trusts it. Profiling one as the other would give the reviewed-software decision an instance-scoped trust model, or give instance attestation unwarranted portability.
+**Why not a profile of attestation-based client authentication.** An attester vouches for a running instance and its key, for as long as it chooses, to the server in front of it. A statement issuer vouches for reviewed software, for days, to every server that trusts it. Profiling one as the other would give the reviewed-software decision an instance-scoped trust model, or give instance attestation unwarranted portability.
 
 **Why not OpenID Federation trust marks.** A trust mark {{OPENID-FED}} is a signed third-party assertion about an entity, resolved through a federation that supplies key discovery, policy, and delegation and requires both parties to enroll. This specification is pairwise: a trusting authorization server configures an issuer directly. Federation standardizes trust resolution, not enrollment, approval, or deferred completion. Ecosystems already operating a federation are better served by trust marks.
 
