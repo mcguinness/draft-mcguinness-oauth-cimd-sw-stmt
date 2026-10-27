@@ -680,13 +680,13 @@ An approved statement is accepted at every authorization server in its audience,
 
 The privacy considerations of {{STATEMENT}} apply.
 
-The authorization server learns the client identifier URL, the client's Client ID Metadata Document, and information about the party interacting with the authorization endpoint. It SHOULD collect and retain only the information required for issuance, security monitoring, and audit obligations.
+The authorization server learns the client identifier URL, the client's Client ID Metadata Document, and information about the party interacting with the authorization endpoint. It ought to collect and retain only the information required for issuance, security monitoring, and audit obligations.
 
 An `aud` claim reveals which authorization servers the client intends to use. {{STATEMENT}} weighs that disclosure against omitting the claim and recommends naming an audience, which an issuer does by requiring one in the request ({{authorization-request}}).
 
-Clients SHOULD NOT present statements outside their intended deployment context. If the client's relationship with the authorization servers its `audience` parameter names is sensitive, a redirect-flow client SHOULD use pushed authorization requests {{RFC9126}}.
+If the client's relationship with the authorization servers its `audience` parameter names is sensitive, a redirect-flow client SHOULD use pushed authorization requests {{RFC9126}}.
 
-Approval records can link a person to a client and deployment. Such records SHOULD be access-controlled and retained only as long as required.
+Approval records can link a person to a client and deployment. Such records ought to be access-controlled and retained only as long as required.
 
 # IANA Considerations {#iana}
 
