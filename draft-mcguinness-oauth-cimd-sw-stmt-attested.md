@@ -223,7 +223,7 @@ An authorization server MUST establish attester trust independently of the reque
   * An `x5c` certificate chain ({{RFC7515}}) validated to a configured trust anchor, together with a configured mapping from the certificate to this attester, such as an exact subject or subject alternative name. Sharing a trust anchor with another attester does not authorize a key for this attester's `iss`.
   * A `kid` matched against a JWK Set configured for this attester. A `jku` is followed only if it names that configured JWK Set.
 * Accepted asymmetric signing algorithms.
-* Client identifier namespaces for which the attester may issue instance attestations.
+* Client identifier namespaces for which the attester can issue instance attestations.
 * Accepted evidence-policy identifiers and, for each, a finite maximum evidence age.
 * Tenant restrictions and any requirements for a particular attester or policy within a tenant.
 * Clock-skew and evidence-freshness requirements and any local denial rules for instance keys.
@@ -603,7 +603,7 @@ Existing grants retain their recorded binding ({{selection}}, {{establishment}})
 
 The distinct attestation type, digest binding, subject equality, and fixed establishment values prevent a generic attestation or one for another reviewed document from being substituted. Implementations MUST apply mutually exclusive validation rules for software statements and instance attestations. Software statement signing keys retain the separation requirements of {{STATEMENT}} and MUST NOT sign instance attestations, even if one organization performs both roles.
 
-Attester authorization is scoped independently to client namespaces and tenants. An over-broad attester can undermine the binding for every namespace for which it may issue instance attestations. A statement issuer and an attester that collude, or that are both compromised, can make false assertions within the authority the server has assigned them.
+Attester authorization is scoped independently to client namespaces and tenants. An over-broad attester can undermine the binding for every namespace for which it can issue instance attestations. A statement issuer and an attester that collude, or that are both compromised, can make false assertions within the authority the server has assigned them.
 
 ## Freshness and Availability
 
@@ -623,7 +623,7 @@ The privacy considerations of {{STATEMENT}} and Section 11 of {{ABCA}} apply.
 
 An instance key reused at multiple servers can correlate installations across them. Clients SHOULD use separate instance keys for separate server relationships where the evidence mechanism permits, and SHOULD avoid adding stable installation identifiers unless needed by the deployment. This profile does not require a globally stable instance identifier or an attestation audience.
 
-An attester may learn the target server from enrollment traffic, key-scoping choices, or timing even when no audience is carried. Deployments SHOULD minimize evidence and identifier disclosure to both attesters and authorization servers. An evidence-policy identifier can reveal enterprise management practices; it should identify policy semantics without embedding user or device identifiers.
+An attester might learn the target server from enrollment traffic, key-scoping choices, or timing even when no audience is carried. Deployments SHOULD minimize evidence and identifier disclosure to both attesters and authorization servers. An evidence-policy identifier can reveal enterprise management practices; it ought to identify policy semantics without embedding user or device identifiers.
 
 Instance attestations and proofs MUST NOT be placed in browser URLs. Operators SHOULD avoid logging complete attestations, verifiers, codes, and refresh tokens. Audit records can retain the trust decisions, policy identifier, digest, and appropriately protected key identifiers without retaining credentials.
 
@@ -747,7 +747,7 @@ The launcher creates or provisions the instance key in protected storage and obt
 
 For each authorization transaction, the launcher performs the OAuth exchange on behalf of the verified caller, as the signing broker of {{software-evidence}}. It rechecks caller authorization when the key is used, including refresh, and protects returned tokens from other processes.
 
-An implementation needs to address changes between checking software and using the key, dynamic code loading, and the ability of an executable the evidence policy covers to proxy requests for others. Platforms without reliable process identity and key-use isolation cannot obtain this profile's assurance by running the launcher with more privileges. A script-based command-line client may require an execution environment whose policy covers its interpreter, script, and dependencies, or a narrower assurance than verified executable identity.
+An implementation needs to address changes between checking software and using the key, dynamic code loading, and the ability of an executable the evidence policy covers to proxy requests for others. Platforms without reliable process identity and key-use isolation cannot obtain this profile's assurance by running the launcher with more privileges. A script-based command-line client might require an execution environment whose policy covers its interpreter, script, and dependencies, or a narrower assurance than verified executable identity.
 
 ## Example: macOS {#launcher-macos}
 
