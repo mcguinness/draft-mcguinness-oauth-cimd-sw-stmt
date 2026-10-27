@@ -567,7 +567,7 @@ This section gives guidance to implementers. It adds no requirement.
 
 ## Retrieval and Approval-Queue Bounds {#processing-bounds}
 
-An authorization server can rate-limit token exchanges, cache successful retrieval results within the bounds {{STATEMENT}} describes, back off after failures rather than caching them, since {{CIMD}} forbids caching failures, and bound pending deferrals per client identifier and requester. Because the redirect flow reaches the approval queue before any client-authenticated step, the same rate limits and pending-approval bounds per client identifier can apply there.
+An authorization server can rate-limit token exchanges, cache successful retrieval results within the document's caching directives, as {{STATEMENT}} describes, back off after failures rather than caching them, since {{CIMD}} forbids caching failures, and bound pending deferrals per client identifier and requester. Because the redirect flow reaches the approval queue before any client-authenticated step, the same rate limits and pending-approval bounds per client identifier can apply there.
 
 ## Handling the Issued Statement {#issued-statement-handling}
 
