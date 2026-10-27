@@ -277,7 +277,7 @@ If no requested audience is acceptable, the request is rejected with the `invali
 
 An error response to a token exchange MUST NOT contain the subject token.
 
-The authorization server MUST bind a fresh metadata snapshot ({{metadata-snapshot}}) and the requested audience before returning either the software statement or a deferral code.
+The authorization server MUST bind a metadata snapshot taken for this request ({{metadata-snapshot}}) and the requested audience before returning either the software statement or a deferral code.
 
 Issuance policy determines whether an initial access token authorizes the client only to request a statement or also authorizes its issuance. The exchange results in a software statement token response ({{software-statement-response}}), a deferral at a deferring issuer ({{deferred-processing}}), or the terminal denial of {{terminal-denial}}.
 
