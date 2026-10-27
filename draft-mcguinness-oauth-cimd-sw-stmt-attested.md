@@ -379,7 +379,7 @@ Attestation renewal for the proven key is not key rotation and does not reset th
 
 # Withdrawal and Trust Changes {#withdrawal}
 
-A known refusal record for the software statement is enforced as {{STATEMENT}} requires. A current replacement can restore continuation only under {{refresh}}. A server using a statement withdrawal mechanism SHOULD consult it at code redemption and refresh within that mechanism's freshness rules. Failure to consult it does not clear an existing refusal.
+A known refusal record for the software statement is enforced as {{STATEMENT}} requires. A current replacement can restore continuation only under {{refresh}}. A server using a statement withdrawal mechanism SHOULD consult it at code redemption and refresh within that mechanism's freshness rules. Failure to consult it does not clear an existing refusal. A failure to retrieve metadata, statements or their status, or trust updates MUST NOT extend a recorded expiry or remove a refusal.
 
 Because {{attestation-validation}} checks current attester trust and local denial rules at each pushed authorization request, code redemption, and refresh, removing an attester's authorization for this client and tenant, removing the policy, or denying the instance key prevents further use of the affected binding. A fresh attestation does not override those decisions. A deployment that cannot refresh trust data MUST NOT accept that trust data beyond a configured maximum staleness bound.
 
@@ -615,7 +615,7 @@ Attester authorization is scoped independently to client namespaces and tenants.
 
 Short effective lifetimes limit stale evidence but make attester availability important. A fresh proof demonstrates current access to a key, not that software was re-evaluated at proof time.
 
-A failure to retrieve metadata, statements or their status, or trust updates MUST NOT extend a recorded expiry or remove a refusal. An access token cannot outlive the attestation accepted when it was issued ({{redemption}}), but it can outlive a review withdrawn or attester trust removed after issuance ({{withdrawal}}).
+An access token cannot outlive the attestation accepted when it was issued ({{redemption}}), but it can outlive a review withdrawn or attester trust removed after issuance ({{withdrawal}}).
 
 Metadata digest binding can require coordinated publication of a new document, review, and attestation ({{operations}}). During an incomplete transition a request fails: {{STATEMENT}} does not treat the changed document as reviewed, and this profile does not fall back ({{par}}).
 
