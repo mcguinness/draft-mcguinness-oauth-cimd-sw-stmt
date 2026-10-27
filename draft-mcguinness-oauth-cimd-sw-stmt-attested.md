@@ -383,7 +383,7 @@ A known refusal record for the software statement is enforced as {{STATEMENT}} r
 
 Because {{attestation-validation}} checks current attester trust and local denial rules at each pushed authorization request, code redemption, and refresh, removing an attester's authorization for this client and tenant, removing the policy, or denying the instance key prevents further use of the affected binding. A fresh attestation does not override those decisions. A deployment that cannot refresh trust data MUST NOT accept that trust data beyond a configured maximum staleness bound.
 
-This specification defines no interoperable attestation or instance revocation protocol. Deployments MAY use independently established mechanisms or local denial lists. In their absence, attestation effective expiry bounds acceptance of evidence that has become stale without the server learning of it. Withdrawal of a review, removal of trust, and expiry of evidence do not themselves revoke access tokens already issued, so deployments requiring prompt enforcement need short token lifetimes or independent token revocation.
+This specification defines no interoperable attestation or instance revocation protocol. Without such a mechanism, attestation effective expiry bounds acceptance of evidence that has become stale without the server learning of it. Withdrawal of a review, removal of trust, and expiry of evidence do not themselves revoke access tokens already issued ({{revocation-practice}}).
 
 # Exceptions to Software Statement Processing {#core-exceptions}
 
@@ -602,6 +602,14 @@ A signing broker ought to expose constrained operations rather than arbitrary si
 A server ought not to present assurances stronger than the accepted evidence policy supports.
 
 Authorization servers ought to avoid logging complete attestations, verifiers, codes, and refresh tokens. Audit records can retain the trust decisions, policy identifier, digest, and appropriately protected key identifiers without retaining credentials.
+
+# Deployment Considerations {#deployment-considerations}
+
+This section gives guidance to operators and issuers. It adds no requirement.
+
+## Revocation and Enforcement Latency {#revocation-practice}
+
+A deployment can use independently established revocation mechanisms or local denial lists. A deployment that requires prompt enforcement needs short token lifetimes or independent token revocation, because withdrawal of a review, removal of trust, and expiry of evidence do not revoke access tokens already issued ({{withdrawal}}).
 
 # Security Considerations {#security-considerations}
 
