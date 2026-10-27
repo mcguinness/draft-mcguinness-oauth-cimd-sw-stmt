@@ -755,13 +755,16 @@ Specification Document(s):
 
 ## OAuth Extensions Error Registry
 
-Both error codes this specification uses at new locations are already registered. This specification requests that IANA add it as an additional reference for each, and extend the usage location of `invalid_target` to authorization error responses:
+The `access_denied` and `invalid_target` error codes are already registered. This specification requests that IANA add this specification as a reference to the existing `access_denied` entry, and update the existing `invalid_target` entry, adding authorization error responses to its usage locations and this specification as a reference:
 
 Error Name:
 : `access_denied`
 
-Existing Registration:
-: {{RFC8628}}
+Error Usage Location:
+: token error response
+
+Related Protocol Extension:
+: RFC 8628
 
 Change Controller:
 : IETF
@@ -772,11 +775,11 @@ Specification Document(s):
 Error Name:
 : `invalid_target`
 
-Existing Registration:
-: {{RFC8707}}
-
 Error Usage Location:
 : authorization error response, in addition to the locations already registered
+
+Related Protocol Extension:
+: resource parameter
 
 Change Controller:
 : IESG
