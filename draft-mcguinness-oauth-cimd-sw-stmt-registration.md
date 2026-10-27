@@ -287,7 +287,7 @@ The safe default is one registration per (`iss`, `sub`) at one authorization ser
 
 ## Credentials for Statement-Governed Registrations {#credential-practice}
 
-Renewal proves possession of the registration's credential, not that the renewing party is the reviewed software ({{security-considerations}}). Deployments ought to pair statement-governed registrations with credential rotation, sender-constrained client authentication, and the repeated-consumption limits of {{STATEMENT}} and {{registration-policy}}, and ought to treat a credential compromise as requiring re-registration rather than renewal.
+Renewal proves possession of the registration's credential, not that the renewing party is the reviewed software ({{renewal-credential}}). Deployments ought to pair statement-governed registrations with credential rotation, sender-constrained client authentication, and the repeated-consumption limits of {{STATEMENT}} and {{registration-policy}}, and ought to treat a credential compromise as requiring re-registration rather than renewal.
 
 # Security Considerations {#security-considerations}
 
@@ -303,11 +303,11 @@ If the publisher's statement permits presentation and the server supports it, th
 
 A public-client registration ({{public-client-registration}}) has no credential to take and is answered idempotently, so its first registrant gains nothing over later ones. Any holder of a copy can use it, as any party can use a public client's identifier. Authorization codes under it reach only the reviewed redirection URIs, and its grants are bound to keys that installations hold. A holder of a copy therefore gains what it would gain at runtime, including the exposure the copied-statement considerations of {{STATEMENT}} describe for a holder that controls the user agent.
 
-## Renewal Authenticates the Credential
+## Renewal Authenticates the Credential {#renewal-credential}
 
 Renewal proves possession of the registration's credential and the currency of a statement sharing the governing statement's `iss` and `sub`, not that the renewing party is the reviewed software. An attacker holding a stolen client credential can renew indefinitely with any current statement for that software. Such statements are distributed to every deployment of the software. A public-client registration has no credential, so its renewal proves only that the replacement is current. No protection is lost, since any party can already use that registration.
 
-Runtime presentation ({{STATEMENT}}) binds every presenter to the reviewed document and so does not have this limitation.
+{{credential-practice}} describes deployment practice that limits this exposure. Runtime presentation ({{STATEMENT}}) binds every presenter to the reviewed document and so does not have this limitation.
 
 ## Registration Fraud and Impersonation {#registration-fraud}
 
