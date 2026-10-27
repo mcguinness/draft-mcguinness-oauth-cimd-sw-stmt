@@ -86,7 +86,7 @@ RFC 7591 defines how a client presents a software statement and how a registrati
 
 A client holding an initial access token that authorizes issuance, or a statement it can renew, uses OAuth 2.0 Token Exchange (RFC 8693) without a redirect. Any client can instead use a redirect flow: the authorization endpoint returns a short-lived `software_statement_code`, which the client redeems through a new token endpoint grant. In both flows, a completed decision returns a statement, and a pending decision uses Deferred Token Response and polling. The statement never appears in an authorization response URL.
 
-The client presents the statement at registration or at runtime, or publishes it for servers to pull; a companion specification defines the statement, its validation, and its consumption.
+The client presents the statement at registration or at runtime, or publishes it for servers to pull. A companion specification defines the statement, its validation, and its consumption.
 
 --- middle
 
@@ -288,7 +288,7 @@ A client rotating keys inline renews while its document carries both the old and
 
 A replacement carries the subject statement's `aud_tenant` claim while the decision is confined to that tenant. It also carries the uses the subject statement permits, unless issuance policy narrows them. A replacement MUST NOT permit a use the subject statement does not. It is matched to the statement it replaces by `iss` and `sub` ({{STATEMENT}}).
 
-An issuer MUST NOT accept as subject token a statement it has withdrawn ({{STATEMENT}}), including one whose status it publishes under {{STATUS}} as other than `VALID`. Renewing such a statement would reissue the decision that withdrawal ended.
+An issuer MUST NOT accept as the subject token a statement it has withdrawn ({{STATEMENT}}), including one whose status it publishes under {{STATUS}} as other than `VALID`. Renewing such a statement would reissue the decision that withdrawal ended.
 
 The authorization server MAY accept a statement that has expired, and SHOULD bound how long after expiry it will do so. A renewal after an extended absence amounts to a new issuance request.
 
@@ -552,7 +552,7 @@ An authorization server supporting the token exchange profile ({{token-exchange-
 
 A client that requires deferral MUST NOT send a request to an authorization server that does not advertise `deferred_token_response_supported`. Such an issuer answers with a statement or a terminal denial, never a deferral.
 
-This specification defines the following additional authorization server metadata members:
+This specification defines the following additional authorization server metadata {{RFC8414}} value:
 
 `software_statement_subject_token_types_supported`:
 : REQUIRED for an authorization server that supports the token exchange profile ({{token-exchange-profile}}), and absent otherwise. A JSON array of the `subject_token_type` values the authorization server accepts when `requested_token_type` is `urn:ietf:params:oauth:token-type:software-statement`. Publishing this member signals support for the profile. Listing `urn:ietf:params:oauth:token-type:software-statement` among its values advertises renewal by prior statement ({{renewal}}).
