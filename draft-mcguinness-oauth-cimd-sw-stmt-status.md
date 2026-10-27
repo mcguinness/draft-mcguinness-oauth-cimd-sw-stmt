@@ -49,7 +49,7 @@ normative:
 
 --- abstract
 
-This specification defines how the status of a software statement for a Client ID Metadata Document is published and checked. Token Status List supplies the authoritative status: an issuer publishes it, and a trusting authorization server resolves it on the list's own schedule and refuses a withdrawn statement. Optional Shared Signals events tell the servers relying on an issuer's statements that a status has changed, prompting them to check at once. An event indicates only when to check, so a server that misses every event reaches the same result on its ordinary schedule.
+This specification defines how the status of a software statement for a Client ID Metadata Document is published and checked. Token Status List supplies the authoritative status: an issuer publishes it, and a trusting authorization server resolves it on the list's own schedule and refuses a withdrawn statement. Optional Shared Signals events tell an issuer's trusting authorization servers that a status has changed, prompting them to check at once. An event indicates only when to check, so a server that misses every event reaches the same result on its ordinary schedule.
 
 --- middle
 
@@ -221,7 +221,7 @@ Because this specification defines no durable receiver-side record, it adds no n
 
 ## OAuth URI Registry {#iana-event-type}
 
-{{RFC8417}} establishes no registry of event types, so this specification takes its identifier from the `oauth` sub-namespace {{RFC6755}} and requests registration of the following value in the "OAuth URI" registry:
+{{RFC8417}} establishes no registry of event types, so this specification takes its identifier from the `oauth` sub-namespace {{RFC6755}} and requests registration of the following value in the IANA "OAuth URI" registry:
 
 URN:
 : `urn:ietf:params:oauth:event-type:software-statement-status-changed`
