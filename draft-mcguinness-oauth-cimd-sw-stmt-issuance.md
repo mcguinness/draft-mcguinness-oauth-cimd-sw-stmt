@@ -469,7 +469,7 @@ An authorization server MAY answer an originating request with a deferred token 
 
 Deferral follows {{DTR}}, including the sender constraint it fixes at origination, with the following additions ({{lifetime-practice}} covers choosing a deferral code lifetime):
 
-* A deferral created under this specification MUST be delivered by polling. Callback delivery is omitted from this version ({{design-rationale}}).
+* A deferral created under this specification MUST be delivered by polling. Callback delivery is omitted from this version.
 * A client MUST NOT send the `client_notification_token` parameter of {{DTR}}. An authorization server rejects a request carrying it with the `invalid_request` error code and MUST NOT deliver a callback, whatever the client's metadata says.
 * A successful polling response is the software statement token response of {{software-statement-response}}, not an access token response.
 
@@ -814,8 +814,6 @@ Specification Document(s):
 **Why not a profile of attestation-based client authentication.** An attester vouches for a running instance and its key, for as long as it chooses, to the server in front of it. A statement issuer vouches for reviewed software, for days, to every server that trusts it. Profiling one as the other would give the reviewed-software decision an instance-scoped trust model, or give instance attestation unwarranted portability.
 
 **Why not OpenID Federation trust marks.** A trust mark {{OPENID-FED}} is a signed third-party assertion about an entity, resolved through a federation that supplies key discovery, policy, and delegation and requires both parties to enroll. This specification is pairwise: a trusting authorization server configures an issuer directly. Federation standardizes trust resolution, not enrollment, approval, or deferred completion. Ecosystems already operating a federation are better served by trust marks.
-
-**Deferred capabilities.** This version omits callback delivery for deferral.
 
 # Acknowledgments
 {:numbered="false"}
