@@ -106,7 +106,7 @@ Runtime Presentation:
 : The consumption of a validated software statement presented in a token request or pushed authorization request, or pulled from where the client's document points ({{pulled-statements}}), without creating a client registration.
 
 Establishment:
-: The durable state a successful runtime presentation creates for the grant it opens, enumerated in {{grant-lifecycle}}.
+: The durable state a successful runtime presentation creates for the grant it opens, or that a replacement accepted on refresh gives that grant, enumerated in {{grant-lifecycle}}.
 
 Proven Key:
 : The key for which the presenter demonstrates possession during runtime presentation ({{sender-constraint}}).
@@ -394,11 +394,11 @@ A successful presentation creates an establishment comprising the following:
 * The issuer trust decision.
 * The sender-constraint mechanism and proven key.
 
-An authorization server can reuse an establishment across presentations that resolve to the same `sub`, statement, and proven key, rather than creating one per request. The bounds of {{multi-instance}} count distinct establishments, not presentations.
+An authorization server can reuse an establishment across presentations that resolve to the same `sub`, statement, and proven key, rather than creating one per request.
 
 The establishment persists while the grant depends on it. The authorization server MUST bind the resulting `request_uri`, authorization code, refresh token, and other grant continuation state to the establishment, as applicable, and can discard it once no such state references it.
 
-The authorization server MUST also record, with each `request_uri` and authorization code, the digest of the reviewed metadata its request was evaluated against ({{effective-metadata}}). A replacement accepted on refresh of another grant sharing the establishment ({{refresh}}) can change the establishment's digest while a code is outstanding. Redemption of a code whose recorded digest differs from the establishment's is rejected with `invalid_grant`, and the client starts a new authorization request.
+A replacement accepted on refresh MUST apply only to the grant refreshed ({{refresh}}). Any other grant, `request_uri`, or authorization code bound to the same establishment keeps the state its request was evaluated against.
 
 A token request that redeems an authorization code opened by a presentation:
 
@@ -428,7 +428,7 @@ When a replacement is needed, the client presents it in the `software_statement`
 
 The refreshed access MUST fall within the metadata of the document the replacement names.
 
-On success, the establishment's statement identity, `iat`, effective expiry, reviewed metadata, and trust decision are replaced in a single atomic update, and concurrent replacements resolve to the most recently issued statement. A refresh that fails these requirements, or omits a replacement that is needed, leaves the establishment unchanged and is rejected with `statement_required`, or with `temporarily_unavailable` if a retrieval needed to check the replacement did not complete for a reason other than the size bound of {{metadata-digest}}.
+On success, the refreshed grant's statement identity, `iat`, effective expiry, reviewed metadata, and trust decision are replaced in a single atomic update, and concurrent replacements resolve to the most recently issued statement. A server that shares the establishment with other grants gives the refreshed grant its own establishment, so no other grant or outstanding authorization code changes ({{grant-lifecycle}}). A refresh that fails these requirements, or omits a replacement that is needed, leaves the grant's state unchanged and is rejected with `statement_required`, or with `temporarily_unavailable` if a retrieval needed to check the replacement did not complete for a reason other than the size bound of {{metadata-digest}}.
 
 Refresh never rotates the establishment's key. A client that needs a new key performs a new presentation.
 
@@ -442,9 +442,10 @@ A trusting authorization server MUST retain, per `iss` and `sub`, the `iat` of t
 
 The first presentation of a replacement that establishes the client retires its predecessor for new admissions by every instance of the software at that server, so instances need the current statement from a shared source rather than a copy fixed at build or install time. Grants the predecessor already opened continue under {{refresh}}.
 
-A trusting authorization server SHOULD bound the number of establishments, and any registrations ({{REGISTRATION}}), derived from one issuer's statements about one piece of software, identified by `iss` and `sub`. An establishment counts toward a bound from the time an access token is first issued from it (in a redirect flow, once its authorization code is redeemed) until the server discards it ({{grant-lifecycle}}), and the server checks the bound before issuing that first token. A registration counts from the time an access token is first issued under it until the server deletes the registration. Any holder of a copy of a statement permitting registration can create one.
+A trusting authorization server SHOULD bound the number of establishments, and any registrations ({{REGISTRATION}}), derived from one issuer's statements about one piece of software, identified by `iss` and `sub`. How the server counts toward a bound is local policy, within two limits:
 
-State created by a pushed authorization request does not count toward a bound, even if its code was issued but never redeemed. Anyone holding a copy of a public client's statement can create such state and approve it with their own account. A bound is counted across replacements. A bound keyed on `jti` would reset at every renewal.
+* State that anyone holding a copy of a statement can create does not count: a pushed authorization request and its unredeemed code, which anyone holding a copy of a public client's statement can approve with their own account, or a registration under which no access token has been issued. Otherwise a holder of a copy could exhaust the bound for the software's other instances.
+* A count persists across replacements: an establishment created for a refreshed grant does not add to it, and one keyed on `jti` would reset at every renewal.
 
 For software admitted under {{public-client-presentation}}, whose every installation opens its own establishment, the server SHOULD also bound establishments per resource owner, so that one user cannot exhaust a bound the software's other users share.
 
@@ -525,7 +526,7 @@ A request rejected for another reason, such as an assertion grant whose assertio
 
 ## Code Redemption and Refresh {#continuation-errors}
 
-A token request that redeems an authorization code opened by a presentation is rejected with `invalid_request` if it carries `software_statement`, with `invalid_grant` if its client identifier or key binding fails or its recorded digest differs from the establishment's ({{grant-lifecycle}}), and with `invalid_client` if the bound on establishments of {{multi-instance}} is reached ({{effective-metadata}}).
+A token request that redeems an authorization code opened by a presentation is rejected with `invalid_request` if it carries `software_statement`, with `invalid_grant` if its client identifier or key binding fails ({{grant-lifecycle}}), and with `invalid_client` if the bound on establishments of {{multi-instance}} is reached ({{effective-metadata}}).
 
 Under an establishment, a refresh-token request rejected for a reason this specification defines uses the following error codes:
 

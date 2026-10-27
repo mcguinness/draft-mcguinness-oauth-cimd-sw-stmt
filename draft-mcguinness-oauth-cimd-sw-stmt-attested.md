@@ -332,7 +332,7 @@ An establishment records all state required by {{STATEMENT}} and, in addition:
 
 * That this instance-binding profile governs the grant.
 * The exact attester identifier and evidence-policy identifier.
-* The attester trust decision and the attestation effective expiry most recently accepted.
+* The attester trust decision and, for each grant, the attestation effective expiry most recently accepted.
 
 The proven key is the attested key, which is also the DPoP key. A server MAY reuse an establishment only when the reuse conditions of {{STATEMENT}} hold and the profile, attester, policy, and tenant also match. Individual authorization transactions still retain separate PKCE challenges, redirects, `state`, resource-owner decisions, and continuation state.
 
@@ -354,7 +354,7 @@ The client sends `grant_type=authorization_code`, the code, the same `client_id`
 
 Before issuing tokens, the server MUST verify the code and PKCE binding and every fixed establishment value in {{establishment}}. It MUST re-evaluate both trust decisions, require the recorded statement to be unexpired and not refused, and confirm that the current Client ID Metadata Document still matches its recorded digest and meets {{client-metadata}}. Retrieval and cache reuse use the freshness bounds of {{STATEMENT}}. The attestation MUST match that digest and be within its effective expiry.
 
-If the metadata changed or the recorded statement needs replacement, the client MUST start a new PAR transaction; code redemption cannot replace the governing review. This includes a digest change made by another grant's refresh, for which {{STATEMENT}} rejects the code with `invalid_grant`. A raised `iat` floor alone does not invalidate a code already bound to an acceptable recorded statement.
+If the metadata changed or the recorded statement needs replacement, the client MUST start a new PAR transaction; code redemption cannot replace the governing review. A raised `iat` floor alone does not invalidate a code already bound to an acceptable recorded statement.
 
 The server MUST issue tokens only within the user's authorization, tenant policy, and reviewed metadata. It MUST bind any refresh token to the establishment, and MUST issue access tokens, at redemption and on refresh ({{refresh}}), bound to the proven key with a `token_type` of `DPoP` (Section 5 of {{RFC9449}}). The effective expiry of each access token, whether the token is a JWT or an opaque reference, MUST NOT be later than the attestation effective expiry accepted for the request that obtained it. A client holding a refresh token therefore refreshes, with a fresh attestation, at least as often as its attester's evidence age allows, and a client without one starts a new authorization request at the PAR endpoint. A resource server that does not accept DPoP-bound access tokens cannot be used under this profile. A DPoP proof shows possession of the attested key at the resource server; it does not show that the software was re-evaluated at that moment.
 
@@ -368,7 +368,7 @@ The recorded statement can remain applicable while it is unexpired, not refused,
 
 A replacement MUST satisfy the replacement validation of {{STATEMENT}}, including identical statement `iss` and `sub`, a later `iat`, and current metadata. Its decision MUST apply to the establishment's recorded tenant and runtime use. Instead of authorizing a document key or preserving the public-client conditions of {{STATEMENT}}, the replacement MUST preserve this profile and authorize the establishment's proven key through a current attestation from the recorded attester under the recorded policy. The replacement and attestation MUST name the same current metadata digest. A replacement cannot expand access beyond the original grant, resource-owner authorization, or current server policy.
 
-On success, the server MUST atomically update the recorded statement, metadata, digest, and trust decisions and apply the concurrency rules of {{STATEMENT}} for replacements. It also records the newly accepted attestation effective expiry. A failed attempt MUST NOT replace the recorded binding or rotate a refresh token. This does not prevent the server from recording a withdrawal or trust removal learned during processing, or applying independent refresh-token replay protections.
+On success, the server MUST apply the replacement to the refreshed grant alone, as {{STATEMENT}} does, atomically updating that grant's recorded statement, metadata, digest, and trust decisions under the concurrency rules of {{STATEMENT}}. It also records the newly accepted attestation effective expiry for that grant. A failed attempt MUST NOT replace the recorded binding or rotate a refresh token. This does not prevent the server from recording a withdrawal or trust removal learned during processing, or applying independent refresh-token replay protections.
 
 Attestation renewal for the proven key is not key rotation and does not reset the `iat` floor or an establishment count.
 
@@ -428,7 +428,7 @@ The following error codes apply to pushed authorization requests, code redemptio
 : Missing or unacceptable server DPoP nonce.
 
 `invalid_grant`:
-: At redemption or refresh, a validly authenticated instance does not match the recorded key, attester, policy, or client; or, at redemption, the current document no longer matches the recorded digest, or that digest differs from the one recorded with the code ({{STATEMENT}}); or, at refresh, the current document no longer selects this profile or meets {{client-metadata}}.
+: At redemption or refresh, a validly authenticated instance does not match the recorded key, attester, policy, or client; or, at redemption, the current document no longer matches the recorded digest; or, at refresh, the current document no longer selects this profile or meets {{client-metadata}}.
 
 `statement_required`:
 : A required statement is missing, expired, refused, or superseded, or, at refresh, a needed replacement is missing or unacceptable.
