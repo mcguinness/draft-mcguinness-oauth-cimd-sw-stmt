@@ -597,6 +597,12 @@ A server can reuse an establishment only across presentations that resolve to th
 
 A signing broker ought to expose constrained operations rather than arbitrary signing: it produces proofs for the authorization server only within its own processing of an OAuth transaction, and proofs for resource requests only for resource endpoints the caller is authorized to reach and only with that caller's own access token. A broker that handles authorization for another process ought to bind the authenticated caller, intended authorization server, callback, PKCE verifier, and resulting grant to one local session ({{software-evidence}}).
 
+## User Interface, Audit, and Logging {#ui-audit}
+
+A server ought not to present assurances stronger than the accepted evidence policy supports.
+
+Authorization servers ought to avoid logging complete attestations, verifiers, codes, and refresh tokens. Audit records can retain the trust decisions, policy identifier, digest, and appropriately protected key identifiers without retaining credentials.
+
 # Security Considerations {#security-considerations}
 
 The security considerations of {{STATEMENT}}, {{ABCA}}, {{CIMD}}, {{RFC8252}}, and {{RFC9700}} apply. This section describes the additional trust boundary introduced by this specification.
@@ -607,7 +613,7 @@ A valid signature proves that an accepted attester made an assertion; it does no
 
 A key's non-exportability does not prove which process can use it. An acceptable evidence policy therefore requires key storage and any signing broker to restrict use to the software instance the policy covers ({{trust}}). A general signing service reachable by arbitrary local processes would let unreviewed software authenticate through an approved installation ({{signing-brokers}}). Remote attestation of a device without an application-to-key binding likewise does not prove which process can use the key.
 
-This profile cannot ensure benign user intent, prevent an approved application from being used as a proxy, or preserve an assurance after compromise of the platform on which its evidence depends. A server MUST present assurances no stronger than the accepted policy supports. Plugins, scripts, dynamic libraries, debuggers, and injected code can change the effective software identity and require explicit treatment in that policy.
+This profile cannot ensure benign user intent, prevent an approved application from being used as a proxy, or preserve an assurance after compromise of the platform on which its evidence depends. Plugins, scripts, dynamic libraries, debuggers, and injected code can change the effective software identity, so the evidence policy treats them ({{trust}}, {{ui-audit}}).
 
 ## Loopback and Transaction Theft
 
@@ -647,7 +653,7 @@ An instance key reused at multiple servers can correlate installations across th
 
 An attester might learn the target server from enrollment traffic, key-scoping choices, or timing even when no audience is carried. Deployments SHOULD minimize evidence and identifier disclosure to both attesters and authorization servers. An evidence-policy identifier can reveal enterprise management practices; it ought to identify policy semantics without embedding user or device identifiers.
 
-Instance attestations and proofs MUST NOT be placed in browser URLs. Operators SHOULD avoid logging complete attestations, verifiers, codes, and refresh tokens. Audit records can retain the trust decisions, policy identifier, digest, and appropriately protected key identifiers without retaining credentials.
+Instance attestations and proofs never appear in browser URLs ({{authorization}}). Logs and audit records can link installations to people and devices ({{ui-audit}}).
 
 # IANA Considerations {#iana}
 
