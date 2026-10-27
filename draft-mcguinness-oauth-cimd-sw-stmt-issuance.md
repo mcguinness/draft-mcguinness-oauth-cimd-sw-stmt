@@ -289,7 +289,7 @@ A client renews by presenting its current or most recent software statement as t
 * The statement's `sub` claim equals the request's `client_id` parameter.
 * The client authenticated with a key carried both by the document the statement's `cimd_digest` claim names and by the current document.
 
-That authentication is the holder binding: without it, whoever held a copy of the statement could renew. To check the reviewed document's keys, an issuer offering renewal retains the octets of each document it issues a statement over.
+That authentication is the holder binding: without it, whoever held a copy of the statement could renew. To check the reviewed document's keys, an issuer offering renewal needs the octets of each document it issues a statement over ({{audit-logging}}).
 
 A client rotating keys inline renews while its document carries both the old and the new key. For a document naming `jwks_uri`, the binding is to whatever that location serves. A public client holds no such key and obtains a replacement through the redirect flow ({{authorization-request}}).
 
