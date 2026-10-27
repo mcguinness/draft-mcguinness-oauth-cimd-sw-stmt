@@ -644,7 +644,7 @@ Existing grants retain their recorded binding ({{selection}}, {{establishment}})
 
 ## Artifact Substitution and Key Separation
 
-The distinct attestation type, digest binding, subject equality, and fixed establishment values prevent a generic attestation or one for another reviewed document from being substituted ({{attestation-validation}}).
+The distinct attestation type, digest binding, subject equality, and fixed establishment values prevent a generic attestation or one for another reviewed document from being substituted, and key separation keeps a statement signing key from also signing an attestation ({{attestation-validation}}).
 
 Attester authorization is scoped independently to client namespaces and tenants. An over-broad attester can undermine the binding for every namespace for which it can issue instance attestations. A statement issuer and an attester that collude, or that are both compromised, can make false assertions within the authority the server has assigned them.
 
