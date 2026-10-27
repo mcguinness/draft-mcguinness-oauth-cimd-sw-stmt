@@ -163,7 +163,7 @@ A statement asserts that its issuer evaluated the Client ID Metadata Document wh
 `status`:
 : OPTIONAL. The `status` claim as {{STATUSLIST}} defines it, by which a statement locates itself in a Status List Token. Only a withdrawal mechanism that uses the claim processes it. This specification does not ({{withdrawal}}).
 
-A statement issued under this specification MUST NOT contain client metadata claims: the reviewed metadata is the document the digest names.
+A statement issued under this specification MUST NOT contain a claim named in the IANA "OAuth Dynamic Client Registration Metadata" registry, and a trusting authorization server MUST NOT take client metadata from a statement's claims: the reviewed metadata is the document the digest names.
 
 {{CIMD}} permits a Client ID Metadata Document to carry a `software_statement` member. A trusting authorization server MUST NOT consume a statement of this profile from that member, and MUST NOT treat that member as satisfying any requirement of this specification. A statement cannot describe the document that carries it: its digest would have to cover its own bytes. A statement found in that member names an earlier version of the document. Statements of other kinds in the member are outside this specification.
 
@@ -192,7 +192,7 @@ Before accepting a statement, a trusting authorization server MUST ensure the fo
 * If the server requires a tenant-scoped decision for the request, the statement carries `aud_tenant`, or the server's trust configuration confines the statement's issuer to the request's tenant ({{issuer-trust}}).
 * If the statement carries `statement_uses`, the claim names the use being made of the statement, and a member the server does not recognize is treated as naming no use it serves. If the claim is absent, that use is presentation.
 * The `sub` claim is a client identifier URL conforming to {{CIMD}} and falls within the identifier scope for which this server accepts the issuer ({{issuer-trust}}).
-* The statement carries no claim registered in the IANA "OAuth Dynamic Client Registration Metadata" registry, which {{profiles}} forbids. Any other claim the server does not recognize is ignored.
+* Any claim the server does not recognize, and any client metadata claim, which {{profiles}} forbids an issuer to include, is ignored.
 * The JWT validation guidance in {{RFC8725}} has been applied.
 
 A trusting authorization server that hosts more than one tenant MUST evaluate every tenant-specific check, such as `aud_tenant` and a required issuer ({{issuer-trust}}), against the tenant that scopes what it issues on the statement, never selected by a value the client chooses.
