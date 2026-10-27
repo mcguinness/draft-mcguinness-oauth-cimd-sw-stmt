@@ -575,6 +575,18 @@ An authorization server can rate-limit token exchanges, cache successful retriev
 
 A client that caches issued tokens by type ought to key this artifact on the response's `issued_token_type` member, so that generic access-token handling does not apply to it, and ought to treat it as a sensitive credential in logs.
 
+## Approval Interface {#approval-interface}
+
+An approval interface ought to state that the decision vouches for the client's Client ID Metadata Document, and ought to present the following:
+
+* The client identifier URL, with its origin shown as the client's identity, and with display metadata such as the `client_name` and `logo_uri` members marked as asserted by the client (a look-alike document can carry another vendor's name).
+* The document content the statement will vouch for, identified by its metadata digest.
+* The audience the issuer intends to place in the statement.
+* The tenant the decision is confined to, if the statement will carry the `aud_tenant` claim ({{STATEMENT}}).
+* The intended lifetime.
+
+If the client requested a different or broader audience, the interface ought to make narrowing visible.
+
 # Security Considerations {#security-considerations}
 
 The security considerations of {{STATEMENT}} apply.
@@ -583,17 +595,7 @@ The security considerations of {{STATEMENT}} apply.
 
 A software statement grants no resource access or consent on behalf of the software's users, and a protected resource does not accept one as an access token ({{software-statement-response}}).
 
-When an approval interface is shown, it SHOULD state that the decision vouches for the client's Client ID Metadata Document. It MUST NOT imply that the approver is granting the client access to resources.
-
-An erroneous approval affects every authorization server in the statement's audience until expiry. The approval interface therefore SHOULD present the following:
-
-* The client identifier URL, with its origin shown as the client's identity, and with display metadata such as the `client_name` and `logo_uri` members marked as asserted by the client (a look-alike document can carry another vendor's name).
-* The document content the statement will vouch for, identified by its metadata digest.
-* The audience the issuer intends to place in the statement.
-* The tenant the decision is confined to, if the statement will carry the `aud_tenant` claim ({{STATEMENT}}).
-* The intended lifetime.
-
-If the client requested a different or broader audience, the interface SHOULD make narrowing visible. A document naming attesters in `client_attesters` ({{ATTESTERS}}) endorses them for the software under review and deserves particular scrutiny.
+When an approval interface is shown, it MUST NOT imply that the approver is granting the client access to resources. An erroneous approval affects every authorization server in the statement's audience until expiry ({{approval-interface}}). A document naming attesters in `client_attesters` ({{ATTESTERS}}) endorses them for the software under review and deserves particular scrutiny.
 
 ## What Issuance Attests {#what-issuance-attests}
 
