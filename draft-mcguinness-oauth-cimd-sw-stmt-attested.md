@@ -628,7 +628,7 @@ A valid signature proves that an accepted attester made an assertion; it does no
 
 A key's non-exportability does not prove which process can use it. An acceptable evidence policy therefore requires key storage and any signing broker to restrict use to the software instance the policy covers ({{trust}}). A general signing service reachable by arbitrary local processes would let unreviewed software authenticate through an approved installation ({{signing-brokers}}). Remote attestation of a device without an application-to-key binding likewise does not prove which process can use the key.
 
-This profile cannot ensure benign user intent, prevent an approved application from being used as a proxy, or preserve an assurance after compromise of the platform on which its evidence depends, so the assurances a server presents are limited to what the accepted policy supports ({{ui-audit}}). Plugins, scripts, dynamic libraries, debuggers, and injected code can change the effective software identity, so the evidence policy treats them ({{trust}}).
+This profile cannot ensure benign user intent, prevent an approved application from being used as a proxy, or preserve an assurance after compromise of the platform on which its evidence depends, so a server ought not to present assurances beyond what the accepted policy supports ({{ui-audit}}). Plugins, scripts, dynamic libraries, debuggers, and injected code can change the effective software identity and require explicit treatment in the evidence policy ({{trust}}).
 
 ## Loopback and Transaction Theft
 
