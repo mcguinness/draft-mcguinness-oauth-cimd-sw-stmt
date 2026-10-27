@@ -42,6 +42,7 @@ normative:
   RFC8707:
   RFC8725:
   RFC9207:
+  RFC8628:
   RFC9396:
   RFC9449:
   RFC9700:
@@ -65,7 +66,6 @@ informative:
     title: "Client ID Metadata Document Software Statement Status"
     author:
       - fullname: Karl McGuinness
-  RFC8628:
   RFC9126:
   ATTESTERS: I-D.mcguinness-oauth-client-attesters
   RFC8252:
@@ -530,7 +530,7 @@ The `access_token` member is a security-token container ({{RFC8693}}), not an OA
 
 ## Terminal Denial {#terminal-denial}
 
-When the authorization server decides not to issue the requested software statement, it returns a token error response as defined in Section 5.2 of {{RFC6749}} with the error code `access_denied` and HTTP status code 400, and MUST include the `Cache-Control: no-store` response header field. This applies to both kinds of originating request, including when the denial answers a polling request ({{deferred-processing}}).
+When the authorization server decides not to issue the requested software statement, it returns a token error response as defined in Section 5.2 of {{RFC6749}} with the `access_denied` error code (Section 3.5 of {{RFC8628}}) and HTTP status code 400, and MUST include the `Cache-Control: no-store` response header field. This applies to both kinds of originating request, including when the denial answers a polling request ({{deferred-processing}}).
 
 The denial is terminal for the request. A denied deferral behaves as {{DTR}} specifies for a request resolved with an error, and a client that receives the `access_denied` error code in response to a polling request MUST NOT send another polling request with that `deferral_code`. A denial does not preclude a later issuance request. Whether to accept one is issuance policy.
 
