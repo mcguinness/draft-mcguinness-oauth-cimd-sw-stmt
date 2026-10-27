@@ -339,7 +339,7 @@ An establishment records all state required by {{STATEMENT}} and, in addition:
 * The exact attester identifier and evidence-policy identifier.
 * The attester trust decision and, for each grant, the attestation effective expiry most recently accepted.
 
-The proven key is the attested key, which is also the DPoP key. A server MAY reuse an establishment only for presentations that resolve to the same `sub`, statement, and proven key, and only when the profile, attester, policy, and tenant also match. Individual authorization transactions still retain separate PKCE challenges, redirects, `state`, resource-owner decisions, and continuation state.
+The proven key is the attested key, which is also the DPoP key. Authorization transactions that share an establishment ({{grant-state}}) still retain separate PKCE challenges, redirects, `state`, resource-owner decisions, and continuation state.
 
 The client identifier, tenant, key, attester, policy, and binding profile MUST remain fixed for the lifetime of the grant. Changing any of them requires a new grant opened through PAR. A fresh attestation that keeps these values can renew the grant's evidence, and a software statement replacement can update the grant's reviewed metadata only as {{refresh}} permits. Neither operation changes these values.
 
@@ -588,6 +588,10 @@ This section gives guidance to implementers. It adds no requirement.
 ## Bounding Establishments and Pending Requests {#resource-bounds}
 
 A server can bound establishments as {{STATEMENT}} describes, and also per resource owner and tenant, so that one installation cannot exhaust the capacity available to other installations. It can limit pending pushed authorization requests separately from any bound on establishments, and its rate limits can account for client, instance key, tenant, and authenticated resource owner as available.
+
+## Grant State {#grant-state}
+
+A server can reuse an establishment only across presentations that resolve to the same `sub`, statement, and proven key and that match in profile, attester, policy, and tenant ({{establishment}}).
 
 # Security Considerations {#security-considerations}
 
