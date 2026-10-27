@@ -8,7 +8,7 @@ Intended status: Standards Track                         27 October 2026
 Expires: 30 April 2027
 
 
-                    CIMD Software Statement Issuance
+        Client ID Metadata Document Software Statement Issuance
           draft-mcguinness-oauth-cimd-sw-stmt-issuance-latest
 
 Abstract
@@ -29,7 +29,7 @@ Abstract
    never appears in an authorization response URL.
 
    The client presents the statement at registration or at runtime, or
-   publishes it for servers to pull; a companion specification defines
+   publishes it for servers to pull.  A companion specification defines
    the statement, its validation, and its consumption.
 
 Status of This Memo
@@ -82,10 +82,10 @@ Table of Contents
    10. Software Statement Token Response
      10.1.  Terminal Denial
    11. Withdrawal
-   12. Issuer and Consumer as One Server
+   12. Issuer as Trusting Authorization Server
    13. Authorization Server Metadata
    14. Security Considerations
-     14.1.  Client Establishment Is Not an Access Grant
+     14.1.  A Software Statement Is Not an Access Grant
      14.2.  What Issuance Attests
      14.3.  Client Metadata Retrieval
      14.4.  Authorization Response Security
@@ -119,10 +119,10 @@ Table of Contents
 
    [STATEMENT] profiles that statement to carry no client metadata and
    instead vouch for the exact octets of a Client ID Metadata Document,
-   and defines its validation and consumption.  This document defines
-   how a client obtains one, through OAuth token exchange (Section 5) or
-   a redirect flow (Section 6).  An issuer whose review outlives a
-   request can defer it under [DTR].
+   and defines its validation and consumption.  This specification
+   defines how a client obtains one, through OAuth token exchange
+   (Section 5) or a redirect flow (Section 6).  An issuer whose review
+   cannot complete within a request can defer its response under [DTR].
 
    A statement makes one issuer's decision portable to the authorization
    servers in its audience that trust the issuer ([STATEMENT]).  If the
@@ -132,7 +132,7 @@ Table of Contents
 
    Approval workflow, approver identity, external approval integration,
    acceptance of any particular issuer, and issuer discovery are out of
-   scope.
+   scope.  [STATEMENT] does not depend on this specification.
 
 2.  Conventions and Definitions
 
@@ -144,8 +144,8 @@ Table of Contents
 
    This specification uses terminology defined in [RFC6749], [RFC7591],
    [CIMD], and [DTR].  The terms Issuer, Trusting Authorization Server,
-   Metadata Digest, Effective Expiry, Establishment, and Refusal Record
-   are defined by [STATEMENT].
+   Metadata Digest, Effective Expiry, Establishment, Refusal Record, and
+   Review-Only are defined by [STATEMENT].
 
    This specification defines the following terms:
 
@@ -160,7 +160,14 @@ Table of Contents
    Originating Request:  A request that can produce a software
       statement: a software statement code redemption (Section 8) or a
       token exchange (Section 5).  Each yields a statement, a terminal
-      denial, or, at a deferred issuer, a deferral.
+      denial, or, at a deferring issuer, a deferral.
+
+   Deferring Issuer:  An issuer that advertises true for
+      deferred_token_response_supported (Section 13) and so can defer a
+      decision (Section 9).
+
+   Synchronous Issuer:  An issuer that does not defer, and so completes
+      every decision before responding.
 
    Metadata Snapshot:  The exact retrieved octets of a validated Client
       ID Metadata Document, and their metadata digest, bound to a
@@ -240,23 +247,24 @@ Table of Contents
    user-agent interaction or initiates an approval workflow, and returns
    a software statement code at (B).
 
-   At (C), the client redeems the code with its PKCE verifier.  The
-   response at (D) carries the statement or a [DTR] deferral_code, with
-   which the client polls at (E).  Errors follow [RFC6749] and [DTR].
+   At (C), the client redeems the code with its Proof Key for Code
+   Exchange (PKCE) verifier.  The response at (D) carries the statement
+   or a [DTR] deferral_code, with which the client polls at (E).  Errors
+   follow [RFC6749] and [DTR].
 
 4.  Client Identification and Authentication
 
-   The client_id in every request defined by this specification MUST be
-   a client identifier URL conforming to [CIMD].  The authorization
-   server MUST obtain and validate the corresponding Client ID Metadata
-   Document according to [CIMD].
+   The client_id parameter in every request defined by this
+   specification MUST be a client identifier URL conforming to [CIMD].
+   The authorization server MUST obtain and validate the corresponding
+   Client ID Metadata Document according to [CIMD].
 
-   In the redirect flow, a client identifier whose metadata document
-   cannot be retrieved or validated, including a document rejected for
-   duplicate member names (Section 4.1), is invalid for the purposes of
-   Section 4.1.2.1 of [RFC6749].  If the client identifier or
-   redirection URI is missing or invalid, the authorization server MUST
-   NOT redirect the user agent.
+   In the redirect flow, a client identifier whose Client ID Metadata
+   Document cannot be retrieved or validated, including a document
+   rejected for duplicate member names (Section 4.1), is invalid for the
+   purposes of Section 4.1.2.1 of [RFC6749].  If the client identifier
+   or redirection URI is missing or invalid, the authorization server
+   MUST NOT redirect the user agent.
 
    The client authenticates to the token endpoint using the
    token_endpoint_auth_method and related key metadata in its Client ID
@@ -273,27 +281,28 @@ Table of Contents
 
       -  If the authorization server does not support the declared
          method, it MUST reject the request rather than treat the client
-         as public, with unauthorized_client at the authorization
-         endpoint and with invalid_client (Section 5.2 of [RFC6749]) at
-         the token endpoint.
+         as public, with the unauthorized_client error code at the
+         authorization endpoint and with the invalid_client error code
+         (Section 5.2 of [RFC6749]) at the token endpoint.
 
    *  An omitted value establishes neither, and any request identifying
-      such a client MUST be rejected with invalid_request, returned at
-      the authorization endpoint to the redirection URI validated
-      against the document.
+      such a client MUST be rejected with the invalid_request error
+      code, returned at the authorization endpoint to the redirection
+      URI validated against the document.
 
    Classification uses the singular token_endpoint_auth_method.  A list
    of declared supported methods is not interpreted.
 
-   A public client binds its requests with DPoP [RFC9449]: in the
-   redirect flow through dpop_jkt (Section 6), and in the token exchange
-   profile (Section 5) by a DPoP proof, which a public client MUST
-   include on the exchange request.  A confidential client MAY use DPoP
-   in addition to its client authentication method.
+   A public client binds its requests with Demonstrating Proof of
+   Possession (DPoP) [RFC9449]: in the redirect flow through the
+   dpop_jkt parameter (Section 6), and in the token exchange profile
+   (Section 5) by a DPoP proof, which a public client MUST include on
+   the exchange request.  A confidential client MAY use DPoP in addition
+   to its client authentication method.
 
 4.1.  Metadata Snapshot
 
-   Client metadata documents can change while a request is pending.
+   Client ID Metadata Documents can change while a request is pending.
    Before returning a software statement code or a deferral code, the
    authorization server MUST bind it to the exact octets of the document
    it retrieved and validated, and to their metadata digest
@@ -303,15 +312,15 @@ Table of Contents
    The authorization server MAY retrieve the document again before
    issuing the software statement.  If it does so and the digest
    differs, it MUST either re-evaluate the request under the new
-   document, binding it as the snapshot, or reject the request.  This
-   applies even if the change touches no member its policy examines.  A
-   statement over a superseded snapshot fails at registration
-   ([REGISTRATION]).
+   document, binding the new document as the snapshot, or reject the
+   request.  This applies even if the change touches no member its
+   policy examines.  A statement over a superseded snapshot fails at
+   registration ([REGISTRATION]).
 
-   The authorization server MUST NOT silently combine values from
-   different document versions.  An approval recorded against a
-   superseded snapshot does not carry forward without a fresh issuance-
-   policy decision.
+   The authorization server MUST NOT combine values from different
+   document versions.  An approval recorded against a superseded
+   snapshot does not carry forward without a fresh issuance-policy
+   decision.
 
    Replacing the snapshot does not alter the sender-constraint context
    fixed for a deferral at origination (Section 9).  If a replacement
@@ -320,20 +329,20 @@ Table of Contents
    new document, the authorization server MUST invalidate the deferral.
    The client then makes a new request under its current keys.
 
-   The authorization server MUST reject duplicate object member names.
-   Parsers can interpret duplicate members differently despite an
-   identical digest.
+   The authorization server MUST reject a document containing duplicate
+   object member names.  Parsers can interpret duplicate members
+   differently despite an identical digest.
 
-   A document carries its keys inline through jwks, which the digest
-   binds, or by reference through jwks_uri, which it binds only as a
-   location.  [STATEMENT] weighs the trade-off, and an issuer can
-   require either.
+   A document carries its keys inline through the jwks member, which the
+   digest binds, or by reference through the jwks_uri member, which the
+   digest binds only as a location.  [STATEMENT] weighs the trade-off,
+   and an issuer can require either.
 
    [CIMD] permits a document to carry a software_statement member.  An
    issuer evaluates the document as served and MUST NOT refuse a
-   document because it carries the member.  Consumers ignore a statement
-   embedded there ([STATEMENT]), and refusing would leave a client that
-   published its statement unable to renew it.
+   document because it carries the member.  Trusting authorization
+   servers ignore a statement embedded there ([STATEMENT]), and refusing
+   would leave a client that published its statement unable to renew it.
 
 5.  Token Exchange Profile
 
@@ -358,9 +367,10 @@ Table of Contents
          [RFC7591].  The credential itself is deployment-defined.
 
       *  *Renewal.* A software statement this authorization server
-         previously issued for the same sub, presented with a
-         subject_token_type of urn:ietf:params:oauth:token-
-         type:software-statement (Section 5.1).
+         previously issued with a sub claim equal to the request's
+         client_id, presented with a subject_token_type of
+         urn:ietf:params:oauth:token-type:software-statement
+         (Section 5.1).
 
    client_id:  REQUIRED.  The client identifier URL described in
       Section 4.
@@ -376,9 +386,9 @@ Table of Contents
    completion_mode:  As defined for software statement code redemption
       (Section 8).
 
-   The request MUST NOT contain actor_token or actor_token_type, nor the
-   scope, resource, or authorization_details parameters prohibited by
-   Section 6.1.
+   The request MUST NOT contain the actor_token or actor_token_type
+   parameters, nor the scope, resource, or authorization_details
+   parameters prohibited by Section 6.1.
 
    The client authenticates, and a public client constrains the request,
    as described in Section 4.  An assertion-based method such as
@@ -393,8 +403,9 @@ Table of Contents
    The initial access token is subject to the following:
 
    *  A reusable one MUST be sender-constrained to a client key, for
-      example through DPoP or mTLS, and the authorization server MUST
-      verify that binding against the key the exchange request proves.
+      example through DPoP or mutual TLS, and the authorization server
+      MUST verify that binding against the key the exchange request
+      proves.
 
    *  A bearer one MUST be single-use.
 
@@ -410,22 +421,23 @@ Table of Contents
    (Section 3 of [RFC9449]).  The initial access token therefore needs
    its own sender constraint or single-use restriction.
 
-   A use is consumed when the authorization server commits to an
-   outcome: issuing a statement, creating a deferral, or denying
-   issuance.  Concurrent presentations of a single-use credential MUST
-   NOT both be committed.
+   A use of an initial access token is consumed when the authorization
+   server commits to an outcome: issuing a statement, creating a
+   deferral, or denying issuance.  Concurrent presentations of a single-
+   use credential MUST NOT both be committed.
 
    The authorization server MUST validate the subject token before
    retrieving client-controlled metadata or enqueueing any processing.
-   A subject token MUST result in invalid_request (Section 2.2.2 of
-   [RFC8693]) if any of the following holds:
+   A subject token MUST result in the invalid_request error code
+   (Section 2.2.2 of [RFC8693]) if any of the following holds:
 
    *  It is invalid or revoked.
 
    *  It has expired, unless it is a prior software statement accepted
       under Section 5.1.
 
-   *  It does not authorize issuance for the presented client_id.
+   *  It does not authorize issuance for the presented client_id
+      parameter.
 
    An unacceptable requested audience results in invalid_target
    [RFC8693].
@@ -435,9 +447,10 @@ Table of Contents
    software statement or a deferral code.
 
    Issuance policy determines whether an initial access token authorizes
-   only the request or issuance itself.  The exchange results in a
-   software statement token response (Section 10), a deferral at a
-   deferred issuer (Section 9), or the terminal denial of Section 10.1.
+   the client only to request a statement or also authorizes its
+   issuance.  The exchange results in a software statement token
+   response (Section 10), a deferral at a deferring issuer (Section 9),
+   or the terminal denial of Section 10.1.
 
 5.1.  Renewal
 
@@ -447,10 +460,12 @@ Table of Contents
 
    *  The authorization server issued the statement.
 
-   *  The statement's sub equals the request's client_id.
+   *  The statement's sub claim equals the request's client_id
+      parameter.
 
    *  The client authenticated with a key carried both by the document
-      the statement's cimd_digest names and by the current document.
+      the statement's cimd_digest claim names and by the current
+      document.
 
    That authentication is the holder binding: without it, whoever held a
    copy of the statement could renew.  To check the reviewed document's
@@ -462,28 +477,29 @@ Table of Contents
    is to whatever that location serves.  A public client holds no such
    key and obtains a replacement through the redirect flow (Section 6).
 
-   A replacement carries the subject statement's aud_tenant while the
-   decision is confined to that tenant, and the uses the subject
-   statement permits unless issuance policy narrows them.  A replacement
-   MUST NOT permit a use the subject statement does not.  It is matched
-   to the statement it replaces by iss and sub ([STATEMENT]).
+   A replacement carries the subject statement's aud_tenant claim while
+   the decision is confined to that tenant.  It also carries the uses
+   the subject statement permits, unless issuance policy narrows them.
+   A replacement MUST NOT permit a use the subject statement does not.
+   It is matched to the statement it replaces by iss and sub
+   ([STATEMENT]).
 
-   An issuer MUST NOT accept as subject token a statement it has
+   An issuer MUST NOT accept as the subject token a statement it has
    withdrawn ([STATEMENT]), including one whose status it publishes
    under [STATUS] as other than VALID.  Renewing such a statement would
    reissue the decision that withdrawal ended.
 
    The authorization server MAY accept a statement that has expired, and
    SHOULD bound how long after expiry it will do so.  A renewal after an
-   extended absence amounts to a request for re-establishment.
+   extended absence amounts to a new issuance request.
 
    If the current document's digest equals the subject statement's
    cimd_digest, whether renewal requires fresh review is issuer policy.
    If the digests differ, the issuer MUST apply the decision it would
    apply to a first issuance for that document, and MUST NOT renew on
-   the strength of the prior statement alone.  Otherwise, whoever can
-   change the document could obtain the issuer's signature over an
-   unreviewed change.
+   the strength of the prior statement alone.  Without this rule,
+   whoever can change the document could obtain the issuer's signature
+   over an unreviewed change.
 
 6.  Software Statement Authorization Request
 
@@ -497,16 +513,17 @@ Table of Contents
 
    redirect_uri:  REQUIRED.  The value MUST exactly match one of the
       redirection URIs in the Client ID Metadata Document, subject to
-      the redirect URI rules of [CIMD].  Whatever authentication method
-      the document declares, the value MUST NOT be a redirection URI
-      that another application on the same device could claim, as the
-      public-client presentation rules of [STATEMENT] define
+      the redirection URI rules of [CIMD].  Whatever authentication
+      method the document declares, the value MUST NOT be a redirection
+      URI that another application on the same device could claim, as
+      the public-client presentation rules of [STATEMENT] define
       (Section 14.4).
 
    state:  OPTIONAL.  An opaque value used by the client to bind the
       authorization response to its request.  Because the authorization
-      server requires PKCE, a client can rely on PKCE for CSRF
-      protection instead, as Section 2.1 of [RFC9700] permits.
+      server requires PKCE, a client can rely on PKCE for cross-site
+      request forgery (CSRF) protection instead, as Section 2.1 of
+      [RFC9700] permits.
 
    code_challenge:  REQUIRED.  A PKCE challenge as defined by [RFC7636].
 
@@ -534,24 +551,25 @@ Table of Contents
    The authorization server selects the final audience according to
    policy.  It MUST NOT place in the statement's aud claim any value the
    request did not carry, except that a renewal request carrying no
-   audience counts as carrying the subject statement's aud (Section 5).
-   An issuer narrows a requested audience and never widens it.
+   audience parameter counts as carrying the subject statement's aud
+   claim (Section 5).  An issuer narrows a requested audience and never
+   widens it.
 
    If no requested audience is acceptable, the authorization server MUST
-   reject the request with invalid_target [RFC8707].  An authorization
-   server whose policy requires a restricted audience rejects a request
-   carrying none with the same error.
+   reject the request with the invalid_target error code [RFC8707].  An
+   authorization server whose policy requires a restricted audience
+   rejects a request carrying none with the same error.
 
    The audience semantics of this section apply only to software
    statement requests and do not affect proprietary uses of the
    parameter for access-token targeting.
 
-   The authorization server MUST reject with invalid_request a request
-   that omits a required PKCE parameter or a required dpop_jkt.
+   The authorization server MUST reject with the invalid_request error
+   code a request that omits a required PKCE parameter or a required
+   dpop_jkt parameter.
 
    The following is a non-normative example of an authorization request
-   from a confidential client (line breaks are for display purposes
-   only):
+   from a confidential client (line breaks for display purposes only):
 
    GET /authorize?response_type=software_statement_code
      &client_id=https%3A%2F%2Fclient.example.org%2Fmetadata.json
@@ -569,16 +587,16 @@ Table of Contents
    authorization_details as defined by [RFC9396].
 
    An authorization server MUST reject a request containing any of these
-   parameters with invalid_request.  The same prohibition and error
-   apply to a software statement code redemption (Section 8) and to a
-   token exchange under Section 5.  The audience parameter (Section 6)
-   is not prohibited: it describes the requested artifact rather than
-   requesting access.
+   parameters with the invalid_request error code.  The same prohibition
+   and error apply to a software statement code redemption (Section 8)
+   and to a token exchange under Section 5.  The audience parameter
+   (Section 6) is not prohibited: it describes the requested artifact
+   rather than requesting access.
 
    Hybrid response types that combine software_statement_code with code,
    token, id_token, or any other response type are not defined.  An
-   authorization server MUST reject such a request with
-   unsupported_response_type.
+   authorization server MUST reject such a request with the
+   unsupported_response_type error code.
 
 7.  Authorization Response
 
@@ -590,7 +608,7 @@ Table of Contents
 
    A denial is never signaled in the authorization response: the
    authorization server returns a software statement code whether the
-   issuance decision is complete, pending, or already a denial, and
+   issuance decision is approved, pending, or already denied, and
    delivers any denial at redemption (Section 10.1).
 
 7.1.  Software Statement Code Response
@@ -602,16 +620,16 @@ Table of Contents
 
    software_statement_code:  REQUIRED.  A short-lived, single-use
       artifact redeemed at the token endpoint (Section 8).  It MUST be
-      bound to the client identifier, redirect URI, PKCE challenge,
-      metadata snapshot, requested audience, and, when dpop_jkt was
-      present, that JWK thumbprint.
+      bound to the client identifier, redirection URI, PKCE challenge,
+      metadata snapshot, requested audience, and, when the dpop_jkt
+      parameter was present, that JWK thumbprint.
 
       The value MUST contain at least 128 bits of entropy from a
       cryptographically secure random source, be opaque to the client,
       expire shortly after issuance, and not be accepted more than once.
 
-   state:  REQUIRED if the authorization request contained state.  The
-      exact value received in the authorization request.
+   state:  REQUIRED if the authorization request contained the state
+      parameter.  The exact value received in the authorization request.
 
    iss:  REQUIRED.  The authorization server issuer identification
       parameter defined by [RFC9207].
@@ -621,10 +639,10 @@ Table of Contents
 
    Because scripts at the redirection endpoint can access the fragment,
    the fragment response mode SHOULD NOT be used.  A client MAY request
-   form_post [FORM-POST].
+   the form_post response mode [FORM-POST].
 
    The following is an example of a software statement code response
-   using the default query response mode (line breaks are for display
+   using the default query response mode (line breaks for display
    purposes only):
 
    HTTP/1.1 302 Found
@@ -657,19 +675,18 @@ Table of Contents
       code_challenge in the authorization request.
 
    completion_mode:  REQUIRED when the authorization server advertises
-      deferred_token_response_supported (Section 13), and not used
-      otherwise.  An authorization server that does not defer ignores
-      it.  When present, the value MUST include deferred.  A deferral-
-      capable issuer rejects a redemption that omits it with
-      invalid_request.
+      the deferred_token_response_supported metadata value (Section 13),
+      and not used otherwise.  A synchronous issuer ignores it.  When
+      present, the value MUST include deferred.  A deferring issuer
+      rejects a redemption that omits it with invalid_request.
 
-   The request MUST NOT contain audience, which was bound at the
-   authorization endpoint.  A request containing it is rejected with
-   invalid_request.
+   The request MUST NOT contain the audience parameter, which was bound
+   at the authorization endpoint.  A request containing it is rejected
+   with invalid_request.
 
-   The client authenticates according to Section 4.  When dpop_jkt was
-   included in the authorization request, the client MUST send a DPoP
-   proof for the token endpoint using the same key.
+   The client authenticates according to Section 4.  When the dpop_jkt
+   parameter was included in the authorization request, the client MUST
+   send a DPoP proof for the token endpoint using the same key.
 
    The authorization server MUST validate the software statement code
    and all of its bindings before processing the request.  An invalid,
@@ -678,8 +695,9 @@ Table of Contents
    according to [RFC7636] or [RFC9449], respectively.
 
    A redemption attempt consumes the software statement code whenever
-   the presented code value is valid, including when its PKCE, DPoP, or
-   client-authentication bindings fail (Section 14.4).  A DPoP nonce
+   the presented code value is one the authorization server issued that
+   has neither expired nor been consumed, including when its PKCE, DPoP,
+   or client-authentication bindings fail (Section 14.4).  A DPoP nonce
    challenge [RFC9449] is not a binding failure: an authorization server
    requiring a nonce issues the use_dpop_nonce challenge before
    evaluating the code, which remains unconsumed.
@@ -701,12 +719,11 @@ Table of Contents
       bound to the code's metadata snapshot and audience in addition to
       the bindings [DTR] requires.  The client then polls (Section 9).
 
-   An authorization server that does not defer completes the decision
-   before responding.
+   A synchronous issuer completes the decision before responding.
 
    The following is a non-normative example of a redemption request from
-   a confidential client at a deferred issuer (line breaks are for
-   display purposes only):
+   a confidential client at a deferring issuer (line breaks for display
+   purposes only):
 
    POST /token HTTP/1.1
    Host: server.example.com
@@ -737,8 +754,8 @@ Table of Contents
 
    *  A client MUST NOT send the client_notification_token parameter of
       [DTR].  An authorization server rejects a request carrying it with
-      invalid_request and MUST NOT deliver a callback, whatever the
-      client's metadata says.
+      the invalid_request error code and MUST NOT deliver a callback,
+      whatever the client's metadata says.
 
    *  A successful polling response is the software statement token
       response of Section 10, not an access token response.
@@ -750,7 +767,7 @@ Table of Contents
    The following is a non-normative example of a first polling request
    for a deferral created by a token exchange, from a confidential
    client authenticating with the same private_key_jwt method as the
-   exchange:
+   exchange (line breaks for display purposes only):
 
    POST /token HTTP/1.1
    Host: issuer.example
@@ -769,10 +786,11 @@ Table of Contents
    application/json, and the following members:
 
    access_token:  REQUIRED.  The software statement issued by the
-      authorization server.  It MUST conform to [STATEMENT], with
-      cimd_digest the digest of the bound metadata snapshot, aud the
-      selected audience if one is restricted, and statement_uses the
-      uses issuance policy permits.
+      authorization server.  It MUST conform to [STATEMENT], with the
+      cimd_digest claim set to the digest of the bound metadata
+      snapshot, the aud claim set to the selected audience if one is
+      restricted, and the statement_uses claim set to the uses issuance
+      policy permits.
 
    issued_token_type:  REQUIRED.  The value MUST be
       urn:ietf:params:oauth:token-type:software-statement.
@@ -784,13 +802,14 @@ Table of Contents
       statement in seconds.  If present, it MUST be consistent with the
       statement's exp claim.
 
-   The response MUST NOT contain refresh_token or scope.  The
-   authorization server MUST include Cache-Control: no-store and SHOULD
-   also include Pragma: no-cache.
+   The response MUST NOT contain the refresh_token or scope members.
+   The authorization server MUST include the Cache-Control HTTP header
+   field with the value no-store and SHOULD also include the Pragma HTTP
+   header field with the value no-cache.
 
    DPoP under this specification binds requests and deferral state, not
-   the issued artifact.  [DTR]'s requirement that a final access token
-   inherit the originating DPoP binding does not apply.
+   the issued artifact.  The requirement of [DTR] that a final access
+   token inherit the originating DPoP binding does not apply.
 
    The following is an example of a software statement token response:
 
@@ -815,9 +834,9 @@ Table of Contents
    refresh.
 
    Implementations that cache issued tokens by type SHOULD key this
-   artifact on its issued_token_type so that generic access-token
-   handling does not apply to it, and SHOULD treat it as a sensitive
-   credential in logs.
+   artifact on the response's issued_token_type member so that generic
+   access-token handling does not apply to it, and SHOULD treat it as a
+   sensitive credential in logs.
 
 10.1.  Terminal Denial
 
@@ -825,15 +844,16 @@ Table of Contents
    software statement, it returns a token error response as defined in
    Section 5.2 of [RFC6749] with the error code access_denied and HTTP
    status code 400, and MUST include the Cache-Control: no-store
-   response header field.  This applies to both originating requests,
-   including when the denial answers a polling request (Section 9).
+   response header field.  This applies to both kinds of originating
+   request, including when the denial answers a polling request
+   (Section 9).
 
    The denial is terminal for the request.  A denied deferral behaves as
    [DTR] specifies for a request resolved with an error, and a client
-   that receives access_denied in response to a polling request MUST NOT
-   send another polling request with that deferral_code.  A denial does
-   not preclude a later issuance request.  Whether to accept one is
-   issuance policy.
+   that receives the access_denied error code in response to a polling
+   request MUST NOT send another polling request with that
+   deferral_code.  A denial does not preclude a later issuance request.
+   Whether to accept one is issuance policy.
 
 11.  Withdrawal
 
@@ -843,7 +863,7 @@ Table of Contents
    replacement obtained through Section 5.1, and withdrawing a
    replacement does not restore its predecessor.
 
-12.  Issuer and Consumer as One Server
+12.  Issuer as Trusting Authorization Server
 
    An authorization server that issued a statement already holds the
    decision that statement records.  If it is also a trusting
@@ -851,13 +871,13 @@ Table of Contents
    than require the statement to be presented back to it, at
    registration or at runtime.
 
-   Because a decision a server made is not a document it has re-read, a
-   server admitting a client on the record of a statement it issued MUST
-   apply every check [STATEMENT] applies to a presented statement, and
-   at registration every check [REGISTRATION] applies, taking the
-   statement's claims from its record of the decision.  The record
-   replaces only the signature: the server still obtains the document at
-   sub and compares its digest with the recorded one.
+   Because the record of a decision is not a fresh retrieval of the
+   document, a server admitting a client on the record of a statement it
+   issued MUST apply every check [STATEMENT] applies to a presented
+   statement, and at registration every check [REGISTRATION] applies,
+   taking the statement's claims from its record of the decision.  The
+   record replaces only the signature: the server still obtains the
+   document at sub and compares its digest with the recorded one.
 
    At runtime, the recorded decision replaces the presented statement,
    not the proof of who is making the request.  The request MUST meet
@@ -871,12 +891,12 @@ Table of Contents
    An authorization server that issues software statements under this
    specification advertises true for
    client_id_metadata_document_supported ([CIMD]) and publishes the
-   issuer metadata of [STATEMENT].
+   authorization server metadata that [STATEMENT] requires of an issuer.
 
-   An issuer that may defer a request (Section 9) publishes the metadata
-   [DTR] requires, including true for deferred_token_response_supported.
-   A synchronous issuer advertises neither that value nor deferral-code
-   revocation, and need not implement [DTR].
+   A deferring issuer publishes the metadata [DTR] requires, including
+   true for deferred_token_response_supported.  A synchronous issuer
+   advertises neither that value nor deferral-code revocation, and need
+   not implement [DTR].
 
    An authorization server supporting the redirect flow advertises
    urn:ietf:params:oauth:grant-type:software-statement in
@@ -887,19 +907,19 @@ Table of Contents
 
    An authorization server supporting the token exchange profile
    (Section 5) advertises urn:ietf:params:oauth:grant-type:token-
-   exchange in grant_types_supported and publishes
-   software_statement_subject_token_types_supported (below).  An
-   implementation supporting only that profile advertises neither the
-   software statement grant nor the software_statement_code response
-   type.
+   exchange in grant_types_supported and publishes the
+   software_statement_subject_token_types_supported metadata value
+   defined in this section.  An implementation supporting only that
+   profile advertises neither the software statement grant nor the
+   software_statement_code response type.
 
    A client that requires deferral MUST NOT send a request to an
-   authorization server that does not advertise
-   deferred_token_response_supported.  Such an issuer answers with a
-   statement or a terminal denial, never a deferral.
+   authorization server that does not advertise the
+   deferred_token_response_supported metadata value.  Such an issuer
+   answers with a statement or a terminal denial, never a deferral.
 
    This specification defines the following additional authorization
-   server metadata members:
+   server metadata [RFC8414] value:
 
    software_statement_subject_token_types_supported:  REQUIRED for an
       authorization server that supports the token exchange profile
@@ -913,7 +933,9 @@ Table of Contents
 
 14.  Security Considerations
 
-14.1.  Client Establishment Is Not an Access Grant
+   The security considerations of [STATEMENT] apply.
+
+14.1.  A Software Statement Is Not an Access Grant
 
    A software statement grants no resource access or consent on behalf
    of the software's users.  A protected resource MUST NOT accept a
@@ -921,24 +943,26 @@ Table of Contents
    as an access token.
 
    When an approval interface is shown, it SHOULD state that the
-   decision vouches for the client's metadata document.  It MUST NOT
-   imply that the approver is granting the client access to resources.
+   decision vouches for the client's Client ID Metadata Document.  It
+   MUST NOT imply that the approver is granting the client access to
+   resources.
 
    An erroneous approval affects every authorization server in the
    statement's audience until expiry.  The approval interface therefore
    SHOULD present the following:
 
    *  The client identifier URL, with its origin shown as the client's
-      identity, and with display metadata such as client_name and
-      logo_uri marked as asserted by the client (a look-alike document
-      can carry another vendor's name).
+      identity, and with display metadata such as the client_name and
+      logo_uri members marked as asserted by the client (a look-alike
+      document can carry another vendor's name).
 
-   *  The document content it will vouch for, identified by its digest.
+   *  The document content the statement will vouch for, identified by
+      its metadata digest.
 
    *  The audience the issuer intends to place in the statement.
 
    *  The tenant the decision is confined to, if the statement will
-      carry aud_tenant ([STATEMENT]).
+      carry the aud_tenant claim ([STATEMENT]).
 
    *  The intended lifetime.
 
@@ -971,8 +995,8 @@ Table of Contents
    authorization response (Section 7).
 
    Before redeeming a software statement code, the client MUST verify
-   state, if it sent one, and MUST validate the authorization response
-   iss parameter according to [RFC9207].
+   the state parameter, if it sent one, and MUST validate the
+   authorization response iss parameter according to [RFC9207].
 
    A public client presents no client authentication, so its association
    with the software depends on delivery to a metadata-listed
@@ -986,14 +1010,15 @@ Table of Contents
 
    A confidential client's authentication proves possession of a key,
    not that the key is absent from software distributed to end users, so
-   the requirement applies to it as well.  A statement over a document
-   listing an endpoint another application can claim is in any case
-   review-only at a trusting authorization server ([STATEMENT]).
+   the requirement applies to it as well.  Presentations of a statement
+   over a document listing an endpoint another application can claim are
+   in any case review-only at a trusting authorization server
+   ([STATEMENT]).
 
    An authorization server SHOULD relate the redirection URI's origin to
-   the client identifier URL or the metadata document's client_uri
-   according to policy.  Endpoint or key control informs issuance policy
-   but does not determine issuance.
+   the client identifier URL or the Client ID Metadata Document's
+   client_uri member according to policy.  Endpoint or key control
+   informs issuance policy but does not determine issuance.
 
    A software statement code in a URL is visible to browser history,
    referrer fields, logs, and other observers.  It is short lived,
@@ -1009,14 +1034,15 @@ Table of Contents
 
    *  Rate-limit these exchanges.
 
-   *  Cache successful retrieval results and back off after failures
-      rather than caching them, which [CIMD] forbids.
+   *  Cache successful retrieval results and, because [CIMD] forbids
+      caching failures, back off after failures instead of caching them.
 
    *  Bound pending deferrals per client identifier and requester.
 
    Because the redirect flow reaches the approval queue before any
-   client-authenticated step, the same rate limits and pending-approval
-   bounds SHOULD apply per client identifier there.
+   client-authenticated step, authorization servers SHOULD apply the
+   same rate limits and pending-approval bounds per client identifier
+   there.
 
    A subject token is an authorization credential, not a client
    identifier.  If the Client ID Metadata Document declares a method, a
@@ -1035,14 +1061,14 @@ Table of Contents
 
 14.6.  Renewal by Prior Statement
 
-   If both documents carry their keys inline, a party able to change the
-   current document cannot supply a key that satisfies the holder
-   binding of Section 5.1.  If they name a jwks_uri, whoever controls
-   that location can supply such a key.  For this reason, a changed
-   document receives the decision a first issuance receives.  Binding
-   renewal to the client's key also spares automated renewal a long-
-   lived reusable initial access token, a standing credential to mint
-   statements.
+   If both the reviewed document and the current document carry their
+   keys inline, a party able to change the current document cannot
+   supply a key that satisfies the holder binding of Section 5.1.  If
+   they name a jwks_uri, whoever controls that location can supply such
+   a key.  For this reason, a changed document receives the decision a
+   first issuance receives.  Binding renewal to the client's key also
+   spares automated renewal a long-lived reusable initial access token,
+   a standing credential to mint statements.
 
 14.7.  Signing Keys and Algorithms
 
@@ -1065,14 +1091,14 @@ Table of Contents
 
    An approved statement is accepted at every authorization server in
    its audience, not only within the approver's own scope.  The policy
-   governing who may approve issuance MUST be at least as restrictive as
-   the policy governing manual client establishment at the issuer.
+   governing who can approve issuance MUST be at least as restrictive as
+   the policy under which the issuer establishes a client manually.
    Approval by a party authorized only for a personal or organizational
    scope MUST NOT produce a statement whose audience exceeds that scope,
-   or whose aud_tenant names a tenant outside it.
+   or whose aud_tenant claim names a tenant outside it.
 
    To keep a look-alike document from reaching approval, an issuer
-   SHOULD limit what an approver may approve to client identifiers under
+   SHOULD limit what an approver can approve to client identifiers under
    publisher namespaces it has enrolled.
 
    Authorization servers SHOULD keep an audit record that binds each
@@ -1093,8 +1119,10 @@ Table of Contents
 
 15.  Privacy Considerations
 
+   The privacy considerations of [STATEMENT] apply.
+
    The authorization server learns the client identifier URL, the
-   client's metadata document, and information about the party
+   client's Client ID Metadata Document, and information about the party
    interacting with the authorization endpoint.  It SHOULD collect and
    retain only the information required for issuance, security
    monitoring, and audit obligations.
@@ -1105,8 +1133,10 @@ Table of Contents
    requiring one in the request (Section 6).
 
    Clients SHOULD NOT present statements outside their intended
-   deployment context.  If the relationship is sensitive, a redirect-
-   flow client SHOULD use Pushed Authorization Requests [RFC9126].
+   deployment context.  If the client's relationship with the
+   authorization servers its audience parameter names is sensitive, a
+   redirect-flow client SHOULD use pushed authorization requests
+   [RFC9126].
 
    Approval records can link a person to a client and deployment.  Such
    records SHOULD be access-controlled and retained only as long as
@@ -1122,7 +1152,7 @@ Table of Contents
 
    Response Type Name:  software_statement_code
 
-   Change Controller:  IESG
+   Change Controller:  IETF
 
    Specification Document(s):  This specification, Section 6 and
       Section 7
@@ -1136,7 +1166,7 @@ Table of Contents
 
    Common Name:  OAuth Software Statement Grant Type
 
-   Change Controller:  IESG
+   Change Controller:  IETF
 
    Specification Document(s):  This specification, Section 8
 
@@ -1144,7 +1174,7 @@ Table of Contents
 
    Common Name:  OAuth Software Statement Token Type
 
-   Change Controller:  IESG
+   Change Controller:  IETF
 
    Specification Document(s):  This specification, Section 10 and
       Section 5
@@ -1170,7 +1200,7 @@ Table of Contents
 
    Parameter Usage Location:  authorization response, token request
 
-   Change Controller:  IESG
+   Change Controller:  IETF
 
    Specification Document(s):  This specification, Section 7.1 and
       Section 8
@@ -1186,7 +1216,7 @@ Table of Contents
 
    Existing Registration:  [RFC8628]
 
-   Change Controller:  IESG
+   Change Controller:  IETF
 
    Specification Document(s):  [RFC8628], this specification
       (Section 10.1)
@@ -1214,7 +1244,7 @@ Table of Contents
       accepted for exchanging into software statements; signals support
       for the token exchange profile.
 
-   Change Controller:  IESG
+   Change Controller:  IETF
 
    Specification Document(s):  This specification, Section 13 and
       Section 5
@@ -1244,6 +1274,12 @@ Table of Contents
               "OAuth 2.0 Multiple Response Type Encoding Practices",
               n.d., <https://openid.net/specs/oauth-v2-multiple-
               response-types-1_0.html>.
+
+   [REGISTRATION]
+              McGuinness, K., "Client ID Metadata Document Software
+              Statement Registration", n.d.,
+              <https://datatracker.ietf.org/doc/draft-mcguinness-oauth-
+              cimd-sw-stmt-registration>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -1318,9 +1354,9 @@ Table of Contents
               <https://www.rfc-editor.org/rfc/rfc9700>.
 
    [STATEMENT]
-              McGuinness, K., "CIMD Software Statement", n.d.,
-              <https://datatracker.ietf.org/doc/draft-mcguinness-oauth-
-              cimd-sw-stmt>.
+              McGuinness, K., "Client ID Metadata Document Software
+              Statement", n.d., <https://datatracker.ietf.org/doc/draft-
+              mcguinness-oauth-cimd-sw-stmt>.
 
 17.2.  Informative References
 
@@ -1346,11 +1382,6 @@ Table of Contents
               "OpenID Federation 1.0", n.d.,
               <https://openid.net/specs/openid-federation-1_0.html>.
 
-   [REGISTRATION]
-              McGuinness, K., "CIMD Software Statement Registration",
-              n.d., <https://datatracker.ietf.org/doc/draft-mcguinness-
-              oauth-cimd-sw-stmt-registration>.
-
    [RFC8252]  Denniss, W. and J. Bradley, "OAuth 2.0 for Native Apps",
               BCP 212, RFC 8252, DOI 10.17487/RFC8252, October 2017,
               <https://www.rfc-editor.org/rfc/rfc8252>.
@@ -1365,7 +1396,8 @@ Table of Contents
               RFC 9126, DOI 10.17487/RFC9126, September 2021,
               <https://www.rfc-editor.org/rfc/rfc9126>.
 
-   [STATUS]   McGuinness, K., "CIMD Software Statement Status", n.d.,
+   [STATUS]   McGuinness, K., "Client ID Metadata Document Software
+              Statement Status", n.d.,
               <https://datatracker.ietf.org/doc/draft-mcguinness-oauth-
               cimd-sw-stmt-status>.
 
@@ -1393,11 +1425,11 @@ Appendix A.  Design Rationale
    approval is made by an administrator or reviewer who does not operate
    the client and is often not present, and the client already has a
    browser.  The redirect flow covers an approver reachable through that
-   browser; the token exchange profile covers the case with no browser.
+   browser.  The token exchange profile covers the case with no browser.
 
    *Why not a profile of attestation-based client authentication.* An
    attester vouches for a running instance and its key, for as long as
-   it chooses, to the server in front of it; a statement issuer vouches
+   it chooses, to the server in front of it.  A statement issuer vouches
    for reviewed software, for days, to every server that trusts it.
    Profiling one as the other would give the reviewed-software decision
    an instance-scoped trust model, or give instance attestation
@@ -1407,10 +1439,10 @@ Appendix A.  Design Rationale
    a signed third-party assertion about an entity, resolved through a
    federation that supplies key discovery, policy, and delegation and
    requires both parties to enroll.  This specification is pairwise: a
-   consumer configures an issuer directly.  Federation standardizes
-   trust resolution, not enrollment, approval, or deferred completion.
-   Ecosystems already operating a federation are better served by trust
-   marks.
+   trusting authorization server configures an issuer directly.
+   Federation standardizes trust resolution, not enrollment, approval,
+   or deferred completion.  Ecosystems already operating a federation
+   are better served by trust marks.
 
    *Deferred capabilities.* This version omits callback delivery for
    deferral.
