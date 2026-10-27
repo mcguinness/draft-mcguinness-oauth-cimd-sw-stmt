@@ -328,7 +328,7 @@ On receiving a presentation, the authorization server proceeds as follows, rejec
 
 Every retrieval this specification causes, of the Client ID Metadata Document, a `jwks_uri` it names, or the statements its `software_statements_uri` names, inherits the server-side request forgery protections of {{CIMD}}. A trusted signature does not make a URL safe: the authorization server MUST apply its URL, redirect, address-range, transport, and content-type policy independently to every referenced location.
 
-A retrieval failure leaves the relevant metadata or proof unverified, so the authorization server MUST reject the request and MUST NOT fall back to a weaker proof. A failed pull of statements for a request that opens a new grant is the exception: it leaves the client unreviewed, as {{pulled-statements}} describes. A failed pull of a replacement that a refresh requires is not an exception: the refresh fails ({{refresh}}).
+A retrieval failure leaves the relevant metadata or proof unverified, so the authorization server MUST reject the request and MUST NOT fall back to a weaker proof. A failed pull of statements for a request that opens a new grant is the exception: it leaves the client unreviewed, as {{pulled-statements}} describes.
 
 ## Sender Constraint {#sender-constraint}
 
