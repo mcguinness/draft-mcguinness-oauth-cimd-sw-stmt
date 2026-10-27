@@ -149,7 +149,7 @@ A statement asserts that its issuer evaluated the Client ID Metadata Document wh
 : OPTIONAL. A JSON array identifying the permitted uses of the statement: `registration` ({{REGISTRATION}}) and `presentation` ({{cimd-presentation}}). If the claim is absent, only `presentation` is permitted. A delivery renewing a registration ({{REGISTRATION}}) is a use at registration. A refresh replacement ({{refresh}}) and a pulled statement ({{pulled-statements}}) are presentation.
 
 `iat`:
-: REQUIRED. A NumericDate value, which MUST be an integer, giving the time the statement was issued. An issuer MUST NOT issue two statements for given `iss` and `sub` claims with the same `iat` claim, and MUST ensure the value increases strictly across its signing nodes ({{refresh}}, {{multi-instance}}).
+: REQUIRED. A NumericDate value, which MUST be an integer, giving the time the statement was issued. An issuer MUST NOT issue two statements for given `iss` and `sub` claims with the same `iat` claim, and MUST ensure that the `iat` claim values of its statements for a given `iss` and `sub` increase strictly across all of its signing nodes ({{refresh}}, {{multi-instance}}).
 
 `exp`:
 : REQUIRED. A NumericDate value giving the expiration time.
