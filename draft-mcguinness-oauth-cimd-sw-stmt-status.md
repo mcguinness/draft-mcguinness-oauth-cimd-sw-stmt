@@ -117,7 +117,7 @@ A trusting authorization server MUST match the subject by exact comparison of th
 The payload ({{RFC8417}}) of an event defined here has the following claims:
 
 `event_timestamp`:
-: REQUIRED. A NumericDate value giving the time the issuer changed the status the event reports. This narrows the {{CAEP}} member, which is optional and gives the time the event occurred. It is informational: a receiver does not use it to order, bound, or scope anything.
+: OPTIONAL. The {{CAEP}} member, a NumericDate value, here giving the time the issuer changed the status the event reports. It is informational: a receiver does not use it to order, bound, or scope anything.
 
 `software_statement_jti`:
 : OPTIONAL. The `jti` of a single statement whose status changed ({{processing}}).
