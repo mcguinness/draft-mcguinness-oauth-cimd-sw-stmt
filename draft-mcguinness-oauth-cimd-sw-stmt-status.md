@@ -103,7 +103,7 @@ A server MUST obtain a Status List Token's verification keys from the `jwks_uri`
 
 A trusting authorization server MUST NOT accept an event from an issuer it has not configured. It MUST verify the SET using keys from the `jwks_uri` member of the issuer's Transmitter configuration {{SSF}}, discovered from the issuer identifier it has configured, and never from a key-location value carried in the event. The SET's `iss` claim is that issuer identifier, which is also the `iss` claim value of the statements the event concerns.
 
-An issuer MUST ensure that its Transmitter configuration's `jwks_uri` member differs both from the issuer's `software_statement_jwks_uri` ({{STATEMENT}}) and from the `jwks_uri` metadata value in its authorization server metadata {{RFC8414}}, whose keys verify its Status List Tokens. A receiver MUST NOT create or keep a stream whose Transmitter configuration names either of those locations.
+An issuer MUST ensure that its Transmitter configuration's `jwks_uri` member differs both from the issuer's `software_statement_jwks_uri` ({{STATEMENT}}) and from the `jwks_uri` metadata value in its authorization server metadata {{RFC8414}}, whose keys verify its Status List Tokens. It MUST NOT publish at its Transmitter configuration's `jwks_uri` a key that also appears in either of those key sets. A receiver MUST NOT create or keep a stream whose Transmitter configuration names either of those locations.
 
 A SET carrying an event defined here MUST use the explicit `typ` JOSE header parameter value `secevent+jwt` (Section 2.3 of {{RFC8417}}). Its `aud` claim MUST contain the audience of the stream that delivers it, which {{SSF}} lets the transmitter and receiver agree on. A receiver MUST NOT create or keep a stream whose audience does not identify it.
 
@@ -234,7 +234,7 @@ The absence of events looks the same on a healthy stream and a suppressed one. P
 
 ## Key Separation and Compromise
 
-The distinct key set locations of {{relationship}} separate SET keys from statement and Status List Token keys only while the transmitter publishes no SET key in either of the other key sets. With the keys separated, compromise of a SET key lets an attacker trigger resolutions and nothing more. Compromise of a statement signing key has wider effect, because statements grant standing and events do not.
+The distinct key sets of {{relationship}} separate SET keys from statement and Status List Token keys. With the keys separated, compromise of a SET key lets an attacker trigger resolutions and nothing more. Compromise of a statement signing key has wider effect, because statements grant standing and events do not.
 
 # Privacy Considerations
 
