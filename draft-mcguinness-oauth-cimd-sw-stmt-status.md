@@ -163,11 +163,11 @@ A trusting authorization server that receives an event defined here MUST process
 1. Verify the SET as {{RFC8417}} requires, including its `typ` JOSE header parameter, and verify that the SET's issuer is configured and that the keys verifying the SET were obtained as {{relationship}} requires.
 2. Reject an event whose `aud` claim does not contain the audience of the stream that delivered it ({{relationship}}) or whose event type is not recognized.
 3. Resolve the subject ({{subjects}}).
-4. Resolve the status of the affected statements from the issuer's Status List Token as {{STATUSLIST}} defines, without waiting for the schedule that would otherwise apply, and apply the resolved status as {{status-resolution}} defines.
+4. Resolve the status of the affected statements from the issuer's Status List Token as {{STATUSLIST}} defines, using a copy retrieved or revalidated by a request begun after the event arrived, without waiting for the schedule that would otherwise apply, and apply the resolved status as {{status-resolution}} defines.
 
 The affected statements are those the transmitting issuer made about the subject, never statements another issuer made about the same software. They are the statement the event's `software_statement_jti` claim names or, if the event names none, those the receiver holds or has cached a status for. An event about a subject for which the receiver holds no state requires nothing of it.
 
-A receiver MUST fetch the Status List Token for the affected statements afresh rather than answer from a cached copy. A cached copy is what the event exists to correct. An event is never grounds for refusal. Until the fetch succeeds, the copy the receiver holds remains in effect within its validity. If resolution does not complete, the receiver applies the rules of {{STATEMENT}} as it would had no event arrived.
+Revalidation suffices because a transmitter sends the event only once a token reflecting the change is retrievable ({{status-changed}}). One request begun after several events arrived serves all of them. An event is never grounds for refusal. Until the request succeeds, the copy the receiver holds remains in effect within its validity. If resolution does not complete, the receiver applies the rules of {{STATEMENT}} as it would had no event arrived.
 
 A receiver MUST treat an event it has already applied as successfully delivered and acknowledge it as {{RFC8935}} or {{RFC8936}} requires, rather than reporting a delivery error. Rejecting a retry can stall or disable a stream carrying later events. Duplicate detection is per transmitting issuer.
 
