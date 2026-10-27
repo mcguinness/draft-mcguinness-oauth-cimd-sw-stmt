@@ -179,9 +179,9 @@ Two constraints bound every event:
 
 An issuer that supports the events defined here publishes Transmitter configuration metadata as {{SSF}} defines, discoverable from its issuer identifier. Stream creation, subject management, verification, and delivery follow {{SSF}}.
 
-A trusting authorization server that supports these events SHOULD create one stream per configured issuer that offers them, covering every subject that issuer attests rather than an enumerated set. Under runtime presentation ({{STATEMENT}}), the server holds no state for software until its first presentation, by which time an event about that software would already have been missed.
+A trusting authorization server that supports these events SHOULD create one stream per configured issuer that offers them. The stream can cover every subject that issuer attests, or the server can add each subject through the subject management of {{SSF}} when it first admits that software. An event about software the server has not admitted requires nothing of it ({{processing}}), and admission resolves the statement's status ({{status-resolution}}), so neither choice misses a withdrawal.
 
-A transmitter supporting these events MUST therefore advertise `default_subjects` as `ALL` in its Transmitter configuration {{SSF}}. The subjects appropriate to a stream are those of the issuer's statements whose `aud` is absent or names the receiving authorization server, and a transmitter SHOULD scope each stream to them. A receiver discards events for subjects outside the identifier scope for which it accepts that issuer ({{STATEMENT}}).
+The subjects appropriate to a stream are those of the issuer's statements whose `aud` is absent or names the receiving authorization server, and a transmitter SHOULD scope each stream to them. A receiver discards events for subjects outside the identifier scope for which it accepts that issuer ({{STATEMENT}}).
 
 A receiver SHOULD request the event this specification defines, and SHOULD use the stream verification facility of {{SSF}} on a schedule.
 
