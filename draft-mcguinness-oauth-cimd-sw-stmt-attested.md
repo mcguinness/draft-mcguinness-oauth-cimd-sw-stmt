@@ -152,7 +152,7 @@ The following non-normative sequence summarizes admission under this profile:
 3. The installation sends a pushed authorization request with PKCE, the attestation, and a Demonstrating Proof of Possession (DPoP) proof. It supplies the software statement or lets the server pull it.
 4. The server validates both trust decisions (in the statement issuer and in the attester) and their bindings before returning a `request_uri`.
 5. The user authorizes in an external browser. The code returns over loopback and is redeemed with the PKCE verifier and the attested key.
-6. Refresh requires the proven key, a current acceptable attestation, and a current acceptable software statement. A different key requires a new grant.
+6. Refresh requires the proven key, a current instance attestation, and a current software statement. A different key requires a new grant.
 
 # Conventions and Definitions
 
@@ -347,7 +347,7 @@ The server authenticates the resource owner and applies authorization policy ind
 
 ## Authorization Code Redemption {#redemption}
 
-The client sends `grant_type=authorization_code`, the code, the same `client_id` and `redirect_uri`, and the PKCE `code_verifier`. It MUST authenticate with a currently acceptable instance attestation and a fresh proof under the recorded key. It MUST NOT send the `software_statement` parameter on this request, as {{STATEMENT}} prohibits a presentation during code redemption.
+The client sends `grant_type=authorization_code`, the code, the same `client_id` and `redirect_uri`, and the PKCE `code_verifier`. It MUST authenticate with a current instance attestation and a fresh proof under the recorded key. It MUST NOT send the `software_statement` parameter on this request, as {{STATEMENT}} prohibits a presentation during code redemption.
 
 Before issuing tokens, the server MUST verify the code and PKCE binding and every fixed establishment value in {{establishment}}. It MUST re-evaluate both trust decisions, require the recorded statement to be unexpired and not refused, and confirm that the current Client ID Metadata Document still matches its recorded digest and meets {{client-metadata}}. Retrieval and cache reuse use the freshness bounds of {{STATEMENT}}. The attestation MUST match that digest and be within its attestation effective expiry.
 
@@ -359,7 +359,7 @@ The server MUST issue tokens only within the user's authorization, tenant policy
 
 Every refresh request MUST carry the original client identifier, the refresh token, a current instance attestation, and a fresh DPoP proof under the establishment's proven key. The server MUST authenticate the instance, verify the refresh-token binding, and enforce the fixed values of {{establishment}} before accepting any replacement statement.
 
-On every refresh the server MUST require a current, unexpired, unrefused software statement and re-evaluate its issuer trust decision. This strengthens the optional statement-currency check of {{STATEMENT}}. It MUST also verify that the currently served document matches the applicable statement and attestation digests and continues to meet {{client-metadata}}. Removal of the `software_statement_instance_binding` member, or a change to another authentication method, ends continuation under this profile. The refresh is then rejected with `invalid_grant` without seeking a replacement, as {{STATEMENT}} rejects a refresh whose document no longer carries the proven key.
+On every refresh the server MUST require a current software statement and re-evaluate its issuer trust decision. This strengthens the optional statement-currency check of {{STATEMENT}}. It MUST also verify that the currently served document matches the applicable statement and attestation digests and continues to meet {{client-metadata}}. Removal of the `software_statement_instance_binding` member, or a change to another authentication method, ends continuation under this profile. The refresh is then rejected with `invalid_grant` without seeking a replacement, as {{STATEMENT}} rejects a refresh whose document no longer carries the proven key.
 
 The recorded statement can remain applicable while it is unexpired, not refused, and matches the current document, even if a newer statement has raised the `iat` floor for new admissions. If it no longer qualifies, a replacement is required. The client can present a replacement in `software_statement` or, for an establishment created from a pulled statement, the server pulls one as {{STATEMENT}} specifies. A statement with the same `iss` and `jti` as the recorded statement is a recheck, not a replacement.
 
@@ -371,7 +371,7 @@ Attestation renewal for the proven key is not key rotation and does not reset th
 
 # Withdrawal and Trust Changes {#withdrawal}
 
-A known refusal record for the software statement is enforced as {{STATEMENT}} requires. A current acceptable replacement can restore continuation only under {{refresh}}. A server using a statement withdrawal mechanism SHOULD consult it at code redemption and refresh within that mechanism's freshness rules. Failure to consult it does not clear an existing refusal.
+A known refusal record for the software statement is enforced as {{STATEMENT}} requires. A current replacement can restore continuation only under {{refresh}}. A server using a statement withdrawal mechanism SHOULD consult it at code redemption and refresh within that mechanism's freshness rules. Failure to consult it does not clear an existing refusal.
 
 Because {{attestation-validation}} checks current attester trust and local denial rules at each pushed authorization request, code redemption, and refresh, removing an attester's authorization for this client and tenant, removing the policy, or denying the instance key prevents further use of the affected binding. A fresh attestation does not override those decisions. A deployment that cannot refresh trust data MUST NOT accept that trust data beyond a configured maximum staleness bound.
 
