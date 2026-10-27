@@ -378,7 +378,7 @@ Attestation renewal for the proven key is not key rotation and does not reset th
 
 # Withdrawal and Trust Changes {#withdrawal}
 
-A known refusal record for the software statement is enforced as {{STATEMENT}} requires. A current replacement can restore continuation only under {{refresh}}. A server using a statement withdrawal mechanism SHOULD consult it at code redemption and refresh within that mechanism's freshness rules. Failure to consult it does not clear an existing refusal. A failure to retrieve metadata, statements or their status, or trust updates MUST NOT extend a recorded expiry or remove a refusal.
+A known refusal record for the software statement is enforced as {{STATEMENT}} requires. A current replacement can restore continuation only under {{refresh}}. A server using a statement withdrawal mechanism SHOULD consult it at code redemption, within that mechanism's freshness rules, as {{STATEMENT}} provides for refresh. Failure to consult it does not clear an existing refusal. A failure to retrieve metadata, statements or their status, or trust updates MUST NOT extend a recorded expiry or remove a refusal.
 
 Because {{attestation-validation}} checks current attester trust and local denial rules at each pushed authorization request, code redemption, and refresh, removing an attester's authorization for this client and tenant, removing the policy, or denying the instance key prevents further use of the affected binding. A fresh attestation does not override those decisions. A server that cannot refresh trust data remains bound by the maximum reuse period of {{trust}}.
 
