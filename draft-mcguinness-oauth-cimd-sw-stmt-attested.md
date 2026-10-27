@@ -450,7 +450,7 @@ A `use_dpop_nonce` response MUST include the `DPoP-Nonce` HTTP header field.
 
 Servers MUST check basic request syntax before reporting errors requiring authentication. They MUST authenticate the instance before reporting errors about a code, a refresh token, or the review governing the grant. Within authentication, they MUST verify attester identity, signature, and policy before returning the `use_fresh_attestation` error code. Nonce challenges MAY precede completion of authentication and MUST NOT reveal tenant trust configuration. When several failures remain at one stage, a server MAY choose any applicable error without disclosing additional failed checks.
 
-Details of configured issuers, attesters, evidence policies, and tenant restrictions MUST NOT be exposed in error descriptions to unauthenticated callers, as {{STATEMENT}} requires of its issuer trust configuration.
+Details of configured issuers, attesters, evidence policies, and tenant restrictions MUST NOT be exposed in error descriptions to unauthenticated requesters, as {{STATEMENT}} requires of its issuer trust configuration.
 
 ## Authorization Endpoint {#authorization-errors}
 
