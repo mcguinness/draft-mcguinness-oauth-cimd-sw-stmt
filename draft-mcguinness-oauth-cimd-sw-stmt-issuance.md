@@ -257,11 +257,10 @@ The client authenticates, and a public client constrains the request, as describ
 
 An initial access token presented under this profile MUST be time limited, be limited to the issuer, be bound to an exact client identifier URL or an explicitly authorized client identifier namespace, and, if opaque, have at least 128 bits of entropy.
 
-The initial access token is subject to the following:
+The initial access token is subject to the following ({{iat-practice}}):
 
 * A reusable one MUST be sender-constrained to a client key, for example through DPoP or mutual TLS, and the authorization server MUST verify that binding against the key the exchange request proves.
 * A bearer one MUST be single-use.
-* It SHOULD be integrity protected and kept confidential in transit and at rest, and MAY further restrict audiences or metadata.
 * The authorization server MUST enforce every restriction the credential carries and MUST prevent replay beyond its permitted number of uses.
 
 A DPoP proof on the exchange constrains any resulting deferral but neither authenticates the presenter nor protects the subject token (Section 3 of {{RFC9449}}). The initial access token therefore needs its own sender constraint or single-use restriction.
@@ -599,6 +598,14 @@ An authorization server ought to keep an audit record that binds each decision, 
 It ought to retain the exact retrieved octets of the approved document for audit, because a re-serialized copy cannot reproduce the digest. A deployment that requires approver attribution can retain it in an audit record or define a statement claim and its privacy semantics.
 
 Authorization servers ought to keep subject tokens out of logs, traces, and audit records.
+
+# Deployment Considerations {#deployment-considerations}
+
+This section gives guidance to operators and issuers. It adds no requirement.
+
+## Initial Access Tokens {#iat-practice}
+
+An initial access token ought to be integrity protected and kept confidential in transit and at rest. It can further restrict audiences or metadata, and the authorization server enforces every restriction it carries ({{token-exchange-profile}}).
 
 # Security Considerations {#security-considerations}
 
