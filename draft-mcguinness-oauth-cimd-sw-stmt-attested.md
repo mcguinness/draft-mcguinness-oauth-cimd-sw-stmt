@@ -158,7 +158,7 @@ The following non-normative sequence summarizes admission under this profile:
 
 {::boilerplate bcp14-tagged}
 
-This specification uses terminology from {{RFC6749}}, {{RFC7591}}, {{CIMD}}, and {{ABCA}}, and the terms Issuer, Runtime Presentation, Effective Expiry, Refusal Record, Current Statement, Review-Only, Establishment, and Proven Key from {{STATEMENT}}. It also uses the `iat` floor of {{STATEMENT}}: the `iat` of the most recent statement a server has accepted for an `iss` and `sub`, below which it rejects a newly presented, pulled, or replacement statement. A multi-tenant server keeps the `iat` floor per tenant. An installation is a Client Instance as defined by {{ABCA}}.
+This specification uses terminology from {{RFC6749}}, {{RFC7591}}, {{CIMD}}, and {{ABCA}}, and the terms Issuer, Runtime Presentation, Effective Expiry, Refusal Record, Current Statement, Review-Only, Establishment, Proven Key, and `iat` Floor from {{STATEMENT}}. An installation is a Client Instance as defined by {{ABCA}}.
 
 This specification defines the following terms:
 

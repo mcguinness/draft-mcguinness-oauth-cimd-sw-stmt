@@ -123,6 +123,9 @@ Current Statement:
 Review-Only:
 : Describes a presentation, or a pulled statement, that the authorization server evaluates but that admits nothing ({{public-client-presentation}}).
 
+`iat` Floor:
+: For a trusting authorization server, the `iat` claim value of the most recent statement it has accepted for a given `iss` and `sub`, kept per tenant on a multi-tenant server. The server rejects a statement whose `iat` claim is earlier ({{multi-instance}}).
+
 # The Software Statement {#profiles}
 
 The software statement is a compact JWT {{RFC7519}} protected by JWS {{RFC7515}}. Although {{RFC7591}} permits a MAC, a statement issued under this specification MUST use an asymmetric digital signature, and the `none` algorithm and symmetric algorithms MUST NOT be used. Issuers and trusting authorization servers follow {{RFC8725}}.
