@@ -233,7 +233,7 @@ For each trusted issuer, a trusting authorization server records at least the fo
 * The client identifier namespaces the issuer can attest through `sub`.
 * The audience identifiers the issuer can name.
 * The maximum statement lifetime it will honor, which sets each statement's effective expiry.
-* Its policy on repeated and multiple registration ({{multi-instance}}).
+* Its own policy on repeated consumption of one statement ({{multi-instance}}).
 
 These inputs, not the signature alone, define acceptance. A trusting authorization server MUST derive trust from this local configuration and MUST NOT derive it from an `iss`, `jku`, `x5u`, or other key-location value carried in a presented statement.
 
