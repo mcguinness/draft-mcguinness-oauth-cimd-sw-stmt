@@ -640,7 +640,7 @@ Successful retrievals can be cached within the document's caching directives. A 
 
 ## Retrieval and Processing Bounds {#processing-bounds}
 
-Retrievals happen before any client is registered or any user has interacted, so an unauthenticated requester holding one acceptable statement can cause this work ({{external-retrieval}}). An authorization server can bound it as follows:
+An authorization server can bound the retrieval and processing work of {{external-retrieval}} as follows:
 
 * Rate-limit presentations per statement identity, per subject, and per source, and pulls ({{pulled-statements}}) per client identifier and per source, before spending retrieval or storage on a new presentation.
 * Refuse a presentation that would create a new establishment, before spending retrieval or storage on it, once a bound on establishments ({{establishment-bounds}}) is reached.
