@@ -219,7 +219,7 @@ Every reviewed redirection URI MUST use `http`, have the host exactly `127.0.0.1
 
 The server MUST compare a requested redirect with a reviewed entry using exact string matching, except for the port variation permitted by Section 7.3 of {{RFC8252}}. No other component can vary: the address form, path, and any query remain fixed. In particular, a wildcard path, a hostname resolving to loopback, an alternative numerical spelling of the address, and a different loopback address do not match.
 
-The client MUST bind its listener only to the selected loopback interface, open it before sending the pushed authorization request, and close it when the transaction completes or is abandoned. It SHOULD obtain an available ephemeral port from the operating system. The authorization code is delivered to that listener; the authorization server MUST NOT fetch the redirection URI to test the listener.
+The client MUST bind its listener only to the selected loopback interface, open it before sending the pushed authorization request, and close it when the transaction completes or is abandoned. It can obtain an available ephemeral port from the operating system, as Section 7.3 of {{RFC8252}} anticipates. The authorization code is delivered to that listener; the authorization server MUST NOT fetch the redirection URI to test the listener.
 
 # Attester Trust and Evidence {#trust}
 
