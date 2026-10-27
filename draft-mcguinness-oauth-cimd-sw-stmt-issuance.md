@@ -470,7 +470,6 @@ Deferral follows {{DTR}}, including the sender constraint it fixes at originatio
 * A deferral created under this specification MUST be delivered by polling. Callback delivery is omitted from this version ({{design-rationale}}).
 * A client MUST NOT send the `client_notification_token` parameter of {{DTR}}. An authorization server rejects a request carrying it with the `invalid_request` error code and MUST NOT deliver a callback, whatever the client's metadata says.
 * A successful polling response is the software statement token response of {{software-statement-response}}, not an access token response.
-* Issuers SHOULD set deferral code lifetimes that reflect their actual approval latency, which for a review involving human judgment can be hours or days.
 
 The following is a non-normative example of a first polling request for a deferral created by a token exchange, from a confidential client authenticating with the same `private_key_jwt` method as the exchange (line breaks for display purposes only):
 
@@ -612,6 +611,10 @@ An initial access token ought to be integrity protected and kept confidential in
 Because the client authors the metadata document, an issuer ought to corroborate security-relevant metadata through evidence beyond the document itself. Issuance policy can relate the redirection URI's origin to the client identifier URL or the Client ID Metadata Document's `client_uri` member.
 
 To keep a look-alike document from reaching approval, an issuer ought to limit what an approver can approve to client identifiers under publisher namespaces it has enrolled. A document naming attesters in `client_attesters` ({{ATTESTERS}}) endorses them for the software under review and deserves particular scrutiny.
+
+## Deferral Lifetimes {#lifetime-practice}
+
+Issuers ought to set deferral code lifetimes that reflect their actual approval latency, which for a review involving human judgment can be hours or days ({{deferred-processing}}).
 
 # Security Considerations {#security-considerations}
 
