@@ -52,7 +52,7 @@ The CIMD Software Statement specification defines a software statement for a Cli
 
 # Introduction
 
-A software statement (Section 2.3 of {{RFC7591}}) carries a third party's approval of client software into a dynamic client registration request. In {{RFC7591}}, values in the statement take precedence over those in the request. A statement under {{STATEMENT}} carries no client metadata: it names a Client ID Metadata Document by its URL and binds the review to that document's exact octets. An {{RFC7591}} server that verified such a statement without this specification would take every metadata value from the request, attaching the issuer's approval to redirection URIs and keys nobody reviewed.
+A software statement (Section 2.3 of {{RFC7591}}) carries a third party's approval of client software into a dynamic client registration request. In {{RFC7591}}, values in the statement take precedence over those in the request. A statement under {{STATEMENT}} carries no client metadata: it names a Client ID Metadata Document by its URL and binds the review to that document's exact octets. An {{RFC7591}} server that verified such a statement without implementing this specification would take every metadata value from the request, attaching the issuer's approval to redirection URIs and keys nobody reviewed.
 
 {{RFC7591}} also defines no expiry or renewal for a registration. A registration based on a statement can outlive it, and nothing keeps the registration's validity or metadata in line with the issuer's decision once the issuer narrows, withdraws, or stops renewing it.
 
@@ -88,7 +88,7 @@ Governing Statement:
 : The statement that bounds a statement-governed registration: the one consumed at registration or, after a renewal, the replacement that renewed it most recently ({{revalidation}}).
 
 Statement-Governed Registration:
-: An {{RFC7591}} client registration created from a statement under this specification: its validity is bound to a software statement's effective expiry, and replacement statements renew it ({{registration-validity}}).
+: An {{RFC7591}} client registration created from a statement under this specification: its validity is bound to its governing statement's effective expiry, and replacement statements renew it ({{registration-validity}}).
 
 # Consumption at Registration {#dcr-presentation}
 
@@ -98,7 +98,7 @@ In {{RFC7591}}, values in a software statement take precedence over those in the
 
 * MUST resolve the Client ID Metadata Document at the statement's `sub`, rejecting the registration if retrieval does not complete.
 * MUST validate the document as {{CIMD}} requires, including that its `client_id` member matches the statement's `sub`, the client identifier URL at which the document was resolved.
-* MUST verify that the digest of the retrieved representation equals `cimd_digest`, rejecting the registration if it does not, and MUST derive the registered metadata by parsing the same octets it digested, not a second retrieval or a cached copy it has not digested.
+* MUST verify that the digest of the retrieved representation equals the statement's `cimd_digest`, rejecting the registration if it does not, and MUST derive the registered metadata by parsing the same octets it digested, not a second retrieval or a cached copy it has not digested.
 * MUST take every client metadata value from that document, and MUST NOT take any client metadata value from the registration request, or from any {{RFC7592}} update request for the registration it creates, whether or not the document carries the corresponding member:
   * The registration's metadata changes only by re-derivation from the document a replacement statement reviews ({{revalidation}}).
   * A request MAY carry metadata, as {{RFC7591}} clients do, but it does not contribute to the registration.
@@ -203,7 +203,7 @@ A registration request without an {{RFC7592}} registration access token creates 
 
 A client registered through {{RFC7591}}, or admitted under its Client ID Metadata Document URL as its `client_id`, can still carry a statement. Runtime presentation ({{STATEMENT}}) does not alter a registration's metadata. At the token and pushed authorization request endpoints, a statement carried under a registration is rejected with `invalid_request` ({{STATEMENT}}) if carrying it is neither a runtime presentation nor a delivery ({{revalidation}}). At the client configuration endpoint, a statement from an issuer the server does not accept for the client is rejected with `unapproved_software_statement` ({{errors}}).
 
-For a statement-governed registration, a statement carried in a location {{revalidation}} lists is a delivery: one from the governing issuer can renew the registration, and one from another issuer fails the replacement rules of {{revalidation}}. While the registration is valid, its governing statement is current, even after a later statement has raised the `iat` floor of {{STATEMENT}}, and satisfies any requirement the server has for a current statement on refresh.
+For a statement-governed registration, a statement carried in a location {{revalidation}} lists is a delivery: one from the governing statement's issuer can renew the registration, and one from another issuer fails the replacement rules of {{revalidation}}. While the registration is valid, its governing statement is current, even after a later statement has raised the `iat` floor of {{STATEMENT}}, and satisfies any requirement the server has for a current statement on refresh.
 
 A registration created without a statement is not statement-governed: a statement neither renews nor alters it and is not a delivery. For such a registration, the server applies a reviewed change, if at all, through its own registration policy, deriving metadata only from a reviewed document ({{dcr-presentation}}).
 
@@ -238,7 +238,7 @@ An authorization server rejecting a registration request, or a registration mana
   * It carries a redirection URI another application could claim ({{dcr-presentation}}).
 
 `temporarily_unavailable`:
-: A retrieval the request needs did not complete, for a reason other than the size bound.
+: A retrieval the request needs did not complete, for a reason other than the size bound of {{STATEMENT}}.
 
 # Example {#example}
 
@@ -285,7 +285,7 @@ A public-client registration ({{public-client-registration}}) has no credential 
 
 ## Renewal Authenticates the Credential
 
-Renewal proves possession of the registration's credential and the currency of a statement sharing the governing `iss` and `sub`, not that the renewing party is the reviewed software. An attacker holding a stolen client credential can renew indefinitely with any current statement for that software. Such statements circulate to every deployment of it. A public-client registration has no credential, so its renewal proves only that the replacement is current. No protection is lost, since any party can already use that registration.
+Renewal proves possession of the registration's credential and the currency of a statement sharing the governing statement's `iss` and `sub`, not that the renewing party is the reviewed software. An attacker holding a stolen client credential can renew indefinitely with any current statement for that software. Such statements circulate to every deployment of it. A public-client registration has no credential, so its renewal proves only that the replacement is current. No protection is lost, since any party can already use that registration.
 
 Deployments should pair statement-governed registrations with credential rotation, sender-constrained client authentication, and the repeated-consumption limits of {{STATEMENT}} and {{repeated-registration}}, and should treat a credential compromise as requiring re-registration rather than renewal. Runtime presentation ({{STATEMENT}}) binds every presenter to the reviewed document and so does not have this limitation.
 
@@ -301,7 +301,7 @@ A retained expired registration is distinguishable from an unknown client ({{reg
 
 At the authorization endpoint, anyone who can send an authorization request naming the client and one of its registered redirection URIs receives the `statement_required` redirection ({{registration-validity}}), and so learns that the registration has lapsed. If an observer knows the governing statement's `exp`, a lapse before it shows that the server either holds a refusal record for the statement or caps the lifetime it honors for the issuer.
 
-The disclosures above are accepted for the reason {{STATEMENT}} gives for its own `statement_required` refusal: a client that cannot learn why it was refused cannot act. Servers publishing `software_statement_registration_validity_supported` also disclose that statement-derived registrations expire there, which a client needs to know before registering. Beyond a lapse and its timing, these disclosures reveal nothing of the server's issuer trust configuration, which {{STATEMENT}} keeps from unauthenticated requesters.
+The disclosures above are accepted for the reason {{STATEMENT}} gives for its own `statement_required` refusal: a client that cannot learn why it was refused cannot act. Servers publishing `software_statement_registration_validity_supported` also disclose that statement-governed registrations expire there, which a client needs to know before registering. Beyond a lapse and its timing, these disclosures reveal nothing of the server's issuer trust configuration, which {{STATEMENT}} keeps from unauthenticated requesters.
 
 # Privacy Considerations
 
