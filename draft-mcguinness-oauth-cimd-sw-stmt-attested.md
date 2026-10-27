@@ -180,7 +180,9 @@ The software statement's issuer and the client attester are separate roles. One 
 
 # Scope and Profile Selection {#selection}
 
-An authorization server implementing this specification MUST support PAR, PKCE with `S256` {{RFC7636}}, DPoP {{RFC9449}}, and the `attest_jwt_client_auth_dpop` method of {{ABCA}}, which uses a DPoP proof as the proof of possession (Sections 5.2 and 7.3 of {{ABCA}}). Clients MUST use that method at the PAR endpoint and at every token request under this specification. This profile does not support the Client Attestation PoP JWT (Section 5.1 of {{ABCA}}). Each installation holds its own credential, the attested key, so a client under this profile is a confidential client although it is a native application, as Section 8.4 of {{RFC8252}} contemplates for per-instance credentials.
+An authorization server implementing this specification MUST support PAR, PKCE with `S256` {{RFC7636}}, DPoP {{RFC9449}}, and the `attest_jwt_client_auth_dpop` method of {{ABCA}}, which uses a DPoP proof as the proof of possession (Sections 5.2 and 7.3 of {{ABCA}}). Clients MUST use that method at the PAR endpoint and at every token request under this specification. This profile does not support the Client Attestation PoP JWT (Section 5.1 of {{ABCA}}).
+
+Each installation holds its own credential, the attested key, so a client under this profile is a confidential client although it is a native application, as Section 8.4 of {{RFC8252}} contemplates for per-instance credentials.
 
 The client selects this profile by publishing the `software_statement_instance_binding` client metadata member with the value `true` in its reviewed document ({{client-metadata}}). A server creates a new establishment under the profile only if the server supports this specification, the reviewed document selects the profile, and all admission checks succeed.
 
