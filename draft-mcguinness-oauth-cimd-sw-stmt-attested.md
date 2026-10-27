@@ -590,7 +590,7 @@ A server can bound establishments as {{STATEMENT}} describes, and also per resou
 
 ## Grant State {#grant-state}
 
-A server can reuse an establishment only across presentations that resolve to the same `sub`, statement, and proven key and that match in profile, attester, policy, and tenant ({{establishment}}).
+A server can reuse an establishment across presentations that resolve to the same `sub`, statement, and proven key and that match in profile, attester, policy, and tenant ({{establishment}}).
 
 ## Signing Brokers {#signing-brokers}
 
