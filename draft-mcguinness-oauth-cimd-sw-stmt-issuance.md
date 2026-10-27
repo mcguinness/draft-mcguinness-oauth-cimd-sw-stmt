@@ -104,7 +104,7 @@ Approval workflow, approver identity, external approval integration, acceptance 
 
 {::boilerplate bcp14-tagged}
 
-This specification uses terminology defined in {{RFC6749}}, {{RFC7591}}, {{CIMD}}, and {{DTR}}. The terms Issuer, Trusting Authorization Server, Metadata Digest, Effective Expiry, Establishment, Refusal Record, and Review-Only are defined by {{STATEMENT}}.
+This specification uses terminology defined in {{RFC6749}}, {{RFC7591}}, {{CIMD}}, and {{DTR}}. The terms Issuer, Trusting Authorization Server, Establishment, and Review-Only are defined by {{STATEMENT}}.
 
 This specification defines the following terms:
 
