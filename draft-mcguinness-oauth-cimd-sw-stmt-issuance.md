@@ -596,7 +596,7 @@ An authorization server ought to keep an audit record that binds each decision, 
 * The identity of the deciding party.
 * The time of decision.
 
-It ought to retain the exact retrieved octets of the approved document for audit, because a re-serialized copy cannot reproduce the digest. A deployment that requires approver attribution can retain it in an audit record or define a statement claim and its privacy semantics.
+An authorization server ought to retain the exact retrieved octets of the approved document for audit, because a re-serialized copy cannot reproduce the digest. A deployment that requires approver attribution can retain it in an audit record or define a statement claim and its privacy semantics.
 
 Authorization servers ought to keep subject tokens out of logs, traces, and audit records.
 
