@@ -290,10 +290,11 @@ The server considers only statements that meet all of the following conditions:
 * The `sub` claim equals the document's client identifier.
 * The statement validates under {{validation}} and permits presentation ({{profiles}}).
 * The `cimd_digest` claim equals the digest of the document the server resolved.
+* The `iat` floor of {{multi-instance}} does not supersede it.
 
 The server ignores the rest.
 
-If the server's trust configuration requires an issuer for this client ({{issuer-trust}}), it applies only that issuer's statement, and if none remains, the client is not reviewed. Otherwise, if more than one statement remains, the server keeps only the statement with the latest `iat` from each issuer and applies any one of those, subject to the `iat` floor of {{multi-instance}}. A pulled statement the server does not apply does not advance the `iat` floor.
+If the server's trust configuration requires an issuer for this client ({{issuer-trust}}), it applies only that issuer's statement, and if none remains, the client is not reviewed. Otherwise, if more than one statement remains, the server keeps only the statement with the latest `iat` from each issuer and applies any one of those. A pulled statement the server does not apply does not advance the `iat` floor.
 
 Having selected a statement, the server continues from step 4 of {{processing}}, with the pulled statement in place of a presented one and the document already resolved. The selection above satisfies the `client_id` rule of step 2.
 
