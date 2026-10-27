@@ -138,7 +138,7 @@ This specification defines an alternative binding made of three elements, which 
 
 The callback delivers the authorization response; it supplies no evidence of the presenter's software identity.
 
-This specification serves authorization code flows using pushed authorization requests (PAR) {{RFC9126}} and refresh of the resulting grants. It defines neither registration nor new token-endpoint presentations for other grants. {{REGISTRATION}} is unchanged: it rejects loopback redirects, so a document selecting this profile is never registered, and an issuer omits `registration` from the `statement_uses` of a statement over one. Neither {{STATEMENT}} nor {{REGISTRATION}} depends on this specification.
+This specification serves authorization code flows using pushed authorization requests (PAR) {{RFC9126}} and refresh of the resulting grants. It defines neither registration nor new token-endpoint presentations for other grants. {{REGISTRATION}} is unchanged: it rejects loopback redirects, so a document selecting this profile is never registered, whatever the `statement_uses` claim of a statement over it permits. Neither {{STATEMENT}} nor {{REGISTRATION}} depends on this specification.
 
 The binding is only as strong as the attester's evidence that the software, not merely the device or the user, controls the key ({{software-evidence}}). Such evidence is available today mainly on managed devices, through an enterprise agent or launcher ({{launcher}}). On an unmanaged desktop, or for an interpreted command-line client, an attester typically cannot meet the requirements of {{trust}}, and the client remains review-only under {{STATEMENT}}.
 
