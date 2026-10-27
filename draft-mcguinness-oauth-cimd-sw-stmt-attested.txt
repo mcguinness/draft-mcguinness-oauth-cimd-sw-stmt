@@ -102,16 +102,14 @@ Table of Contents
      16.1.  OAuth Dynamic Client Registration Metadata Registry
      16.2.  OAuth Authorization Server Metadata Registry
      16.3.  JSON Web Token Claims Registry
-     16.4.  OAuth Extensions Error Registry
-     16.5.  Media Type Registration
-     16.6.  Values Defined Elsewhere
+     16.4.  Media Type Registration
+     16.5.  Values Defined Elsewhere
    17. References
      17.1.  Normative References
      17.2.  Informative References
    Appendix A.  Managed Command-Line Client Deployment
      A.1.  Example: macOS
    Appendix B.  Operational Consequences
-   Appendix C.  Verification Scenarios
    Acknowledgments
    Author's Address
 
@@ -391,24 +389,6 @@ Table of Contents
    configured key source remains subject to external-retrieval
    protections and bounded cache reuse.
 
-   A server MAY also require, before accepting an attester for a client,
-   that the reviewed document's client_attesters member ([ATTESTERS])
-   list that attester.  This requirement adds to the configuration above
-   and does not replace it.  Of the key-trust policies of Section 2.1 of
-   [ATTESTERS], only "AS-configured attester trust" is compatible with
-   this profile: the configured key source remains the only source of
-   keys, and the listed jwks_uri is compared with it but never
-   retrieved.  "Publisher-authorized key selection" infers attester
-   trust from the client document, which the previous paragraph
-   prohibits.  Because Section 5.3 of [ATTESTERS] resolves keys only by
-   kid against a JWK Set, an attester whose keys the server resolves
-   through an x5c certificate chain cannot satisfy this requirement.
-   The server evaluates the listing in the reviewed document's digested
-   bytes, not in a separately retrieved copy.  The statement's digest
-   covers the listing, so the statement issuer reviews it, and a change
-   to the listing requires a replacement statement (Section 8) and
-   instance attestations over the new digest.
-
    The server cannot observe how an attester reached its decision, so it
    relies on the evidence policy.  An evidence policy is acceptable for
    reviewed-software admission only if it meets all of the following
@@ -485,7 +465,7 @@ Table of Contents
    profile its own typ.  Together with the document's selection of this
    profile (Section 3), its type tells a server that this profile
    applies.  Its typ JOSE header parameter MUST have the value cimd-
-   instance-attestation+jwt, which is the media type of Section 16.5
+   instance-attestation+jwt, which is the media type of Section 16.4
    without its application/ prefix.  It MUST be digitally signed using
    an accepted asymmetric algorithm; a MAC or none MUST NOT be accepted.
    Its header and claims MUST contain no duplicate member names.
@@ -1025,20 +1005,6 @@ Table of Contents
    other than the establishment's recorded key fails the grant binding
    and is rejected with invalid_grant.
 
-   A request that fails a required client_attesters listing (Section 5)
-   is rejected with invalid_client_attestation.  Such a request has a
-   listing that is malformed, omits the attester, or names a jwks_uri
-   that does not match the configured key source (Section 5.3 of
-   [ATTESTERS]).  As Section 5.4 of [ATTESTERS] requires, that code also
-   replaces invalid_client for each other attestation failure for which
-   Section 7.4 of [ABCA] permits it.  Retrieval failures are not listing
-   failures: they keep the error codes of this section and [STATEMENT],
-   including temporarily_unavailable.  The order of Section 11.2 still
-   applies.  The listing is checked in the reviewed document, after the
-   checks of step 1 of Section 7.1, so a response from that step, such
-   as use_fresh_attestation, does not indicate whether the attester is
-   listed.
-
    A use_dpop_nonce response MUST include the DPoP-Nonce HTTP header
    field.
 
@@ -1427,63 +1393,7 @@ Table of Contents
    requested by [STATEMENT] list this specification (Section 6) as an
    additional reference.
 
-16.4.  OAuth Extensions Error Registry
-
-   This specification requests that IANA update the following entries in
-   the "OAuth Extensions Error Registry" established by [RFC6749].  In
-   each entry, the pushed authorization request error response, which
-   can already carry the error under [RFC9126], is added to the usage
-   locations, and this specification is added as a reference.
-
-   Error Name:  use_fresh_attestation
-
-   Error Usage Location:  pushed authorization request error response,
-      in addition to the locations already registered
-
-   Related Protocol Extension:  OAuth 2.0 Attestation-Based Client
-      Authentication
-
-   Change Controller:  IETF
-
-   Specification Document(s):  [ABCA], this specification (Section 11)
-
-   Error Name:  invalid_client_attestation
-
-   Error Usage Location:  pushed authorization request error response,
-      in addition to the locations already registered
-
-   Related Protocol Extension:  OAuth 2.0 Attestation-Based Client
-      Authentication
-
-   Change Controller:  IETF
-
-   Specification Document(s):  [ABCA], this specification (Section 11)
-
-   Error Name:  use_dpop_nonce
-
-   Error Usage Location:  pushed authorization request error response,
-      in addition to the locations already registered
-
-   Related Protocol Extension:  Demonstrating Proof of Possession (DPoP)
-
-   Change Controller:  IETF
-
-   Specification Document(s):  [RFC9449], this specification
-      (Section 11)
-
-   Error Name:  invalid_dpop_proof
-
-   Error Usage Location:  pushed authorization request error response,
-      in addition to the locations already registered
-
-   Related Protocol Extension:  Demonstrating Proof of Possession (DPoP)
-
-   Change Controller:  IETF
-
-   Specification Document(s):  [RFC9449], this specification
-      (Section 11)
-
-16.5.  Media Type Registration
+16.4.  Media Type Registration
 
    This specification requests registration of the following media type
    in the "Media Types" registry, in the manner described in [RFC6838]:
@@ -1526,12 +1436,16 @@ Table of Contents
 
    Change controller:  IETF
 
-16.6.  Values Defined Elsewhere
+16.5.  Values Defined Elsewhere
 
    The iss, sub, aud, iat, exp, and cnf claims are defined elsewhere and
    are not re-registered here.  This specification uses the
    authentication method, HTTP fields, and error codes of [ABCA] without
-   registering replacements.
+   registering replacements.  Section 2.3 of [RFC9126] lets a pushed
+   authorization request error response carry the error codes of an
+   extension involved in processing the request, so this specification
+   requests no change to the registrations of the error codes it uses
+   there.
 
 17.  References
 
@@ -1543,13 +1457,6 @@ Table of Contents
               based-client-auth-12, 12 October 2026,
               <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
               attestation-based-client-auth-12>.
-
-   [ATTESTERS]
-              McGuinness, K., "OAuth 2.0 Client Attester Endorsement",
-              Work in Progress, Internet-Draft, draft-mcguinness-oauth-
-              client-attesters-00, 28 September 2026,
-              <https://datatracker.ietf.org/doc/html/draft-mcguinness-
-              oauth-client-attesters-00>.
 
    [CIMD]     Parecki, A. and E. Smith, "OAuth Client ID Metadata
               Document", Work in Progress, Internet-Draft, draft-ietf-
@@ -1832,52 +1739,6 @@ Appendix B.  Operational Consequences
 
    *  A new evidence-policy identifier (Section 5) or a new key requires
       a new grant (Section 7.2).
-
-Appendix C.  Verification Scenarios
-
-   This appendix is non-normative.  An implementation exercise should
-   include the following cases in addition to successful admission and
-   refresh:
-
-   *  A copied statement with an unattested key fails before creating an
-      establishment.
-
-   *  A copied attestation with a different proof key fails
-      authentication.
-
-   *  A valid attestation for another client, digest, tenant
-      authorization, or policy fails its corresponding binding check.
-
-   *  A loopback code intercepted by another process cannot be redeemed
-      without both the verifier and recorded key.
-
-   *  A repeated proof and a proof intended for another endpoint are
-      rejected.
-
-   *  A nonce retry neither consumes grant state nor advances the iat
-      floor.
-
-   *  A refresh with a renewed attestation for the original key,
-      attester, and policy succeeds when the review remains current.
-
-   *  A metadata replacement without a matching current attestation
-      fails without changing the establishment.
-
-   *  A code outstanding while another grant sharing its establishment
-      refreshes onto a replacement over new metadata is rejected at
-      redemption, and the client restarts at the PAR endpoint.
-
-   *  A new key, attester, policy, or tenant cannot take over an
-      existing grant.
-
-   *  Withdrawal or removal of trust prevents continuation despite a
-      fresh proof.
-
-   *  Omitting attestations or using direct authorization cannot bypass
-      a server requirement for this binding.
-
-   *  An unapproved local process cannot obtain usable signatures or
-      tokens through the trusted launcher.
 
 Acknowledgments
 
