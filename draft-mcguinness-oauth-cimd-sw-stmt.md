@@ -180,7 +180,7 @@ Retrieval for digest purposes follows {{CIMD}} and MUST NOT use content negotiat
 
 A trusting authorization server MUST treat a response exceeding its configured size bound (Section 8.7 of {{CIMD}}) as a retrieval failure rather than digesting what it read. For a runtime presentation, retrying cannot succeed, so the request is rejected with `invalid_client` rather than `temporarily_unavailable` ({{errors}}), except on refresh-token use, for which {{refresh}} takes precedence.
 
-A server MUST NOT compare a digest against any representation other than one it retrieved itself or stored under this section. A shared cache might hold a variant selected for another request. Revalidating stored octets is described in {{caching}}.
+A server MUST NOT compare a digest against any representation other than one it retrieved itself or stored under this section. A shared cache might hold a variant selected for another request. A `304 Not Modified` response shows that stored octets, and their digest, are still current only if it carries a strong entity tag that matches the one stored with them under strong comparison (Section 8.8.3.2 of {{RFC9110}}). Otherwise, the server retrieves the body again.
 
 ## Validating a Statement {#validation}
 
@@ -609,7 +609,7 @@ This section gives guidance to implementers. It adds no requirement.
 
 An authorization server can reuse a recently retrieved key set within ordinary HTTP caching bounds, up to a maximum reuse period of its own choosing ({{sender-constraint}}). Octets of a Client ID Metadata Document it already holds serve for the digest comparison under the same kind of bound ({{effective-metadata}}).
 
-A `304 Not Modified` response shows that stored octets, and their digest, are still current only if it carries a strong entity tag that matches the one stored with them under strong comparison (Section 8.8.3.2 of {{RFC9110}}). Otherwise, the server retrieves the body again ({{metadata-digest}}).
+A server can revalidate octets it holds with a conditional request rather than retrieving them again. {{metadata-digest}} states when a `304 Not Modified` response confirms them.
 
 Successful retrievals can be cached within the document's caching directives. A failure is followed by back-off rather than caching, which {{CIMD}} forbids. A response from a `software_statements_uri` is cached no longer than the document is, and can be revalidated with a conditional request, as the document can ({{pulled-statements}}).
 
