@@ -94,7 +94,7 @@ The client presents the statement at registration or at runtime, or publishes it
 
 {{RFC7591}} standardizes the consumption of a software statement, a signed JWT asserting client metadata (Section 2.3 of {{RFC7591}}), but not its issuance. Issuance today relies on manual provisioning or proprietary processes. The UK Open Banking Directory {{UK-OPEN-BANKING}} and the Australian Consumer Data Right Register {{AU-CDR}} each built a central issuer, yet a client needs a separate integration for each.
 
-{{STATEMENT}} profiles that statement to carry no client metadata and instead vouch for the exact octets of a Client ID Metadata Document, and defines its validation and consumption. This document defines how a client obtains one, through OAuth token exchange ({{token-exchange-profile}}) or a redirect flow ({{authorization-request}}). An issuer whose review outlives a request can defer it under {{DTR}}.
+{{STATEMENT}} profiles that statement to carry no client metadata and instead vouch for the exact octets of a Client ID Metadata Document, and defines its validation and consumption. This specification defines how a client obtains one, through OAuth token exchange ({{token-exchange-profile}}) or a redirect flow ({{authorization-request}}). An issuer whose review cannot complete within a request can defer its response under {{DTR}}.
 
 A statement makes one issuer's decision portable to the authorization servers in its audience that trust the issuer ({{STATEMENT}}). If the trust decision is local to one authorization server, an initial access token {{RFC7591}}, pre-registration {{CIMD}}, or approval-based registration {{APPROVAL-DCR}} can establish the client directly.
 
@@ -104,7 +104,7 @@ Approval workflow, approver identity, external approval integration, acceptance 
 
 {::boilerplate bcp14-tagged}
 
-This specification uses terminology defined in {{RFC6749}}, {{RFC7591}}, {{CIMD}}, and {{DTR}}. The terms Issuer, Trusting Authorization Server, Metadata Digest, Effective Expiry, Establishment, and Refusal Record are defined by {{STATEMENT}}.
+This specification uses terminology defined in {{RFC6749}}, {{RFC7591}}, {{CIMD}}, and {{DTR}}. The terms Issuer, Trusting Authorization Server, Metadata Digest, Effective Expiry, Establishment, Refusal Record, and Review-Only are defined by {{STATEMENT}}.
 
 This specification defines the following terms:
 
@@ -219,7 +219,7 @@ The authorization server MUST reject duplicate object member names. Parsers can 
 
 A document carries its keys inline through the `jwks` member, which the digest binds, or by reference through the `jwks_uri` member, which the digest binds only as a location. {{STATEMENT}} weighs the trade-off, and an issuer can require either.
 
-{{CIMD}} permits a document to carry a `software_statement` member. An issuer evaluates the document as served and MUST NOT refuse a document because it carries the member. Consumers ignore a statement embedded there ({{STATEMENT}}), and refusing would leave a client that published its statement unable to renew it.
+{{CIMD}} permits a document to carry a `software_statement` member. An issuer evaluates the document as served and MUST NOT refuse a document because it carries the member. Trusting authorization servers ignore a statement embedded there ({{STATEMENT}}), and refusing would leave a client that published its statement unable to renew it.
 
 # Token Exchange Profile {#token-exchange-profile}
 
@@ -253,7 +253,7 @@ An initial access token presented under this profile MUST be time limited, be li
 
 The initial access token is subject to the following:
 
-* A reusable one MUST be sender-constrained to a client key, for example through DPoP or mTLS, and the authorization server MUST verify that binding against the key the exchange request proves.
+* A reusable one MUST be sender-constrained to a client key, for example through DPoP or mutual TLS, and the authorization server MUST verify that binding against the key the exchange request proves.
 * A bearer one MUST be single-use.
 * It SHOULD be integrity protected and kept confidential in transit and at rest, and MAY further restrict audiences or metadata.
 * The authorization server MUST enforce every restriction the credential carries and MUST prevent replay beyond its permitted number of uses.
@@ -290,7 +290,7 @@ A replacement carries the subject statement's `aud_tenant` while the decision is
 
 An issuer MUST NOT accept as subject token a statement it has withdrawn ({{STATEMENT}}), including one whose status it publishes under {{STATUS}} as other than `VALID`. Renewing such a statement would reissue the decision that withdrawal ended.
 
-The authorization server MAY accept a statement that has expired, and SHOULD bound how long after expiry it will do so. A renewal after an extended absence amounts to a request for re-establishment.
+The authorization server MAY accept a statement that has expired, and SHOULD bound how long after expiry it will do so. A renewal after an extended absence amounts to a new issuance request.
 
 If the current document's digest equals the subject statement's `cimd_digest`, whether renewal requires fresh review is issuer policy. If the digests differ, the issuer MUST apply the decision it would apply to a first issuance for that document, and MUST NOT renew on the strength of the prior statement alone. Otherwise, whoever can change the document could obtain the issuer's signature over an unreviewed change.
 
@@ -308,7 +308,7 @@ The client sends an authorization request as described in Section 4.1.1 of {{RFC
 : REQUIRED. The value MUST exactly match one of the redirection URIs in the Client ID Metadata Document, subject to the redirection URI rules of {{CIMD}}. Whatever authentication method the document declares, the value MUST NOT be a redirection URI that another application on the same device could claim, as the public-client presentation rules of {{STATEMENT}} define ({{authorization-response-security}}).
 
 `state`:
-: OPTIONAL. An opaque value used by the client to bind the authorization response to its request. Because the authorization server requires PKCE, a client can rely on PKCE for CSRF protection instead, as Section 2.1 of {{RFC9700}} permits.
+: OPTIONAL. An opaque value used by the client to bind the authorization response to its request. Because the authorization server requires PKCE, a client can rely on PKCE for cross-site request forgery (CSRF) protection instead, as Section 2.1 of {{RFC9700}} permits.
 
 `code_challenge`:
 : REQUIRED. A PKCE challenge as defined by {{RFC7636}}.
@@ -593,7 +593,7 @@ Before redeeming a software statement code, the client MUST verify the `state` p
 
 A public client presents no client authentication, so its association with the software depends on delivery to a metadata-listed redirection endpoint. Another application can claim a private-use or loopback endpoint ({{RFC8252}}). PKCE and DPoP bind the code to the initiator but cannot stop an attacker from initiating under another party's `client_id`. Only an `https` endpoint no other application can claim demonstrates control of the publisher's origin, so {{authorization-request}} requires one. A native public client can host such an endpoint or use the token exchange profile ({{token-exchange-profile}}).
 
-A confidential client's authentication proves possession of a key, not that the key is absent from software distributed to end users, so the requirement applies to it as well. A statement over a document listing an endpoint another application can claim is in any case review-only at a trusting authorization server ({{STATEMENT}}).
+A confidential client's authentication proves possession of a key, not that the key is absent from software distributed to end users, so the requirement applies to it as well. Presentations of a statement over a document listing an endpoint another application can claim are in any case review-only at a trusting authorization server ({{STATEMENT}}).
 
 An authorization server SHOULD relate the redirection URI's origin to the client identifier URL or the metadata document's `client_uri` according to policy. Endpoint or key control informs issuance policy but does not determine issuance.
 
