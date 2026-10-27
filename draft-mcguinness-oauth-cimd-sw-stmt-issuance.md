@@ -526,9 +526,7 @@ Pragma: no-cache
 }
 ~~~
 
-The `access_token` member is a security-token container ({{RFC8693}}), not an OAuth access token. The software statement it carries is consumed only as {{STATEMENT}} provides, MUST NOT be attached to a request as an `Authorization: Bearer` credential, and is not subject to refresh. A protected resource MUST NOT accept a software statement returned in the `access_token` member as an access token.
-
-Implementations that cache issued tokens by type SHOULD key this artifact on the response's `issued_token_type` member so that generic access-token handling does not apply to it, and SHOULD treat it as a sensitive credential in logs.
+The `access_token` member is a security-token container ({{RFC8693}}), not an OAuth access token. The software statement it carries is consumed only as {{STATEMENT}} provides, MUST NOT be attached to a request as an `Authorization: Bearer` credential, and is not subject to refresh ({{issued-statement-handling}}). A protected resource MUST NOT accept a software statement returned in the `access_token` member as an access token.
 
 ## Terminal Denial {#terminal-denial}
 
@@ -572,6 +570,10 @@ This section gives guidance to implementers. It adds no requirement.
 ## Retrieval and Approval-Queue Bounds {#processing-bounds}
 
 An authorization server can rate-limit token exchanges, cache successful retrieval results within the bounds {{STATEMENT}} describes, back off after failures rather than caching them, since {{CIMD}} forbids caching failures, and bound pending deferrals per client identifier and requester. Because the redirect flow reaches the approval queue before any client-authenticated step, the same rate limits and pending-approval bounds per client identifier can apply there.
+
+## Handling the Issued Statement {#issued-statement-handling}
+
+A client that caches issued tokens by type ought to key this artifact on the response's `issued_token_type` member, so that generic access-token handling does not apply to it, and ought to treat it as a sensitive credential in logs.
 
 # Security Considerations {#security-considerations}
 
