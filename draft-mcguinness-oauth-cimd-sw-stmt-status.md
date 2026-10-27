@@ -95,7 +95,7 @@ Resolution follows {{STATUSLIST}}. In particular:
 * The caching rules of {{STATUSLIST}} apply to resolution, and also apply when the server checks a recorded statement at refresh ({{STATEMENT}}).
 * A server SHOULD retrieve the list on the list's own schedule, within the expiration and caching bounds its `exp` and `ttl` claims set (Section 11.5 of {{STATUSLIST}}), rather than once per request ({{resolution-schedule}}).
 
-To prevent a host serving an older token from restoring a status the issuer has withdrawn, a server MUST NOT replace a Status List Token it holds with one whose `iat` claim is earlier, and MUST treat one whose `iat` claim is equal but whose contents differ as a resolution failure. A statement whose status the server cannot resolve is bounded by its effective expiry, as {{STATEMENT}} provides.
+To prevent a host serving an older token from restoring a status the issuer has withdrawn, a server MUST NOT replace a Status List Token it holds with one whose `iat` claim is earlier, and MUST treat one whose `iat` claim is equal but whose contents differ as a resolution failure. Section 8.3 of {{STATUSLIST}} recommends rejecting a statement whose status the server cannot resolve. A statement the server accepts without a resolved status remains bounded by its effective expiry ({{STATEMENT}}).
 
 A server MUST obtain a Status List Token's verification keys from the `jwks_uri` metadata value of the issuer's authorization server metadata {{RFC8414}}, discovered from the configured `iss`, and never from the Status List Token itself.
 
