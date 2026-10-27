@@ -387,6 +387,8 @@ The software statement code response applies the authorization response protecti
 
 A software statement code is not an authorization code and MUST NOT be redeemable as one.
 
+Before redeeming a software statement code, the client MUST verify the `state` parameter, if it sent one, and MUST validate the authorization response `iss` parameter according to {{RFC9207}}.
+
 Because scripts at the redirection endpoint can access the fragment, the `fragment` response mode SHOULD NOT be used. A client MAY request the `form_post` response mode {{FORM-POST}}.
 
 The following is an example of a software statement code response using the default `query` response mode (line breaks for display purposes only):
@@ -594,8 +596,6 @@ Fetching a Client ID Metadata Document and the resources it references exposes t
 ## Authorization Response Security {#authorization-response-security}
 
 The software statement is a signed credential and can contain sensitive deployment information, so it is never returned in an authorization response ({{authorization-response}}).
-
-Before redeeming a software statement code, the client MUST verify the `state` parameter, if it sent one, and MUST validate the authorization response `iss` parameter according to {{RFC9207}}.
 
 A public client presents no client authentication, so its association with the software depends on delivery to a metadata-listed redirection endpoint. Another application can claim a private-use or loopback endpoint ({{RFC8252}}). PKCE and DPoP bind the code to the initiator but cannot stop an attacker from initiating under another party's `client_id`. Only an `https` endpoint no other application can claim demonstrates control of the publisher's origin, so {{authorization-request}} requires one. A native public client can host such an endpoint or use the token exchange profile ({{token-exchange-profile}}).
 
