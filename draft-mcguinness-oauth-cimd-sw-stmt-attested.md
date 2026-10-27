@@ -247,7 +247,7 @@ The server cannot observe how an attester reached its decision, so it relies on 
 * The policy's identifier denotes immutable policy semantics: a material policy change requires a new identifier.
 * The policy establishes an association between the software the statement covers and control of the attested key. User approval of a key, a publisher account login, possession of a shared embedded secret, or device integrity alone does not establish that association.
 
-A server MUST NOT accept for this profile an evidence policy that does not meet these requirements. A deployment can use weaker evidence for other purposes but MUST NOT report it as satisfying this profile.
+A server MUST NOT accept for this profile an evidence policy that does not meet these requirements. A server can use weaker evidence for other purposes but MUST NOT report it as satisfying this profile.
 
 A statement approves the document and the software that its publisher (the controller of the document URL's origin, or a delegate) associates with it, not a particular executable. The publisher decides which releases that association covers, under the evidence policy's treatment of updates, so a new release with unchanged metadata needs no new statement. This profile cannot enforce an issuer's approval of particular releases.
 
