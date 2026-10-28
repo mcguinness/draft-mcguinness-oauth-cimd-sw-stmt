@@ -2,9 +2,32 @@
 
 A non-normative walkthrough of the case these drafts serve least well. One vendor's application integrates with another vendor's platform on a customer's behalf, with no user present while it runs.
 
-The act being modelled is the customer's. An administrator approves the vendor once, at the enterprise root their organization already operates and the platform is already configured with, and every platform that trusts that root honours it. Whether the platform's own marketplace has separately reviewed and listed the integration is the platform's business. From the customer's side it is implementation detail.
+The act being modelled is the customer's: one administrative decision to approve the vendor, made at the customer's own root, which every platform configured with that root can check. Whether the platform's own marketplace has separately reviewed and listed the integration is the platform's business. From the customer's side it is implementation detail.
+
+This sketch is exploratory. What it describes is a proposed extension, not something the drafts define, and it rests on [prerequisites](#prerequisites) that most deployments do not have today.
 
 **Two ways to carry the customer's decision.** The usual answer, that the customer's identity provider conveys permission by issuing an assertion, is unavailable here because no user is present. The statement draft has an answer of its own: the customer operates a reviewer and issues a statement about the vendor's software, confined to the platform tenant by `aud_tenant`, and the platform requires that reviewer's statement for the vendor's software in that tenant. Its cost shows in exactly this case: the customer's decision travels through the vendor it constrains, which holds the statement and presents it. This sketch works through the other answer, in which the customer's own root carries the decision through OpenID Federation machinery the customer already operates, and the platform fetches it, so the vendor carries nothing. Both leave the same gap, which of the vendor's own customers a request is for, and step 3 has to close it. [The two answers compared](#the-two-answers-compared) sets out the trade; which one a deployment should prefer is the authors' call.
+
+## Prerequisites
+
+This shape works only once several agreements and pieces of implementation are in place. An existing single sign-on relationship supplies none of them by itself:
+
+* **A trust anchor.** The platform configures the customer's root as an OpenID Federation trust anchor, with its keys. A platform that already federates sign-on with the customer holds a different trust, for a different purpose, under different keys.
+* **Permission to issue the approval.** The platform accepts this root as an issuer of the approval's trust mark type.
+* **Authenticated, authorized access.** The root's trust mark endpoint requires client authentication from the platform and enforces which platforms may ask about which vendors, a policy Federation does not define.
+* **The tenant mapping.** The platform records which of its tenants belongs to this customer's root, and the customer's root records each platform's issuer and the customer's tenant identifier there.
+* **The account mapping.** The customer knows its own account identifier in the vendor's product, and the vendor names that account on each request.
+
+Together these bind four things that the approval depends on:
+
+| Binding | Held by | Established by |
+| --- | --- | --- |
+| Customer root to platform | Platform | Trust anchor configuration |
+| Customer root to platform tenant | Platform and root | The tenant mapping |
+| Approval to platform issuer and tenant | Root | Claims in each per-platform approval |
+| Approval to vendor account | Root | The account identifier the administrator enters |
+
+Each is work for the customer, the platform, or the vendor. A deployment has to treat the set as a precondition, not a detail resolved later.
 
 ## What is broken today
 
@@ -38,9 +61,9 @@ These are not two halves of one approval. They are separate questions with separ
 
 ## Walkthrough
 
-### 1. The root already exists
+### 1. The root is configured
 
-The platform is already configured with this customer's enterprise root. Most platforms hold such a relationship for single sign-on; here it is a Federation trust anchor whose public keys the platform has. Nothing is configured to make this particular integration possible, which is the point: the customer does not onboard an approval mechanism per vendor, and the platform does not onboard one per customer.
+The platform has completed the prerequisites for this customer: it holds the customer's root as a Federation trust anchor, accepts it as an issuer of the approval's trust mark type, and maps it to the customer's tenant on the platform. That is per-customer work at each platform, done once. After it, nothing further is configured per vendor.
 
 ### 2. The customer approves, once, in their own console
 
@@ -48,13 +71,13 @@ An administrator approves the vendor at the customer's root. The root issues a t
 
 The mark stays at the customer's root. The vendor does not publish it in its own entity configuration, which would list every customer that had approved it, and which would also make the mark readable by anyone, since entity configurations are public and Federation's status endpoint asks only for a mark somebody already holds.
 
-The approval names the platform tenant it applies in, using the `aud_tenant` claim the Identity Assertion Authorization Grant registers, so a customer running production and sandbox tenants at one platform can approve a vendor in one and not the other. A decision naming a tenant cannot be spent in a different one.
+**One decision, an approval per platform.** A tenant identifier means something only at one authorization server, so an approval cannot apply across platforms by naming a tenant. The administrator decides once, and the root issues one approval for each platform where the vendor will act. Each names that platform's issuer, in a claim of its own, and the customer's tenant there, using the `aud_tenant` claim the Identity Assertion Authorization Grant registers. A customer running production and sandbox tenants at one platform can therefore approve a vendor in one and not the other, and an approval naming a tenant cannot be spent in a different one.
 
 The approval also names which of the vendor's customers it is for: the customer's own account in the vendor's product. Without that, it says only that the vendor may act here. Because the vendor acts for all of its customers under one client identifier and one credential, any other customer of the same vendor could then point its integration at this customer's platform tenant and ride this approval.
 
 The administrator copies that account identifier from their own session in the vendor's product. It should not arrive pre-filled in a link the vendor or anyone else sends, because a pre-filled approval is how one of the vendor's customers gets another customer's administrator to approve it.
 
-This is the whole of the customer's action, and it is the only artifact the customer has to reason about. It is not repeated per platform, which is the difference from consenting in each vendor's console.
+This is the whole of the customer's action. The decision is made once, and the root generates the per-platform approvals from the mappings it already holds, which is the difference from consenting in each platform's console.
 
 ### 3. The integration runs
 
@@ -74,7 +97,7 @@ The platform pulls rather than having the client present the customer's trust ma
 
 The customer revokes the trust mark at their own root. The platform's next check returns revoked and the integration stops being admitted.
 
-**One revocation, everywhere.** Every platform configured with that root sees the same answer, so a customer offboarding a vendor acts once instead of hunting through each vendor's console. That is the strongest argument in this sketch and the one thing today's model cannot offer at any price.
+**One revocation decision.** The customer revokes once, at its root, which marks every per-platform approval that decision generated as revoked. Each platform configured with that root sees the result at its next check, so a customer offboarding a vendor acts once rather than hunting through each console. That is the strongest argument in this sketch. It holds only where every platform involved has completed the prerequisites, and it stops new admission at each platform's next check, not access tokens already issued.
 
 Two clocks run independently and neither belongs to the other. The customer's approval expires on the customer's schedule, in that customer's tenants alone. The platform's own listing decision expires on the platform's schedule, everywhere in its audience. Neither reaches access tokens already issued.
 
