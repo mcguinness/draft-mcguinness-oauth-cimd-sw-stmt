@@ -42,9 +42,11 @@ The app reads the identity provider's authorization server metadata to find that
 | `code_challenge_method` | `S256`, with `code_challenge` and `state` |
 | `dpop_jkt` | the thumbprint of a key the app generated on the device |
 | `completion_mode` | includes `deferred`, hinting that the decision may not be immediate |
-| `audience` | the third-party SaaS authorization server, so the statement is usable there too |
+| `audience` | the identity provider's own issuer identifier, the one server where this decision applies |
 
 Two constraints bite here. A public client must use an HTTPS redirection URI in a statement request and may not use a private-use scheme or a loopback address, so the app needs universal links or app links for this flow specifically. And `dpop_jkt` is required for a public client, so the app proves possession of a key it generated itself.
+
+The approval stays local to the identity provider. An administrator approving software for one tenant makes a tenant-scoped decision, and the statement draft requires a statement carrying one to name exactly one authorization server in `aud`, and the tenant in `aud_tenant` unless the server's trust configuration already confines the issuer to it. Naming the third-party SaaS as a second audience would not make the decision apply there, and the issuer cannot add an audience the request did not name. The SaaS is reached in step 9 through an identity assertion, which carries the enterprise's permission per grant. If the SaaS wanted a review of its own, that would be a separate statement from a reviewer it trusts, naming the SaaS as `aud`, under the SaaS's own trust configuration.
 
 ### 4. Approval happens out of band
 
@@ -54,7 +56,7 @@ Nobody has approved this software yet, so the identity provider answers with a D
 
 ### 5. The statement arrives
 
-A later poll returns the statement as `access_token`, with `issued_token_type` of `urn:ietf:params:oauth:token-type:software-statement` and `token_type` of `N_A`. It names the identity provider as `iss`, the document URL as `sub`, the digest of the exact octets reviewed as `cimd_digest`, an audience covering both authorization servers, an expiry, and a `status` reference if this issuer publishes status.
+A later poll returns the statement as `access_token`, with `issued_token_type` of `urn:ietf:params:oauth:token-type:software-statement` and `token_type` of `N_A`. Its `iss` is an issuer identifier the identity provider uses for this enterprise alone, since the statement draft requires an issuer reviewing for several customers to use a distinct `iss` for each. It names the document URL as `sub`, the digest of the exact octets reviewed as `cimd_digest`, and the identity provider alone as `aud`, with an expiry and a `status` reference if this issuer publishes status. It needs no `aud_tenant`, because the identity provider's trust configuration confines that issuer to the enterprise's tenant.
 
 ### 6. Admitted, without presenting anything
 
