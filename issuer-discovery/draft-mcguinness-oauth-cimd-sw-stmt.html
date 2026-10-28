@@ -2455,7 +2455,7 @@ client-assertion-type%3Ajwt-bearer
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">The presenter controls a key the reviewed document carries</td>
-              <td class="text-left" rowspan="1" colspan="1">Yes, except under <a href="#public-client-presentation" class="auto internal xref">Section 5.4.1</a>. Inline <code>jwks</code> attests the keys themselves; <code>jwks_uri</code> attests only their location (<a href="#statement-validation" class="auto internal xref">Section 14.2</a>)</td>
+              <td class="text-left" rowspan="1" colspan="1">Yes, except under <a href="#public-client-presentation" class="auto internal xref">Section 5.4.1</a>. For a statement pulled at the authorization endpoint, possession is proved at code redemption, before any token is issued (<a href="#pulled-statements" class="auto internal xref">Section 5.2</a>). Inline <code>jwks</code> attests the keys themselves; <code>jwks_uri</code> attests only their location (<a href="#statement-validation" class="auto internal xref">Section 14.2</a>)</td>
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">Authorization codes reach only a reviewed redirection URI</td>

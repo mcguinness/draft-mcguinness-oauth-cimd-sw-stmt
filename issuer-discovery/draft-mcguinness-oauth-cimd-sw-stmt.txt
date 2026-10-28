@@ -1628,42 +1628,44 @@ Table of Contents
    The following table states what admission under this specification
    does and does not establish:
 
-     +===============================+===============================+
-     | Property                      | Established                   |
-     +===============================+===============================+
-     | A configured issuer signed    | Yes                           |
-     | the statement for this client |                               |
-     | identifier and, if the        |                               |
-     | statement names an audience,  |                               |
-     | one that includes this server |                               |
-     +-------------------------------+-------------------------------+
-     | The served document is the    | Yes                           |
-     | one the issuer reviewed, byte |                               |
-     | for byte                      |                               |
-     +-------------------------------+-------------------------------+
-     | The presenter controls a key  | Yes, except under             |
-     | the reviewed document carries | Section 5.4.1.  Inline jwks   |
-     |                               | attests the keys themselves;  |
-     |                               | jwks_uri attests only their   |
-     |                               | location (Section 14.2)       |
-     +-------------------------------+-------------------------------+
-     | Authorization codes reach     | Yes, in a redirect flow.  For |
-     | only a reviewed redirection   | a public client under         |
-     | URI                           | Section 5.4.1 it is the only  |
-     |                               | binding, and it does not hold |
-     |                               | against a party that controls |
-     |                               | the user agent (Section 14.4) |
-     +-------------------------------+-------------------------------+
-     | The running software is the   | No; an attested-key extension |
-     | software the issuer reviewed  | can add evidence for it       |
-     |                               | (Section 11)                  |
-     +-------------------------------+-------------------------------+
-     | The client may access a       | No; the authorization         |
-     | particular resource           | server's policy, and the      |
-     |                               | resource owner's              |
-     |                               | authorization where a grant   |
-     |                               | involves one, decide          |
-     +-------------------------------+-------------------------------+
+    +=======================+=========================================+
+    | Property              | Established                             |
+    +=======================+=========================================+
+    | A configured issuer   | Yes                                     |
+    | signed the statement  |                                         |
+    | for this client       |                                         |
+    | identifier and, if    |                                         |
+    | the statement names   |                                         |
+    | an audience, one that |                                         |
+    | includes this server  |                                         |
+    +-----------------------+-----------------------------------------+
+    | The served document   | Yes                                     |
+    | is the one the issuer |                                         |
+    | reviewed, byte for    |                                         |
+    | byte                  |                                         |
+    +-----------------------+-----------------------------------------+
+    | The presenter         | Yes, except under Section 5.4.1.  For a |
+    | controls a key the    | statement pulled at the authorization   |
+    | reviewed document     | endpoint, possession is proved at code  |
+    | carries               | redemption, before any token is issued  |
+    |                       | (Section 5.2).  Inline jwks attests the |
+    |                       | keys themselves; jwks_uri attests only  |
+    |                       | their location (Section 14.2)           |
+    +-----------------------+-----------------------------------------+
+    | Authorization codes   | Yes, in a redirect flow.  For a public  |
+    | reach only a reviewed | client under Section 5.4.1 it is the    |
+    | redirection URI       | only binding, and it does not hold      |
+    |                       | against a party that controls the user  |
+    |                       | agent (Section 14.4)                    |
+    +-----------------------+-----------------------------------------+
+    | The running software  | No; an attested-key extension can add   |
+    | is the software the   | evidence for it (Section 11)            |
+    | issuer reviewed       |                                         |
+    +-----------------------+-----------------------------------------+
+    | The client may access | No; the authorization server's policy,  |
+    | a particular resource | and the resource owner's authorization  |
+    |                       | where a grant involves one, decide      |
+    +-----------------------+-----------------------------------------+
 
                                   Table 1
 
