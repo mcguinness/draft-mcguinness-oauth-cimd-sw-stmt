@@ -1428,7 +1428,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <span class="break"></span><dl class="dlParallel" id="section-2-4">
         <dt id="section-2-4.1">Issuer:</dt>
         <dd style="margin-left: 1.5em" id="section-2-4.2">
-          <p id="section-2-4.2.1">The authorization server that signs a software statement.<a href="#section-2-4.2.1" class="pilcrow">¶</a></p>
+          <p id="section-2-4.2.1">The party that signs a software statement. An issuer can be an authorization server, or a reviewer, such as a marketplace, that operates none.<a href="#section-2-4.2.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 <dt id="section-2-4.3">Trusting Authorization Server:</dt>
@@ -1486,13 +1486,13 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <a href="#section-3" class="section-number selfRef">3. </a><a href="#name-the-software-statement" class="section-name selfRef">The Software Statement</a>
       </h2>
 <p id="section-3-1">The software statement is a compact JWT <span>[<a href="#RFC7519" class="cite xref">RFC7519</a>]</span> protected by JWS <span>[<a href="#RFC7515" class="cite xref">RFC7515</a>]</span>. Although <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> permits a MAC, a statement issued under this specification <span class="bcp14">MUST</span> use an asymmetric digital signature, and the <code>none</code> algorithm and symmetric algorithms <span class="bcp14">MUST NOT</span> be used. Issuers and trusting authorization servers follow <span>[<a href="#RFC8725" class="cite xref">RFC8725</a>]</span>.<a href="#section-3-1" class="pilcrow">¶</a></p>
-<p id="section-3-2">The JOSE header <span class="bcp14">MUST</span> include the <code>kid</code> header parameter, identifying the signing key in the issuer's statement key set (<a href="#authorization-server-metadata" class="auto internal xref">Section 10</a>), and the <code>typ</code> header parameter with the value <code>software-statement+jwt</code> (Section 3.11 of <span>[<a href="#RFC8725" class="cite xref">RFC8725</a>]</span>), which is the media type of <a href="#media-type" class="auto internal xref">Section 16.2</a> without its <code>application/</code> prefix. Extensions can add claims. An incompatible revision would use a new <code>typ</code> value.<a href="#section-3-2" class="pilcrow">¶</a></p>
+<p id="section-3-2">The JOSE header <span class="bcp14">MUST</span> include the <code>kid</code> header parameter, identifying the signing key in the issuer's statement key set (<a href="#issuer-trust" class="auto internal xref">Section 4</a>), and the <code>typ</code> header parameter with the value <code>software-statement+jwt</code> (Section 3.11 of <span>[<a href="#RFC8725" class="cite xref">RFC8725</a>]</span>), which is the media type of <a href="#media-type" class="auto internal xref">Section 16.2</a> without its <code>application/</code> prefix. Extensions can add claims. An incompatible revision would use a new <code>typ</code> value.<a href="#section-3-2" class="pilcrow">¶</a></p>
 <p id="section-3-3">A statement asserts that its issuer evaluated the Client ID Metadata Document whose content the digest identifies, and vouches for that document to any party that accepts the issuer. The JWT payload contains the following claims.<a href="#section-3-3" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-3-4">
         <dt id="section-3-4.1">
 <code>iss</code>:</dt>
         <dd style="margin-left: 1.5em" id="section-3-4.2">
-          <p id="section-3-4.2.1"><span class="bcp14">REQUIRED</span>. The issuer's issuer identifier, as defined by <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span>.<a href="#section-3-4.2.1" class="pilcrow">¶</a></p>
+          <p id="section-3-4.2.1"><span class="bcp14">REQUIRED</span>. The issuer's identifier, a URL using the <code>https</code> scheme with no query or fragment component. For an issuer that is an authorization server, it is its issuer identifier as defined by <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span>.<a href="#section-3-4.2.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 <dt id="section-3-4.3">
@@ -1639,7 +1639,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
           <p id="section-4-3.1.1">The exact <code>iss</code> identifier it will accept.<a href="#section-4-3.1.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-4-3.2">
-          <p id="section-4-3.2.1">The source of that issuer's statement signing keys: the <code>software_statement_jwks_uri</code> in the issuer's authorization server metadata (<a href="#authorization-server-metadata" class="auto internal xref">Section 10</a>), discovered from the configured <code>iss</code> as <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span> describes, and never its <code>jwks_uri</code>.<a href="#section-4-3.2.1" class="pilcrow">¶</a></p>
+          <p id="section-4-3.2.1">The source of that issuer's statement signing keys, which is never a <code>jwks_uri</code> metadata value: either the <code>software_statement_jwks_uri</code> in the issuer's authorization server metadata (<a href="#authorization-server-metadata" class="auto internal xref">Section 10</a>), discovered from the configured <code>iss</code> as <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span> describes, or, for an issuer that is not an authorization server, a statement key set URL recorded in this trust configuration.<a href="#section-4-3.2.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-4-3.3">
           <p id="section-4-3.3.1">The signing algorithms it will accept from the issuer.<a href="#section-4-3.3.1" class="pilcrow">¶</a></p>
@@ -1660,15 +1660,16 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
           <p id="section-4-3.8.1">Its own policy on repeated consumption of one statement (<a href="#multi-instance" class="auto internal xref">Section 6</a>).<a href="#section-4-3.8.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
-<p id="section-4-4">These inputs, not the signature alone, define acceptance. A trusting authorization server <span class="bcp14">MUST</span> derive trust from this local configuration and <span class="bcp14">MUST NOT</span> derive it from an <code>iss</code>, <code>jku</code>, <code>x5u</code>, or other key-location value carried in a presented statement.<a href="#section-4-4" class="pilcrow">¶</a></p>
-<p id="section-4-5">A server that records, for one of its tenants, client identifier namespaces for which a configured issuer's decision is required (<a href="#trust-configuration" class="auto internal xref">Section 13.1</a>) <span class="bcp14">MUST NOT</span> admit software in a covered namespace in that tenant without a current statement from the required issuer, whatever its policy for clients it has not reviewed. Without this rule, withholding the statement would restore access that the required issuer withdrew. The requirement is configured rather than inferred from the statements the server sees, so a holder cannot evade that issuer's withdrawal by presenting or publishing only a broader statement, such as a marketplace listing.<a href="#section-4-5" class="pilcrow">¶</a></p>
-<p id="section-4-6">A required issuer configured for software whose documents are presented review-only (<a href="#public-client-presentation" class="auto internal xref">Section 5.4.1</a>) excludes that software from the tenant.<a href="#section-4-6" class="pilcrow">¶</a></p>
+<p id="section-4-4">A statement key set whose URL is recorded in trust configuration is subject to rules matching those <a href="#authorization-server-metadata" class="auto internal xref">Section 10</a> sets for <code>software_statement_jwks_uri</code>: its URL <span class="bcp14">MUST</span> use the <code>https</code> scheme, a trusting authorization server <span class="bcp14">MUST</span> validate the certificate of the host serving it, and the issuer <span class="bcp14">MUST NOT</span> place in it a key from any other JWK Set it publishes, or sign anything other than statements under this specification with its keys.<a href="#section-4-4" class="pilcrow">¶</a></p>
+<p id="section-4-5">These inputs, not the signature alone, define acceptance. A trusting authorization server <span class="bcp14">MUST</span> derive trust from this local configuration and <span class="bcp14">MUST NOT</span> derive it from an <code>iss</code>, <code>jku</code>, <code>x5u</code>, or other key-location value carried in a presented statement.<a href="#section-4-5" class="pilcrow">¶</a></p>
+<p id="section-4-6">A server that records, for one of its tenants, client identifier namespaces for which a configured issuer's decision is required (<a href="#trust-configuration" class="auto internal xref">Section 13.1</a>) <span class="bcp14">MUST NOT</span> admit software in a covered namespace in that tenant without a current statement from the required issuer, whatever its policy for clients it has not reviewed. Without this rule, withholding the statement would restore access that the required issuer withdrew. The requirement is configured rather than inferred from the statements the server sees, so a holder cannot evade that issuer's withdrawal by presenting or publishing only a broader statement, such as a marketplace listing.<a href="#section-4-6" class="pilcrow">¶</a></p>
+<p id="section-4-7">A required issuer configured for software whose documents are presented review-only (<a href="#public-client-presentation" class="auto internal xref">Section 5.4.1</a>) excludes that software from the tenant.<a href="#section-4-7" class="pilcrow">¶</a></p>
 <div id="multi-tenant-issuers">
 <section id="section-4.1">
         <h3 id="name-multi-tenant-issuers">
 <a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-multi-tenant-issuers" class="section-name selfRef">Multi-Tenant Issuers</a>
         </h3>
-<p id="section-4.1-1">If an issuer reviews software for several customers whose decisions are each trusted independently, it <span class="bcp14">MUST</span> issue under a distinct <code>iss</code> value for each customer, so that each customer's decisions, keys, and <code>iat</code> floor (<a href="#multi-instance" class="auto internal xref">Section 6</a>) stay separate. Under one <code>iss</code>, one customer's renewal would supersede another's review. A statement carries no claim naming the issuer's customer.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+<p id="section-4.1-1">If an issuer reviews software for several customers whose decisions are each trusted independently, it <span class="bcp14">MUST</span> issue under a distinct <code>iss</code> value for each customer, so that each customer's decisions and <code>iat</code> floor (<a href="#multi-instance" class="auto internal xref">Section 6</a>) stay separate. Under one <code>iss</code>, one customer's renewal would supersede another's review. A statement carries no claim naming the issuer's customer.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2246,7 +2247,7 @@ client-assertion-type%3Ajwt-bearer
         <dt id="section-10-2.1">
 <code>software_statement_jwks_uri</code>:</dt>
         <dd style="margin-left: 1.5em" id="section-10-2.2">
-          <p id="section-10-2.2.1"><span class="bcp14">REQUIRED</span> for an authorization server that issues statements under this specification. URL of a JWK Set containing only the keys with which it signs them. The URL <span class="bcp14">MUST</span> use the <code>https</code> scheme, and a trusting authorization server <span class="bcp14">MUST</span> validate the server's certificate when retrieving it.<a href="#section-10-2.2.1" class="pilcrow">¶</a></p>
+          <p id="section-10-2.2.1"><span class="bcp14">REQUIRED</span> for an authorization server that issues statements under this specification. URL of a JWK Set containing only the keys with which it signs them. The URL <span class="bcp14">MUST</span> use the <code>https</code> scheme, and a trusting authorization server <span class="bcp14">MUST</span> validate the server's certificate when retrieving it. An issuer that is not an authorization server publishes its statement key set at a URL that trusting authorization servers record in their trust configuration, under the rules of <a href="#issuer-trust" class="auto internal xref">Section 4</a>.<a href="#section-10-2.2.1" class="pilcrow">¶</a></p>
 <p id="section-10-2.2.2">The keys in this set <span class="bcp14">MUST NOT</span> appear in the JWK Set at the server's <code>jwks_uri</code> metadata value, and the server <span class="bcp14">MUST NOT</span> sign anything other than statements under this specification with them. As a result, a key that signs another artifact, such as a Status List Token or a software statement of another profile, cannot verify a statement (<a href="#legacy-servers" class="auto internal xref">Section 14.3</a>).<a href="#section-10-2.2.2" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
@@ -2434,6 +2435,42 @@ client-assertion-type%3Ajwt-bearer
 <a href="#section-14.1" class="section-number selfRef">14.1. </a><a href="#name-what-a-statement-attests" class="section-name selfRef">What a Statement Attests</a>
         </h3>
 <p id="section-14.1-1">A statement binds an issuer's review to the octets of a Client ID Metadata Document, which describes an OAuth client configuration, such as its redirection URIs, keys, grant types, and scope. It does not bind the software's code, dependencies, or behavior. Software can change while its document stays the same, and the statement remains acceptable until it expires or is withdrawn (<a href="#withdrawal" class="auto internal xref">Section 3.3</a>). Assurance about the software itself rests on the issuer's review process and, where an extension provides one, an attestation of the running instance (<a href="#extensions" class="auto internal xref">Section 11</a>). Any change to the document's octets, including one that changes no metadata value, makes statements over the earlier octets fail the digest comparison (<a href="#effective-metadata" class="auto internal xref">Section 5.5</a>).<a href="#section-14.1-1" class="pilcrow">¶</a></p>
+<p id="section-14.1-2">The following table states what admission under this specification does and does not establish:<a href="#section-14.1-2" class="pilcrow">¶</a></p>
+<table class="center" id="table-1">
+          <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Property</th>
+              <th class="text-left" rowspan="1" colspan="1">Established</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">A configured issuer signed the statement for this client identifier and, if the statement names an audience, one that includes this server</td>
+              <td class="text-left" rowspan="1" colspan="1">Yes</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">The served document is the one the issuer reviewed, byte for byte</td>
+              <td class="text-left" rowspan="1" colspan="1">Yes</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">The presenter controls a key the reviewed document carries</td>
+              <td class="text-left" rowspan="1" colspan="1">Yes, except under <a href="#public-client-presentation" class="auto internal xref">Section 5.4.1</a>. For a statement pulled at the authorization endpoint, possession is proved at code redemption, before any token is issued (<a href="#pulled-statements" class="auto internal xref">Section 5.2</a>). Inline <code>jwks</code> attests the keys themselves; <code>jwks_uri</code> attests only their location (<a href="#statement-validation" class="auto internal xref">Section 14.2</a>)</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Authorization codes reach only a reviewed redirection URI</td>
+              <td class="text-left" rowspan="1" colspan="1">Yes, in a redirect flow. For a public client under <a href="#public-client-presentation" class="auto internal xref">Section 5.4.1</a> it is the only binding, and it does not hold against a party that controls the user agent (<a href="#public-client-security" class="auto internal xref">Section 14.4</a>)</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">The running software is the software the issuer reviewed</td>
+              <td class="text-left" rowspan="1" colspan="1">No; an attested-key extension can add evidence for it (<a href="#extensions" class="auto internal xref">Section 11</a>)</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">The client may access a particular resource</td>
+              <td class="text-left" rowspan="1" colspan="1">No; the authorization server's policy, and the resource owner's authorization where a grant involves one, decide</td>
+            </tr>
+          </tbody>
+        </table>
 </section>
 </div>
 <div id="statement-validation">
@@ -2450,7 +2487,7 @@ client-assertion-type%3Ajwt-bearer
         <h3 id="name-servers-that-do-not-impleme">
 <a href="#section-14.3" class="section-number selfRef">14.3. </a><a href="#name-servers-that-do-not-impleme" class="section-name selfRef">Servers That Do Not Implement This Specification</a>
         </h3>
-<p id="section-14.3-1">A statement carries no client metadata, so an <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> server that verified one without implementing this specification would take every metadata value from the registration request, attaching the issuer's approval to an attacker's redirection URIs and keys. Keeping statement signing keys at <code>software_statement_jwks_uri</code>, out of <code>jwks_uri</code>, and away from statements of other profiles (<a href="#authorization-server-metadata" class="auto internal xref">Section 10</a>) guards against this. A server that discovers an issuer's keys through the <code>jwks_uri</code> in its <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span> metadata finds none that verify a statement. A server is exposed only if its operator configures the statement key set in a server that does not implement this specification.<a href="#section-14.3-1" class="pilcrow">¶</a></p>
+<p id="section-14.3-1">A statement carries no client metadata, so an <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> server that verified one without implementing this specification would take every metadata value from the registration request, attaching the issuer's approval to an attacker's redirection URIs and keys. Keeping statement signing keys in a dedicated statement key set, out of any <code>jwks_uri</code>, and away from statements of other profiles (<a href="#issuer-trust" class="auto internal xref">Section 4</a>, <a href="#authorization-server-metadata" class="auto internal xref">Section 10</a>) guards against this. A server that discovers an issuer's keys through the <code>jwks_uri</code> in its <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span> metadata finds none that verify a statement, and an issuer that is not an authorization server has no such metadata. A server is exposed only if its operator configures the statement key set in a server that does not implement this specification. Recording a statement key set URL in trust configuration is the normal route for an issuer that is not an authorization server, so for such an issuer the protection rests on operators recording that URL only in servers that implement this specification.<a href="#section-14.3-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="public-client-security">
