@@ -752,7 +752,7 @@ A party that controls the user agent receives the code: an application embedding
 
 ## Tenant Confusion at a Multi-Tenant Authorization Server {#tenant-confusion}
 
-A multi-tenant server that derives the tenant one way to check a decision and another way to scope a token lets a client reach one tenant's resources on another tenant's decision. {{validation}} requires one tenant for both, selected by no value the client chooses. The `aud_tenant` claim makes that failure detectable: a statement naming a tenant cannot be used in another.
+A multi-tenant server that derives the tenant one way to check a decision and another way to scope a token lets a client reach one tenant's resources on another tenant's decision. {{validation}} requires one tenant for both, selected by no value the client chooses. The `aud_tenant` claim lets the server refuse a statement naming another tenant.
 
 This specification defines no tenant parameter, and a Client ID Metadata Document URL is the same `client_id` in every tenant, so neither a client nor an issuer can verify that a server honored the tenant rule of {{validation}}.
 
