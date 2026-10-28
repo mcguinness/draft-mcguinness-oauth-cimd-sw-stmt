@@ -803,7 +803,7 @@ These retrievals happen before any client is registered or any user has interact
 
 ## Statement Lifetime {#enforcement-bounds}
 
-Expiry and withdrawal ({{withdrawal}}) govern new admissions. Neither revokes an issued access token. A grant opened by a statement lasts for the life of its refresh tokens, whatever the statement's lifetime, unless the server requires a current statement on refresh, holds a refusal record, or finds the proven key gone from the client's document ({{refresh}}). A narrowed review takes effect when the client publishes the narrower document and obtains a statement over it.
+Expiry and withdrawal ({{withdrawal}}) govern new admissions. Neither revokes an issued access token. A grant opened by a statement lasts for the life of its refresh tokens, whatever the statement's lifetime, unless the server requires a current statement on refresh, holds a refusal record, or finds the proven key gone from the client's document ({{refresh}}).
 
 ## Observable State {#oracle-considerations}
 
