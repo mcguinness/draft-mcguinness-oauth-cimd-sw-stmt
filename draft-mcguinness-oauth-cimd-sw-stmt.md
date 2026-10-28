@@ -724,7 +724,7 @@ The following table states what admission under this specification does and does
 | --- | --- |
 | A configured issuer signed the statement for this client identifier and, if the statement names an audience, one that includes this server | Yes |
 | The served document is the one the issuer reviewed, byte for byte | Yes |
-| The presenter controls a key the reviewed document carries | Yes, except under {{public-client-presentation}}. Inline `jwks` attests the keys themselves; `jwks_uri` attests only their location ({{statement-validation}}) |
+| The presenter controls a key the reviewed document carries | Yes, except under {{public-client-presentation}}. For a statement pulled at the authorization endpoint, possession is proved at code redemption, before any token is issued ({{pulled-statements}}). Inline `jwks` attests the keys themselves; `jwks_uri` attests only their location ({{statement-validation}}) |
 | Authorization codes reach only a reviewed redirection URI | Yes, in a redirect flow. For a public client under {{public-client-presentation}} it is the only binding, and it does not hold against a party that controls the user agent ({{public-client-security}}) |
 | The running software is the software the issuer reviewed | No; an attested-key extension can add evidence for it ({{extensions}}) |
 | The client may access a particular resource | No; the authorization server's policy, and the resource owner's authorization where a grant involves one, decide |
