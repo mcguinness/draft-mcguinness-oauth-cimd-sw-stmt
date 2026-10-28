@@ -342,6 +342,8 @@ Every retrieval this specification causes, of the Client ID Metadata Document, a
 
 A retrieval failure leaves the relevant metadata or proof unverified, so the authorization server MUST reject the request and MUST NOT fall back to a weaker proof. A failed pull of statements for a request that opens a new grant is the exception: it leaves the client unreviewed, as {{pulled-statements}} describes.
 
+A retrieval does not complete only when it times out, its connection fails, or the response has a 5xx status code, and only then does this specification assign `temporarily_unavailable`. Any other failure to obtain an acceptable representation, such as a 4xx status code or a body that is not a JSON object, is final: a document is treated as failing validation, a key set as carrying no acceptable key, and a statements location as publishing no statement.
+
 ## Sender Constraint {#sender-constraint}
 
 A runtime presentation MUST be sender-constrained by a key the statement attests or, under {{public-client-presentation}}, by the key the presenter binds there. The presenter proves possession of that key through the applicable client authentication method or a DPoP proof {{RFC9449}}. If a request carries both, the key its client authentication proves is the proven key. The proof MUST be bound to the current request and validated with the replay protections of that mechanism.
@@ -352,7 +354,7 @@ This specification requires a reviewed document to declare its client authentica
 
 A document carrying a redirection URI another application could claim is presented review-only whatever its authentication method ({{public-client-presentation}}), and the requirements above do not apply to that presentation. Two rejections still apply to such a document: a presentation under a document that omits `token_endpoint_auth_method`, as above, and a presentation that opens a new grant at the token endpoint from a client whose reviewed document declares `token_endpoint_auth_method` of `none` ({{public-client-presentation}}).
 
-A key at the document's `jwks_uri` is retrieved at presentation time. If that retrieval fails, the presentation is rejected with `temporarily_unavailable`. A server MAY reuse a retrieved key set only within ordinary HTTP caching bounds and a maximum reuse period of its own choosing, and MUST NOT let the client's cache directives alone determine how long a removed key continues to verify ({{statement-validation}}).
+A key at the document's `jwks_uri` is retrieved at presentation time. If that retrieval does not complete ({{processing}}), the presentation is rejected with `temporarily_unavailable`. A server MAY reuse a retrieved key set only within ordinary HTTP caching bounds and a maximum reuse period of its own choosing, and MUST NOT let the client's cache directives alone determine how long a removed key continues to verify ({{statement-validation}}).
 
 ### Public Clients {#public-client-presentation}
 
@@ -412,7 +414,7 @@ Expiry after presentation does not by itself invalidate an establishment already
 
 ### Refresh {#refresh}
 
-On refresh-token use, the authorization server MUST verify possession of the establishment's proven key under the same sender-constraint mechanism. Except for an establishment created under {{public-client-presentation}}, it MUST also verify that the document currently served at the establishment's `sub` still carries that key, in its `jwks` or at its `jwks_uri`, within the reuse bounds of {{sender-constraint}}, and rejects the refresh with the `invalid_grant` error code if that document does not carry the key or exceeds the size bound of {{metadata-digest}}, or with `temporarily_unavailable` if a retrieval needed to check the key did not complete.
+On refresh-token use, the authorization server MUST verify possession of the establishment's proven key under the same sender-constraint mechanism. Except for an establishment created under {{public-client-presentation}}, it MUST also verify that the document currently served at the establishment's `sub` still carries that key, in its `jwks` or at its `jwks_uri`, within the reuse bounds of {{sender-constraint}}, and rejects the refresh with the `invalid_grant` error code if that document does not carry the key, cannot be obtained, or exceeds the size bound of {{metadata-digest}}, or with `temporarily_unavailable` if a retrieval needed to check the key did not complete.
 
 On refresh-token use, the authorization server MAY, by local policy, additionally require a current statement, and SHOULD require one once the establishment's recorded statement has expired ({{enforcement-bounds}}). The recorded statement satisfies that requirement while it is unexpired and no refusal record covers it, even after a later statement has raised the `iat` floor of {{multi-instance}}. A replacement is needed only once the recorded statement expires or a refusal record covers it.
 
@@ -497,7 +499,7 @@ A presentation rejected at the token or pushed authorization request endpoint fo
   * The statement is malformed, or fails signature or claim validation ({{validation}}) for a reason other than expiry or a refusal record.
   * The statement is valid but not acceptable here: its issuer is not configured, its `aud` excludes this server, its `sub` is outside the issuer's scope, its `aud_tenant` is not this request's tenant or is absent when required, its issuer is confined to another tenant, or its `statement_uses` excludes this use.
   * The request's `client_id` differs from the statement's `sub` ({{runtime-presentation}}).
-  * The reviewed document contains duplicate member names ({{validation}}) or exceeds the server's size bound ({{metadata-digest}}).
+  * The reviewed document cannot be obtained for a reason other than a retrieval that did not complete ({{processing}}), fails validation as {{CIMD}} requires, contains duplicate member names ({{validation}}), or exceeds the server's size bound ({{metadata-digest}}).
   * The document's digest does not match `cimd_digest` and the server does not proceed without the statement ({{effective-metadata}}).
   * The request fails the sender constraint, including a presentation under a document that omits `token_endpoint_auth_method` and one opening a new grant at the token endpoint under a document declaring `token_endpoint_auth_method` of `none` ({{sender-constraint}}, {{public-client-presentation}}).
   * The server's bound on establishments is reached ({{establishment-bounds}}).
@@ -526,10 +528,10 @@ A token request that redeems an authorization code opened by a presentation is r
 Under an establishment, a refresh-token request rejected for a reason this specification defines uses the following error codes:
 
 `statement_required`:
-: A current statement or a replacement is needed ({{refresh}}) and none is supplied or pulled, or the one supplied or pulled fails {{refresh}}: it is malformed, invalid, not acceptable here, expired, refused, or superseded, or it names a document whose digest does not match, that contains duplicate member names, that exceeds the size bound, or that no longer satisfies {{public-client-presentation}}; or a required issuer ({{issuer-trust}}) covers the client and neither the recorded statement nor a replacement is a current statement from it.
+: A current statement or a replacement is needed ({{refresh}}) and none is supplied or pulled, or the one supplied or pulled fails {{refresh}}: it is malformed, invalid, not acceptable here, expired, refused, or superseded, or it names a document that cannot be obtained, whose digest does not match, that contains duplicate member names, that exceeds the size bound, or that no longer satisfies {{public-client-presentation}}; or a required issuer ({{issuer-trust}}) covers the client and neither the recorded statement nor a replacement is a current statement from it.
 
 `invalid_grant`:
-: The request does not prove the establishment's proven key, or the document currently served at the establishment's `sub` no longer carries that key or exceeds the document size bound ({{refresh}}).
+: The request does not prove the establishment's proven key, or the document currently served at the establishment's `sub` no longer carries that key, cannot be obtained, or exceeds the document size bound ({{refresh}}).
 
 `temporarily_unavailable`:
 : A retrieval needed to check the replacement or the proven key did not complete, for a reason other than the document size bound ({{metadata-digest}}).
@@ -544,7 +546,7 @@ None of these rejections indicates refresh-token replay ({{RFC9700}}). A refresh
 
 ## Authorization Endpoint {#authorization-errors}
 
-A statement is never presented at the authorization endpoint ({{authorization-requests}}) but can be pulled there ({{pulled-statements}}). There, if reviewed software is required ({{public-client-presentation}}, {{pulled-statements}}), a review-only client is rejected with `unauthorized_client`, and a client whose pulled statements could not be retrieved is rejected with `temporarily_unavailable`.
+A statement is never presented at the authorization endpoint ({{authorization-requests}}) but can be pulled there ({{pulled-statements}}). There, if reviewed software is required ({{public-client-presentation}}, {{pulled-statements}}), a review-only client is rejected with `unauthorized_client`, and a client whose pull of statements did not complete ({{processing}}) is rejected with `temporarily_unavailable`.
 
 Apart from those two cases, at the authorization endpoint, if the authorization server requires a statement for a client it has not admitted on one, it MUST return the `statement_required` error code in the authorization error response (Section 4.1.2.1 of {{RFC6749}}). The code tells the client to obtain a statement and return through the pushed authorization request endpoint. Without the code, a client cannot tell a missing review from a policy it will never satisfy.
 

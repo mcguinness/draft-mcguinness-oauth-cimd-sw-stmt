@@ -233,6 +233,7 @@ An authorization server rejecting a registration request, or a registration mana
   * It fails validation as {{CIMD}} requires, including a `client_id` member that does not match the statement's `sub` ({{dcr-presentation}}).
   * It carries metadata this server's policy refuses.
   * It exceeds the server's size bound ({{STATEMENT}}). Retrying cannot succeed.
+  * It cannot be obtained for a reason other than a retrieval that did not complete ({{STATEMENT}}).
   * It omits `token_endpoint_auth_method` ({{dcr-presentation}}).
   * It declares `token_endpoint_auth_method` of `none` and the server does not register it under {{public-client-registration}}.
   * It declares `token_endpoint_auth_method` of `none` and lists no redirection URI ({{public-client-registration}}).
