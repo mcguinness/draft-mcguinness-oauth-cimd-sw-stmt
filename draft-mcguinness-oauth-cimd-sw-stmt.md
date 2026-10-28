@@ -837,7 +837,7 @@ Change Controller:
 Specification Document(s):
 : This specification, {{runtime-presentation}} and {{authorization-requests}}
 
-The "OAuth Dynamic Client Registration Metadata" registry established by {{RFC7591}} already contains a `software_statement` member, which this registration does not affect. The name is reused because the artifact is the same {{RFC7591}} software statement, carried to the same server for the same purpose. A distinct name would make a client carry one artifact under two names, and a server would not recognize at the token endpoint what it accepts at the registration endpoint.
+The "OAuth Dynamic Client Registration Metadata" registry established by {{RFC7591}} already contains a `software_statement` member, which this registration does not affect. The parameter reuses the name because it carries the same {{RFC7591}} artifact.
 
 ## Media Type Registration {#media-type}
 
