@@ -2,6 +2,8 @@
 
 The reasoning behind two things now specified elsewhere: pulled statements, which the statement draft defines, and the Model Context Protocol profile drafted as [Reviewed Client Software](../mcp/reviewed-client-software.mdx). It is not normative, and where it differs from those documents, they govern. It began because MCP prefers Client ID Metadata Documents for identifying clients, and the family as it then stood asked more of an MCP client than any MCP client will do.
 
+Claims here are of three kinds, and the text says which where it matters: **defined by the drafts** (a draft in this repository specifies it), **deployment policy** (a choice the drafts leave to an operator), or **proposed extension** (something no draft defines yet).
+
 ## Why MCP, and why now
 
 The MCP authorization specification of 2026-07-28 recommends identifying clients by Client ID Metadata Document, which servers and clients SHOULD support, and says plainly that "Dynamic Client Registration is deprecated and retained for backwards compatibility with authorization servers that do not support Client ID Metadata Documents." Its own example document is a public client, `token_endpoint_auth_method` of `none`, redirecting to `http://127.0.0.1:3000/callback` and `http://localhost:3000/callback`.
@@ -44,7 +46,7 @@ It also gives a working form to the suggestion in Section 4.3 of the CIMD draft,
 
 ### From the issuer
 
-The server asks a configured issuer, by client identifier, for its current decision. No draft defines this; it is the pull [the vendor integration sketch](saas-integration-sketch.md) explores with Federation's trust mark endpoint. The publisher cannot withhold, but the issuer sits on the request path, learns which servers ask about which software, and needs an authorization model for who may ask about whom, which does not exist yet.
+The server asks a configured issuer, by client identifier, for its current decision. This is a proposed extension that no draft defines; it is the pull [the vendor integration sketch](saas-integration-sketch.md) explores with Federation's trust mark endpoint. The publisher cannot withhold, but the issuer sits on the request path, learns which servers ask about which software, and needs an authorization model for who may ask about whom, which does not exist yet.
 
 ### Which
 
@@ -58,7 +60,7 @@ What goes away is client-side carriage and distribution: the request parameter, 
 
 ## The MCP profile
 
-[Reviewed Client Software](../mcp/reviewed-client-software.mdx) is the profile this reasoning led to. Its requirements beyond base MCP are its own: a Client ID Metadata Document as `client_id`, no registration step, statements pulled from `software_statements_uri`, and loopback clients treated as review-only.
+[Reviewed Client Software](../mcp/reviewed-client-software.mdx) is the profile this reasoning led to, a proposed extension to MCP. Its requirements beyond base MCP are its own: a Client ID Metadata Document as `client_id`, no registration step, statements pulled from `software_statements_uri`, and loopback clients treated as review-only.
 
 ## Composing with Enterprise-Managed Authorization
 

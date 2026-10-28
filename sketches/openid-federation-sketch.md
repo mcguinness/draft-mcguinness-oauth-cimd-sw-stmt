@@ -2,13 +2,15 @@
 
 This is a non-normative sketch, not a draft. It describes how the specifications in this repository could compose with OpenID Federation 1.0 (Final, 17 February 2026), and marks the one place where they cannot. Profile A is the primary proposal: if adopted, it would be a short profile adding no endpoint and no artifact. Profile B is an alternative artifact that would need an explicit semantic mapping, set out below, before it could stand in for a statement. Section numbers refer to OpenID Federation 1.0.
 
+Claims here are of three kinds, and the text says which where it matters: **defined by the drafts** (a draft in this repository specifies it), **deployment policy** (a choice the drafts leave to an operator), or **proposed extension** (something no draft defines yet).
+
 The summary is that the two compose on trust and stop at metadata. Federation supplies exactly what [the statement draft](../draft-mcguinness-oauth-cimd-sw-stmt.md) declares out of scope, and the statement draft's metadata rule is incompatible with Resolved Metadata by construction.
 
 The reason the two meet at all is worth stating before the profiles. Federation's metadata travels inside signed JWTs, so it needs no digest to be authentic. A digest matters where metadata is an unsigned, mutable JSON document fetched over HTTPS, which is what a Client ID Metadata Document is. A federation whose members identify clients that way has no means today of saying which version of such a document a reviewer looked at, and that is the gap these profiles fill. It is the same gap outside a federation, which is why the statement draft exists at all.
 
 ## Profile A: Federation as the trust source for statement issuers
 
-The statement draft says it "defines no in-band issuer discovery or trust decision" and has a trusting authorization server record eight things per issuer. Federation is that missing mechanism. A trusting authorization server configures Trust Anchors and their public keys, which is all Federation requires of a relying party (§10), and resolves each issuer rather than enrolling it.
+A proposed extension. The statement draft says it "defines no in-band issuer discovery or trust decision" and has a trusting authorization server record eight things per issuer. Federation is that missing mechanism. A trusting authorization server configures Trust Anchors and their public keys, which is all Federation requires of a relying party (§10), and resolves each issuer rather than enrolling it.
 
 | What a consumer records today | Under this profile |
 | --- | --- |
@@ -31,7 +33,7 @@ Three of the eight come from the chain: the identifier, the key source, and the 
 
 ## Profile B: the review as a Trust Mark
 
-Federation already has an artifact for a third party's signed assertion about an entity. A Trust Mark carries `iss`, `sub`, `trust_mark_type`, and `iat` as required claims, permits `exp`, and says plainly that "Additional Claims MAY be defined and used" (§7.1). A review fits the claim set with one added claim.
+A proposed extension, and an alternative to Profile A. Federation already has an artifact for a third party's signed assertion about an entity. A Trust Mark carries `iss`, `sub`, `trust_mark_type`, and `iat` as required claims, permits `exp`, and says plainly that "Additional Claims MAY be defined and used" (§7.1). A review fits the claim set with one added claim.
 
 | Claim | Value in this profile |
 | --- | --- |

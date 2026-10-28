@@ -2,6 +2,8 @@
 
 Tenant-wide admin consent is the most widely deployed enterprise authorization ceremony that no open standard describes. This sketch takes Microsoft Entra ID's version as the reference, because it is the one most people mean, and asks what each of its parts looks like built from specifications instead. It is non-normative and it is not a draft.
 
+Claims here are of three kinds, and the text says which where it matters: **defined by the drafts** (a draft in this repository specifies it), **deployment policy** (a choice the drafts leave to an operator), or **proposed extension** (something no draft defines yet).
+
 The short version: three of its four parts have generic forms already, though the generic request-and-decide loop standardizes only the client's side. The fourth, a consent covering a whole population, has no form anywhere. That property has real value, and this family leaves it to each server's policy rather than standardizing it.
 
 ## What the ceremony actually does
@@ -33,7 +35,7 @@ The first is legitimate, and this family leaves it alone: whether a server promp
 
 ## Mapping the parts
 
-| Part | Generic form | Status |
+| Part | Generic form | Status (Available means defined by the drafts) |
 | --- | --- | --- |
 | App known to the tenant | A Client ID Metadata Document URL that resolves. No provisioning step exists to precede the request | Available |
 | Ask and decide | The issuance flow: an authorization request with `completion_mode` including `deferred`, a `software_statement_code`, redemption returning a deferral code, polling, then a statement or a terminal `access_denied` | Available for the client's side; how the approver decides stays local |
@@ -101,7 +103,7 @@ sequenceDiagram
 
 ## What this does not replace
 
-* **Placing consent so users are not prompted.** That is what admin consent is usually bought for, and it stays local policy at the authorization server. Nothing here tells a server when to skip a consent screen.
+* **Placing consent so users are not prompted.** That is what admin consent is usually bought for, and it stays deployment policy at the authorization server. Nothing here tells a server when to skip a consent screen.
 * **Assigning users and groups to an application.** Entra treats that as a separate control from consent, and it stays separate here, on the identity provider's side.
 * **Application permissions with no user.** An `appRoleAssignment` to a service principal is an app-only grant. The family admits the software and says nothing about what it may do without a user, which [the deployment model](deployment-model.md#variants) already names as the case it serves least well.
 * **Anything retroactive.** Like Entra, withdrawal does not invalidate tokens already issued. A provider refuses new admission and refresh once it learns of a withdrawal, at its next status resolution. At the statement's expiry new admission stops, and refresh stops only where the provider requires a current statement. Access tokens already issued run until they expire.

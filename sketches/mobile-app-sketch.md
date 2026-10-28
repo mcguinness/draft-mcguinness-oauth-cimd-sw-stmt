@@ -2,6 +2,8 @@
 
 A non-normative walkthrough of one scenario end to end: an employee installs an app from an app store, the enterprise identity provider refuses it as unreviewed, the app obtains a software statement and waits for an administrator, signs the user in, and then reaches a third-party SaaS through an identity assertion. It exercises the statement and issuance drafts plus the Identity Assertion Authorization Grant.
 
+Claims here are of three kinds, and the text says which where it matters: **defined by the drafts** (a draft in this repository specifies it), **deployment policy** (a choice the drafts leave to an operator), or **proposed extension** (something no draft defines yet).
+
 The family serves this case better than it did and still does not serve it fully. What it cannot give a mobile install is at the end, stated rather than smoothed over.
 
 ## The cast
@@ -70,7 +72,7 @@ The record replaces only the statement's signature, not the presenter proof. The
 
 ### Why export the decision at all
 
-When the identity provider both decides and enforces, the round trip through a statement is optional. It could record the administrator's decision as its own policy and admit the app on it, and a deployment that stops there loses nothing at this server. Issuing a statement earns its place in three cases: the decision needs a durable record of exactly which document was approved and when the approval lapses; the same issuance flow has to serve reviewers that are not the consuming server (step 7); or the decision should lapse and renew on a schedule rather than persist until someone deletes it.
+When the identity provider both decides and enforces, the round trip through a statement is optional, a matter of deployment policy. It could record the administrator's decision as its own policy and admit the app on it, and a deployment that stops there loses nothing at this server. Issuing a statement earns its place in three cases: the decision needs a durable record of exactly which document was approved and when the approval lapses; the same issuance flow has to serve reviewers that are not the consuming server (step 7); or the decision should lapse and renew on a schedule rather than persist until someone deletes it.
 
 ### 7. If the reviewer were somebody else
 
@@ -92,7 +94,7 @@ The app needs data in a third-party SaaS. It exchanges its identity provider tok
 
 One act carries two decisions, which [the deployment model](deployment-model.md#composition-with-id-jag) works through: an application the administrator has not approved receives no assertion at all.
 
-A proposed optional `cimd_digest` claim in that assertion would let the SaaS resolve the app's document, compare the digest, and provision just in time with no registration of its own. That is a proposal on [an open issue](https://github.com/oauth-wg/oauth-identity-assertion-authz-grant/issues/121), not settled work.
+A proposed optional `cimd_digest` claim in that assertion would let the SaaS resolve the app's document, compare the digest, and provision just in time with no registration of its own. That is a proposed extension, on [an open issue](https://github.com/oauth-wg/oauth-identity-assertion-authz-grant/issues/121), not settled work.
 
 ### 10. Offboarding
 
