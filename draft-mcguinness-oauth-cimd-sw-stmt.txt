@@ -93,6 +93,7 @@ Table of Contents
    9.  Examples
      9.1.  Presenting at the Token Endpoint
      9.2.  Publishing a Statement for Servers to Pull
+     9.3.  A Statement, Decoded
    10. Authorization Server Metadata
    11. Extension Points
    12. Implementation Considerations
@@ -261,9 +262,9 @@ Table of Contents
 
    Required Issuer:  For one of a trusting authorization server's
       tenants, a configured issuer whose current statement the server
-      requires before admitting software in the client identifier
-      namespaces its trust configuration records for that issuer in that
-      tenant (Section 4).
+      requires before admitting software, or refreshing a grant for it
+      (Section 5.6.1), in the client identifier namespaces its trust
+      configuration records for that issuer in that tenant (Section 4).
 
    Review-Only:  Describes a presentation, or a pulled statement, that
       the authorization server evaluates but that admits nothing
@@ -450,8 +451,8 @@ Table of Contents
       names no use it serves.
 
    *  The sub claim is a client identifier URL conforming to [CIMD] and
-      falls within the identifier scope for which this server accepts
-      the issuer (Section 4).
+      falls within the client identifier namespaces for which this
+      server accepts the issuer (Section 4).
 
    *  Any claim the server does not recognize, and any client metadata
       claim, which Section 3 forbids an issuer to include, is ignored.
@@ -563,6 +564,15 @@ Table of Contents
    other JWK Set it publishes, or sign anything other than statements
    under this specification with its keys.
 
+   Whichever route supplies it, a trusting authorization server MAY
+   reuse a retrieved statement key set only within ordinary HTTP caching
+   bounds and a maximum reuse period of its own choosing, and MUST NOT
+   let the issuer's cache directives alone determine how long a removed
+   key continues to verify.  If retrieving the key set does not
+   complete, the authorization server rejects the request with
+   temporarily_unavailable, except that a pull for a request opening a
+   new grant proceeds as Section 5.2 describes.
+
    These inputs, not the signature alone, define acceptance.  A trusting
    authorization server MUST derive trust from this local configuration
    and MUST NOT derive it from an iss, jku, x5u, or other key-location
@@ -610,11 +620,14 @@ Table of Contents
       carrying the parameter in any other role is rejected with
       invalid_request.
 
-   The request's client_id is the client's Client ID Metadata Document
-   URL.  It MUST exactly equal the statement's sub claim.  If the two
-   differ, the authorization server MUST reject the presentation with
-   the invalid_client error code.  The effective client_id is the
-   statement's sub, and the authorization server assigns none.
+   The request MUST include the client_id parameter, even if the client
+   authenticates, and its value, the client's Client ID Metadata
+   Document URL, MUST exactly equal the statement's sub claim.  If the
+   parameter is absent, the authorization server rejects the request
+   with invalid_request.  If the two differ, the authorization server
+   MUST reject the presentation with the invalid_client error code.  The
+   effective client_id is the statement's sub, and the authorization
+   server assigns none.
 
    The request carries the proof that Section 5.4 requires.  A
    successful presentation establishes the client for the request and
@@ -710,8 +723,9 @@ Table of Contents
    The presenter of a pulled statement is bound as for a presented
    statement (Section 5.4), at the point the request allows, as follows:
 
-   *  At the token endpoint, the request's client authentication or DPoP
-      proof binds the presenter.
+   *  At the token endpoint, for a client whose document does not
+      declare token_endpoint_auth_method of none, the request's client
+      authentication or DPoP proof binds the presenter.
 
    *  At the pushed authorization request endpoint, a confidential
       client's authentication binds the presenter, and a public client
@@ -722,7 +736,7 @@ Table of Contents
       redemption, before any token is issued:
 
       -  A confidential client authenticates at code redemption with a
-         key the digested document carries, in its jwks or at its
+         key the reviewed document carries, in its jwks or at its
          jwks_uri within the reuse bounds of Section 5.4, not one that
          only a later retrieval of the document carries, and that key
          becomes the establishment's proven key.
@@ -751,15 +765,15 @@ Table of Contents
    did not complete and with statement_required if no statement remains.
    A retrieval failure is never a withdrawal.
 
-   When a refresh needs a replacement (Section 5.6.1) for an
-   establishment created from a pulled statement, the server pulls again
-   and applies the newest statement with the recorded statement's iss
-   and sub as the replacement under that section.  If the newest is the
+   When a refresh needs a replacement (Section 5.6.1) and the request
+   carries none, a server that supports pulled statements pulls and
+   applies the newest statement with the recorded statement's iss and
+   sub as the replacement under that section.  If the newest is the
    recorded statement itself, nothing is replaced, and the refresh is
    evaluated against the recorded statement as Section 5.6.1 describes.
-   If the re-pull does not complete or yields no replacement, the
-   refresh fails as Section 5.6.1 provides.  A reviewed grant never
-   continues under the policy for clients the server has not reviewed.
+   If the pull does not complete or yields no replacement, the refresh
+   fails as Section 5.6.1 provides.  A reviewed grant never continues
+   under the policy for clients the server has not reviewed.
 
    An authorization server advertises support through
    software_statement_pull_supported (Section 10).
@@ -798,6 +812,15 @@ Table of Contents
    that opens a new grant is the exception: it leaves the client
    unreviewed, as Section 5.2 describes.
 
+   A retrieval does not complete only when it times out, its connection
+   fails, or the response has a 429 (Too Many Requests) status code
+   (Section 4 of [RFC6585]) or a 5xx status code, and only then does
+   this specification assign temporarily_unavailable.  Any other failure
+   to obtain an acceptable representation, such as another 4xx status
+   code or a body that is not a JSON object, is final: a document is
+   treated as failing validation, a key set as carrying no acceptable
+   key, and a statements location as publishing no statement.
+
 5.4.  Sender Constraint
 
    A runtime presentation MUST be sender-constrained by a key the
@@ -829,15 +852,16 @@ Table of Contents
    presentation.  Two rejections still apply to such a document: a
    presentation under a document that omits token_endpoint_auth_method,
    as above, and a presentation that opens a new grant at the token
-   endpoint from a client whose reviewed document carries no key
-   material (Section 5.4.1).
+   endpoint from a client whose reviewed document declares
+   token_endpoint_auth_method of none (Section 5.4.1).
 
    A key at the document's jwks_uri is retrieved at presentation time.
-   If that retrieval fails, the presentation is rejected with
-   temporarily_unavailable.  A server MAY reuse a retrieved key set only
-   within ordinary HTTP caching bounds and a maximum reuse period of its
-   own choosing, and MUST NOT let the client's cache directives alone
-   determine how long a removed key continues to verify (Section 14.2).
+   If that retrieval does not complete (Section 5.3), the presentation
+   is rejected with temporarily_unavailable.  A server MAY reuse a
+   retrieved key set only within ordinary HTTP caching bounds and a
+   maximum reuse period of its own choosing, and MUST NOT let the
+   client's cache directives alone determine how long a removed key
+   continues to verify (Section 14.2).
 
 5.4.1.  Public Clients
 
@@ -892,10 +916,12 @@ Table of Contents
 
    An authorization server MUST reject, with the invalid_client error
    code, a presentation that opens a new grant at the token endpoint
-   (Section 5.1) from a client whose reviewed document carries no key
-   material.  Such a presentation opens no redirect and has nothing to
-   bind it.  A statement pulled for such a client at the token endpoint
-   is instead review-only (Section 5.2).
+   (Section 5.1) from a client whose reviewed document declares
+   token_endpoint_auth_method of none.  Such a presentation opens no
+   redirect and has nothing to bind it; a key the document carries would
+   be shipped in every copy of the software and would not identify the
+   installation.  A statement pulled for such a client at the token
+   endpoint is instead review-only (Section 5.2).
 
 5.5.  Reviewed Metadata
 
@@ -997,9 +1023,9 @@ Table of Contents
    establishment's sub still carries that key, in its jwks or at its
    jwks_uri, within the reuse bounds of Section 5.4, and rejects the
    refresh with the invalid_grant error code if that document does not
-   carry the key or exceeds the size bound of Section 3.1, or with
-   temporarily_unavailable if a retrieval needed to check the key did
-   not complete.
+   carry the key, cannot be obtained, or exceeds the size bound of
+   Section 3.1, or with temporarily_unavailable if a retrieval needed to
+   check the key did not complete.
 
    On refresh-token use, the authorization server MAY, by local policy,
    additionally require a current statement, and SHOULD require one once
@@ -1019,14 +1045,27 @@ Table of Contents
    that uses a withdrawal mechanism for the recorded statement's issuer
    SHOULD consult it for that statement at each refresh.
 
-   When a replacement is needed, the client presents it in the
-   software_statement parameter of the refresh request, or, for an
-   establishment created from a pulled statement, the server pulls one
-   (Section 5.2).  A statement with the recorded statement's iss and jti
-   is not a replacement: if the client offers it again, the server
-   rechecks it as the recorded statement, under the first two paragraphs
-   of this section.  The following requirements apply to the
-   replacement:
+   If a required issuer (Section 4) covers the establishment's sub in
+   the establishment's tenant, the authorization server MUST reject a
+   refresh with statement_required, or with temporarily_unavailable if a
+   retrieval needed to check a replacement did not complete, unless the
+   recorded statement or a replacement satisfying this section is a
+   current statement from that issuer.  A grant recorded under another
+   issuer's statement cannot meet this, since a replacement keeps the
+   recorded statement's iss, so its client opens a new grant by
+   presentation.
+
+   A client can offer a replacement on any refresh, in the
+   software_statement parameter of the refresh request.  When a
+   replacement is needed and the request carries none, a server that
+   supports pulled statements pulls one (Section 5.2), however the
+   establishment was created.  The server completes the checks of the
+   first paragraph of this section before evaluating any replacement,
+   and rejects a failure of those checks as that paragraph provides.  A
+   statement with the recorded statement's iss and jti is not a
+   replacement: if the client offers it again, the server rechecks it as
+   the recorded statement, under the first two paragraphs of this
+   section.  The following requirements apply to the replacement:
 
    *  It MUST validate under Section 3.2, including its audience if it
       carries one.
@@ -1193,24 +1232,29 @@ Table of Contents
 
       *  The statement is valid but not acceptable here: its issuer is
          not configured, its aud excludes this server, its sub is
-         outside the issuer's scope, its aud_tenant is not this
-         request's tenant or is absent when required, its issuer is
-         confined to another tenant, or its statement_uses excludes this
-         use.
+         outside the client identifier namespaces the issuer can attest,
+         its aud_tenant is not this request's tenant or is absent when
+         required, its issuer is confined to another tenant, or its
+         statement_uses excludes this use.
 
       *  The request's client_id differs from the statement's sub
          (Section 5.1).
 
-      *  The reviewed document contains duplicate member names
-         (Section 3.2) or exceeds the server's size bound (Section 3.1).
+      *  The reviewed document cannot be obtained for a reason other
+         than a retrieval that did not complete (Section 5.3), fails
+         validation as [CIMD] requires, contains duplicate member names
+         (Section 3.2), or exceeds the server's size bound
+         (Section 3.1).
 
       *  The document's digest does not match cimd_digest and the server
          does not proceed without the statement (Section 5.5).
 
       *  The request fails the sender constraint, including a
          presentation under a document that omits
-         token_endpoint_auth_method and one at the token endpoint under
-         a document with no key material (Section 5.4, Section 5.4.1).
+         token_endpoint_auth_method and one opening a new grant at the
+         token endpoint under a document declaring
+         token_endpoint_auth_method of none (Section 5.4,
+         Section 5.4.1).
 
       *  The server's bound on establishments is reached (Section 12.3).
 
@@ -1253,14 +1297,16 @@ Table of Contents
       (Section 5.6.1) and none is supplied or pulled, or the one
       supplied or pulled fails Section 5.6.1: it is malformed, invalid,
       not acceptable here, expired, refused, or superseded, or it names
-      a document whose digest does not match, that contains duplicate
-      member names, that exceeds the size bound, or that no longer
-      satisfies Section 5.4.1.
+      a document that cannot be obtained, whose digest does not match,
+      that contains duplicate member names, that exceeds the size bound,
+      or that no longer satisfies Section 5.4.1; or a required issuer
+      (Section 4) covers the client and neither the recorded statement
+      nor a replacement is a current statement from it.
 
    invalid_grant:  The request does not prove the establishment's proven
       key, or the document currently served at the establishment's sub
-      no longer carries that key or exceeds the document size bound
-      (Section 5.6.1).
+      no longer carries that key, cannot be obtained, or exceeds the
+      document size bound (Section 5.6.1).
 
    temporarily_unavailable:  A retrieval needed to check the replacement
       or the proven key did not complete, for a reason other than the
@@ -1285,7 +1331,7 @@ Table of Contents
    (Section 5.1.1) but can be pulled there (Section 5.2).  There, if
    reviewed software is required (Section 5.4.1, Section 5.2), a review-
    only client is rejected with unauthorized_client, and a client whose
-   pulled statements could not be retrieved is rejected with
+   pull of statements did not complete (Section 5.3) is rejected with
    temporarily_unavailable.
 
    Apart from those two cases, at the authorization endpoint, if the
@@ -1341,7 +1387,7 @@ Table of Contents
 
 9.  Examples
 
-   Both examples are non-normative.
+   The examples in this section are non-normative.
 
 9.1.  Presenting at the Token Endpoint
 
@@ -1396,6 +1442,33 @@ Table of Contents
    and keeps the one from a trusted issuer whose cimd_digest matches the
    document it retrieved.  It completes the binding when the client
    authenticates with private_key_jwt at code redemption (Section 5.2).
+
+9.3.  A Statement, Decoded
+
+   The following is an example of the JOSE header and payload of a
+   statement over the document in the previous example, served exactly
+   as shown there and ending in a single newline:
+
+   {
+     "typ": "software-statement+jwt",
+     "alg": "ES256",
+     "kid": "2026-10"
+   }
+
+   {
+     "iss": "https://issuer.example",
+     "sub": "https://client.example/app",
+     "aud": ["https://as.example"],
+     "statement_uses": ["presentation"],
+     "iat": 1790812800,
+     "exp": 1793404800,
+     "jti": "c2a907b34d28",
+     "cimd_digest": "vBIuTBeHfYmEC8CPwbfa2a9XciuKfGTEGf-qGij4N_Q"
+   }
+
+   The statement names one audience and permits only runtime
+   presentation, as omitting statement_uses would.  It carries no client
+   metadata: the document its cimd_digest names supplies it.
 
 10.  Authorization Server Metadata
 
@@ -2044,6 +2117,10 @@ Table of Contents
               DOI 10.17487/RFC6234, May 2011,
               <https://www.rfc-editor.org/rfc/rfc6234>.
 
+   [RFC6585]  Nottingham, M. and R. Fielding, "Additional HTTP Status
+              Codes", RFC 6585, DOI 10.17487/RFC6585, April 2012,
+              <https://www.rfc-editor.org/rfc/rfc6585>.
+
    [RFC6749]  Hardt, D., Ed., "The OAuth 2.0 Authorization Framework",
               RFC 6749, DOI 10.17487/RFC6749, October 2012,
               <https://www.rfc-editor.org/rfc/rfc6749>.
@@ -2126,7 +2203,9 @@ Table of Contents
               attestation-based-client-auth-12>.
 
    [OPENID-FED]
-              "OpenID Federation 1.0", n.d.,
+              Hedberg, R., Ed., Jones, M. B., Solberg, A. Å., Bradley,
+              J., De Marco, G., and V. Dzhuvinov, "OpenID Federation
+              1.0", 17 February 2026,
               <https://openid.net/specs/openid-federation-1_0.html>.
 
    [REGISTRATION]
