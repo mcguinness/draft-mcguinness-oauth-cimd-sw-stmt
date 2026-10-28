@@ -404,7 +404,7 @@ A successful presentation creates an establishment comprising the following:
 * The reviewed metadata and the digest it matched ({{effective-metadata}}).
 * The issuer trust decision.
 * The sender-constraint mechanism and proven key.
-* Whether the statement was presented or pulled ({{pulled-statements}}).
+* Whether the proven key is set at code redemption, for a statement pulled at the authorization endpoint for a confidential client ({{pulled-statements}}).
 
 The establishment persists while the grant depends on it. The authorization server MUST bind the resulting `request_uri`, authorization code, refresh token, and other grant continuation state to the establishment, as applicable ({{grant-state}}).
 
@@ -718,7 +718,7 @@ A request refused at a bound is rejected with `invalid_client` ({{presentation-e
 
 ## Grant State {#grant-state}
 
-An authorization server can reuse an establishment across presentations that resolve to the same `sub`, statement, tenant, sender-constraint mechanism, and proven key, with the statement presented for each or pulled for each, rather than creating one per request, and can discard it once no `request_uri`, authorization code, refresh token, or other continuation state references it ({{grant-lifecycle}}).
+An authorization server can reuse an establishment across presentations that resolve to the same `sub`, statement, tenant, sender-constraint mechanism, and proven key, rather than creating one per request, and can discard it once no `request_uri`, authorization code, refresh token, or other continuation state references it ({{grant-lifecycle}}). A server does not share an establishment whose proven key is set at code redemption ({{pulled-statements}}) until that key is set.
 
 A server that shares an establishment among grants applies a replacement accepted on refresh by giving the refreshed grant its own establishment, so that no other grant or outstanding authorization code changes ({{refresh}}).
 
