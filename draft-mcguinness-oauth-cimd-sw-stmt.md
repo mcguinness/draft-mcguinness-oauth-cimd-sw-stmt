@@ -203,7 +203,7 @@ Before accepting a statement, a trusting authorization server MUST ensure the fo
 * If the server requires a tenant-scoped decision for the request, the statement carries `aud_tenant`, or the server's trust configuration confines the statement's issuer to the request's tenant ({{issuer-trust}}).
 * If the server's trust configuration confines the statement's issuer to a tenant, the request belongs to that tenant.
 * The use being made of the statement is one it permits: a use its `statement_uses` claim names or, if the claim is absent, presentation ({{profiles}}). A value the server does not recognize names no use it serves.
-* The `sub` claim is a client identifier URL conforming to {{CIMD}} and falls within the identifier scope for which this server accepts the issuer ({{issuer-trust}}).
+* The `sub` claim is a client identifier URL conforming to {{CIMD}} and falls within the client identifier namespaces for which this server accepts the issuer ({{issuer-trust}}).
 * Any claim the server does not recognize, and any client metadata claim, which {{profiles}} forbids an issuer to include, is ignored.
 * The JWT validation guidance in {{RFC8725}} has been applied.
 
@@ -317,7 +317,7 @@ The presenter of a pulled statement is bound as for a presented statement ({{sen
 * At the token endpoint, for a client whose document does not declare `token_endpoint_auth_method` of `none`, the request's client authentication or DPoP proof binds the presenter.
 * At the pushed authorization request endpoint, a confidential client's authentication binds the presenter, and a public client whose request binds a key through a DPoP proof or `dpop_jkt` is subject to {{public-client-presentation}}, including PKCE.
 * At the authorization endpoint, binding completes at code redemption, before any token is issued:
-  * A confidential client authenticates at code redemption with a key the digested document carries, in its `jwks` or at its `jwks_uri` within the reuse bounds of {{sender-constraint}}, not one that only a later retrieval of the document carries, and that key becomes the establishment's proven key.
+  * A confidential client authenticates at code redemption with a key the reviewed document carries, in its `jwks` or at its `jwks_uri` within the reuse bounds of {{sender-constraint}}, not one that only a later retrieval of the document carries, and that key becomes the establishment's proven key.
   * A public client's authorization request that binds a key through `dpop_jkt` is subject to {{public-client-presentation}}, including PKCE, and redemption proves the bound key.
 * A public client opening a new grant at the token endpoint, or sending a pushed or ordinary authorization request that binds no key, has nothing to bind, so a statement pulled for it is review-only ({{public-client-presentation}}), as is one pulled for a document whose redirection URIs that section does not accept.
 * Code redemption and refresh continue an establishment and keep the binding it already has ({{grant-lifecycle}}, {{refresh}}), except that redemption sets the proven key of an establishment whose statement was pulled at the authorization endpoint for a confidential client.
@@ -497,7 +497,7 @@ A presentation rejected at the token or pushed authorization request endpoint fo
 : The statement or the client cannot be established, in any of the following cases:
 
   * The statement is malformed, or fails signature or claim validation ({{validation}}) for a reason other than expiry or a refusal record.
-  * The statement is valid but not acceptable here: its issuer is not configured, its `aud` excludes this server, its `sub` is outside the issuer's scope, its `aud_tenant` is not this request's tenant or is absent when required, its issuer is confined to another tenant, or its `statement_uses` excludes this use.
+  * The statement is valid but not acceptable here: its issuer is not configured, its `aud` excludes this server, its `sub` is outside the client identifier namespaces the issuer can attest, its `aud_tenant` is not this request's tenant or is absent when required, its issuer is confined to another tenant, or its `statement_uses` excludes this use.
   * The request's `client_id` differs from the statement's `sub` ({{runtime-presentation}}).
   * The reviewed document cannot be obtained for a reason other than a retrieval that did not complete ({{processing}}), fails validation as {{CIMD}} requires, contains duplicate member names ({{validation}}), or exceeds the server's size bound ({{metadata-digest}}).
   * The document's digest does not match `cimd_digest` and the server does not proceed without the statement ({{effective-metadata}}).
