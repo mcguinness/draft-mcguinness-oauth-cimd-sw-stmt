@@ -544,10 +544,10 @@ A token request that redeems an authorization code opened by a presentation is r
 Under an establishment, a refresh-token request rejected for a reason this specification defines uses the following error codes:
 
 `statement_required`:
-: A current statement or a replacement is needed ({{refresh}}) and none is supplied or pulled, or the one supplied or pulled fails {{refresh}}: it is malformed, invalid, not acceptable here, expired, refused, or superseded, or it names a document that cannot be obtained, whose digest does not match, that contains duplicate member names, that exceeds the size bound, or that no longer satisfies {{public-client-presentation}}; or a required issuer ({{issuer-trust}}) covers the client and neither the recorded statement nor a replacement is a current statement from it.
+: A current statement or a replacement is needed ({{refresh}}) and none is supplied or pulled, the one supplied or pulled fails the replacement requirements of {{refresh}} or the `iat` floor of {{multi-instance}}, or a required issuer covers the client and neither the recorded statement nor a replacement is a current statement from it ({{refresh}}).
 
 `invalid_grant`:
-: The request does not prove the establishment's proven key, or the document currently served at the establishment's `sub` no longer carries that key, cannot be obtained, or exceeds the document size bound ({{refresh}}).
+: The checks of step 1 of {{refresh}} fail.
 
 `temporarily_unavailable`:
 : A retrieval needed to check the replacement or the proven key did not complete, for a reason other than the document size bound ({{metadata-digest}}).
