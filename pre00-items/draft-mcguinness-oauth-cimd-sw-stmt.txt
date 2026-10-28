@@ -813,12 +813,13 @@ Table of Contents
    unreviewed, as Section 5.2 describes.
 
    A retrieval does not complete only when it times out, its connection
-   fails, or the response has a 5xx status code, and only then does this
-   specification assign temporarily_unavailable.  Any other failure to
-   obtain an acceptable representation, such as a 4xx status code or a
-   body that is not a JSON object, is final: a document is treated as
-   failing validation, a key set as carrying no acceptable key, and a
-   statements location as publishing no statement.
+   fails, or the response has a 429 (Too Many Requests) status code
+   (Section 4 of [RFC6585]) or a 5xx status code, and only then does
+   this specification assign temporarily_unavailable.  Any other failure
+   to obtain an acceptable representation, such as another 4xx status
+   code or a body that is not a JSON object, is final: a document is
+   treated as failing validation, a key set as carrying no acceptable
+   key, and a statements location as publishing no statement.
 
 5.4.  Sender Constraint
 
@@ -2115,6 +2116,10 @@ Table of Contents
               (SHA and SHA-based HMAC and HKDF)", RFC 6234,
               DOI 10.17487/RFC6234, May 2011,
               <https://www.rfc-editor.org/rfc/rfc6234>.
+
+   [RFC6585]  Nottingham, M. and R. Fielding, "Additional HTTP Status
+              Codes", RFC 6585, DOI 10.17487/RFC6585, April 2012,
+              <https://www.rfc-editor.org/rfc/rfc6585>.
 
    [RFC6749]  Hardt, D., Ed., "The OAuth 2.0 Authorization Framework",
               RFC 6749, DOI 10.17487/RFC6749, October 2012,

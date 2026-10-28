@@ -266,7 +266,15 @@ Table of Contents
    tenant restriction under this specification until such a renewal.  In
    a tenant where the authorization server requires a tenant-scoped
    decision (Section 3.2 of [STATEMENT]), it MUST treat a request under
-   such a registration as a request from a client it has not registered.
+   such a registration as a request from a client it has not registered
+   unless, once it has authenticated the client against the registration
+   and evaluated any replacement the request delivers (Section 3.3), the
+   registration is restricted to that tenant.  A valid replacement
+   confined to that tenant therefore renews the registration and lets
+   the request proceed, as it would restore an expired registration.  A
+   public-client registration that carries no tenant restriction cannot
+   be used in that tenant, since such a statement does not renew it
+   (Section 3.1).
 
    Unlike runtime presentation (Section 5 of [STATEMENT]), registration
    has no review-only form: the registration is the admission.

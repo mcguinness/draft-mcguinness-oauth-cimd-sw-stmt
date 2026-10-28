@@ -1825,7 +1825,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         </ol>
 <p id="section-5.3-3">Every retrieval this specification causes, of the Client ID Metadata Document, a <code>jwks_uri</code> it names, or the statements its <code>software_statements_uri</code> names, inherits the server-side request forgery protections of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>. A trusted signature does not make a URL safe: the authorization server <span class="bcp14">MUST</span> apply its URL, redirect, address-range, transport, and content-type policy independently to every referenced location.<a href="#section-5.3-3" class="pilcrow">¶</a></p>
 <p id="section-5.3-4">A retrieval failure leaves the relevant metadata or proof unverified, so the authorization server <span class="bcp14">MUST</span> reject the request and <span class="bcp14">MUST NOT</span> fall back to a weaker proof. A failed pull of statements for a request that opens a new grant is the exception: it leaves the client unreviewed, as <a href="#pulled-statements" class="auto internal xref">Section 5.2</a> describes.<a href="#section-5.3-4" class="pilcrow">¶</a></p>
-<p id="section-5.3-5">A retrieval does not complete only when it times out, its connection fails, or the response has a 5xx status code, and only then does this specification assign <code>temporarily_unavailable</code>. Any other failure to obtain an acceptable representation, such as a 4xx status code or a body that is not a JSON object, is final: a document is treated as failing validation, a key set as carrying no acceptable key, and a statements location as publishing no statement.<a href="#section-5.3-5" class="pilcrow">¶</a></p>
+<p id="section-5.3-5">A retrieval does not complete only when it times out, its connection fails, or the response has a 429 (Too Many Requests) status code (Section 4 of <span>[<a href="#RFC6585" class="cite xref">RFC6585</a>]</span>) or a 5xx status code, and only then does this specification assign <code>temporarily_unavailable</code>. Any other failure to obtain an acceptable representation, such as another 4xx status code or a body that is not a JSON object, is final: a document is treated as failing validation, a key set as carrying no acceptable key, and a statements location as publishing no statement.<a href="#section-5.3-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="sender-constraint">
@@ -2971,6 +2971,10 @@ client-assertion-type%3Ajwt-bearer
 <dt id="RFC6234">[RFC6234]</dt>
         <dd>
 <span class="refAuthor">Eastlake 3rd, D.</span> and <span class="refAuthor">T. Hansen</span>, <span class="refTitle">"US Secure Hash Algorithms (SHA and SHA-based HMAC and HKDF)"</span>, <span class="seriesInfo">RFC 6234</span>, <span class="seriesInfo">DOI 10.17487/RFC6234</span>, <time datetime="2011-05" class="refDate">May 2011</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6234">https://www.rfc-editor.org/rfc/rfc6234</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC6585">[RFC6585]</dt>
+        <dd>
+<span class="refAuthor">Nottingham, M.</span> and <span class="refAuthor">R. Fielding</span>, <span class="refTitle">"Additional HTTP Status Codes"</span>, <span class="seriesInfo">RFC 6585</span>, <span class="seriesInfo">DOI 10.17487/RFC6585</span>, <time datetime="2012-04" class="refDate">April 2012</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6585">https://www.rfc-editor.org/rfc/rfc6585</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC6749">[RFC6749]</dt>
         <dd>
