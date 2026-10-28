@@ -137,10 +137,12 @@ Such a registration has no {{RFC7592}} management, and the deliveries that {{rev
 
 An authorization server MUST apply the following validity model to every registration it creates from a statement validated under Section 3.2 of {{STATEMENT}}, whichever issuer signed it:
 
-* The authorization server MUST bind the registration to its governing statement, identified by the statement's `iss` and `jti` claims ({{registration-state}}). The registration's effective expiry is the governing statement's effective expiry (Section 2 of {{STATEMENT}}), which a renewal replaces and `registration_expires_at` reports.
+* The authorization server MUST bind the registration to its governing statement, identified by the statement's `iss` and `jti` claims. The registration's effective expiry is the governing statement's effective expiry (Section 2 of {{STATEMENT}}), which a renewal replaces and `registration_expires_at` reports.
 * The registration is valid until that effective expiry. If the server holds a refusal record for the governing statement (Section 3.3 of {{STATEMENT}}), the registration ceases to be valid as it does at its effective expiry. The client learns of the withdrawal only from the rejection, and the disposition of outstanding grants is local policy.
 * Once the registration ceases to be valid without a replacement ({{revalidation}}), the authorization server MUST reject authorization, token, and pushed authorization requests and {{RFC7592}} update requests under the registration, other than a request carrying a replacement, which {{revalidation}} evaluates before this rejection.
 * The authorization server SHOULD retain a registration that has ceased to be valid for a later authenticated renewal ({{oracle-considerations}}). A valid replacement restores the registration ({{revalidation}}), so no grace period is needed.
+
+To apply this model, an authorization server stores with each statement-governed registration the governing statement's `iss`, `jti`, `sub`, and `iat` claims, any claim by which a withdrawal mechanism locates that statement, such as `status`, the registration's effective expiry, and any tenant the registration is restricted to. Renewal compares a delivered statement against these ({{revalidation}}).
 
 A server that uses a withdrawal mechanism for the governing statement's issuer SHOULD consult it for that statement at each token request under the registration, as Section 5.6.1 of {{STATEMENT}} provides for refresh.
 
@@ -217,7 +219,7 @@ A registration created without a statement is not statement-governed: a statemen
 
 # Repeated Registration {#repeated-registration}
 
-One unexpired statement can be consumed more than once, subject to the bounds Sections 12.2 and 12.3 of {{STATEMENT}} describe and the server's registration policy ({{registration-policy}}). A repeated public-client registration is answered with the existing registration as {{public-client-registration}} provides. An idempotent response MUST NOT return the existing registration's credentials, such as its `registration_access_token` member.
+One unexpired statement can be consumed more than once, subject to the bounds Sections 12.2 and 12.3 of {{STATEMENT}} describe and the server's registration policy. The safe default is one registration per (`iss`, `sub`) at one authorization server. On repeated consumption, except for a public-client registration, local policy can reject the request, treat it as idempotent, or create another registration. A repeated request can come from any holder of a copy of the statement. A repeated public-client registration is answered with the existing registration as {{public-client-registration}} provides. An idempotent response MUST NOT return the existing registration's credentials, such as its `registration_access_token` member.
 
 # Error Responses {#errors}
 
@@ -278,25 +280,9 @@ This specification defines the following authorization server metadata {{RFC8414
 `software_statement_registration_validity_supported`:
 : OPTIONAL. Boolean value indicating whether the authorization server supports this specification, under which every registration it creates from a statement validated under Section 3.2 of {{STATEMENT}} is governed by the validity and renewal rules of {{registration-validity}} and {{revalidation}}. If omitted, the default value is `false`. A value of `true` does not imply support for runtime presentation.
 
-# Implementation Considerations {#implementation-considerations}
-
-This section gives guidance to implementers. It adds no requirement.
-
-## Registration State {#registration-state}
-
-To apply the validity model ({{registration-validity}}), an authorization server stores with each statement-governed registration the governing statement's `iss`, `jti`, `sub`, and `iat` claims, any claim by which a withdrawal mechanism locates that statement, such as `status`, the registration's effective expiry, and any tenant the registration is restricted to. Renewal compares a delivered statement against these ({{revalidation}}).
-
 # Deployment Considerations {#deployment-considerations}
 
 This section gives guidance to operators. It adds no requirement.
-
-## Repeated Registration Policy {#registration-policy}
-
-The safe default is one registration per (`iss`, `sub`) at one authorization server. On repeated consumption, except for a public-client registration ({{public-client-registration}}), local policy can reject the request, treat it as idempotent, or create another registration. A repeated request can come from any holder of a copy of the statement.
-
-## Credentials for Statement-Governed Registrations {#credential-practice}
-
-Deployments ought to pair statement-governed registrations with credential rotation, sender-constrained client authentication, and the bounds that Sections 12.2 and 12.3 of {{STATEMENT}} and {{registration-policy}} describe, and ought to treat a credential compromise as requiring re-registration rather than renewal ({{renewal-credential}}).
 
 ## Renewal Cadence {#renewal-cadence}
 
@@ -308,9 +294,9 @@ The security considerations in Section 14 of {{STATEMENT}} and Section 5 of {{RF
 
 ## Statements at Registration {#statement-bearer}
 
-A statement consumed at registration is a reusable bearer artifact until it expires. Its audience, lifetime, and `statement_uses` claim (Section 3 of {{STATEMENT}}) and the registration policy of {{registration-policy}} limit what a stolen statement can create.
+A statement consumed at registration is a reusable bearer artifact until it expires. Its audience, lifetime, and `statement_uses` claim (Section 3 of {{STATEMENT}}) and the registration policy of {{repeated-registration}} limit what a stolen statement can create.
 
-Under the one-registration default ({{registration-policy}}), whoever first registers with a copy of a statement holds that registration and its registration access token, and can keep the software's publisher from registering at that server. Such a holder cannot authenticate as the client if the reviewed document's authentication method requires a key the document carries.
+Under the one-registration default ({{repeated-registration}}), whoever first registers with a copy of a statement holds that registration and its registration access token, and can keep the software's publisher from registering at that server. Such a holder cannot authenticate as the client if the reviewed document's authentication method requires a key the document carries.
 
 If the publisher's statement permits presentation and the server supports it, the publisher's software can still be admitted through runtime presentation (Section 5 of {{STATEMENT}}). Otherwise, recovery requires intervention by the server's operator or a registration policy other than the one-registration default. This specification defines no way to displace such a registration.
 
@@ -320,7 +306,7 @@ A public-client registration ({{public-client-registration}}) has no credential 
 
 Renewal proves possession of the registration's credential and the currency of a statement sharing the governing statement's `iss` and `sub`, not that the renewing party is the reviewed software. An attacker holding a stolen client credential can renew indefinitely with any current statement for that software. Such statements are distributed to every deployment of the software. A public-client registration has no credential, so its renewal proves only that the replacement is current. No protection is lost, since any party can already use that registration.
 
-{{credential-practice}} describes deployment practice that limits this exposure. Runtime presentation (Section 5.4 of {{STATEMENT}}) binds every presenter to the reviewed document, through a key it carries or its reviewed redirection URIs, and so does not have this limitation, though the redirection binding does not hold against a party that controls the user agent.
+Deployments ought to pair statement-governed registrations with credential rotation, sender-constrained client authentication, and the bounds that Sections 12.2 and 12.3 of {{STATEMENT}} and {{repeated-registration}} describe, and ought to treat a credential compromise as requiring re-registration rather than renewal. Runtime presentation (Section 5.4 of {{STATEMENT}}) binds every presenter to the reviewed document, through a key it carries or its reviewed redirection URIs, and so does not have this limitation, though the redirection binding does not hold against a party that controls the user agent.
 
 ## Registration Fraud and Impersonation {#registration-fraud}
 
@@ -330,11 +316,9 @@ Requiring a statement also means each new client identity needs another issuer d
 
 ## Observable State {#oracle-considerations}
 
-A retained expired registration is distinguishable from an unknown client ({{registration-validity}}). At the token and pushed authorization request endpoints, only a requester that authenticates as the registration's client can observe this, and what it learns is the state it must act on. A public-client registration has no credential, so anyone can observe its state there, as anyone can at the authorization endpoint.
+A retained expired registration is distinguishable from an unknown client ({{registration-validity}}). At the token and pushed authorization request endpoints, only a requester that authenticates as the registration's client can observe this, except for a public-client registration, which has no credential. At the authorization endpoint, anyone who can send an authorization request naming the client and one of its registered redirection URIs receives the `statement_required` redirection and so learns that the registration has lapsed. If an observer knows the governing statement's `exp`, a lapse before it shows that the server either holds a refusal record for the statement or caps the lifetime it honors for the issuer.
 
-At the authorization endpoint, anyone who can send an authorization request naming the client and one of its registered redirection URIs receives the `statement_required` redirection ({{registration-validity}}), and so learns that the registration has lapsed. If an observer knows the governing statement's `exp`, a lapse before it shows that the server either holds a refusal record for the statement or caps the lifetime it honors for the issuer.
-
-The disclosures above are accepted for the reason Section 14.8 of {{STATEMENT}} gives for its own `statement_required` refusal: a client that cannot learn why it was refused cannot act. Servers publishing `software_statement_registration_validity_supported` also disclose that statement-governed registrations expire there, which a client needs to know before registering. Beyond a lapse and its timing, these disclosures reveal nothing of the server's issuer trust configuration, which Section 8.6 of {{STATEMENT}} keeps from unauthenticated requesters.
+These disclosures are accepted for the reason Section 14.8 of {{STATEMENT}} gives for its own `statement_required` refusal: a client that cannot learn why it was refused cannot act. Beyond a lapse and its timing, they reveal nothing of the server's issuer trust configuration (Section 8.6 of {{STATEMENT}}). Publishing `software_statement_registration_validity_supported` discloses that statement-governed registrations expire there, which a client needs to know before registering.
 
 # Privacy Considerations
 
