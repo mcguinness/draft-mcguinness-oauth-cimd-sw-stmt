@@ -66,11 +66,19 @@ Holding the record does not save it the checks. It confirms the decision is unex
 
 No registration is created. The app's `client_id` stays its Client ID Metadata Document URL.
 
+The record replaces only the statement's signature, not the presenter proof. The app's sign-in request binds a key again, through `dpop_jkt` or a DPoP proof at the pushed authorization request endpoint, with PKCE and a reviewed `https` redirection URI, exactly as a presentation would. The key the app bound during issuance does not carry over to admission. The app can bind the same device key, but it proves it afresh. The limit step 7 describes applies here too, and needs no copy of the statement: an app that controls the user agent and uses this `client_id` completes a grant on the identity provider's record.
+
+### Why export the decision at all
+
+When the identity provider both decides and enforces, the round trip through a statement is optional. It could record the administrator's decision as its own policy and admit the app on it, and a deployment that stops there loses nothing at this server. Issuing a statement earns its place in three cases: the decision needs a durable record of exactly which document was approved and when the approval lapses; the same issuance flow has to serve reviewers that are not the consuming server (step 7); or the decision should lapse and renew on a schedule rather than persist until someone deletes it.
+
 ### 7. If the reviewer were somebody else
 
 Had the review come from an app marketplace rather than from the enterprise, the identity provider would hold no record, and the app would present the statement in a pushed authorization request, or its publisher would publish it where the document points for the identity provider to pull. A public client cannot prove a key its document carries, so the binding is the reviewed document's redirection URIs together with PKCE: an authorization code opened by the presentation is delivered only to a URI the reviewer looked at. That is why every such URI must use `https` on a host no other application can claim: one private-use scheme or loopback address in the document makes the statement review-only, recorded but admitting nothing.
 
-The app's own device key, the one `dpop_jkt` already required during issuance, becomes the proven key of the establishment. Code redemption and refresh re-prove it. Software identity comes from the statement and the document, instance binding comes from the app's key, and the two no longer have to be the same key.
+The key the app binds in that request, through `dpop_jkt` or a DPoP proof, becomes the proven key of the establishment, and code redemption and refresh re-prove it. What results is grant continuity plus redirect binding: the code reaches only a redirection URI the reviewer looked at, and the grant stays with the key that opened it. Neither says which executable holds the key.
+
+That binding has a limit the statement draft states in its considerations for copied statements and public clients. A party that controls the user agent, such as an application embedding a browser view, or one that authorizes with its own account, receives the code itself and redeems it with a PKCE verifier and key of its own choosing. This flow therefore cannot enforce that employees run only approved software: an unreviewed app holding a copy of the statement completes a grant for any user who chooses to run it.
 
 This path exists only where a redirect follows: at the pushed authorization request endpoint, or at the authorization endpoint with a pulled statement. At the token endpoint there is no redirect to bind, so a public client's presented statement is refused there and a pulled one is review-only.
 
@@ -123,7 +131,7 @@ sequenceDiagram
 | Requesting a statement | Issuance | Software Statement Authorization Request |
 | Waiting for an administrator | Issuance | Deferred Processing |
 | Receiving the statement | Issuance | Software Statement Token Response |
-| Admission without presentation | Issuance | Issuer and Consumer as One Server |
+| Admission without presentation | Issuance | Issuer as Trusting Authorization Server |
 | Presenting as a public client | Statement | Public Clients |
 | Binding the grant to one install | Statement | Grant Lifecycle |
 | Ending open grants on withdrawal | Statement | Refresh |
@@ -134,10 +142,10 @@ sequenceDiagram
 
 Neither path above gives the installation a cryptographic identity. The device key binds a grant to whichever phone opened it, but nobody vouches for that key, so the authorization server learns that the same installation came back and never learns which installation it is.
 
-**Endorsing the instance's own key** is what would supply that. The app already holds a device-generated key and platform attestation could vouch for it. The statement draft names this as an extension point: a client attestation, or an assertion from an issuer named by an `instance_issuers` delegation in the reviewed document, vouching for a key the document does not carry. With it the presenter proof means something about the device rather than only about continuity, which is what a deployment wants before it treats one install differently from another. It is not defined yet.
+**Endorsing the instance's own key** is what would supply that. The app already holds a device-generated key, and platform attestation could vouch for it. The statement draft names this as an extension point, and the attested-keys draft defines it for native applications that redirect to loopback through PAR: an attester the authorization server trusts vouches for an installation's key under a named evidence policy, and the server binds the grant to that key. That draft does not permit `https` universal or app links, so a mobile profile of it would be a proposed extension, with redirect rules of its own. Until one exists, executable identity is a separate assurance from anything in this walkthrough.
 
 ## Open questions
 
 * **Nothing tells the app where to go after the refusal.** It has to already know that this authorization server issues statements and that it is the right reviewer for its own admission. An error carrying that pointer would close the loop, and the family deliberately withholds issuer-trust detail from unauthenticated requesters, so the two goals are in tension. This is the client-side face of the discovery gap [the deployment model](deployment-model.md#what-these-drafts-do-not-solve) names, where a federation is the in-band answer.
-* **What a copied statement is worth against a public client.** It opens a consent prompt wearing the reviewed software's branding, raised by a party that cannot receive what the user approves. The control that bounds it is the redirect binding itself, since the code reaches only a URI the reviewer looked at; audience, lifetime, status, and rate limiting narrow it further.
+* **What a copied statement is worth against a public client.** Against another user, it opens a consent prompt wearing the reviewed software's branding, raised by a party that cannot receive what that user approves, since the code reaches only a URI the reviewer looked at. For a party that controls the user agent or authorizes with its own account, it is a working admission, as step 7 says. Audience, lifetime, status, and rate limiting narrow both.
 * **Whether the enterprise identity provider should be the reviewer at all** in this scenario, or whether the app store's review should be the thing that travels, which would need an artifact no app store publishes today.
