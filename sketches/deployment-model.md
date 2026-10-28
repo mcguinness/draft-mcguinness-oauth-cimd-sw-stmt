@@ -20,15 +20,15 @@ Neither substitutes for the other. **These drafts carry the first.** The second 
 
 Whether an administrator accepting risk deserves a different claim from a marketplace attesting quality is an open question. These drafts answer no, and treat both as one reviewer role.
 
-## What is actually new here
+## What this profile supplies
 
-Three capabilities have no incumbent answer, and all three are provider-side:
+None of the capabilities below is new on its own. RFC 7591 software statements carry signed metadata at registration, OpenID Federation bounds a registration's validity by its trust chain and resolves issuer trust, and a Client ID Metadata Document already lets a server admit a client without registering it. What this CIMD profile supplies is the three together, for a client whose metadata is a document it hosts:
 
-* **Registrations whose metadata cannot be self-asserted.** A registration made with a statement under the registration draft takes its metadata from the reviewed document, not from the request. The redirect URIs, keys, and branding on the registration are the ones an issuer looked at.
-* **Registrations that expire when the decision behind them expires.** No provider offers this today, and no amount of customer-side automation creates it.
-* **Admission without registration.** A statement the client presents, or one the provider pulls from where the client's document points, admits the client for the grant it opens and creates no registration, which is the only workable shape for client populations too numerous or too short-lived to register.
+* **Registrations whose metadata comes from a reviewed document.** A registration made with a statement under the registration draft takes its metadata from the reviewed document, not from the request. The redirect URIs, keys, and branding on the registration are the ones an issuer looked at.
+* **Registrations that lapse with the decision behind them.** Validity is the governing statement's effective expiry, and renewal is a replacement statement. RFC 7591 defines neither.
+* **Admission on a review without registration.** A statement the client presents, or one the provider pulls from where the client's document points, admits the client for the grant it opens and creates no registration, which suits client populations too numerous or too short-lived to register.
 
-The customer-side story is worth stating plainly: a determined enterprise can already hold one approval record and drive each provider's administrative API from it, unilaterally, today. What it cannot get that way is a decision the provider verifies rather than trusts, registration metadata bound to a review, or expiring registrations.
+The customer-side story is worth stating plainly: a determined enterprise can already hold one approval record and drive each provider's administrative API from it, unilaterally, today. What that does not give it is a decision the provider verifies rather than trusts, or registration metadata bound to a review.
 
 A provider can adopt this in two rungs and needs no counterparty for the first. It issues statements from its own listing program that name `registration` in `statement_uses`, consumes them under the registration draft's validity model, and gets delistings that actually take effect. Then it admits clients at request time: on statements presented at the token endpoint by clients that need no redirect, or at the pushed authorization request endpoint by software distributed to end users, which can hold no key of its own to prove, and on statements it pulls from where a client's document points. Either rung asks listed publishers for little more than a hosted metadata document.
 
@@ -67,7 +67,7 @@ The publisher can hand the statement to its clients, or publish it at the `softw
 
 ### 3. The application registers, or does not
 
-Registering, with a statement that permits it, the application presents the statement in an ordinary RFC 7591 request. The provider resolves the document at `sub`, verifies its digest against the statement, and registers the client with **that document's** metadata, taking nothing from the request. Where the provider implements the registration-validity model, it records the statement's identity and an effective expiry, the earlier of the statement's own and the maximum lifetime the provider honors for that issuer, and the registration is valid until then. One registration serves every tenant on the platform, so onboarding a customer requires no new registration.
+Registering, with a statement that permits it, the application presents the statement in an ordinary RFC 7591 request. The provider resolves the document at `sub`, verifies its digest against the statement, and registers the client with **that document's** metadata, taking nothing from the request. Where the provider implements the registration-validity model, it records the statement's identity and an effective expiry, the earlier of the statement's own and the maximum lifetime the provider honors for that issuer, and the registration is valid until then. A registration created from a statement that is not confined to a tenant serves every tenant on the platform, so onboarding a customer requires no new registration. One created from a tenant-confined statement is restricted to that tenant.
 
 Not registering, an application identified by its metadata URL presents the statement in a token request or a pushed authorization request, or the provider pulls it from the location the document names, and the application is admitted for the grant that opens, with no registration created. A confidential client proves a key the reviewed document carries. Software distributed to end users proves a key of its own instead, bound by the redirect URIs the reviewer looked at. Where any of those URIs could be claimed by another application on the device, a loopback redirect for instance, the statement is review-only: the provider can record the review but admits nothing on it.
 
@@ -121,7 +121,7 @@ A provider wanting an immediate stop uses its own token revocation, and narrows 
 
 ## Variants
 
-**Vendor-hosted multi-tenant SaaS.** The common case. One client, one registration, many tenants, with each customer's permission expressed on its own side per grant rather than as an overlay the provider stores.
+**Vendor-hosted multi-tenant SaaS.** The common case. One client, one registration under a statement not confined to a tenant, many tenants, with each customer's permission expressed on its own side per grant rather than as an overlay the provider stores.
 
 **Customer-deployed software.** Each installation registers, and one statement can govern several registrations, subject to the provider's bound on how many it derives from one statement. Every registration takes the reviewed document's keys, so installations that hold keys of their own cannot register them.
 
@@ -186,7 +186,7 @@ What does not compose is metadata. Resolved metadata is derived, and parties oth
 | Statement format, claims, digest | Statement | The Software Statement |
 | Validation a consumer performs | Statement | Validating a Statement |
 | Issuer trust and scoping | Statement | Issuer Trust Establishment |
-| Document-authoritative registration, validity, renewal | Registration | Consumption at Registration, Registration Validity, Revalidation |
+| Document-authoritative registration, validity, renewal | Registration | Consumption at Registration, Registration Validity, Renewal |
 | Admission without registration | Statement | Runtime Presentation |
 | Fetching a statement the client publishes | Statement | Pulled Statements |
 | A customer's decision in its own tenant | Statement | `aud_tenant` claim, Issuer Trust Establishment |
@@ -200,13 +200,15 @@ What does not compose is metadata. Resolved metadata is derived, and parties oth
 
 ## What changes, concretely
 
-| Today | With these drafts |
+| Typical today, without software statements or a federation | With these drafts |
 | --- | --- |
 | A registration's metadata is whatever the client asserted | It is the document a named reviewer evaluated, byte for byte |
-| Registrations are permanent | Validity is the reviewed decision's expiry, renewed while the review stands |
+| Registrations persist until someone deletes them | Validity is the reviewed decision's expiry, renewed while the review stands |
 | Delisting means finding every registration | It means setting one status, or ceasing renewal; an event only shortens the wait |
 | Every provider re-runs the same review | One review is verified at every provider that trusts the reviewer |
-| Admitting a client means registering it | A client too numerous or short-lived to register can be admitted per request |
+| A reviewed client is one the provider registered | A client too numerous or short-lived to register can be admitted per request on its review |
+
+A federation already supplies the second row and much of the fourth; see [Composition with OpenID Federation](#composition-with-openid-federation).
 
 ## Operational realities
 
