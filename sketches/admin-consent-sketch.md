@@ -2,7 +2,7 @@
 
 Tenant-wide admin consent is the most widely deployed enterprise authorization ceremony that no open standard describes. This sketch takes Microsoft Entra ID's version as the reference, because it is the one most people mean, and asks what each of its parts looks like built from specifications instead. It is non-normative and it is not a draft.
 
-The short version: three of its four parts have generic forms already, one of them better than the original. The fourth has no form anywhere, and this sketch argues that is the correct outcome rather than a gap to fill.
+The short version: three of its four parts have generic forms already, though the generic request-and-decide loop standardizes only the client's side. The fourth, a consent covering a whole population, has no form anywhere. That property has real value, and this family leaves it to each server's policy rather than standardizing it.
 
 ## What the ceremony actually does
 
@@ -21,9 +21,15 @@ Two properties of that shape matter more than any of the parts.
 
 **The record is permanent and local.** A grant does not expire, nobody re-reviews it, and deleting it does not reach tokens already issued: existing access tokens remain valid for their lifetime, and only new ones are refused. Revocation is also not sticky, since users can re-consent afterwards. The grant is verifiable only inside the directory that holds it.
 
-## The architectural difference
+## Population, persistence, and review cadence
 
-Admin consent is a **stored, permanent, tenant-local record**. What these drafts describe is a **decision evaluated at every grant**. Everything below follows from that one difference.
+Tenant-wide admin consent bundles three properties that are worth judging separately:
+
+* **Population.** One decision covers every user in the tenant. This is what enterprises adopt it for: users are not prompted about software the organization has already decided on, and someone accountable makes the decision once.
+* **Persistence.** The decision is a stored grant with no expiry.
+* **Review cadence.** Nothing prompts anyone to revisit it.
+
+The first is legitimate, and this family leaves it alone: whether a server prompts users, and for which scopes, stays its own policy. The second and third are what the family changes, for the decision to let the software in at all. That decision becomes a statement that expires unless renewed, names exactly which document was approved, and can be withdrawn through a published status that every server trusting the reviewer can check.
 
 ## Mapping the parts
 
@@ -32,7 +38,7 @@ Admin consent is a **stored, permanent, tenant-local record**. What these drafts
 | App known to the tenant | A Client ID Metadata Document URL that resolves. No provisioning step exists to precede the request | Available |
 | Ask and decide | The issuance flow: an authorization request with `completion_mode` including `deferred`, a `software_statement_code`, redemption returning a deferral code, polling, then a statement or a terminal `access_denied` | Available for the client's side; how the approver decides stays local |
 | Record the decision | A software statement: an issuer, an expiry, a digest binding it to the exact document reviewed, and a status reference for withdrawal | Available |
-| Consent for all users, permanently | Nothing, anywhere. See below | Deliberately absent |
+| Consent for all users | Nothing, anywhere; consent placement stays server policy | Deployment policy |
 | Withdraw | Set the statement's status, and stop renewing | Available |
 
 ### Provisioning
@@ -47,7 +53,7 @@ The request-and-approve loop maps onto the issuance draft in shape: the client a
 
 ### The decision becomes an artifact worth auditing
 
-An `oauth2PermissionGrant` is a row. It says a grant exists, not who decided, against what, when it lapses, or whether it still stands. A statement carries the issuer, an expiry the reviewer chose, and a digest naming the exact bytes of the document that was approved, so a later reader can tell whether the software still matches what was reviewed. Withdrawal is a published status any relying party can resolve rather than a deletion visible only to the directory that performed it.
+An `oauth2PermissionGrant` is a row. It says a grant exists; who made it lives in the directory's audit log, and nothing records which version of the software was approved or when the approval lapses. A statement carries the issuer, an expiry the reviewer chose, and a digest naming the exact bytes of the document that was approved, so a later reader can tell whether the software still matches what was reviewed. Withdrawal is a published status any relying party can resolve rather than a deletion visible only to the directory that performed it.
 
 For an enterprise with more than one vendor, that last property is the point. The same decision is checkable at every provider that trusts the reviewer, which is the case [the deployment model](deployment-model.md#the-situation-being-addressed) opens on. Where the decision is the tenant's own, the statement names the provider's tenant in `aud_tenant`, and the provider can require that reviewer's statement for the software there.
 
@@ -60,13 +66,11 @@ The two nearest efforts both miss it, in ways worth knowing:
 * **`draft-dellaert-oauth-approval-based-dcr`**, an individual draft at revision `-00` with no working group adoption, applies the device-flow shape to registration. It approves a *client registration* rather than a *consent*, and leaves the approver's identity and trust model to server policy. There is no notion of approving on behalf of a population.
 * **The AuthZEN Access Request and Approval Profile**, an adopted OpenID AuthZEN working group draft, models request then approve for an *access* decision: a denial carries an access request, the enforcement point submits one, polls a status, and re-evaluates on approval. It puts workflow engines, approval policy languages, and approver-facing inbox APIs out of scope, and it leaves who may approve for whom to the access request service.
 
-So that profile and this family are complementary rather than competing. One is "a user needs access and an approver decides." The other is "software needs admission and a reviewer decides." Neither expresses a decision covering everybody, and neither should.
+So that profile and this family are complementary rather than competing. One is "a user needs access and an approver decides." The other is "software needs admission and a reviewer decides." Neither expresses a decision covering everybody.
 
-## Why the absence is right
+## What this family replaces, and what it leaves alone
 
-A permanent grant covering every user in an organization, which nobody re-reviews and whose revocation does not reach issued tokens, is the artifact enterprises then buy a second product to inventory and attest. Standardizing it would spread that shape rather than fix it.
-
-The generic answer is to stop needing it. Admission is a decision with an expiry, so it lapses unless somebody renews it. What a user may access is decided at each grant, and where the enterprise identity provider mediates, its willingness to issue an assertion carries the tenant's permission continuously. Ceasing to issue stops new assertions at once, though an assertion already issued can still open a grant until it expires, and access tokens run out on their own clock either way.
+The family does not standardize a consent covering a population, and it does not argue that one is wrong. Placing consent for a population stays the authorization server's policy, where it is today. What the family replaces is the persistence and review cadence of the decision to admit the software: that decision becomes an expiring, digest-bound statement rather than a row that lasts until someone deletes it. Where the enterprise identity provider mediates each grant, its willingness to issue an assertion carries the tenant's permission at every grant. Ceasing to issue stops new assertions at once, though an assertion already issued can still open a grant until it expires, a grant it opened continues under the provider's refresh policy if a refresh token was issued, and access tokens run out on their own clock either way.
 
 The scope question needs no artifact either. The reviewed document's `scope` is already a ceiling, since a request outside it fails with `invalid_scope`. Where a server places consent inside that ceiling, and whether it prompts a user at all, is its own policy and is the right thing to leave alone.
 
