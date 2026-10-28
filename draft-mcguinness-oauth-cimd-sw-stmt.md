@@ -758,7 +758,7 @@ The security considerations of {{CIMD}} and Section 5 of {{RFC7591}} apply.
 
 ## What a Statement Attests {#what-statement-attests}
 
-A statement binds an issuer's review to the octets of a Client ID Metadata Document, which describes an OAuth client configuration, such as its redirection URIs, keys, grant types, and scope. It does not bind the software's code, dependencies, or behavior. Software can change while its document stays the same, and the statement remains acceptable until it expires or is withdrawn ({{withdrawal}}). Assurance about the software itself rests on the issuer's review process and, where an extension provides one, an attestation of the running instance ({{extensions}}). Any change to the document's octets, including one that changes no metadata value, makes statements over the earlier octets fail the digest comparison ({{effective-metadata}}).
+A statement binds an issuer's review to the octets of a Client ID Metadata Document, which describes an OAuth client configuration, such as its redirection URIs, keys, grant types, and scope. It does not bind the software's code, dependencies, or behavior. Software can change while its document stays the same, and the statement remains acceptable until it expires or is withdrawn ({{withdrawal}}). Assurance about the software itself rests on the issuer's review process. Any change to the document's octets, including one that changes no metadata value, makes statements over the earlier octets fail the digest comparison ({{effective-metadata}}).
 
 The following table states what admission under this specification does and does not establish:
 
@@ -779,7 +779,7 @@ Attesting a `jwks_uri` attests the location, not its contents: a compromised key
 
 ## Servers That Do Not Implement This Specification {#legacy-servers}
 
-A statement carries no client metadata, so an {{RFC7591}} server that verified one without implementing this specification would take every metadata value from the registration request, attaching the issuer's approval to an attacker's redirection URIs and keys. Keeping statement signing keys in a dedicated statement key set, out of any `jwks_uri`, and away from statements of other profiles ({{issuer-trust}}, {{authorization-server-metadata}}) guards against this. A server that discovers an issuer's keys through the `jwks_uri` in its {{RFC8414}} metadata finds none that verify a statement, and an issuer that is not an authorization server has no such metadata. A server is exposed only if its operator configures the statement key set in a server that does not implement this specification. Recording a statement key set URL in trust configuration is the only route for an issuer that is not an authorization server, so for such an issuer the protection rests on operators recording that URL only in servers that implement this specification.
+A statement carries no client metadata, so an {{RFC7591}} server that verified one without implementing this specification would take every metadata value from the registration request, attaching the issuer's approval to an attacker's redirection URIs and keys. Keeping statement signing keys in a dedicated statement key set, out of any `jwks_uri`, and away from statements of other profiles ({{issuer-trust}}, {{authorization-server-metadata}}) means such a server finds no key that verifies a statement through the `jwks_uri` in an issuer's {{RFC8414}} metadata. It is exposed only if its operator configures the statement key set in it. For an issuer that is not an authorization server, that configuration is the only route to its keys, so the protection rests on operators recording the statement key set URL only in servers that implement this specification.
 
 ## Copied Statements and Public Clients {#public-client-security}
 
@@ -797,7 +797,7 @@ The `aud_tenant` claim names a tenant at the trusting authorization server, not 
 
 ## External Retrieval and Resource Exhaustion {#external-retrieval}
 
-Runtime presentation can cause the authorization server to retrieve the Client ID Metadata Document, a `jwks_uri` it names, or the statements its `software_statements_uri` names. A trusted signature does not make a URL safe, so {{processing}} applies the server's retrieval policy to every referenced location and rejects a request whose retrieval fails, except as {{pulled-statements}} provides.
+Runtime presentation can cause the authorization server to retrieve the Client ID Metadata Document, a `jwks_uri` it names, or the statements its `software_statements_uri` names, under the retrieval rules of {{processing}}.
 
 These retrievals happen before any client is registered or any user has interacted, so an unauthenticated requester can cause them with one acceptable statement or, at a server that pulls statements, with none. The bounds that {{processing-bounds}} describes limit this work but do not prevent it.
 
