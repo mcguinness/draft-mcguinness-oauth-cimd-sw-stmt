@@ -794,14 +794,11 @@ Parameter Name:
 Parameter Usage Location:
 : authorization request, token request
 
-Note:
-: In an authorization request the parameter is conveyed only through the pushed authorization request endpoint {{RFC9126}}, never in a front-channel URL ({{authorization-requests}}).
-
 Change Controller:
 : IETF
 
 Specification Document(s):
-: This specification, {{runtime-presentation}}
+: This specification, {{runtime-presentation}} and {{authorization-requests}}
 
 The "OAuth Dynamic Client Registration Metadata" registry established by {{RFC7591}} already contains a `software_statement` member, which this registration does not affect. The name is reused because the artifact is the same {{RFC7591}} software statement, carried to the same server for the same purpose. A distinct name would make a client carry one artifact under two names, and a server would not recognize at the token endpoint what it accepts at the registration endpoint.
 
