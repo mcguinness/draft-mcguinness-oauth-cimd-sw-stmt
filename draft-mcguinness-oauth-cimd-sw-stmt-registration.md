@@ -224,7 +224,7 @@ An authorization server rejecting a registration request, or a registration mana
 : The statement is malformed, fails signature or claim validation for a reason `unapproved_software_statement` does not cover, or is expired, refused by a refusal record, or superseded under the `iat` floor of {{STATEMENT}}. The code also applies when the digest of the retrieved document does not match the statement's `cimd_digest` claim, and, at the client configuration endpoint or in a repeated public-client registration request ({{public-client-registration}}), when a delivered replacement fails a replacement-specific rule of {{revalidation}} that this section assigns no other code, such as a `sub` claim that differs from the governing statement's or a change in whether the document declares `token_endpoint_auth_method` of `none`.
 
 `unapproved_software_statement`:
-: The statement is valid but not acceptable here: its issuer is not configured, its `aud` excludes this server, its `sub` is outside the issuer's scope, its `aud_tenant` is not this request's tenant or is absent when required, or its `statement_uses` excludes this use. This code is also used if a statement this server requires is absent.
+: The statement is valid but not acceptable here: its issuer is not configured, its `aud` excludes this server, its `sub` is outside the issuer's scope, its `aud_tenant` is not this request's tenant or is absent when required, its issuer is confined to another tenant, or its `statement_uses` excludes this use. This code is also used if a statement this server requires is absent.
 
 `invalid_client_metadata`:
 : Any of the following holds for the reviewed document:
