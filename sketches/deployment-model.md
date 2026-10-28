@@ -82,7 +82,7 @@ A customer that wants its decision to travel as an artifact, because it needs an
 
 ### 5. The provider configures the reviewers it trusts
 
-Once per reviewer: the issuer identifier, its statement key set at `software_statement_jwks_uri`, which holds no key the reviewer signs anything else with, the signing algorithms accepted from it, the client identifier namespaces it may speak for, the audiences it may name, a maximum statement lifetime, and a policy on multiple registrations from one statement. For a customer's own reviewer it also records the tenant and the namespaces for which that reviewer's decision is required. That is the entire per-reviewer cost, and it does not recur per application.
+Once per reviewer: the issuer identifier, its statement key set, from its authorization server metadata or at a URL recorded in the trust configuration, which holds no key the reviewer signs anything else with, the signing algorithms accepted from it, the client identifier namespaces it may speak for, the audiences it may name, a maximum statement lifetime, and a policy on multiple registrations from one statement. For a customer's own reviewer it also records the tenant and the namespaces for which that reviewer's decision is required. That is the entire per-reviewer cost, and it does not recur per application.
 
 ### 6. A request arrives
 
@@ -177,7 +177,7 @@ What does not compose is metadata. Resolved metadata is derived, and parties oth
 | Fetching a statement the client publishes | Statement | Pulled Statements |
 | A customer's decision in its own tenant | Statement | `aud_tenant` claim, Issuer Trust Establishment |
 | Presenter binding | Statement | Sender Constraint |
-| Discovery | Statement | Authorization Server Metadata |
+| Discovery | Statement | Authorization Server Metadata, Issuer Trust Establishment |
 | How a client obtains a statement | Issuance | Token Exchange Profile, Software Statement Authorization Request, Deferred Processing |
 | Renewal from a prior statement | Issuance | Renewal |
 | Ending a review before expiry | Statement, Status | Withdrawal; Token Status List |
@@ -199,7 +199,7 @@ A federation already supplies the second row and much of the fourth; see [Compos
 
 ## Operational realities
 
-**Who runs the reviewer.** It is an authorization server role, not a new system. For a marketplace it is part of the listing program; for an enterprise that wants a portable record it is naturally whoever runs the identity provider. An enterprise that wants neither keeps using each provider's console, and nothing else here changes.
+**Who runs the reviewer.** An existing authorization server can take the role. A reviewer that runs none signs statements and publishes a statement key set, though the status draft's withdrawal mechanism still assumes an authorization server ([#84](https://github.com/mcguinness/draft-mcguinness-oauth-software-statement-issuance/issues/84)). For a marketplace the reviewer is part of the listing program; for an enterprise that wants a portable record it is naturally whoever runs the identity provider. An enterprise that wants neither keeps using each provider's console, and nothing else here changes.
 
 **Availability moves into the path.** Statements renew on a schedule, so a reviewer's outage longer than the remaining lifetime lapses every statement it maintains at once. Lifetimes of days rather than minutes, staggered expiries, and renewal ahead of the boundary keep that from being a self-inflicted outage. Registration and presentation also resolve the client's document, so the document host's availability matters at consumption time, as does the host of its statements where providers pull them.
 

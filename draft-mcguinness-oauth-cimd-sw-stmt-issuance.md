@@ -569,7 +569,7 @@ At runtime, the recorded decision replaces the presented statement, not the proo
 
 # Authorization Server Metadata {#authorization-server-metadata}
 
-An authorization server that issues software statements under this specification advertises `true` for `client_id_metadata_document_supported` ({{CIMD}}) and publishes the authorization server metadata that {{STATEMENT}} requires of an issuer.
+An authorization server that issues software statements under this specification advertises `true` for `client_id_metadata_document_supported` ({{CIMD}}) and publishes the authorization server metadata that {{STATEMENT}} requires of an authorization server that issues statements.
 
 A deferring issuer publishes the metadata {{DTR}} requires, including `true` for `deferred_token_response_supported`. A synchronous issuer advertises neither that value nor the deferral-code token type in the `revocation_endpoint_token_type_values_supported` metadata value, and need not implement {{DTR}}.
 

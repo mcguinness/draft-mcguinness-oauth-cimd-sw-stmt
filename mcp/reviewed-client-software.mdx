@@ -28,7 +28,7 @@ This document uses the terms of CIMD Software Statement. In the context of this 
 
 - The **MCP Client** is the client, identified by its Client ID Metadata Document URL.
 - The **Client Publisher** operates the Client ID Metadata Document and the location where the client's statements are published.
-- The **Statement Issuer** is an issuing authorization server: a party that reviews client software and signs software statements about it.
+- The **Statement Issuer** is a party that reviews client software and signs software statements about it. It can be an authorization server, or a reviewer, such as a client catalog, that operates none.
 - The **MCP Authorization Server** is the trusting authorization server that issues access tokens for an MCP Server, as advertised in the MCP Server's Protected Resource Metadata ([RFC9728](https://datatracker.ietf.org/doc/html/rfc9728)).
 
 A **pulled statement** is one the MCP Authorization Server retrieves from the location the client's document names, rather than one the client sends in a request.
@@ -99,7 +99,7 @@ It **MAY** also accept presented statements.
 
 ### 4.2 Issuer Trust
 
-The MCP Authorization Server **MUST** accept statements only from Statement Issuers it has configured, as [Issuer Trust Establishment](https://mcguinness.github.io/draft-mcguinness-oauth-software-statement-issuance/draft-mcguinness-oauth-cimd-sw-stmt.html#issuer-trust) requires, and **SHOULD** limit each issuer to the client identifier namespaces it is expected to vouch for. It obtains each issuer's statement signing keys from the issuer's `software_statement_jwks_uri`, never from a statement or the client's document.
+The MCP Authorization Server **MUST** accept statements only from Statement Issuers it has configured, as [Issuer Trust Establishment](https://mcguinness.github.io/draft-mcguinness-oauth-software-statement-issuance/draft-mcguinness-oauth-cimd-sw-stmt.html#issuer-trust) requires, and **SHOULD** limit each issuer to the client identifier namespaces it is expected to vouch for. It obtains each issuer's statement signing keys from the issuer's `software_statement_jwks_uri`, or, for an issuer that is not an authorization server, from a statement key set URL recorded in its trust configuration, and never from a statement or the client's document.
 
 ### 4.3 Admission
 
@@ -259,4 +259,4 @@ Withdrawal is not a denylist. A publisher that stops serving a withdrawn stateme
 
 ### 8.5 Further Considerations
 
-The security and privacy considerations of CIMD Software Statement apply, including those on issuer trust, statement key compartments, multi-tenant consumers, withdrawal, and external retrieval.
+The security and privacy considerations of CIMD Software Statement apply, including those on issuer trust, statement key separation, multi-tenant consumers, withdrawal, and external retrieval.
