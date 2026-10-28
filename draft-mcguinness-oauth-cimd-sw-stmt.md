@@ -126,7 +126,7 @@ Current Statement:
 : A statement whose effective expiry has not passed and that matches no refusal record. For a new admission or a replacement ({{refresh}}, {{REGISTRATION}}), a statement superseded under the `iat` floor ({{multi-instance}}) is also not current. On refresh, an establishment's recorded statement remains current after a later statement raises the `iat` floor ({{refresh}}).
 
 Required Issuer:
-: For one of a trusting authorization server's tenants, a configured issuer whose current statement the server requires before admitting software in the client identifier namespaces its trust configuration records for that issuer in that tenant ({{issuer-trust}}).
+: For one of a trusting authorization server's tenants, a configured issuer whose current statement the server requires before admitting software, or refreshing a grant for it ({{refresh}}), in the client identifier namespaces its trust configuration records for that issuer in that tenant ({{issuer-trust}}).
 
 Review-Only:
 : Describes a presentation, or a pulled statement, that the authorization server evaluates but that admits nothing ({{public-client-presentation}}).
@@ -418,6 +418,8 @@ On refresh-token use, the authorization server MAY, by local policy, additionall
 
 If the authorization server holds a refusal record for the establishment's recorded statement, it MUST reject a refresh without a presented or pulled replacement satisfying this section, whatever its policy on requiring a current statement otherwise: a withdrawal ends grant continuation at once rather than waiting on local policy. To let a withdrawal reach open grants and not only new ones, a server that uses a withdrawal mechanism for the recorded statement's issuer SHOULD consult it for that statement at each refresh.
 
+If a required issuer ({{issuer-trust}}) covers the establishment's `sub` in the establishment's tenant, the authorization server MUST reject a refresh with `statement_required`, or with `temporarily_unavailable` if a retrieval needed to check a replacement did not complete, unless the recorded statement or a replacement satisfying this section is a current statement from that issuer. A grant recorded under another issuer's statement cannot meet this, since a replacement keeps the recorded statement's `iss`, so its client opens a new grant by presentation.
+
 When a replacement is needed, the client presents it in the `software_statement` parameter of the refresh request, or, for an establishment created from a pulled statement, the server pulls one ({{pulled-statements}}). A statement with the recorded statement's `iss` and `jti` is not a replacement: if the client offers it again, the server rechecks it as the recorded statement, under the first two paragraphs of this section. The following requirements apply to the replacement:
 
 * It MUST validate under {{validation}}, including its audience if it carries one.
@@ -524,7 +526,7 @@ A token request that redeems an authorization code opened by a presentation is r
 Under an establishment, a refresh-token request rejected for a reason this specification defines uses the following error codes:
 
 `statement_required`:
-: A current statement or a replacement is needed ({{refresh}}) and none is supplied or pulled, or the one supplied or pulled fails {{refresh}}: it is malformed, invalid, not acceptable here, expired, refused, or superseded, or it names a document whose digest does not match, that contains duplicate member names, that exceeds the size bound, or that no longer satisfies {{public-client-presentation}}.
+: A current statement or a replacement is needed ({{refresh}}) and none is supplied or pulled, or the one supplied or pulled fails {{refresh}}: it is malformed, invalid, not acceptable here, expired, refused, or superseded, or it names a document whose digest does not match, that contains duplicate member names, that exceeds the size bound, or that no longer satisfies {{public-client-presentation}}; or a required issuer ({{issuer-trust}}) covers the client and neither the recorded statement nor a replacement is a current statement from it.
 
 `invalid_grant`:
 : The request does not prove the establishment's proven key, or the document currently served at the establishment's `sub` no longer carries that key or exceeds the document size bound ({{refresh}}).
