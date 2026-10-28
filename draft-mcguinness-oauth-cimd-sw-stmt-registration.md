@@ -148,12 +148,13 @@ A server that uses a withdrawal mechanism for the governing statement's issuer S
 
 A server that records a required issuer for a tenant (Section 4 of {{STATEMENT}}) MUST reject an authorization, token, or pushed authorization request, or an {{RFC7592}} update request, in that tenant under any registration for software in a covered namespace unless, once any replacement the request delivers has been evaluated ({{revalidation}}), a current statement from the required issuer governs the registration. This rule applies whatever tenant the registration was created in and whenever the requirement was configured. Without this rule, withholding the required issuer's statement would keep such a registration in use after the issuer withdrew or stopped renewing its decision. A registration governed by another issuer's statement cannot satisfy the requirement, since a replacement keeps the governing statement's `iss`.
 
-A request rejected under a registration that is not valid, or under the required-issuer rule, is rejected as follows:
+Rejections under a registration that is not valid, and under the required-issuer rule, take the following form:
 
 * At the token and pushed authorization request endpoints, the client is first authenticated against the registration, and a request that fails that authentication is rejected with `invalid_client`, as for an unknown client. Otherwise the request is rejected with `statement_required` (Section 8.1 of {{STATEMENT}}).
 * An {{RFC7592}} update request is rejected with `invalid_software_statement`.
 * An authorization request is rejected with `statement_required` in the authorization error response (Section 4.1.2.1 of {{RFC6749}}), or with `invalid_request` if it carries the `software_statement` parameter, as Section 8.4 of {{STATEMENT}} provides. The authorization server redirects with the error only after validating the request's `redirect_uri` against the registration. If the `redirect_uri` does not validate against the registration, the authorization server MUST NOT redirect and reports the error to the resource owner instead.
-* {{RFC7592}} read and delete requests remain available for a client to learn its registration's state and end it.
+
+{{RFC7592}} read and delete requests are not rejected, so a client can learn its registration's state and end it.
 
 If an authorization server creates a confidential-client registration that permits no grant obtaining tokens without an authorization request or refresh token, such as the client credentials grant or an assertion grant, and for which it does not support {{RFC7592}} update requests, it MUST publish the `pushed_authorization_request_endpoint` metadata value. That registration's client could otherwise renew only while it holds a refresh token ({{revalidation}}). A public-client registration can also renew through a repeated registration request ({{public-client-registration}}).
 
