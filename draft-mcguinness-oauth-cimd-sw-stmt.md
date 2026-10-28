@@ -61,6 +61,15 @@ informative:
   OPENID-FED:
     target: https://openid.net/specs/openid-federation-1_0.html
     title: "OpenID Federation 1.0"
+    author:
+      - ins: R. Hedberg
+        role: editor
+      - ins: M.B. Jones
+      - ins: A.Å. Solberg
+      - ins: J. Bradley
+      - ins: G. De Marco
+      - ins: V. Dzhuvinov
+    date: 2026-02-17
 
 --- abstract
 
