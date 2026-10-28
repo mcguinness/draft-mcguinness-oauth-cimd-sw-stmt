@@ -333,7 +333,7 @@ The presenter of a pulled statement is bound as for a presented statement ({{sen
 
 At code redemption, a confidential client whose statement was pulled at the authorization endpoint authenticates with a key the reviewed document carries, in its `jwks` or at its `jwks_uri` within the reuse bounds of {{sender-constraint}}, not one that only a later retrieval of the document carries, and that key becomes the establishment's proven key. Code redemption and refresh otherwise continue an establishment and keep the binding it already has ({{grant-lifecycle}}, {{refresh}}). A statement pulled for a document that omits `token_endpoint_auth_method` ({{sender-constraint}}), or whose redirection URIs {{public-client-presentation}} does not accept, is review-only wherever it is pulled.
 
-If retrieval does not complete or no statement remains, the server applies its policy for Client ID Metadata Document clients it has not reviewed, subject to any required issuer ({{issuer-trust}}). If that policy or a required issuer ({{issuer-trust}}) requires reviewed software, the server rejects the request with `temporarily_unavailable` if retrieval did not complete and with `statement_required` if no statement remains. A retrieval failure is never a withdrawal.
+If retrieving the statements does not complete or no statement remains, the server applies its policy for Client ID Metadata Document clients it has not reviewed, subject to any required issuer ({{issuer-trust}}). If that policy or a required issuer ({{issuer-trust}}) requires reviewed software, the server rejects the request with `temporarily_unavailable` if retrieving the statements, or a statement key set needed to verify one ({{issuer-trust}}), did not complete, and with `statement_required` otherwise. A retrieval failure is never a withdrawal.
 
 {{refresh}} defines how a server that supports pulled statements pulls a replacement at refresh.
 
@@ -567,7 +567,7 @@ None of these rejections indicates refresh-token replay ({{RFC9700}}). A refresh
 
 ## Authorization Endpoint {#authorization-errors}
 
-A statement is never presented at the authorization endpoint ({{authorization-requests}}) but can be pulled there ({{pulled-statements}}). There, if reviewed software is required ({{public-client-presentation}}, {{pulled-statements}}), a review-only client is rejected with `unauthorized_client`, and a client whose pull of statements did not complete ({{processing}}) is rejected with `temporarily_unavailable`.
+A statement is never presented at the authorization endpoint ({{authorization-requests}}) but can be pulled there ({{pulled-statements}}). There, if reviewed software is required ({{public-client-presentation}}, {{pulled-statements}}), a review-only client is rejected with `unauthorized_client`, and a client whose pull of statements, or retrieval of a statement key set needed to verify one ({{issuer-trust}}), did not complete ({{processing}}) is rejected with `temporarily_unavailable`.
 
 Apart from those two cases, at the authorization endpoint, if the authorization server requires a statement for a client it has not admitted on one, it MUST return the `statement_required` error code in the authorization error response (Section 4.1.2.1 of {{RFC6749}}). The code tells the client to obtain a statement and return through the pushed authorization request endpoint. Without the code, a client cannot tell a missing review from a policy it will never satisfy.
 
