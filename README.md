@@ -35,10 +35,11 @@ These documents explore deployments and edge cases. They are non-normative and n
 | --- | --- |
 | [Deployment Model](sketches/deployment-model.md) | A provider marketplace deciding which software may exist as a client, an enterprise deciding which of it may operate in its tenant, and the layers that keep those decisions separate |
 | [A Mobile App, End to End](sketches/mobile-app-sketch.md) | An app store install through review, administrator approval, sign-in, and a third-party SaaS reached through an identity assertion, ending at what a per-install key still lacks |
-| [A Customer Approving a Vendor Integration](sketches/saas-integration-sketch.md) | A vendor-to-vendor integration with no user present, comparing the customer's own statement with an approval made once at the customer's root and revoked once for every platform |
-| [Tenant Admin Consent](sketches/admin-consent-sketch.md) | Microsoft Entra ID's tenant-wide admin consent, rebuilt from open specifications |
-| [Composing with OpenID Federation](sketches/openid-federation-sketch.md) | Issuer trust from a federation, a review carried as a Trust Mark, and why Federation's resolved metadata cannot carry a digest |
+| [A Customer Approving a Vendor Integration](sketches/saas-integration-sketch.md) | An exploratory vendor-to-vendor integration with no user present, comparing the customer's own statement, a customer-issued workload assertion, and an approval the platform pulls from the customer's root, with the prerequisites each needs |
+| [Tenant Admin Consent](sketches/admin-consent-sketch.md) | Microsoft Entra ID's tenant-wide admin consent, compared part by part with open specifications, and what this family changes and leaves alone |
+| [Composing with OpenID Federation](sketches/openid-federation-sketch.md) | Issuer trust from a federation, a review carried as a Trust Mark and the mapping that would need, and why Federation's resolved metadata cannot carry a digest |
 | [Design Rationale: Pulled Statements and the MCP Profile](sketches/mcp-profile-sketch.md) | Why statements are pulled from where the client's document points, what that removes and what it keeps, and how the MCP profile composes with Enterprise-Managed Authorization |
+| [Verification Scenarios for Attested Instance Keys](sketches/attested-verification-scenarios.md) | An implementation checklist for the attested draft, with prerequisites and expected results |
 
 ## Related Specifications
 
