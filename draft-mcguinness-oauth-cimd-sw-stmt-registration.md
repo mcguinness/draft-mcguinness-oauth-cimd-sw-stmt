@@ -131,7 +131,7 @@ An authorization server MAY register a client whose reviewed document declares `
 * MUST NOT issue a registration access token {{RFC7592}} for the registration.
 * MUST answer a later registration request with the existing registration if the request is in a tenant where the registration can be used and the request's statement has the same `iss` and `sub` claims as the governing statement, validates, is not superseded under the `iat` floor of Section 6 of {{STATEMENT}}, and is confined to no tenant other than one the registration is already restricted to. If that statement's `iat` is later than the governing statement's, the server evaluates it as {{revalidation}} provides for a delivery, renewing the registration with it or rejecting the request with the codes of {{errors}}.
 
-Such a registration has no {{RFC7592}} management, and the deliveries that {{revalidation}} lists at the token and pushed authorization request endpoints need no client authentication under the registration, since the registration has none. A delivery renews it only with a valid replacement, so an unauthenticated delivery can apply only a statement the issuer signed. A statement whose decision is confined to a tenant is not a replacement for such a registration if the registration carries no tenant restriction. Without a registration access token, the registration ends only at its effective expiry, on withdrawal ({{registration-validity}}), or by the server's own policy.
+Such a registration has no {{RFC7592}} management, and the deliveries that {{revalidation}} lists at the token and pushed authorization request endpoints need no client authentication under the registration, since the registration has none. A delivery renews it only with a valid replacement, so an unauthenticated delivery can apply only a statement the issuer signed. A statement whose decision is confined to a tenant fails the replacement rules of {{revalidation}} for such a registration if the registration carries no tenant restriction. Without a registration access token, the registration ends only at its effective expiry, on withdrawal ({{registration-validity}}), or by the server's own policy.
 
 ## Registration Validity {#registration-validity}
 
@@ -190,6 +190,7 @@ The replacement MUST satisfy the following:
 * The `iss` and `sub` claims equal those of the governing statement.
 * The `iat` claim is later than that of the governing statement.
 * Its document declares `token_endpoint_auth_method` of `none` if and only if the governing statement's document does.
+* For a public-client registration that carries no tenant restriction, its decision is not confined to a tenant ({{public-client-registration}}).
 
 For a replacement, the authorization server MUST do the following:
 
