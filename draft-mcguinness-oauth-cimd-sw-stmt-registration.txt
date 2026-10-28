@@ -136,8 +136,8 @@ Table of Contents
 
    3.  The client delivers a replacement statement in a token or pushed
        authorization request under the registration or, if supported, an
-       [RFC7592] update request, which sets the registration's validity
-       to the replacement's effective expiry.
+       [RFC7592] update request.  The delivery sets the registration's
+       validity to the replacement's effective expiry.
 
    4.  If no replacement arrives, the registration expires and requests
        under it fail.
@@ -289,10 +289,10 @@ Table of Contents
 
    An authorization server MAY register a client whose reviewed document
    declares token_endpoint_auth_method of none.  Such a registration has
-   no client credential.  Every installation of the software registers
-   and receives the same registration and client_id, as can any holder
-   of a copy of the statement.  The registration is bound instead as
-   Section 5.4.1 of [STATEMENT] binds a public client at runtime:
+   no client credential.  Every installation of the software that
+   registers receives the same registration and client_id, as does any
+   holder of a copy of the statement.  The registration is bound instead
+   as Section 5.4.1 of [STATEMENT] binds a public client at runtime:
    authorization codes reach only the reviewed redirection URIs, and
    each grant is bound to a key the installation holds.  A server that
    registers such a client:
@@ -334,10 +334,11 @@ Table of Contents
    the registration has none.  A delivery renews it only with a valid
    replacement, so an unauthenticated delivery can apply only a
    statement the issuer signed.  A statement whose decision is confined
-   to a tenant is not a replacement for such a registration if the
-   registration carries no tenant restriction.  Without a registration
-   access token, the registration ends only at its effective expiry, on
-   withdrawal (Section 3.2), or by the server's own policy.
+   to a tenant fails the replacement rules of Section 3.3 for such a
+   registration if the registration carries no tenant restriction.
+   Without a registration access token, the registration ceases to be
+   valid only at its effective expiry or on withdrawal (Section 3.2),
+   and otherwise ends only by the server's own policy.
 
 3.2.  Registration Validity
 
@@ -365,14 +366,14 @@ Table of Contents
       replacement, which Section 3.3 evaluates before this rejection.
 
    *  The authorization server SHOULD retain a registration that has
-      ceased to be valid for a later authenticated renewal
-      (Section 10.4).  A valid replacement restores the registration
-      (Section 3.3), so no grace period is needed.
+      ceased to be valid for a later renewal (Section 10.4).  A valid
+      replacement restores the registration (Section 3.3), so no grace
+      period is needed.
 
    To apply this model, an authorization server stores with each
    statement-governed registration the governing statement's iss, jti,
    sub, and iat claims, any claim by which a withdrawal mechanism
-   locates that statement, such as status, the registration's effective
+   locates that statement (such as status), the registration's effective
    expiry, and any tenant the registration is restricted to.  Renewal
    compares a delivered statement against these (Section 3.3).
 
@@ -395,8 +396,8 @@ Table of Contents
    statement cannot satisfy the requirement, since a replacement keeps
    the governing statement's iss.
 
-   A request rejected under a registration that is not valid, or under
-   the required-issuer rule, is rejected as follows:
+   Rejections under a registration that is not valid, and under the
+   required-issuer rule, take the following form:
 
    *  At the token and pushed authorization request endpoints, the
       client is first authenticated against the registration, and a
@@ -413,11 +414,12 @@ Table of Contents
       parameter, as Section 8.4 of [STATEMENT] provides.  The
       authorization server redirects with the error only after
       validating the request's redirect_uri against the registration.
-      If it cannot do so, it MUST NOT redirect and reports the error to
-      the resource owner instead.
+      If the redirect_uri does not validate against the registration,
+      the authorization server MUST NOT redirect and reports the error
+      to the resource owner instead.
 
-   *  [RFC7592] read and delete requests remain available for a client
-      to learn its registration's state and end it.
+   [RFC7592] read and delete requests are not rejected, so a client can
+   learn its registration's state and end it.
 
    If an authorization server creates a confidential-client registration
    that permits no grant obtaining tokens without an authorization
@@ -440,7 +442,7 @@ Table of Contents
       response and in the response to any request that renews the
       registration or carries its governing statement (Section 3.3).
 
-   *  SHOULD return it in any [RFC7592] read or update response it
+   *  SHOULD return it in any other [RFC7592] read or update response it
       supports.
 
 3.3.  Renewal
@@ -496,7 +498,7 @@ Table of Contents
    the registration is valid and is rejected as Section 3.2 provides
    once it is not.  A client re-sends the governing statement, for
    example, after losing the response to the request that renewed the
-   registration, or by attaching its current statement to later
+   registration, or when it attaches the statement it holds to later
    requests.  An update request repeats, unmodified, the statement that
    a registration, read, or update response returned (Section 3.2.1 of
    [RFC7591]; Section 2.2 of [RFC7592]), which can be older than the
@@ -522,6 +524,10 @@ Table of Contents
    *  Its document declares token_endpoint_auth_method of none if and
       only if the governing statement's document does.
 
+   *  For a public-client registration that carries no tenant
+      restriction, its decision is not confined to a tenant
+      (Section 3.1).
+
    For a replacement, the authorization server MUST do the following:
 
    *  Obtain the Client ID Metadata Document at the replacement's sub as
@@ -537,22 +543,23 @@ Table of Contents
    key, redirection URI, or scope that the new review removed.
 
    On success, the replacement becomes the governing statement: the
-   authorization server MUST replace the recorded identity, iat,
-   effective expiry, and derived metadata with the replacement's, and
-   apply any tenant restriction it adds (Section 3), in a single atomic
-   update, and concurrent deliveries resolve to the most recently issued
-   statement.
+   authorization server MUST replace the stored claims of the governing
+   statement (Section 3.2), the effective expiry, and the registration's
+   metadata with the replacement's, and apply any tenant restriction it
+   adds (Section 3), in a single atomic update, and concurrent
+   deliveries resolve to the most recently issued statement.
 
    Access issued under the registration after that update, including on
    refresh of a grant issued before it, MUST fall within the re-derived
    metadata, as Section 5.6.1 of [STATEMENT] requires of a refreshed
    grant.
 
-   When a request under an expired registration contains a replacement,
-   the authorization server MUST authenticate the client against the
-   retained registration and evaluate the replacement before applying
-   the expiry rejection.  A valid replacement therefore restores the
-   registration.  An omitted or invalid replacement does not.
+   When a request under a registration that has ceased to be valid
+   contains a replacement, the authorization server MUST authenticate
+   the client against the retained registration and evaluate the
+   replacement before applying the rejection of Section 3.2.  A valid
+   replacement therefore restores the registration.  An omitted or
+   invalid replacement does not.
 
    When a request under an expired registration carries no replacement,
    its rejection (Section 3.2) MUST NOT by itself cause the
@@ -583,8 +590,9 @@ Table of Contents
    registration is rejected with invalid_request (Section 5.1 of
    [STATEMENT]) if carrying it is neither a runtime presentation nor a
    delivery (Section 3.3).  At the client configuration endpoint, a
-   statement from an issuer the server does not accept for the client is
-   rejected with unapproved_software_statement (Section 6).
+   statement that is not acceptable for a reason the
+   unapproved_software_statement entry of Section 6 lists is rejected
+   with that code.
 
    A registration created without a statement is not statement-governed:
    a statement neither renews nor alters it and is not a delivery.  For
@@ -611,9 +619,9 @@ Table of Contents
    A rejection this specification defines, at a client registration
    endpoint or at the client configuration endpoint of [RFC7592], uses
    the error response of Section 3.2.2 of [RFC7591], with the HTTP
-   status code that section specifies.  An authorization server SHOULD
-   respond with HTTP status code 503 to a request it rejects with the
-   temporarily_unavailable error code.
+   status code that section specifies, except that an authorization
+   server SHOULD respond with HTTP status code 503 to a request it
+   rejects with the temporarily_unavailable error code.
 
    Rejections of a registration management request for other reasons use
    the responses [RFC7592] specifies.  Rejections at other endpoints use
@@ -621,8 +629,8 @@ Table of Contents
    expiry is reported as Section 3.2 defines.
 
    An authorization server rejecting a registration request, or a
-   registration management request carrying a failing replacement, uses
-   the following error codes:
+   registration management request for a reason this specification
+   defines, uses the following error codes:
 
    invalid_software_statement:  The statement is malformed, fails
       signature or claim validation for a reason
@@ -632,11 +640,12 @@ Table of Contents
       of the retrieved document does not match the statement's
       cimd_digest claim, and when a replacement delivered at the client
       configuration endpoint, or a statement in a repeated public-client
-      registration request evaluated as one (Section 3.1), fails a
-      replacement-specific rule of Section 3.3 that this section assigns
-      no other code, such as a sub claim that differs from the governing
-      statement's or a change in whether the document declares
-      token_endpoint_auth_method of none.
+      registration request evaluated as a replacement (Section 3.1),
+      fails a replacement-specific rule of Section 3.3 that this section
+      assigns no other code, such as a sub claim that differs from the
+      governing statement's or a change in whether the document declares
+      token_endpoint_auth_method of none.  It also applies to an
+      [RFC7592] update request rejected under Section 3.2.
 
    unapproved_software_statement:  The statement is valid but not
       acceptable here: its issuer is not configured, its aud excludes
@@ -790,9 +799,9 @@ Table of Contents
    describe, and ought to treat a credential compromise as requiring re-
    registration rather than renewal.  Runtime presentation (Section 5.4
    of [STATEMENT]) binds every presenter to the reviewed document,
-   through a key it carries or its reviewed redirection URIs, and so
-   does not have this limitation, though the redirection binding does
-   not hold against a party that controls the user agent.
+   through a key the document carries or its reviewed redirection URIs,
+   and so does not have this limitation, though the redirection binding
+   does not hold against a party that controls the user agent.
 
 10.3.  Registration Fraud and Impersonation
 

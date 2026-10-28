@@ -170,7 +170,9 @@ Table of Contents
    A statement records approval of a client configuration, not of the
    software's code or behavior (Section 14.1).  Possession of a
    statement alone admits nothing: the presenter is bound to the
-   reviewed document (Section 5.4).
+   reviewed document (Section 5.4), though for a public client that
+   binding does not hold against a party that controls the user agent
+   (Section 14.4).
 
    This specification does not define how a client obtains a statement.
    [REGISTRATION] builds on this specification, which does not depend on
@@ -228,6 +230,11 @@ Table of Contents
    Establishment:  The durable state a successful runtime presentation
       creates for the grant it opens, or that a replacement accepted on
       refresh gives that grant, enumerated in Section 5.6.
+
+   Recorded Statement:  The statement an establishment records: the one
+      presented or pulled to create it or, after a refresh accepts a
+      replacement, the replacement most recently accepted for it
+      (Section 5.6.1).
 
    Proven Key:  The key an establishment is bound to: the key whose
       possession the presenter proves during runtime presentation
@@ -322,9 +329,9 @@ Table of Contents
       uses of the statement: registration ([REGISTRATION]) and
       presentation (Section 5).  If the claim is absent, only
       presentation is permitted.  A delivery renewing a registration
-      ([REGISTRATION]) is a use at registration.  A refresh replacement
+      ([REGISTRATION]) is a registration use.  A refresh replacement
       (Section 5.6.1) and a pulled statement (Section 5.2) are
-      presentation.
+      presentation uses.
 
    iat:  REQUIRED.  A NumericDate value, which MUST be an integer,
       giving the time the statement was issued.  An issuer MUST ensure
@@ -580,10 +587,10 @@ Table of Contents
    issuer's withdrawal by presenting or publishing only a broader
    statement, such as a marketplace listing.
 
-   A required issuer configured for software whose documents are
-   presented review-only (Section 5.4.1) excludes that software from the
-   tenant.  The server rejects a request for such software in that
-   tenant with unauthorized_client.
+   A required issuer configured for software whose presentations are
+   review-only (Section 5.4.1) excludes that software from the tenant.
+   The server rejects a request for such software in that tenant with
+   unauthorized_client.
 
 4.1.  Multi-Tenant Issuers
 
@@ -611,13 +618,16 @@ Table of Contents
       carrying the parameter in any other role is rejected with
       invalid_request.
 
-   The request MUST include the client_id parameter, even if the client
-   authenticates, and its value, the client's Client ID Metadata
-   Document URL, MUST exactly equal the statement's sub claim.  If the
-   parameter is absent, the authorization server rejects the request
-   with invalid_request.  If the two differ, the authorization server
-   MUST reject the presentation with the invalid_client error code.  The
-   effective client_id is the statement's sub, and the authorization
+   A request making a runtime presentation, or carrying a refresh
+   replacement (Section 5.6.1), MUST include the client_id parameter,
+   even if the client authenticates, and its value, the client's Client
+   ID Metadata Document URL, MUST exactly equal the statement's sub
+   claim.  If the client_id parameter is absent, the authorization
+   server rejects the request with invalid_request.  If the two differ
+   in a runtime presentation, the authorization server MUST reject the
+   presentation with the invalid_client error code.  A refresh
+   replacement whose sub differs is rejected as Section 5.6.1 provides.
+   The effective client_id is the statement's sub, and the authorization
    server assigns none.
 
    The request carries the proof that Section 5.4 requires.  A
@@ -718,34 +728,34 @@ Table of Contents
    reviewed document declares token_endpoint_auth_method of none, and a
    confidential client is one whose document declares another method:
 
-   +===============+=====================+=============================+
-   | Where the     | Confidential client | Public client               |
-   | statement is  |                     |                             |
-   | pulled        |                     |                             |
-   +===============+=====================+=============================+
-   | Token         | The request's       | Review-only, since          |
-   | endpoint,     | client              | nothing binds the           |
-   | opening a new | authentication or   | presenter                   |
-   | grant         | DPoP proof binds    |                             |
-   |               | the presenter       |                             |
-   +---------------+---------------------+-----------------------------+
-   | Pushed        | The client's        | Section 5.4.1 applies,      |
-   | authorization | authentication      | including PKCE, if the      |
-   | request       | binds the presenter | request binds a key         |
-   | endpoint      |                     | through a DPoP proof        |
-   |               |                     | or dpop_jkt.                |
-   |               |                     | Otherwise review-only       |
-   +---------------+---------------------+-----------------------------+
-   | Authorization | The client's        | Section 5.4.1 applies,      |
-   | endpoint      | authentication at   | including PKCE, if the      |
-   |               | code redemption     | request binds a key         |
-   |               | binds the           | through dpop_jkt, and       |
-   |               | presenter, before   | redemption proves that      |
-   |               | any token is issued | key.  Otherwise             |
-   |               |                     | review-only                 |
-   +---------------+---------------------+-----------------------------+
+    +===============+=====================+==========================+
+    | Where the     | Confidential client | Public client            |
+    | statement is  |                     |                          |
+    | pulled        |                     |                          |
+    +===============+=====================+==========================+
+    | Token         | The request's       | Review-only, since       |
+    | endpoint,     | client              | nothing binds the        |
+    | opening a new | authentication or   | presenter                |
+    | grant         | DPoP proof binds    |                          |
+    |               | the presenter       |                          |
+    +---------------+---------------------+--------------------------+
+    | Pushed        | The client's        | Section 5.4.1 binds the  |
+    | authorization | authentication      | presenter if the request |
+    | request       | binds the presenter | uses PKCE with S256 and  |
+    | endpoint      |                     | binds a key through a    |
+    |               |                     | DPoP proof or dpop_jkt.  |
+    |               |                     | Otherwise review-only    |
+    +---------------+---------------------+--------------------------+
+    | Authorization | The client's        | Section 5.4.1 binds the  |
+    | endpoint      | authentication at   | presenter if the request |
+    |               | code redemption     | uses PKCE with S256 and  |
+    |               | binds the           | binds a key through      |
+    |               | presenter, before   | dpop_jkt, which          |
+    |               | any token is issued | redemption then proves.  |
+    |               |                     | Otherwise review-only    |
+    +---------------+---------------------+--------------------------+
 
-                                  Table 1
+                                 Table 1
 
    At code redemption, a confidential client whose statement was pulled
    at the authorization endpoint authenticates with a key the reviewed
@@ -758,13 +768,15 @@ Table of Contents
    (Section 5.4), or whose redirection URIs Section 5.4.1 does not
    accept, is review-only wherever it is pulled.
 
-   If retrieval does not complete or no statement remains, the server
-   applies its policy for Client ID Metadata Document clients it has not
-   reviewed, subject to any required issuer (Section 4).  If that policy
-   or a required issuer (Section 4) requires reviewed software, the
-   server rejects the request with temporarily_unavailable if retrieval
-   did not complete and with statement_required if no statement remains.
-   A retrieval failure is never a withdrawal.
+   If retrieving the statements does not complete or no statement
+   remains, the server applies its policy for Client ID Metadata
+   Document clients it has not reviewed, subject to any required issuer
+   (Section 4).  If that policy or a required issuer (Section 4)
+   requires reviewed software, the server rejects the request with
+   temporarily_unavailable if retrieving the statements, or a statement
+   key set needed to verify one (Section 4), did not complete, and with
+   statement_required otherwise.  A retrieval failure is never a
+   withdrawal.
 
    Section 5.6.1 defines how a server that supports pulled statements
    pulls a replacement at refresh.
@@ -825,13 +837,13 @@ Table of Contents
    It treats a statement pulled for such a document as review-only
    (Section 5.4.1).
 
-   A document carrying a redirection URI another application could claim
-   is presented review-only whatever its authentication method
-   (Section 5.4.1).  The rejection above still applies to it, as does
-   the rejection of a presentation opening a new grant at the token
-   endpoint for a client whose reviewed document declares
-   token_endpoint_auth_method of none (Section 5.4.1), but the sender-
-   constraint requirements of the next two paragraphs do not.
+   A presentation under a document carrying a redirection URI another
+   application could claim is review-only whatever its authentication
+   method (Section 5.4.1).  The rejection above still applies to such a
+   presentation, as does the rejection of a presentation opening a new
+   grant at the token endpoint for a client whose reviewed document
+   declares token_endpoint_auth_method of none (Section 5.4.1), but the
+   sender-constraint requirements of the next two paragraphs do not.
 
    A runtime presentation MUST be sender-constrained by a key the
    statement attests or, under Section 5.4.1, by the key the presenter
@@ -883,24 +895,23 @@ Table of Contents
    the reviewed redirection URIs nor a key shipped in every copy of the
    software can bind the presenter.
 
-   A review-only presentation creates no establishment, admits nothing,
-   and does not advance the iat floor of Section 6, since it changes
-   nothing for the software's other instances.  The authorization server
-   proceeds as it would for the same Client ID Metadata Document client
-   presenting no statement (Section 12.5).
+   A review-only presentation or pulled statement creates no
+   establishment, admits nothing, and does not advance the iat floor of
+   Section 6, since it changes nothing for the software's other
+   instances.  The authorization server proceeds as it would for the
+   same Client ID Metadata Document client presenting no statement
+   (Section 12.5).
 
-   The statement of a review-only presentation MUST NOT satisfy a policy
-   requiring reviewed software.  If the server's policy requires
-   reviewed software, it rejects a review-only client with
-   unauthorized_client.
+   The statement of a review-only presentation, or a review-only pulled
+   statement, MUST NOT satisfy a policy requiring reviewed software.  If
+   the server's policy requires reviewed software, it rejects a review-
+   only client with unauthorized_client.
 
    If the client's reviewed document declares token_endpoint_auth_method
    of none and none of its redirection URIs is one another application
    could claim, a presentation at the pushed authorization request
-   endpoint, or a statement pulled at that endpoint or at the
-   authorization endpoint (Section 5.2), is bound instead by its
-   reviewed redirection URIs.  For such a presentation, the
-   authorization server:
+   endpoint is bound instead by its reviewed redirection URIs.  For such
+   a presentation, the authorization server:
 
    *  MUST require PKCE [RFC7636] with the S256 method.
 
@@ -910,6 +921,12 @@ Table of Contents
       that key as the proven key of the establishment (Section 5.6).
 
    *  MUST NOT require that key to appear in the reviewed document.
+
+   A statement pulled for such a client at the pushed authorization
+   request endpoint or the authorization endpoint (Section 5.2) is bound
+   the same way, under the same requirements, if the request uses PKCE
+   with the S256 method and binds a key as those requirements provide.
+   Otherwise the pulled statement is review-only.
 
    The reviewed redirection URIs, not the proven key, bind such a
    presentation (Section 14.4).  The proven key identifies the
@@ -1020,10 +1037,12 @@ Table of Contents
        served at the establishment's sub still carries that key, in its
        jwks or at its jwks_uri, within the reuse bounds of Section 5.4,
        and rejects the refresh with the invalid_grant error code if that
-       document does not carry the key, cannot be obtained, or exceeds
-       the size bound of Section 3.1, or with temporarily_unavailable if
-       a retrieval needed to check the key did not complete.  It
-       completes these checks before evaluating any replacement.
+       document does not carry the key, cannot be obtained for a reason
+       other than a retrieval that did not complete (Section 5.3), or
+       exceeds the size bound of Section 3.1, or with
+       temporarily_unavailable if a retrieval needed to check the key
+       did not complete.  It completes these checks before evaluating
+       any replacement.
 
    2.  Need for a current statement.  The authorization server MAY, by
        local policy, additionally require a current statement, and
@@ -1031,8 +1050,10 @@ Table of Contents
        has expired (Section 14.7).  The recorded statement satisfies
        that requirement while it is unexpired and no refusal record
        covers it, even after a later statement has raised the iat floor
-       of Section 6.  A replacement is needed only once the recorded
-       statement expires or a refusal record covers it.
+       of Section 6.  A replacement is needed when a refusal record
+       covers the recorded statement, or when the server requires a
+       current statement, by local policy or under a required issuer
+       (Section 4), and the recorded statement has expired.
 
        If the authorization server holds a refusal record for the
        establishment's recorded statement, it MUST reject a refresh
@@ -1097,11 +1118,12 @@ Table of Contents
        establishment's reviewed metadata.
 
    6.  Update.  If a replacement is accepted, the refreshed grant's
-       statement identity, iat, effective expiry, reviewed metadata, and
-       trust decision become those of the replacement (Section 12.4) in
-       a single atomic update, and concurrent replacements resolve to
-       the most recently issued statement.  Without one, the grant's
-       state is unchanged.
+       statement identity, iat, effective expiry, any claim by which a
+       withdrawal mechanism locates the statement, reviewed metadata and
+       the digest it matched, and trust decision become those of the
+       replacement (Section 12.4) in a single atomic update, and
+       concurrent replacements resolve to the most recently issued
+       statement.  Without one, the grant's state is unchanged.
 
    A refresh whose replacement fails step 4, or that needs a replacement
    and obtains none, leaves the grant's state unchanged.  It is rejected
@@ -1119,9 +1141,10 @@ Table of Contents
    A statement attests client software, identified by sub, not its
    runtime instances.  This specification defines no instance
    identifier.  One unexpired statement is therefore consumable more
-   than once: at each trusting authorization server in its audience and,
-   if the server registers clients ([REGISTRATION]) and its policy
-   permits, in more than one registration at that server.
+   than once: at each trusting authorization server in its audience, in
+   more than one establishment at that server (Section 12.3), and, if
+   the server registers clients ([REGISTRATION]) and its policy permits,
+   in more than one registration there.
 
    A trusting authorization server MUST retain, per iss and sub claims
    and, on a multi-tenant server, per tenant, the greatest iat claim
@@ -1223,10 +1246,11 @@ Table of Contents
       none was supplied or pulled, or the one supplied or pulled is
       expired, refused by a refusal record (Section 3.3), or superseded
       under the iat floor of Section 6.  The code also applies when a
-      statement offered as a replacement (Section 5.6.1, [REGISTRATION])
-      does not satisfy the requirements for one.  Re-presenting the same
-      statement cannot succeed.  The client recovers by obtaining a
-      statement issued more recently.
+      statement offered as a replacement on refresh (Section 5.6.1), or
+      at the token or pushed authorization request endpoint under
+      [REGISTRATION], does not satisfy the requirements for one.  Re-
+      presenting the same statement cannot succeed.  The client recovers
+      by obtaining a statement issued more recently.
 
    Whenever this specification requires a current statement on a
    refresh-token request, statement_required replaces invalid_grant.
@@ -1291,8 +1315,8 @@ Table of Contents
       complete, for a reason other than the document size bound
       (Section 3.1).
 
-   invalid_request:  The request carries software_statement in a role
-      Section 5.1 does not permit.
+   invalid_request:  The presentation omits client_id, or the request
+      carries software_statement in a role Section 5.1 does not permit.
 
    A request rejected for another reason, such as an assertion grant
    whose assertion is invalid (Section 3.1 of [RFC7523]), uses the error
@@ -1317,7 +1341,8 @@ Table of Contents
       statement nor a replacement is a current statement from it
       (Section 5.6.1).
 
-   invalid_grant:  The checks of step 1 of Section 5.6.1 fail.
+   invalid_grant:  The checks of step 1 of Section 5.6.1 fail for a
+      reason other than a retrieval that did not complete.
 
    temporarily_unavailable:  A retrieval needed to obtain or check the
       replacement, or to check the proven key, did not complete, for a
@@ -1327,7 +1352,8 @@ Table of Contents
       exceed the reviewed document's metadata or this server's policy,
       as for a presentation.
 
-   invalid_request:  The request carries software_statement in a role
+   invalid_request:  The request carries a replacement but omits
+      client_id (Section 5.1), or carries software_statement in a role
       Section 5.1 does not permit.
 
    None of these rejections indicates refresh-token replay ([RFC9700]).
@@ -1342,8 +1368,9 @@ Table of Contents
    (Section 5.1.1) but can be pulled there (Section 5.2).  There, if
    reviewed software is required (Section 5.4.1, Section 5.2), a review-
    only client is rejected with unauthorized_client, and a client whose
-   pull of statements did not complete (Section 5.3) is rejected with
-   temporarily_unavailable.
+   pull of statements, or retrieval of a statement key set needed to
+   verify one (Section 4), did not complete (Section 5.3) is rejected
+   with temporarily_unavailable.
 
    Apart from those two cases, at the authorization endpoint, if the
    authorization server requires a statement for a client it has not
@@ -1404,10 +1431,11 @@ Table of Contents
 
    The following is an example of a client presenting a statement at the
    token endpoint of a server holding no record for the client (line
-   breaks for display purposes only).  The reviewed document names a
-   jwks_uri, the private_key_jwt authentication method, and the
-   client_credentials grant type, so the client authenticates with a key
-   that document carries.  The client_id is the statement's sub.
+   breaks for display purposes only).  The reviewed document, which is
+   not shown, names a jwks_uri, the private_key_jwt authentication
+   method, the client_credentials grant type, and a scope that includes
+   tools.read, so the client authenticates with a key that document
+   carries.  The client_id is the statement's sub.
 
    POST /token HTTP/1.1
    Host: as.example
@@ -1683,10 +1711,10 @@ Table of Contents
    is fatal ([REGISTRATION]).  The statement's lifetime bounds how stale
    an unobserved review can become.
 
-   Instances need the current statement from a shared source rather than
-   a copy fixed at build or install time, because the first presentation
-   of a replacement supersedes its predecessor for every instance
-   (Section 6).
+   Instances need the most recently issued statement from a shared
+   source rather than a copy fixed at build or install time, because the
+   first presentation of a replacement supersedes its predecessor for
+   every instance (Section 6).
 
 13.4.  Withdrawal Practice
 

@@ -861,10 +861,10 @@ Table of Contents
     +=======+============================+============================+
     |4      | A required issuer          | A presentation processed   |
     |       | configured for software    | under Section 7.1 is not   |
-    |       | whose documents are        | review-only, so a current  |
-    |       | presented review-only      | statement from the         |
-    |       | excludes that software     | required issuer can admit  |
-    |       | from the tenant.           | the software.              |
+    |       | whose presentations are    | review-only, so a current  |
+    |       | review-only excludes that  | statement from the         |
+    |       | software from the tenant.  | required issuer can admit  |
+    |       |                            | the software.              |
     +-------+----------------------------+----------------------------+
     |5.2    | A statement pulled at the  | The binding is set at the  |
     |       | authorization endpoint     | PAR endpoint; an           |
