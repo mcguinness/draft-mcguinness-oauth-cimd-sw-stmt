@@ -430,7 +430,7 @@ On refresh-token use, the authorization server proceeds as follows:
 
    If the authorization server holds a refusal record for the establishment's recorded statement, it MUST reject a refresh without a presented or pulled replacement (step 3) satisfying this section, whatever its policy on requiring a current statement otherwise: a withdrawal ends grant continuation at once rather than waiting on local policy. To let a withdrawal reach open grants and not only new ones, a server that uses a withdrawal mechanism for the recorded statement's issuer SHOULD consult it for that statement at each refresh.
 
-   If a required issuer ({{issuer-trust}}) covers the establishment's `sub` in the establishment's tenant, the authorization server MUST reject a refresh with `statement_required`, or with `temporarily_unavailable` if a retrieval needed to check a replacement did not complete, unless the recorded statement or a replacement satisfying this section is a current statement from that issuer. A grant recorded under another issuer's statement cannot meet this, since a replacement keeps the recorded statement's `iss`, so its client opens a new grant by presentation.
+   If a required issuer ({{issuer-trust}}) covers the establishment's `sub` in the establishment's tenant, the authorization server MUST reject a refresh with `statement_required`, or with `temporarily_unavailable` if a retrieval needed to obtain or check a replacement did not complete, unless the recorded statement or a replacement satisfying this section is a current statement from that issuer. A grant recorded under another issuer's statement cannot meet this, since a replacement keeps the recorded statement's `iss`, so its client opens a new grant by presentation.
 
    The authorization server applies these two rejections after obtaining and evaluating any replacement under steps 3 and 4.
 
@@ -448,7 +448,7 @@ On refresh-token use, the authorization server proceeds as follows:
 
 6. Update. If a replacement is accepted, the refreshed grant's statement identity, `iat`, effective expiry, reviewed metadata, and trust decision become those of the replacement ({{grant-state}}) in a single atomic update, and concurrent replacements resolve to the most recently issued statement. Without one, the grant's state is unchanged.
 
-A refresh whose replacement fails the requirements of step 4, or that omits a replacement that is needed, including one a pull does not complete or does not yield, leaves the grant's state unchanged and is rejected with `statement_required`, or with `temporarily_unavailable` if a retrieval needed to check the replacement did not complete for a reason other than the size bound of {{metadata-digest}}.
+A refresh whose replacement fails step 4, or that needs a replacement and obtains none, leaves the grant's state unchanged. It is rejected with `temporarily_unavailable` if a retrieval needed to obtain or check the replacement, such as the pull of step 3, did not complete ({{processing}}) for a reason other than the size bound of {{metadata-digest}}, and otherwise with `statement_required`, including when a completed pull yields no replacement.
 
 Refresh never rotates the establishment's key. A client that needs a new key performs a new presentation.
 
@@ -544,13 +544,13 @@ A token request that redeems an authorization code opened by a presentation is r
 Under an establishment, a refresh-token request rejected for a reason this specification defines uses the following error codes:
 
 `statement_required`:
-: A current statement or a replacement is needed ({{refresh}}) and none is supplied or pulled, the one supplied or pulled fails the replacement requirements of {{refresh}} or the `iat` floor of {{multi-instance}}, or a required issuer covers the client and neither the recorded statement nor a replacement is a current statement from it ({{refresh}}).
+: A current statement or a replacement is needed ({{refresh}}) and none is supplied or a completed pull yields none, the one supplied or pulled fails the replacement requirements of {{refresh}} or the `iat` floor of {{multi-instance}}, or a required issuer covers the client and neither the recorded statement nor a replacement is a current statement from it ({{refresh}}).
 
 `invalid_grant`:
 : The checks of step 1 of {{refresh}} fail.
 
 `temporarily_unavailable`:
-: A retrieval needed to check the replacement or the proven key did not complete, for a reason other than the document size bound ({{metadata-digest}}).
+: A retrieval needed to obtain or check the replacement, or to check the proven key, did not complete, for a reason other than the document size bound ({{metadata-digest}}).
 
 `unauthorized_client` or `invalid_scope`:
 : The refreshed access would exceed the reviewed document's metadata or this server's policy, as for a presentation.
