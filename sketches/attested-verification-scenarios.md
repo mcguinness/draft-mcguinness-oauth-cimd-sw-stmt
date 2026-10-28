@@ -1,19 +1,34 @@
 # Verification Scenarios for Attested Instance Keys
 
-Test cases for draft-mcguinness-oauth-cimd-sw-stmt-attested, moved out of the draft before -00.
+An implementation checklist for [the attested draft](../draft-mcguinness-oauth-cimd-sw-stmt-attested.md), moved out of the draft before -00. Expected results use the error codes that draft assigns; where it and this list differ, the draft governs.
 
-An implementation exercise should include the following cases in addition to successful admission and refresh:
+## Prerequisites
 
-* A copied statement with an unattested key fails before creating an establishment.
-* A copied attestation with a different proof key fails authentication.
-* A valid attestation for another client, digest, tenant authorization, or policy fails its corresponding binding check.
-* A loopback code intercepted by another process cannot be redeemed without both the verifier and recorded key.
-* A repeated proof and a proof intended for another endpoint are rejected.
-* A nonce retry neither consumes grant state nor advances the `iat` floor.
-* A refresh with a renewed attestation for the original key, attester, and policy succeeds when the review remains current.
-* A metadata replacement without a matching current attestation fails without changing the establishment.
-* A code outstanding while another grant sharing its establishment refreshes onto a replacement over new metadata is rejected at redemption, and the client restarts at the PAR endpoint.
-* A new key, attester, policy, or tenant cannot take over an existing grant.
-* Withdrawal or removal of trust prevents continuation despite a fresh proof.
-* Omitting attestations or using direct authorization cannot bypass a server requirement for this binding.
-* An unapproved local process cannot obtain usable signatures or tokens through the trusted launcher.
+Every scenario starts from this setup unless it says otherwise:
+
+* An authorization server implementing the attested draft, with PAR, PKCE using `S256`, DPoP with server-issued nonces, and the `attest_jwt_client_auth_dpop` method.
+* A statement issuer the server trusts, and an attester and evidence policy it accepts for the client identifier and tenant.
+* A reviewed Client ID Metadata Document that selects the profile, declares `attest_jwt_client_auth_dpop`, lists `authorization_code` and `refresh_token` in `grant_types`, carries no `jwks` or `jwks_uri`, and lists only loopback redirection URIs the profile allows.
+* A current statement over that document's digest, presented by the client or published for the server to pull.
+* A client instance holding a key the attester has attested for that client identifier and digest.
+
+## Scenarios
+
+| # | Scenario | Setup | Expected result |
+| --- | --- | --- | --- |
+| 1 | Admission | PAR with a current attestation and a DPoP proof under the attested key; redemption with the PKCE verifier and the same key | PAR response, then DPoP-bound tokens; an establishment records the key, attester, policy, and tenant |
+| 2 | Refresh | Refresh with a renewed attestation for the same key, attester, and policy while the review is current | New tokens bound to the same key |
+| 3 | Copied statement, no attestation | A PAR for a document that selects the profile, carrying a valid statement but no attestation for the presenter's key | `invalid_client`; no establishment |
+| 4 | Copied attestation | A valid attestation with a DPoP proof under a different key | `invalid_client`, or `invalid_client_attestation`; no establishment |
+| 5 | Mismatched attestation | At the PAR endpoint: an attestation for another client identifier, or from an attester or under a policy not accepted for this client identifier or tenant | `invalid_client` |
+| 6 | Attestation over another digest | An attestation naming an earlier digest while the served document matches the statement | `use_fresh_attestation`; the client retries with a fresh attestation |
+| 7 | Intercepted loopback code | Another process tries to redeem the code | Instance authentication comes first: `invalid_client`, or `invalid_client_attestation`, if it cannot authenticate under the attested key; `invalid_grant` if it authenticates under an attested key of its own, or lacks the PKCE verifier; no tokens |
+| 8 | Replayed or misdirected proof | A DPoP proof reused, or made for another endpoint or method | `invalid_dpop_proof` |
+| 9 | Nonce retry | A request without the current server nonce | `use_dpop_nonce` with a `DPoP-Nonce` header; no code consumed, no refresh token rotated, no establishment created, `iat` floor unchanged |
+| 10 | Replacement without a matching attestation | Refresh with a replacement over a new digest and an attestation naming the old one | `use_fresh_attestation`; the establishment and refresh token are unchanged |
+| 11 | Outstanding code after the document changed | Two transactions share an establishment. The publisher changes the document, and one grant refreshes onto a replacement over the new digest. The other transaction's code is then redeemed | `invalid_grant`: redemption confirms that the live document still matches the digest recorded for the code, and it no longer does. The client restarts at the PAR endpoint |
+| 12 | Control for 11 | As 11, but the document is unchanged and a newer statement has only raised the `iat` floor | Redemption succeeds: the recorded statement is unexpired and not refused, the digest still matches, and a raised floor alone does not invalidate the code |
+| 13 | Takeover of a grant | A refresh or redemption under a new key, attester, policy, or tenant | `invalid_grant`: it does not match a fixed establishment value |
+| 14 | Withdrawal or trust removal | The statement is withdrawn, its issuer is no longer trusted, or the attester or policy is no longer accepted, then the client refreshes with a fresh proof | `statement_required` for a withdrawn statement or an untrusted issuer; `invalid_client` for an attester or policy no longer accepted |
+| 15 | Required binding | Server policy requires the binding for the client namespace or tenant, and a request uses another authentication method, skips PAR with a direct authorization request, uses another grant type, or presents a statement over an earlier document | Rejected rather than admitted under the policy for unreviewed clients: `invalid_client` for another authentication method or a statement over an earlier document, `invalid_request` at the authorization endpoint, `unauthorized_client` for another grant type |
+| 16 | Local process through the launcher | An unapproved local process asks the trusted launcher to sign or to run a transaction | Deployment check, not a protocol result: the launcher refuses, and no proof or token reaches the process |
