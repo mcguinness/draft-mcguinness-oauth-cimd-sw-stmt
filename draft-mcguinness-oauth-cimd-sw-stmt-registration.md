@@ -224,7 +224,7 @@ One unexpired statement can be consumed more than once, subject to the bounds Se
 
 # Error Responses {#errors}
 
-A rejection this specification defines, at a client registration endpoint or at the client configuration endpoint of {{RFC7592}}, uses the error response of Section 3.2.2 of {{RFC7591}}, with the HTTP status code that section specifies. An authorization server SHOULD respond with HTTP status code 503 to a request it rejects with the `temporarily_unavailable` error code.
+A rejection this specification defines, at a client registration endpoint or at the client configuration endpoint of {{RFC7592}}, uses the error response of Section 3.2.2 of {{RFC7591}}, with the HTTP status code that section specifies, except that an authorization server SHOULD respond with HTTP status code 503 to a request it rejects with the `temporarily_unavailable` error code.
 
 Rejections of a registration management request for other reasons use the responses {{RFC7592}} specifies. Rejections at other endpoints use the error responses of Section 8 of {{STATEMENT}}, and registration expiry is reported as {{registration-validity}} defines.
 
