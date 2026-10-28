@@ -268,7 +268,7 @@ A client presents a software statement by including the following parameter in a
 `software_statement`:
 : REQUIRED for presentation. The software statement ({{profiles}}). It is consumed as a runtime presentation, a refresh replacement ({{refresh}}), or, if {{REGISTRATION}} is implemented, a delivery under that specification. A request carrying the parameter in any other role is rejected with `invalid_request`.
 
-The request's `client_id` is the client's Client ID Metadata Document URL. It MUST exactly equal the statement's `sub` claim. If the two differ, the authorization server MUST reject the presentation with the `invalid_client` error code. The effective `client_id` is the statement's `sub`, and the authorization server assigns none.
+The request MUST include the `client_id` parameter, even if the client authenticates, and its value, the client's Client ID Metadata Document URL, MUST exactly equal the statement's `sub` claim. If the parameter is absent, the authorization server rejects the request with `invalid_request`. If the two differ, the authorization server MUST reject the presentation with the `invalid_client` error code. The effective `client_id` is the statement's `sub`, and the authorization server assigns none.
 
 The request carries the proof that {{sender-constraint}} requires. A successful presentation establishes the client for the request and for the grant state derived from it ({{grant-lifecycle}}).
 
