@@ -199,7 +199,7 @@ For a replacement, the authorization server MUST do the following:
 
 Renewing on the statement alone would leave in the registration a key, redirection URI, or scope that the new review removed.
 
-On success, the replacement becomes the governing statement: the authorization server MUST replace the recorded identity, `iat`, effective expiry, and derived metadata with the replacement's, and apply any tenant restriction it adds ({{dcr-presentation}}), in a single atomic update, and concurrent deliveries resolve to the most recently issued statement.
+On success, the replacement becomes the governing statement: the authorization server MUST replace the stored claims of the governing statement ({{registration-validity}}), the effective expiry, and the registration's metadata with the replacement's, and apply any tenant restriction it adds ({{dcr-presentation}}), in a single atomic update, and concurrent deliveries resolve to the most recently issued statement.
 
 Access issued under the registration after that update, including on refresh of a grant issued before it, MUST fall within the re-derived metadata, as Section 5.6.1 of {{STATEMENT}} requires of a refreshed grant.
 

@@ -448,7 +448,7 @@ On refresh-token use, the authorization server proceeds as follows:
 
 5. Access. The refreshed access MUST fall within the metadata of the document an accepted replacement names or, without one, the establishment's reviewed metadata.
 
-6. Update. If a replacement is accepted, the refreshed grant's statement identity, `iat`, effective expiry, reviewed metadata, and trust decision become those of the replacement ({{grant-state}}) in a single atomic update, and concurrent replacements resolve to the most recently issued statement. Without one, the grant's state is unchanged.
+6. Update. If a replacement is accepted, the refreshed grant's statement identity, `iat`, effective expiry, any claim by which a withdrawal mechanism locates the statement, reviewed metadata and the digest it matched, and trust decision become those of the replacement ({{grant-state}}) in a single atomic update, and concurrent replacements resolve to the most recently issued statement. Without one, the grant's state is unchanged.
 
 A refresh whose replacement fails step 4, or that needs a replacement and obtains none, leaves the grant's state unchanged. It is rejected with `temporarily_unavailable` if a retrieval needed to obtain or check the replacement, such as the pull of step 3, did not complete ({{processing}}) for a reason other than the size bound of {{metadata-digest}}, and otherwise with `statement_required`, including when a completed pull yields no replacement.
 
