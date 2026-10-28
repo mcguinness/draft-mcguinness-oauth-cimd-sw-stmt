@@ -1,6 +1,6 @@
 # Composing with OpenID Federation: A Sketch
 
-This is a non-normative sketch, not a draft. It describes how the specifications in this repository could compose with OpenID Federation 1.0 (Final, 17 February 2026), and marks the one place where they cannot. If it were adopted it would become a short profile, roughly one section of normative text per profile below, adding no endpoint and no artifact beyond a Trust Mark type. Section numbers refer to OpenID Federation 1.0.
+This is a non-normative sketch, not a draft. It describes how the specifications in this repository could compose with OpenID Federation 1.0 (Final, 17 February 2026), and marks the one place where they cannot. Profile A is the primary proposal: if adopted, it would be a short profile adding no endpoint and no artifact. Profile B is an alternative artifact that would need an explicit semantic mapping, set out below, before it could stand in for a statement. Section numbers refer to OpenID Federation 1.0.
 
 The summary is that the two compose on trust and stop at metadata. Federation supplies exactly what [the statement draft](../draft-mcguinness-oauth-cimd-sw-stmt.md) declares out of scope, and the statement draft's metadata rule is incompatible with Resolved Metadata by construction.
 
@@ -8,7 +8,7 @@ The reason the two meet at all is worth stating before the profiles. Federation'
 
 ## Profile A: Federation as the trust source for statement issuers
 
-The statement draft says it "defines no in-band issuer discovery or trust decision" and has a trusting authorization server record seven things per issuer. Federation is that missing mechanism. A trusting authorization server configures Trust Anchors and their public keys, which is all Federation requires of a relying party (§10), and resolves each issuer rather than enrolling it.
+The statement draft says it "defines no in-band issuer discovery or trust decision" and has a trusting authorization server record eight things per issuer. Federation is that missing mechanism. A trusting authorization server configures Trust Anchors and their public keys, which is all Federation requires of a relying party (§10), and resolves each issuer rather than enrolling it.
 
 | What a consumer records today | Under this profile |
 | --- | --- |
@@ -19,8 +19,9 @@ The statement draft says it "defines no in-band issuer discovery or trust decisi
 | Audience identifiers the issuer may name | Local |
 | Maximum statement lifetime honored | Local |
 | Policy on repeated and multiple registration | Local |
+| A tenant to which it confines the issuer's decisions | Local |
 
-Three of the seven come from the chain: the identifier, the key source, and the namespaces the issuer may attest. The four that stay local are the consumer's own risk posture rather than facts about the issuer, so no discovery mechanism should supply them.
+Three of the eight come from the chain: the identifier, the key source, and the namespaces the issuer may attest. The five that stay local are the consumer's own risk posture rather than facts about the issuer, so no discovery mechanism should supply them.
 
 **Keys.** A software statement is signed with a protocol key, not a Federation Entity Key. Federation keeps these families apart and says Federation Entity Keys "SHOULD NOT be used in other protocols" (§3.1.1). The statement draft separates further among protocol keys: statement signing keys sit at `software_statement_jwks_uri` and never at `jwks_uri`, so that a key that signs anything else cannot verify a statement. A consumer therefore takes statement verification keys from `software_statement_jwks_uri` in the issuer's resolved `oauth_authorization_server` metadata, and never from `jwks`, `jwks_uri`, or `signed_jwks_uri`. The chain vouches for that metadata; it does not supply the signing key directly. Federation's `signed_jwks_uri` has no counterpart for the statement key set, so a profile would define one or rely on the plain URL, as a consumer outside a federation does.
 
@@ -30,7 +31,7 @@ Three of the seven come from the chain: the identifier, the key source, and the 
 
 ## Profile B: the review as a Trust Mark
 
-Federation already has an artifact for a third party's signed assertion about an entity. A Trust Mark carries `iss`, `sub`, `trust_mark_type`, and `iat` as required claims, permits `exp`, and says plainly that "Additional Claims MAY be defined and used" (§7.1). A review fits with one added claim.
+Federation already has an artifact for a third party's signed assertion about an entity. A Trust Mark carries `iss`, `sub`, `trust_mark_type`, and `iat` as required claims, permits `exp`, and says plainly that "Additional Claims MAY be defined and used" (§7.1). A review fits the claim set with one added claim.
 
 | Claim | Value in this profile |
 | --- | --- |
@@ -39,6 +40,17 @@ Federation already has an artifact for a third party's signed assertion about an
 | `trust_mark_type` | `urn:ietf:params:oauth:trust-mark-type:cimd-review`, registered in the IANA OAuth URI registry |
 | `iat`, `exp` | As Federation defines, with `exp` REQUIRED here |
 | `cimd_digest` | The digest of the exact octets the reviewer evaluated |
+
+**The claim expresses the review, not how a consumer uses it.** A software statement carries more than a review: it says where it may be used and how it is superseded, and the statement draft's consumption rules depend on each. A Trust Mark standing in for a statement needs a profile to decide each of the following explicitly:
+
+* **Audience.** A statement's `aud` restricts which servers may accept it. A Trust Mark has no audience claim, so the profile adds one or treats every mark as unrestricted.
+* **Tenant.** A decision confined to one tenant carries `aud_tenant`, and the consumer applies the tenant rules of the statement draft.
+* **Permitted uses.** `statement_uses` separates registration from runtime presentation.
+* **Identity and supersession.** A statement is identified by `iss` and `jti`, and the `iat` floor makes a later statement supersede an earlier one for new admissions. The profile names the values that play those parts.
+* **Refresh replacement.** Which mark replaces the one that opened a grant, matched by `iss` and `sub`, and with what checks.
+* **Status freshness.** How old an `active` answer from the Trust Mark Status endpoint may be before the consumer asks again.
+
+Until a profile settles each, Profile B is an architectural proposal. A deployment conveying reviews inside a federation can use Profile A with ordinary statements in the meantime.
 
 **`exp` is the one place this profile must override Federation.** Federation makes `exp` optional and says that absent, "the Trust Mark does not expire." A review that never expires is the condition this whole family exists to end, so the profile requires it. Everything the statement draft says about bounded lifetime carries over unchanged.
 
@@ -69,6 +81,8 @@ Resolved Metadata is a derived object that two parties other than the publisher 
 * Under Explicit Registration, "The OP MAY modify the received RP metadata" (§12.2.2).
 
 The registration draft requires a server to derive registered metadata by parsing the same octets it digested and to take every metadata value from that document, and at request time the statement draft applies that document's members as the client's metadata. Resolved Metadata is by construction not those octets. The statement draft already generalizes the rule that settles this: any condition that makes retrieval depend on who is asking defeats the comparison, whatever its cause. Metadata policy differs by chain, so Resolved Metadata differs by who resolved it, deliberately.
+
+The boundary is against replacing the reviewed metadata, not against stricter local policy. A server that also applies a federation's metadata policy as an additional restriction, refusing a request the policy would not allow, remains compatible: the reviewed document still supplies every metadata value, and the server admits less. What breaks the digest's meaning is taking a value from Resolved Metadata in place of the document's.
 
 A deployment that wants Resolved Metadata to govern its clients should use Federation's own registration and not this family. The failure mode to avoid is running both for the same client and assuming they agree.
 
