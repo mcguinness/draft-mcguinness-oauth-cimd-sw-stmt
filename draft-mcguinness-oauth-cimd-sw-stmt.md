@@ -320,15 +320,15 @@ If the server's trust configuration requires an issuer for this client ({{issuer
 
 Having selected a statement, the server continues from step 4 of {{processing}}, with the pulled statement in place of a presented one and the document already resolved. The selection above satisfies the `client_id` rule of step 2.
 
-The presenter of a pulled statement is bound as for a presented statement ({{sender-constraint}}), at the point the request allows, as follows:
+The presenter of a pulled statement is bound as for a presented statement ({{sender-constraint}}), at the point the request allows, as the following table shows for every case except the review-only documents described after it. In the table, a public client is one whose reviewed document declares `token_endpoint_auth_method` of `none`, and a confidential client is one whose document declares another method:
 
-* At the token endpoint, for a client whose document does not declare `token_endpoint_auth_method` of `none`, the request's client authentication or DPoP proof binds the presenter.
-* At the pushed authorization request endpoint, a confidential client's authentication binds the presenter, and a public client whose request binds a key through a DPoP proof or `dpop_jkt` is subject to {{public-client-presentation}}, including PKCE.
-* At the authorization endpoint, binding completes at code redemption, before any token is issued:
-  * A confidential client authenticates at code redemption with a key the reviewed document carries, in its `jwks` or at its `jwks_uri` within the reuse bounds of {{sender-constraint}}, not one that only a later retrieval of the document carries, and that key becomes the establishment's proven key.
-  * A public client's authorization request that binds a key through `dpop_jkt` is subject to {{public-client-presentation}}, including PKCE, and redemption proves the bound key.
-* A public client opening a new grant at the token endpoint, or sending a pushed or ordinary authorization request that binds no key, has nothing to bind, so a statement pulled for it is review-only ({{public-client-presentation}}), as is one pulled for a document whose redirection URIs that section does not accept.
-* Code redemption and refresh continue an establishment and keep the binding it already has ({{grant-lifecycle}}, {{refresh}}), except that redemption sets the proven key of an establishment whose statement was pulled at the authorization endpoint for a confidential client.
+| Where the statement is pulled | Confidential client | Public client |
+| --- | --- | --- |
+| Token endpoint, opening a new grant | The request's client authentication or DPoP proof binds the presenter | Review-only, since nothing binds the presenter |
+| Pushed authorization request endpoint | The client's authentication binds the presenter | {{public-client-presentation}} applies, including PKCE, if the request binds a key through a DPoP proof or `dpop_jkt`. Otherwise review-only |
+| Authorization endpoint | The client's authentication at code redemption binds the presenter, before any token is issued | {{public-client-presentation}} applies, including PKCE, if the request binds a key through `dpop_jkt`, and redemption proves that key. Otherwise review-only |
+
+At code redemption, a confidential client whose statement was pulled at the authorization endpoint authenticates with a key the reviewed document carries, in its `jwks` or at its `jwks_uri` within the reuse bounds of {{sender-constraint}}, not one that only a later retrieval of the document carries, and that key becomes the establishment's proven key. Code redemption and refresh otherwise continue an establishment and keep the binding it already has ({{grant-lifecycle}}, {{refresh}}). A statement pulled for a document that omits `token_endpoint_auth_method` ({{sender-constraint}}), or whose redirection URIs {{public-client-presentation}} does not accept, is review-only wherever it is pulled.
 
 If retrieval does not complete or no statement remains, the server applies its policy for Client ID Metadata Document clients it has not reviewed, subject to any required issuer ({{issuer-trust}}). If that policy or a required issuer ({{issuer-trust}}) requires reviewed software, the server rejects the request with `temporarily_unavailable` if retrieval did not complete and with `statement_required` if no statement remains. A retrieval failure is never a withdrawal.
 
