@@ -4,11 +4,11 @@ A non-normative sketch of the reasoning behind two things that are now in the dr
 
 ## Why MCP, and why now
 
-The MCP authorization specification of 2026-07-28 identifies clients by Client ID Metadata Document and says plainly that "Dynamic Client Registration is deprecated and retained for backwards compatibility with authorization servers that do not support Client ID Metadata Documents." Its own example document is a public client, `token_endpoint_auth_method` of `none`, redirecting to `http://127.0.0.1:3000/callback` and `http://localhost:3000/callback`.
+The MCP authorization specification of 2026-07-28 recommends identifying clients by Client ID Metadata Document, which servers and clients SHOULD support, and says plainly that "Dynamic Client Registration is deprecated and retained for backwards compatibility with authorization servers that do not support Client ID Metadata Documents." Its own example document is a public client, `token_endpoint_auth_method` of `none`, redirecting to `http://127.0.0.1:3000/callback` and `http://localhost:3000/callback`.
 
 Three consequences follow for the family.
 
-* **Registration is out.** Consumption at registration, the registration-validity model, and renewal through the token endpoint serve servers that keep RFC 7591 registrations. An MCP authorization server keeps none. Runtime admission is the whole of the family's relevance here, and a statement without `statement_uses` is already usable only at request time.
+* **Registration is optional.** Consumption at registration, the registration-validity model, and renewal through the token endpoint serve servers that keep RFC 7591 registrations. MCP still permits Dynamic Client Registration for compatibility, so an MCP authorization server may keep registrations; the profile assumes one that keeps none, which is the profile's choice rather than MCP's. Under that assumption runtime admission is the whole of the family's relevance, and a statement without `statement_uses` is already usable only at request time.
 * **Desktop clients redirect to loopback.** The statement draft now treats such a client's presentation as review-only: it admits nothing an unreviewed client would not get, never satisfies a policy that requires reviewed software, and creates no establishment. That is the honest outcome, since another application on the same device can claim the loopback port, and it means a desktop client presenting a statement is no worse off than one presenting nothing.
 * **Nobody carries anything yet.** An MCP client today sends its document URL and, at most, a client assertion. Asking every client vendor to obtain a statement, store it, renew it before expiry, and attach it to pushed authorization requests is the step that will not happen.
 
@@ -16,17 +16,17 @@ The last of these is the one this sketch is about.
 
 ## What carrying costs
 
-The client-carried statement drives most of the family's machinery, and most of its security analysis.
+The client-carried statement drives much of the family's machinery, but not all of it.
 
-| Machinery | Exists because the client carries the statement |
-| --- | --- |
-| The `software_statement` request parameter | It is how the statement arrives |
-| Renewal by prior statement, and its holder binding | The client must keep a current copy |
-| The copied-statement analysis | A copy in the wrong hands is presentable |
-| The `iat` watermark and its fleet cutover | Instances may hold different copies |
-| Refresh replacement | A grant outlives the copy that opened it |
+| Machinery | Why it exists | Removed by pull |
+| --- | --- | --- |
+| The `software_statement` request parameter | It is how the statement arrives | Yes |
+| Renewal by prior statement, and its holder binding | The client must keep a current copy | For clients; the publisher replaces what it publishes |
+| The copied-statement analysis | A copy in the wrong hands is presentable | Narrowed; a published statement is still readable |
+| The `iat` floor | Instances and servers may see different versions | No |
+| Refresh replacement | A grant outlives the statement that opened it | No |
 
-A server that fetches the review itself needs almost none of this. The artifact stays exactly as defined: the same JWT, the same validation, the same digest comparison against the document the server resolves, and the same establishment. Only the conveyance changes.
+A server that fetches the review itself needs less of this, but not none. The artifact stays exactly as defined: the same JWT, the same validation, the same digest comparison against the document the server resolves, and the same establishment. Only the conveyance changes, and conveyance accounts for only some of the rows above.
 
 ## Pulling the review
 
@@ -38,7 +38,7 @@ The document names, in `software_statements_uri`, where its current statements a
 
 This is what the statement draft's Pulled Statements section now defines, and it avoids the circularity that rules out embedding: the document carries a location, not a statement over itself, and the statement's digest covers that location along with everything else. A different party cannot redirect the server to statements of its choosing without changing the document, since the location is part of the document the digest covers, and changing it changes the digest every statement names.
 
-The publisher controls the location, so it can withhold. Withholding a review downgrades the client to unreviewed, which is the publisher's own loss. It cannot forge one, since every statement is issuer-signed, and an older statement it serves is still subject to `exp`, status, and the watermark.
+The publisher controls the location, so it can withhold. Withholding a review downgrades the client to unreviewed, which is the publisher's own loss, unless the server's trust configuration requires an issuer for that client, in which case withholding is a refusal. It cannot forge one, since every statement is issuer-signed, and an older statement it serves is still subject to `exp`, status, and the `iat` floor.
 
 It also gives a working form to the suggestion in Section 4.3 of the CIMD draft, carrying a `software_statement` inside the document. The statement draft has consumers ignore an embedded statement of its profile, because a document cannot carry a review of itself; a reference to where reviews live can.
 
@@ -56,13 +56,13 @@ Document-located pull is the smaller change, the one the statement draft specifi
 
 The presenter binding does not change. A confidential client proves a key its document carries, through `private_key_jwt` or DPoP, as runtime presentation already requires. A public client with `https` redirection URIs is bound by them. A loopback client is review-only. None of that depended on who delivered the statement.
 
-What goes away is everything in the table above that exists only because a copy travels with the client. The watermark remains, but a server that fetches the current statement sees one statement per software rather than one per instance, so the cutover problem is gone. The statement draft's guidance that instances share one current statement is what remains for clients that still carry theirs. Renewal becomes the issuer, or publisher, replacing what is published; no client is involved.
+What goes away is client-side carriage and distribution: the request parameter, the client keeping a current copy, and the client's part in renewal, which becomes the publisher replacing what it publishes. What remains is everything that exists because statements change over time. A grant still outlives the statement that opened it, so refresh replacement stays. A host can serve a stale copy or publish in the middle of a change, and two servers fetching at different moments can see different versions, so the `iat` floor stays. The copied-statement analysis narrows, since nothing travels with a client, but a published statement is readable by anyone and so still presentable where presentation is accepted.
 
 ## The MCP profile
 
 [Reviewed Client Software](../mcp/reviewed-client-software.mdx) is the profile this section first sketched, now written as an MCP authorization extension. In outline:
 
-1. **Identity.** `client_id` is the Client ID Metadata Document URL, as MCP already requires. There is no registration, and statements carry no `statement_uses`, so they are usable only at request time.
+1. **Identity.** `client_id` is the Client ID Metadata Document URL. MCP recommends this; the profile requires it, and defines no registration step. Statements carry no `statement_uses`, so they are usable only at request time.
 2. **Conveyance.** Servers pull statements from the `software_statements_uri` the document names and advertise `software_statement_pull_supported`. A client may also present a statement where a server accepts presentation, and both converge on one validation path.
 3. **Presenter binding.** Confidential clients authenticate with `private_key_jwt` using a key the document carries; public clients with `https` redirection URIs are bound by them and a DPoP key; clients with any loopback redirection URI are review-only.
 4. **Tenants.** A multi-tenant server resolves the tenant by its own means before evaluating any statement, and a customer's tenant-scoped decision carries `aud_tenant`. A statement says nothing about which of a client's own customers a request is for, so a server that needs that binding keeps it itself.

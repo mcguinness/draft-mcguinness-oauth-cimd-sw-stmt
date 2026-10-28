@@ -12,7 +12,7 @@ title: Reviewed Client Software
 
 This document defines an application of "[CIMD Software Statement](https://mcguinness.github.io/draft-mcguinness-oauth-software-statement-issuance/draft-mcguinness-oauth-cimd-sw-stmt.html)" for the Model Context Protocol (MCP). It lets an MCP authorization server admit an MCP client on the strength of a review by a party the server trusts, bound to the exact Client ID Metadata Document that party reviewed, without the client registering and, in the common case, without the client sending anything new.
 
-MCP identifies clients by [Client ID Metadata Document](https://www.ietf.org/archive/id/draft-ietf-oauth-client-id-metadata-document-02.html) and has deprecated Dynamic Client Registration. A metadata document says what a client claims about itself. This profile adds who reviewed those claims, and lets a server tell whether the document it fetched today is the one that was reviewed.
+MCP recommends identifying clients by [Client ID Metadata Document](https://www.ietf.org/archive/id/draft-ietf-oauth-client-id-metadata-document-02.html) and has deprecated Dynamic Client Registration. A metadata document says what a client claims about itself. This profile adds who reviewed those claims, and lets a server tell whether the document it fetched today is the one that was reviewed.
 
 A review answers a question about software: who vouched for this client, and against which bytes. It does not answer whether a particular user or organization may use the client right now. Where an enterprise identity provider mediates access, [Enterprise-Managed Authorization](https://github.com/modelcontextprotocol/ext-auth/blob/main/specification/stable/enterprise-managed-authorization.mdx) answers that second question, and this profile composes with it (Section 5).
 
@@ -40,7 +40,7 @@ The key words **MUST**, **MUST NOT**, **REQUIRED**, **SHOULD**, **SHOULD NOT**, 
 1. A Statement Issuer reviews the MCP Client's metadata document and signs a software statement naming the document's URL and the digest of its exact bytes.
 2. The Client Publisher publishes the statement at the URL its metadata document names in `software_statements_uri`.
 3. The MCP Client starts an ordinary MCP authorization flow, with its metadata document URL as `client_id`.
-4. The MCP Authorization Server resolves the metadata document, as MCP already requires, then retrieves the published statements, keeps those from issuers it trusts that name the document it just fetched, and validates them.
+4. The MCP Authorization Server resolves the metadata document, as MCP specifies for a client identified by its metadata document URL, then retrieves the published statements, keeps those from issuers it trusts that name the document it just fetched, and validates them.
 5. The server binds the presenter: by the client's key at the token endpoint for a confidential client, or by the reviewed redirection URIs and a DPoP key for a public client. It then admits the client as reviewed, or, where the client cannot be bound, as an unreviewed client.
 
 ### 2.1 Sequence Diagram
@@ -67,7 +67,7 @@ sequenceDiagram
 
 ### 3.1 Identity
 
-The MCP Client **MUST** use its Client ID Metadata Document URL as its `client_id`, as MCP already requires. This profile defines no registration step, and an MCP Client following it does not use Dynamic Client Registration.
+The MCP Client **MUST** use its Client ID Metadata Document URL as its `client_id`. MCP recommends Client ID Metadata Documents; this profile requires one. This profile defines no registration step, and an MCP Client following it does not use Dynamic Client Registration.
 
 ### 3.2 Publishing Statements
 
