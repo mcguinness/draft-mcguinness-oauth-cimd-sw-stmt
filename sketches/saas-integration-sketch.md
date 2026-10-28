@@ -6,7 +6,7 @@ The act being modelled is the customer's: one administrative decision to approve
 
 This sketch is exploratory. What it describes is a proposed extension, not something the drafts define, and it rests on [prerequisites](#prerequisites) that most deployments do not have today.
 
-**Two ways to carry the customer's decision.** The usual answer, that the customer's identity provider conveys permission by issuing an assertion, is unavailable here because no user is present. The statement draft has an answer of its own: the customer operates a reviewer and issues a statement about the vendor's software, confined to the platform tenant by `aud_tenant`, and the platform requires that reviewer's statement for the vendor's software in that tenant. Its cost shows in exactly this case: the customer's decision travels through the vendor it constrains, which holds the statement and presents it. This sketch works through the other answer, in which the customer's own root carries the decision through OpenID Federation machinery the customer already operates, and the platform fetches it, so the vendor carries nothing. Both leave the same gap, which of the vendor's own customers a request is for, and step 3 has to close it. [The two answers compared](#the-two-answers-compared) sets out the trade; which one a deployment should prefer is the authors' call.
+**Three ways to carry the customer's decision.** The usual answer, that the customer's identity provider conveys permission by issuing an assertion for the user, is unavailable here because no user is present. The statement draft has an answer of its own: the customer operates a reviewer and issues a statement about the vendor's software, confined to the platform tenant by `aud_tenant`, and the platform requires that reviewer's statement for the vendor's software in that tenant. Its cost shows in exactly this case: the customer's decision travels through the vendor it constrains, which holds the statement and presents it. A customer authority could also issue the vendor a short-lived workload assertion, which the vendor exchanges at the platform under the JWT bearer grant, with no user and no browser. This sketch works through the remaining answer, in which the customer's own root carries the decision through OpenID Federation machinery and the platform fetches it, so the vendor carries nothing. All three leave the same gap, which of the vendor's own customers a request is for, and step 3 has to close it. [The three answers compared](#the-three-answers-compared) sets out the trade and why this sketch prefers the pulled approval.
 
 ## Prerequisites
 
@@ -122,18 +122,18 @@ sequenceDiagram
     B-->>A: Refused
 ```
 
-## The two answers compared
+## The three answers compared
 
-| | The customer's statement (in the drafts) | The customer's trust mark (this sketch) |
-| --- | --- | --- |
-| Who carries it | The vendor, which presents it; publishing it would disclose the customer's approval to anyone | Nobody; the platform fetches it from the customer's root |
-| Confined to one platform tenant by | `aud_tenant` | `aud_tenant`, borrowed |
-| What the platform configures | The customer's reviewer, required for the vendor's software in that tenant | The customer's root, as a trust anchor |
-| Withdrawal | Status at the customer's reviewer, or non-renewal | Revocation at the customer's root |
-| Names the vendor's own customer | No | Can, through an unregistered claim |
-| Defined today | Yes | Endpoint mechanics only; no authorization model for who may ask |
+| | The customer's statement (in the drafts) | A customer-issued workload assertion | The customer's pulled approval (this sketch) |
+| --- | --- | --- | --- |
+| Who carries it | The vendor, which presents it; publishing it would disclose the customer's approval to anyone | The vendor, which obtains a fresh assertion from the customer for each grant | Nobody; the platform fetches it from the customer's root |
+| Confined to one platform tenant by | `aud` naming one server, and `aud_tenant` | Its audience and a tenant claim | The platform's issuer and `aud_tenant`, in an approval per platform |
+| What the platform configures | The customer's reviewer, required for the vendor's software in that tenant | The customer's assertion issuer, trusted for that tenant | The customer's root, as a trust anchor |
+| Withdrawal | Status at the customer's reviewer, or non-renewal | The customer stops issuing; issued assertions run to expiry | Revocation at the customer's root |
+| Names the vendor's own customer | No | Can, through an unregistered claim | Can, through an unregistered claim |
+| Defined today | Yes | The grant (RFC 7523); not the customer's issuer, its trust, or the tenant and account claims | Endpoint mechanics only; no authorization model for who may ask |
 
-The in-family answer is specified and needs nothing from Federation. This sketch's answer keeps the customer's decision off the vendor's path and gives it room to name the vendor account, at the price of an authorization model that does not exist yet.
+The in-family answer is specified and needs nothing new, but the customer's decision travels through the vendor it constrains. The workload assertion keeps the decision fresh on every grant and borrows no conformance artifact, but it puts the customer's authority on the request path for every token, needs the vendor to authenticate to that authority, and asks each customer to run an assertion service for every vendor it approves. The pulled approval keeps the decision off the vendor's path, lets the platform cache it between checks, and gives it room to name the vendor account, at the price of an authorization model that does not exist yet and a trust mark repurposed for commercial permission. For the intended deployment, a customer approving many vendors once and expecting the decision to hold at many platforms, this sketch prefers the pulled approval. All three need the same trust, tenant, and account bindings.
 
 ## What each part relies on
 
@@ -156,7 +156,7 @@ The in-family answer is specified and needs nothing from Federation. This sketch
 
 For a customer's commercial approvals that is the wrong way round. Which vendors an enterprise has approved is competitively sensitive and useful to an attacker mapping its estate. A root carrying these approvals therefore has to require client authentication at its trust mark endpoint, decline to publish a listing endpoint at all, and enforce a query-authorization policy the specification does not describe. All three are permitted, none is the default, and the last has no interoperable form, so two roots will do it differently.
 
-**No user means no assertion.** Everything the deployment model says about the customer's identity provider conveying permission per grant is unavailable here. That is why this case needs either the customer's own statement or a third path, and why it remains the weakest scenario in the set.
+**No user means no user assertion.** The per-grant permission the deployment model has the customer's identity provider convey for a user is unavailable here. A workload assertion is possible, as the comparison above sets out, but nothing defines the customer's side of it. That is why this case remains the weakest scenario in the set.
 
 **Nothing names the vendor's side.** Neither artifact has room for it. In a statement, `sub` is the vendor's one client identifier URL and `aud_tenant` names a tenant at the platform; an issuer serving several customers issues under a distinct `iss` for each rather than naming its own tenant. The customer's trust mark borrows `aud_tenant` and nothing else. It can carry an account claim, since Federation permits additional claims, but nothing registers one. In the request, the nearest existing carrier is a Client Instance Assertion with the vendor as instance issuer for its own accounts. That draft requires sender-constrained tokens, which a vendor calling with client credentials may not use. A plain request parameter would serve, and nothing defines one.
 
@@ -168,4 +168,4 @@ For a customer's commercial approvals that is the wrong way round. Which vendors
 * **Should the approval bind a key per customer?** It would recover the containment today's per-customer refresh tokens give for free, at the price of key management per customer at the vendor. It also overlaps with the per-instance keys the Client Instance Assertion already defines.
 * **Does the customer need the platform to hold a root at all?** The whole shape depends on the platform already trusting this customer's anchor. A customer whose platforms do not is back to per-console approval, and nothing here bootstraps that relationship.
 * **What does the customer see?** Nothing here gives the customer an inventory of which platforms have acted on its approvals, which is half of what an administrator wants from an approval record.
-* **Is a trust mark the right artifact for a customer's own governance decision**, or is it being borrowed because it is the nearest thing that exists? It carries an issuer, a subject, and an expiry, which is what is needed, but its intended meaning is conformance to a trust framework rather than commercial permission.
+* **Is a trust mark the right artifact for a customer's own governance decision**, or is it being borrowed because it is the nearest thing that exists? It carries an issuer, a subject, and an expiry, which is what is needed, but its intended meaning is conformance to a trust framework rather than commercial permission. A customer-issued workload assertion avoids the borrowing, at the costs the comparison sets out.
