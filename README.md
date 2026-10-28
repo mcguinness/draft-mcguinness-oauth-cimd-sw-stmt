@@ -108,6 +108,7 @@ Dependencies:
 Related work:
 
 * [Client Instance Identification for Attestation-Based Client Authentication](https://datatracker.ietf.org/doc/draft-mcguinness-oauth-client-instance-id/), which identifies instances within one client
+* [OAuth 2.0 Client Attester Endorsement](https://datatracker.ietf.org/doc/draft-mcguinness-oauth-client-attesters/), which lets a client's metadata document name the attesters it endorses, and which the issuance draft treats as calling for particular scrutiny at review
 * [OpenID Federation 1.0](https://openid.net/specs/openid-federation-1_0.html), sketched above
 * [OAuth Identity Assertion Trust Framework](https://datatracker.ietf.org/doc/draft-mcguinness-oauth-id-assertion-framework/), which generalizes issuer trust
 
