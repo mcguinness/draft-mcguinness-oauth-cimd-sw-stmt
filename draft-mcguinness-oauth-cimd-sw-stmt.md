@@ -856,7 +856,7 @@ Change controller:
 
 ## Claims Defined Elsewhere
 
-This specification uses two claims it does not define: `aud_tenant`, defined and registered by {{IDJAG}}, and `status`, defined and registered by {{STATUSLIST}}.
+This specification uses two claims it does not define: `aud_tenant`, defined and registered by {{IDJAG}}, and `status`, defined and registered by {{STATUSLIST}}. This section requests no IANA action.
 
 ## JSON Web Token Claims Registry
 
