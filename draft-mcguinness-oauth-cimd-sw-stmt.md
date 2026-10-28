@@ -247,7 +247,7 @@ These inputs, not the signature alone, define acceptance. A trusting authorizati
 
 A server that records, for one of its tenants, client identifier namespaces for which a configured issuer's decision is required ({{trust-configuration}}) MUST NOT admit software in a covered namespace in that tenant without a current statement from the required issuer, whatever its policy for clients it has not reviewed. Without this rule, withholding the statement would restore access that the required issuer withdrew. The requirement is configured rather than inferred from the statements the server sees, so a holder cannot evade that issuer's withdrawal by presenting or publishing only a broader statement, such as a marketplace listing.
 
-A required issuer configured for software whose documents are presented review-only ({{public-client-presentation}}) excludes that software from the tenant.
+A required issuer configured for software whose documents are presented review-only ({{public-client-presentation}}) excludes that software from the tenant. The server rejects a request for such software in that tenant with `unauthorized_client`.
 
 ## Multi-Tenant Issuers {#multi-tenant-issuers}
 
