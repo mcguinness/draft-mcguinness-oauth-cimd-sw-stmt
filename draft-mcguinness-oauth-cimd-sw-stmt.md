@@ -88,7 +88,7 @@ This specification serves deployments in which a party other than the client dec
 
 A native application whose redirection URIs another application on the device could claim, such as a loopback or private-use URI, gains only a record of the review: its presentations are review-only ({{public-client-presentation}}) until an extension binds an installation key that a third party vouches for ({{extensions}}).
 
-A statement records approval of a client configuration, not of the software's code or behavior ({{what-statement-attests}}). Possession of a statement alone admits nothing: the presenter is bound to the reviewed document ({{sender-constraint}}).
+A statement records approval of a client configuration, not of the software's code or behavior ({{what-statement-attests}}). Possession of a statement alone admits nothing: the presenter is bound to the reviewed document ({{sender-constraint}}), though for a public client that binding does not hold against a party that controls the user agent ({{public-client-security}}).
 
 This specification does not define how a client obtains a statement. {{REGISTRATION}} builds on this specification, which does not depend on it, to define consumption of the same statement in an {{RFC7591}} registration request. {{relationship}} relates this specification to other work.
 
