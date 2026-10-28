@@ -831,7 +831,7 @@ Published specification:
 : This specification
 
 Applications that use this media type:
-: Authorization servers and clients that issue, request, or accept OAuth 2.0 software statements
+: Authorization servers and clients that issue, request, or accept software statements under this specification; other profiles are distinguished by their own `typ` values
 
 Fragment identifier considerations:
 : n/a
