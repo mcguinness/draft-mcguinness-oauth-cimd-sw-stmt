@@ -114,28 +114,16 @@ Table of Contents
    [STATEMENT] admits a client at request time without registering it.
    This specification is for deployments that register clients through
    [RFC7591] instead, for example to assign their own client identifiers
-   or to manage registrations under [RFC7592].  It defines the
-   following:
-
-   *  Consumption: the registration takes every metadata value from the
-      reviewed document, never from the request (Section 3).
-
-   *  Validity: a registration is valid only while a current statement
-      governs it (Section 3.2).
-
-   *  Renewal: the client renews the registration by delivering a
-      replacement statement, which also brings the registration's
-      metadata up to date with the new review (Section 3.3).
+   or to manage registrations under [RFC7592].  It defines consumption
+   of the statement at registration (Section 3), the registration's
+   validity (Section 3.2), and its renewal by a replacement statement
+   (Section 3.3).
 
    Under this specification, an authorization server never registers
    software whose document lists a redirection URI that another
-   application could claim (Section 3).  Such a document is presented
-   review-only under Section 5.4.1 of [STATEMENT] and cannot satisfy a
-   policy requiring reviewed software.  A server can register a public
-   client, whose document declares token_endpoint_auth_method of none,
-   only under rules that bind it as Section 5.4.1 of [STATEMENT] binds a
-   public client at runtime (Section 3.1).  This specification depends
-   on [STATEMENT], which does not depend on it.
+   application could claim (Section 3), and registers a public client
+   only under the binding rules of Section 3.1.  This specification
+   depends on [STATEMENT], which does not depend on it.
 
 1.1.  Protocol Overview
 
@@ -196,11 +184,9 @@ Table of Contents
    it under the validation rules of Section 3.2 of [STATEMENT] and
    registers the client under its ordinary registration policy.
 
-   In [RFC7591], values in a software statement take precedence over
-   those in the request.  A statement under Section 3 of [STATEMENT]
-   carries no client metadata, so the reviewed document takes that role.
-   An authorization server consuming a statement under this
-   specification:
+   The reviewed document takes the role that [RFC7591] gives a
+   statement's own values.  An authorization server consuming a
+   statement under this specification:
 
    *  MUST resolve the Client ID Metadata Document at the statement's
       sub claim, rejecting the registration if retrieval does not
@@ -234,16 +220,12 @@ Table of Contents
    *  MUST reject the registration with the invalid_client_metadata
       error code if the document omits the token_endpoint_auth_method
       member, which Section 5.4 of [STATEMENT] requires a reviewed
-      document to declare.  Registering under the [RFC7591] default, a
-      shared-secret method that [CIMD] forbids, would issue a client
-      secret to any holder of a copy of the statement.
+      document to declare.
 
    *  MUST reject the registration with the invalid_client_metadata
       error code if the document declares token_endpoint_auth_method of
       none, unless the authorization server registers the client under
-      Section 3.1.  Such software can instead use runtime presentation
-      if it meets the public-client binding requirements of
-      Section 5.4.1 of [STATEMENT].
+      Section 3.1.
 
    *  MUST reject the registration with the invalid_client_metadata
       error code if any of the document's redirection URIs could be
@@ -254,27 +236,34 @@ Table of Contents
    If the statement's decision is confined to one of the authorization
    server's tenants, by its aud_tenant claim or by the server's trust
    configuration for its issuer (Section 4 of [STATEMENT]), the
-   authorization server MUST record that tenant with the registration,
-   and MUST treat a request under the registration in any other tenant,
-   including a delivery (Section 3.3), as a request from a client it has
-   not registered.  The restriction persists across renewals, and a
-   renewal by a replacement whose decision is confined to a tenant
-   restricts the registration to that tenant, except for a public-client
-   registration that carries no tenant restriction, which such a
-   statement does not renew (Section 3.1).  A registration created from
-   a statement whose decision is not confined to a tenant carries no
-   tenant restriction under this specification until such a renewal.  In
-   a tenant where the authorization server requires a tenant-scoped
-   decision (Section 3.2 of [STATEMENT]), it MUST treat a request under
-   such a registration as a request from a client it has not registered
-   unless, once it has authenticated the client against the registration
-   and evaluated any replacement the request delivers (Section 3.3), the
-   registration is restricted to that tenant.  A valid replacement
-   confined to that tenant therefore renews the registration and lets
-   the request proceed, as it would restore an expired registration.  A
-   public-client registration that carries no tenant restriction cannot
-   be used in that tenant, since such a statement does not renew it
-   (Section 3.1).
+   authorization server MUST record that tenant with the registration.
+   Tenant restrictions apply to every statement-governed registration as
+   follows:
+
+   *  The authorization server MUST treat a request under a
+      registration, including a delivery (Section 3.3), made in a tenant
+      other than the one the registration is restricted to, as a request
+      from a client it has not registered.
+
+   *  The restriction persists across renewals.
+
+   *  A renewal by a replacement whose decision is confined to a tenant
+      restricts a registration that carries no tenant restriction to
+      that tenant, except a public-client registration, which such a
+      statement does not renew (Section 3.1).
+
+   *  A registration created from a statement whose decision is not
+      confined to a tenant carries no tenant restriction under this
+      specification until such a renewal.
+
+   *  In a tenant where the authorization server requires a tenant-
+      scoped decision (Section 3.2 of [STATEMENT]), it MUST treat a
+      request under a registration that carries no tenant restriction
+      under this specification as a request from a client it has not
+      registered unless, once it has authenticated the client against
+      the registration and evaluated any replacement the request
+      delivers (Section 3.3), the registration is restricted to that
+      tenant.
 
    Unlike runtime presentation (Section 5 of [STATEMENT]), registration
    has no review-only form: the registration is the admission.
@@ -284,6 +273,14 @@ Table of Contents
    supplied value for a member the document omits, such as a jwks member
    beside a document naming only jwks_uri, would give any holder of a
    copy a registration with reviewed branding and the holder's own key.
+   For the same reason, registering a document that omits
+   token_endpoint_auth_method under the [RFC7591] default for that
+   member, a shared-secret method that [CIMD] forbids, would issue a
+   client secret to any holder of a copy.  Software whose document
+   declares token_endpoint_auth_method of none and that the server does
+   not register under Section 3.1 can instead use runtime presentation
+   if it meets the public-client binding requirements of Section 5.4.1
+   of [STATEMENT].
 
    The retrieval requirements of Sections 3.1 and 5.3 of [STATEMENT]
    apply to retrieving the document as they apply to a runtime

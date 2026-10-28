@@ -101,8 +101,7 @@ Table of Contents
      12.2.  Retrieval and Processing Bounds
      12.3.  Bounding Establishments
      12.4.  Grant State
-     12.5.  Issuer Signing Nodes
-     12.6.  User Interface, Audit, and Logging
+     12.5.  User Interface, Audit, and Logging
    13. Deployment Considerations
      13.1.  Configuring Issuer Trust
      13.2.  Audience and Tenant Claims
@@ -144,29 +143,23 @@ Table of Contents
    This specification profiles the software statement (Section 2.3 of
    [RFC7591]) for that purpose.  A statement names the client by its
    document URL and binds the review to the document's exact octets by a
-   digest (Section 3.1).  A statement carried inside the document, as
-   Section 4.3 of [CIMD] permits, cannot bind the review to the octets
-   of the document that carries it (Section 3).
-
-   An authorization server that trusts the statement's issuer
-   (Section 4) admits the client at request time on the reviewed
-   document, and no other, without creating a registration (Section 5).
-   The document remains the metadata and the statement records the
-   decision, so one review is portable across every authorization server
-   in the statement's audience.
+   digest (Section 3.1).  An authorization server that trusts the
+   statement's issuer (Section 4) admits the client at request time on
+   the reviewed document, and no other, without creating a registration
+   (Section 5), so one review is portable across every authorization
+   server in the statement's audience.
 
    This specification serves deployments in which a party other than the
    client decides which software can connect, such as a marketplace or
    registry that vouches for software to authorization servers it does
    not operate, or an enterprise that approves software for its users at
    a service run by someone else.  It also serves server-hosted
-   software, such as an agent, that obtains tokens with the
-   client_credentials grant.  An admitted client is treated as reviewed,
-   rather than under the authorization server's policy for Client ID
-   Metadata Document clients it has not reviewed.  Admission grants no
-   access to resources: the authorization server's own policy, and the
-   resource owner's authorization where a grant involves one, still
-   govern what it issues.
+   software, such as an agent, that uses the client_credentials grant.
+   An admitted client is treated as reviewed rather than under the
+   server's policy for Client ID Metadata Document clients it has not
+   reviewed, but admission grants no access to resources: the server's
+   own policy, and the resource owner's authorization where a grant
+   involves one, still govern what it issues.
 
    A native application whose redirection URIs another application on
    the device could claim, such as a loopback or private-use URI, gains
@@ -174,17 +167,16 @@ Table of Contents
    (Section 5.4.1) until an extension binds an installation key that a
    third party vouches for (Section 11).
 
-   A statement vouches for metadata, not for its presenter.  It records
-   approval of a client configuration, not of the software's code or
-   behavior (Section 14.1).  Possession of a statement alone admits
-   nothing: the presenter is bound to the reviewed document
-   (Section 5.4).
+   A statement records approval of a client configuration, not of the
+   software's code or behavior (Section 14.1).  Possession of a
+   statement alone admits nothing: the presenter is bound to the
+   reviewed document (Section 5.4).
 
    This specification does not define how a client obtains a statement.
-   [REGISTRATION] defines consumption of the same statement in an
-   [RFC7591] registration request.  It builds on this specification,
-   which does not depend on it.  Section 7 relates this specification to
-   other work.
+   [REGISTRATION] builds on this specification, which does not depend on
+   it, to define consumption of the same statement in an [RFC7591]
+   registration request.  Section 7 relates this specification to other
+   work.
 
 1.1.  Protocol Overview
 
@@ -335,11 +327,10 @@ Table of Contents
       presentation.
 
    iat:  REQUIRED.  A NumericDate value, which MUST be an integer,
-      giving the time the statement was issued.  An issuer MUST NOT
-      issue two statements for given iss and sub claims with the same
-      iat claim, and MUST ensure that the iat claim values of its
-      statements for a given iss and sub increase strictly
-      (Section 5.6.1, Section 6, Section 12.5).
+      giving the time the statement was issued.  An issuer MUST ensure
+      that the iat claim values of its statements for a given iss and
+      sub increase strictly, whichever of its signing nodes signs
+      (Section 5.6.1, Section 6).
 
    exp:  REQUIRED.  A NumericDate value giving the expiration time.
 
@@ -907,7 +898,7 @@ Table of Contents
    and does not advance the iat floor of Section 6, since it changes
    nothing for the software's other instances.  The authorization server
    proceeds as it would for the same Client ID Metadata Document client
-   presenting no statement (Section 12.6).
+   presenting no statement (Section 12.5).
 
    The statement of a review-only presentation MUST NOT satisfy a policy
    requiring reviewed software.  If the server's policy requires
@@ -1611,13 +1602,7 @@ Table of Contents
    establishment, so that no other grant or outstanding authorization
    code changes (Section 5.6.1).
 
-12.5.  Issuer Signing Nodes
-
-   An issuer with several signing nodes coordinates iat values across
-   them, so that the values of its statements for a given iss and sub
-   increase strictly whichever node signs (Section 3).
-
-12.6.  User Interface, Audit, and Logging
+12.5.  User Interface, Audit, and Logging
 
    An authorization server ought not to present the review in a review-
    only presentation to the user as an assurance about the presenter
@@ -1710,10 +1695,9 @@ Table of Contents
    can change while its document stays the same, and the statement
    remains acceptable until it expires or is withdrawn (Section 3.3).
    Assurance about the software itself rests on the issuer's review
-   process and, where an extension provides one, an attestation of the
-   running instance (Section 11).  Any change to the document's octets,
-   including one that changes no metadata value, makes statements over
-   the earlier octets fail the digest comparison (Section 5.5).
+   process.  Any change to the document's octets, including one that
+   changes no metadata value, makes statements over the earlier octets
+   fail the digest comparison (Section 5.5).
 
    The following table states what admission under this specification
    does and does not establish:
@@ -1782,16 +1766,13 @@ Table of Contents
    approval to an attacker's redirection URIs and keys.  Keeping
    statement signing keys in a dedicated statement key set, out of any
    jwks_uri, and away from statements of other profiles (Section 4,
-   Section 10) guards against this.  A server that discovers an issuer's
-   keys through the jwks_uri in its [RFC8414] metadata finds none that
-   verify a statement, and an issuer that is not an authorization server
-   has no such metadata.  A server is exposed only if its operator
-   configures the statement key set in a server that does not implement
-   this specification.  Recording a statement key set URL in trust
-   configuration is the only route for an issuer that is not an
-   authorization server, so for such an issuer the protection rests on
-   operators recording that URL only in servers that implement this
-   specification.
+   Section 10) means such a server finds no key that verifies a
+   statement through the jwks_uri in an issuer's [RFC8414] metadata.  It
+   is exposed only if its operator configures the statement key set in
+   it.  For an issuer that is not an authorization server, that
+   configuration is the only route to its keys, so the protection rests
+   on operators recording the statement key set URL only in servers that
+   implement this specification.
 
 14.4.  Copied Statements and Public Clients
 
@@ -1843,10 +1824,8 @@ Table of Contents
 
    Runtime presentation can cause the authorization server to retrieve
    the Client ID Metadata Document, a jwks_uri it names, or the
-   statements its software_statements_uri names.  A trusted signature
-   does not make a URL safe, so Section 5.3 applies the server's
-   retrieval policy to every referenced location and rejects a request
-   whose retrieval fails, except as Section 5.2 provides.
+   statements its software_statements_uri names, under the retrieval
+   rules of Section 5.3.
 
    These retrievals happen before any client is registered or any user
    has interacted, so an unauthenticated requester can cause them with
@@ -1861,9 +1840,7 @@ Table of Contents
    for the life of its refresh tokens, whatever the statement's
    lifetime, unless the server requires a current statement on refresh,
    holds a refusal record, or finds the proven key gone from the
-   client's document (Section 5.6.1).  A narrowed review takes effect
-   when the client publishes the narrower document and obtains a
-   statement over it.
+   client's document (Section 5.6.1).
 
 14.8.  Observable State
 
@@ -1889,7 +1866,7 @@ Table of Contents
 
    A central issuer also learns from renewals which of its statements
    are in active use, so issuance and renewal logs deserve the same care
-   as the statements (Section 12.6).
+   as the statements (Section 12.5).
 
    Retrieving the document tells its host that the server is resolving
    the client.  Pulling statements (Section 5.2) tells the host of
@@ -1919,12 +1896,8 @@ Table of Contents
 
    The "OAuth Dynamic Client Registration Metadata" registry established
    by [RFC7591] already contains a software_statement member, which this
-   registration does not affect.  The name is reused because the
-   artifact is the same [RFC7591] software statement, carried to the
-   same server for the same purpose.  A distinct name would make a
-   client carry one artifact under two names, and a server would not
-   recognize at the token endpoint what it accepts at the registration
-   endpoint.
+   registration does not affect.  The parameter reuses the name because
+   it carries the same [RFC7591] artifact.
 
 16.2.  Media Type Registration
 

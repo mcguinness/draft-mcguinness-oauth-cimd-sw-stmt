@@ -798,9 +798,9 @@ Table of Contents
    not refused, and matches the current document, even if a newer
    statement has raised the iat floor for new admissions.  If it no
    longer qualifies, a replacement is required.  The client can present
-   a replacement in software_statement or, for an establishment created
-   from a pulled statement, the server pulls one as [STATEMENT]
-   specifies.
+   a replacement in software_statement, or a server that supports pulled
+   statements pulls one, however the establishment was created, as
+   [STATEMENT] specifies.
 
    A replacement MUST satisfy the replacement validation of [STATEMENT],
    including identical statement iss and sub claims, a later iat claim,
@@ -1176,9 +1176,9 @@ Table of Contents
    &client_id=https%3A%2F%2Fcli.example%2Fclient.json
    &refresh_token=<refresh-token>
 
-   If the recorded statement has expired, the server pulls a current
-   replacement as [STATEMENT] permits for a grant established from a
-   pulled statement.  If the replacement names changed metadata, the
+   If the recorded statement has expired, a server that supports pulled
+   statements pulls a current replacement, as [STATEMENT] provides for
+   any establishment.  If the replacement names changed metadata, the
    attestation needs to name that same new digest while retaining the
    proven key and the recorded attester and policy.  Otherwise the
    refresh fails without changing the binding.
