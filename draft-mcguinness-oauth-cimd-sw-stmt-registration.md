@@ -59,13 +59,9 @@ A software statement (Section 2.3 of {{RFC7591}}) carries a third party's approv
 
 {{RFC7591}} also defines no expiry or renewal for a registration. A registration based on a statement can outlive it, and nothing keeps the registration's validity or metadata in line with the issuer's decision once the issuer narrows, withdraws, or stops renewing it.
 
-{{STATEMENT}} admits a client at request time without registering it. This specification is for deployments that register clients through {{RFC7591}} instead, for example to assign their own client identifiers or to manage registrations under {{RFC7592}}. It defines the following:
+{{STATEMENT}} admits a client at request time without registering it. This specification is for deployments that register clients through {{RFC7591}} instead, for example to assign their own client identifiers or to manage registrations under {{RFC7592}}. It defines consumption of the statement at registration ({{dcr-presentation}}), the registration's validity ({{registration-validity}}), and its renewal by a replacement statement ({{revalidation}}).
 
-* Consumption: the registration takes every metadata value from the reviewed document, never from the request ({{dcr-presentation}}).
-* Validity: a registration is valid only while a current statement governs it ({{registration-validity}}).
-* Renewal: the client renews the registration by delivering a replacement statement, which also brings the registration's metadata up to date with the new review ({{revalidation}}).
-
-Under this specification, an authorization server never registers software whose document lists a redirection URI that another application could claim ({{dcr-presentation}}). Such a document is presented review-only under Section 5.4.1 of {{STATEMENT}} and cannot satisfy a policy requiring reviewed software. A server can register a public client, whose document declares `token_endpoint_auth_method` of `none`, only under rules that bind it as Section 5.4.1 of {{STATEMENT}} binds a public client at runtime ({{public-client-registration}}). This specification depends on {{STATEMENT}}, which does not depend on it.
+Under this specification, an authorization server never registers software whose document lists a redirection URI that another application could claim ({{dcr-presentation}}), and registers a public client only under the binding rules of {{public-client-registration}}. This specification depends on {{STATEMENT}}, which does not depend on it.
 
 ## Protocol Overview
 
