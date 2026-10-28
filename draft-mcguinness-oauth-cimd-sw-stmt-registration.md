@@ -290,6 +290,10 @@ The safe default is one registration per (`iss`, `sub`) at one authorization ser
 
 Deployments ought to pair statement-governed registrations with credential rotation, sender-constrained client authentication, and the bounds that {{STATEMENT}} and {{registration-policy}} describe, and ought to treat a credential compromise as requiring re-registration rather than renewal ({{renewal-credential}}).
 
+## Renewal Cadence {#renewal-cadence}
+
+A statement-governed registration lapses when its governing statement's effective expiry passes ({{registration-validity}}). A client that has not delivered a replacement by then is refused at that server until it does, so an issuer outage longer than the remaining lifetime takes such registrations out of service. The lifetimes an issuer chooses set the renewal cadence ({{STATEMENT}}). A deployment ought to have clients renew well before effective expiry, and ought to weigh that cadence against how quickly a narrowed or withdrawn review needs to take effect.
+
 # Security Considerations {#security-considerations}
 
 The security considerations of {{STATEMENT}} and Section 5 of {{RFC7591}} apply.
