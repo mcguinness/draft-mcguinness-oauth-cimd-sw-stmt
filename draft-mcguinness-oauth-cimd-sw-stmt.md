@@ -168,7 +168,7 @@ A statement asserts that its issuer evaluated the Client ID Metadata Document wh
 : OPTIONAL. A JSON array identifying the permitted uses of the statement: `registration` ({{REGISTRATION}}) and `presentation` ({{cimd-presentation}}). If the claim is absent, only `presentation` is permitted. A delivery renewing a registration ({{REGISTRATION}}) is a use at registration. A refresh replacement ({{refresh}}) and a pulled statement ({{pulled-statements}}) are presentation.
 
 `iat`:
-: REQUIRED. A NumericDate value, which MUST be an integer, giving the time the statement was issued. An issuer MUST NOT issue two statements for given `iss` and `sub` claims with the same `iat` claim, and MUST ensure that the `iat` claim values of its statements for a given `iss` and `sub` increase strictly ({{refresh}}, {{multi-instance}}, {{signing-nodes}}).
+: REQUIRED. A NumericDate value, which MUST be an integer, giving the time the statement was issued. An issuer MUST ensure that the `iat` claim values of its statements for a given `iss` and `sub` increase strictly, whichever of its signing nodes signs ({{refresh}}, {{multi-instance}}).
 
 `exp`:
 : REQUIRED. A NumericDate value giving the expiration time.
@@ -713,10 +713,6 @@ A request refused at a bound is rejected with `invalid_client` ({{presentation-e
 An authorization server can reuse an establishment across presentations that resolve to the same `sub`, statement, tenant, sender-constraint mechanism, and proven key, with the statement presented for each or pulled for each, rather than creating one per request, and can discard it once no `request_uri`, authorization code, refresh token, or other continuation state references it ({{grant-lifecycle}}).
 
 A server that shares an establishment among grants applies a replacement accepted on refresh by giving the refreshed grant its own establishment, so that no other grant or outstanding authorization code changes ({{refresh}}).
-
-## Issuer Signing Nodes {#signing-nodes}
-
-An issuer with several signing nodes coordinates `iat` values across them, so that the values of its statements for a given `iss` and `sub` increase strictly whichever node signs ({{profiles}}).
 
 ## User Interface, Audit, and Logging {#ui-audit}
 
