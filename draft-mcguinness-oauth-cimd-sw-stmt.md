@@ -278,7 +278,7 @@ A client presents a software statement by including the following parameter in a
 `software_statement`:
 : REQUIRED for presentation. The software statement ({{profiles}}). It is consumed as a runtime presentation, a refresh replacement ({{refresh}}), or, if {{REGISTRATION}} is implemented, a delivery under that specification. A request carrying the parameter in any other role is rejected with `invalid_request`.
 
-The request MUST include the `client_id` parameter, even if the client authenticates, and its value, the client's Client ID Metadata Document URL, MUST exactly equal the statement's `sub` claim. If the parameter is absent, the authorization server rejects the request with `invalid_request`. If the two differ, the authorization server MUST reject the presentation with the `invalid_client` error code. The effective `client_id` is the statement's `sub`, and the authorization server assigns none.
+A request making a runtime presentation, or carrying a refresh replacement ({{refresh}}), MUST include the `client_id` parameter, even if the client authenticates, and its value, the client's Client ID Metadata Document URL, MUST exactly equal the statement's `sub` claim. If the `client_id` parameter is absent, the authorization server rejects the request with `invalid_request`. If the two differ, the authorization server MUST reject the presentation with the `invalid_client` error code. The effective `client_id` is the statement's `sub`, and the authorization server assigns none.
 
 The request carries the proof that {{sender-constraint}} requires. A successful presentation establishes the client for the request and for the grant state derived from it ({{grant-lifecycle}}).
 
@@ -535,7 +535,7 @@ A presentation rejected at the token or pushed authorization request endpoint fo
 : A retrieval the presentation needs did not complete, for a reason other than the document size bound ({{metadata-digest}}).
 
 `invalid_request`:
-: The request carries `software_statement` in a role {{runtime-presentation}} does not permit.
+: The presentation omits `client_id`, or the request carries `software_statement` in a role {{runtime-presentation}} does not permit.
 
 A request rejected for another reason, such as an assertion grant whose assertion is invalid (Section 3.1 of {{RFC7523}}), uses the error code its grant or endpoint assigns.
 
@@ -558,7 +558,7 @@ Under an establishment, a refresh-token request rejected for a reason this speci
 : The refreshed access would exceed the reviewed document's metadata or this server's policy, as for a presentation.
 
 `invalid_request`:
-: The request carries `software_statement` in a role {{runtime-presentation}} does not permit.
+: The request carries a replacement but omits `client_id` ({{runtime-presentation}}), or carries `software_statement` in a role {{runtime-presentation}} does not permit.
 
 None of these rejections indicates refresh-token replay ({{RFC9700}}). A refresh-token request rejected for another reason, such as an expired or revoked refresh token, uses the error codes of Section 5.2 of {{RFC6749}}. This specification does not change how an authorization server detects refresh-token replay.
 
