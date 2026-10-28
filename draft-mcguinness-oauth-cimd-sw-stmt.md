@@ -568,7 +568,7 @@ If a statement is refused by a refusal record rather than merely expired, and th
 
 # Examples {#example}
 
-Both examples are non-normative.
+The examples in this section are non-normative.
 
 ## Presenting at the Token Endpoint
 
@@ -616,6 +616,33 @@ A request to that URL returns the statements, here one:
 ~~~
 
 An authorization server receiving an ordinary authorization request with this `client_id` resolves the document, retrieves the statements, and keeps the one from a trusted issuer whose `cimd_digest` matches the document it retrieved. It completes the binding when the client authenticates with `private_key_jwt` at code redemption ({{pulled-statements}}).
+
+## A Statement, Decoded
+
+The following is an example of the JOSE header and payload of a statement over the document in the previous example, served exactly as shown there and ending in a single newline:
+
+~~~ json
+{
+  "typ": "software-statement+jwt",
+  "alg": "ES256",
+  "kid": "2026-10"
+}
+~~~
+
+~~~ json
+{
+  "iss": "https://issuer.example",
+  "sub": "https://client.example/app",
+  "aud": ["https://as.example"],
+  "statement_uses": ["presentation"],
+  "iat": 1790812800,
+  "exp": 1793404800,
+  "jti": "c2a907b34d28",
+  "cimd_digest": "vBIuTBeHfYmEC8CPwbfa2a9XciuKfGTEGf-qGij4N_Q"
+}
+~~~
+
+The statement names one audience and permits only runtime presentation, as omitting `statement_uses` would. It carries no client metadata: the document its `cimd_digest` names supplies it.
 
 # Authorization Server Metadata {#authorization-server-metadata}
 
