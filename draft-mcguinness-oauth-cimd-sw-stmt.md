@@ -332,7 +332,7 @@ At code redemption, a confidential client whose statement was pulled at the auth
 
 If retrieval does not complete or no statement remains, the server applies its policy for Client ID Metadata Document clients it has not reviewed, subject to any required issuer ({{issuer-trust}}). If that policy or a required issuer ({{issuer-trust}}) requires reviewed software, the server rejects the request with `temporarily_unavailable` if retrieval did not complete and with `statement_required` if no statement remains. A retrieval failure is never a withdrawal.
 
-When a refresh needs a replacement ({{refresh}}) and the request carries none, a server that supports pulled statements pulls and applies the newest statement with the recorded statement's `iss` and `sub` as the replacement under that section. If the newest is the recorded statement itself, nothing is replaced, and the refresh is evaluated against the recorded statement as {{refresh}} describes. If the pull does not complete or yields no replacement, the refresh fails as {{refresh}} provides. A reviewed grant never continues under the policy for clients the server has not reviewed.
+{{refresh}} defines how a server that supports pulled statements pulls a replacement at refresh.
 
 An authorization server advertises support through `software_statement_pull_supported` ({{authorization-server-metadata}}).
 
@@ -422,25 +422,33 @@ Expiry after presentation does not by itself invalidate an establishment already
 
 ### Refresh {#refresh}
 
-On refresh-token use, the authorization server MUST verify possession of the establishment's proven key under the same sender-constraint mechanism. Except for an establishment created under {{public-client-presentation}}, it MUST also verify that the document currently served at the establishment's `sub` still carries that key, in its `jwks` or at its `jwks_uri`, within the reuse bounds of {{sender-constraint}}, and rejects the refresh with the `invalid_grant` error code if that document does not carry the key, cannot be obtained, or exceeds the size bound of {{metadata-digest}}, or with `temporarily_unavailable` if a retrieval needed to check the key did not complete.
+On refresh-token use, the authorization server proceeds as follows:
 
-On refresh-token use, the authorization server MAY, by local policy, additionally require a current statement, and SHOULD require one once the establishment's recorded statement has expired ({{enforcement-bounds}}). The recorded statement satisfies that requirement while it is unexpired and no refusal record covers it, even after a later statement has raised the `iat` floor of {{multi-instance}}. A replacement is needed only once the recorded statement expires or a refusal record covers it.
+1. Proven key. The authorization server MUST verify possession of the establishment's proven key under the same sender-constraint mechanism. Except for an establishment created under {{public-client-presentation}}, it MUST also verify that the document currently served at the establishment's `sub` still carries that key, in its `jwks` or at its `jwks_uri`, within the reuse bounds of {{sender-constraint}}, and rejects the refresh with the `invalid_grant` error code if that document does not carry the key, cannot be obtained, or exceeds the size bound of {{metadata-digest}}, or with `temporarily_unavailable` if a retrieval needed to check the key did not complete. It completes these checks before evaluating any replacement.
 
-If the authorization server holds a refusal record for the establishment's recorded statement, it MUST reject a refresh without a presented or pulled replacement satisfying this section, whatever its policy on requiring a current statement otherwise: a withdrawal ends grant continuation at once rather than waiting on local policy. To let a withdrawal reach open grants and not only new ones, a server that uses a withdrawal mechanism for the recorded statement's issuer SHOULD consult it for that statement at each refresh.
+2. Need for a current statement. The authorization server MAY, by local policy, additionally require a current statement, and SHOULD require one once the establishment's recorded statement has expired ({{enforcement-bounds}}). The recorded statement satisfies that requirement while it is unexpired and no refusal record covers it, even after a later statement has raised the `iat` floor of {{multi-instance}}. A replacement is needed only once the recorded statement expires or a refusal record covers it.
 
-If a required issuer ({{issuer-trust}}) covers the establishment's `sub` in the establishment's tenant, the authorization server MUST reject a refresh with `statement_required`, or with `temporarily_unavailable` if a retrieval needed to check a replacement did not complete, unless the recorded statement or a replacement satisfying this section is a current statement from that issuer. A grant recorded under another issuer's statement cannot meet this, since a replacement keeps the recorded statement's `iss`, so its client opens a new grant by presentation.
+   If the authorization server holds a refusal record for the establishment's recorded statement, it MUST reject a refresh without a presented or pulled replacement (step 3) satisfying this section, whatever its policy on requiring a current statement otherwise: a withdrawal ends grant continuation at once rather than waiting on local policy. To let a withdrawal reach open grants and not only new ones, a server that uses a withdrawal mechanism for the recorded statement's issuer SHOULD consult it for that statement at each refresh.
 
-A client can offer a replacement on any refresh, in the `software_statement` parameter of the refresh request. When a replacement is needed and the request carries none, a server that supports pulled statements pulls one ({{pulled-statements}}), however the establishment was created. The server completes the checks of the first paragraph of this section before evaluating any replacement, and rejects a failure of those checks as that paragraph provides. A statement with the recorded statement's `iss` and `jti` is not a replacement: if the client offers it again, the server rechecks it as the recorded statement, under the first two paragraphs of this section. The following requirements apply to the replacement:
+   If a required issuer ({{issuer-trust}}) covers the establishment's `sub` in the establishment's tenant, the authorization server MUST reject a refresh with `statement_required`, or with `temporarily_unavailable` if a retrieval needed to check a replacement did not complete, unless the recorded statement or a replacement satisfying this section is a current statement from that issuer. A grant recorded under another issuer's statement cannot meet this, since a replacement keeps the recorded statement's `iss`, so its client opens a new grant by presentation.
 
-* It MUST validate under {{validation}}, including its audience if it carries one.
-* The `iss` and `sub` claims MUST equal those of the recorded statement.
-* The `iat` claim MUST be later than that of the recorded statement.
-* The `cimd_digest` claim MUST name the document currently served at that `sub`, which the server confirms by retrieval or by revalidating octets it holds.
-* The replacement MUST authorize the establishment's proven key ({{sender-constraint}}) or, for an establishment created under {{public-client-presentation}}, name a document that still satisfies that section.
+   The authorization server applies these two rejections after obtaining and evaluating any replacement under steps 3 and 4.
 
-The refreshed access MUST fall within the metadata of the document the replacement names.
+3. Obtaining a replacement. A client can offer a replacement on any refresh, in the `software_statement` parameter of the refresh request. A statement with the recorded statement's `iss` and `jti` is not a replacement: if the client offers it again, the server rechecks it as the recorded statement under steps 1 and 2. When a replacement is needed and the request carries none, a server that supports pulled statements ({{pulled-statements}}) pulls, however the establishment was created, and takes the newest statement with the recorded statement's `iss` and `sub` as the replacement. If the newest is the recorded statement itself, nothing is replaced, and the refresh is evaluated against the recorded statement. A reviewed grant never continues under the policy for clients the server has not reviewed.
 
-On success, the refreshed grant's statement identity, `iat`, effective expiry, reviewed metadata, and trust decision become those of the replacement ({{grant-state}}) in a single atomic update, and concurrent replacements resolve to the most recently issued statement. A refresh whose replacement fails these requirements, or that omits a replacement that is needed, leaves the grant's state unchanged and is rejected with `statement_required`, or with `temporarily_unavailable` if a retrieval needed to check the replacement did not complete for a reason other than the size bound of {{metadata-digest}}.
+4. Validating the replacement. The following requirements apply to the replacement:
+
+   * It MUST validate under {{validation}}, including its audience if it carries one.
+   * The `iss` and `sub` claims MUST equal those of the recorded statement.
+   * The `iat` claim MUST be later than that of the recorded statement.
+   * The `cimd_digest` claim MUST name the document currently served at that `sub`, which the server confirms by retrieval or by revalidating octets it holds.
+   * The replacement MUST authorize the establishment's proven key ({{sender-constraint}}) or, for an establishment created under {{public-client-presentation}}, name a document that still satisfies that section.
+
+5. Access. The refreshed access MUST fall within the metadata of the document the replacement names.
+
+6. Update. On success, the refreshed grant's statement identity, `iat`, effective expiry, reviewed metadata, and trust decision become those of the replacement ({{grant-state}}) in a single atomic update, and concurrent replacements resolve to the most recently issued statement.
+
+A refresh whose replacement fails the requirements of step 4, or that omits a replacement that is needed, including one a pull does not complete or does not yield, leaves the grant's state unchanged and is rejected with `statement_required`, or with `temporarily_unavailable` if a retrieval needed to check the replacement did not complete for a reason other than the size bound of {{metadata-digest}}.
 
 Refresh never rotates the establishment's key. A client that needs a new key performs a new presentation.
 
