@@ -429,7 +429,12 @@ Expiry after presentation does not by itself invalidate an establishment already
 
 On refresh-token use, the authorization server proceeds as follows:
 
-1. Proven key. The authorization server MUST verify possession of the establishment's proven key under the same sender-constraint mechanism. Except for an establishment created under {{public-client-presentation}}, it MUST also verify that the document currently served at the establishment's `sub` still carries that key, in its `jwks` or at its `jwks_uri`, within the reuse bounds of {{sender-constraint}}, and rejects the refresh with the `invalid_grant` error code if that document does not carry the key, cannot be obtained for a reason other than a retrieval that did not complete ({{processing}}), or exceeds the size bound of {{metadata-digest}}, or with `temporarily_unavailable` if a retrieval needed to check the key did not complete. It completes these checks before evaluating any replacement.
+1. Proven key. The authorization server:
+
+   * MUST verify possession of the establishment's proven key under the same sender-constraint mechanism.
+   * MUST, except for an establishment created under {{public-client-presentation}}, verify that the document currently served at the establishment's `sub` still carries that key, in its `jwks` or at its `jwks_uri`, within the reuse bounds of {{sender-constraint}}.
+
+   If a retrieval needed to check the key did not complete ({{processing}}), the server rejects the refresh with `temporarily_unavailable`. If either check otherwise fails, including when the document does not carry the key, cannot be obtained, or exceeds the size bound of {{metadata-digest}}, it rejects the refresh with the `invalid_grant` error code. It completes these checks before evaluating any replacement.
 
 2. Need for a current statement. The authorization server MAY, by local policy, additionally require a current statement, and SHOULD require one once the establishment's recorded statement has expired ({{enforcement-bounds}}). The recorded statement satisfies that requirement while it is unexpired and no refusal record covers it, even after a later statement has raised the `iat` floor of {{multi-instance}}. A replacement is needed when a refusal record covers the recorded statement, or when the server requires a current statement, by local policy or under a required issuer ({{issuer-trust}}), and the recorded statement has expired.
 
