@@ -204,7 +204,7 @@ On success, the replacement becomes the governing statement: the authorization s
 
 Access issued under the registration after that update, including on refresh of a grant issued before it, MUST fall within the re-derived metadata, as Section 5.6.1 of {{STATEMENT}} requires of a refreshed grant.
 
-When a request under an expired registration contains a replacement, the authorization server MUST authenticate the client against the retained registration and evaluate the replacement before applying the expiry rejection. A valid replacement therefore restores the registration. An omitted or invalid replacement does not.
+When a request under a registration that has ceased to be valid contains a replacement, the authorization server MUST authenticate the client against the retained registration and evaluate the replacement before applying the rejection of {{registration-validity}}. A valid replacement therefore restores the registration. An omitted or invalid replacement does not.
 
 When a request under an expired registration carries no replacement, its rejection ({{registration-validity}}) MUST NOT by itself cause the authorization server to revoke refresh tokens as it does on detecting refresh-token replay (Section 4.14.2 of {{RFC9700}}).
 
