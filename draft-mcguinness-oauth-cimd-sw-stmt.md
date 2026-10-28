@@ -132,7 +132,7 @@ Review-Only:
 : Describes a presentation, or a pulled statement, that the authorization server evaluates but that admits nothing ({{public-client-presentation}}).
 
 `iat` Floor:
-: For a trusting authorization server, the `iat` claim value of the most recent statement it has accepted for a given `iss` and `sub`, kept per tenant on a multi-tenant server. For the floor, a statement is accepted once the server admits a client on it, applies it as a replacement, or registers a client with it. The server rejects a statement whose `iat` claim is earlier ({{multi-instance}}).
+: For a trusting authorization server, the greatest `iat` claim value among the statements it has accepted for a given `iss` and `sub`, kept per tenant on a multi-tenant server. For the floor, a statement is accepted once the server admits a client on it, applies it as a replacement, or registers a client with it. The server rejects a statement whose `iat` claim is earlier ({{multi-instance}}).
 
 # The Software Statement {#profiles}
 
@@ -434,7 +434,7 @@ Refresh never rotates the establishment's key. A client that needs a new key per
 
 A statement attests client software, identified by `sub`, not its runtime instances. This specification defines no instance identifier. One unexpired statement is therefore consumable more than once: at each trusting authorization server in its audience and, if the server registers clients ({{REGISTRATION}}) and its policy permits, in more than one registration at that server.
 
-A trusting authorization server MUST retain, per `iss` and `sub` claims and, on a multi-tenant server, per tenant, the `iat` claim of the most recent statement it has accepted, as its `iat` floor. It MUST reject a statement whose `iat` claim is earlier than the retained `iat`, whether it arrives as a replacement, a new registration, or a new presentation. A client holding a superseded, broader statement therefore cannot defer a narrowing by opening a fresh registration or establishment with it. The server retains the `iat` floor at least as long as the maximum statement lifetime it honors for that issuer.
+A trusting authorization server MUST retain, per `iss` and `sub` claims and, on a multi-tenant server, per tenant, the greatest `iat` claim value among the statements it has accepted, as its `iat` floor. It MUST reject a statement whose `iat` claim is earlier than the retained `iat`, whether it arrives as a replacement, a new registration, or a new presentation. A client holding a superseded, broader statement therefore cannot defer a narrowing by opening a fresh registration or establishment with it. The server retains the `iat` floor at least as long as the maximum statement lifetime it honors for that issuer.
 
 Keeping the floor per tenant prevents an issuer's statements for different tenants from superseding one another ({{tenant-confusion}}). A multi-tenant server also keeps any bound on establishments ({{establishment-bounds}}) per tenant for the same reason.
 
