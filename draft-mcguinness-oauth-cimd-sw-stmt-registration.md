@@ -168,12 +168,17 @@ A client renews a statement-governed registration by delivering a replacement st
 * The `software_statement` parameter of an authenticated pushed authorization request {{RFC9126}} under the registration.
 * The `software_statement` member of an authenticated {{RFC7592}} update request, if the deployment offers registration management.
 
-A statement with the governing statement's `iss` and `sub` and an `iat` no later than the governing statement's `iat` is not a replacement. The authorization server leaves the registration unchanged and treats a request as carrying no replacement in either of the following cases, so that the request proceeds while the registration is valid and is rejected as {{registration-validity}} provides once it is not:
+A statement carried in one of these locations under a statement-governed registration is a delivery. A statement with the governing statement's `iss` and `sub` and an `iat` no later than the governing statement's `iat` is not a replacement. The authorization server treats a delivered statement as follows:
 
-* The request carries the governing statement itself, identified by its `iss` and `jti`. A client sends it, for example, after losing the response to the request that renewed the registration, or by attaching its current statement to later requests.
-* The request is an {{RFC7592}} update request carrying such a statement. An update request repeats, unmodified, the statement that a registration, read, or update response returned (Section 3.2.1 of {{RFC7591}}; Section 2.2 of {{RFC7592}}). After a token or pushed authorization request has renewed the registration, that statement can be older than the governing statement.
+| Statement delivered | Treatment |
+| --- | --- |
+| The governing statement itself, identified by its `iss` and `jti` | The request carries no replacement |
+| In an {{RFC7592}} update request, any statement with the governing statement's `iss` and `sub` and an `iat` no later than the governing statement's | The request carries no replacement |
+| At the token or pushed authorization request endpoint, any other statement with the governing statement's `iss` and `sub` and an earlier `iat` | Superseded under the `iat` floor of Section 6 of {{STATEMENT}}. The request is rejected with `statement_required` |
+| A statement with the governing statement's `iss` and `sub` and a later `iat` | A replacement, evaluated below |
+| Any other statement, such as one with another `iss` or `sub` | Fails the replacement rules below |
 
-Any other statement older than the governing statement is superseded under the `iat` floor of Section 6 of {{STATEMENT}}, and a request carrying it at the token or pushed authorization request endpoint is rejected with `statement_required`.
+For a request that carries no replacement, the authorization server leaves the registration unchanged, so that the request proceeds while the registration is valid and is rejected as {{registration-validity}} provides once it is not. A client re-sends the governing statement, for example, after losing the response to the request that renewed the registration, or by attaching its current statement to later requests. An update request repeats, unmodified, the statement that a registration, read, or update response returned (Section 3.2.1 of {{RFC7591}}; Section 2.2 of {{RFC7592}}), which can be older than the governing statement after a token or pushed authorization request has renewed the registration. While the registration is valid, its governing statement is current, even after a later statement has raised the `iat` floor of Section 6 of {{STATEMENT}}, and satisfies any requirement the server has for a current statement on refresh.
 
 An {{RFC7592}} read or update response returns the governing statement as its `software_statement` member.
 
@@ -198,7 +203,7 @@ Access issued under the registration after that update, including on refresh of 
 
 When a request under an expired registration contains a replacement, the authorization server MUST authenticate the client against the retained registration and evaluate the replacement before applying the expiry rejection. A valid replacement therefore restores the registration. An omitted or invalid replacement does not.
 
-When a request under an expired registration carries no replacement, its rejection ({{registration-validity}}) MUST NOT by itself cause the authorization server to revoke refresh tokens as it does on detecting refresh-token replay (Section 4.14.2 of {{RFC9700}}). The client recovers by delivering a valid replacement.
+When a request under an expired registration carries no replacement, its rejection ({{registration-validity}}) MUST NOT by itself cause the authorization server to revoke refresh tokens as it does on detecting refresh-token replay (Section 4.14.2 of {{RFC9700}}).
 
 A request whose replacement fails the rules above is rejected whether or not the registration has expired. The client then learns of the failure at once and can tell a bad replacement from a missing one. At the token and pushed authorization request endpoints, such a request is rejected with `statement_required`, or with `temporarily_unavailable` if a retrieval needed to check the replacement did not complete for a reason other than the size bound of Section 3.1 of {{STATEMENT}}. At the client configuration endpoint, it is rejected with the codes of {{errors}}. A rejected delivery leaves the governing statement unchanged.
 
@@ -207,8 +212,6 @@ A registration request is not a delivery: it never renews an existing registrati
 # Statements from a Registered or Admitted Client {#registered-delivery}
 
 A client registered through {{RFC7591}}, or admitted under its Client ID Metadata Document URL as its `client_id`, can still carry a statement. Runtime presentation (Section 5 of {{STATEMENT}}) does not alter a registration's metadata. At the token and pushed authorization request endpoints, a statement carried under a registration is rejected with `invalid_request` (Section 5.1 of {{STATEMENT}}) if carrying it is neither a runtime presentation nor a delivery ({{revalidation}}). At the client configuration endpoint, a statement from an issuer the server does not accept for the client is rejected with `unapproved_software_statement` ({{errors}}).
-
-For a statement-governed registration, a statement carried in a location {{revalidation}} lists is a delivery: one from the governing statement's issuer can renew the registration, and one from another issuer fails the replacement rules of {{revalidation}}. While the registration is valid, its governing statement is current, even after a later statement has raised the `iat` floor of Section 6 of {{STATEMENT}}, and satisfies any requirement the server has for a current statement on refresh.
 
 A registration created without a statement is not statement-governed: a statement neither renews nor alters it and is not a delivery. For such a registration, the server applies a reviewed change, if at all, through its own registration policy, deriving metadata only from a reviewed document ({{dcr-presentation}}).
 
