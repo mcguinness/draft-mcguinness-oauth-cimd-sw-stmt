@@ -1,11 +1,12 @@
 # Deployment Model: Portable Review Across Many Authorization Servers
 
-This is a non-normative companion to the four drafts in this repository. It sketches one end-to-end deployment, names the actors, and shows which part of each draft carries which decision. Nothing here is normative; where this document and a draft disagree, the draft wins.
+This is a non-normative companion to the five drafts in this repository. It sketches one end-to-end deployment, names the actors, and shows which part of each draft carries which decision. Nothing here is normative; where this document and a draft disagree, the draft wins.
 
 * [CIMD Software Statement](../draft-mcguinness-oauth-cimd-sw-stmt.md), the statement draft: the artifact, its validation, issuer trust, and admitting a client at request time on a statement it presents or the provider pulls.
 * [CIMD Software Statement Registration](../draft-mcguinness-oauth-cimd-sw-stmt-registration.md), the registration draft: consuming a statement in an RFC 7591 registration, which the statement bounds and a replacement renews.
 * [CIMD Software Statement Issuance](../draft-mcguinness-oauth-cimd-sw-stmt-issuance.md), the issuance draft: how a client obtains one.
 * [CIMD Software Statement Status](../draft-mcguinness-oauth-cimd-sw-stmt-status.md), the status draft: Token Status List as an optional withdrawal mechanism, and an event telling a provider that a status changed, so it resolves sooner than its schedule would. The statement draft requires no withdrawal mechanism, and no other draft depends on this one.
+* [CIMD Software Statement Attested Keys](../draft-mcguinness-oauth-cimd-sw-stmt-attested.md), the attested draft: an extension in which an attester the provider trusts vouches for an installation's key, so a native application can be admitted with loopback redirects through PAR.
 
 ## The situation being addressed
 
@@ -87,16 +88,21 @@ Once per reviewer: the issuer identifier, its statement key set at `software_sta
 sequenceDiagram
     participant App as Application instance
     participant AS as Provider authorization server
-    App->>AS: Request with key proof, and a statement unless the provider pulls one
-    AS->>AS: Validate typ, signature, claims and issuer scope
-    AS->>AS: Resolve document at sub and compare digest
+    App->>AS: Request with key proof, and a statement if the client presents one
+    alt Statement presented
+        AS->>AS: Validate typ, signature, claims and issuer scope
+        AS->>AS: Resolve document at sub and compare digest
+    else Provider pulls
+        AS->>AS: Resolve document at client_id
+        AS->>AS: Fetch software_statements_uri, keep valid statements naming this digest
+    end
     AS->>AS: Verify proof against a key the document carries
     AS->>AS: Evaluate request against document metadata
     AS->>AS: Apply tenant permission and grant policy
     AS-->>App: Access token or error naming what failed
 ```
 
-Everything that needs no network happens before the document is fetched, which keeps an unauthenticated request from spending retrieval on a statement that was never going to validate.
+When the client presents a statement, everything that needs no network happens before the document is fetched, which keeps an unauthenticated request from spending retrieval on a statement that was never going to validate. When the provider pulls, the document comes first, since it names where the statements are published, and the checks-before-retrieval ordering applies from the first statement the provider verifies.
 
 ### 7. Renewal
 
@@ -196,6 +202,7 @@ What does not compose is metadata. Resolved metadata is derived, and parties oth
 | Renewal from a prior statement | Issuance | Renewal |
 | Ending a review before expiry | Statement, Status | Withdrawal; Token Status List |
 | Reducing withdrawal latency | Status | Status Changed, Receiver Processing |
+| Loopback native clients with attested keys | Attested | Runtime Admission |
 | Issuer trust without per-reviewer enrollment | None yet | Sketched in the Federation companion |
 
 ## What changes, concretely
