@@ -374,7 +374,7 @@ Every refresh request MUST carry the original client identifier, the refresh tok
 
 On every refresh the server MUST require a current software statement and re-evaluate its issuer trust decision. This strengthens the statement-currency check of {{STATEMENT}}, which is a local-policy option until the recorded statement expires and recommended after. It MUST also verify that the currently served document matches the applicable statement and attestation digests and continues to meet {{client-metadata}}. A document that no longer selects this profile or meets {{client-metadata}}, for example one that omits the `software_statement_instance_binding` member or names another authentication method, fails the refresh. The refresh is then rejected with `invalid_grant` without seeking a replacement, as {{STATEMENT}} rejects a refresh whose document no longer carries the proven key.
 
-The recorded statement can remain applicable while it is unexpired, not refused, and matches the current document, even if a newer statement has raised the `iat` floor for new admissions. If it no longer qualifies, a replacement is required. The client can present a replacement in `software_statement` or, for an establishment created from a pulled statement, the server pulls one as {{STATEMENT}} specifies.
+The recorded statement can remain applicable while it is unexpired, not refused, and matches the current document, even if a newer statement has raised the `iat` floor for new admissions. If it no longer qualifies, a replacement is required. The client can present a replacement in `software_statement`, or a server that supports pulled statements pulls one, however the establishment was created, as {{STATEMENT}} specifies.
 
 A replacement MUST satisfy the replacement validation of {{STATEMENT}}, including identical statement `iss` and `sub` claims, a later `iat` claim, and current metadata. Its decision MUST apply to the establishment's recorded tenant and runtime use. Instead of authorizing a document key or preserving the public-client conditions of {{STATEMENT}}, the replacement MUST preserve this profile and authorize the establishment's proven key through a current attestation from the recorded attester under the recorded policy. The replacement and attestation MUST name the same current metadata digest. A replacement cannot expand access beyond the original grant, resource-owner authorization, or current server policy.
 
@@ -567,7 +567,7 @@ grant_type=refresh_token
 &refresh_token=<refresh-token>
 ~~~
 
-If the recorded statement has expired, the server pulls a current replacement as {{STATEMENT}} permits for a grant established from a pulled statement. If the replacement names changed metadata, the attestation needs to name that same new digest while retaining the proven key and the recorded attester and policy. Otherwise the refresh fails without changing the binding.
+If the recorded statement has expired, a server that supports pulled statements pulls a current replacement, as {{STATEMENT}} provides for any establishment. If the replacement names changed metadata, the attestation needs to name that same new digest while retaining the proven key and the recorded attester and policy. Otherwise the refresh fails without changing the binding.
 
 # Authorization Server Metadata {#server-metadata}
 
