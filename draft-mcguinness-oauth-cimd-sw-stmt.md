@@ -134,16 +134,16 @@ Refusal Record:
 : State an authorization server holds when it has learned that a statement ceased to be acceptable before its expiry, whether from a withdrawal mechanism it uses for the issuer ({{withdrawal}}) or from its own operator.
 
 Current Statement:
-: A statement whose effective expiry has not passed and that matches no refusal record. For a new admission or a replacement ({{refresh}}, {{REGISTRATION}}), a statement superseded under the `iat` floor ({{multi-instance}}) is also not current. On refresh, an establishment's recorded statement remains current after a later statement raises the `iat` floor ({{refresh}}).
+: A statement whose effective expiry has not passed and that matches no refusal record. The `iat` floor ({{multi-instance}}) separately limits which current statements a server accepts.
 
 Required Issuer:
-: For one of a trusting authorization server's tenants, a configured issuer whose current statement the server requires before admitting software, or refreshing a grant for it ({{refresh}}), in the client identifier namespaces its trust configuration records for that issuer in that tenant ({{issuer-trust}}).
+: A configured issuer whose current statement a trusting authorization server requires, in one of its tenants, for software in the client identifier namespaces its trust configuration records for that issuer in that tenant ({{issuer-trust}}, {{refresh}}).
 
 Review-Only:
 : Describes a presentation, or a pulled statement, that the authorization server evaluates but that admits nothing ({{public-client-presentation}}).
 
 `iat` Floor:
-: For a trusting authorization server, the greatest `iat` claim value among the statements it has accepted for a given `iss` and `sub`, kept per tenant on a multi-tenant server. For the floor, a statement is accepted once the server admits a client on it, applies it as a replacement, or registers a client with it. The server rejects a statement whose `iat` claim is earlier ({{multi-instance}}).
+: For a trusting authorization server, the greatest `iat` claim value among the statements it has accepted for a given `iss` and `sub`, per tenant on a multi-tenant server ({{multi-instance}}).
 
 # The Software Statement {#profiles}
 
@@ -461,7 +461,7 @@ Refresh never rotates the establishment's key. A client that needs a new key per
 
 A statement attests client software, identified by `sub`, not its runtime instances. This specification defines no instance identifier. One unexpired statement is therefore consumable more than once: at each trusting authorization server in its audience, in more than one establishment at that server ({{establishment-bounds}}), and, if the server registers clients ({{REGISTRATION}}) and its policy permits, in more than one registration there.
 
-A trusting authorization server MUST retain, per `iss` and `sub` claims and, on a multi-tenant server, per tenant, the greatest `iat` claim value among the statements it has accepted, as its `iat` floor. It MUST reject a statement whose `iat` claim is earlier than the retained `iat`, whether it arrives as a replacement, a new registration, or a new presentation. A client holding a superseded, broader statement therefore cannot defer a narrowing by opening a fresh registration or establishment with it. The server retains the `iat` floor at least as long as the maximum statement lifetime it honors for that issuer.
+A trusting authorization server MUST retain, per `iss` and `sub` claims and, on a multi-tenant server, per tenant, the greatest `iat` claim value among the statements it has accepted, as its `iat` floor. A statement is accepted for the floor once the server admits a client on it, applies it as a replacement, or registers a client with it. The server MUST reject a statement whose `iat` claim is earlier than the retained `iat`, whether it arrives as a replacement, a new registration, or a new presentation. A client holding a superseded, broader statement therefore cannot defer a narrowing by opening a fresh registration or establishment with it. The server retains the `iat` floor at least as long as the maximum statement lifetime it honors for that issuer.
 
 Keeping the floor per tenant prevents an issuer's statements for different tenants from superseding one another. A multi-tenant server also keeps any bound on establishments ({{establishment-bounds}}) per tenant for the same reason.
 
