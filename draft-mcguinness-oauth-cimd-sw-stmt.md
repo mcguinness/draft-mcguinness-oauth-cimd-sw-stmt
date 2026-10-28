@@ -29,6 +29,7 @@ author:
 normative:
   RFC6749:
   RFC6234:
+  RFC6585:
   RFC6838:
   RFC7515:
   RFC7519:
@@ -351,7 +352,7 @@ Every retrieval this specification causes, of the Client ID Metadata Document, a
 
 A retrieval failure leaves the relevant metadata or proof unverified, so the authorization server MUST reject the request and MUST NOT fall back to a weaker proof. A failed pull of statements for a request that opens a new grant is the exception: it leaves the client unreviewed, as {{pulled-statements}} describes.
 
-A retrieval does not complete only when it times out, its connection fails, or the response has a 5xx status code, and only then does this specification assign `temporarily_unavailable`. Any other failure to obtain an acceptable representation, such as a 4xx status code or a body that is not a JSON object, is final: a document is treated as failing validation, a key set as carrying no acceptable key, and a statements location as publishing no statement.
+A retrieval does not complete only when it times out, its connection fails, or the response has a 429 (Too Many Requests) status code (Section 4 of {{RFC6585}}) or a 5xx status code, and only then does this specification assign `temporarily_unavailable`. Any other failure to obtain an acceptable representation, such as another 4xx status code or a body that is not a JSON object, is final: a document is treated as failing validation, a key set as carrying no acceptable key, and a statements location as publishing no statement.
 
 ## Sender Constraint {#sender-constraint}
 
