@@ -718,6 +718,17 @@ The security considerations of {{CIMD}} and Section 5 of {{RFC7591}} apply.
 
 A statement binds an issuer's review to the octets of a Client ID Metadata Document, which describes an OAuth client configuration, such as its redirection URIs, keys, grant types, and scope. It does not bind the software's code, dependencies, or behavior. Software can change while its document stays the same, and the statement remains acceptable until it expires or is withdrawn ({{withdrawal}}). Assurance about the software itself rests on the issuer's review process and, where an extension provides one, an attestation of the running instance ({{extensions}}). Any change to the document's octets, including one that changes no metadata value, makes statements over the earlier octets fail the digest comparison ({{effective-metadata}}).
 
+The following table states what admission under this specification does and does not establish:
+
+| Property | Established |
+| --- | --- |
+| A configured issuer signed the statement for this client identifier and, if the statement names an audience, one that includes this server | Yes |
+| The served document is the one the issuer reviewed, byte for byte | Yes |
+| The presenter controls a key the reviewed document carries | Yes, except under {{public-client-presentation}}. Inline `jwks` attests the keys themselves; `jwks_uri` attests only their location ({{statement-validation}}) |
+| Authorization codes reach only a reviewed redirection URI | Yes, in a redirect flow. For a public client under {{public-client-presentation}} it is the only binding, and it does not hold against a party that controls the user agent ({{public-client-security}}) |
+| The running software is the software the issuer reviewed | No; an attested-key extension can add evidence for it ({{extensions}}) |
+| The client may access a particular resource | No; the authorization server's policy, and the resource owner's authorization where a grant involves one, decide |
+
 ## Statement Theft and Replay {#statement-validation}
 
 A copied statement admits nothing without the sender constraint ({{sender-constraint}}). Admitting only keys the reviewed document carries also prevents a downgrade to a key the issuer did not review. An extension admitting attested keys ({{extensions}}) has to address downgrade itself.
