@@ -1,6 +1,6 @@
-# Sketch: Pulling the Review, and an MCP Profile
+# Design Rationale: Pulled Statements and the MCP Profile
 
-A non-normative sketch of the reasoning behind two things that are now in the drafts: a way for a server to fetch a review instead of having the client carry it, which the statement draft defines as pulled statements, and a profile of the family for Model Context Protocol authorization servers, drafted as [Reviewed Client Software](../mcp/reviewed-client-software.mdx). It is not a draft, and where it differs from those documents, they govern. It began because MCP has made Client ID Metadata Documents its preferred way to identify clients, and the family as it then stood asked more of an MCP client than any MCP client will do.
+The reasoning behind two things now specified elsewhere: pulled statements, which the statement draft defines, and the Model Context Protocol profile drafted as [Reviewed Client Software](../mcp/reviewed-client-software.mdx). It is not normative, and where it differs from those documents, they govern. It began because MCP prefers Client ID Metadata Documents for identifying clients, and the family as it then stood asked more of an MCP client than any MCP client will do.
 
 ## Why MCP, and why now
 
@@ -44,9 +44,7 @@ It also gives a working form to the suggestion in Section 4.3 of the CIMD draft,
 
 ### From the issuer
 
-The server asks a configured issuer, by client identifier, for its current decision. No draft defines this. It is the pull [the vendor integration sketch](saas-integration-sketch.md) uses with Federation's trust mark endpoint.
-
-The client does nothing and the publisher cannot withhold. The costs land elsewhere: the issuer becomes available-or-not on the request path, it learns which servers ask about which software, and its answers must be access-controlled, since which software an organization has approved is information worth protecting. That sketch works through the same costs and finds the endpoint mechanics exist while the authorization model for who may ask about whom does not.
+The server asks a configured issuer, by client identifier, for its current decision. No draft defines this; it is the pull [the vendor integration sketch](saas-integration-sketch.md) explores with Federation's trust mark endpoint. The publisher cannot withhold, but the issuer sits on the request path, learns which servers ask about which software, and needs an authorization model for who may ask about whom, which does not exist yet.
 
 ### Which
 
@@ -60,13 +58,7 @@ What goes away is client-side carriage and distribution: the request parameter, 
 
 ## The MCP profile
 
-[Reviewed Client Software](../mcp/reviewed-client-software.mdx) is the profile this section first sketched, now written as an MCP authorization extension. In outline:
-
-1. **Identity.** `client_id` is the Client ID Metadata Document URL. MCP recommends this; the profile requires it, and defines no registration step. Statements carry no `statement_uses`, so they are usable only at request time.
-2. **Conveyance.** Servers pull statements from the `software_statements_uri` the document names and advertise `software_statement_pull_supported`. A client may also present a statement where a server accepts presentation, and both converge on one validation path.
-3. **Presenter binding.** Confidential clients authenticate with `private_key_jwt` using a key the document carries; public clients with `https` redirection URIs are bound by them and a DPoP key; clients with any loopback redirection URI are review-only.
-4. **Tenants.** A multi-tenant server resolves the tenant by its own means before evaluating any statement, and a customer's tenant-scoped decision carries `aud_tenant`. A statement says nothing about which of a client's own customers a request is for, so a server that needs that binding keeps it itself.
-5. **Who issues.** Whoever an MCP authorization server already trusts to vouch for software: an MCP client catalog, the server vendor's own marketplace, or a customer's security team operating an issuer.
+[Reviewed Client Software](../mcp/reviewed-client-software.mdx) is the profile this reasoning led to. Its requirements beyond base MCP are its own: a Client ID Metadata Document as `client_id`, no registration step, statements pulled from `software_statements_uri`, and loopback clients treated as review-only.
 
 ## Composing with Enterprise-Managed Authorization
 

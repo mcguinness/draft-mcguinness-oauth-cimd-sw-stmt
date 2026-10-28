@@ -38,7 +38,7 @@ These documents explore deployments and edge cases. They are non-normative and n
 | [A Customer Approving a Vendor Integration](sketches/saas-integration-sketch.md) | A vendor-to-vendor integration with no user present, comparing the customer's own statement with an approval made once at the customer's root and revoked once for every platform |
 | [Tenant Admin Consent](sketches/admin-consent-sketch.md) | Microsoft Entra ID's tenant-wide admin consent, rebuilt from open specifications |
 | [Composing with OpenID Federation](sketches/openid-federation-sketch.md) | Issuer trust from a federation, a review carried as a Trust Mark, and why Federation's resolved metadata cannot carry a digest |
-| [Pulling the Review, and an MCP Profile](sketches/mcp-profile-sketch.md) | The design notes behind pulled statements and the MCP profile, both now in the drafts |
+| [Design Rationale: Pulled Statements and the MCP Profile](sketches/mcp-profile-sketch.md) | Why statements are pulled from where the client's document points, what that removes and what it keeps, and how the MCP profile composes with Enterprise-Managed Authorization |
 
 ## Related Specifications
 
