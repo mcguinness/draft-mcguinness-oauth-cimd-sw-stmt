@@ -436,7 +436,7 @@ On refresh-token use, the authorization server proceeds as follows:
 
 3. Obtaining a replacement. A client can offer a replacement on any refresh, in the `software_statement` parameter of the refresh request. A statement with the recorded statement's `iss` and `jti` is not a replacement: if the client offers it again, the server rechecks it as the recorded statement under steps 1 and 2. When a replacement is needed and the request carries none, a server that supports pulled statements ({{pulled-statements}}) pulls, however the establishment was created, and takes the newest statement with the recorded statement's `iss` and `sub` as the replacement. If the newest is the recorded statement itself, nothing is replaced, and the refresh is evaluated against the recorded statement. A reviewed grant never continues under the policy for clients the server has not reviewed.
 
-4. Validating the replacement. The following requirements apply to the replacement:
+4. Validating the replacement. If the refresh has a replacement, the following requirements apply to it:
 
    * It MUST validate under {{validation}}, including its audience if it carries one.
    * The `iss` and `sub` claims MUST equal those of the recorded statement.
@@ -444,9 +444,9 @@ On refresh-token use, the authorization server proceeds as follows:
    * The `cimd_digest` claim MUST name the document currently served at that `sub`, which the server confirms by retrieval or by revalidating octets it holds.
    * The replacement MUST authorize the establishment's proven key ({{sender-constraint}}) or, for an establishment created under {{public-client-presentation}}, name a document that still satisfies that section.
 
-5. Access. The refreshed access MUST fall within the metadata of the document the replacement names.
+5. Access. The refreshed access MUST fall within the metadata of the document an accepted replacement names or, without one, the establishment's reviewed metadata.
 
-6. Update. On success, the refreshed grant's statement identity, `iat`, effective expiry, reviewed metadata, and trust decision become those of the replacement ({{grant-state}}) in a single atomic update, and concurrent replacements resolve to the most recently issued statement.
+6. Update. If a replacement is accepted, the refreshed grant's statement identity, `iat`, effective expiry, reviewed metadata, and trust decision become those of the replacement ({{grant-state}}) in a single atomic update, and concurrent replacements resolve to the most recently issued statement. Without one, the grant's state is unchanged.
 
 A refresh whose replacement fails the requirements of step 4, or that omits a replacement that is needed, including one a pull does not complete or does not yield, leaves the grant's state unchanged and is rejected with `statement_required`, or with `temporarily_unavailable` if a retrieval needed to check the replacement did not complete for a reason other than the size bound of {{metadata-digest}}.
 
