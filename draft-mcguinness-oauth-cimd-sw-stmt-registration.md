@@ -160,7 +160,7 @@ If an authorization server creates a confidential-client registration that permi
 The `registration_expires_at` member is a NumericDate (Section 2 of {{RFC7519}}) giving the latest time the registration remains valid or, for a registration that has ceased to be valid, the time it ceased. The server can cap the lifetime it honors for the issuer (Section 4 of {{STATEMENT}}), so a client cannot compute this boundary from the statement alone. The authorization server:
 
 * MUST return `registration_expires_at` in the {{RFC7591}} registration response and in the response to any request that renews the registration or carries its governing statement ({{revalidation}}).
-* SHOULD return it in any {{RFC7592}} read or update response it supports.
+* SHOULD return it in any other {{RFC7592}} read or update response it supports.
 
 ## Renewal {#revalidation}
 
