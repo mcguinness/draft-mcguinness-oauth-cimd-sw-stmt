@@ -325,8 +325,8 @@ The presenter of a pulled statement is bound as for a presented statement ({{sen
 | Where the statement is pulled | Confidential client | Public client |
 | --- | --- | --- |
 | Token endpoint, opening a new grant | The request's client authentication or DPoP proof binds the presenter | Review-only, since nothing binds the presenter |
-| Pushed authorization request endpoint | The client's authentication binds the presenter | {{public-client-presentation}} applies, including PKCE, if the request binds a key through a DPoP proof or `dpop_jkt`. Otherwise review-only |
-| Authorization endpoint | The client's authentication at code redemption binds the presenter, before any token is issued | {{public-client-presentation}} applies, including PKCE, if the request binds a key through `dpop_jkt`, and redemption proves that key. Otherwise review-only |
+| Pushed authorization request endpoint | The client's authentication binds the presenter | {{public-client-presentation}} binds the presenter if the request uses PKCE with `S256` and binds a key through a DPoP proof or `dpop_jkt`. Otherwise review-only |
+| Authorization endpoint | The client's authentication at code redemption binds the presenter, before any token is issued | {{public-client-presentation}} binds the presenter if the request uses PKCE with `S256` and binds a key through `dpop_jkt`, which redemption then proves. Otherwise review-only |
 
 At code redemption, a confidential client whose statement was pulled at the authorization endpoint authenticates with a key the reviewed document carries, in its `jwks` or at its `jwks_uri` within the reuse bounds of {{sender-constraint}}, not one that only a later retrieval of the document carries, and that key becomes the establishment's proven key. Code redemption and refresh otherwise continue an establishment and keep the binding it already has ({{grant-lifecycle}}, {{refresh}}). A statement pulled for a document that omits `token_endpoint_auth_method` ({{sender-constraint}}), or whose redirection URIs {{public-client-presentation}} does not accept, is review-only wherever it is pulled.
 
@@ -376,11 +376,13 @@ A review-only presentation creates no establishment, admits nothing, and does no
 
 The statement of a review-only presentation MUST NOT satisfy a policy requiring reviewed software. If the server's policy requires reviewed software, it rejects a review-only client with `unauthorized_client`.
 
-If the client's reviewed document declares `token_endpoint_auth_method` of `none` and none of its redirection URIs is one another application could claim, a presentation at the pushed authorization request endpoint, or a statement pulled at that endpoint or at the authorization endpoint ({{pulled-statements}}), is bound instead by its reviewed redirection URIs. For such a presentation, the authorization server:
+If the client's reviewed document declares `token_endpoint_auth_method` of `none` and none of its redirection URIs is one another application could claim, a presentation at the pushed authorization request endpoint is bound instead by its reviewed redirection URIs. For such a presentation, the authorization server:
 
 * MUST require PKCE {{RFC7636}} with the `S256` method.
 * MUST require the presenter to bind a key it holds, through the `dpop_jkt` parameter or, at the pushed authorization request endpoint, a DPoP proof (Section 10.1 of {{RFC9449}}), and records that key as the proven key of the establishment ({{grant-lifecycle}}).
 * MUST NOT require that key to appear in the reviewed document.
+
+A statement pulled for such a client at the pushed authorization request endpoint or the authorization endpoint ({{pulled-statements}}) is bound the same way, under the same requirements, if the request uses PKCE with the `S256` method and binds a key as those requirements provide. Otherwise the pulled statement is review-only.
 
 The reviewed redirection URIs, not the proven key, bind such a presentation ({{public-client-security}}). The proven key identifies the installation the grant belongs to, and code redemption and refresh prove it ({{grant-lifecycle}}, {{refresh}}).
 
