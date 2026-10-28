@@ -102,7 +102,7 @@ This specification uses terminology from {{RFC6749}} (OAuth), {{RFC7591}} (clien
 This specification defines the following terms.
 
 Issuer:
-: The authorization server that signs a software statement.
+: The party that signs a software statement. An issuer can be an authorization server, or a reviewer, such as a marketplace, that operates none.
 
 Trusting Authorization Server:
 : An authorization server that consumes a software statement, at runtime under this specification or at registration under {{REGISTRATION}}.
@@ -135,12 +135,12 @@ Review-Only:
 
 The software statement is a compact JWT {{RFC7519}} protected by JWS {{RFC7515}}. Although {{RFC7591}} permits a MAC, a statement issued under this specification MUST use an asymmetric digital signature, and the `none` algorithm and symmetric algorithms MUST NOT be used. Issuers and trusting authorization servers follow {{RFC8725}}.
 
-The JOSE header MUST include the `kid` header parameter, identifying the signing key in the issuer's statement key set ({{authorization-server-metadata}}), and the `typ` header parameter with the value `software-statement+jwt` (Section 3.11 of {{RFC8725}}), which is the media type of {{media-type}} without its `application/` prefix. Extensions can add claims. An incompatible revision would use a new `typ` value.
+The JOSE header MUST include the `kid` header parameter, identifying the signing key in the issuer's statement key set ({{issuer-trust}}), and the `typ` header parameter with the value `software-statement+jwt` (Section 3.11 of {{RFC8725}}), which is the media type of {{media-type}} without its `application/` prefix. Extensions can add claims. An incompatible revision would use a new `typ` value.
 
 A statement asserts that its issuer evaluated the Client ID Metadata Document whose content the digest identifies, and vouches for that document to any party that accepts the issuer. The JWT payload contains the following claims.
 
 `iss`:
-: REQUIRED. The issuer's issuer identifier, as defined by {{RFC8414}}.
+: REQUIRED. The issuer's identifier, a URL using the `https` scheme with no query or fragment component. For an issuer that is an authorization server, it is its issuer identifier as defined by {{RFC8414}}.
 
 `sub`:
 : REQUIRED. The exact client identifier URL of the Client ID Metadata Document the issuer reviewed, not a `client_id` assigned through {{RFC7591}} registration.
@@ -232,13 +232,15 @@ A trusting authorization server accepts statements only from configured issuers.
 For each trusted issuer, a trusting authorization server records at least the following:
 
 * The exact `iss` identifier it will accept.
-* The source of that issuer's statement signing keys: the `software_statement_jwks_uri` in the issuer's authorization server metadata ({{authorization-server-metadata}}), discovered from the configured `iss` as {{RFC8414}} describes, and never its `jwks_uri`.
+* The source of that issuer's statement signing keys, which is never a `jwks_uri` metadata value: either the `software_statement_jwks_uri` in the issuer's authorization server metadata ({{authorization-server-metadata}}), discovered from the configured `iss` as {{RFC8414}} describes, or, for an issuer that is not an authorization server, a statement key set URL recorded in this trust configuration.
 * The signing algorithms it will accept from the issuer.
 * The client identifier namespaces the issuer can attest through `sub`.
 * The audience identifiers the issuer can name.
 * Any tenant to which it confines the issuer's decisions.
 * The maximum statement lifetime it will honor, which sets each statement's effective expiry.
 * Its own policy on repeated consumption of one statement ({{multi-instance}}).
+
+A statement key set whose URL is recorded in trust configuration is subject to rules matching those {{authorization-server-metadata}} sets for `software_statement_jwks_uri`: its URL MUST use the `https` scheme, a trusting authorization server MUST validate the certificate of the host serving it, and the issuer MUST NOT place in it a key from any other JWK Set it publishes, or sign anything other than statements under this specification with its keys.
 
 These inputs, not the signature alone, define acceptance. A trusting authorization server MUST derive trust from this local configuration and MUST NOT derive it from an `iss`, `jku`, `x5u`, or other key-location value carried in a presented statement.
 
@@ -248,7 +250,7 @@ A required issuer configured for software whose documents are presented review-o
 
 ## Multi-Tenant Issuers {#multi-tenant-issuers}
 
-If an issuer reviews software for several customers whose decisions are each trusted independently, it MUST issue under a distinct `iss` value for each customer, so that each customer's decisions, keys, and `iat` floor ({{multi-instance}}) stay separate. Under one `iss`, one customer's renewal would supersede another's review. A statement carries no claim naming the issuer's customer.
+If an issuer reviews software for several customers whose decisions are each trusted independently, it MUST issue under a distinct `iss` value for each customer, so that each customer's decisions and `iat` floor ({{multi-instance}}) stay separate. Under one `iss`, one customer's renewal would supersede another's review. A statement carries no claim naming the issuer's customer.
 
 # Runtime Presentation {#cimd-presentation}
 
@@ -609,7 +611,7 @@ An authorization server receiving an ordinary authorization request with this `c
 This specification defines the following authorization server metadata {{RFC8414}} values:
 
 `software_statement_jwks_uri`:
-: REQUIRED for an authorization server that issues statements under this specification. URL of a JWK Set containing only the keys with which it signs them. The URL MUST use the `https` scheme, and a trusting authorization server MUST validate the server's certificate when retrieving it.
+: REQUIRED for an authorization server that issues statements under this specification. URL of a JWK Set containing only the keys with which it signs them. The URL MUST use the `https` scheme, and a trusting authorization server MUST validate the server's certificate when retrieving it. An issuer that is not an authorization server publishes its statement key set at a URL that trusting authorization servers record in their trust configuration, under the rules of {{issuer-trust}}.
 
   The keys in this set MUST NOT appear in the JWK Set at the server's `jwks_uri` metadata value, and the server MUST NOT sign anything other than statements under this specification with them. As a result, a key that signs another artifact, such as a Status List Token or a software statement of another profile, cannot verify a statement ({{legacy-servers}}).
 
@@ -724,7 +726,7 @@ Attesting a `jwks_uri` attests the location, not its contents: a compromised key
 
 ## Servers That Do Not Implement This Specification {#legacy-servers}
 
-A statement carries no client metadata, so an {{RFC7591}} server that verified one without implementing this specification would take every metadata value from the registration request, attaching the issuer's approval to an attacker's redirection URIs and keys. Keeping statement signing keys at `software_statement_jwks_uri`, out of `jwks_uri`, and away from statements of other profiles ({{authorization-server-metadata}}) guards against this. A server that discovers an issuer's keys through the `jwks_uri` in its {{RFC8414}} metadata finds none that verify a statement. A server is exposed only if its operator configures the statement key set in a server that does not implement this specification.
+A statement carries no client metadata, so an {{RFC7591}} server that verified one without implementing this specification would take every metadata value from the registration request, attaching the issuer's approval to an attacker's redirection URIs and keys. Keeping statement signing keys in a dedicated statement key set, out of any `jwks_uri`, and away from statements of other profiles ({{issuer-trust}}, {{authorization-server-metadata}}) guards against this. A server that discovers an issuer's keys through the `jwks_uri` in its {{RFC8414}} metadata finds none that verify a statement, and an issuer that is not an authorization server has no such metadata. A server is exposed only if its operator configures the statement key set in a server that does not implement this specification. Recording a statement key set URL in trust configuration is the normal route for an issuer that is not an authorization server, so for such an issuer the protection rests on operators recording that URL only in servers that implement this specification.
 
 ## Copied Statements and Public Clients {#public-client-security}
 
