@@ -162,7 +162,7 @@ The consequence is that cadence and responsiveness stop being one dial. A review
 
 ## Replacing tenant admin consent
 
-The customer-side decision above, which software may operate in this tenant, is the one most enterprises make today through a vendor's admin consent screen. [The admin consent sketch](admin-consent-sketch.md) works through what that ceremony contains and which parts have generic forms: the request and approval loop is the issuance flow and comes out ahead, since the proprietary version cannot be automated, while a consent recorded once for every user has no equivalent in any open specification and deliberately gains none here.
+The customer-side decision above, which software may operate in this tenant, is the one most enterprises make today through a vendor's admin consent screen. [The admin consent sketch](admin-consent-sketch.md) works through what that ceremony contains and which parts have generic forms: the issuance flow gives the request-and-decide loop an interoperable form on the client's side, while how the administrator decides stays local, and a consent recorded once for every user has no equivalent in any open specification and deliberately gains none here.
 
 ## Composition with OpenID Federation
 

@@ -17,7 +17,7 @@ Four parts, worth separating because they are usually discussed as one act.
 
 Two properties of that shape matter more than any of the parts.
 
-**The approval loop cannot be automated.** Microsoft's documentation states it plainly in both the v1.0 and beta API references: there are no methods to programmatically approve or deny a request, and the contents of a request can only be used to reconstruct a URL that grants consent through a browser. The `/adminconsent` endpoint returns no code and no token, only `admin_consent=True` with a `tenant` value the documentation warns must never be used to authenticate or authorize. So the step an enterprise most wants in a pipeline is the step that requires a human in a browser.
+**The request workflow has no approval API.** Microsoft Graph exposes consent requests for listing and reading only, with no method to approve or deny one, so a pending request is resolved in the portal or through the consent URL it implies. That does not stop an enterprise automating consent itself: Graph can create a tenant-wide delegated permission grant, with `consentType` of `AllPrincipals`, or an application permission assignment directly, with no consent prompt. What lacks an automatable form is the link between a user's request and an administrator's decision. The `/adminconsent` endpoint returns no code and no token, only `admin_consent=True` with a `tenant` value the documentation warns must never be used to authenticate or authorize.
 
 **The record is permanent and local.** A grant does not expire, nobody re-reviews it, and deleting it does not reach tokens already issued: existing access tokens remain valid for their lifetime, and only new ones are refused. Revocation is also not sticky, since users can re-consent afterwards. The grant is verifiable only inside the directory that holds it.
 
@@ -30,22 +30,20 @@ Admin consent is a **stored, permanent, tenant-local record**. What these drafts
 | Part | Generic form | Status |
 | --- | --- | --- |
 | App known to the tenant | A Client ID Metadata Document URL that resolves. No provisioning step exists to precede the request | Available |
-| Ask and decide | The issuance flow: an authorization request with `completion_mode` including `deferred`, a `software_statement_code`, redemption returning a deferral code, polling, then a statement or a terminal `access_denied` | Available, and machine-readable |
+| Ask and decide | The issuance flow: an authorization request with `completion_mode` including `deferred`, a `software_statement_code`, redemption returning a deferral code, polling, then a statement or a terminal `access_denied` | Available for the client's side; how the approver decides stays local |
 | Record the decision | A software statement: an issuer, an expiry, a digest binding it to the exact document reviewed, and a status reference for withdrawal | Available |
 | Consent for all users, permanently | Nothing, anywhere. See below | Deliberately absent |
 | Withdraw | Set the statement's status, and stop renewing | Available |
 
-### The bootstrap inverts
+### Provisioning
 
-Entra needs the app provisioned in the tenant before an administrator can consent, which usually means a user consented first. That ordering is why "grant admin consent" is a second act rather than the first one.
+In the portal, an administrator usually grants consent to an app already present in the tenant, often because a user consented to it or requested it first. That is one path, not a requirement: Microsoft documents a tenant-wide admin consent URL that an administrator can build from the app's client ID alone, so no user has to go first.
 
-A client identified by a Client ID Metadata Document needs no provisioning. Its identifier is a URL that resolves to its metadata, so it can ask for admission before anyone has consented to anything, and an administrator can approve software no user has yet touched. Who moves first is no longer forced.
+A client identified by a Client ID Metadata Document needs no provisioning step at all. Its identifier is a URL that resolves to its metadata, so it can ask for admission before anyone has consented to anything, and the authorization server holds nothing for it until a decision exists.
 
-### The ceremony is already specified
+### The client's side of the ceremony is specified
 
-The request-and-approve loop maps onto the issuance draft almost part for part, and comes out ahead in the one place it counts. Entra's workflow tracks state and notifies reviewers but terminates in a browser. The issuance flow terminates in a token response the client polled for, with a defined denial that is terminal for the request and does not preclude asking again later.
-
-That is the difference between a ceremony a person completes and a ceremony a program completes.
+The request-and-approve loop maps onto the issuance draft in shape: the client asks, the decision is pending, and the client learns the outcome. What the issuance draft standardizes is the client's side: an interoperable request, a deferral, polling, and a result that is either a statement or a defined denial, terminal for the request without precluding a later one. How the administrator decides, and how an approval system plugs into the authorization server, it leaves out of scope, as Entra leaves its own approval to the portal. The gain is interoperable delivery of the result, not an automated approver.
 
 ### The decision becomes an artifact worth auditing
 
