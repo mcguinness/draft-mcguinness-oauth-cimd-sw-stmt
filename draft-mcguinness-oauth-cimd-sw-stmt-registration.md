@@ -384,13 +384,13 @@ Specification Document(s):
 
 ## OAuth Extensions Error Registry
 
-This specification requests that IANA update the existing `temporarily_unavailable` entry, adding the client registration error response to its usage locations and this specification as a reference:
+This specification requests that IANA update the existing `temporarily_unavailable` entry, adding the client registration and client configuration endpoint error responses to its usage locations and this specification as a reference:
 
 Error Name:
 : `temporarily_unavailable`
 
 Error Usage Location:
-: client registration error response, in addition to the locations already registered
+: client registration error response and client configuration endpoint error response, in addition to the locations already registered
 
 Related Protocol Extension:
 : OAuth 2.0 Authorization Framework
