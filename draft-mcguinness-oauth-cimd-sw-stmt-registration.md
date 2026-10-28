@@ -312,7 +312,7 @@ A public-client registration ({{public-client-registration}}) has no credential 
 
 Renewal proves possession of the registration's credential and the currency of a statement sharing the governing statement's `iss` and `sub`, not that the renewing party is the reviewed software. An attacker holding a stolen client credential can renew indefinitely with any current statement for that software. Such statements are distributed to every deployment of the software. A public-client registration has no credential, so its renewal proves only that the replacement is current. No protection is lost, since any party can already use that registration.
 
-{{credential-practice}} describes deployment practice that limits this exposure. Runtime presentation ({{STATEMENT}}) binds every presenter to the reviewed document and so does not have this limitation.
+{{credential-practice}} describes deployment practice that limits this exposure. Runtime presentation ({{STATEMENT}}) binds every presenter to the reviewed document, through a key it carries or its reviewed redirection URIs, and so does not have this limitation, though the redirection binding does not hold against a party that controls the user agent.
 
 ## Registration Fraud and Impersonation {#registration-fraud}
 

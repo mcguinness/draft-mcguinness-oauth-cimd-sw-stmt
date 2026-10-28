@@ -736,7 +736,7 @@ The following table states what admission under this specification does and does
 
 ## Statement Theft and Replay {#statement-validation}
 
-A copied statement admits nothing without the sender constraint ({{sender-constraint}}). Admitting only keys the reviewed document carries also prevents a downgrade to a key the issuer did not review. An extension admitting attested keys ({{extensions}}) has to address downgrade itself.
+A copied statement admits nothing without the sender constraint ({{sender-constraint}}). Except under {{public-client-presentation}} ({{public-client-security}}), admitting only keys the reviewed document carries also prevents a downgrade to a key the issuer did not review. An extension admitting attested keys ({{extensions}}) has to address downgrade itself.
 
 Attesting a `jwks_uri` attests the location, not its contents: a compromised key host can add keys that satisfy the proof without a digest change. If that matters, an issuer attests `jwks` inline and accepts that rotation changes the digest. A server reusing a cached key set ({{sender-constraint}}) also accepts that a just-removed key can briefly continue to verify.
 
