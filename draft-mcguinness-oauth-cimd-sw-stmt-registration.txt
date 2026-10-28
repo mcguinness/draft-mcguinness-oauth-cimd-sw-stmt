@@ -169,8 +169,8 @@ Table of Contents
    This specification uses terminology from [RFC6749] (OAuth), [RFC7591]
    (client metadata and software statements), and [CIMD] (Client ID
    Metadata Documents), and the terms Issuer, Runtime Presentation,
-   Effective Expiry, Refusal Record, Current Statement, Review-Only, and
-   iat Floor from [STATEMENT].
+   Effective Expiry, Refusal Record, Current Statement, Required Issuer,
+   Review-Only, and iat Floor from [STATEMENT].
 
    This specification defines the following terms.
 
@@ -257,9 +257,11 @@ Table of Contents
    delivery (Section 3.3), as a request from a client it has not
    registered.  The restriction persists across renewals, and a renewal
    by a replacement whose decision is confined to a tenant restricts the
-   registration to that tenant.  A registration created from a statement
-   whose decision is not confined to a tenant carries no tenant
-   restriction under this specification until such a renewal.
+   registration to that tenant, except for a public-client registration
+   that carries no tenant restriction, which such a statement does not
+   renew (Section 3.1).  A registration created from a statement whose
+   decision is not confined to a tenant carries no tenant restriction
+   under this specification until such a renewal.
 
    Unlike runtime presentation ([STATEMENT]), registration has no
    review-only form: the registration is the admission.
@@ -595,19 +597,21 @@ Table of Contents
       refused by a refusal record, or superseded under the iat floor of
       [STATEMENT].  The code also applies when the digest of the
       retrieved document does not match the statement's cimd_digest
-      claim, and, at the client configuration endpoint or in a repeated
-      public-client registration request (Section 3.1), when a delivered
-      replacement fails a replacement-specific rule of Section 3.3 that
-      this section assigns no other code, such as a sub claim that
-      differs from the governing statement's or a change in whether the
-      document declares token_endpoint_auth_method of none.
+      claim, and when a replacement delivered at the client
+      configuration endpoint, or a statement in a repeated public-client
+      registration request evaluated as one (Section 3.1), fails a
+      replacement-specific rule of Section 3.3 that this section assigns
+      no other code, such as a sub claim that differs from the governing
+      statement's or a change in whether the document declares
+      token_endpoint_auth_method of none.
 
    unapproved_software_statement:  The statement is valid but not
       acceptable here: its issuer is not configured, its aud excludes
       this server, its sub is outside the issuer's scope, its aud_tenant
-      is not this request's tenant or is absent when required, or its
-      statement_uses excludes this use.  This code is also used if a
-      statement this server requires is absent.
+      is not this request's tenant or is absent when required, its
+      issuer is confined to another tenant, or its statement_uses
+      excludes this use.  This code is also used if a statement this
+      server requires is absent from a registration request.
 
    invalid_client_metadata:  Any of the following holds for the reviewed
       document:
@@ -773,7 +777,10 @@ Table of Contents
 
    Section 10.2 describes deployment practice that limits this exposure.
    Runtime presentation ([STATEMENT]) binds every presenter to the
-   reviewed document and so does not have this limitation.
+   reviewed document, through a key it carries or its reviewed
+   redirection URIs, and so does not have this limitation, though the
+   redirection binding does not hold against a party that controls the
+   user agent.
 
 11.3.  Registration Fraud and Impersonation
 
@@ -884,14 +891,15 @@ Table of Contents
 13.4.  OAuth Extensions Error Registry
 
    This specification requests that IANA update the existing
-   temporarily_unavailable entry, adding the client registration error
-   response to its usage locations and this specification as a
-   reference:
+   temporarily_unavailable entry, adding the client registration and
+   client configuration endpoint error responses to its usage locations
+   and this specification as a reference:
 
    Error Name:  temporarily_unavailable
 
-   Error Usage Location:  client registration error response, in
-      addition to the locations already registered
+   Error Usage Location:  client registration error response and client
+      configuration endpoint error response, in addition to the
+      locations already registered
 
    Related Protocol Extension:  OAuth 2.0 Authorization Framework
 

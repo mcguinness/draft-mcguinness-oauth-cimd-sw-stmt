@@ -236,8 +236,11 @@ Table of Contents
       creates for the grant it opens, or that a replacement accepted on
       refresh gives that grant, enumerated in Section 5.6.
 
-   Proven Key:  The key for which the presenter demonstrates possession
-      during runtime presentation (Section 5.4).
+   Proven Key:  The key an establishment is bound to: the key whose
+      possession the presenter proves during runtime presentation
+      (Section 5.4), the key it binds under Section 5.4.1, or, for a
+      statement pulled at the authorization endpoint, the key proved at
+      code redemption (Section 5.2).
 
    Effective Expiry:  The earlier of a statement's exp and its iat plus
       the maximum statement lifetime the trusting authorization server
@@ -256,14 +259,20 @@ Table of Contents
       On refresh, an establishment's recorded statement remains current
       after a later statement raises the iat floor (Section 5.6.1).
 
+   Required Issuer:  For one of a trusting authorization server's
+      tenants, a configured issuer whose current statement the server
+      requires before admitting software in the client identifier
+      namespaces its trust configuration records for that issuer in that
+      tenant (Section 4).
+
    Review-Only:  Describes a presentation, or a pulled statement, that
       the authorization server evaluates but that admits nothing
       (Section 5.4.1).
 
-   iat Floor:  For a trusting authorization server, the iat claim value
-      of the most recent statement it has accepted for a given iss and
-      sub, kept per tenant on a multi-tenant server.  For the floor, a
-      statement is accepted once the server admits a client on it,
+   iat Floor:  For a trusting authorization server, the greatest iat
+      claim value among the statements it has accepted for a given iss
+      and sub, kept per tenant on a multi-tenant server.  For the floor,
+      a statement is accepted once the server admits a client on it,
       applies it as a replacement, or registers a client with it.  The
       server rejects a statement whose iat claim is earlier (Section 6).
 
@@ -432,10 +441,13 @@ Table of Contents
       configuration confines the statement's issuer to the request's
       tenant (Section 4).
 
-   *  If the statement carries statement_uses, the claim names the use
-      being made of the statement, and a value the server does not
-      recognize is treated as naming no use it serves.  If the claim is
-      absent, the use being made is presentation.
+   *  If the server's trust configuration confines the statement's
+      issuer to a tenant, the request belongs to that tenant.
+
+   *  The use being made of the statement is one it permits: a use its
+      statement_uses claim names or, if the claim is absent,
+      presentation (Section 3).  A value the server does not recognize
+      names no use it serves.
 
    *  The sub claim is a client identifier URL conforming to [CIMD] and
       falls within the identifier scope for which this server accepts
@@ -534,6 +546,9 @@ Table of Contents
 
    *  Any tenant to which it confines the issuer's decisions.
 
+   *  For each of its tenants, any client identifier namespaces for
+      which the issuer is a required issuer.
+
    *  The maximum statement lifetime it will honor, which sets each
       statement's effective expiry.
 
@@ -541,7 +556,7 @@ Table of Contents
       (Section 6).
 
    A statement key set whose URL is recorded in trust configuration is
-   subject to rules matching those Section 10 sets for
+   subject to rules corresponding to those Section 10 sets for
    software_statement_jwks_uri: its URL MUST use the https scheme, a
    trusting authorization server MUST validate the certificate of the
    host serving it, and the issuer MUST NOT place in it a key from any
@@ -566,7 +581,8 @@ Table of Contents
 
    A required issuer configured for software whose documents are
    presented review-only (Section 5.4.1) excludes that software from the
-   tenant.
+   tenant.  The server rejects a request for such software in that
+   tenant with unauthorized_client.
 
 4.1.  Multi-Tenant Issuers
 
@@ -1053,19 +1069,19 @@ Table of Contents
    permits, in more than one registration at that server.
 
    A trusting authorization server MUST retain, per iss and sub claims
-   and, on a multi-tenant server, per tenant, the iat claim of the most
-   recent statement it has accepted, as its iat floor.  It MUST reject a
-   statement whose iat claim is earlier than the retained iat, whether
-   it arrives as a replacement, a new registration, or a new
-   presentation.  A client holding a superseded, broader statement
+   and, on a multi-tenant server, per tenant, the greatest iat claim
+   value among the statements it has accepted, as its iat floor.  It
+   MUST reject a statement whose iat claim is earlier than the retained
+   iat, whether it arrives as a replacement, a new registration, or a
+   new presentation.  A client holding a superseded, broader statement
    therefore cannot defer a narrowing by opening a fresh registration or
    establishment with it.  The server retains the iat floor at least as
    long as the maximum statement lifetime it honors for that issuer.
 
    Keeping the floor per tenant prevents an issuer's statements for
-   different tenants from superseding one another (Section 14.5).  A
-   multi-tenant server also keeps any bound on establishments
-   (Section 12.3) per tenant for the same reason.
+   different tenants from superseding one another.  A multi-tenant
+   server also keeps any bound on establishments (Section 12.3) per
+   tenant for the same reason.
 
    The first presentation of a replacement that establishes the client
    supersedes its predecessor for new admissions by every instance of
@@ -1178,8 +1194,9 @@ Table of Contents
       *  The statement is valid but not acceptable here: its issuer is
          not configured, its aud excludes this server, its sub is
          outside the issuer's scope, its aud_tenant is not this
-         request's tenant or is absent when required, or its
-         statement_uses excludes this use.
+         request's tenant or is absent when required, its issuer is
+         confined to another tenant, or its statement_uses excludes this
+         use.
 
       *  The request's client_id differs from the statement's sub
          (Section 5.1).
@@ -1672,10 +1689,10 @@ Table of Contents
 14.2.  Statement Theft and Replay
 
    A copied statement admits nothing without the sender constraint
-   (Section 5.4).  Admitting only keys the reviewed document carries
-   also prevents a downgrade to a key the issuer did not review.  An
-   extension admitting attested keys (Section 11) has to address
-   downgrade itself.
+   (Section 5.4).  Except under Section 5.4.1 (Section 14.4), admitting
+   only keys the reviewed document carries also prevents a downgrade to
+   a key the issuer did not review.  An extension admitting attested
+   keys (Section 11) has to address downgrade itself.
 
    Attesting a jwks_uri attests the location, not its contents: a
    compromised key host can add keys that satisfy the proof without a
@@ -1698,7 +1715,7 @@ Table of Contents
    has no such metadata.  A server is exposed only if its operator
    configures the statement key set in a server that does not implement
    this specification.  Recording a statement key set URL in trust
-   configuration is the normal route for an issuer that is not an
+   configuration is the only route for an issuer that is not an
    authorization server, so for such an issuer the protection rests on
    operators recording that URL only in servers that implement this
    specification.
@@ -1731,8 +1748,8 @@ Table of Contents
    decision and another way to scope a token lets a client reach one
    tenant's resources on another tenant's decision.  Section 3.2
    requires one tenant for both, selected by no value the client
-   chooses.  The aud_tenant claim makes that failure detectable: a
-   statement naming a tenant cannot be used in another.
+   chooses.  The aud_tenant claim lets the server refuse a statement
+   naming another tenant.
 
    This specification defines no tenant parameter, and a Client ID
    Metadata Document URL is the same client_id in every tenant, so
@@ -1778,12 +1795,12 @@ Table of Contents
 14.8.  Observable State
 
    A statement_required refusal at the authorization endpoint
-   (Section 8) travels through the user agent, so anyone who can see the
-   redirection learns that this client has no established standing at
-   this server.  The disclosure is accepted because a client that cannot
-   learn why it was refused cannot act.  The disclosure carries no
-   detail of the server's issuer trust configuration, which Section 8
-   keeps from unauthenticated requesters.
+   (Section 8.4) travels through the user agent, so anyone who can see
+   the redirection learns that this client has no established standing
+   at this server.  The disclosure is accepted because a client that
+   cannot learn why it was refused cannot act.  The disclosure carries
+   no detail of the server's issuer trust configuration, which
+   Section 8.6 keeps from unauthenticated requesters.
 
 15.  Privacy Considerations
 
@@ -1822,13 +1839,10 @@ Table of Contents
 
    Parameter Usage Location:  authorization request, token request
 
-   Note:  In an authorization request the parameter is conveyed only
-      through the pushed authorization request endpoint [RFC9126], never
-      in a front-channel URL (Section 5.1.1).
-
    Change Controller:  IETF
 
-   Specification Document(s):  This specification, Section 5.1
+   Specification Document(s):  This specification, Section 5.1 and
+      Section 5.1.1
 
    The "OAuth Dynamic Client Registration Metadata" registry established
    by [RFC7591] already contains a software_statement member, which this
@@ -1866,8 +1880,9 @@ Table of Contents
    Published specification:  This specification
 
    Applications that use this media type:  Authorization servers and
-      clients that issue, request, or accept OAuth 2.0 software
-      statements
+      clients that issue, request, or accept software statements under
+      this specification; other profiles are distinguished by their own
+      typ values
 
    Fragment identifier considerations:  n/a
 
@@ -1889,7 +1904,7 @@ Table of Contents
 
    This specification uses two claims it does not define: aud_tenant,
    defined and registered by [IDJAG], and status, defined and registered
-   by [STATUSLIST].
+   by [STATUSLIST].  This section requests no IANA action.
 
 16.4.  JSON Web Token Claims Registry
 
