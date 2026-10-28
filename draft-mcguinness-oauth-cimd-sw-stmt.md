@@ -168,7 +168,7 @@ A statement asserts that its issuer evaluated the Client ID Metadata Document wh
   The absence of `aud_tenant` does not mean that the statement applies in every tenant ({{audience-practice}}).
 
 `statement_uses`:
-: OPTIONAL. A JSON array identifying the permitted uses of the statement: `registration` ({{REGISTRATION}}) and `presentation` ({{cimd-presentation}}). If the claim is absent, only `presentation` is permitted. A delivery renewing a registration ({{REGISTRATION}}) is a use at registration. A refresh replacement ({{refresh}}) and a pulled statement ({{pulled-statements}}) are presentation.
+: OPTIONAL. A JSON array identifying the permitted uses of the statement: `registration` ({{REGISTRATION}}) and `presentation` ({{cimd-presentation}}). If the claim is absent, only `presentation` is permitted. A delivery renewing a registration ({{REGISTRATION}}) is a `registration` use. A refresh replacement ({{refresh}}) and a pulled statement ({{pulled-statements}}) are `presentation` uses.
 
 `iat`:
 : REQUIRED. A NumericDate value, which MUST be an integer, giving the time the statement was issued. An issuer MUST ensure that the `iat` claim values of its statements for a given `iss` and `sub` increase strictly, whichever of its signing nodes signs ({{refresh}}, {{multi-instance}}).
@@ -459,7 +459,7 @@ Refresh never rotates the establishment's key. A client that needs a new key per
 
 # Repeated Consumption of One Statement {#multi-instance}
 
-A statement attests client software, identified by `sub`, not its runtime instances. This specification defines no instance identifier. One unexpired statement is therefore consumable more than once: at each trusting authorization server in its audience and, if the server registers clients ({{REGISTRATION}}) and its policy permits, in more than one registration at that server.
+A statement attests client software, identified by `sub`, not its runtime instances. This specification defines no instance identifier. One unexpired statement is therefore consumable more than once: at each trusting authorization server in its audience, in more than one establishment at that server ({{establishment-bounds}}), and, if the server registers clients ({{REGISTRATION}}) and its policy permits, in more than one registration there.
 
 A trusting authorization server MUST retain, per `iss` and `sub` claims and, on a multi-tenant server, per tenant, the greatest `iat` claim value among the statements it has accepted, as its `iat` floor. It MUST reject a statement whose `iat` claim is earlier than the retained `iat`, whether it arrives as a replacement, a new registration, or a new presentation. A client holding a superseded, broader statement therefore cannot defer a narrowing by opening a fresh registration or establishment with it. The server retains the `iat` floor at least as long as the maximum statement lifetime it honors for that issuer.
 
@@ -593,7 +593,7 @@ The examples in this section are non-normative.
 
 ## Presenting at the Token Endpoint
 
-The following is an example of a client presenting a statement at the token endpoint of a server holding no record for the client (line breaks for display purposes only). The reviewed document names a `jwks_uri`, the `private_key_jwt` authentication method, and the `client_credentials` grant type, so the client authenticates with a key that document carries. The `client_id` is the statement's `sub`.
+The following is an example of a client presenting a statement at the token endpoint of a server holding no record for the client (line breaks for display purposes only). The reviewed document, which is not shown, names a `jwks_uri`, the `private_key_jwt` authentication method, the `client_credentials` grant type, and a `scope` that includes `tools.read`, so the client authenticates with a key that document carries. The `client_id` is the statement's `sub`.
 
 ~~~ http
 POST /token HTTP/1.1
@@ -755,7 +755,7 @@ Short lifetimes tighten an issuer's control and increase renewal traffic. At a s
 
 Because an issuer reviews the document it retrieves, a changed document is always served before a statement over it exists. Until the new statement exists, a presentation under the earlier one fails the digest comparison ({{effective-metadata}}), and at registration a mismatch is fatal ({{REGISTRATION}}). The statement's lifetime bounds how stale an unobserved review can become.
 
-Instances need the current statement from a shared source rather than a copy fixed at build or install time, because the first presentation of a replacement supersedes its predecessor for every instance ({{multi-instance}}).
+Instances need the most recently issued statement from a shared source rather than a copy fixed at build or install time, because the first presentation of a replacement supersedes its predecessor for every instance ({{multi-instance}}).
 
 ## Withdrawal Practice {#withdrawal-practice}
 
