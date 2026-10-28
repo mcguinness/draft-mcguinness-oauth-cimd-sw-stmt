@@ -396,7 +396,7 @@ For establishments governed by this specification, the following rules replace o
 
 | Section | Rule | Under this profile |
 | --- | --- | --- |
-| 4 | A required issuer configured for software whose documents are presented review-only excludes that software from the tenant. | A presentation processed under {{par}} is not review-only, so a current statement from the required issuer can admit the software. |
+| 4 | A required issuer configured for software whose presentations are review-only excludes that software from the tenant. | A presentation processed under {{par}} is not review-only, so a current statement from the required issuer can admit the software. |
 | 5.2 | A statement pulled at the authorization endpoint binds the presenter at code redemption. | The binding is set at the PAR endpoint; an authorization request without a PAR `request_uri` governed by this profile is rejected ({{authorization}}). |
 | 5.3, 5.5 | The statement and the document are checked before the proof. | The instance is authenticated first ({{par}}, step 1). Statement and document checks follow, and checks needing no client-controlled retrieval still precede such retrieval. |
 | 5.2, 5.4.1, 5.5 | A request without an acceptable statement can proceed under the policy for unreviewed clients, a review-only presentation proceeds as a client presenting no statement, and a digest mismatch can proceed without the statement. | No fallback: any failed check rejects the request ({{par}}). |

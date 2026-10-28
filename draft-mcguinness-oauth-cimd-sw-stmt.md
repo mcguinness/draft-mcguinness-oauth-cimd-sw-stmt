@@ -264,7 +264,7 @@ These inputs, not the signature alone, define acceptance. A trusting authorizati
 
 A server that records, for one of its tenants, client identifier namespaces for which a configured issuer's decision is required ({{trust-configuration}}) MUST NOT admit software in a covered namespace in that tenant without a current statement from the required issuer, whatever its policy for clients it has not reviewed. Without this rule, withholding the statement would restore access that the required issuer withdrew. The requirement is configured rather than inferred from the statements the server sees, so a holder cannot evade that issuer's withdrawal by presenting or publishing only a broader statement, such as a marketplace listing.
 
-A required issuer configured for software whose documents are presented review-only ({{public-client-presentation}}) excludes that software from the tenant. The server rejects a request for such software in that tenant with `unauthorized_client`.
+A required issuer configured for software whose presentations are review-only ({{public-client-presentation}}) excludes that software from the tenant. The server rejects a request for such software in that tenant with `unauthorized_client`.
 
 ## Multi-Tenant Issuers {#multi-tenant-issuers}
 
@@ -359,7 +359,7 @@ A retrieval does not complete only when it times out, its connection fails, or t
 
 This specification requires a reviewed document to declare its client authentication method, so that the issuer's review and the trusting authorization server's treatment of the client do not depend on a default. The authorization server MUST reject a presentation under a reviewed document that omits the `token_endpoint_auth_method` member. It treats a statement pulled for such a document as review-only ({{public-client-presentation}}).
 
-A document carrying a redirection URI another application could claim is presented review-only whatever its authentication method ({{public-client-presentation}}). The rejection above still applies to it, as does the rejection of a presentation opening a new grant at the token endpoint for a client whose reviewed document declares `token_endpoint_auth_method` of `none` ({{public-client-presentation}}), but the sender-constraint requirements of the next two paragraphs do not.
+A presentation under a document carrying a redirection URI another application could claim is review-only whatever its authentication method ({{public-client-presentation}}). The rejection above still applies to such a presentation, as does the rejection of a presentation opening a new grant at the token endpoint for a client whose reviewed document declares `token_endpoint_auth_method` of `none` ({{public-client-presentation}}), but the sender-constraint requirements of the next two paragraphs do not.
 
 A runtime presentation MUST be sender-constrained by a key the statement attests or, under {{public-client-presentation}}, by the key the presenter binds there. The presenter proves possession of that key through the applicable client authentication method or a DPoP proof {{RFC9449}}. If a request carries both, the key its client authentication proves is the proven key. The proof MUST be bound to the current request and validated with the replay protections of that mechanism.
 
@@ -375,9 +375,9 @@ An authorization server MUST reject, with the `invalid_client` error code, a pre
 
 A presentation is review-only if the reviewed document carries any redirection URI that another application on the same device could claim: a non-`https` URI, such as a private-use scheme or an `http` loopback redirection URI (Sections 7.1 and 7.3 of {{RFC8252}}), or an `https` URI whose host is a loopback address or `localhost`. One such URI makes every presentation and pulled statement for the document review-only, whatever authentication method the document declares. The application that claims such a URI receives the code, so neither the reviewed redirection URIs nor a key shipped in every copy of the software can bind the presenter.
 
-A review-only presentation creates no establishment, admits nothing, and does not advance the `iat` floor of {{multi-instance}}, since it changes nothing for the software's other instances. The authorization server proceeds as it would for the same Client ID Metadata Document client presenting no statement ({{ui-audit}}).
+A review-only presentation or pulled statement creates no establishment, admits nothing, and does not advance the `iat` floor of {{multi-instance}}, since it changes nothing for the software's other instances. The authorization server proceeds as it would for the same Client ID Metadata Document client presenting no statement ({{ui-audit}}).
 
-The statement of a review-only presentation MUST NOT satisfy a policy requiring reviewed software. If the server's policy requires reviewed software, it rejects a review-only client with `unauthorized_client`.
+The statement of a review-only presentation, or a review-only pulled statement, MUST NOT satisfy a policy requiring reviewed software. If the server's policy requires reviewed software, it rejects a review-only client with `unauthorized_client`.
 
 If the client's reviewed document declares `token_endpoint_auth_method` of `none` and none of its redirection URIs is one another application could claim, a presentation at the pushed authorization request endpoint is bound instead by its reviewed redirection URIs. For such a presentation, the authorization server:
 
