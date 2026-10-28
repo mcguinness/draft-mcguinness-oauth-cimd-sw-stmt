@@ -55,7 +55,7 @@ The request-and-approve loop maps onto the issuance draft in shape: the client a
 
 ### The decision becomes an artifact worth auditing
 
-An `oauth2PermissionGrant` is a row. It says a grant exists; who made it lives in the directory's audit log, and nothing records which version of the software was approved or when the approval lapses. A statement carries the issuer, an expiry the reviewer chose, and a digest naming the exact bytes of the document that was approved, so a later reader can tell whether the software still matches what was reviewed. Withdrawal is a published status any relying party can resolve rather than a deletion visible only to the directory that performed it.
+An `oauth2PermissionGrant` is a row. It says a grant exists; who made it lives in the directory's audit log, and nothing records which version of the client's metadata document was approved or when the approval lapses. A statement carries the issuer, an expiry the reviewer chose, and a digest naming the exact bytes of the document that was approved, so a later reader can tell whether the client's metadata document still matches what was reviewed. Executable code can change without changing that document. Withdrawal is a published status any relying party can resolve rather than a deletion visible only to the directory that performed it.
 
 For an enterprise with more than one vendor, that last property is the point. The same decision is checkable at every provider that trusts the reviewer, which is the case [the deployment model](deployment-model.md#the-situation-being-addressed) opens on. Where the decision is the tenant's own, the statement names the provider's tenant in `aud_tenant`, and the provider can require that reviewer's statement for the software there.
 
