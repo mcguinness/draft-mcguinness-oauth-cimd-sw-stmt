@@ -114,7 +114,7 @@ Establishment:
 : The durable state a successful runtime presentation creates for the grant it opens, or that a replacement accepted on refresh gives that grant, enumerated in {{grant-lifecycle}}.
 
 Proven Key:
-: The key for which the presenter demonstrates possession during runtime presentation ({{sender-constraint}}).
+: The key an establishment is bound to: the key whose possession the presenter proves during runtime presentation ({{sender-constraint}}), the key it binds under {{public-client-presentation}}, or, for a statement pulled at the authorization endpoint, the key proved at code redemption ({{pulled-statements}}).
 
 Effective Expiry:
 : The earlier of a statement's `exp` and its `iat` plus the maximum statement lifetime the trusting authorization server honors for its issuer ({{issuer-trust}}). A statement is expired once its effective expiry has passed.
