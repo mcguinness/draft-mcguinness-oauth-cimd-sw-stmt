@@ -125,6 +125,9 @@ Refusal Record:
 Current Statement:
 : A statement whose effective expiry has not passed and that matches no refusal record. For a new admission or a replacement ({{refresh}}, {{REGISTRATION}}), a statement superseded under the `iat` floor ({{multi-instance}}) is also not current. On refresh, an establishment's recorded statement remains current after a later statement raises the `iat` floor ({{refresh}}).
 
+Required Issuer:
+: For one of a trusting authorization server's tenants, a configured issuer whose current statement the server requires before admitting software in the client identifier namespaces its trust configuration records for that issuer in that tenant ({{issuer-trust}}).
+
 Review-Only:
 : Describes a presentation, or a pulled statement, that the authorization server evaluates but that admits nothing ({{public-client-presentation}}).
 
@@ -238,6 +241,7 @@ For each trusted issuer, a trusting authorization server records at least the fo
 * The client identifier namespaces the issuer can attest through `sub`.
 * The audience identifiers the issuer can name.
 * Any tenant to which it confines the issuer's decisions.
+* For each of its tenants, any client identifier namespaces for which the issuer is a required issuer.
 * The maximum statement lifetime it will honor, which sets each statement's effective expiry.
 * Its own policy on repeated consumption of one statement ({{multi-instance}}).
 
