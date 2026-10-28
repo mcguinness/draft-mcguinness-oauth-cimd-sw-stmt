@@ -314,7 +314,7 @@ Having selected a statement, the server continues from step 4 of {{processing}},
 
 The presenter of a pulled statement is bound as for a presented statement ({{sender-constraint}}), at the point the request allows, as follows:
 
-* At the token endpoint, the request's client authentication or DPoP proof binds the presenter.
+* At the token endpoint, for a client whose document does not declare `token_endpoint_auth_method` of `none`, the request's client authentication or DPoP proof binds the presenter.
 * At the pushed authorization request endpoint, a confidential client's authentication binds the presenter, and a public client whose request binds a key through a DPoP proof or `dpop_jkt` is subject to {{public-client-presentation}}, including PKCE.
 * At the authorization endpoint, binding completes at code redemption, before any token is issued:
   * A confidential client authenticates at code redemption with a key the digested document carries, in its `jwks` or at its `jwks_uri` within the reuse bounds of {{sender-constraint}}, not one that only a later retrieval of the document carries, and that key becomes the establishment's proven key.
@@ -350,7 +350,7 @@ Except as {{public-client-presentation}} provides, the proven key MUST appear in
 
 This specification requires a reviewed document to declare its client authentication method, so that the issuer's review and the trusting authorization server's treatment of the client do not depend on a default. The authorization server MUST reject a presentation under a reviewed document that omits the `token_endpoint_auth_method` member. It treats a statement pulled for such a document as review-only ({{public-client-presentation}}).
 
-A document carrying a redirection URI another application could claim is presented review-only whatever its authentication method ({{public-client-presentation}}), and the requirements above do not apply to that presentation. Two rejections still apply to such a document: a presentation under a document that omits `token_endpoint_auth_method`, as above, and a presentation that opens a new grant at the token endpoint from a client whose reviewed document carries no key material ({{public-client-presentation}}).
+A document carrying a redirection URI another application could claim is presented review-only whatever its authentication method ({{public-client-presentation}}), and the requirements above do not apply to that presentation. Two rejections still apply to such a document: a presentation under a document that omits `token_endpoint_auth_method`, as above, and a presentation that opens a new grant at the token endpoint from a client whose reviewed document declares `token_endpoint_auth_method` of `none` ({{public-client-presentation}}).
 
 A key at the document's `jwks_uri` is retrieved at presentation time. If that retrieval fails, the presentation is rejected with `temporarily_unavailable`. A server MAY reuse a retrieved key set only within ordinary HTTP caching bounds and a maximum reuse period of its own choosing, and MUST NOT let the client's cache directives alone determine how long a removed key continues to verify ({{statement-validation}}).
 
@@ -372,7 +372,7 @@ A review-only presentation creates no establishment, admits nothing, and does no
 
 The statement of a review-only presentation MUST NOT satisfy a policy requiring reviewed software. If the server's policy requires reviewed software, it rejects a review-only client with `unauthorized_client`.
 
-An authorization server MUST reject, with the `invalid_client` error code, a presentation that opens a new grant at the token endpoint ({{runtime-presentation}}) from a client whose reviewed document carries no key material. Such a presentation opens no redirect and has nothing to bind it. A statement pulled for such a client at the token endpoint is instead review-only ({{pulled-statements}}).
+An authorization server MUST reject, with the `invalid_client` error code, a presentation that opens a new grant at the token endpoint ({{runtime-presentation}}) from a client whose reviewed document declares `token_endpoint_auth_method` of `none`. Such a presentation opens no redirect and has nothing to bind it; a key the document carries would be shipped in every copy of the software and would not identify the installation. A statement pulled for such a client at the token endpoint is instead review-only ({{pulled-statements}}).
 
 ## Reviewed Metadata {#effective-metadata}
 
@@ -499,7 +499,7 @@ A presentation rejected at the token or pushed authorization request endpoint fo
   * The request's `client_id` differs from the statement's `sub` ({{runtime-presentation}}).
   * The reviewed document contains duplicate member names ({{validation}}) or exceeds the server's size bound ({{metadata-digest}}).
   * The document's digest does not match `cimd_digest` and the server does not proceed without the statement ({{effective-metadata}}).
-  * The request fails the sender constraint, including a presentation under a document that omits `token_endpoint_auth_method` and one at the token endpoint under a document with no key material ({{sender-constraint}}, {{public-client-presentation}}).
+  * The request fails the sender constraint, including a presentation under a document that omits `token_endpoint_auth_method` and one opening a new grant at the token endpoint under a document declaring `token_endpoint_auth_method` of `none` ({{sender-constraint}}, {{public-client-presentation}}).
   * The server's bound on establishments is reached ({{establishment-bounds}}).
 
 `statement_required`:

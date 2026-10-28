@@ -407,7 +407,7 @@ For establishments governed by this specification, the following rules replace o
 | 8.3 | Code redemption is rejected with `invalid_request`, `invalid_grant`, or, at the establishment bound, `invalid_client`. | Redemption can also return `invalid_client` or `invalid_client_attestation` for failed authentication, `statement_required`, `use_fresh_attestation`, or `temporarily_unavailable` ({{error-codes}}). |
 | 8.4 | A client not admitted on a statement receives `statement_required`. | A missing or invalid required pushed authorization request is rejected with `invalid_request` ({{authorization-errors}}). |
 
-Code redemption and refresh continue an establishment and are not new token-endpoint presentations, so the rejection in {{STATEMENT}} of a token-endpoint presentation from a client whose document carries no key material is unchanged. All other requirements of {{STATEMENT}} continue to apply. This specification applies equally to presented and pulled statements. It adds no requirement to issue statements or implement {{REGISTRATION}}.
+Code redemption and refresh continue an establishment and are not new token-endpoint presentations, so the rejection in {{STATEMENT}} of a token-endpoint presentation that opens a new grant for a client whose document declares `token_endpoint_auth_method` of `none` is unchanged. All other requirements of {{STATEMENT}} continue to apply. This specification applies equally to presented and pulled statements. It adds no requirement to issue statements or implement {{REGISTRATION}}.
 
 A supporting server MUST NOT infer this profile's assurance from successful generic client authentication without all of this specification's checks.
 
