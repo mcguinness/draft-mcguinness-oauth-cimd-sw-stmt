@@ -96,7 +96,13 @@ A proposed optional `cimd_digest` claim in that assertion would let the SaaS res
 
 ### 10. Offboarding
 
-The administrator withdraws approval. The identity provider sets the statement's status and stops renewing. No new admission follows, and because the identity provider issued the statement it already holds the withdrawal, so it refuses each open grant's next refresh unless a replacement accompanies it. New assertions stop at once, so third-party access ends at the next grant. Access tokens already issued run out on their own clock.
+The administrator withdraws approval. The identity provider sets the statement's status and stops renewing. Each stage stops on its own condition:
+
+* **New admission** at the identity provider stops at once, since it issued the statement and already holds the withdrawal.
+* **Refresh** of an open grant there is refused at its next use unless a replacement accompanies it.
+* **New assertions** stop at once, since the identity provider stops issuing them.
+* **Assertions already issued** remain usable at the SaaS until they expire. The Identity Assertion Authorization Grant recommends against downstream refresh tokens but does not forbid them, so where the SaaS issued one, that grant continues under the SaaS's own refresh policy.
+* **Access tokens already issued**, at either server, run out on their own clock.
 
 ## The flow
 

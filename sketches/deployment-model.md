@@ -106,11 +106,18 @@ Delivering the replacement extends a registration: the provider resolves the doc
 
 ### 8. Offboarding
 
-The reviewer stops renewing, or withdraws early by setting the statement's status. At the registration's effective expiry, or once the provider resolves the withdrawal, the registration lapses where the provider implements registration validity, and new admissions stop everywhere. Existing access winds down as tokens expire and as refresh fails: where the provider requires a current statement on refresh, and wherever it has resolved a withdrawal.
+The reviewer stops renewing, or withdraws early by setting the statement's status. Each stage then stops on its own condition:
 
-Where the customer's identity provider carries the permission, the customer stops issuing assertions and new grants stop at once, with the vendor's listing untouched and other customers unaffected.
+| Stage | Stops when |
+| --- | --- |
+| New admission at request time | The statement's effective expiry passes, or the provider learns of the withdrawal, at its next status check |
+| A statement-governed registration | The same, where the provider implements registration validity |
+| Refresh of an open grant | The provider holds a refusal record; after expiry, only where its policy requires a current statement on refresh, which the statement draft recommends |
+| Access tokens already issued | Their own expiry; nothing in the family reaches them |
 
-Neither revokes tokens already issued. A provider wanting an immediate stop uses its own controls, and narrows the window by resolving statement status more often.
+Where the customer's identity provider carries the permission, the customer stops issuing assertions. New assertions stop at once. An assertion already issued can still open a grant until it expires, and a grant it opened continues under the provider's refresh policy if the provider issued a refresh token, which the Identity Assertion Authorization Grant recommends against but does not forbid. The vendor's listing is untouched and other customers are unaffected.
+
+A provider wanting an immediate stop uses its own token revocation, and narrows the window by resolving statement status more often.
 
 ## Variants
 
@@ -137,7 +144,7 @@ One act carries two decisions. The assertion says this user, at this enterprise,
 
 They compose, and a deployment needing only the first can stop there and never touch these drafts.
 
-**Enforcement cadence.** An assertion is validated at every grant, so ceasing issuance stops new grants at once. Statement expiry works on a slower clock, taking effect at the next presentation, the registration validity boundary, or a refresh where a current statement is required. An enterprise offboarding an application uses whichever levers it holds.
+**Enforcement cadence.** Ceasing issuance stops new assertions at once, but an assertion already issued can open a grant until it expires, and a grant it opened continues under the provider's refresh policy where the provider issued a refresh token. Statement expiry and withdrawal take effect at the next presentation, at the registration validity boundary, or at a refresh where the provider requires a current statement or holds a refusal record. Neither reaches access tokens already issued. An enterprise offboarding an application uses whichever levers it holds, and each has its own stopping point.
 
 ## Composition with Shared Signals
 

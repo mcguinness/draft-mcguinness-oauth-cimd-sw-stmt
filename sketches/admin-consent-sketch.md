@@ -66,7 +66,7 @@ So that profile and this family are complementary rather than competing. One is 
 
 A permanent grant covering every user in an organization, which nobody re-reviews and whose revocation does not reach issued tokens, is the artifact enterprises then buy a second product to inventory and attest. Standardizing it would spread that shape rather than fix it.
 
-The generic answer is to stop needing it. Admission is a decision with an expiry, so it lapses unless somebody renews it. What a user may access is decided at each grant, and where the enterprise identity provider mediates, its willingness to issue an assertion carries the tenant's permission continuously. Ceasing to issue stops new grants at once, which is faster than deleting a row and waiting out token lifetimes.
+The generic answer is to stop needing it. Admission is a decision with an expiry, so it lapses unless somebody renews it. What a user may access is decided at each grant, and where the enterprise identity provider mediates, its willingness to issue an assertion carries the tenant's permission continuously. Ceasing to issue stops new assertions at once, though an assertion already issued can still open a grant until it expires, and access tokens run out on their own clock either way.
 
 The scope question needs no artifact either. The reviewed document's `scope` is already a ceiling, since a request outside it fails with `invalid_scope`. Where a server places consent inside that ceiling, and whether it prompts a user at all, is its own policy and is the right thing to leave alone.
 
@@ -100,7 +100,7 @@ sequenceDiagram
 * **Placing consent so users are not prompted.** That is what admin consent is usually bought for, and it stays local policy at the authorization server. Nothing here tells a server when to skip a consent screen.
 * **Assigning users and groups to an application.** Entra treats that as a separate control from consent, and it stays separate here, on the identity provider's side.
 * **Application permissions with no user.** An `appRoleAssignment` to a service principal is an app-only grant. The family admits the software and says nothing about what it may do without a user, which [the deployment model](deployment-model.md#variants) already names as the case it serves least well.
-* **Anything retroactive.** Like Entra, withdrawal does not invalidate tokens already issued. Unlike Entra, the window is bounded by a status resolution interval rather than by whenever someone notices.
+* **Anything retroactive.** Like Entra, withdrawal does not invalidate tokens already issued. A provider refuses new admission and refresh once it learns of a withdrawal, at its next status resolution. At the statement's expiry new admission stops, and refresh stops only where the provider requires a current statement. Access tokens already issued run until they expire.
 
 ## Open questions
 
