@@ -75,6 +75,7 @@ Table of Contents
    10. Deployment Considerations
      10.1.  Repeated Registration Policy
      10.2.  Credentials for Statement-Governed Registrations
+     10.3.  Renewal Cadence
    11. Security Considerations
      11.1.  Statements at Registration
      11.2.  Renewal Authenticates the Credential
@@ -709,6 +710,18 @@ Table of Contents
    the bounds that [STATEMENT] and Section 10.1 describe, and ought to
    treat a credential compromise as requiring re-registration rather
    than renewal (Section 11.2).
+
+10.3.  Renewal Cadence
+
+   A statement-governed registration lapses when its governing
+   statement's effective expiry passes (Section 3.2).  A client that has
+   not delivered a replacement by then is refused at that server until
+   it does, so an issuer outage longer than the remaining lifetime takes
+   such registrations out of service.  The lifetimes an issuer chooses
+   set the renewal cadence ([STATEMENT]).  A deployment ought to have
+   clients renew well before effective expiry, and ought to weigh that
+   cadence against how quickly a narrowed or withdrawn review needs to
+   take effect.
 
 11.  Security Considerations
 

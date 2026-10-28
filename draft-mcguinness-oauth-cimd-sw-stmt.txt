@@ -108,13 +108,14 @@ Table of Contents
      13.3.  Statement Lifetime and Renewal
      13.4.  Withdrawal Practice
    14. Security Considerations
-     14.1.  Statement Theft and Replay
-     14.2.  Servers That Do Not Implement This Specification
-     14.3.  Copied Statements and Public Clients
-     14.4.  Tenant Confusion at a Multi-Tenant Authorization Server
-     14.5.  External Retrieval and Resource Exhaustion
-     14.6.  Statement Lifetime
-     14.7.  Observable State
+     14.1.  What a Statement Attests
+     14.2.  Statement Theft and Replay
+     14.3.  Servers That Do Not Implement This Specification
+     14.4.  Copied Statements and Public Clients
+     14.5.  Tenant Confusion at a Multi-Tenant Authorization Server
+     14.6.  External Retrieval and Resource Exhaustion
+     14.7.  Statement Lifetime
+     14.8.  Observable State
    15. Privacy Considerations
    16. IANA Considerations
      16.1.  OAuth Parameters Registry
@@ -161,7 +162,10 @@ Table of Contents
    software, such as an agent, that obtains tokens with the
    client_credentials grant.  An admitted client is treated as reviewed,
    rather than under the authorization server's policy for Client ID
-   Metadata Document clients it has not reviewed.
+   Metadata Document clients it has not reviewed.  Admission grants no
+   access to resources: the authorization server's own policy, and the
+   resource owner's authorization where a grant involves one, still
+   govern what it issues.
 
    A native application whose redirection URIs another application on
    the device could claim, such as a loopback or private-use URI, gains
@@ -169,9 +173,11 @@ Table of Contents
    (Section 5.4.1) until an extension binds an installation key that a
    third party vouches for (Section 11).
 
-   A statement vouches for metadata, not for its presenter.  Possession
-   of a statement alone admits nothing: the presenter is bound to the
-   reviewed document (Section 5.4).
+   A statement vouches for metadata, not for its presenter.  It records
+   approval of a client configuration, not of the software's code or
+   behavior (Section 14.1).  Possession of a statement alone admits
+   nothing: the presenter is bound to the reviewed document
+   (Section 5.4).
 
    This specification does not define how a client obtains a statement.
    [REGISTRATION] defines consumption of the same statement in an
@@ -357,7 +363,7 @@ Table of Contents
    specifies.  The server's configured statement key set (Section 4)
    verifies the statement, so a generic registration path would
    otherwise attach the issuer's review to metadata the request supplies
-   (Section 14.2).
+   (Section 14.3).
 
 3.1.  Metadata Digest
 
@@ -462,7 +468,7 @@ Table of Contents
    revocation ([RFC7009]) ends tokens, while a withdrawal revokes no
    issued token: a server holding a refusal record refuses new
    admissions and refresh under the statement (Section 5.6.1,
-   Section 14.6).
+   Section 14.7).
 
    How a trusting authorization server learns of a withdrawal is a
    withdrawal mechanism.  This specification requires no withdrawal
@@ -801,7 +807,7 @@ Table of Contents
    temporarily_unavailable.  A server MAY reuse a retrieved key set only
    within ordinary HTTP caching bounds and a maximum reuse period of its
    own choosing, and MUST NOT let the client's cache directives alone
-   determine how long a removed key continues to verify (Section 14.1).
+   determine how long a removed key continues to verify (Section 14.2).
 
 5.4.1.  Public Clients
 
@@ -828,7 +834,7 @@ Table of Contents
    *  MUST NOT require that key to appear in the reviewed document.
 
    The reviewed redirection URIs, not the proven key, bind such a
-   presentation (Section 14.3).  The proven key identifies the
+   presentation (Section 14.4).  The proven key identifies the
    installation the grant belongs to, and code redemption and refresh
    prove it (Section 5.6, Section 5.6.1).
 
@@ -967,7 +973,7 @@ Table of Contents
 
    On refresh-token use, the authorization server MAY, by local policy,
    additionally require a current statement, and SHOULD require one once
-   the establishment's recorded statement has expired (Section 14.6).
+   the establishment's recorded statement has expired (Section 14.7).
    The recorded statement satisfies that requirement while it is
    unexpired and no refusal record covers it, even after a later
    statement has raised the iat floor of Section 6.  A replacement is
@@ -1043,7 +1049,7 @@ Table of Contents
    long as the maximum statement lifetime it honors for that issuer.
 
    Keeping the floor per tenant prevents an issuer's statements for
-   different tenants from superseding one another (Section 14.4).  A
+   different tenants from superseding one another (Section 14.5).  A
    multi-tenant server also keeps any bound on establishments
    (Section 12.3) per tenant for the same reason.
 
@@ -1376,7 +1382,7 @@ Table of Contents
       anything other than statements under this specification with them.
       As a result, a key that signs another artifact, such as a Status
       List Token or a software statement of another profile, cannot
-      verify a statement (Section 14.2).
+      verify a statement (Section 14.3).
 
    software_statement_signing_alg_values_supported:  REQUIRED for an
       authorization server that issues statements under this
@@ -1432,7 +1438,7 @@ Table of Contents
 12.2.  Retrieval and Processing Bounds
 
    An authorization server can bound the retrieval and processing work
-   of Section 14.5 as follows:
+   of Section 14.6 as follows:
 
    *  Rate-limit presentations per statement identity, per subject, and
       per source, and pulls (Section 5.2) per client identifier and per
@@ -1588,7 +1594,21 @@ Table of Contents
    The security considerations of [CIMD] and Section 5 of [RFC7591]
    apply.
 
-14.1.  Statement Theft and Replay
+14.1.  What a Statement Attests
+
+   A statement binds an issuer's review to the octets of a Client ID
+   Metadata Document, which describes an OAuth client configuration,
+   such as its redirection URIs, keys, grant types, and scope.  It does
+   not bind the software's code, dependencies, or behavior.  Software
+   can change while its document stays the same, and the statement
+   remains acceptable until it expires or is withdrawn (Section 3.3).
+   Assurance about the software itself rests on the issuer's review
+   process and, where an extension provides one, an attestation of the
+   running instance (Section 11).  Any change to the document's octets,
+   including one that changes no metadata value, makes statements over
+   the earlier octets fail the digest comparison (Section 5.5).
+
+14.2.  Statement Theft and Replay
 
    A copied statement admits nothing without the sender constraint
    (Section 5.4).  Admitting only keys the reviewed document carries
@@ -1603,7 +1623,7 @@ Table of Contents
    key set (Section 5.4) also accepts that a just-removed key can
    briefly continue to verify.
 
-14.2.  Servers That Do Not Implement This Specification
+14.3.  Servers That Do Not Implement This Specification
 
    A statement carries no client metadata, so an [RFC7591] server that
    verified one without implementing this specification would take every
@@ -1617,7 +1637,7 @@ Table of Contents
    statement key set in a server that does not implement this
    specification.
 
-14.3.  Copied Statements and Public Clients
+14.4.  Copied Statements and Public Clients
 
    A party holding a copied statement for a public client can open a
    pushed authorization request in the reviewed software's name.  It
@@ -1639,7 +1659,7 @@ Table of Contents
    would strengthen the binding by giving the instance a key a third
    party vouches for.
 
-14.4.  Tenant Confusion at a Multi-Tenant Authorization Server
+14.5.  Tenant Confusion at a Multi-Tenant Authorization Server
 
    A multi-tenant server that derives the tenant one way to check a
    decision and another way to scope a token lets a client reach one
@@ -1663,7 +1683,7 @@ Table of Contents
    this.  A deployment that needs a customer-to-tenant binding records
    it at the trusting authorization server.
 
-14.5.  External Retrieval and Resource Exhaustion
+14.6.  External Retrieval and Resource Exhaustion
 
    Runtime presentation can cause the authorization server to retrieve
    the Client ID Metadata Document, a jwks_uri it names, or the
@@ -1678,7 +1698,7 @@ Table of Contents
    none.  The bounds that Section 12.2 describes limit this work but do
    not prevent it.
 
-14.6.  Statement Lifetime
+14.7.  Statement Lifetime
 
    Expiry and withdrawal (Section 3.3) govern new admissions.  Neither
    revokes an issued access token.  A grant opened by a statement lasts
@@ -1689,7 +1709,7 @@ Table of Contents
    when the client publishes the narrower document and obtains a
    statement over it.
 
-14.7.  Observable State
+14.8.  Observable State
 
    A statement_required refusal at the authorization endpoint
    (Section 8) travels through the user agent, so anyone who can see the

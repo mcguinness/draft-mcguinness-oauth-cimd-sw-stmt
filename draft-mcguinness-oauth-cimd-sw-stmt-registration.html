@@ -1192,6 +1192,9 @@ svg {
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.2">
                 <p id="section-toc.1-1.10.2.2.1"><a href="#section-10.2" class="auto internal xref">10.2</a>.  <a href="#name-credentials-for-statement-g" class="internal xref">Credentials for Statement-Governed Registrations</a></p>
 </li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.3">
+                <p id="section-toc.1-1.10.2.3.1"><a href="#section-10.3" class="auto internal xref">10.3</a>.  <a href="#name-renewal-cadence" class="internal xref">Renewal Cadence</a></p>
+</li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
@@ -1671,6 +1674,14 @@ client-assertion-type%3Ajwt-bearer
 <a href="#section-10.2" class="section-number selfRef">10.2. </a><a href="#name-credentials-for-statement-g" class="section-name selfRef">Credentials for Statement-Governed Registrations</a>
         </h3>
 <p id="section-10.2-1">Deployments ought to pair statement-governed registrations with credential rotation, sender-constrained client authentication, and the bounds that <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> and <a href="#registration-policy" class="auto internal xref">Section 10.1</a> describe, and ought to treat a credential compromise as requiring re-registration rather than renewal (<a href="#renewal-credential" class="auto internal xref">Section 11.2</a>).<a href="#section-10.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="renewal-cadence">
+<section id="section-10.3">
+        <h3 id="name-renewal-cadence">
+<a href="#section-10.3" class="section-number selfRef">10.3. </a><a href="#name-renewal-cadence" class="section-name selfRef">Renewal Cadence</a>
+        </h3>
+<p id="section-10.3-1">A statement-governed registration lapses when its governing statement's effective expiry passes (<a href="#registration-validity" class="auto internal xref">Section 3.2</a>). A client that has not delivered a replacement by then is refused at that server until it does, so an issuer outage longer than the remaining lifetime takes such registrations out of service. The lifetimes an issuer chooses set the renewal cadence (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). A deployment ought to have clients renew well before effective expiry, and ought to weigh that cadence against how quickly a narrowed or withdrawn review needs to take effect.<a href="#section-10.3-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
