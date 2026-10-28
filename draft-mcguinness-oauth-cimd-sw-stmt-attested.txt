@@ -1229,9 +1229,9 @@ Table of Contents
 
 14.2.  Grant State
 
-   A server can reuse an establishment across presentations that resolve
-   to the same sub, statement, and proven key and that match in profile,
-   attester, policy, and tenant (Section 7.2).
+   A server can reuse an establishment as [STATEMENT] describes, across
+   presentations that also match in profile, attester, and policy
+   (Section 7.2).
 
 14.3.  Signing Brokers
 

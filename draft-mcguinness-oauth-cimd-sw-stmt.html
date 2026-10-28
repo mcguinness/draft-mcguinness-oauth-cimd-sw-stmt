@@ -2350,7 +2350,7 @@ client-assertion-type%3Ajwt-bearer
         <h3 id="name-grant-state">
 <a href="#section-12.4" class="section-number selfRef">12.4. </a><a href="#name-grant-state" class="section-name selfRef">Grant State</a>
         </h3>
-<p id="section-12.4-1">An authorization server can reuse an establishment across presentations that resolve to the same <code>sub</code>, statement, and proven key, rather than creating one per request, and can discard it once no <code>request_uri</code>, authorization code, refresh token, or other continuation state references it (<a href="#grant-lifecycle" class="auto internal xref">Section 5.6</a>).<a href="#section-12.4-1" class="pilcrow">¶</a></p>
+<p id="section-12.4-1">An authorization server can reuse an establishment across presentations that resolve to the same <code>sub</code>, statement, tenant, sender-constraint mechanism, and proven key, with the statement presented for each or pulled for each, rather than creating one per request, and can discard it once no <code>request_uri</code>, authorization code, refresh token, or other continuation state references it (<a href="#grant-lifecycle" class="auto internal xref">Section 5.6</a>).<a href="#section-12.4-1" class="pilcrow">¶</a></p>
 <p id="section-12.4-2">A server that shares an establishment among grants applies a replacement accepted on refresh by giving the refreshed grant its own establishment, so that no other grant or outstanding authorization code changes (<a href="#refresh" class="auto internal xref">Section 5.6.1</a>).<a href="#section-12.4-2" class="pilcrow">¶</a></p>
 </section>
 </div>
