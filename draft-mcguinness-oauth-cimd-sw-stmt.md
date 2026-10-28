@@ -245,7 +245,7 @@ For each trusted issuer, a trusting authorization server records at least the fo
 * The maximum statement lifetime it will honor, which sets each statement's effective expiry.
 * Its own policy on repeated consumption of one statement ({{multi-instance}}).
 
-A statement key set whose URL is recorded in trust configuration is subject to rules matching those {{authorization-server-metadata}} sets for `software_statement_jwks_uri`: its URL MUST use the `https` scheme, a trusting authorization server MUST validate the certificate of the host serving it, and the issuer MUST NOT place in it a key from any other JWK Set it publishes, or sign anything other than statements under this specification with its keys.
+A statement key set whose URL is recorded in trust configuration is subject to rules corresponding to those {{authorization-server-metadata}} sets for `software_statement_jwks_uri`: its URL MUST use the `https` scheme, a trusting authorization server MUST validate the certificate of the host serving it, and the issuer MUST NOT place in it a key from any other JWK Set it publishes, or sign anything other than statements under this specification with its keys.
 
 These inputs, not the signature alone, define acceptance. A trusting authorization server MUST derive trust from this local configuration and MUST NOT derive it from an `iss`, `jku`, `x5u`, or other key-location value carried in a presented statement.
 
