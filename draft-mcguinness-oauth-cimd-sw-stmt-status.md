@@ -52,7 +52,7 @@ normative:
 
 --- abstract
 
-This specification defines how the status of a software statement for a Client ID Metadata Document is published and checked. Token Status List supplies the authoritative status: an issuer publishes it, and a trusting authorization server resolves it on the list's own schedule and refuses a withdrawn statement. Optional Shared Signals events tell an issuer's trusting authorization servers that a status has changed, prompting them to check at once. An event indicates only when to check, so a server that misses every event reaches the same result on its ordinary schedule.
+This specification defines how the status of a software statement for a Client ID Metadata Document (CIMD) is published and checked. Token Status List supplies the authoritative status: an issuer publishes it, and a trusting authorization server resolves it on the list's own schedule and refuses a withdrawn statement. Optional Shared Signals events tell an issuer's trusting authorization servers that a status has changed, prompting them to check at once. An event indicates only when to check, so a server that misses every event reaches the same result on its ordinary schedule.
 
 --- middle
 
@@ -112,7 +112,7 @@ A SET carrying an event defined here MUST use the explicit `typ` JOSE header par
 
 # Subject Identification {#subjects}
 
-The subject of every event defined here is client software. Events carry it in the `sub_id` claim of {{SSF}} using the `uri` subject identifier format of {{RFC9493}}. The `uri` member carries the Client ID Metadata Document URL {{CIMD}} exactly as it appears in the `sub` claim of the statements the event concerns.
+The subject of every event defined here is client software. Events carry it in the `sub_id` claim of {{SSF}} using the `uri` subject identifier format of {{RFC9493}}. The `uri` member carries the Client ID Metadata Document (CIMD) URL {{CIMD}} exactly as it appears in the `sub` claim of the statements the event concerns.
 
 A trusting authorization server MUST match the subject by exact comparison of the `uri` member against a statement's `sub` claim.
 
