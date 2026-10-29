@@ -847,7 +847,7 @@ The "OAuth Dynamic Client Registration Metadata" registry established by {{RFC75
 
 ## Media Type Registration {#media-type}
 
-This specification requests registration of the `application/software-statement+jwt` media type in the IANA "Media Types" registry {{RFC6838}}.
+This specification requests registration of the `application/software-statement+jwt` media type in the IANA "Media Types" registry {{RFC6838}}. {{RFC7591}} defines no media type for software statements. This registration covers only statements under this specification, as its "Applications that use this media type" entry states, and a statement of another profile carries a `typ` value of its own.
 
 Type name:
 : application
