@@ -513,7 +513,7 @@ The following is an example of the decoded header and payload of an instance att
 
 The public key represents one installation; it is absent from the shared document.
 
-## PAR and Redemption
+## Pushed Authorization Request and Code Redemption
 
 The following is an example of a pushed authorization request that the client sends after obtaining a DPoP nonce (line breaks for display purposes only):
 
