@@ -181,7 +181,7 @@ A statement asserts that its issuer evaluated the CIMD whose content the digest 
 
 A statement issued under this specification MUST NOT contain a claim named in the IANA "OAuth Dynamic Client Registration Metadata" registry, and a trusting authorization server MUST NOT take client metadata from a statement's claims.
 
-{{CIMD}} permits a CIMD to carry a `software_statement` member. A trusting authorization server MUST NOT consume a statement of this profile from that member, and MUST NOT treat that member as satisfying any requirement of this specification. Statements of other kinds in the member are out of scope for this specification.
+A CIMD can carry a `software_statement` member (Section 4.3 of {{CIMD}}). A trusting authorization server MUST NOT consume a statement of this profile from that member, and MUST NOT treat that member as satisfying any requirement of this specification. Statements of other kinds in the member are out of scope for this specification.
 
 An authorization server implementing this specification MUST reject a statement of this profile in an {{RFC7591}} registration request with the `unapproved_software_statement` error code (Section 3.2.2 of {{RFC7591}}), unless it consumes the statement as {{REGISTRATION}} specifies. The server's configured statement key set ({{issuer-trust}}) verifies the statement, so a generic registration path would otherwise attach the issuer's review to metadata the request supplies ({{legacy-servers}}).
 
@@ -341,7 +341,7 @@ On receiving a presentation, the authorization server proceeds as follows, rejec
 4. Verify the sender constraint against that document ({{sender-constraint}}), then evaluate the request against its metadata ({{effective-metadata}}).
 5. On success, create the establishment ({{grant-lifecycle}}).
 
-Every retrieval this specification causes, of the CIMD, a `jwks_uri` it names, or the statements its `software_statements_uri` names, inherits the server-side request forgery protections of {{CIMD}}. A trusted signature does not make a URL safe: the authorization server MUST apply its URL, redirect, address-range, transport, and content-type policy independently to every referenced location.
+Every retrieval this specification causes, of the CIMD, a `jwks_uri` it names, or the statements its `software_statements_uri` names, inherits the server-side request forgery protections in Section 8.6 of {{CIMD}}. A trusted signature does not make a URL safe: the authorization server MUST apply its URL, redirect, address-range, transport, and content-type policy independently to every referenced location.
 
 If a retrieval fails, the authorization server MUST reject the request and MUST NOT fall back to a weaker proof. A failed pull of statements for a request that opens a new grant is the exception: it leaves the client unreviewed, as {{pulled-statements}} describes.
 
