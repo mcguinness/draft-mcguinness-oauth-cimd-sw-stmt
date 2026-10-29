@@ -152,7 +152,7 @@ The binding is only as strong as the attester's evidence that the software, not 
 
 The following non-normative sequence summarizes admission under this profile:
 
-1. A publisher serves a Client ID Metadata Document declaring this instance binding, attestation-based client authentication, and loopback redirects. A statement issuer signs a software statement over its exact bytes.
+1. A publisher serves a Client ID Metadata Document that selects this profile and declares attestation-based client authentication and loopback redirects. A statement issuer signs a software statement over its exact bytes.
 2. An installation obtains an attestation from an accepted attester. The attestation names the client identifier URL, metadata digest, instance key, and evidence policy.
 3. The installation sends a pushed authorization request with PKCE, the attestation, and a Demonstrating Proof of Possession (DPoP) proof. It supplies the software statement or lets the server pull it.
 4. The server validates both trust decisions (in the statement issuer and in the attester) and their bindings before returning a `request_uri`.
@@ -163,24 +163,18 @@ The following non-normative sequence summarizes admission under this profile:
 
 {::boilerplate bcp14-tagged}
 
-This specification uses terminology from {{RFC6749}}, {{RFC7591}}, {{CIMD}}, and {{ABCA}}, and the terms Issuer, Runtime Presentation, Effective Expiry, Refusal Record, Current Statement, Review-Only, Establishment, Proven Key, and `iat` Floor from {{STATEMENT}}. An installation is a Client Instance as defined by {{ABCA}}.
+This specification uses terminology from {{RFC6749}}, {{RFC7591}}, {{CIMD}}, and {{ABCA}}, and the terms defined in Section 2 of {{STATEMENT}}. An installation is a Client Instance as defined by {{ABCA}}.
 
 This specification defines the following terms:
 
-Instance Binding:
-: The association of a proven instance key with the reviewed software and metadata under this specification. It does not assign a global installation identifier.
-
 Instance Attestation:
-: A Client Attestation JWT under {{ABCA}}, profiled by {{attestation}}. It records an attester's association of a key with a client identifier URL and metadata digest under a named evidence policy. An instance attestation is current while its attestation effective expiry has not passed and its attester and evidence policy remain accepted.
+: A Client Attestation JWT under {{ABCA}}, profiled by {{attestation}}. It records an attester's association of a key with a client identifier URL and metadata digest under a named evidence policy. An instance attestation is current while its `exp` has not passed and its attester and evidence policy remain accepted.
 
 Evidence Policy:
 : A versioned set of requirements for establishing the association between software, an instance key, and reviewed metadata. It covers evidence collection, verification, freshness, and protection of key use.
 
 Attested Key:
-: The key an instance attestation's `cnf` claim names. Once an establishment records it, it is the establishment's proven key ({{STATEMENT}}).
-
-Attestation Effective Expiry:
-: An instance attestation's `exp`, which an accepted evidence policy bounds by the age of the attester's evidence ({{trust}}).
+: The key an instance attestation's `cnf` claim names.
 
 The software statement's issuer and the client attester are separate roles. One entity can perform both, but neither role implies trust in the other.
 
@@ -207,7 +201,7 @@ The server MUST enforce the reviewed binding selection on every new admission un
 This specification defines the following member of a Client ID Metadata Document:
 
 `software_statement_instance_binding`:
-: OPTIONAL. Boolean value. When `true`, the client requires the instance binding defined by this specification for admissions under this document. If absent or `false`, the document does not select this profile. A value of any other type is invalid.
+: OPTIONAL. Boolean value. When `true`, the client requires this profile for admissions under this document. If absent or `false`, the document does not select this profile. A value of any other type is invalid.
 
 A document selecting this profile MUST meet all of the following requirements:
 
@@ -362,11 +356,11 @@ The server authenticates the resource owner and applies authorization policy ind
 
 The client sends `grant_type=authorization_code`, the code, the same `client_id` and `redirect_uri`, and the PKCE `code_verifier`. It MUST authenticate with a current instance attestation and a fresh proof under the proven key. It does not send the `software_statement` parameter, which {{STATEMENT}} prohibits on code redemption.
 
-Before issuing tokens, the server MUST verify the code and PKCE binding and every fixed establishment value in {{establishment}}. It MUST re-evaluate both trust decisions, require the recorded statement to be unexpired and not refused, and confirm that the current Client ID Metadata Document still matches its recorded digest and meets {{client-metadata}}. Retrieval and cache reuse use the reuse bounds of {{STATEMENT}}. The attestation MUST match that digest and be within its attestation effective expiry.
+Before issuing tokens, the server MUST verify the code and PKCE binding and every fixed establishment value in {{establishment}}. It MUST re-evaluate both trust decisions, require the recorded statement to be unexpired and not refused, and confirm that the current Client ID Metadata Document still matches its recorded digest and meets {{client-metadata}}. Retrieval and cache reuse use the reuse bounds of {{STATEMENT}}. The attestation MUST match that digest and not be past its `exp`.
 
 If the metadata changed or the recorded statement needs replacement, the client MUST start a new PAR transaction; code redemption cannot replace the governing review. A raised `iat` floor alone does not invalidate a code already bound to an acceptable recorded statement.
 
-The server MUST issue tokens only within the user's authorization, tenant policy, and reviewed metadata. It MUST bind any refresh token to the establishment, and MUST issue access tokens, at redemption and on refresh ({{refresh}}), bound to the proven key with a `token_type` of `DPoP` (Section 5 of {{RFC9449}}). The expiry of each access token, whether the token is a JWT or an opaque reference, MUST NOT be later than the attestation effective expiry accepted for the request that obtained it ({{lifetime-practice}}). A resource server that does not accept DPoP-bound access tokens cannot be used under this profile.
+The server MUST issue tokens only within the user's authorization, tenant policy, and reviewed metadata. It MUST bind any refresh token to the establishment, and MUST issue access tokens, at redemption and on refresh ({{refresh}}), bound to the proven key with a `token_type` of `DPoP` (Section 5 of {{RFC9449}}). The expiry of each access token, whether the token is a JWT or an opaque reference, MUST NOT be later than the `exp` of the instance attestation accepted for the request that obtained it ({{lifetime-practice}}). A resource server that does not accept DPoP-bound access tokens cannot be used under this profile.
 
 # Refresh {#refresh}
 
@@ -388,7 +382,7 @@ A known refusal record for the software statement is enforced as {{STATEMENT}} r
 
 Because {{attestation-validation}} checks current attester trust and local denial rules at each pushed authorization request, code redemption, and refresh, removing an attester's authorization for this client and tenant, removing the policy, or denying the instance key prevents further use of the affected binding. A fresh attestation does not override those decisions. A server that cannot refresh trust data remains bound by the maximum reuse period of {{trust}}.
 
-This specification defines no interoperable attestation or instance revocation protocol. Without an instance revocation mechanism, attestation effective expiry bounds acceptance of evidence that has become stale without the server learning of it. Withdrawal of a review, removal of trust, and denial of an instance key do not themselves revoke access tokens already issued ({{revocation-practice}}).
+This specification defines no interoperable attestation or instance revocation protocol. Without an instance revocation mechanism, an instance attestation's `exp` bounds acceptance of evidence that has become stale without the server learning of it. Withdrawal of a review, removal of trust, and denial of an instance key do not themselves revoke access tokens already issued ({{revocation-practice}}).
 
 # Exceptions to Software Statement Processing {#core-exceptions}
 
