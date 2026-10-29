@@ -362,7 +362,7 @@ A presentation under a document carrying a redirection URI another application c
 * The proof MUST be bound to the current request and validated with the replay protections of that mechanism.
 * Except as {{public-client-presentation}} provides, the proven key MUST appear in the `jwks` or at the `jwks_uri` of the reviewed document ({{effective-metadata}}).
 * If the reviewed document declares a client authentication method in its `token_endpoint_auth_method` member ({{CIMD}}), the presenter MUST use that method.
-* The authorization server MUST reject a presentation without such a proof, or whose proven key the reviewed document does not carry.
+* The authorization server MUST reject a presentation without such a proof or, except as {{public-client-presentation}} provides, whose proven key the reviewed document does not carry.
 
 A key at the document's `jwks_uri` is retrieved at presentation time. If that retrieval does not complete ({{processing}}), the presentation is rejected with `temporarily_unavailable`. A server MAY reuse a retrieved key set only within ordinary HTTP caching bounds and a maximum reuse period of its own choosing, and MUST NOT let the client's cache directives alone determine how long a removed key continues to verify ({{statement-validation}}).
 
