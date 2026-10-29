@@ -109,9 +109,6 @@ This specification uses terminology from {{RFC6749}} (OAuth), {{RFC7591}} (clien
 
 This specification defines the following terms.
 
-Issuer:
-: The party that signs a software statement. An issuer can be an authorization server, or a reviewer, such as a marketplace, that operates none.
-
 Trusting Authorization Server:
 : An authorization server that consumes a software statement, at runtime under this specification or at registration under {{REGISTRATION}}.
 
@@ -135,9 +132,6 @@ Refusal Record:
 
 Current Statement:
 : A statement whose effective expiry has not passed and that matches no refusal record. The `iat` floor ({{multi-instance}}) separately limits which current statements a server accepts.
-
-Required Issuer:
-: A configured issuer whose current statement a trusting authorization server requires, in one of its tenants, for software in the client identifier namespaces its trust configuration records for that issuer in that tenant ({{issuer-trust}}, {{refresh}}).
 
 Review-Only:
 : Describes a presentation, or a pulled statement, that the authorization server evaluates but that admits nothing ({{public-client-presentation}}).
@@ -252,7 +246,7 @@ For each trusted issuer, a trusting authorization server records at least the fo
 * The client identifier namespaces the issuer can attest through `sub`.
 * The audience identifiers the issuer can name.
 * Any tenant to which it confines the issuer's decisions.
-* For each of its tenants, any client identifier namespaces for which the issuer is a required issuer.
+* For each of its tenants, any client identifier namespaces for which the issuer is a required issuer, one whose current statement the server requires in that tenant for software in those namespaces.
 * The maximum statement lifetime it will honor, which sets each statement's effective expiry.
 * Its own policy on repeated consumption of one statement ({{multi-instance}}).
 
@@ -262,7 +256,7 @@ Whichever route supplies it, a trusting authorization server MAY reuse a retriev
 
 These inputs, not the signature alone, define acceptance. A trusting authorization server MUST derive trust from this local configuration and MUST NOT derive it from an `iss`, `jku`, `x5u`, or other key-location value carried in a presented statement.
 
-A server that records, for one of its tenants, client identifier namespaces for which a configured issuer's decision is required ({{trust-configuration}}) MUST NOT admit software in a covered namespace in that tenant without a current statement from the required issuer, whatever its policy for clients it has not reviewed. Without this rule, withholding the statement would restore access that the required issuer withdrew. The requirement is configured rather than inferred from the statements the server sees, so a holder cannot evade that issuer's withdrawal by presenting or publishing only a broader statement, such as a marketplace listing.
+A server that records, for one of its tenants, client identifier namespaces for which a configured issuer's decision is required ({{trust-configuration}}) MUST NOT admit software in a covered namespace in that tenant without a current statement from the required issuer, whatever its policy for clients it has not reviewed. The requirement also applies on refresh ({{refresh}}). Without this rule, withholding the statement would restore access that the required issuer withdrew. The requirement is configured rather than inferred from the statements the server sees, so a holder cannot evade that issuer's withdrawal by presenting or publishing only a broader statement, such as a marketplace listing.
 
 A required issuer configured for software whose presentations are review-only ({{public-client-presentation}}) excludes that software from the tenant. The server rejects a request for such software in that tenant with `unauthorized_client`.
 
