@@ -225,13 +225,13 @@ The security considerations of {{STATEMENT}}, {{STATUSLIST}}, {{SSF}}, and {{RFC
 
 Because {{STATUSLIST}} aggregates many statements into one list, a retrieval tells the issuer only that some trusting authorization server is checking. Retrieving the list on its own schedule ({{status-resolution}}) keeps the server's request timing from disclosing the client population it serves, and keeps each request a statement governs independent of issuer availability.
 
-## What an Event Cannot Do
+## Forged and Replayed Events
 
 An event names no status, so a forged, replayed, delayed, or reordered event cannot change whether any statement stands. Its only effect is a resolution the receiver would otherwise have performed on its own schedule.
 
 The remaining exposure is resource cost: an attacker holding the issuer's SET signing key, or a misbehaving transmitter, can trigger resolutions ({{event-resolution}}).
 
-## Status Remains the Authority
+## Event Suppression
 
 Because a receiver resolves status independently ({{processing}}), an attacker who suppresses events delays a withdrawal at most until the receiver's next scheduled resolution and, for new admissions, never beyond the affected statements' effective expiry ({{schedule-practice}}). Grants already open continue until a refresh at which the receiver holds a refusal record, which {{STATEMENT}} then rejects unless it carries an acceptable replacement.
 
