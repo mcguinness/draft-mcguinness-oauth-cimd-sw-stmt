@@ -643,7 +643,7 @@ A request to that URL returns the statements, here one:
 
 An authorization server receiving an ordinary authorization request with this `client_id` resolves the document, retrieves the statements, and keeps the one from a trusted issuer whose `cimd_digest` matches the document it retrieved. It completes the binding when the client authenticates with `private_key_jwt` at code redemption ({{pulled-statements}}).
 
-## A Statement, Decoded
+## Statement Header and Payload
 
 The following is an example of the JOSE header and payload of a statement over the document in the previous example, served exactly as shown there and ending in a single newline:
 
@@ -774,7 +774,7 @@ Withdrawal does not replace lifetime: an issuer chooses `exp` assuming no trusti
 
 The security considerations of {{CIMD}} and Section 5 of {{RFC7591}} apply.
 
-## What a Statement Attests {#what-statement-attests}
+## Assurance Provided by a Statement {#what-statement-attests}
 
 A statement binds an issuer's review to the octets of a Client ID Metadata Document, which describes an OAuth client configuration, such as its redirection URIs, keys, grant types, and scope. It does not bind the software's code, dependencies, or behavior. Software can change while its document stays the same, and the statement remains acceptable until it expires or is withdrawn ({{withdrawal}}). Assurance about the software itself rests on the issuer's review process. Any change to the document's octets, including one that changes no metadata value, makes statements over the earlier octets fail the digest comparison ({{effective-metadata}}).
 
@@ -819,7 +819,7 @@ Runtime presentation can cause the authorization server to retrieve the Client I
 
 These retrievals happen before any client is registered or any user has interacted, so an unauthenticated requester can cause them with one acceptable statement or, at a server that pulls statements, with none. The bounds that {{processing-bounds}} describes limit this work but do not prevent it.
 
-## Statement Lifetime {#enforcement-bounds}
+## Expiry, Withdrawal, and Open Grants {#enforcement-bounds}
 
 Expiry and withdrawal ({{withdrawal}}) govern new admissions. Neither revokes an issued access token. A grant opened by a statement lasts for the life of its refresh tokens, whatever the statement's lifetime, unless the server requires a current statement on refresh, holds a refusal record, or finds the proven key gone from the client's document ({{refresh}}).
 
