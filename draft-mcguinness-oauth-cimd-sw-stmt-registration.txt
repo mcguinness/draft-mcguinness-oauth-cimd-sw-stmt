@@ -151,9 +151,8 @@ Table of Contents
 
    This specification uses terminology from [RFC6749] (OAuth), [RFC7591]
    (client metadata and software statements), and [CIMD] (Client ID
-   Metadata Documents), and the terms Issuer, Runtime Presentation,
-   Effective Expiry, Refusal Record, Current Statement, Required Issuer,
-   Review-Only, and iat Floor from Section 2 of [STATEMENT].
+   Metadata Documents), and the terms defined in Section 2 of
+   [STATEMENT].
 
    This specification defines the following terms.
 
@@ -168,9 +167,7 @@ Table of Contents
       (Section 3.3).
 
    Statement-Governed Registration:  An [RFC7591] client registration
-      created from a statement under this specification: its validity is
-      bound to its governing statement's effective expiry, and
-      replacement statements renew it (Section 3.2).
+      created from a statement under this specification (Section 3.2).
 
 3.  Consumption at Registration
 

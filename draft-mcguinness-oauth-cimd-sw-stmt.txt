@@ -214,10 +214,6 @@ Table of Contents
 
    This specification defines the following terms.
 
-   Issuer:  The party that signs a software statement.  An issuer can be
-      an authorization server, or a reviewer, such as a marketplace,
-      that operates none.
-
    Trusting Authorization Server:  An authorization server that consumes
       a software statement, at runtime under this specification or at
       registration under [REGISTRATION].
@@ -255,12 +251,6 @@ Table of Contents
    Current Statement:  A statement whose effective expiry has not passed
       and that matches no refusal record.  The iat floor (Section 6)
       separately limits which current statements a server accepts.
-
-   Required Issuer:  A configured issuer whose current statement a
-      trusting authorization server requires, in one of its tenants, for
-      software in the client identifier namespaces its trust
-      configuration records for that issuer in that tenant (Section 4,
-      Section 5.6.1).
 
    Review-Only:  Describes a presentation, or a pulled statement, that
       the authorization server evaluates but that admits nothing
@@ -540,7 +530,9 @@ Table of Contents
    *  Any tenant to which it confines the issuer's decisions.
 
    *  For each of its tenants, any client identifier namespaces for
-      which the issuer is a required issuer.
+      which the issuer is a required issuer, one whose current statement
+      the server requires in that tenant for software in those
+      namespaces.
 
    *  The maximum statement lifetime it will honor, which sets each
       statement's effective expiry.
@@ -574,12 +566,13 @@ Table of Contents
    namespaces for which a configured issuer's decision is required
    (Section 13.1) MUST NOT admit software in a covered namespace in that
    tenant without a current statement from the required issuer, whatever
-   its policy for clients it has not reviewed.  Without this rule,
-   withholding the statement would restore access that the required
-   issuer withdrew.  The requirement is configured rather than inferred
-   from the statements the server sees, so a holder cannot evade that
-   issuer's withdrawal by presenting or publishing only a broader
-   statement, such as a marketplace listing.
+   its policy for clients it has not reviewed.  The requirement also
+   applies on refresh (Section 5.6.1).  Without this rule, withholding
+   the statement would restore access that the required issuer withdrew.
+   The requirement is configured rather than inferred from the
+   statements the server sees, so a holder cannot evade that issuer's
+   withdrawal by presenting or publishing only a broader statement, such
+   as a marketplace listing.
 
    A required issuer configured for software whose presentations are
    review-only (Section 5.4.1) excludes that software from the tenant.
