@@ -817,7 +817,8 @@ Table of Contents
       MUST use that method.
 
    *  The authorization server MUST reject a presentation without such a
-      proof, or whose proven key the reviewed document does not carry.
+      proof or, except as Section 5.4.1 provides, whose proven key the
+      reviewed document does not carry.
 
    A key at the document's jwks_uri is retrieved at presentation time.
    If that retrieval does not complete (Section 5.3), the presentation
