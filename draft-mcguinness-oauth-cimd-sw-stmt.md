@@ -183,13 +183,13 @@ A statement issued under this specification MUST NOT contain a claim named in th
 
 {{CIMD}} permits a Client ID Metadata Document to carry a `software_statement` member. A trusting authorization server MUST NOT consume a statement of this profile from that member, and MUST NOT treat that member as satisfying any requirement of this specification. Statements of other kinds in the member are out of scope for this specification.
 
-An authorization server implementing this specification MUST reject a statement of this profile in an {{RFC7591}} registration request with the `unapproved_software_statement` error code (Section 3.2.2 of {{RFC7591}}), unless it consumes the statement as {{REGISTRATION}} specifies.
+An authorization server implementing this specification MUST reject a statement of this profile in an {{RFC7591}} registration request with the `unapproved_software_statement` error code (Section 3.2.2 of {{RFC7591}}), unless it consumes the statement as {{REGISTRATION}} specifies. The server's configured statement key set ({{issuer-trust}}) verifies the statement, so a generic registration path would otherwise attach the issuer's review to metadata the request supplies ({{legacy-servers}}).
 
 ## Metadata Digest {#metadata-digest}
 
 The metadata digest is the unpadded base64url-encoded SHA-256 hash {{RFC6234}} of the retrieved representation body after removal of content coding. The body is not transcoded, normalized, or re-serialized. Any byte order mark or trailing newline is included.
 
-Retrieval for digest purposes follows {{CIMD}} and MUST NOT use content negotiation: the retrieving party sends the `Accept` header field that {{CIMD}} specifies for retrieving the document, or `Accept: application/json` if it specifies none, and no other variant selection.
+Retrieval for digest purposes follows {{CIMD}} and MUST NOT use content negotiation: the retrieving party sends the `Accept` header field that {{CIMD}} specifies for retrieving the document, or `Accept: application/json` if it specifies none, and no other variant selection. Equal digests show that the issuer and the trusting authorization server obtained the same octets, so any condition that makes retrieval depend on who is asking defeats the comparison.
 
 A trusting authorization server MUST treat a response exceeding its configured size bound (Section 8.7 of {{CIMD}}) as a retrieval failure rather than digesting what it read. For a runtime presentation, the request is rejected with `invalid_client` rather than `temporarily_unavailable` ({{errors}}), except on refresh-token use, for which {{refresh}} takes precedence.
 
@@ -232,7 +232,7 @@ A withdrawal constrains and never relaxes. A statement for which no withdrawal m
 
 An issuer that uses a withdrawal mechanism and issues a replacement narrower than the statement it replaces SHOULD withdraw the earlier statement. A replacement is narrower if the document it names no longer carries a key, redirection URI, or scope the earlier document carried, if its `aud`, `aud_tenant`, or `statement_uses` is narrower, or if its remaining lifetime is shorter.
 
-A trusting authorization server that has not yet seen the replacement, or at which it does not validate, would otherwise accept the earlier statement until it expires.
+Without that withdrawal, a trusting authorization server that has not yet seen the replacement, or at which the replacement does not validate, accepts the earlier statement until it expires.
 
 # Issuer Trust Establishment {#issuer-trust}
 
@@ -265,6 +265,8 @@ A required issuer configured for software whose presentations are review-only ({
 If an issuer reviews software for several customers whose decisions are each trusted independently, it MUST issue under a distinct `iss` value for each customer, so that each customer's decisions and `iat` floor ({{multi-instance}}) stay separate.
 
 # Runtime Presentation {#cimd-presentation}
+
+A client presents its statement in a request ({{runtime-presentation}}) or publishes it where its document points ({{pulled-statements}}).
 
 ## Presentation Request {#runtime-presentation}
 
@@ -361,9 +363,9 @@ A key at the document's `jwks_uri` is retrieved at presentation time. If that re
 
 Software distributed to end users cannot hold a key its reviewed document carries: a key shipped in every copy identifies the software, not the installation. Such a document declares `token_endpoint_auth_method` of `none` and carries no key material.
 
-An authorization server MUST reject, with the `invalid_client` error code, a presentation that opens a new grant at the token endpoint ({{runtime-presentation}}) from a client whose reviewed document declares `token_endpoint_auth_method` of `none`. A statement pulled for such a client at the token endpoint is instead review-only ({{pulled-statements}}).
+An authorization server MUST reject, with the `invalid_client` error code, a presentation that opens a new grant at the token endpoint ({{runtime-presentation}}) from a client whose reviewed document declares `token_endpoint_auth_method` of `none`. Such a presentation opens no redirect and has nothing to bind it. A statement pulled for such a client at the token endpoint is instead review-only ({{pulled-statements}}).
 
-A presentation is review-only if the reviewed document carries any redirection URI that another application on the same device could claim: a non-`https` URI, such as a private-use scheme or an `http` loopback redirection URI (Sections 7.1 and 7.3 of {{RFC8252}}), or an `https` URI whose host is a loopback address or `localhost`. One such URI makes every presentation and pulled statement for the document review-only, whatever authentication method the document declares. The application that claims such a URI receives the code.
+A presentation is review-only if the reviewed document carries any redirection URI that another application on the same device could claim: a non-`https` URI, such as a private-use scheme or an `http` loopback redirection URI (Sections 7.1 and 7.3 of {{RFC8252}}), or an `https` URI whose host is a loopback address or `localhost`. One such URI makes every presentation and pulled statement for the document review-only, whatever authentication method the document declares. The application that claims such a URI receives the code, so neither the reviewed redirection URIs nor a key shipped in every copy of the software can bind the presenter.
 
 A review-only presentation or pulled statement creates no establishment, admits nothing, and does not advance the `iat` floor of {{multi-instance}}. The authorization server proceeds as it would for the same Client ID Metadata Document client presenting no statement ({{ui-audit}}).
 
@@ -546,7 +548,7 @@ Under an establishment, a refresh-token request rejected for a reason this speci
 : The checks of step 1 of {{refresh}} fail for a reason other than a retrieval that did not complete.
 
 `temporarily_unavailable`:
-: A retrieval needed under {{refresh}} did not complete, for a reason other than the document size bound ({{metadata-digest}}).
+: A retrieval needed to obtain or check the replacement, or to check the proven key, did not complete, for a reason other than the document size bound ({{metadata-digest}}).
 
 `unauthorized_client` or `invalid_scope`:
 : The refreshed access would exceed the reviewed document's metadata or this server's policy, as for a presentation.
@@ -689,7 +691,7 @@ This section gives guidance to implementers. It adds no requirement.
 
 A server can revalidate octets it holds with a conditional request rather than retrieving them again ({{metadata-digest}}).
 
-A failure is followed by back-off rather than caching, which {{CIMD}} forbids. A response from a `software_statements_uri` ought to be cached no longer than the document is ({{pulled-statements}}).
+Successful retrievals can be cached within the document's caching directives. A failure is followed by back-off rather than caching, which {{CIMD}} forbids. A response from a `software_statements_uri` ought to be cached no longer than the document is, and can be revalidated with a conditional request, as the document can ({{pulled-statements}}).
 
 ## Retrieval and Processing Bounds {#processing-bounds}
 
@@ -722,7 +724,7 @@ A server that shares an establishment among grants applies a replacement accepte
 
 An authorization server ought not to present the review in a review-only presentation to the user as an assurance about the presenter ({{public-client-presentation}}). It can record the statement's issuer for audit and inventory.
 
-Authorization servers ought to avoid logging software statements, which name reviewed software and, if they carry an audience, that software's intended relationships.
+Authorization servers ought to avoid logging software statements, which are sensitive in transit and at rest. A statement names reviewed software and, if it carries an audience, that software's intended relationships.
 
 # Deployment Considerations {#deployment-considerations}
 
@@ -783,7 +785,7 @@ Attesting a `jwks_uri` attests the location, not its contents: a compromised key
 
 ## Servers That Do Not Implement This Specification {#legacy-servers}
 
-A statement carries no client metadata, so an {{RFC7591}} server that verified one without implementing this specification would take every metadata value from the registration request, attaching the issuer's approval to an attacker's redirection URIs and keys. With statement signing keys in a dedicated statement key set ({{issuer-trust}}, {{authorization-server-metadata}}), such a server finds no key that verifies a statement through the `jwks_uri` in an issuer's {{RFC8414}} metadata. It is exposed only if its operator configures the statement key set in it. For an issuer that is not an authorization server, that configuration is the only route to its keys, so the protection rests on operators recording the statement key set URL only in servers that implement this specification.
+A statement carries no client metadata, so an {{RFC7591}} server that verified one without implementing this specification would take every metadata value from the registration request, attaching the issuer's approval to an attacker's redirection URIs and keys. Keeping statement signing keys in a dedicated statement key set, out of any `jwks_uri`, and away from statements of other profiles ({{issuer-trust}}, {{authorization-server-metadata}}) means such a server finds no key that verifies a statement through the `jwks_uri` in an issuer's {{RFC8414}} metadata. It is exposed only if its operator configures the statement key set in it. For an issuer that is not an authorization server, that configuration is the only route to its keys, so the protection rests on operators recording the statement key set URL only in servers that implement this specification.
 
 ## Copied Statements and Public Clients {#public-client-security}
 
