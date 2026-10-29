@@ -49,13 +49,13 @@ informative:
 
 --- abstract
 
-A companion specification defines a software statement for a Client ID Metadata Document. The statement carries no client metadata: it binds an issuer's review to the exact bytes of the client's own document. This specification defines how an authorization server consumes such a statement in an RFC 7591 registration request, taking every metadata value from the reviewed document rather than from the request. It also defines how the statement's expiry bounds the resulting registration, which RFC 7591 leaves unbounded, and how a client renews the registration by delivering a replacement statement, which also updates the registration's metadata.
+A companion specification defines a software statement for a Client ID Metadata Document (CIMD). The statement carries no client metadata: it binds an issuer's review to the exact bytes of the client's own document. This specification defines how an authorization server consumes such a statement in an RFC 7591 registration request, taking every metadata value from the reviewed document rather than from the request. It also defines how the statement's expiry bounds the resulting registration, which RFC 7591 leaves unbounded, and how a client renews the registration by delivering a replacement statement, which also updates the registration's metadata.
 
 --- middle
 
 # Introduction
 
-A software statement (Section 2.3 of {{RFC7591}}) carries a third party's approval of client software into a dynamic client registration request. In {{RFC7591}}, values in the statement take precedence over those in the request. A statement under Section 3 of {{STATEMENT}} carries no client metadata: it names a Client ID Metadata Document by its URL and binds the review to that document's exact octets. An {{RFC7591}} server that verified such a statement without implementing this specification would take every metadata value from the request, attaching the issuer's approval to redirection URIs and keys nobody reviewed.
+A software statement (Section 2.3 of {{RFC7591}}) carries a third party's approval of client software into a dynamic client registration request. In {{RFC7591}}, values in the statement take precedence over those in the request. A statement under Section 3 of {{STATEMENT}} carries no client metadata: it names a Client ID Metadata Document (CIMD) by its URL and binds the review to that document's exact octets. An {{RFC7591}} server that verified such a statement without implementing this specification would take every metadata value from the request, attaching the issuer's approval to redirection URIs and keys nobody reviewed.
 
 {{RFC7591}} also defines no expiry or renewal for a registration. A registration based on a statement can outlive it, and nothing keeps the registration's validity or metadata in line with the issuer's decision once the issuer narrows, withdraws, or stops renewing it.
 
@@ -93,7 +93,7 @@ The statement is consumed in the `software_statement` member of an {{RFC7591}} r
 
 The reviewed document takes the role that {{RFC7591}} gives a statement's own values. An authorization server consuming a statement under this specification:
 
-* MUST resolve the Client ID Metadata Document at the statement's `sub` claim, rejecting the registration if retrieval does not complete.
+* MUST resolve the CIMD at the statement's `sub` claim, rejecting the registration if retrieval does not complete.
 * MUST validate the document as {{CIMD}} requires, including that its `client_id` member matches the statement's `sub` claim, the client identifier URL at which the document was resolved.
 * MUST verify that the digest of the retrieved representation equals the statement's `cimd_digest` claim, rejecting the registration if it does not, and MUST derive the registered metadata by parsing the same octets it digested, not a second retrieval or a cached copy it has not digested.
 * MUST take every client metadata value from that document, and MUST NOT take any client metadata value from the registration request, or from any {{RFC7592}} update request for the registration it creates, whether or not the document carries the corresponding member:
@@ -195,7 +195,7 @@ The replacement MUST satisfy the following:
 
 For a replacement, the authorization server MUST do the following:
 
-* Obtain the Client ID Metadata Document at the replacement's `sub` as {{dcr-presentation}} requires.
+* Obtain the CIMD at the replacement's `sub` as {{dcr-presentation}} requires.
 * Verify that the digest of the retrieved octets equals the replacement's `cimd_digest`.
 * Re-derive the registration's metadata from those same octets, under the rules of {{dcr-presentation}}.
 
