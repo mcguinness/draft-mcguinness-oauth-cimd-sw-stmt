@@ -351,11 +351,14 @@ A retrieval does not complete only when it times out, its connection fails, or t
 
 This specification requires a reviewed document to declare its client authentication method. The authorization server MUST reject a presentation under a reviewed document that omits the `token_endpoint_auth_method` member. It treats a statement pulled for such a document as review-only ({{public-client-presentation}}).
 
-A presentation under a document carrying a redirection URI another application could claim is review-only whatever its authentication method ({{public-client-presentation}}). The rejection above still applies to such a presentation, as does the rejection of a presentation opening a new grant at the token endpoint for a client whose reviewed document declares `token_endpoint_auth_method` of `none` ({{public-client-presentation}}), but the sender-constraint requirements of the next two paragraphs do not.
+A presentation under a document carrying a redirection URI another application could claim is review-only whatever its authentication method ({{public-client-presentation}}). The rejection above still applies to such a presentation, as does the rejection of a presentation opening a new grant at the token endpoint for a client whose reviewed document declares `token_endpoint_auth_method` of `none` ({{public-client-presentation}}). The following requirements apply to every other runtime presentation:
 
-A runtime presentation MUST be sender-constrained by a key the statement attests or, under {{public-client-presentation}}, by the key the presenter binds there. The presenter proves possession of that key through the applicable client authentication method or a DPoP proof {{RFC9449}}. If a request carries both, the key its client authentication proves is the proven key. The proof MUST be bound to the current request and validated with the replay protections of that mechanism.
-
-Except as {{public-client-presentation}} provides, the proven key MUST appear in the `jwks` or at the `jwks_uri` of the reviewed document ({{effective-metadata}}). If the reviewed document declares a client authentication method in its `token_endpoint_auth_method` member ({{CIMD}}), the presenter MUST use that method. The authorization server MUST reject a presentation without such a proof, or whose proven key the reviewed document does not carry.
+* The presentation MUST be sender-constrained by a key the statement attests or, under {{public-client-presentation}}, by the key the presenter binds there.
+* The presenter proves possession of that key through the applicable client authentication method or a DPoP proof {{RFC9449}}. If a request carries both, the key its client authentication proves is the proven key.
+* The proof MUST be bound to the current request and validated with the replay protections of that mechanism.
+* Except as {{public-client-presentation}} provides, the proven key MUST appear in the `jwks` or at the `jwks_uri` of the reviewed document ({{effective-metadata}}).
+* If the reviewed document declares a client authentication method in its `token_endpoint_auth_method` member ({{CIMD}}), the presenter MUST use that method.
+* The authorization server MUST reject a presentation without such a proof, or whose proven key the reviewed document does not carry.
 
 A key at the document's `jwks_uri` is retrieved at presentation time. If that retrieval does not complete ({{processing}}), the presentation is rejected with `temporarily_unavailable`. A server MAY reuse a retrieved key set only within ordinary HTTP caching bounds and a maximum reuse period of its own choosing, and MUST NOT let the client's cache directives alone determine how long a removed key continues to verify ({{statement-validation}}).
 
