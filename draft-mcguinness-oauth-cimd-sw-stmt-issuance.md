@@ -103,7 +103,7 @@ informative:
 
 --- abstract
 
-RFC 7591 defines how a client presents a software statement and how a registration endpoint consumes it, but not how the client obtains one. This specification defines OAuth 2.0 flows for issuing a software statement to a client identified by a Client ID Metadata Document and not registered with the authorization server.
+RFC 7591 defines how a client presents a software statement and how a registration endpoint consumes it, but not how the client obtains one. This specification defines OAuth 2.0 flows for issuing a software statement to a client identified by a Client ID Metadata Document (CIMD) and not registered with the authorization server.
 
 A client holding an initial access token that authorizes issuance, or a statement it can renew, uses OAuth 2.0 Token Exchange (RFC 8693) without a redirect. A client can instead use a redirect flow: the authorization endpoint returns a short-lived `software_statement_code`, which the client redeems through a new token endpoint grant. In both flows, a completed decision returns a statement, and a pending decision uses Deferred Token Response and polling. The statement never appears in an authorization response URL.
 
@@ -115,7 +115,7 @@ The client presents the statement at registration or at runtime, or publishes it
 
 {{RFC7591}} standardizes the consumption of a software statement, a signed JWT asserting client metadata (Section 2.3 of {{RFC7591}}), but not its issuance. Issuance today relies on manual provisioning or proprietary processes. The UK Open Banking Directory {{UK-OPEN-BANKING}} and the Australian Consumer Data Right Register {{AU-CDR}} each built a central issuer, yet a client needs a separate integration for each.
 
-{{STATEMENT}} profiles that statement to carry no client metadata and instead vouch for the exact octets of a Client ID Metadata Document, and defines its validation and consumption. This specification defines how a client obtains one, through OAuth token exchange ({{token-exchange-profile}}) or a redirect flow ({{authorization-request}}). An issuer whose review cannot complete within a request can defer its response under {{DTR}}.
+{{STATEMENT}} profiles that statement to carry no client metadata and instead vouch for the exact octets of a Client ID Metadata Document (CIMD), and defines its validation and consumption. This specification defines how a client obtains one, through OAuth token exchange ({{token-exchange-profile}}) or a redirect flow ({{authorization-request}}). An issuer whose review cannot complete within a request can defer its response under {{DTR}}.
 
 A statement makes one issuer's decision portable to the authorization servers in its audience that trust the issuer ({{STATEMENT}}). If the trust decision is local to one authorization server, an initial access token {{RFC7591}}, pre-registration {{CIMD}}, or approval-based registration {{APPROVAL-DCR}} can establish the client directly.
 
@@ -139,7 +139,7 @@ Deferring Issuer:
 
 A client that holds an initial access token authorizing issuance, or a statement it can renew, uses token exchange at the token endpoint without a user agent ({{token-exchange-profile}}). A client can instead initiate the redirect flow at the authorization endpoint ({{authorization-request}}) and redeem the resulting software statement code at the token endpoint.
 
-The issuer fetches and snapshots the client's Client ID Metadata Document ({{metadata-snapshot}}), decides whether to issue, and signs the statement. The client carries the statement to trusting authorization servers in its audience, at registration ({{REGISTRATION}}) or at runtime ({{STATEMENT}}). A publisher's backend acting for a client is not a party this specification authenticates. Issuance that such a backend authorizes on a client's behalf is out of scope.
+The issuer fetches and snapshots the client's CIMD ({{metadata-snapshot}}), decides whether to issue, and signs the statement. The client carries the statement to trusting authorization servers in its audience, at registration ({{REGISTRATION}}) or at runtime ({{STATEMENT}}). A publisher's backend acting for a client is not a party this specification authenticates. Issuance that such a backend authorizes on a client's behalf is out of scope.
 
 ~~~
                 +--------------------------+
@@ -204,11 +204,11 @@ At (C), the client redeems the code with its Proof Key for Code Exchange (PKCE) 
 
 # Client Identification and Authentication {#client-identity}
 
-The `client_id` parameter in every request defined by this specification MUST be a client identifier URL conforming to {{CIMD}}. The authorization server MUST obtain and validate the corresponding Client ID Metadata Document according to {{CIMD}}.
+The `client_id` parameter in every request defined by this specification MUST be a client identifier URL conforming to {{CIMD}}. The authorization server MUST obtain and validate the corresponding CIMD according to {{CIMD}}.
 
-In the redirect flow, a client identifier whose Client ID Metadata Document cannot be retrieved or validated, including a document rejected for duplicate member names ({{metadata-snapshot}}), is invalid for the purposes of Section 4.1.2.1 of {{RFC6749}}. If the client identifier or redirection URI is missing or invalid, the authorization server MUST NOT redirect the user agent.
+In the redirect flow, a client identifier whose CIMD cannot be retrieved or validated, including a document rejected for duplicate member names ({{metadata-snapshot}}), is invalid for the purposes of Section 4.1.2.1 of {{RFC6749}}. If the client identifier or redirection URI is missing or invalid, the authorization server MUST NOT redirect the user agent.
 
-The client authenticates to the token endpoint using the `token_endpoint_auth_method` and related key metadata in its Client ID Metadata Document. The authorization server classifies the client from that member:
+The client authenticates to the token endpoint using the `token_endpoint_auth_method` and related key metadata in its CIMD. The authorization server classifies the client from that member:
 
 * `none` (explicit) establishes a public client.
 * Any other value establishes a confidential client:
@@ -222,7 +222,7 @@ A public client binds its requests with Demonstrating Proof of Possession (DPoP)
 
 ## Metadata Snapshot {#metadata-snapshot}
 
-Client ID Metadata Documents can change while a request is pending. Before returning a software statement code or a deferral code, the authorization server MUST bind it to the exact octets of the document it retrieved and validated, and to their metadata digest ({{STATEMENT}}). The octets and metadata digest bound to a request, by this section or by {{token-exchange-profile}}, constitute its metadata snapshot.
+CIMDs can change while a request is pending. Before returning a software statement code or a deferral code, the authorization server MUST bind it to the exact octets of the document it retrieved and validated, and to their metadata digest ({{STATEMENT}}). The octets and metadata digest bound to a request, by this section or by {{token-exchange-profile}}, constitute its metadata snapshot.
 
 The authorization server MAY retrieve the document again before issuing the software statement. If it does so and the digest differs, it MUST either re-evaluate the request under the new document, binding the new document as the snapshot, or reject the request. This applies even if the change touches no member its policy examines. A statement over a superseded snapshot fails at registration ({{REGISTRATION}}).
 
@@ -321,7 +321,7 @@ The client sends an authorization request as described in Section 4.1.1 of {{RFC
 : REQUIRED. The client identifier URL described in {{client-identity}}.
 
 `redirect_uri`:
-: REQUIRED. The value MUST exactly match one of the redirection URIs in the Client ID Metadata Document, subject to the redirection URI rules of {{CIMD}}. Whatever authentication method the document declares, the value MUST NOT be a redirection URI that another application on the same device could claim, as the public-client presentation rules of {{STATEMENT}} define ({{authorization-response-security}}).
+: REQUIRED. The value MUST exactly match one of the redirection URIs in the CIMD, subject to the redirection URI rules of {{CIMD}}. Whatever authentication method the document declares, the value MUST NOT be a redirection URI that another application on the same device could claim, as the public-client presentation rules of {{STATEMENT}} define ({{authorization-response-security}}).
 
 `state`:
 : OPTIONAL. An opaque value used by the client to bind the authorization response to its request. Because the authorization server requires PKCE, a client can rely on PKCE for cross-site request forgery (CSRF) protection instead, as Section 2.1 of {{RFC9700}} permits.
@@ -584,7 +584,7 @@ A client that caches issued tokens by type ought to key the issued software stat
 
 ## Approval Interface {#approval-interface}
 
-An approval interface ought to state that the decision vouches for the client's Client ID Metadata Document, and ought to present the following:
+An approval interface ought to state that the decision vouches for the client's CIMD, and ought to present the following:
 
 * The client identifier URL, with its origin shown as the client's identity, and with display metadata such as the `client_name` and `logo_uri` members marked as asserted by the client (a look-alike document can carry another vendor's name).
 * The document content the statement will vouch for, identified by its metadata digest.
@@ -617,7 +617,7 @@ An initial access token ought to be integrity protected and kept confidential in
 
 ## Review and Approval Practice {#review-practice}
 
-Because the client authors the metadata document, an issuer ought to corroborate security-relevant metadata through evidence beyond the document itself. Issuance policy can relate the redirection URI's origin to the client identifier URL or the Client ID Metadata Document's `client_uri` member.
+Because the client authors the metadata document, an issuer ought to corroborate security-relevant metadata through evidence beyond the document itself. Issuance policy can relate the redirection URI's origin to the client identifier URL or the CIMD's `client_uri` member.
 
 To keep a look-alike document from reaching approval, an issuer ought to limit what an approver can approve to client identifiers under publisher namespaces it has enrolled. A document naming attesters in `client_attesters` ({{ATTESTERS}}) endorses them for the software under review and deserves particular scrutiny.
 
@@ -645,7 +645,7 @@ A software statement means only that its issuer evaluated the document captured 
 
 ## Client Metadata Retrieval
 
-Fetching a Client ID Metadata Document and the resources it references exposes the authorization server to server-side request forgery, resource exhaustion, malicious content, and client impersonation. The considerations of {{CIMD}} apply.
+Fetching a CIMD and the resources it references exposes the authorization server to server-side request forgery, resource exhaustion, malicious content, and client impersonation. The considerations of {{CIMD}} apply.
 
 ## Authorization Response Security {#authorization-response-security}
 
@@ -663,7 +663,7 @@ A software statement code in a URL is visible to browser history, referrer field
 
 Validating the subject token before metadata retrieval or enqueueing ({{token-exchange-profile}}) limits resource consumption by unauthorized requesters. Other bounds are local policy ({{processing-bounds}}).
 
-A subject token is an authorization credential, not a client identifier. If the Client ID Metadata Document declares a method, a subject token does not substitute for client authentication.
+A subject token is an authorization credential, not a client identifier. If the CIMD declares a method, a subject token does not substitute for client authentication.
 
 A subject token appears in a form body, so any component recording request bodies can expose it ({{token-exchange-profile}}, {{audit-logging}}). Clients and authorization servers MUST protect a subject token as a bearer credential unless its format provides proof of possession.
 
@@ -689,7 +689,7 @@ An approved statement is accepted at every authorization server in its audience,
 
 The privacy considerations of {{STATEMENT}} apply.
 
-The authorization server learns the client identifier URL, the client's Client ID Metadata Document, and information about the party interacting with the authorization endpoint. It ought to collect and retain only the information required for issuance, security monitoring, and audit obligations.
+The authorization server learns the client identifier URL, the client's CIMD, and information about the party interacting with the authorization endpoint. It ought to collect and retain only the information required for issuance, security monitoring, and audit obligations.
 
 An `aud` claim reveals which authorization servers the client intends to use. {{STATEMENT}} weighs that disclosure against omitting the claim and advises naming an audience, which an issuer does by requiring one in the request ({{authorization-request}}).
 
