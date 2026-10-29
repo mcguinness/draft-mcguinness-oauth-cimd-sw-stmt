@@ -14,15 +14,16 @@ Expires: 2 May 2027
 Abstract
 
    A companion specification defines a software statement for a Client
-   ID Metadata Document.  The statement carries no client metadata: it
-   binds an issuer's review to the exact bytes of the client's own
-   document.  This specification defines how an authorization server
-   consumes such a statement in an RFC 7591 registration request, taking
-   every metadata value from the reviewed document rather than from the
-   request.  It also defines how the statement's expiry bounds the
-   resulting registration, which RFC 7591 leaves unbounded, and how a
-   client renews the registration by delivering a replacement statement,
-   which also updates the registration's metadata.
+   ID Metadata Document (CIMD).  The statement carries no client
+   metadata: it binds an issuer's review to the exact bytes of the
+   client's own document.  This specification defines how an
+   authorization server consumes such a statement in an RFC 7591
+   registration request, taking every metadata value from the reviewed
+   document rather than from the request.  It also defines how the
+   statement's expiry bounds the resulting registration, which RFC 7591
+   leaves unbounded, and how a client renews the registration by
+   delivering a replacement statement, which also updates the
+   registration's metadata.
 
 Status of This Memo
 
@@ -95,11 +96,11 @@ Table of Contents
    registration request.  In [RFC7591], values in the statement take
    precedence over those in the request.  A statement under Section 3 of
    [STATEMENT] carries no client metadata: it names a Client ID Metadata
-   Document by its URL and binds the review to that document's exact
-   octets.  An [RFC7591] server that verified such a statement without
-   implementing this specification would take every metadata value from
-   the request, attaching the issuer's approval to redirection URIs and
-   keys nobody reviewed.
+   Document (CIMD) by its URL and binds the review to that document's
+   exact octets.  An [RFC7591] server that verified such a statement
+   without implementing this specification would take every metadata
+   value from the request, attaching the issuer's approval to
+   redirection URIs and keys nobody reviewed.
 
    [RFC7591] also defines no expiry or renewal for a registration.  A
    registration based on a statement can outlive it, and nothing keeps
@@ -175,9 +176,8 @@ Table of Contents
    statement's own values.  An authorization server consuming a
    statement under this specification:
 
-   *  MUST resolve the Client ID Metadata Document at the statement's
-      sub claim, rejecting the registration if retrieval does not
-      complete.
+   *  MUST resolve the CIMD at the statement's sub claim, rejecting the
+      registration if retrieval does not complete.
 
    *  MUST validate the document as [CIMD] requires, including that its
       client_id member matches the statement's sub claim, the client
@@ -508,8 +508,7 @@ Table of Contents
 
    For a replacement, the authorization server MUST do the following:
 
-   *  Obtain the Client ID Metadata Document at the replacement's sub as
-      Section 3 requires.
+   *  Obtain the CIMD at the replacement's sub as Section 3 requires.
 
    *  Verify that the digest of the retrieved octets equals the
       replacement's cimd_digest.

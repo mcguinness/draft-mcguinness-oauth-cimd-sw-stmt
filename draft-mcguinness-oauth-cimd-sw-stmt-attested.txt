@@ -193,10 +193,10 @@ Table of Contents
    The following non-normative sequence summarizes admission under this
    profile:
 
-   1.  A publisher serves a Client ID Metadata Document that selects
-       this profile and declares attestation-based client authentication
-       and loopback redirects.  A statement issuer signs a software
-       statement over its exact bytes.
+   1.  A publisher serves a CIMD that selects this profile and declares
+       attestation-based client authentication and loopback redirects.
+       A statement issuer signs a software statement over its exact
+       bytes.
 
    2.  An installation obtains an attestation from an accepted attester.
        The attestation names the client identifier URL, metadata digest,
@@ -308,8 +308,7 @@ Table of Contents
 
 4.  Client Metadata
 
-   This specification defines the following member of a Client ID
-   Metadata Document:
+   This specification defines the following member of a CIMD:
 
    software_statement_instance_binding:  OPTIONAL.  Boolean value.  When
       true, the client requires this profile for admissions under this
@@ -647,10 +646,9 @@ Table of Contents
        first, since the document names where statements are published,
        and that specification's retrieval and selection rules apply.
 
-   3.  Resolve the Client ID Metadata Document and perform the digest
-       and metadata checks of [STATEMENT].  Parse the same bytes the
-       server digested, enforce Section 4, and complete the cross-
-       artifact checks of Section 6.1.
+   3.  Resolve the CIMD and perform the digest and metadata checks of
+       [STATEMENT].  Parse the same bytes the server digested, enforce
+       Section 4, and complete the cross-artifact checks of Section 6.1.
 
    4.  Validate the requested redirect under Section 4.1, require PKCE
        S256, and evaluate the request against the reviewed metadata and
@@ -714,11 +712,11 @@ Table of Contents
    front-channel parameters to change the redirect, PKCE challenge, key
    binding, or tenant.
 
-   When the client's Client ID Metadata Document selects this profile or
-   server policy requires it, the server MUST reject a direct
-   authorization request without a PAR request_uri governed by this
-   profile.  A statement pulled at the authorization endpoint cannot
-   create an exception to that requirement.
+   When the client's CIMD selects this profile or server policy requires
+   it, the server MUST reject a direct authorization request without a
+   PAR request_uri governed by this profile.  A statement pulled at the
+   authorization endpoint cannot create an exception to that
+   requirement.
 
    The server authenticates the resource owner and applies authorization
    policy independently of the software and instance checks.  It MUST
@@ -739,11 +737,10 @@ Table of Contents
    Before issuing tokens, the server MUST verify the code and PKCE
    binding and every fixed establishment value in Section 7.2.  It MUST
    re-evaluate both trust decisions, require the recorded statement to
-   be unexpired and not refused, and confirm that the current Client ID
-   Metadata Document still matches its recorded digest and meets
-   Section 4.  Retrieval and cache reuse use the reuse bounds of
-   [STATEMENT].  The attestation MUST match that digest and not be past
-   its exp.
+   be unexpired and not refused, and confirm that the current CIMD still
+   matches its recorded digest and meets Section 4.  Retrieval and cache
+   reuse use the reuse bounds of [STATEMENT].  The attestation MUST
+   match that digest and not be past its exp.
 
    If the metadata changed or the recorded statement needs replacement,
    the client MUST start a new PAR transaction; code redemption cannot
@@ -1056,8 +1053,7 @@ Table of Contents
 
 12.1.  Reviewed Client Metadata
 
-   The following is an example of a Client ID Metadata Document that
-   selects this profile:
+   The following is an example of a CIMD that selects this profile:
 
    {
      "client_id": "https://cli.example/client.json",

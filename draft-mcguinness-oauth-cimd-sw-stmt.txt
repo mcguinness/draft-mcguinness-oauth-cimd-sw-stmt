@@ -13,8 +13,8 @@ Expires: 2 May 2027
 
 Abstract
 
-   A Client ID Metadata Document carries a client's own claims, which
-   can change at any time.  This specification defines a software
+   A Client ID Metadata Document (CIMD) carries a client's own claims,
+   which can change at any time.  This specification defines a software
    statement in which a trusted party records its review of the exact
    bytes of such a document, and how an authorization server enforces
    that review when it admits the client at request time, without a
@@ -133,12 +133,13 @@ Table of Contents
 
 1.  Introduction
 
-   A Client ID Metadata Document [CIMD] identifies a client by a URL and
-   supplies its metadata from a document the client controls.  That
-   metadata is the client's own claim and can change at any time.  An
-   organization that reviews client software has no interoperable way to
-   record its review of a particular version of the document, or to have
-   an authorization server it has never dealt with enforce that review.
+   A Client ID Metadata Document (CIMD) [CIMD] identifies a client by a
+   URL and supplies its metadata from a document the client controls.
+   That metadata is the client's own claim and can change at any time.
+   An organization that reviews client software has no interoperable way
+   to record its review of a particular version of the document, or to
+   have an authorization server it has never dealt with enforce that
+   review.
 
    This specification profiles the software statement (Section 2.3 of
    [RFC7591]) for that purpose.  A statement names the client by its
@@ -181,10 +182,10 @@ Table of Contents
 
    The following non-normative sequence summarizes runtime admission:
 
-   1.  Using its Client ID Metadata Document URL as client_id, the
-       client presents its statement in a token request or, for a
-       redirect flow, a pushed authorization request, or publishes it at
-       the software_statements_uri its document names (Section 5.1,
+   1.  Using its CIMD URL as client_id, the client presents its
+       statement in a token request or, for a redirect flow, a pushed
+       authorization request, or publishes it at the
+       software_statements_uri its document names (Section 5.1,
        Section 5.2).
 
    2.  The authorization server validates the statement (Section 3.2),
@@ -271,17 +272,17 @@ Table of Contents
    (Section 3.11 of [RFC8725]).  Extensions can add claims.  An
    incompatible revision would use a new typ value.
 
-   A statement asserts that its issuer evaluated the Client ID Metadata
-   Document whose content the digest identifies, and vouches for that
-   document.  The JWT payload contains the following claims.
+   A statement asserts that its issuer evaluated the CIMD whose content
+   the digest identifies, and vouches for that document.  The JWT
+   payload contains the following claims.
 
    iss:  REQUIRED.  The issuer's identifier, a URL using the https
       scheme with no query or fragment component.  For an issuer that is
       an authorization server, it is its issuer identifier as defined by
       [RFC8414].
 
-   sub:  REQUIRED.  The exact client identifier URL of the Client ID
-      Metadata Document the issuer reviewed.
+   sub:  REQUIRED.  The exact client identifier URL of the CIMD the
+      issuer reviewed.
 
    aud:  OPTIONAL.  One or more authorization server issuer identifiers
       ([RFC8414]) restricting which authorization servers can accept the
@@ -320,7 +321,7 @@ Table of Contents
       issuer's namespace.
 
    cimd_digest:  REQUIRED.  The metadata digest (Section 3.1) of the
-      Client ID Metadata Document the issuer evaluated.
+      CIMD the issuer evaluated.
 
    status:  OPTIONAL.  The status claim as [STATUSLIST] defines it, by
       which a statement locates itself in a Status List Token.  Only a
@@ -332,12 +333,11 @@ Table of Contents
    registry, and a trusting authorization server MUST NOT take client
    metadata from a statement's claims.
 
-   [CIMD] permits a Client ID Metadata Document to carry a
-   software_statement member.  A trusting authorization server MUST NOT
-   consume a statement of this profile from that member, and MUST NOT
-   treat that member as satisfying any requirement of this
-   specification.  Statements of other kinds in the member are out of
-   scope for this specification.
+   [CIMD] permits a CIMD to carry a software_statement member.  A
+   trusting authorization server MUST NOT consume a statement of this
+   profile from that member, and MUST NOT treat that member as
+   satisfying any requirement of this specification.  Statements of
+   other kinds in the member are out of scope for this specification.
 
    An authorization server implementing this specification MUST reject a
    statement of this profile in an [RFC7591] registration request with
@@ -583,15 +583,14 @@ Table of Contents
 
    A request making a runtime presentation, or carrying a refresh
    replacement (Section 5.6.1), MUST include the client_id parameter,
-   even if the client authenticates, and its value, the client's Client
-   ID Metadata Document URL, MUST exactly equal the statement's sub
-   claim.  If the client_id parameter is absent, the authorization
-   server rejects the request with invalid_request.  If the two differ
-   in a runtime presentation, the authorization server MUST reject the
-   presentation with the invalid_client error code.  A refresh
-   replacement whose sub differs is rejected as Section 5.6.1 provides.
-   The effective client_id is the statement's sub, and the authorization
-   server assigns none.
+   even if the client authenticates, and its value, the client's CIMD
+   URL, MUST exactly equal the statement's sub claim.  If the client_id
+   parameter is absent, the authorization server rejects the request
+   with invalid_request.  If the two differ in a runtime presentation,
+   the authorization server MUST reject the presentation with the
+   invalid_client error code.  A refresh replacement whose sub differs
+   is rejected as Section 5.6.1 provides.  The effective client_id is
+   the statement's sub, and the authorization server assigns none.
 
    The request carries the proof that Section 5.4 requires.  A
    successful presentation establishes the client for the request and
@@ -630,13 +629,13 @@ Table of Contents
 
    This specification defines the following client metadata member:
 
-   software_statements_uri:  OPTIONAL.  URL, in a Client ID Metadata
-      Document, at which the client publishes software statements about
-      itself.  The member has no meaning in a registration request.  The
-      URL MUST use the https scheme.  A request to it returns a JSON
-      object whose software_statements member is an array of statements
-      (Section 3), each a string in JWS compact serialization.  The
-      metadata digest covers this member (Section 3.1).
+   software_statements_uri:  OPTIONAL.  URL, in a CIMD, at which the
+      client publishes software statements about itself.  The member has
+      no meaning in a registration request.  The URL MUST use the https
+      scheme.  A request to it returns a JSON object whose
+      software_statements member is an array of statements (Section 3),
+      each a string in JWS compact serialization.  The metadata digest
+      covers this member (Section 3.1).
 
    An authorization server that supports pulled statements MAY retrieve
    this URL when it resolves the document of a client that presented no
@@ -725,13 +724,13 @@ Table of Contents
    accept, is review-only wherever it is pulled.
 
    If retrieving the statements does not complete or no statement
-   remains, the server applies its policy for Client ID Metadata
-   Document clients it has not reviewed, subject to any required issuer
-   (Section 4).  If that policy or a required issuer requires reviewed
-   software, the server rejects the request with temporarily_unavailable
-   if retrieving the statements, or a statement key set needed to verify
-   one (Section 4), did not complete, and with statement_required
-   otherwise.  A retrieval failure is never a withdrawal.
+   remains, the server applies its policy for CIMD clients it has not
+   reviewed, subject to any required issuer (Section 4).  If that policy
+   or a required issuer requires reviewed software, the server rejects
+   the request with temporarily_unavailable if retrieving the
+   statements, or a statement key set needed to verify one (Section 4),
+   did not complete, and with statement_required otherwise.  A retrieval
+   failure is never a withdrawal.
 
    An authorization server advertises support through
    software_statement_pull_supported (Section 10).
@@ -756,13 +755,12 @@ Table of Contents
 
    5.  On success, create the establishment (Section 5.6).
 
-   Every retrieval this specification causes, of the Client ID Metadata
-   Document, a jwks_uri it names, or the statements its
-   software_statements_uri names, inherits the server-side request
-   forgery protections of [CIMD].  A trusted signature does not make a
-   URL safe: the authorization server MUST apply its URL, redirect,
-   address-range, transport, and content-type policy independently to
-   every referenced location.
+   Every retrieval this specification causes, of the CIMD, a jwks_uri it
+   names, or the statements its software_statements_uri names, inherits
+   the server-side request forgery protections of [CIMD].  A trusted
+   signature does not make a URL safe: the authorization server MUST
+   apply its URL, redirect, address-range, transport, and content-type
+   policy independently to every referenced location.
 
    If a retrieval fails, the authorization server MUST reject the
    request and MUST NOT fall back to a weaker proof.  A failed pull of
@@ -846,8 +844,7 @@ Table of Contents
    A review-only presentation or pulled statement creates no
    establishment, admits nothing, and does not advance the iat floor of
    Section 6.  The authorization server proceeds as it would for the
-   same Client ID Metadata Document client presenting no statement
-   (Section 12.5).
+   same CIMD client presenting no statement (Section 12.5).
 
    The statement of a review-only presentation, or a review-only pulled
    statement, MUST NOT satisfy a policy requiring reviewed software.  If
@@ -882,12 +879,12 @@ Table of Contents
 5.5.  Reviewed Metadata
 
    Having validated the statement, and before verifying the proof
-   (Section 5.3), the authorization server MUST obtain the Client ID
-   Metadata Document at the statement's sub, only by retrieval or from
-   octets it has already digested for that identifier, and compare its
-   digest with the cimd_digest claim.  If octets it already holds do not
-   match, it retrieves the document once more before treating the
-   mismatch as a change.
+   (Section 5.3), the authorization server MUST obtain the CIMD at the
+   statement's sub, only by retrieval or from octets it has already
+   digested for that identifier, and compare its digest with the
+   cimd_digest claim.  If octets it already holds do not match, it
+   retrieves the document once more before treating the mismatch as a
+   change.
 
    Octets the authorization server already holds serve for that
    comparison only within a maximum reuse period of its own choosing, as
@@ -904,9 +901,9 @@ Table of Contents
    document changed after review, and the authorization server MUST NOT
    treat the changed document as reviewed.  It rejects the presentation
    with invalid_client or, by local policy, proceeds without the
-   statement.  If it proceeds, it applies its policy for Client ID
-   Metadata Document clients it has not reviewed to the current document
-   and creates no establishment for the statement.
+   statement.  If it proceeds, it applies its policy for CIMD clients it
+   has not reviewed to the current document and creates no establishment
+   for the statement.
 
    The request is evaluated against the reviewed metadata as against any
    client's registered metadata ([RFC6749], [CIMD]): any requested grant
@@ -1310,19 +1307,18 @@ Table of Contents
    the authorization error response (Section 4.1.2.1 of [RFC6749]).
 
    The authorization server redirects with the error only after
-   resolving the client's Client ID Metadata Document and validating the
-   request's redirect_uri against it.  If the authorization server
-   cannot resolve the document, it MUST NOT redirect, and it reports the
-   error to the resource owner instead.
+   resolving the client's CIMD and validating the request's redirect_uri
+   against it.  If the authorization server cannot resolve the document,
+   it MUST NOT redirect, and it reports the error to the resource owner
+   instead.
 
    An authorization request carrying the software_statement parameter
    (Section 5.1.1) is rejected with invalid_request in place of any
    other code of this section.  The authorization server redirects with
    that error only after validating the request's redirect_uri: for a
-   client identified by its Client ID Metadata Document URL, against
-   that document as the preceding paragraph requires, and for a
-   registered client, against its registered redirection URIs
-   (Section 4.1.2.1 of [RFC6749]).
+   client identified by its CIMD URL, against that document as the
+   preceding paragraph requires, and for a registered client, against
+   its registered redirection URIs (Section 4.1.2.1 of [RFC6749]).
 
 8.5.  Proof Mechanism Errors
 
@@ -1384,8 +1380,8 @@ Table of Contents
 
 9.2.  Publishing a Statement for Servers to Pull
 
-   The following is an example of a Client ID Metadata Document that
-   names where its statements are published:
+   The following is an example of a CIMD that names where its statements
+   are published:
 
    {
      "client_id": "https://client.example/app",
@@ -1653,17 +1649,17 @@ Table of Contents
 
 14.1.  Assurance Provided by a Statement
 
-   A statement binds an issuer's review to the octets of a Client ID
-   Metadata Document, which describes an OAuth client configuration.  It
-   does not bind the software's code, dependencies, or behavior.
-   Software can change while its document stays the same, and the
-   statement remains acceptable until it expires or is withdrawn
-   (Section 3.3).  Assurance about the software itself rests on the
-   issuer's review process.  Any change to the document's octets,
-   including one that changes no metadata value, makes statements over
-   the earlier octets fail the digest comparison (Section 5.5).  The
-   digest covers a URL the document carries, such as logo_uri, but not
-   the content served at it, which can change after review.
+   A statement binds an issuer's review to the octets of a CIMD, which
+   describes an OAuth client configuration.  It does not bind the
+   software's code, dependencies, or behavior.  Software can change
+   while its document stays the same, and the statement remains
+   acceptable until it expires or is withdrawn (Section 3.3).  Assurance
+   about the software itself rests on the issuer's review process.  Any
+   change to the document's octets, including one that changes no
+   metadata value, makes statements over the earlier octets fail the
+   digest comparison (Section 5.5).  The digest covers a URL the
+   document carries, such as logo_uri, but not the content served at it,
+   which can change after review.
 
    The following table states what admission under this specification
    does and does not establish:
@@ -1770,10 +1766,9 @@ Table of Contents
    requires one tenant for both, selected by no value the client
    chooses.
 
-   This specification defines no tenant parameter, and a Client ID
-   Metadata Document URL is the same client_id in every tenant, so
-   neither a client nor an issuer can verify that a server honored the
-   tenant rule of Section 3.2.
+   This specification defines no tenant parameter, and a CIMD URL is the
+   same client_id in every tenant, so neither a client nor an issuer can
+   verify that a server honored the tenant rule of Section 3.2.
 
    The aud_tenant claim names a tenant at the trusting authorization
    server, not which of the client's own customers is asking.  Software
@@ -1788,8 +1783,8 @@ Table of Contents
 14.6.  External Retrieval and Resource Exhaustion
 
    Runtime presentation can cause the authorization server to retrieve
-   the Client ID Metadata Document, a jwks_uri it names, or the
-   statements its software_statements_uri names (Section 5.3).
+   the CIMD, a jwks_uri it names, or the statements its
+   software_statements_uri names (Section 5.3).
 
    These retrievals happen before any client is registered or any user
    has interacted, so an unauthenticated requester can cause them with
@@ -1987,7 +1982,7 @@ Table of Contents
    This specification requests registration of the following value in
    the IANA "OAuth Dynamic Client Registration Metadata" registry
    established by [RFC7591].  A client publishes this member in its
-   Client ID Metadata Document:
+   CIMD:
 
    Client Metadata Name:  software_statements_uri
 
@@ -2180,8 +2175,7 @@ Acknowledgments
    This mechanism began as the consumption part of a draft on software
    statement issuance and was split out so that consumption can evolve
    separately from issuance.  It draws on working-group discussion of
-   Client ID Metadata Documents and attestation-based client
-   authentication.
+   CIMDs and attestation-based client authentication.
 
 Author's Address
 
