@@ -178,7 +178,7 @@ The issuer fetches and snapshots the client's Client ID Metadata Document ({{met
 +---------------+  +---------------+       +---------------+
 ~~~
 
-## Redirect Flow Overview
+## Redirect Flow
 
 ~~~
 +--------+                                  +----------------------+
@@ -645,13 +645,13 @@ An issuer ought to protect its signing keys according to the scope of its trust 
 
 The security considerations of {{STATEMENT}} apply.
 
-## A Software Statement Is Not an Access Grant
+## Software Statements and Access Grants
 
 A software statement grants no resource access or consent on behalf of the software's users, and a protected resource does not accept one as an access token ({{software-statement-response}}).
 
 An authorization server that shows an approval interface MUST NOT imply through that interface that the approver is granting the client access to resources. An erroneous approval affects every authorization server in the statement's audience until expiry ({{approval-interface}}, {{review-practice}}).
 
-## What Issuance Attests {#what-issuance-attests}
+## Assurance Provided by Issuance {#what-issuance-attests}
 
 A software statement means only that its issuer evaluated the document captured in the metadata snapshot ({{metadata-snapshot}}) under its issuance policy and decided to vouch for it, not that the document's contents are true. Because the client authors the metadata document, the document alone does not establish its contents ({{review-practice}}). Verification depth is part of the trust relationship.
 
