@@ -501,7 +501,7 @@ This specification defines the following error code:
 `statement_required`:
 : A current software statement is required and none was supplied or pulled, or the one supplied or pulled is expired, refused by a refusal record ({{withdrawal}}), or superseded under the `iat` floor of {{multi-instance}}. The code also applies when a statement offered as a replacement on refresh ({{refresh}}), or at the token or pushed authorization request endpoint under {{REGISTRATION}}, does not satisfy the requirements for one. The client recovers by obtaining a statement issued more recently.
 
-Whenever this specification requires a current statement on a refresh-token request, `statement_required` replaces `invalid_grant`.
+A refresh-token request rejected for lacking a current statement that this specification requires uses `statement_required` in place of `invalid_grant`.
 
 ## Presentation {#presentation-errors}
 
