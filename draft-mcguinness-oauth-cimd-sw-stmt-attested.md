@@ -152,7 +152,7 @@ The binding is only as strong as the attester's evidence that the software, not 
 
 The following non-normative sequence summarizes admission under this profile:
 
-1. A publisher serves a Client ID Metadata Document that selects this profile and declares attestation-based client authentication and loopback redirects. A statement issuer signs a software statement over its exact bytes.
+1. A publisher serves a CIMD that selects this profile and declares attestation-based client authentication and loopback redirects. A statement issuer signs a software statement over its exact bytes.
 2. An installation obtains an attestation from an accepted attester. The attestation names the client identifier URL, metadata digest, instance key, and evidence policy.
 3. The installation sends a pushed authorization request with PKCE, the attestation, and a Demonstrating Proof of Possession (DPoP) proof. It supplies the software statement or lets the server pull it.
 4. The server validates both trust decisions (in the statement issuer and in the attester) and their bindings before returning a `request_uri`.
@@ -198,7 +198,7 @@ The server MUST enforce the reviewed binding selection on every new admission un
 
 # Client Metadata {#client-metadata}
 
-This specification defines the following member of a Client ID Metadata Document:
+This specification defines the following member of a CIMD:
 
 `software_statement_instance_binding`:
 : OPTIONAL. Boolean value. When `true`, the client requires this profile for admissions under this document. If absent or `false`, the document does not select this profile. A value of any other type is invalid.
@@ -324,7 +324,7 @@ Before returning a successful PAR response, the server MUST:
 
 1. Validate request syntax and the client identifier, resolve the applicable tenant, and authenticate the instance under {{trust}}, {{attestation}}, and {{proof}}. Checks needing no client-controlled retrieval precede such retrieval.
 2. Validate the selected statement under {{STATEMENT}}, including issuer and tenant policy, audience, effective expiry, permission for runtime presentation, refusal records, and the applicable `iat` floor. If statements are pulled, step 3 resolves the document first, since the document names where statements are published, and that specification's retrieval and selection rules apply.
-3. Resolve the Client ID Metadata Document and perform the digest and metadata checks of {{STATEMENT}}. Parse the same bytes the server digested, enforce {{client-metadata}}, and complete the cross-artifact checks of {{attestation-validation}}.
+3. Resolve the CIMD and perform the digest and metadata checks of {{STATEMENT}}. Parse the same bytes the server digested, enforce {{client-metadata}}, and complete the cross-artifact checks of {{attestation-validation}}.
 4. Validate the requested redirect under {{loopback}}, require PKCE `S256`, and evaluate the request against the reviewed metadata and authorization policy.
 5. Create or reuse an establishment under {{establishment}}, bind the accepted request to it, and return a PAR response under {{RFC9126}}.
 
@@ -348,7 +348,7 @@ The client identifier, tenant, key, attester, policy, and binding profile MUST r
 
 The client MUST use an external user-agent under {{RFC8252}}. The browser authorization request MUST use the `request_uri` parameter from the PAR response and the same `client_id` parameter. It MUST NOT carry the software statement, instance attestation, or an instance proof. The server MUST use the stored PAR parameters and MUST NOT allow front-channel parameters to change the redirect, PKCE challenge, key binding, or tenant.
 
-When the client's Client ID Metadata Document selects this profile or server policy requires it, the server MUST reject a direct authorization request without a PAR `request_uri` governed by this profile. A statement pulled at the authorization endpoint cannot create an exception to that requirement.
+When the client's CIMD selects this profile or server policy requires it, the server MUST reject a direct authorization request without a PAR `request_uri` governed by this profile. A statement pulled at the authorization endpoint cannot create an exception to that requirement.
 
 The server authenticates the resource owner and applies authorization policy independently of the software and instance checks. It MUST return the authorization response with the issuer identifier in the `iss` parameter defined by {{RFC9207}}. The client MUST validate that identifier, and the `state` parameter if it sent one, against the transaction before redeeming a code. Callback validation and OAuth security requirements in {{RFC8252}} and {{RFC9700}} continue to apply.
 
@@ -356,7 +356,7 @@ The server authenticates the resource owner and applies authorization policy ind
 
 The client sends `grant_type=authorization_code`, the code, the same `client_id` and `redirect_uri`, and the PKCE `code_verifier`. It MUST authenticate with a current instance attestation and a fresh proof under the proven key. It does not send the `software_statement` parameter, which {{STATEMENT}} prohibits on code redemption.
 
-Before issuing tokens, the server MUST verify the code and PKCE binding and every fixed establishment value in {{establishment}}. It MUST re-evaluate both trust decisions, require the recorded statement to be unexpired and not refused, and confirm that the current Client ID Metadata Document still matches its recorded digest and meets {{client-metadata}}. Retrieval and cache reuse use the reuse bounds of {{STATEMENT}}. The attestation MUST match that digest and not be past its `exp`.
+Before issuing tokens, the server MUST verify the code and PKCE binding and every fixed establishment value in {{establishment}}. It MUST re-evaluate both trust decisions, require the recorded statement to be unexpired and not refused, and confirm that the current CIMD still matches its recorded digest and meets {{client-metadata}}. Retrieval and cache reuse use the reuse bounds of {{STATEMENT}}. The attestation MUST match that digest and not be past its `exp`.
 
 If the metadata changed or the recorded statement needs replacement, the client MUST start a new PAR transaction; code redemption cannot replace the governing review. A raised `iat` floor alone does not invalidate a code already bound to an acceptable recorded statement.
 
@@ -456,7 +456,7 @@ The following examples are non-normative. In the HTTP examples, JWTs and opaque 
 
 ## Reviewed Client Metadata
 
-The following is an example of a Client ID Metadata Document that selects this profile:
+The following is an example of a CIMD that selects this profile:
 
 ~~~ json
 {
