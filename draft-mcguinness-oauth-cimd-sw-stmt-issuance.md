@@ -125,27 +125,15 @@ Approval workflow, approver identity, external approval integration, acceptance 
 
 {::boilerplate bcp14-tagged}
 
-This specification uses terminology defined in {{RFC6749}}, {{RFC7591}}, {{CIMD}}, and {{DTR}}. The terms Issuer, Trusting Authorization Server, Establishment, and Review-Only are defined by {{STATEMENT}}.
+This specification uses terminology defined in {{RFC6749}}, {{RFC7591}}, {{CIMD}}, and {{DTR}}, and the terms defined in Section 2 of {{STATEMENT}}.
 
 This specification defines the following terms:
-
-Software Statement Request:
-: An authorization request with `response_type=software_statement_code`, asking the authorization server to issue a software statement ({{authorization-request}}).
 
 Software Statement Code:
 : The short-lived, single-use artifact returned by the software statement code response ({{software-statement-code-response}}) and redeemed at the token endpoint ({{software-statement-code-redemption}}).
 
-Originating Request:
-: A request that can produce a software statement: a software statement code redemption ({{software-statement-code-redemption}}) or a token exchange ({{token-exchange-profile}}). Each yields a statement, a terminal denial, or, at a deferring issuer, a deferral.
-
 Deferring Issuer:
 : An issuer that advertises `true` for `deferred_token_response_supported` ({{authorization-server-metadata}}) and so can defer a decision ({{deferred-processing}}).
-
-Synchronous Issuer:
-: An issuer that does not defer, and so completes every decision before responding.
-
-Metadata Snapshot:
-: The exact retrieved octets of a validated Client ID Metadata Document, and their metadata digest, bound to a request, as defined in {{metadata-snapshot}}.
 
 # Protocol Overview
 
@@ -234,7 +222,7 @@ A public client binds its requests with Demonstrating Proof of Possession (DPoP)
 
 ## Metadata Snapshot {#metadata-snapshot}
 
-Client ID Metadata Documents can change while a request is pending. Before returning a software statement code or a deferral code, the authorization server MUST bind it to the exact octets of the document it retrieved and validated, and to their metadata digest ({{STATEMENT}}). The bound octets constitute the metadata snapshot for the request.
+Client ID Metadata Documents can change while a request is pending. Before returning a software statement code or a deferral code, the authorization server MUST bind it to the exact octets of the document it retrieved and validated, and to their metadata digest ({{STATEMENT}}). The octets and metadata digest bound to a request, by this section or by {{token-exchange-profile}}, constitute its metadata snapshot.
 
 The authorization server MAY retrieve the document again before issuing the software statement. If it does so and the digest differs, it MUST either re-evaluate the request under the new document, binding the new document as the snapshot, or reject the request. This applies even if the change touches no member its policy examines. A statement over a superseded snapshot fails at registration ({{REGISTRATION}}).
 
@@ -445,7 +433,7 @@ The client redeems a software statement code by sending an HTTP `POST` request t
 : REQUIRED. The PKCE verifier corresponding to the `code_challenge` in the authorization request.
 
 `completion_mode`:
-: REQUIRED at a deferring issuer ({{authorization-server-metadata}}), and not used otherwise. A synchronous issuer ignores it. When present, the value MUST include `deferred`. A deferring issuer rejects a request that omits it with `invalid_request`.
+: REQUIRED at a deferring issuer ({{authorization-server-metadata}}), and not used otherwise. An issuer that does not defer ignores it. When present, the value MUST include `deferred`. A deferring issuer rejects a request that omits it with `invalid_request`.
 
 The request MUST NOT contain the `audience` parameter, which was bound at the authorization endpoint. A request containing it is rejected with `invalid_request`.
 
@@ -463,7 +451,7 @@ For a valid, unconsumed code, the authorization server returns the following, ac
 * **Denied.** The terminal denial of {{terminal-denial}}.
 * **Pending.** The deferred token response of {{DTR}}, with the deferral bound to the code's metadata snapshot and audience in addition to the bindings {{DTR}} requires. The client then polls ({{deferred-processing}}).
 
-A synchronous issuer completes the decision before responding.
+An issuer that does not defer completes the decision before responding.
 
 The following is a non-normative example of a redemption request from a confidential client at a deferring issuer (line breaks for display purposes only):
 
@@ -486,7 +474,7 @@ grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3A
 
 # Deferred Processing {#deferred-processing}
 
-An authorization server MAY answer an originating request with a deferred token response {{DTR}} instead of a statement.
+An authorization server MAY answer a software statement code redemption ({{software-statement-code-redemption}}) or a token exchange ({{token-exchange-profile}}) with a deferred token response {{DTR}} instead of a statement.
 
 Deferral follows {{DTR}}, including the sender constraint it fixes at origination, with the following additions ({{lifetime-practice}} covers choosing a deferral code lifetime):
 
@@ -551,7 +539,7 @@ The `access_token` member is a security-token container ({{RFC8693}}), not an OA
 
 ## Terminal Denial {#terminal-denial}
 
-When the authorization server decides not to issue the requested software statement, it returns a token error response as defined in Section 5.2 of {{RFC6749}} with the `access_denied` error code (Section 3.5 of {{RFC8628}}) and HTTP status code 400, and MUST include the `Cache-Control: no-store` response header field. This applies to both kinds of originating request, including when the denial answers a polling request ({{deferred-processing}}).
+When the authorization server decides not to issue the requested software statement, it returns a token error response as defined in Section 5.2 of {{RFC6749}} with the `access_denied` error code (Section 3.5 of {{RFC8628}}) and HTTP status code 400, and MUST include the `Cache-Control: no-store` response header field. This applies to code redemption and token exchange alike, including when the denial answers a polling request ({{deferred-processing}}).
 
 The denial is terminal for the request. A denied deferral behaves as {{DTR}} specifies for a request resolved with an error, and a client that receives the `access_denied` error code in response to a polling request MUST NOT send another polling request with that `deferral_code`. A denial does not preclude a later issuance request. Whether to accept one is issuance policy.
 
@@ -571,7 +559,7 @@ At runtime, the recorded decision replaces the presented statement, not the proo
 
 An authorization server that issues software statements under this specification advertises `true` for `client_id_metadata_document_supported` ({{CIMD}}) and publishes the authorization server metadata that {{STATEMENT}} requires of an authorization server that issues statements.
 
-A deferring issuer publishes the metadata {{DTR}} requires, including `true` for `deferred_token_response_supported`. A synchronous issuer advertises neither that value nor the deferral-code token type in the `revocation_endpoint_token_type_values_supported` metadata value, and need not implement {{DTR}}.
+A deferring issuer publishes the metadata {{DTR}} requires, including `true` for `deferred_token_response_supported`. An issuer that does not defer advertises neither that value nor the deferral-code token type in the `revocation_endpoint_token_type_values_supported` metadata value, and need not implement {{DTR}}.
 
 An authorization server supporting the redirect flow advertises `urn:ietf:params:oauth:grant-type:software-statement` in `grant_types_supported`, `software_statement_code` in `response_types_supported`, and `true` for `authorization_response_iss_parameter_supported` as defined by {{RFC9207}}.
 
