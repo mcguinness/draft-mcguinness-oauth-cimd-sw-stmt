@@ -76,7 +76,7 @@ The following non-normative sequence summarizes a statement-governed registratio
 
 {::boilerplate bcp14-tagged}
 
-This specification uses terminology from {{RFC6749}} (OAuth), {{RFC7591}} (client metadata and software statements), and {{CIMD}} (Client ID Metadata Documents), and the terms Issuer, Runtime Presentation, Effective Expiry, Refusal Record, Current Statement, Required Issuer, Review-Only, and `iat` Floor from Section 2 of {{STATEMENT}}.
+This specification uses terminology from {{RFC6749}} (OAuth), {{RFC7591}} (client metadata and software statements), and {{CIMD}} (Client ID Metadata Documents), and the terms defined in Section 2 of {{STATEMENT}}.
 
 This specification defines the following terms.
 
@@ -87,7 +87,7 @@ Governing Statement:
 : The statement that bounds a statement-governed registration: the one consumed at registration or, after a renewal, the replacement that renewed it most recently ({{revalidation}}).
 
 Statement-Governed Registration:
-: An {{RFC7591}} client registration created from a statement under this specification: its validity is bound to its governing statement's effective expiry, and replacement statements renew it ({{registration-validity}}).
+: An {{RFC7591}} client registration created from a statement under this specification ({{registration-validity}}).
 
 # Consumption at Registration {#dcr-presentation}
 
