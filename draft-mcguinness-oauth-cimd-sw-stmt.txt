@@ -333,8 +333,8 @@ Table of Contents
    registry, and a trusting authorization server MUST NOT take client
    metadata from a statement's claims.
 
-   [CIMD] permits a CIMD to carry a software_statement member.  A
-   trusting authorization server MUST NOT consume a statement of this
+   A CIMD can carry a software_statement member (Section 4.3 of [CIMD]).
+   A trusting authorization server MUST NOT consume a statement of this
    profile from that member, and MUST NOT treat that member as
    satisfying any requirement of this specification.  Statements of
    other kinds in the member are out of scope for this specification.
@@ -757,10 +757,10 @@ Table of Contents
 
    Every retrieval this specification causes, of the CIMD, a jwks_uri it
    names, or the statements its software_statements_uri names, inherits
-   the server-side request forgery protections of [CIMD].  A trusted
-   signature does not make a URL safe: the authorization server MUST
-   apply its URL, redirect, address-range, transport, and content-type
-   policy independently to every referenced location.
+   the server-side request forgery protections in Section 8.6 of [CIMD].
+   A trusted signature does not make a URL safe: the authorization
+   server MUST apply its URL, redirect, address-range, transport, and
+   content-type policy independently to every referenced location.
 
    If a retrieval fails, the authorization server MUST reject the
    request and MUST NOT fall back to a weaker proof.  A failed pull of
