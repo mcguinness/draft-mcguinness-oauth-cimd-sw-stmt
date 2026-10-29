@@ -338,8 +338,9 @@ Table of Contents
       server holds a refusal record for the governing statement
       (Section 3.3 of [STATEMENT]), the registration ceases to be valid
       as it does at its effective expiry.  The client learns of the
-      withdrawal only from the rejection, and the disposition of
-      outstanding grants is local policy.
+      withdrawal only from the rejection, and whether the server revokes
+      access and refresh tokens already issued under the registration is
+      local policy.
 
    *  Once the registration ceases to be valid without a replacement
       (Section 3.3), the authorization server MUST reject authorization,
@@ -351,10 +352,10 @@ Table of Contents
       ceased to be valid for a later renewal (Section 9.4).
 
    An authorization server stores with each statement-governed
-   registration the governing statement's iss, jti, sub, and iat claims,
-   any claim by which a withdrawal mechanism locates that statement
-   (such as status), the registration's effective expiry, and any tenant
-   the registration is restricted to.
+   registration the governing statement and its iss, jti, sub, and iat
+   claims, any claim by which a withdrawal mechanism locates that
+   statement (such as status), the registration's effective expiry, and
+   any tenant the registration is restricted to.
 
    A server that uses a withdrawal mechanism for the governing
    statement's issuer SHOULD consult it for that statement at each token
@@ -520,11 +521,11 @@ Table of Contents
    key, redirection URI, or scope that the new review removed.
 
    On success, the replacement becomes the governing statement: the
-   authorization server MUST replace the stored claims of the governing
-   statement (Section 3.2), the effective expiry, and the registration's
-   metadata with the replacement's, and apply any tenant restriction it
-   adds (Section 3), in a single atomic update, and concurrent
-   deliveries resolve to the most recently issued statement.
+   authorization server MUST replace the stored governing statement and
+   its claims (Section 3.2), the effective expiry, and the
+   registration's metadata with the replacement's, and apply any tenant
+   restriction it adds (Section 3), in a single atomic update, and
+   concurrent deliveries resolve to the most recently issued statement.
 
    Access issued under the registration after that update, including on
    refresh of a grant issued before it, MUST fall within the re-derived
@@ -755,7 +756,9 @@ Table of Contents
    Open registration permits client_name, logo_uri, and client_uri
    values that imitate trusted software on consent screens (Section 5 of
    [RFC7591]).  Requiring a statement replaces self-asserted branding
-   with issuer-reviewed values.  Servers that render such values on
+   with issuer-reviewed values, though content served at a URL the
+   document carries, such as a logo, can change after review
+   (Section 14.1 of [STATEMENT]).  Servers that render such values on
    consent screens ought to prefer those from a reviewed document and to
    apply heightened scrutiny to registrations that claim user-visible
    branding without a statement.

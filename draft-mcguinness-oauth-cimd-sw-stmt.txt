@@ -692,9 +692,8 @@ Table of Contents
     +===============+=====================+==========================+
     | Token         | The request's       | Review-only              |
     | endpoint,     | client              |                          |
-    | opening a new | authentication or   |                          |
-    | grant         | DPoP proof binds    |                          |
-    |               | the presenter       |                          |
+    | opening a new | authentication      |                          |
+    | grant         | binds the presenter |                          |
     +---------------+---------------------+--------------------------+
     | Pushed        | The client's        | Section 5.4.1 binds the  |
     | authorization | authentication      | presenter if the request |
@@ -805,10 +804,11 @@ Table of Contents
 
    Except as Section 5.4.1 provides, the proven key MUST appear in the
    jwks or at the jwks_uri of the reviewed document (Section 5.5).  If
-   the reviewed document declares one or more client authentication
-   methods ([CIMD]), the presenter MUST use one of them.  The
-   authorization server MUST reject a presentation without such a proof,
-   or whose proven key the reviewed document does not carry.
+   the reviewed document declares a client authentication method in its
+   token_endpoint_auth_method member ([CIMD]), the presenter MUST use
+   that method.  The authorization server MUST reject a presentation
+   without such a proof, or whose proven key the reviewed document does
+   not carry.
 
    A key at the document's jwks_uri is retrieved at presentation time.
    If that retrieval does not complete (Section 5.3), the presentation
@@ -898,13 +898,15 @@ Table of Contents
    it.
 
    A match means the served document is the reviewed one, and its
-   members are the client's metadata for the request.  A mismatch means
-   the document changed after review, and the authorization server MUST
-   NOT treat the changed document as reviewed.  It rejects the
-   presentation with invalid_client or, by local policy, proceeds
-   without the statement.  If it proceeds, it applies its policy for
-   Client ID Metadata Document clients it has not reviewed to the
-   current document and creates no establishment for the statement.
+   members are the client's metadata for the request.  The server takes
+   those members from the octets whose digest matched, not from another
+   retrieval or a copy it has not digested.  A mismatch means the
+   document changed after review, and the authorization server MUST NOT
+   treat the changed document as reviewed.  It rejects the presentation
+   with invalid_client or, by local policy, proceeds without the
+   statement.  If it proceeds, it applies its policy for Client ID
+   Metadata Document clients it has not reviewed to the current document
+   and creates no establishment for the statement.
 
    The request is evaluated against the reviewed metadata as against any
    client's registered metadata ([RFC6749], [CIMD]): any requested grant
@@ -1031,12 +1033,13 @@ Table of Contents
        rechecks it as the recorded statement under steps 1 and 2.  When
        a replacement is needed and the request carries none, a server
        that supports pulled statements (Section 5.2) pulls, however the
-       establishment was created, and takes the newest statement with
-       the recorded statement's iss and sub as the replacement.  If the
-       newest is the recorded statement itself, nothing is replaced, and
-       the refresh is evaluated against the recorded statement.  A
-       reviewed grant never continues under the policy for clients the
-       server has not reviewed.
+       establishment was created, and takes as the replacement the
+       newest statement with the recorded statement's iss and sub among
+       those that section considers.  If the newest is the recorded
+       statement itself, nothing is replaced, and the refresh is
+       evaluated against the recorded statement.  A reviewed grant never
+       continues under the policy for clients the server has not
+       reviewed.
 
    4.  Validating the replacement.  If the refresh has a replacement,
        the following requirements apply to it:
@@ -1187,8 +1190,9 @@ Table of Contents
       [REGISTRATION], does not satisfy the requirements for one.  The
       client recovers by obtaining a statement issued more recently.
 
-   Whenever this specification requires a current statement on a
-   refresh-token request, statement_required replaces invalid_grant.
+   A refresh-token request rejected for lacking a current statement that
+   this specification requires uses statement_required in place of
+   invalid_grant.
 
 8.2.  Presentation
 
@@ -1657,7 +1661,9 @@ Table of Contents
    (Section 3.3).  Assurance about the software itself rests on the
    issuer's review process.  Any change to the document's octets,
    including one that changes no metadata value, makes statements over
-   the earlier octets fail the digest comparison (Section 5.5).
+   the earlier octets fail the digest comparison (Section 5.5).  The
+   digest covers a URL the document carries, such as logo_uri, but not
+   the content served at it, which can change after review.
 
    The following table states what admission under this specification
    does and does not establish:
@@ -1798,7 +1804,12 @@ Table of Contents
    for the life of its refresh tokens, whatever the statement's
    lifetime, unless the server requires a current statement on refresh,
    holds a refusal record, or finds the proven key gone from the
-   client's document (Section 5.6.1).
+   client's document (Section 5.6.1).  Removing an issuer from trust
+   configuration, or narrowing what it can attest, does not by itself
+   end a grant or a registration ([REGISTRATION]) already admitted on
+   one of its statements.  A server ends them by its own means, such as
+   entering refusal records, revoking refresh tokens, or deleting
+   registrations.
 
 14.8.  Observable State
 
@@ -1861,7 +1872,10 @@ Table of Contents
 
    This specification requests registration of the application/software-
    statement+jwt media type in the IANA "Media Types" registry
-   [RFC6838].
+   [RFC6838].  [RFC7591] defines no media type for software statements.
+   This registration covers only statements under this specification, as
+   its "Applications that use this media type" entry states, and a
+   statement of another profile carries a typ value of its own.
 
    Type name:  application
 
