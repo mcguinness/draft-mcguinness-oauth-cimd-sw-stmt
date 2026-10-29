@@ -1372,7 +1372,7 @@ svg {
 <p id="section-1.1-1">The following non-normative sequence summarizes admission under this profile:<a href="#section-1.1-1" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-1.1-2">
 <li id="section-1.1-2.1">
-            <p id="section-1.1-2.1.1">A publisher serves a Client ID Metadata Document declaring this instance binding, attestation-based client authentication, and loopback redirects. A statement issuer signs a software statement over its exact bytes.<a href="#section-1.1-2.1.1" class="pilcrow">¶</a></p>
+            <p id="section-1.1-2.1.1">A publisher serves a Client ID Metadata Document that selects this profile and declares attestation-based client authentication and loopback redirects. A statement issuer signs a software statement over its exact bytes.<a href="#section-1.1-2.1.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-1.1-2.2">
             <p id="section-1.1-2.2.1">An installation obtains an attestation from an accepted attester. The attestation names the client identifier URL, metadata digest, instance key, and evidence policy.<a href="#section-1.1-2.2.1" class="pilcrow">¶</a></p>
@@ -1403,32 +1403,22 @@ svg {
 "<span class="bcp14">MAY</span>", and "<span class="bcp14">OPTIONAL</span>" in this document are to be interpreted as
 described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="cite xref">RFC8174</a>]</span> when, and only when, they
 appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶</a></p>
-<p id="section-2-2">This specification uses terminology from <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>, <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>, and <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span>, and the terms Issuer, Runtime Presentation, Effective Expiry, Refusal Record, Current Statement, Review-Only, Establishment, Proven Key, and <code>iat</code> Floor from <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>. An installation is a Client Instance as defined by <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span>.<a href="#section-2-2" class="pilcrow">¶</a></p>
+<p id="section-2-2">This specification uses terminology from <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>, <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>, and <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span>, and the terms defined in Section 2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>. An installation is a Client Instance as defined by <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span>.<a href="#section-2-2" class="pilcrow">¶</a></p>
 <p id="section-2-3">This specification defines the following terms:<a href="#section-2-3" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-2-4">
-        <dt id="section-2-4.1">Instance Binding:</dt>
+        <dt id="section-2-4.1">Instance Attestation:</dt>
         <dd style="margin-left: 1.5em" id="section-2-4.2">
-          <p id="section-2-4.2.1">The association of a proven instance key with the reviewed software and metadata under this specification. It does not assign a global installation identifier.<a href="#section-2-4.2.1" class="pilcrow">¶</a></p>
+          <p id="section-2-4.2.1">A Client Attestation JWT under <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span>, profiled by <a href="#attestation" class="auto internal xref">Section 6</a>. It records an attester's association of a key with a client identifier URL and metadata digest under a named evidence policy. An instance attestation is current while its <code>exp</code> has not passed and its attester and evidence policy remain accepted.<a href="#section-2-4.2.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
-<dt id="section-2-4.3">Instance Attestation:</dt>
+<dt id="section-2-4.3">Evidence Policy:</dt>
         <dd style="margin-left: 1.5em" id="section-2-4.4">
-          <p id="section-2-4.4.1">A Client Attestation JWT under <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span>, profiled by <a href="#attestation" class="auto internal xref">Section 6</a>. It records an attester's association of a key with a client identifier URL and metadata digest under a named evidence policy. An instance attestation is current while its attestation effective expiry has not passed and its attester and evidence policy remain accepted.<a href="#section-2-4.4.1" class="pilcrow">¶</a></p>
+          <p id="section-2-4.4.1">A versioned set of requirements for establishing the association between software, an instance key, and reviewed metadata. It covers evidence collection, verification, freshness, and protection of key use.<a href="#section-2-4.4.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
-<dt id="section-2-4.5">Evidence Policy:</dt>
+<dt id="section-2-4.5">Attested Key:</dt>
         <dd style="margin-left: 1.5em" id="section-2-4.6">
-          <p id="section-2-4.6.1">A versioned set of requirements for establishing the association between software, an instance key, and reviewed metadata. It covers evidence collection, verification, freshness, and protection of key use.<a href="#section-2-4.6.1" class="pilcrow">¶</a></p>
-</dd>
-        <dd class="break"></dd>
-<dt id="section-2-4.7">Attested Key:</dt>
-        <dd style="margin-left: 1.5em" id="section-2-4.8">
-          <p id="section-2-4.8.1">The key an instance attestation's <code>cnf</code> claim names. Once an establishment records it, it is the establishment's proven key (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-2-4.8.1" class="pilcrow">¶</a></p>
-</dd>
-        <dd class="break"></dd>
-<dt id="section-2-4.9">Attestation Effective Expiry:</dt>
-        <dd style="margin-left: 1.5em" id="section-2-4.10">
-          <p id="section-2-4.10.1">An instance attestation's <code>exp</code>, which an accepted evidence policy bounds by the age of the attester's evidence (<a href="#trust" class="auto internal xref">Section 5</a>).<a href="#section-2-4.10.1" class="pilcrow">¶</a></p>
+          <p id="section-2-4.6.1">The key an instance attestation's <code>cnf</code> claim names.<a href="#section-2-4.6.1" class="pilcrow">¶</a></p>
 </dd>
       <dd class="break"></dd>
 </dl>
@@ -1466,7 +1456,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         <dt id="section-4-2.1">
 <code>software_statement_instance_binding</code>:</dt>
         <dd style="margin-left: 1.5em" id="section-4-2.2">
-          <p id="section-4-2.2.1"><span class="bcp14">OPTIONAL</span>. Boolean value. When <code>true</code>, the client requires the instance binding defined by this specification for admissions under this document. If absent or <code>false</code>, the document does not select this profile. A value of any other type is invalid.<a href="#section-4-2.2.1" class="pilcrow">¶</a></p>
+          <p id="section-4-2.2.1"><span class="bcp14">OPTIONAL</span>. Boolean value. When <code>true</code>, the client requires this profile for admissions under this document. If absent or <code>false</code>, the document does not select this profile. A value of any other type is invalid.<a href="#section-4-2.2.1" class="pilcrow">¶</a></p>
 </dd>
       <dd class="break"></dd>
 </dl>
@@ -1741,9 +1731,9 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <a href="#section-7.4" class="section-number selfRef">7.4. </a><a href="#name-authorization-code-redempti" class="section-name selfRef">Authorization Code Redemption</a>
         </h3>
 <p id="section-7.4-1">The client sends <code>grant_type=authorization_code</code>, the code, the same <code>client_id</code> and <code>redirect_uri</code>, and the PKCE <code>code_verifier</code>. It <span class="bcp14">MUST</span> authenticate with a current instance attestation and a fresh proof under the proven key. It does not send the <code>software_statement</code> parameter, which <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> prohibits on code redemption.<a href="#section-7.4-1" class="pilcrow">¶</a></p>
-<p id="section-7.4-2">Before issuing tokens, the server <span class="bcp14">MUST</span> verify the code and PKCE binding and every fixed establishment value in <a href="#establishment" class="auto internal xref">Section 7.2</a>. It <span class="bcp14">MUST</span> re-evaluate both trust decisions, require the recorded statement to be unexpired and not refused, and confirm that the current Client ID Metadata Document still matches its recorded digest and meets <a href="#client-metadata" class="auto internal xref">Section 4</a>. Retrieval and cache reuse use the reuse bounds of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>. The attestation <span class="bcp14">MUST</span> match that digest and be within its attestation effective expiry.<a href="#section-7.4-2" class="pilcrow">¶</a></p>
+<p id="section-7.4-2">Before issuing tokens, the server <span class="bcp14">MUST</span> verify the code and PKCE binding and every fixed establishment value in <a href="#establishment" class="auto internal xref">Section 7.2</a>. It <span class="bcp14">MUST</span> re-evaluate both trust decisions, require the recorded statement to be unexpired and not refused, and confirm that the current Client ID Metadata Document still matches its recorded digest and meets <a href="#client-metadata" class="auto internal xref">Section 4</a>. Retrieval and cache reuse use the reuse bounds of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>. The attestation <span class="bcp14">MUST</span> match that digest and not be past its <code>exp</code>.<a href="#section-7.4-2" class="pilcrow">¶</a></p>
 <p id="section-7.4-3">If the metadata changed or the recorded statement needs replacement, the client <span class="bcp14">MUST</span> start a new PAR transaction; code redemption cannot replace the governing review. A raised <code>iat</code> floor alone does not invalidate a code already bound to an acceptable recorded statement.<a href="#section-7.4-3" class="pilcrow">¶</a></p>
-<p id="section-7.4-4">The server <span class="bcp14">MUST</span> issue tokens only within the user's authorization, tenant policy, and reviewed metadata. It <span class="bcp14">MUST</span> bind any refresh token to the establishment, and <span class="bcp14">MUST</span> issue access tokens, at redemption and on refresh (<a href="#refresh" class="auto internal xref">Section 8</a>), bound to the proven key with a <code>token_type</code> of <code>DPoP</code> (Section 5 of <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>). The expiry of each access token, whether the token is a JWT or an opaque reference, <span class="bcp14">MUST NOT</span> be later than the attestation effective expiry accepted for the request that obtained it (<a href="#lifetime-practice" class="auto internal xref">Section 15.3</a>). A resource server that does not accept DPoP-bound access tokens cannot be used under this profile.<a href="#section-7.4-4" class="pilcrow">¶</a></p>
+<p id="section-7.4-4">The server <span class="bcp14">MUST</span> issue tokens only within the user's authorization, tenant policy, and reviewed metadata. It <span class="bcp14">MUST</span> bind any refresh token to the establishment, and <span class="bcp14">MUST</span> issue access tokens, at redemption and on refresh (<a href="#refresh" class="auto internal xref">Section 8</a>), bound to the proven key with a <code>token_type</code> of <code>DPoP</code> (Section 5 of <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>). The expiry of each access token, whether the token is a JWT or an opaque reference, <span class="bcp14">MUST NOT</span> be later than the <code>exp</code> of the instance attestation accepted for the request that obtained it (<a href="#lifetime-practice" class="auto internal xref">Section 15.3</a>). A resource server that does not accept DPoP-bound access tokens cannot be used under this profile.<a href="#section-7.4-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1768,7 +1758,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
       </h2>
 <p id="section-9-1">A known refusal record for the software statement is enforced as <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> requires. A current replacement can restore continuation only under <a href="#refresh" class="auto internal xref">Section 8</a>. A server using a statement withdrawal mechanism <span class="bcp14">SHOULD</span> consult it at code redemption, within that mechanism's freshness rules, as <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> provides for refresh. A failure to retrieve metadata, statements or their status, or trust updates <span class="bcp14">MUST NOT</span> extend a recorded expiry or remove a refusal.<a href="#section-9-1" class="pilcrow">¶</a></p>
 <p id="section-9-2">Because <a href="#attestation-validation" class="auto internal xref">Section 6.1</a> checks current attester trust and local denial rules at each pushed authorization request, code redemption, and refresh, removing an attester's authorization for this client and tenant, removing the policy, or denying the instance key prevents further use of the affected binding. A fresh attestation does not override those decisions. A server that cannot refresh trust data remains bound by the maximum reuse period of <a href="#trust" class="auto internal xref">Section 5</a>.<a href="#section-9-2" class="pilcrow">¶</a></p>
-<p id="section-9-3">This specification defines no interoperable attestation or instance revocation protocol. Without an instance revocation mechanism, attestation effective expiry bounds acceptance of evidence that has become stale without the server learning of it. Withdrawal of a review, removal of trust, and denial of an instance key do not themselves revoke access tokens already issued (<a href="#revocation-practice" class="auto internal xref">Section 15.1</a>).<a href="#section-9-3" class="pilcrow">¶</a></p>
+<p id="section-9-3">This specification defines no interoperable attestation or instance revocation protocol. Without an instance revocation mechanism, an instance attestation's <code>exp</code> bounds acceptance of evidence that has become stale without the server learning of it. Withdrawal of a review, removal of trust, and denial of an instance key do not themselves revoke access tokens already issued (<a href="#revocation-practice" class="auto internal xref">Section 15.1</a>).<a href="#section-9-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="core-exceptions">

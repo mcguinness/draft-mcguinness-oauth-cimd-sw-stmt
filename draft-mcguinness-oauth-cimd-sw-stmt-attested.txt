@@ -193,9 +193,9 @@ Table of Contents
    The following non-normative sequence summarizes admission under this
    profile:
 
-   1.  A publisher serves a Client ID Metadata Document declaring this
-       instance binding, attestation-based client authentication, and
-       loopback redirects.  A statement issuer signs a software
+   1.  A publisher serves a Client ID Metadata Document that selects
+       this profile and declares attestation-based client authentication
+       and loopback redirects.  A statement issuer signs a software
        statement over its exact bytes.
 
    2.  An installation obtains an attestation from an accepted attester.
@@ -228,23 +228,18 @@ Table of Contents
    capitals, as shown here.
 
    This specification uses terminology from [RFC6749], [RFC7591],
-   [CIMD], and [ABCA], and the terms Issuer, Runtime Presentation,
-   Effective Expiry, Refusal Record, Current Statement, Review-Only,
-   Establishment, Proven Key, and iat Floor from [STATEMENT].  An
-   installation is a Client Instance as defined by [ABCA].
+   [CIMD], and [ABCA], and the terms defined in Section 2 of
+   [STATEMENT].  An installation is a Client Instance as defined by
+   [ABCA].
 
    This specification defines the following terms:
-
-   Instance Binding:  The association of a proven instance key with the
-      reviewed software and metadata under this specification.  It does
-      not assign a global installation identifier.
 
    Instance Attestation:  A Client Attestation JWT under [ABCA],
       profiled by Section 6.  It records an attester's association of a
       key with a client identifier URL and metadata digest under a named
-      evidence policy.  An instance attestation is current while its
-      attestation effective expiry has not passed and its attester and
-      evidence policy remain accepted.
+      evidence policy.  An instance attestation is current while its exp
+      has not passed and its attester and evidence policy remain
+      accepted.
 
    Evidence Policy:  A versioned set of requirements for establishing
       the association between software, an instance key, and reviewed
@@ -252,12 +247,6 @@ Table of Contents
       and protection of key use.
 
    Attested Key:  The key an instance attestation's cnf claim names.
-      Once an establishment records it, it is the establishment's proven
-      key ([STATEMENT]).
-
-   Attestation Effective Expiry:  An instance attestation's exp, which
-      an accepted evidence policy bounds by the age of the attester's
-      evidence (Section 5).
 
    The software statement's issuer and the client attester are separate
    roles.  One entity can perform both, but neither role implies trust
@@ -323,10 +312,9 @@ Table of Contents
    Metadata Document:
 
    software_statement_instance_binding:  OPTIONAL.  Boolean value.  When
-      true, the client requires the instance binding defined by this
-      specification for admissions under this document.  If absent or
-      false, the document does not select this profile.  A value of any
-      other type is invalid.
+      true, the client requires this profile for admissions under this
+      document.  If absent or false, the document does not select this
+      profile.  A value of any other type is invalid.
 
    A document selecting this profile MUST meet all of the following
    requirements:
@@ -754,8 +742,8 @@ Table of Contents
    be unexpired and not refused, and confirm that the current Client ID
    Metadata Document still matches its recorded digest and meets
    Section 4.  Retrieval and cache reuse use the reuse bounds of
-   [STATEMENT].  The attestation MUST match that digest and be within
-   its attestation effective expiry.
+   [STATEMENT].  The attestation MUST match that digest and not be past
+   its exp.
 
    If the metadata changed or the recorded statement needs replacement,
    the client MUST start a new PAR transaction; code redemption cannot
@@ -768,9 +756,9 @@ Table of Contents
    on refresh (Section 8), bound to the proven key with a token_type of
    DPoP (Section 5 of [RFC9449]).  The expiry of each access token,
    whether the token is a JWT or an opaque reference, MUST NOT be later
-   than the attestation effective expiry accepted for the request that
-   obtained it (Section 15.3).  A resource server that does not accept
-   DPoP-bound access tokens cannot be used under this profile.
+   than the exp of the instance attestation accepted for the request
+   that obtained it (Section 15.3).  A resource server that does not
+   accept DPoP-bound access tokens cannot be used under this profile.
 
 8.  Refresh
 
@@ -845,8 +833,8 @@ Table of Contents
    remains bound by the maximum reuse period of Section 5.
 
    This specification defines no interoperable attestation or instance
-   revocation protocol.  Without an instance revocation mechanism,
-   attestation effective expiry bounds acceptance of evidence that has
+   revocation protocol.  Without an instance revocation mechanism, an
+   instance attestation's exp bounds acceptance of evidence that has
    become stale without the server learning of it.  Withdrawal of a
    review, removal of trust, and denial of an instance key do not
    themselves revoke access tokens already issued (Section 15.1).
