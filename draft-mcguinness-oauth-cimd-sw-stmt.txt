@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         28 October 2026
-Expires: 1 May 2027
+Intended status: Standards Track                         29 October 2026
+Expires: 2 May 2027
 
 
              Client ID Metadata Document Software Statement
@@ -41,7 +41,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 1 May 2027.
+   This Internet-Draft will expire on 2 May 2027.
 
 Copyright Notice
 
@@ -93,7 +93,7 @@ Table of Contents
    9.  Examples
      9.1.  Presenting at the Token Endpoint
      9.2.  Publishing a Statement for Servers to Pull
-     9.3.  A Statement, Decoded
+     9.3.  Statement Header and Payload
    10. Authorization Server Metadata
    11. Extension Points
    12. Implementation Considerations
@@ -108,13 +108,13 @@ Table of Contents
      13.3.  Statement Lifetime and Renewal
      13.4.  Withdrawal Practice
    14. Security Considerations
-     14.1.  What a Statement Attests
+     14.1.  Assurance Provided by a Statement
      14.2.  Statement Theft and Replay
      14.3.  Servers That Do Not Implement This Specification
      14.4.  Copied Statements and Public Clients
      14.5.  Tenant Confusion at a Multi-Tenant Authorization Server
      14.6.  External Retrieval and Resource Exhaustion
-     14.7.  Statement Lifetime
+     14.7.  Expiry, Withdrawal, and Open Grants
      14.8.  Observable State
    15. Privacy Considerations
    16. IANA Considerations
@@ -1483,7 +1483,7 @@ Table of Contents
    document it retrieved.  It completes the binding when the client
    authenticates with private_key_jwt at code redemption (Section 5.2).
 
-9.3.  A Statement, Decoded
+9.3.  Statement Header and Payload
 
    The following is an example of the JOSE header and payload of a
    statement over the document in the previous example, served exactly
@@ -1735,7 +1735,7 @@ Table of Contents
    The security considerations of [CIMD] and Section 5 of [RFC7591]
    apply.
 
-14.1.  What a Statement Attests
+14.1.  Assurance Provided by a Statement
 
    A statement binds an issuer's review to the octets of a Client ID
    Metadata Document, which describes an OAuth client configuration,
@@ -1882,7 +1882,7 @@ Table of Contents
    none.  The bounds that Section 12.2 describes limit this work but do
    not prevent it.
 
-14.7.  Statement Lifetime
+14.7.  Expiry, Withdrawal, and Open Grants
 
    Expiry and withdrawal (Section 3.3) govern new admissions.  Neither
    revokes an issued access token.  A grant opened by a statement lasts

@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         28 October 2026
-Expires: 1 May 2027
+Intended status: Standards Track                         29 October 2026
+Expires: 2 May 2027
 
 
         Client ID Metadata Document Software Statement Issuance
@@ -47,7 +47,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 1 May 2027.
+   This Internet-Draft will expire on 2 May 2027.
 
 Copyright Notice
 
@@ -68,7 +68,7 @@ Table of Contents
    1.  Introduction
    2.  Conventions and Definitions
    3.  Protocol Overview
-     3.1.  Redirect Flow Overview
+     3.1.  Redirect Flow
    4.  Client Identification and Authentication
      4.1.  Metadata Snapshot
    5.  Token Exchange Profile
@@ -95,8 +95,8 @@ Table of Contents
      15.3.  Deferral Lifetimes
      15.4.  Signing Keys
    16. Security Considerations
-     16.1.  A Software Statement Is Not an Access Grant
-     16.2.  What Issuance Attests
+     16.1.  Software Statements and Access Grants
+     16.2.  Assurance Provided by Issuance
      16.3.  Client Metadata Retrieval
      16.4.  Authorization Response Security
      16.5.  Token Exchange Considerations
@@ -222,7 +222,7 @@ Table of Contents
    |   Server 1    |  |   Server 2    |       |   Server M    |
    +---------------+  +---------------+       +---------------+
 
-3.1.  Redirect Flow Overview
+3.1.  Redirect Flow
 
    +--------+                                  +----------------------+
    | Client |                                  | Authorization Server |
@@ -1040,7 +1040,7 @@ Table of Contents
 
    The security considerations of [STATEMENT] apply.
 
-16.1.  A Software Statement Is Not an Access Grant
+16.1.  Software Statements and Access Grants
 
    A software statement grants no resource access or consent on behalf
    of the software's users, and a protected resource does not accept one
@@ -1052,7 +1052,7 @@ Table of Contents
    authorization server in the statement's audience until expiry
    (Section 14.3, Section 15.2).
 
-16.2.  What Issuance Attests
+16.2.  Assurance Provided by Issuance
 
    A software statement means only that its issuer evaluated the
    document captured in the metadata snapshot (Section 4.1) under its

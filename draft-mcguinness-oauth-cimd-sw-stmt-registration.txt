@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         28 October 2026
-Expires: 1 May 2027
+Intended status: Standards Track                         29 October 2026
+Expires: 2 May 2027
 
 
       Client ID Metadata Document Software Statement Registration
@@ -39,7 +39,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 1 May 2027.
+   This Internet-Draft will expire on 2 May 2027.
 
 Copyright Notice
 
@@ -73,7 +73,7 @@ Table of Contents
      8.1.  Renewal Cadence
    9.  Security Considerations
      9.1.  Statements at Registration
-     9.2.  Renewal Authenticates the Credential
+     9.2.  Credential Theft and Renewal
      9.3.  Registration Fraud and Impersonation
      9.4.  Observable State
    10. Privacy Considerations
@@ -765,7 +765,7 @@ Table of Contents
    considerations of Section 14.4 of [STATEMENT] describe for a holder
    that controls the user agent.
 
-9.2.  Renewal Authenticates the Credential
+9.2.  Credential Theft and Renewal
 
    Renewal proves possession of the registration's credential and the
    currency of a statement sharing the governing statement's iss and

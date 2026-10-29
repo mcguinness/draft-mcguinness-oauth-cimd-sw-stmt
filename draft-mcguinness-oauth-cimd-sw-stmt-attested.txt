@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         28 October 2026
-Expires: 1 May 2027
+Intended status: Standards Track                         29 October 2026
+Expires: 2 May 2027
 
 
     Attested Instance Keys for Client ID Metadata Document Software
@@ -45,7 +45,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 1 May 2027.
+   This Internet-Draft will expire on 2 May 2027.
 
 Copyright Notice
 
@@ -89,7 +89,7 @@ Table of Contents
    12. Examples
      12.1.  Reviewed Client Metadata
      12.2.  Instance Attestation
-     12.3.  PAR and Redemption
+     12.3.  Pushed Authorization Request and Code Redemption
      12.4.  Refresh and Replacement
    13. Authorization Server Metadata
    14. Implementation Considerations
@@ -1118,7 +1118,7 @@ Table of Contents
    The public key represents one installation; it is absent from the
    shared document.
 
-12.3.  PAR and Redemption
+12.3.  Pushed Authorization Request and Code Redemption
 
    The following is an example of a pushed authorization request that
    the client sends after obtaining a DPoP nonce (line breaks for

@@ -1050,7 +1050,7 @@ svg {
 </tr></thead>
 <tfoot><tr>
 <td class="left">McGuinness</td>
-<td class="center">Expires 1 May 2027</td>
+<td class="center">Expires 2 May 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1063,12 +1063,12 @@ svg {
 <dd class="internet-draft">draft-mcguinness-oauth-cimd-sw-stmt-status-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-10-28" class="published">28 October 2026</time>
+<time datetime="2026-10-29" class="published">29 October 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2027-05-01">1 May 2027</time></dd>
+<dd class="expires"><time datetime="2027-05-02">2 May 2027</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1102,7 +1102,7 @@ svg {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 1 May 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 2 May 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1197,10 +1197,10 @@ svg {
                 <p id="section-toc.1-1.11.2.1.1"><a href="#section-11.1" class="auto internal xref">11.1</a>.  <a href="#name-status-resolution-schedule" class="internal xref">Status Resolution Schedule</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.2">
-                <p id="section-toc.1-1.11.2.2.1"><a href="#section-11.2" class="auto internal xref">11.2</a>.  <a href="#name-what-an-event-cannot-do" class="internal xref">What an Event Cannot Do</a></p>
+                <p id="section-toc.1-1.11.2.2.1"><a href="#section-11.2" class="auto internal xref">11.2</a>.  <a href="#name-forged-and-replayed-events" class="internal xref">Forged and Replayed Events</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.3">
-                <p id="section-toc.1-1.11.2.3.1"><a href="#section-11.3" class="auto internal xref">11.3</a>.  <a href="#name-status-remains-the-authorit" class="internal xref">Status Remains the Authority</a></p>
+                <p id="section-toc.1-1.11.2.3.1"><a href="#section-11.3" class="auto internal xref">11.3</a>.  <a href="#name-event-suppression" class="internal xref">Event Suppression</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.4">
                 <p id="section-toc.1-1.11.2.4.1"><a href="#section-11.4" class="auto internal xref">11.4</a>.  <a href="#name-key-separation-and-compromi" class="internal xref">Key Separation and Compromise</a></p>
@@ -1501,19 +1501,19 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <p id="section-11.1-1">Because <span>[<a href="#STATUSLIST" class="cite xref">STATUSLIST</a>]</span> aggregates many statements into one list, a retrieval tells the issuer only that some trusting authorization server is checking. Retrieving the list on its own schedule (<a href="#status-resolution" class="auto internal xref">Section 3.2</a>) keeps the server's request timing from disclosing the client population it serves, and keeps each request a statement governs independent of issuer availability.<a href="#section-11.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="what-an-event-cannot-do">
+<div id="forged-and-replayed-events">
 <section id="section-11.2">
-        <h3 id="name-what-an-event-cannot-do">
-<a href="#section-11.2" class="section-number selfRef">11.2. </a><a href="#name-what-an-event-cannot-do" class="section-name selfRef">What an Event Cannot Do</a>
+        <h3 id="name-forged-and-replayed-events">
+<a href="#section-11.2" class="section-number selfRef">11.2. </a><a href="#name-forged-and-replayed-events" class="section-name selfRef">Forged and Replayed Events</a>
         </h3>
 <p id="section-11.2-1">An event names no status, so a forged, replayed, delayed, or reordered event cannot change whether any statement stands. Its only effect is a resolution the receiver would otherwise have performed on its own schedule.<a href="#section-11.2-1" class="pilcrow">¶</a></p>
 <p id="section-11.2-2">The remaining exposure is resource cost: an attacker holding the issuer's SET signing key, or a misbehaving transmitter, can trigger resolutions (<a href="#event-resolution" class="auto internal xref">Section 9.1</a>).<a href="#section-11.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="status-remains-the-authority">
+<div id="event-suppression">
 <section id="section-11.3">
-        <h3 id="name-status-remains-the-authorit">
-<a href="#section-11.3" class="section-number selfRef">11.3. </a><a href="#name-status-remains-the-authorit" class="section-name selfRef">Status Remains the Authority</a>
+        <h3 id="name-event-suppression">
+<a href="#section-11.3" class="section-number selfRef">11.3. </a><a href="#name-event-suppression" class="section-name selfRef">Event Suppression</a>
         </h3>
 <p id="section-11.3-1">Because a receiver resolves status independently (<a href="#processing" class="auto internal xref">Section 7</a>), an attacker who suppresses events delays a withdrawal at most until the receiver's next scheduled resolution and, for new admissions, never beyond the affected statements' effective expiry (<a href="#schedule-practice" class="auto internal xref">Section 10.2</a>). Grants already open continue until a refresh at which the receiver holds a refusal record, which <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> then rejects unless it carries an acceptable replacement.<a href="#section-11.3-1" class="pilcrow">¶</a></p>
 <p id="section-11.3-2">The absence of events looks the same on a healthy stream and a suppressed one. Periodic stream verification (<a href="#configuration" class="auto internal xref">Section 8</a>) makes the difference observable (<a href="#stream-practice" class="auto internal xref">Section 10.1</a>).<a href="#section-11.3-2" class="pilcrow">¶</a></p>

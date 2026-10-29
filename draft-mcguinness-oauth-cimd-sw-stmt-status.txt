@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         28 October 2026
-Expires: 1 May 2027
+Intended status: Standards Track                         29 October 2026
+Expires: 2 May 2027
 
 
          Client ID Metadata Document Software Statement Status
@@ -38,7 +38,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 1 May 2027.
+   This Internet-Draft will expire on 2 May 2027.
 
 Copyright Notice
 
@@ -75,8 +75,8 @@ Table of Contents
      10.2.  Resolution Schedule and Lifetimes
    11. Security Considerations
      11.1.  Status Resolution Schedule
-     11.2.  What an Event Cannot Do
-     11.3.  Status Remains the Authority
+     11.2.  Forged and Replayed Events
+     11.3.  Event Suppression
      11.4.  Key Separation and Compromise
    12. Privacy Considerations
    13. IANA Considerations
@@ -445,7 +445,7 @@ Table of Contents
    client population it serves, and keeps each request a statement
    governs independent of issuer availability.
 
-11.2.  What an Event Cannot Do
+11.2.  Forged and Replayed Events
 
    An event names no status, so a forged, replayed, delayed, or
    reordered event cannot change whether any statement stands.  Its only
@@ -456,7 +456,7 @@ Table of Contents
    issuer's SET signing key, or a misbehaving transmitter, can trigger
    resolutions (Section 9.1).
 
-11.3.  Status Remains the Authority
+11.3.  Event Suppression
 
    Because a receiver resolves status independently (Section 7), an
    attacker who suppresses events delays a withdrawal at most until the
