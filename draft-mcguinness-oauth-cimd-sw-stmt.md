@@ -321,7 +321,7 @@ The presenter of a pulled statement is bound as for a presented statement ({{sen
 
 | Where the statement is pulled | Confidential client | Public client |
 | --- | --- | --- |
-| Token endpoint, opening a new grant | The request's client authentication or DPoP proof binds the presenter | Review-only |
+| Token endpoint, opening a new grant | The request's client authentication binds the presenter | Review-only |
 | Pushed authorization request endpoint | The client's authentication binds the presenter | {{public-client-presentation}} binds the presenter if the request uses PKCE with `S256` and binds a key through a DPoP proof or `dpop_jkt`. Otherwise review-only |
 | Authorization endpoint | The client's authentication at code redemption binds the presenter, before any token is issued | {{public-client-presentation}} binds the presenter if the request uses PKCE with `S256` and binds a key through `dpop_jkt`, which redemption then proves. Otherwise review-only |
 
@@ -355,7 +355,7 @@ A presentation under a document carrying a redirection URI another application c
 
 A runtime presentation MUST be sender-constrained by a key the statement attests or, under {{public-client-presentation}}, by the key the presenter binds there. The presenter proves possession of that key through the applicable client authentication method or a DPoP proof {{RFC9449}}. If a request carries both, the key its client authentication proves is the proven key. The proof MUST be bound to the current request and validated with the replay protections of that mechanism.
 
-Except as {{public-client-presentation}} provides, the proven key MUST appear in the `jwks` or at the `jwks_uri` of the reviewed document ({{effective-metadata}}). If the reviewed document declares one or more client authentication methods ({{CIMD}}), the presenter MUST use one of them. The authorization server MUST reject a presentation without such a proof, or whose proven key the reviewed document does not carry.
+Except as {{public-client-presentation}} provides, the proven key MUST appear in the `jwks` or at the `jwks_uri` of the reviewed document ({{effective-metadata}}). If the reviewed document declares a client authentication method in its `token_endpoint_auth_method` member ({{CIMD}}), the presenter MUST use that method. The authorization server MUST reject a presentation without such a proof, or whose proven key the reviewed document does not carry.
 
 A key at the document's `jwks_uri` is retrieved at presentation time. If that retrieval does not complete ({{processing}}), the presentation is rejected with `temporarily_unavailable`. A server MAY reuse a retrieved key set only within ordinary HTTP caching bounds and a maximum reuse period of its own choosing, and MUST NOT let the client's cache directives alone determine how long a removed key continues to verify ({{statement-validation}}).
 
