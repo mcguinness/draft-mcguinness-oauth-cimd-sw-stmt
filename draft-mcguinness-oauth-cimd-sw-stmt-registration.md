@@ -300,7 +300,7 @@ If the publisher's statement permits presentation and the server supports it, th
 
 A public-client registration ({{public-client-registration}}) has no credential to take and is answered idempotently, so its first registrant gains nothing over later ones. Any holder of a copy can use it, as any party can use a public client's identifier. Authorization codes under it reach only the reviewed redirection URIs, and its grants are bound to keys that installations hold. A holder of a copy therefore gains what it would gain at runtime, including the exposure the copied-statement considerations of Section 14.4 of {{STATEMENT}} describe for a holder that controls the user agent.
 
-## Renewal Authenticates the Credential {#renewal-credential}
+## Credential Theft and Renewal {#renewal-credential}
 
 Renewal proves possession of the registration's credential and the currency of a statement sharing the governing statement's `iss` and `sub`, not that the renewing party is the reviewed software. An attacker holding a stolen client credential can renew indefinitely with each newer statement for that software. Such statements are distributed to every deployment of the software. A public-client registration has no credential, so its renewal proves only that the replacement is current. No protection is lost, since any party can already use that registration.
 
