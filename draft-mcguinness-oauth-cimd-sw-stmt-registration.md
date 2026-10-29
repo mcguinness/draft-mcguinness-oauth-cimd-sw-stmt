@@ -112,9 +112,9 @@ If the statement's decision is confined to one of the authorization server's ten
 * A registration created from a statement whose decision is not confined to a tenant carries no tenant restriction under this specification until such a renewal.
 * In a tenant where the authorization server requires a tenant-scoped decision (Section 3.2 of {{STATEMENT}}), it MUST treat a request under a registration that carries no tenant restriction under this specification as a request from a client it has not registered unless, once it has authenticated the client against the registration and evaluated any replacement the request delivers ({{revalidation}}), the registration is restricted to that tenant.
 
-Registration has no review-only form.
+Unlike runtime presentation (Section 5 of {{STATEMENT}}), registration has no review-only form: the registration is the admission.
 
-At registration a statement is a bearer artifact, so a request-supplied value for a member the document omits, such as a `jwks` member beside a document naming only `jwks_uri`, would give any holder of a copy a registration with reviewed branding and the holder's own key. Registering a document that omits `token_endpoint_auth_method` under the {{RFC7591}} default, a shared-secret method, would issue a client secret to any holder of a copy. Software whose document declares `token_endpoint_auth_method` of `none` and that the server does not register under {{public-client-registration}} can instead use runtime presentation if it meets the public-client binding requirements of Section 5.4.1 of {{STATEMENT}}.
+Taking every value from the document prevents metadata substitution. At registration a statement is a bearer artifact, so a request-supplied value for a member the document omits, such as a `jwks` member beside a document naming only `jwks_uri`, would give any holder of a copy a registration with reviewed branding and the holder's own key. Registering a document that omits `token_endpoint_auth_method` under the {{RFC7591}} default, a shared-secret method, would issue a client secret to any holder of a copy. Software whose document declares `token_endpoint_auth_method` of `none` and that the server does not register under {{public-client-registration}} can instead use runtime presentation if it meets the public-client binding requirements of Section 5.4.1 of {{STATEMENT}}.
 
 The retrieval requirements of Sections 3.1 and 5.3 of {{STATEMENT}} apply to retrieving the document as they apply to a runtime presentation, and a server can apply the bounds that specification describes. Following the order of Section 5.3 of {{STATEMENT}}, the authorization server completes every check that needs no client-controlled retrieval before resolving the document.
 
@@ -154,7 +154,7 @@ Rejections under a registration that is not valid, and under the required-issuer
 
 {{RFC7592}} read and delete requests are not rejected.
 
-If an authorization server creates a confidential-client registration that permits no grant obtaining tokens without an authorization request or refresh token, such as the client credentials grant or an assertion grant, and for which it does not support {{RFC7592}} update requests, it MUST publish the `pushed_authorization_request_endpoint` metadata value.
+If an authorization server creates a confidential-client registration that permits no grant obtaining tokens without an authorization request or refresh token, such as the client credentials grant or an assertion grant, and for which it does not support {{RFC7592}} update requests, it MUST publish the `pushed_authorization_request_endpoint` metadata value. That registration's client could otherwise renew only while it holds a refresh token ({{revalidation}}).
 
 The `registration_expires_at` member is a NumericDate (Section 2 of {{RFC7519}}) giving the latest time the registration remains valid or, for a registration that has ceased to be valid, the time it ceased. The authorization server:
 
@@ -181,7 +181,7 @@ A statement with the governing statement's `iss` and `sub` and an `iat` no later
 | A statement with the governing statement's `iss` and `sub` and a later `iat` | A replacement, evaluated below |
 | Any other statement, such as one with another `iss` or `sub` | Fails the replacement rules below |
 
-A request that carries no replacement leaves the registration unchanged, and the request proceeds only while the registration remains valid ({{registration-validity}}). While the registration is valid, its governing statement is current, even after a later statement has raised the `iat` floor of Section 6 of {{STATEMENT}}, and satisfies any requirement the server has for a current statement on refresh.
+A request that carries no replacement leaves the registration unchanged, and the request proceeds only while the registration remains valid ({{registration-validity}}). An {{RFC7592}} update request repeats, unmodified, the statement that a registration, read, or update response returned (Section 3.2.1 of {{RFC7591}}; Section 2.2 of {{RFC7592}}), which can be older than the governing statement after a token or pushed authorization request has renewed the registration. While the registration is valid, its governing statement is current, even after a later statement has raised the `iat` floor of Section 6 of {{STATEMENT}}, and satisfies any requirement the server has for a current statement on refresh.
 
 An {{RFC7592}} read or update response returns the governing statement as its `software_statement` member.
 
