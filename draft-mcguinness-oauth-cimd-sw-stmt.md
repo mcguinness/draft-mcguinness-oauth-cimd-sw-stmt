@@ -764,7 +764,7 @@ The security considerations of {{CIMD}} and Section 5 of {{RFC7591}} apply.
 
 ## Assurance Provided by a Statement {#what-statement-attests}
 
-A statement binds an issuer's review to the octets of a Client ID Metadata Document, which describes an OAuth client configuration. It does not bind the software's code, dependencies, or behavior. Software can change while its document stays the same, and the statement remains acceptable until it expires or is withdrawn ({{withdrawal}}). Assurance about the software itself rests on the issuer's review process. Any change to the document's octets, including one that changes no metadata value, makes statements over the earlier octets fail the digest comparison ({{effective-metadata}}).
+A statement binds an issuer's review to the octets of a Client ID Metadata Document, which describes an OAuth client configuration. It does not bind the software's code, dependencies, or behavior. Software can change while its document stays the same, and the statement remains acceptable until it expires or is withdrawn ({{withdrawal}}). Assurance about the software itself rests on the issuer's review process. Any change to the document's octets, including one that changes no metadata value, makes statements over the earlier octets fail the digest comparison ({{effective-metadata}}). The digest covers a URL the document carries, such as `logo_uri`, but not the content served at it, which can change after review.
 
 The following table states what admission under this specification does and does not establish:
 
