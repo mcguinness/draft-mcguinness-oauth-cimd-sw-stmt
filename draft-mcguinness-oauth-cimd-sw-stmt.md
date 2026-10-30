@@ -488,7 +488,12 @@ A presentation rejected at the token or pushed authorization request endpoint fo
 : The statement is expired ({{statement-required}}), or a required statement is absent, including one from an issuer required for the tenant ({{issuer-trust}}).
 
 `unauthorized_client`:
-: The request exceeds the reviewed document's grant types or response types ({{effective-metadata}}), the document carries metadata this server's policy refuses, or the client is review-only where policy or a required issuer requires reviewed software ({{review-only}}), or the request is for software a required issuer excludes from the tenant ({{issuer-trust}}), in place of `statement_required`.
+: Any of the following, in place of `statement_required` if both apply:
+
+  * The request exceeds the reviewed document's grant types or response types ({{effective-metadata}}).
+  * The document carries metadata this server's policy refuses.
+  * The client is review-only where policy or a required issuer requires reviewed software ({{review-only}}).
+  * The request is for software a required issuer excludes from the tenant ({{issuer-trust}}).
 
 `invalid_scope`:
 : The request exceeds the reviewed document's scope ({{effective-metadata}}), or the document carries a scope this server's policy refuses.
