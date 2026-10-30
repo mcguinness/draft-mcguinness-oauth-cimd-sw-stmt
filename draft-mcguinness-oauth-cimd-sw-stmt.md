@@ -459,11 +459,17 @@ A trust mark {{OPENID-FED}} is also a signed third-party assertion about an enti
 
 # Error Responses {#errors}
 
-A rejection uses the error response and HTTP status codes of its endpoint: Section 5.2 of {{RFC6749}} at the token endpoint, Section 2.3 of {{RFC9126}} at the pushed authorization request endpoint, and Section 4.1.2.1 of {{RFC6749}} at the authorization endpoint.
+A rejection uses the error response and HTTP status codes of its endpoint: Section 5.2 of {{RFC6749}} at the token endpoint, Section 2.3 of {{RFC9126}} at the pushed authorization request endpoint, and Section 4.1.2.1 of {{RFC6749}} at the authorization endpoint. {{REGISTRATION}} defines rejections at a registration endpoint and how registration validity is reported.
 
-At the token and pushed authorization request endpoints, an authorization server SHOULD respond with HTTP status code 503 to a request it rejects with the `temporarily_unavailable` error code. {{REGISTRATION}} defines rejections at a registration endpoint and how registration validity is reported.
+A rejection for a reason this specification defines uses the first of the following error codes that applies:
 
-This specification assigns `temporarily_unavailable` only to a retrieval that did not complete ({{retrieval}}), never to a response over the size bound of {{metadata-digest}}. A request carrying the `software_statement` parameter in a role {{runtime-presentation}} does not permit is rejected with `invalid_request`.
+1. `invalid_request`, if the request carries the `software_statement` parameter in a role {{runtime-presentation}} does not permit.
+2. `temporarily_unavailable`, if a retrieval the request needs did not complete ({{retrieval}}), including a pull of statements ({{pulled-statements}}) or the retrieval of a statement key set needed to verify a pulled statement. A response over the size bound of {{metadata-digest}} is not such a retrieval.
+3. The code that {{presentation-errors}}, {{continuation-errors}}, or {{authorization-errors}} assigns.
+
+At the token and pushed authorization request endpoints, an authorization server SHOULD respond with HTTP status code 503 to a request it rejects with the `temporarily_unavailable` error code.
+
+A rejection for another reason, such as an assertion grant whose assertion is invalid (Section 3.1 of {{RFC7523}}) or an expired or revoked refresh token, uses the error code its grant or endpoint assigns. An extension such as {{LIFECYCLE}} assigns codes to the rejections it defines.
 
 ## Statement Required Error {#statement-required}
 
@@ -474,7 +480,7 @@ This specification defines the following error code:
 
 ## Presentation Requests {#presentation-errors}
 
-A presentation rejected at the token or pushed authorization request endpoint for a reason this specification defines uses `temporarily_unavailable` if a retrieval it needs, including a pull of statements ({{pulled-statements}}), did not complete, and otherwise the following error codes:
+A presentation at the token or pushed authorization request endpoint is rejected with the following error codes:
 
 `invalid_client`:
 : Any of the following:
@@ -501,14 +507,9 @@ A presentation rejected at the token or pushed authorization request endpoint fo
 `invalid_request`:
 : The request omits `client_id` ({{runtime-presentation}}).
 
-A request rejected for another reason, such as an assertion grant whose assertion is invalid (Section 3.1 of {{RFC7523}}), uses the error code its grant or endpoint assigns.
-
 ## Code Redemption and Refresh {#continuation-errors}
 
 Under an establishment, code redemption ({{grant-lifecycle}}) is rejected with the following error codes:
-
-`invalid_request`:
-: The request carries a statement.
 
 `invalid_grant`:
 : The request has a wrong client identifier or fails the key binding.
@@ -516,7 +517,7 @@ Under an establishment, code redemption ({{grant-lifecycle}}) is rejected with t
 `invalid_client`:
 : The bound on establishments is reached ({{establishment-bounds}}).
 
-Under an establishment, a refresh-token request rejected for a reason this specification defines uses `temporarily_unavailable` if a retrieval it needs did not complete, and otherwise the following error codes:
+Under an establishment, a refresh-token request is rejected with the following error codes:
 
 `invalid_grant`:
 : A check of {{refresh}} fails.
@@ -524,9 +525,7 @@ Under an establishment, a refresh-token request rejected for a reason this speci
 `unauthorized_client` or `invalid_scope`:
 : The refreshed access exceeds the reviewed metadata or this server's policy, as for a presentation.
 
-An extension such as {{LIFECYCLE}} assigns codes to the refresh rejections it defines.
-
-None of these rejections indicates refresh-token replay ({{RFC9700}}), whose detection this specification does not change. A refresh-token request rejected for another reason, such as an expired or revoked refresh token, uses the error codes of Section 5.2 of {{RFC6749}}.
+None of these rejections indicates refresh-token replay ({{RFC9700}}), whose detection this specification does not change.
 
 ## Authorization Requests {#authorization-errors}
 
@@ -535,15 +534,10 @@ If the authorization server's policy or a required issuer ({{issuer-trust}}) req
 `unauthorized_client`:
 : The client is review-only ({{review-only}}), or a required issuer excludes the software from the tenant ({{issuer-trust}}).
 
-`temporarily_unavailable`:
-: A pull of statements ({{pulled-statements}}), or the retrieval of a statement key set needed to verify a pulled statement, did not complete ({{retrieval}}).
-
 `statement_required`:
 : In any other case, the authorization server MUST return this code.
 
-The authorization server redirects with the error only after resolving the client's CIMD and validating the request's `redirect_uri` against it. If the authorization server cannot resolve the document, it MUST NOT redirect, and it reports the error to the resource owner instead.
-
-An authorization request carrying the `software_statement` parameter ({{authorization-requests}}) is rejected with `invalid_request` in place of any other code of this section. The authorization server redirects with that error only after validating the request's `redirect_uri`: against the CIMD as the preceding paragraph requires or, for a registered client, against its registered redirection URIs (Section 4.1.2.1 of {{RFC6749}}).
+The authorization server redirects with an error only after validating the request's `redirect_uri`: against the client's CIMD, which it resolves first, or, for a registered client, against its registered redirection URIs (Section 4.1.2.1 of {{RFC6749}}). If the authorization server cannot resolve a CIMD client's document, it MUST NOT redirect, and it reports the error to the resource owner instead.
 
 ## Proof Mechanism Errors {#proof-errors}
 

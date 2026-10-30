@@ -194,7 +194,7 @@ A presentation whose statement is refused by a refusal record or superseded unde
 
 A statement whose `status` claim references an index outside the list ({{status-resolution}}) is rejected with the error code assigned to a statement refused by a refusal record, such as `statement_required`.
 
-Under an establishment, a refresh-token request rejected for a reason this specification defines uses `temporarily_unavailable` if a retrieval it needs did not complete, including a pull of a replacement, as Section 7.3 of {{STATEMENT}} provides, and otherwise the following error codes:
+Under an establishment, a refresh-token request rejected for a reason this specification defines uses `temporarily_unavailable` if a retrieval it needs did not complete, including a pull of a replacement, as Section 7 of {{STATEMENT}} provides, and otherwise the following error codes:
 
 `statement_required`:
 : A replacement fails step 3 of {{refresh-replacement}} or the `iat` floor, a needed replacement is not obtained in step 2, including when a completed pull yields none, or the refresh fails step 4 ({{currency}}). These cases use `statement_required` in place of `invalid_grant`.
