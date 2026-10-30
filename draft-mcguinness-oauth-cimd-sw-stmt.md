@@ -757,9 +757,7 @@ A `statement_required` refusal at the authorization endpoint ({{authorization-er
 
 The privacy considerations of {{CIMD}} and Section 6 of {{RFC7591}} apply.
 
-A presentation or delivery reveals to the authorization server the client's issuer relationship and, if the statement carries an `aud` claim, the other authorization servers the client intends to use. Omitting that claim discloses nothing beyond the review. Pushed authorization requests ({{authorization-requests}}) keep statements out of browser history, referrers, and front-channel logs.
-
-A central issuer also learns from renewals which of its statements are in active use, so issuance and renewal logs deserve the same care as the statements ({{ui-audit}}).
+A presentation reveals to the authorization server the client's issuer relationship and, if the statement carries an `aud` claim, the other authorization servers the client intends to use. Omitting that claim discloses nothing beyond the review. Pushed authorization requests ({{authorization-requests}}) keep statements out of browser history, referrers, and front-channel logs.
 
 Retrieving the document tells its host that the server is resolving the client. Pulling statements ({{pulled-statements}}) tells the host of `software_statements_uri` the same. That host is an additional party only if the URL is on another origin. Published statements are readable by anyone, so their `aud` and `aud_tenant` claims disclose which servers and tenants a review names. A statement whose audience is sensitive is presented rather than published.
 
