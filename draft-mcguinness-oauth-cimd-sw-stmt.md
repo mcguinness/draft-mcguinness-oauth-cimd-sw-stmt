@@ -288,11 +288,9 @@ The request is evaluated against the reviewed metadata as against any client's r
 
 Every retrieval this specification causes, of the CIMD, a `jwks_uri` it names, or the statements its `software_statements_uri` names, inherits the server-side request forgery protections in Section 8.6 of {{CIMD}}. A trusted signature does not make a URL safe: the authorization server MUST apply its URL, redirect, address-range, transport, and content-type policy independently to every referenced location.
 
-If a retrieval fails, the authorization server MUST reject the request and MUST NOT fall back to a weaker proof, except that a failed pull of statements for a request opening a new grant leaves the client unreviewed ({{pulled-statements}}).
+If a retrieval fails, the authorization server MUST reject the request and MUST NOT fall back to a weaker proof, except that a failed pull of statements, or a failed retrieval of a statement key set ({{issuer-trust}}) needed to verify a pulled statement, for a request opening a new grant leaves the client unreviewed ({{pulled-statements}}).
 
 A retrieval does not complete only when it times out, its connection fails, or the response has a 429 (Too Many Requests) status code (Section 4 of {{RFC6585}}) or a 5xx status code. Any other failure to obtain an acceptable representation, such as another 4xx status code or a body that is not a JSON object, is final: a document is treated as failing validation, a key set as carrying no acceptable key, and a statements location as publishing no statement.
-
-If retrieving a statement key set ({{issuer-trust}}) does not complete, the authorization server rejects the request, except that a pull for a request opening a new grant proceeds as {{pulled-statements}} describes.
 
 A trusting authorization server MAY reuse document octets it holds for digest comparison ({{effective-metadata}}), a key set retrieved from a document's `jwks_uri`, and a statement key set from either source ({{issuer-trust}}), only within ordinary HTTP caching bounds and a maximum reuse period of its own choosing. It MUST NOT let the publisher's cache directives alone (the client's for the document and its key set, the issuer's for a statement key set) determine how long held octets continue to match a statement or a removed key continues to verify ({{statement-validation}}). Without this rule, a key the document carries inline would continue to verify after the publisher removes it.
 
