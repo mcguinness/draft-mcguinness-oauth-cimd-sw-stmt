@@ -695,6 +695,8 @@ If the client's relationship with the authorization servers its `audience` param
 
 Approval records can link a person to a client and deployment. Such records ought to be access-controlled and retained only as long as required.
 
+A central issuer also learns from renewals which of its statements are in active use, so issuance and renewal logs deserve the same care as the statements.
+
 # IANA Considerations {#iana}
 
 ## OAuth Authorization Endpoint Response Types Registry
