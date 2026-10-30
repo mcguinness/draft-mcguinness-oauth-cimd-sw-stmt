@@ -456,7 +456,7 @@ On refresh-token use, the authorization server proceeds as follows. A refresh re
 2. Decide whether a replacement is needed. One is needed in either of the following cases, and otherwise none is, though the client can still offer one:
 
    * A refusal record covers the recorded statement.
-   * The recorded statement has expired, and the server requires a current statement, by local policy or because a required issuer ({{issuer-trust}}) covers the establishment's `sub` in its tenant.
+   * The recorded statement has expired, and the server requires a current statement, by local policy or because a required issuer ({{issuer-trust}}) covers the establishment's `sub` in the establishment's tenant.
 
 3. Obtain a replacement. A client can offer one on any refresh in the `software_statement` parameter. A statement with the recorded `iss` and `jti` is not a replacement and is rechecked as the recorded statement. When a replacement is needed and the request carries none, a server that supports pulled statements pulls, however the establishment was created, and takes as the replacement the newest statement with the recorded `iss` and `sub` among those {{pulled-statements}} considers. If that is the recorded statement, nothing is replaced. A refresh that needs a replacement and obtains none is rejected: a reviewed grant never continues under the policy for clients the server has not reviewed.
 
