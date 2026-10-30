@@ -685,9 +685,9 @@ An issuer ought to omit the `aud_tenant` claim from a statement whose review app
 
 ## Statement Lifetime and Renewal {#lifetime-practice}
 
-Short lifetimes tighten an issuer's control and increase renewal traffic. At a server that registers clients under {{REGISTRATION}}, the lifetime also sets the registration's renewal cadence. A fleet of statements issued together expires together, so issuers ought to stagger expiries or renew ahead of the boundary.
+Short lifetimes tighten an issuer's control and increase renewal traffic. A fleet of statements issued together expires together, so issuers ought to stagger expiries or renew ahead of the boundary.
 
-A changed document is always served before a statement over it exists. Until the new statement exists, a presentation under the earlier one fails the digest comparison ({{effective-metadata}}), and at registration a mismatch is fatal ({{REGISTRATION}}). The statement's lifetime bounds how stale an unobserved review can become.
+A changed document is always served before a statement over it exists. Until the new statement exists, a presentation under the earlier one fails the digest comparison ({{effective-metadata}}). The statement's lifetime bounds how stale an unobserved review can become.
 
 Instances need the most recently issued statement from a shared source rather than a copy fixed at build or install time: the document can change, and a server implementing {{LIFECYCLE}} rejects a superseded statement ({{multi-instance}}).
 
