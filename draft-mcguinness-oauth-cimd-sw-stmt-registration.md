@@ -160,7 +160,7 @@ A server that records a required issuer for a tenant (Section 4 of {{STATEMENT}}
 
 Neither the validity model nor the required-issuer rule rejects {{RFC7592}} read and delete requests.
 
-If an authorization server creates a confidential-client registration that permits no grant obtaining tokens without an authorization request or refresh token, such as the client credentials grant or an assertion grant, and for which it does not support {{RFC7592}} update requests, it MUST publish the `pushed_authorization_request_endpoint` metadata value. That registration's client could otherwise renew only while it holds a refresh token ({{revalidation}}).
+If every grant a confidential-client registration permits needs an authorization request or a refresh token, so that it permits neither the client credentials grant nor an assertion grant, and the authorization server does not support {{RFC7592}} update requests for it, the server MUST publish the `pushed_authorization_request_endpoint` metadata value. That registration's client could otherwise renew only while it holds a refresh token ({{revalidation}}).
 
 The `registration_expires_at` member is a NumericDate (Section 2 of {{RFC7519}}) giving the latest time the registration remains valid or, for a registration that has ceased to be valid, the time it ceased. The authorization server:
 
