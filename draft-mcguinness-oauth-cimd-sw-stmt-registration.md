@@ -286,7 +286,7 @@ This section gives guidance to operators. It adds no requirement.
 
 An issuer outage longer than a statement-governed registration's remaining lifetime takes the registration out of service ({{registration-validity}}) until the client delivers a replacement ({{revalidation}}). The lifetimes an issuer chooses set the renewal cadence (Section 12.3 of {{STATEMENT}}). A deployment ought to have clients renew well before effective expiry, and ought to weigh that cadence against how quickly a narrowed or withdrawn review needs to take effect.
 
-## Registrations per Statement {#registration-default}
+## Default Registration Policy {#registration-default}
 
 The safe default for the registration policy of {{repeated-registration}} is one registration per (`iss`, `sub`) at one authorization server.
 
