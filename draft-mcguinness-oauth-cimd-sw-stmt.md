@@ -489,7 +489,7 @@ A presentation at the token or pushed authorization request endpoint is rejected
   * The bound on establishments is reached ({{establishment-bounds}}).
 
 `statement_required`:
-: The statement is expired ({{statement-required}}), or a required statement is absent, including one from an issuer required for the tenant ({{issuer-trust}}).
+: Expiry is the statement's only validation failure ({{statement-required}}), or a required statement is absent, including one from an issuer required for the tenant ({{issuer-trust}}).
 
 `unauthorized_client`:
 : Any of the following, in place of `statement_required` if both apply:
