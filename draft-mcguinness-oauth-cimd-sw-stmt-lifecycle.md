@@ -409,11 +409,12 @@ The absence of events looks the same on a healthy stream and a suppressed one. P
 
 The distinct key sets of {{token-status-list}} and {{relationship}} separate SET keys from statement and Status List Token keys. With the keys separated, compromise of a SET key lets an attacker trigger resolutions and nothing more. Compromise of a statement signing key has wider effect, because statements grant standing and events do not.
 
-# Privacy Considerations {#resolution-schedule}
+# Privacy Considerations
 
 The privacy considerations of {{STATEMENT}}, {{STATUSLIST}}, {{SSF}}, and {{RFC8417}} apply.
 
 Because {{STATUSLIST}} aggregates many statements into one list, a retrieval tells the issuer only that some trusting authorization server is checking. Retrieving the list on its own schedule ({{status-resolution}}) keeps the server's request timing from disclosing the client population it serves. A retrieval that an event prompts shows the issuer that the receiver holds a statement or a cached status for the event's subject.
+{: #resolution-schedule}
 
 Subject identifiers in these events name reviewed software and, in aggregate, describe an organization's approved software estate. For this reason, a stream is scoped as {{configuration}} provides. Event logs deserve the same care as statements ({{event-logs}}).
 
