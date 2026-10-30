@@ -317,7 +317,7 @@ A client can publish its statements at a URL its document names instead of prese
 
 * The server chooses the statement ({{pull-selection}}).
 * If the pull yields no usable statement, the request proceeds as if the client had presented none ({{pull-selection}}).
-* A pulled statement that the request cannot bind is review-only rather than a reason to reject the request ({{pull-binding}}).
+* A pulled statement is review-only in the cases {{pull-binding}} identifies.
 
 This specification defines the following client metadata member:
 
