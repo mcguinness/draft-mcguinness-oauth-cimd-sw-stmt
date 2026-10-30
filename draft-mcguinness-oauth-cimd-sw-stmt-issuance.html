@@ -1569,8 +1569,8 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         </ul>
 <p id="section-5.1-3">That authentication is the holder binding: without it, whoever held a copy of the statement could renew. To check the reviewed document's keys, an issuer offering renewal needs the octets of each document it issues a statement over (<a href="#audit-logging" class="auto internal xref">Section 14.4</a>).<a href="#section-5.1-3" class="pilcrow">¶</a></p>
 <p id="section-5.1-4">A client rotating keys inline renews while its document carries both the old and the new key. For a document naming <code>jwks_uri</code>, the binding is to whatever that location serves. A public client holds no such key and obtains a replacement through the redirect flow (<a href="#authorization-request" class="auto internal xref">Section 6</a>).<a href="#section-5.1-4" class="pilcrow">¶</a></p>
-<p id="section-5.1-5">A replacement carries the subject statement's <code>aud_tenant</code> claim if the decision is confined to that tenant. It also carries the uses the subject statement permits, unless issuance policy narrows them. A replacement <span class="bcp14">MUST NOT</span> permit a use the subject statement does not. It is matched to the statement it replaces by <code>iss</code> and <code>sub</code> (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-5.1-5" class="pilcrow">¶</a></p>
-<p id="section-5.1-6">An issuer <span class="bcp14">MUST NOT</span> accept as the subject token a statement it has withdrawn (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), or one whose status it publishes under <span>[<a href="#STATUS" class="cite xref">STATUS</a>]</span> as other than <code>VALID</code>. Renewing such a statement would reissue the decision that withdrawal ended.<a href="#section-5.1-6" class="pilcrow">¶</a></p>
+<p id="section-5.1-5">A replacement carries the subject statement's <code>aud_tenant</code> claim if the decision is confined to that tenant. It also carries the uses the subject statement permits, unless issuance policy narrows them. A replacement <span class="bcp14">MUST NOT</span> permit a use the subject statement does not. It is matched to the statement it replaces by <code>iss</code> and <code>sub</code> (<span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span>, <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>).<a href="#section-5.1-5" class="pilcrow">¶</a></p>
+<p id="section-5.1-6">An issuer <span class="bcp14">MUST NOT</span> accept as the subject token a statement it has withdrawn, or one whose status it publishes as other than <code>VALID</code> (<span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span>). Renewing such a statement would reissue the decision that withdrawal ended.<a href="#section-5.1-6" class="pilcrow">¶</a></p>
 <p id="section-5.1-7">The authorization server <span class="bcp14">MAY</span> accept a statement that has expired, and <span class="bcp14">SHOULD</span> bound how long after expiry it will do so. A renewal after an extended absence amounts to a new issuance request.<a href="#section-5.1-7" class="pilcrow">¶</a></p>
 <p id="section-5.1-8">If the current document's digest equals the subject statement's <code>cimd_digest</code>, whether renewal requires fresh review is issuer policy. If the digests differ, the issuer <span class="bcp14">MUST</span> apply the decision it would apply to a first issuance for that document, and <span class="bcp14">MUST NOT</span> renew on the strength of the prior statement alone. Without this rule, whoever can change the document could obtain the issuer's signature over an unreviewed change.<a href="#section-5.1-8" class="pilcrow">¶</a></p>
 </section>
@@ -1913,7 +1913,7 @@ Pragma: no-cache
       <h2 id="name-withdrawal">
 <a href="#section-11" class="section-number selfRef">11. </a><a href="#name-withdrawal" class="section-name selfRef">Withdrawal</a>
       </h2>
-<p id="section-11-1">An issuer that ends a decision before its expiry does so through a withdrawal mechanism (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), such as the Token Status List profile of <span>[<a href="#STATUS" class="cite xref">STATUS</a>]</span>. Withdrawing a statement does not withdraw a replacement obtained through <a href="#renewal" class="auto internal xref">Section 5.1</a>, and withdrawing a replacement does not restore its predecessor.<a href="#section-11-1" class="pilcrow">¶</a></p>
+<p id="section-11-1">An issuer that ends a decision before its expiry does so through a withdrawal mechanism, such as the Token Status List profile of <span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span>. Withdrawing a statement does not withdraw a replacement obtained through <a href="#renewal" class="auto internal xref">Section 5.1</a>, and withdrawing a replacement does not restore its predecessor.<a href="#section-11-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="same-server">
@@ -2479,6 +2479,10 @@ Pragma: no-cache
         <dd>
 <span class="refTitle">"Consumer Data Standards (Australia)"</span>, <span>n.d.</span>, <span>&lt;<a href="https://consumerdatastandardsaustralia.github.io/standards/">https://consumerdatastandardsaustralia.github.io/standards/</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="LIFECYCLE">[LIFECYCLE]</dt>
+        <dd>
+<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"Client ID Metadata Document Software Statement Lifecycle"</span>, <time datetime="2026-10" class="refDate">October 2026</time>, <span>&lt;<a href="https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle.html">https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle.html</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="OPENID-FED">[OPENID-FED]</dt>
         <dd>
 <span class="refTitle">"OpenID Federation 1.0"</span>, <span>n.d.</span>, <span>&lt;<a href="https://openid.net/specs/openid-federation-1_0.html">https://openid.net/specs/openid-federation-1_0.html</a>&gt;</span>. </dd>
@@ -2490,10 +2494,6 @@ Pragma: no-cache
 <dt id="RFC9864">[RFC9864]</dt>
         <dd>
 <span class="refAuthor">Jones, M.B.</span> and <span class="refAuthor">O. Steele</span>, <span class="refTitle">"Fully-Specified Algorithms for JSON Object Signing and Encryption (JOSE) and CBOR Object Signing and Encryption (COSE)"</span>, <span class="seriesInfo">RFC 9864</span>, <span class="seriesInfo">DOI 10.17487/RFC9864</span>, <time datetime="2025-10" class="refDate">October 2025</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9864">https://www.rfc-editor.org/rfc/rfc9864</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="STATUS">[STATUS]</dt>
-        <dd>
-<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"Client ID Metadata Document Software Statement Status"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-mcguinness-oauth-cimd-sw-stmt-status-00</span>, <time datetime="2026-10" class="refDate">October 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-status">https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-status</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="UK-OPEN-BANKING">[UK-OPEN-BANKING]</dt>
       <dd>

@@ -475,12 +475,13 @@ Table of Contents
    decision is confined to that tenant.  It also carries the uses the
    subject statement permits, unless issuance policy narrows them.  A
    replacement MUST NOT permit a use the subject statement does not.  It
-   is matched to the statement it replaces by iss and sub ([STATEMENT]).
+   is matched to the statement it replaces by iss and sub ([LIFECYCLE],
+   [REGISTRATION]).
 
    An issuer MUST NOT accept as the subject token a statement it has
-   withdrawn ([STATEMENT]), or one whose status it publishes under
-   [STATUS] as other than VALID.  Renewing such a statement would
-   reissue the decision that withdrawal ended.
+   withdrawn, or one whose status it publishes as other than VALID
+   ([LIFECYCLE]).  Renewing such a statement would reissue the decision
+   that withdrawal ended.
 
    The authorization server MAY accept a statement that has expired, and
    SHOULD bound how long after expiry it will do so.  A renewal after an
@@ -846,10 +847,10 @@ Table of Contents
 11.  Withdrawal
 
    An issuer that ends a decision before its expiry does so through a
-   withdrawal mechanism ([STATEMENT]), such as the Token Status List
-   profile of [STATUS].  Withdrawing a statement does not withdraw a
-   replacement obtained through Section 5.1, and withdrawing a
-   replacement does not restore its predecessor.
+   withdrawal mechanism, such as the Token Status List profile of
+   [LIFECYCLE].  Withdrawing a statement does not withdraw a replacement
+   obtained through Section 5.1, and withdrawing a replacement does not
+   restore its predecessor.
 
 12.  Issuer as Trusting Authorization Server
 
@@ -1411,6 +1412,13 @@ Table of Contents
               <https://consumerdatastandardsaustralia.github.io/
               standards/>.
 
+   [LIFECYCLE]
+              McGuinness, K., "Client ID Metadata Document Software
+              Statement Lifecycle", October 2026,
+              <https://mcguinness.github.io/draft-mcguinness-oauth-cimd-
+              sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-
+              lifecycle.html>.
+
    [OPENID-FED]
               "OpenID Federation 1.0", n.d.,
               <https://openid.net/specs/openid-federation-1_0.html>.
@@ -1424,12 +1432,6 @@ Table of Contents
               Signing and Encryption (COSE)", RFC 9864,
               DOI 10.17487/RFC9864, October 2025,
               <https://www.rfc-editor.org/rfc/rfc9864>.
-
-   [STATUS]   McGuinness, K., "Client ID Metadata Document Software
-              Statement Status", Work in Progress, Internet-Draft,
-              draft-mcguinness-oauth-cimd-sw-stmt-status-00, October
-              2026, <https://datatracker.ietf.org/doc/draft-mcguinness-
-              oauth-cimd-sw-stmt-status>.
 
    [UK-OPEN-BANKING]
               "Open Banking UK Dynamic Client Registration Specification
