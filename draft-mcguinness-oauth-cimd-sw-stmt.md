@@ -437,7 +437,7 @@ On refresh-token use under an establishment, the authorization server:
 
 If either check fails, including when the document does not carry the key, cannot be obtained, or exceeds the size bound of {{metadata-digest}}, the server rejects the refresh. The refreshed access MUST fall within the establishment's reviewed metadata.
 
-Under this specification, refresh evaluates no statement: a statement's expiry does not end a grant it opened ({{enforcement-bounds}}), and refresh never changes the establishment's proven key or reviewed metadata. A client that needs a different key or a different review opens a new grant by presentation. {{LIFECYCLE}} defines replacements that keep a grant in step with later reviews and withdrawals.
+Under this specification, refresh evaluates no statement: a statement's expiry does not end a grant it opened ({{enforcement-bounds}}), and refresh never changes the establishment's proven key or reviewed metadata. A client that needs a different key opens a new grant by presentation, as does, without {{LIFECYCLE}}, a client that needs a different review. {{LIFECYCLE}} defines replacements that keep a grant in step with later reviews and withdrawals.
 
 # Relationship to Other Work {#relationship}
 
