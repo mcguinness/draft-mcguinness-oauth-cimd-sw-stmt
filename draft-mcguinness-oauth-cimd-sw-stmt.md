@@ -248,7 +248,7 @@ For a runtime presentation, the authorization server proceeds as follows, reject
 2. Validate the statement ({{validation}}), completing every check that needs no client-controlled retrieval before any such retrieval ({{retrieval}}).
 3. Verify the `client_id` rule of {{runtime-presentation}}.
 4. Resolve the reviewed document and compare its digest ({{effective-metadata}}). A server that proceeds without the statement on a mismatch ends admission on the statement here.
-5. Apply {{sender-constraint}} to that document, verifying the sender constraint unless the statement is review-only ({{review-only}}). For a statement pulled at the authorization endpoint, the proof comes at code redemption ({{pull-binding}}).
+5. Apply {{sender-constraint}} to that document, verifying the sender constraint unless the statement is review-only ({{review-only}}). Where {{sender-constraint}} or {{pull-binding}} defers the proof to code redemption, as for a key bound through `dpop_jkt` or a statement pulled at the authorization endpoint, it comes there.
 6. Evaluate the request against the reviewed metadata ({{effective-metadata}}).
 7. Create the establishment ({{grant-lifecycle}}), unless the statement is review-only ({{review-only}}).
 
