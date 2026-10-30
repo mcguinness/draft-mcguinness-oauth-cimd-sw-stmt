@@ -405,7 +405,7 @@ A review-only presentation or pulled statement creates no establishment and admi
 
 The statement of a review-only presentation, or a review-only pulled statement, MUST NOT satisfy a policy requiring reviewed software. If the server's policy requires reviewed software, it rejects a review-only client.
 
-## Grant Lifecycle {#grant-lifecycle}
+## Grant Binding {#grant-lifecycle}
 
 A successful presentation creates an establishment: the state against which the subsequent authorization request, code redemption and refresh under the grant it opens are checked. It comprises the following:
 
