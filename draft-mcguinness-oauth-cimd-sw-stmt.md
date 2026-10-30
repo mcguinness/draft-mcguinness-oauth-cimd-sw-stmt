@@ -468,6 +468,8 @@ On refresh-token use, the authorization server proceeds as follows. A refresh re
    * Its `cimd_digest` MUST name the document currently served at that `sub`, which the server confirms by retrieval or by revalidating octets it holds.
    * It MUST authorize the establishment's proven key ({{sender-constraint}}) or, for an establishment created under {{public-client-presentation}}, name a document that still satisfies that section.
 
+   A replacement that meets them is accepted.
+
 5. Enforce currency. If the authorization server holds a refusal record for the recorded statement, it MUST reject a refresh without an accepted replacement, whatever its policy on requiring a current statement otherwise. If a required issuer ({{issuer-trust}}) covers the establishment's `sub` in the establishment's tenant, the server MUST reject a refresh unless the recorded statement or an accepted replacement is a current statement from that issuer. A grant recorded under another issuer's statement cannot meet this, so its client opens a new grant by presentation.
 
 6. Bound access and update. The refreshed access MUST fall within the metadata of the document an accepted replacement names or, without one, the establishment's reviewed metadata. If a replacement is accepted, the refreshed grant's statement identity, `iat`, effective expiry, any claim by which a withdrawal mechanism locates the statement, reviewed metadata and the digest it matched, and trust decision become the replacement's ({{grant-state}}) in one atomic update, and concurrent replacements resolve to the most recently issued statement. Without one, the grant's state is unchanged.
