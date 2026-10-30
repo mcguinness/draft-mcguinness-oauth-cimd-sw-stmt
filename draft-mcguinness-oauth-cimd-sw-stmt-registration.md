@@ -237,18 +237,18 @@ A rejection this specification defines, at a client registration endpoint or at 
   * It contains duplicate member names (Section 3.2 of {{STATEMENT}}).
   * It fails validation as {{CIMD}} requires ({{dcr-presentation}}).
   * It carries metadata this server's policy refuses.
-  * It exceeds the server's size bound (Section 3.1 of {{STATEMENT}}).
+  * It exceeds the server's size bound (Section 5.3 of {{STATEMENT}}).
   * It cannot be obtained for a reason other than a retrieval that did not complete (Section 5.3 of {{STATEMENT}}).
   * It omits `token_endpoint_auth_method`, or carries a redirection URI another application could claim ({{dcr-presentation}}).
   * It declares `token_endpoint_auth_method` of `none` and the server does not register it under {{public-client-registration}}.
   * It declares `token_endpoint_auth_method` of `none` and lists no redirection URI ({{public-client-registration}}).
 
 `temporarily_unavailable`:
-: A retrieval the request needs did not complete, for a reason other than the size bound of Section 3.1 of {{STATEMENT}}.
+: A retrieval the request needs did not complete (Section 5.3 of {{STATEMENT}}).
 
 Rejections at other endpoints use the error responses of Section 7 of {{STATEMENT}}. At the token, pushed authorization request, and authorization endpoints, rejections take the following form under a statement-governed registration that is not valid, under the required-issuer rule ({{registration-validity}}), and for a delivered statement that is earlier than the governing statement or fails the replacement rules ({{revalidation}}):
 
-* At the token and pushed authorization request endpoints, the request is authenticated as step 2 of {{registration-requests}} provides, before any statement it delivers is evaluated, and a request that fails that authentication is rejected with `invalid_client`, as for an unknown client. Otherwise the request is rejected with `statement_required` (Section 7.1 of {{STATEMENT}}), or with `temporarily_unavailable` if a retrieval needed to check the replacement did not complete for a reason other than the size bound of Section 3.1 of {{STATEMENT}}.
+* At the token and pushed authorization request endpoints, the request is authenticated as step 2 of {{registration-requests}} provides, before any statement it delivers is evaluated, and a request that fails that authentication is rejected with `invalid_client`, as for an unknown client. Otherwise the request is rejected with `statement_required` (Section 7.1 of {{STATEMENT}}), or with `temporarily_unavailable` if a retrieval needed to check the replacement did not complete (Section 5.3 of {{STATEMENT}}).
 * An authorization request is rejected with `statement_required` in the authorization error response (Section 4.1.2.1 of {{RFC6749}}), or with `invalid_request` if it carries the `software_statement` parameter, as Section 7 of {{STATEMENT}} provides. The authorization server redirects with the error only after validating the request's `redirect_uri` against the registration. If the `redirect_uri` does not validate against the registration, the authorization server MUST NOT redirect and reports the error to the resource owner instead.
 
 Rejections of a registration management request for other reasons use the responses {{RFC7592}} specifies.

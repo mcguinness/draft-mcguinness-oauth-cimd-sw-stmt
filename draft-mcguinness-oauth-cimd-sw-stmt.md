@@ -199,8 +199,6 @@ The metadata digest is the unpadded base64url-encoded SHA-256 hash {{RFC6234}} o
 
 Retrieval for digest purposes follows {{CIMD}} and MUST NOT use content negotiation: the retrieving party sends the `Accept` header field that {{CIMD}} specifies for retrieving the document, or `Accept: application/json` if it specifies none, and no other variant selection. Equal digests show that the issuer and the trusting authorization server obtained the same octets, so any condition that makes retrieval depend on who is asking defeats the comparison.
 
-A trusting authorization server MUST treat a response exceeding its configured size bound (Section 8.7 of {{CIMD}}) as a retrieval failure rather than digesting what it read.
-
 A server MUST NOT compare a digest against any representation other than one it retrieved itself or stored under this section. A `304 Not Modified` response shows that stored octets, and their digest, are still current only if it carries a strong entity tag that matches the one stored with them under strong comparison (Section 8.8.3.2 of {{RFC9110}}). Otherwise, the server retrieves the body again.
 
 ## Validating a Statement {#validation}
@@ -268,9 +266,9 @@ The request is evaluated against the reviewed metadata as against any client's r
 
 Every retrieval this specification causes, of the CIMD, a `jwks_uri` it names, or the statements its `software_statements_uri` names, inherits the server-side request forgery protections in Section 8.6 of {{CIMD}}. A trusted signature does not make a URL safe: the authorization server MUST apply its URL, redirect, address-range, transport, and content-type policy independently to every referenced location.
 
-If a retrieval fails, the authorization server MUST reject the request and MUST NOT fall back to a weaker proof, except that a failed pull of statements, or a failed retrieval of a statement key set ({{issuer-trust}}) needed to verify a pulled statement, for a request opening a new grant does not reject the request, which proceeds as {{pull-selection}} describes.
+If a retrieval fails, the authorization server MUST reject the request and MUST NOT fall back to a weaker proof. The exception is a failed pull of statements, or a failed retrieval of a statement key set ({{issuer-trust}}) needed to verify a pulled statement, for a request opening a new grant: that failure does not by itself reject the request, which proceeds as {{pull-selection}} describes.
 
-A retrieval does not complete only when it times out, its connection fails, or the response has a 429 (Too Many Requests) status code (Section 4 of {{RFC6585}}) or a 5xx status code. Any other failure to obtain an acceptable representation, such as another 4xx status code or a body that is not a JSON object, is final: a document is treated as failing validation, a key set as carrying no acceptable key, and a statements location as publishing no statement.
+A retrieval does not complete if it times out, its connection fails, or the response has a 429 (Too Many Requests) status code (Section 4 of {{RFC6585}}) or a 5xx status code. Any other failure to obtain an acceptable representation is final, such as another 4xx status code, a body that is not a JSON object, or a response exceeding the server's configured size bound (Section 8.7 of {{CIMD}}), which the authorization server MUST treat as a failure rather than digesting what it read. After a final failure, a document is treated as failing validation, a key set as carrying no acceptable key, and a statements location as publishing no statement.
 
 A trusting authorization server MAY reuse document octets it holds for digest comparison ({{effective-metadata}}), a key set retrieved from a document's `jwks_uri`, and a statement key set from either source ({{issuer-trust}}), only within ordinary HTTP caching bounds and a maximum reuse period of its own choosing. It MUST NOT let the publisher's cache directives alone (the client's for the document and its key set, the issuer's for a statement key set) determine how long held octets continue to match a statement or a removed key continues to verify ({{statement-validation}}). Without this rule, a key the document carries inline would continue to verify after the publisher removes it.
 
@@ -421,7 +419,7 @@ On refresh-token use under an establishment, the authorization server:
 * MUST verify possession of the establishment's proven key under the same sender-constraint mechanism.
 * MUST, except for an establishment created under {{public-client-presentation}}, verify that the document currently served at the establishment's `sub` still carries that key, in its `jwks` or at its `jwks_uri`, within the reuse bounds of {{retrieval}}.
 
-If either check fails, including when the document does not carry the key, cannot be obtained, or exceeds the size bound of {{metadata-digest}}, the server rejects the refresh. The refreshed access MUST fall within the establishment's reviewed metadata.
+If either check fails, including when the document does not carry the key, cannot be obtained, or exceeds the size bound ({{retrieval}}), the server rejects the refresh. The refreshed access MUST fall within the establishment's reviewed metadata.
 
 Under this specification, refresh evaluates no statement: a statement's expiry does not end a grant it opened ({{enforcement-bounds}}), and refresh never changes the establishment's proven key or reviewed metadata. A client that needs a different key opens a new grant by presentation, as does, without {{LIFECYCLE}}, a client that needs a different review. {{LIFECYCLE}} defines replacements that keep a grant in step with later reviews and withdrawals.
 
@@ -450,7 +448,7 @@ A rejection uses the error response and HTTP status codes of its endpoint: Secti
 A rejection for a reason this specification defines uses the first of the following error codes that applies:
 
 1. `invalid_request`, if the request carries the `software_statement` parameter in a role {{runtime-presentation}} does not permit.
-2. `temporarily_unavailable`, if a retrieval the request needs did not complete ({{retrieval}}), including a pull of statements ({{pulled-statements}}) or the retrieval of a statement key set needed to verify a pulled statement. A response over the size bound of {{metadata-digest}} is not such a retrieval.
+2. `temporarily_unavailable`, if a retrieval the request needs did not complete ({{retrieval}}), including a pull of statements ({{pulled-statements}}) or the retrieval of a statement key set needed to verify a pulled statement.
 3. The code that {{presentation-errors}}, {{continuation-errors}}, or {{authorization-errors}} assigns.
 
 At the token and pushed authorization request endpoints, an authorization server SHOULD respond with HTTP status code 503 to a request it rejects with the `temporarily_unavailable` error code.
