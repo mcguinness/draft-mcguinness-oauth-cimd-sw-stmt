@@ -125,7 +125,7 @@ Runtime Presentation:
 : The consumption of a validated software statement presented in a token request or pushed authorization request, or pulled from where the client's document points ({{pulled-statements}}), without creating a client registration.
 
 Admission:
-: A trusting authorization server's acceptance of a client for a request or a registration: on a valid statement (at request time ({{processing}}) or at registration ({{REGISTRATION}})), after which its requests are evaluated against the reviewed metadata, or under the server's policy for clients it has not reviewed.
+: A trusting authorization server's acceptance of a client for a request or a registration, either on a valid statement ({{processing}}, {{REGISTRATION}}), after which the reviewed metadata governs its requests, or under the server's policy for CIMD clients it has not reviewed.
 
 Establishment:
 : The state a successful runtime presentation creates for the grant it opens, enumerated in {{grant-lifecycle}}.
@@ -387,7 +387,7 @@ The following are review-only:
 1. Every presentation and pulled statement for a reviewed document that carries any redirection URI another application on the same device could claim, whatever authentication method the document declares. Such a URI is a non-`https` URI, such as a private-use scheme or an `http` loopback redirection URI (Sections 7.1 and 7.3 of {{RFC8252}}), or an `https` URI whose host is a loopback address or `localhost`. The application that claims such a URI receives the code, so neither the reviewed redirection URIs nor a key shipped in every copy of the software can bind the presenter.
 2. A pulled statement that {{pull-binding}} makes review-only.
 
-A review-only presentation or pulled statement creates no establishment and admits nothing. The authorization server proceeds as it would for the same CIMD client presenting no statement ({{ui-audit}}).
+A review-only presentation or pulled statement creates no establishment, and its statement counts for nothing in admission: the authorization server proceeds as it would for the same CIMD client presenting no statement ({{ui-audit}}).
 
 The statement of a review-only presentation, or a review-only pulled statement, MUST NOT satisfy a policy requiring reviewed software.
 
@@ -431,7 +431,7 @@ This section is non-normative.
 
 A software statement and a client attestation {{ABCA}} are both signed third-party assertions. A statement attests client software and the metadata its issuer evaluated. A client attestation attests a running instance and the key it holds, and is presented with a proof bound to the request.
 
-Neither assertion grants access nor substitutes for the other. Runtime presentation therefore always requires a sender constraint ({{sender-constraint}}). Binding a presenter attestation defined elsewhere is an extension ({{extensions}}).
+Neither assertion grants access nor substitutes for the other. A runtime presentation that is not review-only therefore requires a sender constraint ({{sender-constraint}}). Binding a presenter attestation defined elsewhere is an extension ({{extensions}}).
 
 ## Identity Assertions {#identity-assertions}
 
