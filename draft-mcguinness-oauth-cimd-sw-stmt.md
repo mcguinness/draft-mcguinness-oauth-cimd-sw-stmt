@@ -230,7 +230,7 @@ For each trusted issuer, the configuration records at least the exact `iss` valu
 
 The issuer's statement key set is the JWK Set at the `software_statement_jwks_uri` in its authorization server metadata ({{authorization-server-metadata}}), discovered from the configured `iss` ({{RFC8414}}), or, for an issuer that is not an authorization server, at a statement key set URL in the configuration, and never one at a `jwks_uri` metadata value. Its URL MUST use the `https` scheme, and a trusting authorization server MUST validate the certificate of the host serving it. The issuer MUST NOT place in its statement key set a key from any other JWK Set it publishes, or sign anything other than statements under this specification with those keys. A trusting authorization server reuses a retrieved statement key set only as {{retrieval}} permits.
 
-The configuration can also make an issuer a required issuer for client identifier namespaces in one of the server's tenants ({{trust-configuration}}). The server then MUST NOT admit software in a covered namespace in that tenant without a current statement from the required issuer, whatever its policy for clients it has not reviewed. Without this rule, a holder could evade the required issuer's decision by withholding that issuer's statement or by presenting or publishing only a broader one, such as a marketplace listing. A required issuer configured for software whose presentations are review-only ({{review-only}}) excludes that software from the tenant, and the server rejects a request for such software there.
+The configuration can also make an issuer a required issuer for client identifier namespaces in one of the server's tenants ({{trust-configuration}}). The server then MUST NOT admit software in a covered namespace in that tenant without a current statement from the required issuer, whatever its policy for CIMD clients it has not reviewed. Without this rule, a holder could evade the required issuer's decision by withholding that issuer's statement or by presenting or publishing only a broader one, such as a marketplace listing. A required issuer configured for software whose presentations are review-only ({{review-only}}) excludes that software from the tenant, and the server rejects a request for such software there.
 
 ## Multi-Tenant Issuers {#multi-tenant-issuers}
 
@@ -460,7 +460,7 @@ A rejection for another reason, such as an assertion grant whose assertion is in
 This specification defines the following error code:
 
 `statement_required`:
-: A current software statement is required and none was supplied or pulled, or the one supplied or pulled is expired. An extension such as {{REGISTRATION}} or {{LIFECYCLE}} can assign it to further cases. The client recovers by obtaining a statement issued more recently.
+: A current software statement is required and none was presented or pulled, or the one presented or pulled is expired. An extension such as {{REGISTRATION}} or {{LIFECYCLE}} can assign it to further cases. The client recovers by obtaining a statement issued more recently.
 
 ## Presentation Requests {#presentation-errors}
 
@@ -642,7 +642,7 @@ This section gives guidance to implementers. It adds no requirement.
 
 A server can revalidate octets it holds with a conditional request rather than retrieving them again ({{metadata-digest}}).
 
-A failed retrieval ({{retrieval}}) is followed by back-off rather than caching, which {{CIMD}} forbids. A response from a `software_statements_uri` ought to be cached no longer than the document is, and can be revalidated with a conditional request, as the document can ({{pulled-statements}}).
+{{CIMD}} forbids caching an error response (Section 5.2 of {{CIMD}}), so a failed retrieval ({{retrieval}}) is followed by back-off. A response from a `software_statements_uri` ought to be cached no longer than the document is, and can be revalidated with a conditional request, as the document can ({{pulled-statements}}).
 
 ## Retrieval and Processing Bounds {#processing-bounds}
 
