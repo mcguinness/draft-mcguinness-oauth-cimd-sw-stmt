@@ -49,6 +49,8 @@ normative:
 informative:
   RFC8705:
   RFC8252:
+  RFC8628:
+  RFC8693:
   REGISTRATION:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration
     title: "Client ID Metadata Document Software Statement Registration"
@@ -299,13 +301,9 @@ An authorization server that does not implement this specification ignores the p
 
 ### Token Endpoint {#token-requests}
 
-At the token endpoint, a runtime presentation is valid on a request using any one of the following grants:
+At the token endpoint, a runtime presentation is valid on a request that opens a new grant in that request, such as one using the `client_credentials` grant, the JWT or SAML 2.0 assertion grant (Section 2.1 of {{RFC7523}} and Section 2.1 of {{RFC7522}}), or token exchange {{RFC8693}}.
 
-* The `client_credentials` grant.
-* The JWT or SAML 2.0 assertion grant (Section 2.1 of {{RFC7523}} and Section 2.1 of {{RFC7522}}).
-* Another grant whose specification provides for runtime presentation under this specification.
-
-Authorization-code redemption and refresh-token use continue an existing grant ({{grant-lifecycle}}, {{refresh}}).
+It is not valid on a request that continues or completes a grant an earlier request began, such as authorization-code redemption, refresh-token use ({{grant-lifecycle}}, {{refresh}}), or redemption of a device code {{RFC8628}}. Admission belongs to the request that begins the grant, before the resource owner approves the client.
 
 ### Authorization Endpoint {#authorization-requests}
 
@@ -635,7 +633,7 @@ The following extensions are left to separate specifications:
 
 * Attested keys: a client attestation {{ABCA}}, including one from an attester the reviewed document names, vouching for a key that document does not carry ({{multi-instance}}).
 * Statement conveyance within a client attestation, rather than as a request parameter.
-* Runtime presentation on grants other than those {{token-requests}} names, such as token exchange.
+* Runtime presentation in the request that begins a grant at an endpoint this specification does not cover, such as the device authorization endpoint of {{RFC8628}}.
 * Partial review, by which an issuer vouches for particular members rather than a whole document ({{profiles}}).
 * Statement lifecycle ({{LIFECYCLE}}): withdrawal, supersession, requiring a current statement on refresh, and refresh replacement.
 
