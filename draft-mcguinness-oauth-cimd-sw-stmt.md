@@ -426,8 +426,6 @@ A token request that redeems an authorization code opened by a presentation:
 
 A redemption that carries a statement, has a wrong client identifier, or fails the key binding is rejected. The prohibition on carrying a statement covers redemption of a code bound to an establishment. A registered client redeeming its own code can deliver a replacement statement under {{REGISTRATION}}, which that specification calls a delivery and which is not a presentation.
 
-Expiry after presentation does not by itself invalidate an establishment already bound ({{refresh}}).
-
 ### Refresh {#refresh}
 
 On refresh-token use under an establishment, the authorization server:
