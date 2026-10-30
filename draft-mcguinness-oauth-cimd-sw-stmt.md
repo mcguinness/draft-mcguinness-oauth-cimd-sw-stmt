@@ -710,12 +710,6 @@ For software admitted under {{public-client-presentation}}, a server can also bo
 
 When a request is refused at a bound ({{presentation-errors}}), the authorization server ought to state that reason in `error_description`, and the client can retry once earlier establishments are released.
 
-## Grant State {#grant-state}
-
-An authorization server can reuse an establishment across presentations that resolve to the same `sub`, statement, tenant, sender-constraint mechanism, and proven key, and can discard it once no `request_uri`, authorization code, refresh token, or other continuation state references it ({{grant-lifecycle}}). A server does not share an establishment whose proven key is set at code redemption ({{pulled-statements}}) until that key is set.
-
-A server that shares an establishment among grants applies a replacement accepted on refresh by giving the refreshed grant its own establishment ({{refresh}}).
-
 ## User Interface, Audit, and Logging {#ui-audit}
 
 An authorization server ought not to present the review in a review-only presentation to the user as an assurance about the presenter ({{review-only}}). It can record the statement's issuer for audit and inventory.

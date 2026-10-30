@@ -584,7 +584,7 @@ A server can bound establishments as {{STATEMENT}} describes, and also per resou
 
 ## Grant State {#grant-state}
 
-A server can reuse an establishment as {{STATEMENT}} describes, across presentations that also match in profile, attester, and policy ({{establishment}}).
+An establishment can serve more than one presentation only where they resolve to the same establishment values, including the same profile, attester, and policy ({{establishment}}).
 
 ## Signing Brokers {#signing-brokers}
 
