@@ -281,8 +281,8 @@ Table of Contents
    The JOSE header MUST include the kid header parameter, identifying
    the signing key in the issuer's statement key set (Section 4), and
    the typ header parameter with the value software-statement+jwt
-   (Section 3.11 of [RFC8725]).  Extensions can add claims.  An
-   incompatible revision would use a new typ value.
+   (Section 3.11 of [RFC8725]).  An incompatible revision would use a
+   new typ value.
 
    A statement asserts that its issuer evaluated the CIMD whose content
    the digest identifies, and vouches for that document.  The JWT
@@ -335,10 +335,10 @@ Table of Contents
    cimd_digest:  REQUIRED.  The metadata digest (Section 3.1) of the
       CIMD the issuer evaluated.
 
-   status:  OPTIONAL.  The status claim as [STATUSLIST] defines it, by
-      which a statement locates itself in a Status List Token.  Only a
-      withdrawal mechanism that uses the claim processes it.  This
-      specification does not ([LIFECYCLE]).
+   Profiles and extensions can define further claims, such as the status
+   claim by which [LIFECYCLE] locates a statement in a Status List
+   Token.  A trusting authorization server ignores a claim it does not
+   recognize (Section 3.2).
 
    A statement issued under this specification MUST NOT contain a claim
    named in the IANA "OAuth Dynamic Client Registration Metadata"
@@ -1307,8 +1307,7 @@ Table of Contents
       rather than a whole document (Section 3).
 
    *  Statement lifecycle ([LIFECYCLE]): withdrawal, supersession,
-      requiring a current statement on refresh, and refresh replacement,
-      with withdrawal mechanisms such as Token Status List [STATUSLIST].
+      requiring a current statement on refresh, and refresh replacement.
 
 11.  Implementation Considerations
 
@@ -1711,9 +1710,9 @@ Table of Contents
 
 15.3.  Claims Defined Elsewhere
 
-   This specification uses two claims it does not define: aud_tenant,
-   defined and registered by [IDJAG], and status, defined and registered
-   by [STATUSLIST].  This section requests no IANA action.
+   This specification uses one claim it does not define: aud_tenant,
+   defined and registered by [IDJAG].  This section requests no IANA
+   action.
 
 15.4.  JSON Web Token Claims Registry
 
@@ -1967,13 +1966,6 @@ Table of Contents
               and Certificate-Bound Access Tokens", RFC 8705,
               DOI 10.17487/RFC8705, February 2020,
               <https://www.rfc-editor.org/rfc/rfc8705>.
-
-   [STATUSLIST]
-              Looker, T., Bastian, P., and C. Bormann, "Token Status
-              List (TSL)", Work in Progress, Internet-Draft, draft-ietf-
-              oauth-status-list-21, 21 June 2026,
-              <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
-              status-list-21>.
 
 Acknowledgments
 

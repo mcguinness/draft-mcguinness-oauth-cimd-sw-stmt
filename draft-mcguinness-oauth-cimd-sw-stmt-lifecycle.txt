@@ -470,9 +470,12 @@ Table of Contents
 7.1.  Status Publication
 
    An issuer that uses Token Status List publishes the status of its
-   statements as [STATUSLIST] defines, and each statement's status claim
-   (Section 3 of [STATEMENT]) locates its entry in the issuer's Status
-   List Token.  An issuer that publishes status:
+   statements as [STATUSLIST] defines.  A statement locates its entry in
+   the issuer's Status List Token through the status claim, whose
+   status_list member gives the status list URI and index (Section 6.2
+   of [STATUSLIST]).  The claim extends the statement as Section 3 of
+   [STATEMENT] permits, and a server that does not implement this
+   specification ignores it.  An issuer that publishes status:
 
    *  MUST publish status, and carry the status claim, for every
       statement it issues under a given iss from the point it begins
