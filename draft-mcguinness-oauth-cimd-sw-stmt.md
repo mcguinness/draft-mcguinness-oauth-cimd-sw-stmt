@@ -472,7 +472,7 @@ This specification defines the following error code:
 `statement_required`:
 : A current software statement is required and none was supplied or pulled, or the one supplied or pulled is expired. An extension such as {{REGISTRATION}} or {{LIFECYCLE}} can assign it to further cases. The client recovers by obtaining a statement issued more recently.
 
-## Presentation {#presentation-errors}
+## Presentation Requests {#presentation-errors}
 
 A presentation rejected at the token or pushed authorization request endpoint for a reason this specification defines uses `temporarily_unavailable` if a retrieval it needs, including a pull of statements ({{pulled-statements}}), did not complete, and otherwise the following error codes:
 
@@ -514,7 +514,7 @@ An extension such as {{LIFECYCLE}} assigns codes to the refresh rejections it de
 
 None of these rejections indicates refresh-token replay ({{RFC9700}}), whose detection this specification does not change. A refresh-token request rejected for another reason, such as an expired or revoked refresh token, uses the error codes of Section 5.2 of {{RFC6749}}.
 
-## Authorization Endpoint {#authorization-errors}
+## Authorization Requests {#authorization-errors}
 
 At the authorization endpoint, if policy or a required issuer requires reviewed software ({{review-only}}, {{pulled-statements}}, {{issuer-trust}}), a review-only client, or software a required issuer excludes from the tenant, is rejected with `unauthorized_client`, and a client whose pull of statements, or retrieval of a statement key set needed to verify one, did not complete ({{retrieval}}) is rejected with `temporarily_unavailable`.
 
