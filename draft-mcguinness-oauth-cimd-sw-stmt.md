@@ -158,7 +158,7 @@ A statement asserts that its issuer evaluated the CIMD whose content the digest 
 : OPTIONAL. One or more authorization server issuer identifiers ({{RFC8414}}) restricting which authorization servers can accept the statement. If the claim is absent, any authorization server that trusts the issuer for the subject can accept it ({{issuer-trust}}).
 
 `aud_tenant`:
-: OPTIONAL. A tenant identifier at a trusting authorization server, as {{IDJAG}} defines the claim, naming the tenant in which the statement's decision applies. A statement whose decision is confined to one of a server's tenants MUST carry an `aud` claim naming exactly one authorization server and, unless that server confines the issuer to the tenant through its own trust configuration ({{issuer-trust}}), an `aud_tenant` claim naming the tenant.
+: OPTIONAL. A tenant identifier at a trusting authorization server, as {{IDJAG}} defines the claim, naming the tenant in which the statement's decision applies. A statement whose decision is confined to one of a server's tenants MUST carry an `aud` claim naming exactly one authorization server and, unless the issuer and that server have agreed that the server confines the issuer to the tenant through its own trust configuration ({{issuer-trust}}), an `aud_tenant` claim naming the tenant.
 
   The absence of `aud_tenant` does not mean that the statement applies in every tenant ({{audience-practice}}).
 
