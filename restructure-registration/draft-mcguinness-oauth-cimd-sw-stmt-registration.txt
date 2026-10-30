@@ -410,11 +410,14 @@ Table of Contents
 
    1.  It applies any tenant restriction (Section 3).
 
-   2.  For a request other than an authorization request, it
-       authenticates the client against the registration, or against the
-       retained registration if the registration has ceased to be valid,
-       unless Section 3.1 provides that a delivery needs no client
-       authentication.
+   2.  It authenticates a token or pushed authorization request under
+       the registration's own client authentication method, against the
+       retained registration if the registration has ceased to be valid.
+       A public-client registration has no client credential, so no
+       client authentication applies to such a request under it, whether
+       or not the request delivers a statement (Section 3.1).  It
+       authenticates an [RFC7592] update request with the registration
+       access token (Section 2 of [RFC7592]).
 
    3.  It classifies any statement the request delivers and evaluates a
        replacement (Section 3.4).
@@ -621,12 +624,12 @@ Table of Contents
    superseded or failing the replacement rules (Section 3.4):
 
    *  At the token and pushed authorization request endpoints, the
-      client is authenticated against the registration before any
-      statement it delivers is evaluated (step 2 of Section 3.3), and a
-      request that fails that authentication is rejected with
-      invalid_client, as for an unknown client.  Otherwise the request
-      is rejected with statement_required (Section 8.1 of [STATEMENT]),
-      or with temporarily_unavailable if a retrieval needed to check the
+      request is authenticated as step 2 of Section 3.3 provides, before
+      any statement it delivers is evaluated, and a request that fails
+      that authentication is rejected with invalid_client, as for an
+      unknown client.  Otherwise the request is rejected with
+      statement_required (Section 8.1 of [STATEMENT]), or with
+      temporarily_unavailable if a retrieval needed to check the
       replacement did not complete for a reason other than the size
       bound of Section 3.1 of [STATEMENT].
 
