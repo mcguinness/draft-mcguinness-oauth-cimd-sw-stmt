@@ -355,9 +355,9 @@ The authorization server MUST reject a presentation made in a request ({{runtime
 
 For a presentation that is not review-only, under either model:
 
-* The presenter proves possession of the key its model requires through the applicable client authentication method or a DPoP proof {{RFC9449}} or, for a public client that binds its key through `dpop_jkt`, at code redemption ({{grant-lifecycle}}). If a request carries both, the key its client authentication proves is the proven key.
+* The presenter proves possession of the key its model requires through the applicable client authentication method or a DPoP proof {{RFC9449}}. A public client that binds its key through `dpop_jkt` proves possession at code redemption ({{grant-lifecycle}}). If a request carries both client authentication and a DPoP proof, the key its client authentication proves is the proven key.
 * The proof MUST be bound to the current request and validated with the replay protections of that mechanism.
-* If the reviewed document declares a client authentication method in its `token_endpoint_auth_method` member ({{CIMD}}), the presenter MUST use that method.
+* The presenter MUST use the client authentication method its reviewed document declares in `token_endpoint_auth_method` ({{CIMD}}).
 * The authorization server MUST reject a presentation without such a proof or, for a confidential client, whose proven key the reviewed document does not carry.
 
 ### Confidential Clients {#confidential-client-presentation}
