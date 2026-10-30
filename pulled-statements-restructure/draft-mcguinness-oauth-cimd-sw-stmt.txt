@@ -687,8 +687,8 @@ Table of Contents
    *  If the pull yields no usable statement, the request proceeds as if
       the client had presented none (Section 5.5.1).
 
-   *  A pulled statement that the request cannot bind is review-only
-      rather than a reason to reject the request (Section 5.5.2).
+   *  A pulled statement is review-only in the cases Section 5.5.2
+      identifies.
 
    This specification defines the following client metadata member:
 
