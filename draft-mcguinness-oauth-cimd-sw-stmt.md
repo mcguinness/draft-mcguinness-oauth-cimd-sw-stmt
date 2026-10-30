@@ -533,7 +533,7 @@ If the authorization server's policy or a required issuer ({{issuer-trust}}) req
 : The client is review-only ({{review-only}}), or a required issuer excludes the software from the tenant ({{issuer-trust}}).
 
 `statement_required`:
-: In any other case, the authorization server MUST return this code.
+: In any other case, subject to the order of {{errors}}, the authorization server MUST return this code.
 
 The authorization server redirects with an error only after validating the request's `redirect_uri`: against the client's CIMD, which it resolves first, or, for a registered client, against its registered redirection URIs (Section 4.1.2.1 of {{RFC6749}}). If the authorization server cannot resolve a CIMD client's document, it MUST NOT redirect, and it reports the error to the resource owner instead.
 
