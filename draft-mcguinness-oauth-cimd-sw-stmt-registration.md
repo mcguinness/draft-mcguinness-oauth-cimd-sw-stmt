@@ -145,7 +145,7 @@ If those conditions hold and that statement's `iat` is later than the governing 
 
 An authorization server MUST apply the following validity model to every registration it creates from a statement validated under Section 3.2 of {{STATEMENT}}, whichever issuer signed it:
 
-* The registration's effective expiry is that of its governing statement (Section 2 of {{STATEMENT}}), which the server identifies by the statement's `iss` and `jti` claims.
+* The registration's effective expiry (Section 2 of {{STATEMENT}}) is that of its governing statement, which the server identifies by the statement's `iss` and `jti` claims.
 * The registration is valid until that effective expiry. If the server holds a refusal record for the governing statement (Section 3.3 of {{STATEMENT}}), the registration ceases to be valid as it does at its effective expiry. The client learns of the withdrawal only from the rejection, and whether the server revokes access and refresh tokens already issued under the registration is local policy.
 * Once the registration ceases to be valid without a replacement ({{revalidation}}), the authorization server MUST reject authorization, token, and pushed authorization requests and {{RFC7592}} update requests under the registration, at step 4 of {{registration-requests}}.
 * The authorization server SHOULD retain a registration that has ceased to be valid for a later renewal ({{oracle-considerations}}).
