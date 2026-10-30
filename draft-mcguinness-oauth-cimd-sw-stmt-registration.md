@@ -140,13 +140,13 @@ An authorization server MAY register a client whose reviewed document declares `
 * MUST require PKCE {{RFC7636}} with the `S256` method on every authorization request under the registration.
 * MUST require every authorization request under the registration to bind a key the client holds, through the `dpop_jkt` parameter or, at the pushed authorization request endpoint, a DPoP proof (Section 10.1 of {{RFC9449}}), and MUST require code redemption and every refresh of the resulting grant to prove that key.
 * MUST NOT issue a registration access token {{RFC7592}} for the registration.
-* MUST answer a later registration request with the existing registration if all of the following hold:
+* MUST NOT create another registration for a later registration request if all of the following hold:
   * The request is in a tenant where the registration can be used.
   * The request's statement has the same `iss` and `sub` claims as the governing statement.
   * That statement validates, and its `iat` is no earlier than the governing statement's.
   * That statement is confined to no tenant other than one the registration is already restricted to.
 
-If those conditions hold and that statement's `iat` is later than the governing statement's, the server evaluates it as {{revalidation}} provides for a delivery, renewing the registration with it or rejecting the request ({{errors}}). A later registration request whose statement has the governing statement's `iss` and `sub` and an earlier `iat` is rejected.
+Such a request is answered with the existing registration if its statement's `iat` equals the governing statement's. If the `iat` is later, the server evaluates the statement as {{revalidation}} provides for a delivery, and answers with the renewed registration or rejects the request ({{errors}}). A later registration request whose statement has the governing statement's `iss` and `sub` and an earlier `iat` is rejected. Any other registration request is processed as a new registration.
 
 ## Registration Validity {#registration-validity}
 
