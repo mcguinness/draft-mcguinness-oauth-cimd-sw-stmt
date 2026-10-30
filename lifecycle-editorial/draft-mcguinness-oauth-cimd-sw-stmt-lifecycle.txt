@@ -567,18 +567,36 @@ Table of Contents
    is that issuer identifier, which is also the iss claim value of the
    statements the event concerns.
 
+   An issuer serves three key sets, each at its own location:
+
+    +===========+=============================+======================+
+    | Keys      | Issuer that is an           | Other issuer         |
+    |           | authorization server        |                      |
+    +===========+=============================+======================+
+    | Statement | software_statement_jwks_uri | The URL at which it  |
+    | signing   | (Sections 4 and 9 of        | serves its statement |
+    | keys      | [STATEMENT])                | key set (Section 4   |
+    |           |                             | of [STATEMENT])      |
+    +-----------+-----------------------------+----------------------+
+    | Status    | The jwks_uri metadata value | Its Status List key  |
+    | List      | of its authorization server | set URL (Section 7)  |
+    | Token     | metadata [RFC8414]          |                      |
+    | keys      |                             |                      |
+    +-----------+-----------------------------+----------------------+
+    | SET keys  | The jwks_uri member of its  | The jwks_uri member  |
+    |           | Transmitter configuration   | of its Transmitter   |
+    |           | [SSF]                       | configuration [SSF]  |
+    +-----------+-----------------------------+----------------------+
+
+                    Table 1: Issuer Key Set Locations
+
    An issuer MUST ensure that its Transmitter configuration's jwks_uri
-   member differs both from the issuer's statement key set location, its
-   software_statement_jwks_uri (Sections 4 and 9 of [STATEMENT]) or, for
-   an issuer that is not an authorization server, the URL at which it
-   serves its statement key set (Section 4 of [STATEMENT]), and from the
-   location whose keys verify its Status List Tokens: the jwks_uri
-   metadata value in its authorization server metadata [RFC8414] or, for
-   an issuer that is not an authorization server, its Status List key
-   set URL (Section 7).  A receiver MUST NOT create or keep a stream
-   whose Transmitter configuration names either of those locations.  An
-   issuer MUST NOT publish at its Transmitter configuration's jwks_uri a
-   key that also appears in the key set at either location.
+   member differs from both the statement key location and the Status
+   List Token key location in the table above.  A receiver MUST NOT
+   create or keep a stream whose Transmitter configuration names either
+   of those locations.  An issuer MUST NOT publish at its Transmitter
+   configuration's jwks_uri a key that also appears in the key set at
+   either location.
 
    A SET carrying an event defined here MUST use the explicit typ JOSE
    header parameter value secevent+jwt (Section 2.3 of [RFC8417]).  Its

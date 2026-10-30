@@ -1542,8 +1542,43 @@ A refresh whose replacement the <code>iat</code> floor (<a href="#supersession" 
 <a href="#section-8.1" class="section-number selfRef">8.1. </a><a href="#name-event-issuer-trust-and-keys" class="section-name selfRef">Event Issuer Trust and Keys</a>
         </h3>
 <p id="section-8.1-1">A trusting authorization server <span class="bcp14">MUST NOT</span> accept an event from an issuer it has not configured. It <span class="bcp14">MUST</span> verify the SET using keys from the <code>jwks_uri</code> member of the issuer's Transmitter configuration <span>[<a href="#SSF" class="cite xref">SSF</a>]</span>, discovered from the issuer identifier it has configured, and never from a key-location value carried in the event. The SET's <code>iss</code> claim is that issuer identifier, which is also the <code>iss</code> claim value of the statements the event concerns.<a href="#section-8.1-1" class="pilcrow">¶</a></p>
-<p id="section-8.1-2">An issuer <span class="bcp14">MUST</span> ensure that its Transmitter configuration's <code>jwks_uri</code> member differs both from the issuer's statement key set location, its <code>software_statement_jwks_uri</code> (Sections 4 and 9 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>) or, for an issuer that is not an authorization server, the URL at which it serves its statement key set (Section 4 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), and from the location whose keys verify its Status List Tokens: the <code>jwks_uri</code> metadata value in its authorization server metadata <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span> or, for an issuer that is not an authorization server, its Status List key set URL (<a href="#token-status-list" class="auto internal xref">Section 7</a>). A receiver <span class="bcp14">MUST NOT</span> create or keep a stream whose Transmitter configuration names either of those locations. An issuer <span class="bcp14">MUST NOT</span> publish at its Transmitter configuration's <code>jwks_uri</code> a key that also appears in the key set at either location.<a href="#section-8.1-2" class="pilcrow">¶</a></p>
-<p id="section-8.1-3">A SET carrying an event defined here <span class="bcp14">MUST</span> use the explicit <code>typ</code> JOSE header parameter value <code>secevent+jwt</code> (Section 2.3 of <span>[<a href="#RFC8417" class="cite xref">RFC8417</a>]</span>). Its <code>aud</code> claim <span class="bcp14">MUST</span> contain the audience of the stream that delivers it, which <span>[<a href="#SSF" class="cite xref">SSF</a>]</span> lets the transmitter and receiver agree on. A receiver <span class="bcp14">MUST NOT</span> create or keep a stream whose audience does not identify it.<a href="#section-8.1-3" class="pilcrow">¶</a></p>
+<p id="section-8.1-2">An issuer serves three key sets, each at its own location:<a href="#section-8.1-2" class="pilcrow">¶</a></p>
+<span id="name-issuer-key-set-locations"></span><table class="center" id="table-1">
+          <caption>
+<a href="#table-1" class="selfRef">Table 1</a>:
+<a href="#name-issuer-key-set-locations" class="selfRef">Issuer Key Set Locations</a>
+          </caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Keys</th>
+              <th class="text-left" rowspan="1" colspan="1">Issuer that is an authorization server</th>
+              <th class="text-left" rowspan="1" colspan="1">Other issuer</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Statement signing keys</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>software_statement_jwks_uri</code> (Sections 4 and 9 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>)</td>
+              <td class="text-left" rowspan="1" colspan="1">The URL at which it serves its statement key set (Section 4 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>)</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Status List Token keys</td>
+              <td class="text-left" rowspan="1" colspan="1">The <code>jwks_uri</code> metadata value of its authorization server metadata <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">Its Status List key set URL (<a href="#token-status-list" class="auto internal xref">Section 7</a>)</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">SET keys</td>
+              <td class="text-left" rowspan="1" colspan="1">The <code>jwks_uri</code> member of its Transmitter configuration <span>[<a href="#SSF" class="cite xref">SSF</a>]</span>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">The <code>jwks_uri</code> member of its Transmitter configuration <span>[<a href="#SSF" class="cite xref">SSF</a>]</span>
+</td>
+            </tr>
+          </tbody>
+        </table>
+<p id="section-8.1-4">An issuer <span class="bcp14">MUST</span> ensure that its Transmitter configuration's <code>jwks_uri</code> member differs from both the statement key location and the Status List Token key location in the table above. A receiver <span class="bcp14">MUST NOT</span> create or keep a stream whose Transmitter configuration names either of those locations. An issuer <span class="bcp14">MUST NOT</span> publish at its Transmitter configuration's <code>jwks_uri</code> a key that also appears in the key set at either location.<a href="#section-8.1-4" class="pilcrow">¶</a></p>
+<p id="section-8.1-5">A SET carrying an event defined here <span class="bcp14">MUST</span> use the explicit <code>typ</code> JOSE header parameter value <code>secevent+jwt</code> (Section 2.3 of <span>[<a href="#RFC8417" class="cite xref">RFC8417</a>]</span>). Its <code>aud</code> claim <span class="bcp14">MUST</span> contain the audience of the stream that delivers it, which <span>[<a href="#SSF" class="cite xref">SSF</a>]</span> lets the transmitter and receiver agree on. A receiver <span class="bcp14">MUST NOT</span> create or keep a stream whose audience does not identify it.<a href="#section-8.1-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="subjects">
