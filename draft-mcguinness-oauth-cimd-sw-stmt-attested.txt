@@ -901,11 +901,11 @@ Table of Contents
     |           |is bound by its           |the public-client rules do|
     |           |redirection URIs.         |not apply.                |
     +-----------+--------------------------+--------------------------+
-    |5.7        |Expiry after presentation |Redemption also requires  |
-    |           |does not invalidate an    |the recorded statement to |
-    |           |establishment, and        |be unexpired and          |
-    |           |redemption checks the     |unrefused, and the current|
-    |           |client identifier and key.|document to match the     |
+    |5.7        |Redemption checks the     |Redemption also requires  |
+    |           |client identifier and key,|the recorded statement to |
+    |           |not the statement's       |be unexpired and          |
+    |           |expiry.                   |unrefused, and the current|
+    |           |                          |document to match the     |
     |           |                          |recorded digest           |
     |           |                          |(Section 7.4).            |
     +-----------+--------------------------+--------------------------+
