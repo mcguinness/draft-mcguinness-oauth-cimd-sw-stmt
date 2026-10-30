@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         29 October 2026
-Expires: 2 May 2027
+Intended status: Standards Track                         30 October 2026
+Expires: 3 May 2027
 
 
       Client ID Metadata Document Software Statement Registration
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 2 May 2027.
+   This Internet-Draft will expire on 3 May 2027.
 
 Copyright Notice
 
@@ -313,15 +313,21 @@ Table of Contents
       delivery, renewing the registration with it or rejecting the
       request with the codes of Section 5.
 
-   Such a registration has no [RFC7592] management, and the deliveries
-   that Section 3.3 lists at the token and pushed authorization request
-   endpoints need no client authentication under the registration.  A
-   delivery renews it only with a valid replacement.  A statement whose
-   decision is confined to a tenant fails the replacement rules of
-   Section 3.3 for such a registration if the registration carries no
-   tenant restriction.  The registration ceases to be valid only at its
-   effective expiry or on withdrawal (Section 3.2), and otherwise ends
-   only by the server's own policy.
+   The following hold for such a registration:
+
+   *  It has no [RFC7592] management.
+
+   *  The deliveries that Section 3.3 lists at the token and pushed
+      authorization request endpoints need no client authentication
+      under it.
+
+   *  A delivery renews it only with a valid replacement.  A statement
+      whose decision is confined to a tenant fails the replacement rules
+      of Section 3.3 if the registration carries no tenant restriction.
+
+   *  It ceases to be valid only at its effective expiry or on
+      withdrawal (Section 3.2), and otherwise ends only by the server's
+      own policy.
 
 3.2.  Registration Validity
 

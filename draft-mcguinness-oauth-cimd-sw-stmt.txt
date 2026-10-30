@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         29 October 2026
-Expires: 2 May 2027
+Intended status: Standards Track                         30 October 2026
+Expires: 3 May 2027
 
 
              Client ID Metadata Document Software Statement
@@ -41,7 +41,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 2 May 2027.
+   This Internet-Draft will expire on 3 May 2027.
 
 Copyright Notice
 
@@ -639,12 +639,16 @@ Table of Contents
 
    An authorization server that supports pulled statements MAY retrieve
    this URL when it resolves the document of a client that presented no
-   statement.  In retrieving this URL, the server MUST send a GET
-   request with Accept: application/json and MUST NOT automatically
-   follow redirects.  It MUST accept a new representation only from a
-   200 response with a JSON media type, and can instead reuse a stored
-   representation that a 304 Not Modified response revalidates
-   (Section 15.4.5 of [RFC9110]).
+   statement.  In retrieving this URL, the server:
+
+   *  MUST send a GET request with Accept: application/json.
+
+   *  MUST NOT automatically follow redirects.
+
+   *  MUST accept a new representation only from a 200 response with a
+      JSON media type, and can instead reuse a stored representation
+      that a 304 Not Modified response revalidates (Section 15.4.5 of
+      [RFC9110]).
 
    Both the document and this URL are retrieved before any statement
    exists to validate, so the ordering of Section 5.3 applies from the
@@ -789,24 +793,32 @@ Table of Contents
    method (Section 5.4.1).  The rejection above still applies to such a
    presentation, as does the rejection of a presentation opening a new
    grant at the token endpoint for a client whose reviewed document
-   declares token_endpoint_auth_method of none (Section 5.4.1), but the
-   sender-constraint requirements of the next two paragraphs do not.
+   declares token_endpoint_auth_method of none (Section 5.4.1).  The
+   following requirements apply to every other runtime presentation:
 
-   A runtime presentation MUST be sender-constrained by a key the
-   statement attests or, under Section 5.4.1, by the key the presenter
-   binds there.  The presenter proves possession of that key through the
-   applicable client authentication method or a DPoP proof [RFC9449].
-   If a request carries both, the key its client authentication proves
-   is the proven key.  The proof MUST be bound to the current request
-   and validated with the replay protections of that mechanism.
+   *  The presentation MUST be sender-constrained by a key the statement
+      attests or, under Section 5.4.1, by the key the presenter binds
+      there.
 
-   Except as Section 5.4.1 provides, the proven key MUST appear in the
-   jwks or at the jwks_uri of the reviewed document (Section 5.5).  If
-   the reviewed document declares a client authentication method in its
-   token_endpoint_auth_method member ([CIMD]), the presenter MUST use
-   that method.  The authorization server MUST reject a presentation
-   without such a proof, or whose proven key the reviewed document does
-   not carry.
+   *  The presenter proves possession of that key through the applicable
+      client authentication method or a DPoP proof [RFC9449].  If a
+      request carries both, the key its client authentication proves is
+      the proven key.
+
+   *  The proof MUST be bound to the current request and validated with
+      the replay protections of that mechanism.
+
+   *  Except as Section 5.4.1 provides, the proven key MUST appear in
+      the jwks or at the jwks_uri of the reviewed document
+      (Section 5.5).
+
+   *  If the reviewed document declares a client authentication method
+      in its token_endpoint_auth_method member ([CIMD]), the presenter
+      MUST use that method.
+
+   *  The authorization server MUST reject a presentation without such a
+      proof or, except as Section 5.4.1 provides, whose proven key the
+      reviewed document does not carry.
 
    A key at the document's jwks_uri is retrieved at presentation time.
    If that retrieval does not complete (Section 5.3), the presentation
