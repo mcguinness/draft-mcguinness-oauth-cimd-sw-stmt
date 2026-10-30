@@ -238,7 +238,8 @@ A rejection this specification defines, at a client registration endpoint or at 
   * It exceeds the server's size bound (Section 3.1 of {{STATEMENT}}).
   * It cannot be obtained for a reason other than a retrieval that did not complete (Section 5.3 of {{STATEMENT}}).
   * It omits `token_endpoint_auth_method`, or carries a redirection URI another application could claim ({{dcr-presentation}}).
-  * It declares `token_endpoint_auth_method` of `none`, and the server does not register it under {{public-client-registration}} or it lists no redirection URI.
+  * It declares `token_endpoint_auth_method` of `none` and the server does not register it under {{public-client-registration}}.
+  * It declares `token_endpoint_auth_method` of `none` and lists no redirection URI ({{public-client-registration}}).
 
 `temporarily_unavailable`:
 : A retrieval the request needs did not complete, for a reason other than the size bound of Section 3.1 of {{STATEMENT}}.
