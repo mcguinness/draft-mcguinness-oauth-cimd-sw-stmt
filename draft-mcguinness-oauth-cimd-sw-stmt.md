@@ -117,7 +117,7 @@ Runtime Presentation:
 : The consumption of a validated software statement presented in a token request or pushed authorization request, or pulled from where the client's document points ({{pulled-statements}}), without creating a client registration.
 
 Admission:
-: A trusting authorization server's acceptance of a client on a valid statement, at request time ({{processing}}) or, under {{REGISTRATION}}, at registration, after which the client's requests are evaluated against the reviewed metadata.
+: A trusting authorization server's acceptance of a client for a request or a registration, either on a valid statement, at request time ({{processing}}) or under {{REGISTRATION}} at registration, after which the client's requests are evaluated against the reviewed metadata, or under the server's policy for clients it has not reviewed.
 
 Establishment:
 : The durable state a successful runtime presentation creates for the grant it opens, or that a replacement accepted on refresh gives that grant, enumerated in {{grant-lifecycle}}.
