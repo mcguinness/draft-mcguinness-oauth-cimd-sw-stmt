@@ -423,24 +423,6 @@ If either check fails, including when the document does not carry the key, canno
 
 Under this specification, refresh evaluates no statement: a statement's expiry does not end a grant it opened ({{enforcement-bounds}}), and refresh never changes the establishment's proven key or reviewed metadata. A client that needs a different key opens a new grant by presentation, as does, without {{LIFECYCLE}}, a client that needs a different review. {{LIFECYCLE}} defines replacements that keep a grant in step with later reviews and withdrawals.
 
-# Relationship to Other Work {#relationship}
-
-This section is non-normative.
-
-## Client Attestation {#relationship-attestation}
-
-A software statement and a client attestation {{ABCA}} are both signed third-party assertions. A statement attests client software and the metadata its issuer evaluated. A client attestation attests a running instance and the key it holds, and is presented with a proof bound to the request.
-
-Neither assertion grants access nor substitutes for the other. A runtime presentation that is not review-only therefore requires a sender constraint ({{sender-constraint}}). Binding a presenter attestation defined elsewhere is an extension ({{extensions}}).
-
-## Identity Assertions {#identity-assertions}
-
-A statement records that a named party reviewed software, not that a particular customer currently permits that software to act in its tenant. A tenant-scoped decision (`aud_tenant`) authorizes no particular user or transaction. When a customer's identity provider mediates a grant, as with a cross-domain identity assertion {{IDJAG}}, it issues assertions per grant only for clients the customer permits. A statement serves when the issuer is not in the request path, or when a customer wants a portable record of what its review covered.
-
-## OpenID Federation {#relationship-federation}
-
-A trust mark {{OPENID-FED}} is also a signed third-party assertion about an entity, but it is resolved through a federation in which both parties enroll. A statement needs no federation: a trusting authorization server configures its issuer directly ({{issuer-trust}}), and the statement binds the exact octets of the client's own document rather than metadata the federation resolves.
-
 # Error Responses {#errors}
 
 A rejection uses the error response and HTTP status codes of its endpoint: Section 5.2 of {{RFC6749}} at the token endpoint, Section 2.3 of {{RFC9126}} at the pushed authorization request endpoint, and Section 4.1.2.1 of {{RFC6749}} at the authorization endpoint. {{REGISTRATION}} defines rejections at a registration endpoint and how registration validity is reported.
@@ -633,6 +615,24 @@ The following extensions are left to separate specifications:
 * Runtime presentation in the request that begins a grant at an endpoint this specification does not cover, such as the device authorization endpoint of {{RFC8628}}.
 * Partial review, by which an issuer vouches for particular members rather than a whole document ({{metadata-digest}}).
 * Statement lifecycle ({{LIFECYCLE}}): withdrawal, supersession, requiring a current statement on refresh, and refresh replacement.
+
+# Relationship to Other Work {#relationship}
+
+This section is non-normative.
+
+## Client Attestation {#relationship-attestation}
+
+A software statement and a client attestation {{ABCA}} are both signed third-party assertions. A statement attests client software and the metadata its issuer evaluated. A client attestation attests a running instance and the key it holds, and is presented with a proof bound to the request.
+
+Neither assertion grants access nor substitutes for the other. A runtime presentation that is not review-only therefore requires a sender constraint ({{sender-constraint}}). Binding a presenter attestation defined elsewhere is an extension ({{extensions}}).
+
+## Identity Assertions {#identity-assertions}
+
+A statement records that a named party reviewed software, not that a particular customer currently permits that software to act in its tenant. A tenant-scoped decision (`aud_tenant`) authorizes no particular user or transaction. When a customer's identity provider mediates a grant, as with a cross-domain identity assertion {{IDJAG}}, it issues assertions per grant only for clients the customer permits. A statement serves when the issuer is not in the request path, or when a customer wants a portable record of what its review covered.
+
+## OpenID Federation {#relationship-federation}
+
+A trust mark {{OPENID-FED}} is also a signed third-party assertion about an entity, but it is resolved through a federation in which both parties enroll. A statement needs no federation: a trusting authorization server configures its issuer directly ({{issuer-trust}}), and the statement binds the exact octets of the client's own document rather than metadata the federation resolves.
 
 # Implementation Considerations {#implementation-considerations}
 

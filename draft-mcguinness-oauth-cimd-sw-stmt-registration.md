@@ -251,10 +251,10 @@ A rejection this specification defines, at a client registration endpoint or at 
 `temporarily_unavailable`:
 : A retrieval the request needs did not complete (Section 5.3 of {{STATEMENT}}).
 
-Rejections at other endpoints use the error responses of Section 7 of {{STATEMENT}}. At the token, pushed authorization request, and authorization endpoints, rejections take the following form under a statement-governed registration that is not valid, under the required-issuer rule ({{registration-validity}}), and for a delivered statement that is earlier than the governing statement or fails the replacement rules ({{revalidation}}):
+Rejections at other endpoints use the error responses of Section 6 of {{STATEMENT}}. At the token, pushed authorization request, and authorization endpoints, rejections take the following form under a statement-governed registration that is not valid, under the required-issuer rule ({{registration-validity}}), and for a delivered statement that is earlier than the governing statement or fails the replacement rules ({{revalidation}}):
 
-* At the token and pushed authorization request endpoints, a request that fails the authentication of step 2 of {{registration-requests}} is rejected with `invalid_client`, as for an unknown client. Otherwise the request is rejected with `statement_required` (Section 7.1 of {{STATEMENT}}), or with `temporarily_unavailable` if a retrieval needed to check the replacement did not complete (Section 5.3 of {{STATEMENT}}).
-* An authorization request is rejected with `statement_required` in the authorization error response (Section 4.1.2.1 of {{RFC6749}}), or with `invalid_request` if it carries the `software_statement` parameter, as Section 7 of {{STATEMENT}} provides. The authorization server redirects with the error only after validating the request's `redirect_uri` against the registration (Section 4.1.2.1 of {{RFC6749}}).
+* At the token and pushed authorization request endpoints, a request that fails the authentication of step 2 of {{registration-requests}} is rejected with `invalid_client`, as for an unknown client. Otherwise the request is rejected with `statement_required` (Section 6.1 of {{STATEMENT}}), or with `temporarily_unavailable` if a retrieval needed to check the replacement did not complete (Section 5.3 of {{STATEMENT}}).
+* An authorization request is rejected with `statement_required` in the authorization error response (Section 4.1.2.1 of {{RFC6749}}), or with `invalid_request` if it carries the `software_statement` parameter, as Section 6 of {{STATEMENT}} provides. The authorization server redirects with the error only after validating the request's `redirect_uri` against the registration (Section 4.1.2.1 of {{RFC6749}}).
 
 Rejections of a registration management request for other reasons use the responses {{RFC7592}} specifies.
 
@@ -329,7 +329,7 @@ Requiring a statement also means a removed client cannot register again under a 
 
 A retained registration that has ceased to be valid is distinguishable from an unknown client ({{registration-requests}}, {{errors}}). At the token and pushed authorization request endpoints, only a requester that authenticates as the registration's client can observe this, except for a public-client registration. At the authorization endpoint, anyone who sends an authorization request naming the client and one of its registered redirection URIs learns of the lapse from the `statement_required` redirection. If an observer knows the governing statement's `exp`, a lapse before it shows that an extension such as {{LIFECYCLE}} ended the statement or that the server caps the lifetime it honors for the issuer.
 
-These disclosures are accepted because a client that cannot learn why it was refused cannot act. Beyond a lapse and its timing, they reveal nothing of the server's issuer trust configuration (Section 7.6 of {{STATEMENT}}). Publishing `software_statement_registration_validity_supported` discloses that statement-governed registrations expire there, which a client needs to know before registering.
+These disclosures are accepted because a client that cannot learn why it was refused cannot act. Beyond a lapse and its timing, they reveal nothing of the server's issuer trust configuration (Section 6.6 of {{STATEMENT}}). Publishing `software_statement_registration_validity_supported` discloses that statement-governed registrations expire there, which a client needs to know before registering.
 
 # Privacy Considerations
 

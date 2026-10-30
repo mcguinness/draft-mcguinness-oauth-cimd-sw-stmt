@@ -186,26 +186,26 @@ If the server bounds establishments (Section 11.3 of {{STATEMENT}}), a count per
 
 # Error Responses {#lifecycle-errors}
 
-This section extends Section 7 of {{STATEMENT}}, whose error responses and HTTP status codes apply at each endpoint.
+This section extends Section 6 of {{STATEMENT}}, whose error responses and HTTP status codes apply at each endpoint.
 
-The `statement_required` error code (Section 7.1 of {{STATEMENT}}) also applies when the statement supplied or pulled is refused by a refusal record ({{withdrawal}}) or superseded under the `iat` floor ({{supersession}}), and when a statement offered as a replacement on refresh ({{refresh-replacement}}) does not satisfy the requirements for one.
+The `statement_required` error code (Section 6.1 of {{STATEMENT}}) also applies when the statement supplied or pulled is refused by a refusal record ({{withdrawal}}) or superseded under the `iat` floor ({{supersession}}), and when a statement offered as a replacement on refresh ({{refresh-replacement}}) does not satisfy the requirements for one.
 
-A presentation whose statement is refused by a refusal record or superseded under the `iat` floor is rejected with `statement_required`, in place of the `invalid_client` error code that Section 7.2 of {{STATEMENT}} assigns to a statement that fails validation.
+A presentation whose statement is refused by a refusal record or superseded under the `iat` floor is rejected with `statement_required`, in place of the `invalid_client` error code that Section 6.2 of {{STATEMENT}} assigns to a statement that fails validation.
 
 A statement whose `status` claim references an index outside the list ({{status-resolution}}) is rejected with the error code assigned to a statement refused by a refusal record, such as `statement_required`.
 
-Under an establishment, a refresh-token request rejected for a reason this specification defines uses `temporarily_unavailable` if a retrieval it needs did not complete, including a pull of a replacement, as Section 7 of {{STATEMENT}} provides, and otherwise the following error codes:
+Under an establishment, a refresh-token request rejected for a reason this specification defines uses `temporarily_unavailable` if a retrieval it needs did not complete, including a pull of a replacement, as Section 6 of {{STATEMENT}} provides, and otherwise the following error codes:
 
 `statement_required`:
 : A replacement fails step 3 of {{refresh-replacement}} or the `iat` floor, a needed replacement is not obtained in step 2, including when a completed pull yields none, or the refresh fails step 4 ({{currency}}). These cases use `statement_required` in place of `invalid_grant`.
 
 `unauthorized_client` or `invalid_scope`:
-: The refreshed access exceeds the metadata of the document an accepted replacement names, as Section 7.3 of {{STATEMENT}} provides for the reviewed metadata.
+: The refreshed access exceeds the metadata of the document an accepted replacement names, as Section 6.3 of {{STATEMENT}} provides for the reviewed metadata.
 
 `invalid_request`:
 : The request carries a replacement but omits `client_id` ({{refresh-replacement}}).
 
-If a statement is refused by a refusal record rather than merely expired, and the client is authenticated, the authorization server ought to indicate in the `error_description` parameter that a statement issued more recently is required (Section 7.6 of {{STATEMENT}}).
+If a statement is refused by a refusal record rather than merely expired, and the client is authenticated, the authorization server ought to indicate in the `error_description` parameter that a statement issued more recently is required (Section 6.6 of {{STATEMENT}}).
 
 # Token Status List {#token-status-list}
 
@@ -220,7 +220,7 @@ An issuer that uses Token Status List publishes the status of its statements as 
 
 * MUST publish status, and carry the `status` claim, for every statement it issues under a given `iss` from the point it begins publishing. Once statements issued before that point have expired, a trusting authorization server can read an absent claim as meaning the issuer publishes no status.
 * MUST NOT assign the same combination of status list URI and index to more than one statement, including across successive Status List Tokens published at that URI. Withdrawing a statement then affects no other.
-* MUST sign the Status List Token with a key published at the `jwks_uri` metadata value of its authorization server metadata {{RFC8414}}, which Sections 4 and 9 of {{STATEMENT}} keep apart from its statement signing keys, or, for an issuer that is not an authorization server, in its Status List key set ({{token-status-list}}).
+* MUST sign the Status List Token with a key published at the `jwks_uri` metadata value of its authorization server metadata {{RFC8414}}, which Sections 4 and 8 of {{STATEMENT}} keep apart from its statement signing keys, or, for an issuer that is not an authorization server, in its Status List key set ({{token-status-list}}).
 * MUST include the `exp` claim in every Status List Token it publishes. An older token then cannot stand in for a newer one indefinitely.
 * MUST give each Status List Token it publishes at a given list URI an `iat` claim value later than that of any token it published there before ({{status-resolution}}).
 
@@ -254,7 +254,7 @@ An issuer serves three key sets, each at its own location:
 
 | Keys | Issuer that is an authorization server | Other issuer |
 | --- | --- | --- |
-| Statement signing keys | `software_statement_jwks_uri` (Sections 4 and 9 of {{STATEMENT}}) | The URL at which it serves its statement key set (Section 4 of {{STATEMENT}}) |
+| Statement signing keys | `software_statement_jwks_uri` (Sections 4 and 8 of {{STATEMENT}}) | The URL at which it serves its statement key set (Section 4 of {{STATEMENT}}) |
 | Status List Token keys | The `jwks_uri` metadata value of its authorization server metadata {{RFC8414}} | Its Status List key set URL ({{token-status-list}}) |
 | SET keys | The `jwks_uri` member of its Transmitter configuration {{SSF}} | The `jwks_uri` member of its Transmitter configuration {{SSF}} |
 {: title="Issuer Key Set Locations"}
