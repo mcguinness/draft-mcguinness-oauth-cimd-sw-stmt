@@ -234,6 +234,18 @@ An issuer that uses a withdrawal mechanism and issues a replacement narrower tha
 
 Without that withdrawal, a trusting authorization server that has not yet seen the replacement, or at which the replacement does not validate, accepts the earlier statement until it expires.
 
+## Repeated Consumption of One Statement {#multi-instance}
+
+A statement attests client software, identified by `sub`, not its runtime instances. This specification defines no instance identifier. One unexpired statement is therefore consumable more than once: at each trusting authorization server in its audience, in more than one establishment at that server ({{establishment-bounds}}), and, if the server registers clients ({{REGISTRATION}}) and its policy permits, in more than one registration there.
+
+A trusting authorization server MUST retain, per `iss` and `sub` claims and, on a multi-tenant server, per tenant, the greatest `iat` claim value among the statements it has accepted, as its `iat` floor. A statement is accepted for the floor once the server admits a client on it, applies it as a replacement, or registers a client with it. The server MUST reject a statement whose `iat` claim is earlier than the retained `iat`, whether it arrives as a replacement, a new registration, or a new presentation. A client holding a superseded, broader statement therefore cannot defer a narrowing by opening a fresh registration or establishment with it. The server retains the `iat` floor at least as long as the maximum statement lifetime it honors for that issuer.
+
+A multi-tenant server also keeps any bound on establishments ({{establishment-bounds}}) per tenant.
+
+The first presentation of a replacement that establishes the client supersedes its predecessor for new admissions by every instance of the software at that server ({{lifetime-practice}}). Grants the predecessor already opened continue under {{refresh}}.
+
+Software whose instances authenticate as the client with keys of their own, which the reviewed document does not carry, can neither prove nor register those keys ({{sender-constraint}}, {{REGISTRATION}}) and depends on the attested-key extension of {{extensions}}.
+
 # Issuer Trust Establishment {#issuer-trust}
 
 A trusting authorization server accepts statements only from configured issuers. Trust is established out of band. This specification defines no in-band issuer discovery or trust decision.
@@ -470,18 +482,6 @@ On refresh-token use, the authorization server proceeds as follows:
 A refresh whose replacement fails step 3, even when none was needed, or that needs a replacement and obtains none, is rejected and leaves the grant's state unchanged.
 
 Refresh never rotates the establishment's key. A client that needs a new key performs a new presentation.
-
-# Repeated Consumption of One Statement {#multi-instance}
-
-A statement attests client software, identified by `sub`, not its runtime instances. This specification defines no instance identifier. One unexpired statement is therefore consumable more than once: at each trusting authorization server in its audience, in more than one establishment at that server ({{establishment-bounds}}), and, if the server registers clients ({{REGISTRATION}}) and its policy permits, in more than one registration there.
-
-A trusting authorization server MUST retain, per `iss` and `sub` claims and, on a multi-tenant server, per tenant, the greatest `iat` claim value among the statements it has accepted, as its `iat` floor. A statement is accepted for the floor once the server admits a client on it, applies it as a replacement, or registers a client with it. The server MUST reject a statement whose `iat` claim is earlier than the retained `iat`, whether it arrives as a replacement, a new registration, or a new presentation. A client holding a superseded, broader statement therefore cannot defer a narrowing by opening a fresh registration or establishment with it. The server retains the `iat` floor at least as long as the maximum statement lifetime it honors for that issuer.
-
-A multi-tenant server also keeps any bound on establishments ({{establishment-bounds}}) per tenant.
-
-The first presentation of a replacement that establishes the client supersedes its predecessor for new admissions by every instance of the software at that server ({{lifetime-practice}}). Grants the predecessor already opened continue under {{refresh}}.
-
-Software whose instances authenticate as the client with keys of their own, which the reviewed document does not carry, can neither prove nor register those keys ({{sender-constraint}}, {{REGISTRATION}}) and depends on the attested-key extension of {{extensions}}.
 
 # Relationship to Other Work {#relationship}
 
