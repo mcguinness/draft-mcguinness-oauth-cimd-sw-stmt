@@ -131,7 +131,7 @@ Under {{STATEMENT}}, one unexpired statement is consumable more than once, and a
 
 A trusting authorization server MUST retain, per `iss` and `sub` claims and, on a multi-tenant server, per tenant, the greatest `iat` claim value among the statements it has accepted, as its `iat` floor, for at least the maximum statement lifetime it honors for the issuer after that `iat`. A statement is accepted for the floor once the server admits a client on it, applies it as a replacement ({{refresh-replacement}}), or registers a client with it ({{REGISTRATION}}). The server MUST reject a statement whose `iat` claim is earlier than the retained `iat`, whether it arrives as a replacement, a new registration, or a new presentation. A client holding a superseded, broader statement therefore cannot defer a narrowing by opening a fresh registration or establishment with it.
 
-At admission, the server verifies the `iat` floor in step 3 of Section 5.1 of {{STATEMENT}}, along with the statement requirements and the `client_id` rule, before it resolves the reviewed document.
+At admission, the server verifies the `iat` floor in step 3 of Section 5.1 of {{STATEMENT}}, along with the `client_id` rule, before it resolves the reviewed document.
 
 In selecting a pulled statement (Section 5.5.1 of {{STATEMENT}}), the server also ignores any statement that the `iat` floor supersedes. A pulled statement the server does not apply does not advance the `iat` floor. Nor does a review-only presentation or pulled statement (Section 5.6.3 of {{STATEMENT}}).
 
