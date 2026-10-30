@@ -116,6 +116,9 @@ Trusting Authorization Server:
 Runtime Presentation:
 : The consumption of a validated software statement presented in a token request or pushed authorization request, or pulled from where the client's document points ({{pulled-statements}}), without creating a client registration.
 
+Admission:
+: A trusting authorization server's acceptance of a client on a valid statement, at request time ({{processing}}) or, under {{REGISTRATION}}, at registration, after which the client's requests are evaluated against the reviewed metadata.
+
 Establishment:
 : The durable state a successful runtime presentation creates for the grant it opens, or that a replacement accepted on refresh gives that grant, enumerated in {{grant-lifecycle}}.
 
@@ -131,11 +134,17 @@ Effective Expiry:
 Refusal Record:
 : State an authorization server holds when it has learned that a statement ceased to be acceptable before its expiry, whether from a withdrawal mechanism it uses for the issuer ({{withdrawal}}) or from its own operator.
 
+Required Issuer:
+: An issuer whose current statement a trusting authorization server requires in one of its tenants for software in configured client identifier namespaces ({{issuer-trust}}).
+
 Current Statement:
 : A statement whose effective expiry has not passed and that matches no refusal record. The `iat` floor ({{multi-instance}}) separately limits which current statements a server accepts.
 
 Review-Only:
 : Describes a presentation, or a pulled statement, that the authorization server evaluates but that admits nothing ({{review-only}}).
+
+Tenant:
+: A partition of an authorization server's configuration and issued tokens, such as one customer's, that the server identifies by its own means and never by a value the client chooses ({{validation}}).
 
 `iat` Floor:
 : For a trusting authorization server, the greatest `iat` claim value among the statements it has accepted for a given `iss` and `sub`, per tenant on a multi-tenant server ({{multi-instance}}).
