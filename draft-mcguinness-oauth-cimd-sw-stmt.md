@@ -128,7 +128,7 @@ Admission:
 : A trusting authorization server's acceptance of a client for a request or a registration: on a valid statement (at request time ({{processing}}) or at registration ({{REGISTRATION}})), after which its requests are evaluated against the reviewed metadata, or under the server's policy for clients it has not reviewed.
 
 Establishment:
-: The state a successful runtime presentation creates for the grant it opens, enumerated in {{grant-lifecycle}}. {{LIFECYCLE}} lets a replacement accepted on refresh update it.
+: The state a successful runtime presentation creates for the grant it opens, enumerated in {{grant-lifecycle}}.
 
 Proven Key:
 : The key an establishment is bound to: the key whose possession the presenter proves during runtime presentation ({{sender-constraint}}), the key it binds under {{public-client-presentation}}, or, for a statement pulled at the authorization endpoint, the key proved at code redemption ({{pull-binding}}).
@@ -174,7 +174,7 @@ A statement asserts that its issuer evaluated the CIMD whose content the digest 
 : OPTIONAL. A JSON array identifying the permitted uses of the statement: `registration` ({{REGISTRATION}}) and `presentation` ({{cimd-presentation}}). If the claim is absent, only `presentation` is permitted. A pulled statement ({{pulled-statements}}) is a `presentation` use.
 
 `iat`:
-: REQUIRED. A NumericDate value, which MUST be an integer, giving the time the statement was issued. An issuer MUST ensure that the `iat` claim values of its statements for a given `iss` and `sub` increase strictly, which registration renewal ({{REGISTRATION}}) and supersession ({{LIFECYCLE}}) rely on.
+: REQUIRED. A NumericDate value, which MUST be an integer, giving the time the statement was issued. An issuer MUST ensure that the `iat` claim values of its statements for a given `iss` and `sub` increase strictly, which the selection of a pulled statement ({{pull-selection}}) and extensions such as {{REGISTRATION}} and {{LIFECYCLE}} rely on.
 
 `exp`:
 : REQUIRED. A NumericDate value giving the expiration time.
@@ -185,7 +185,7 @@ A statement asserts that its issuer evaluated the CIMD whose content the digest 
 `cimd_digest`:
 : REQUIRED. The metadata digest ({{metadata-digest}}) of the CIMD the issuer evaluated.
 
-Profiles and extensions can define further claims, such as the `status` claim by which {{LIFECYCLE}} locates a statement in a Status List Token. A trusting authorization server ignores a claim it does not recognize ({{validation}}).
+Profiles and extensions can define further claims, such as `status` ({{LIFECYCLE}}). A trusting authorization server ignores a claim it does not recognize ({{validation}}).
 
 A statement issued under this specification MUST NOT contain a claim named in the IANA "OAuth Dynamic Client Registration Metadata" registry, and a trusting authorization server MUST NOT take client metadata from a statement's claims. A trusting authorization server ignores such a claim rather than rejecting the statement ({{validation}}).
 
@@ -222,8 +222,6 @@ Before accepting a statement, a trusting authorization server MUST ensure the fo
 
 A trusting authorization server that hosts more than one tenant MUST evaluate every tenant-specific check, such as the `aud_tenant` claim and a required issuer ({{issuer-trust}}), against the tenant that scopes what it issues on the statement, never selected by a value the client chooses.
 
-An extension such as {{LIFECYCLE}} can end a statement's acceptance before its effective expiry.
-
 A trusting authorization server resolving the reviewed document MUST reject a document containing duplicate object member names. Parsers interpret such names differently despite an identical digest.
 
 Rejections outside a registration endpoint use {{errors}}.
@@ -246,7 +244,7 @@ For each trusted issuer, the configuration records at least the exact `iss` valu
 
 The issuer's statement key set is the JWK Set at the `software_statement_jwks_uri` in its authorization server metadata ({{authorization-server-metadata}}), discovered from the configured `iss` ({{RFC8414}}), or, for an issuer that is not an authorization server, at a statement key set URL in the configuration, and never one at a `jwks_uri` metadata value. Its URL MUST use the `https` scheme, and a trusting authorization server MUST validate the certificate of the host serving it. The issuer MUST NOT place in its statement key set a key from any other JWK Set it publishes, or sign anything other than statements under this specification with those keys. A trusting authorization server reuses a retrieved statement key set only as {{retrieval}} permits.
 
-The configuration can also make an issuer a required issuer for client identifier namespaces in one of the server's tenants ({{trust-configuration}}). The server then MUST NOT admit software in a covered namespace in that tenant without a current statement from the required issuer, whatever its policy for clients it has not reviewed. {{LIFECYCLE}} applies the requirement on refresh. Without this rule, a holder could evade the required issuer's decision by withholding that issuer's statement or by presenting or publishing only a broader one, such as a marketplace listing. A required issuer configured for software whose presentations are review-only ({{review-only}}) excludes that software from the tenant, and the server rejects a request for such software there.
+The configuration can also make an issuer a required issuer for client identifier namespaces in one of the server's tenants ({{trust-configuration}}). The server then MUST NOT admit software in a covered namespace in that tenant without a current statement from the required issuer, whatever its policy for clients it has not reviewed. Without this rule, a holder could evade the required issuer's decision by withholding that issuer's statement or by presenting or publishing only a broader one, such as a marketplace listing. A required issuer configured for software whose presentations are review-only ({{review-only}}) excludes that software from the tenant, and the server rejects a request for such software there.
 
 ## Multi-Tenant Issuers {#multi-tenant-issuers}
 
@@ -704,7 +702,7 @@ Short lifetimes tighten an issuer's control and increase renewal traffic. A flee
 
 A changed document is always served before a statement over it exists. Until the new statement exists, a presentation under the earlier one fails the digest comparison ({{effective-metadata}}). The statement's lifetime bounds how stale an unobserved review can become.
 
-Instances need the most recently issued statement from a shared source rather than a copy fixed at build or install time: the document can change, and a server implementing {{LIFECYCLE}} rejects a superseded statement ({{multi-instance}}).
+Instances need the most recently issued statement from a shared source rather than a copy fixed at build or install time, because the document can change ({{effective-metadata}}).
 
 # Security Considerations {#security-considerations}
 
