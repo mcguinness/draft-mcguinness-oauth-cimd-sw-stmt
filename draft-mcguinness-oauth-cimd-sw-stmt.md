@@ -228,7 +228,7 @@ Rejections outside a registration endpoint use {{errors}}.
 
 ## Repeated Consumption of One Statement {#multi-instance}
 
-A statement attests client software, identified by `sub`, not its runtime instances. This specification defines no instance identifier. One unexpired statement is therefore consumable more than once: at each trusting authorization server in its audience, in more than one establishment at that server ({{establishment-bounds}}), and, if the server registers clients ({{REGISTRATION}}) and its policy permits, in more than one registration there.
+A statement attests client software, identified by `sub`, not its runtime instances. This specification defines no instance identifier. One unexpired statement is therefore consumable more than once: at each trusting authorization server in its audience, and in more than one establishment at that server ({{establishment-bounds}}).
 
 Under this specification, an older statement that has not expired remains admissible after a newer one is issued. {{LIFECYCLE}} defines supersession, which ends that; otherwise short statement lifetimes bound it.
 
