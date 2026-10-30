@@ -523,7 +523,7 @@ A presentation rejected at the token or pushed authorization request endpoint fo
 : Any of the following:
 
   * The statement fails validation ({{validation}}) for a reason other than expiry, a refusal record, or the `iat` floor.
-  * The request fails the `client_id` rule ({{runtime-presentation}}) or is rejected by {{sender-constraint}} or {{public-client-presentation}}, even if review-only.
+  * The request's `client_id` differs from the statement's `sub` ({{runtime-presentation}}), or the request is rejected by {{sender-constraint}} or {{public-client-presentation}}, even if review-only.
   * The reviewed document cannot be obtained, including over the size bound, or validated ({{validation}}), or does not match and the server does not proceed without the statement ({{effective-metadata}}).
   * The bound on establishments is reached ({{establishment-bounds}}).
 
