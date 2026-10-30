@@ -143,9 +143,8 @@ An authorization server MAY register a client whose reviewed document declares `
   * The request is in a tenant where the registration can be used.
   * The request's statement has the same `iss` and `sub` claims as the governing statement.
   * That statement validates, and its `iat` is no earlier than the governing statement's.
-  * That statement is confined to no tenant other than one the registration is already restricted to.
 
-Such a request is answered with the existing registration if its statement's `iat` equals the governing statement's. If the `iat` is later, the server evaluates the statement as {{revalidation}} provides for a delivery, and answers with the renewed registration or rejects the request ({{errors}}). A later registration request whose statement has the governing statement's `iss` and `sub` and an earlier `iat` is rejected. Any other registration request is processed as a new registration.
+Such a request is answered with the existing registration if its statement's `iat` equals the governing statement's. If the `iat` is later, the server evaluates the statement as {{revalidation}} provides for a delivery, including its tenant rules, and answers with the renewed registration or rejects the request ({{errors}}). A later registration request whose statement has the governing statement's `iss` and `sub` and an earlier `iat` is rejected. A public-client registration request that meets none of these cases is processed as a new registration.
 
 ## Registration Validity {#registration-validity}
 
@@ -219,7 +218,7 @@ Access issued under the registration after that update, including on refresh of 
 
 # Repeated Registration {#repeated-registration}
 
-One unexpired statement can be consumed more than once, subject to the bounds Sections 11.2 and 11.3 of {{STATEMENT}} describe and the server's registration policy. On repeated consumption, except for a public-client registration, local policy can reject the request, treat it as idempotent, or create another registration. A repeated public-client registration is answered with the existing registration as {{public-client-registration}} provides. An idempotent response MUST NOT return the existing registration's credentials, such as its `registration_access_token` member.
+One unexpired statement can be consumed more than once, subject to the bounds Sections 11.2 and 11.3 of {{STATEMENT}} describe and the server's registration policy. On repeated consumption, except for a public-client registration, local policy can reject the request, treat it as idempotent, or create another registration. A repeated public-client registration is handled as {{public-client-registration}} provides. An idempotent response MUST NOT return the existing registration's credentials, such as its `registration_access_token` member.
 
 # Error Responses {#errors}
 
