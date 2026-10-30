@@ -101,7 +101,7 @@ The reviewed document takes the role that {{RFC7591}} gives a statement's own va
   * A request MAY carry metadata, as {{RFC7591}} clients do, but it does not contribute to the registration.
   * The registered `client_id` is assigned as {{RFC7591}} provides, and the document's own `client_id` member is the URL recorded as `sub`.
 
-The authorization server MUST reject the registration with the `invalid_client_metadata` error code if any of the following holds:
+The authorization server MUST reject the registration if any of the following holds:
 
 * The document omits the `token_endpoint_auth_method` member.
 * The document declares `token_endpoint_auth_method` of `none`, unless the authorization server registers the client under {{public-client-registration}}.
@@ -128,7 +128,7 @@ The authorization server MUST treat a request under a statement-governed registr
 
 An authorization server MAY register a client whose reviewed document declares `token_endpoint_auth_method` of `none`. Such a registration is shared among installations of the software. It has no client credential and is bound instead as Section 5.6.2 of {{STATEMENT}} binds a public client at runtime. It has no {{RFC7592}} management, and the deliveries that {{revalidation}} lists at the token and pushed authorization request endpoints need no client authentication under it. A server that registers such a client:
 
-* MUST reject the registration with the `invalid_client_metadata` error code if the document lists no redirection URI.
+* MUST reject the registration if the document lists no redirection URI.
 * MUST issue tokens under the registration only through the authorization code grant and refresh of the grants it opens.
 * MUST require PKCE {{RFC7636}} with the `S256` method on every authorization request under the registration.
 * MUST require every authorization request under the registration to bind a key the client holds, through the `dpop_jkt` parameter or, at the pushed authorization request endpoint, a DPoP proof (Section 10.1 of {{RFC9449}}), and MUST require code redemption and every refresh of the resulting grant to prove that key.
@@ -139,7 +139,7 @@ An authorization server MAY register a client whose reviewed document declares `
   * That statement validates and is not superseded under the `iat` floor of Section 6 of {{STATEMENT}}.
   * That statement is confined to no tenant other than one the registration is already restricted to.
 
-If the later request's statement has an `iat` later than the governing statement's, the server evaluates it as {{revalidation}} provides for a delivery, renewing the registration with it or rejecting the request with the codes of {{errors}}.
+If the later request's statement has an `iat` later than the governing statement's, the server evaluates it as {{revalidation}} provides for a delivery, renewing the registration with it or rejecting the request ({{errors}}).
 
 ## Registration Validity {#registration-validity}
 
@@ -156,13 +156,7 @@ A server that uses a withdrawal mechanism for the governing statement's issuer S
 
 A server that records a required issuer for a tenant (Section 4 of {{STATEMENT}}) MUST reject an authorization, token, or pushed authorization request, or an {{RFC7592}} update request, in that tenant under any registration for software in a covered namespace unless, once any replacement the request delivers has been evaluated (step 3 of {{registration-requests}}), a current statement from the required issuer governs the registration. This rule applies whatever tenant the registration was created in and whenever the requirement was configured. Without this rule, withholding the required issuer's statement would keep such a registration in use after the issuer withdrew or stopped renewing its decision. A registration governed by another issuer's statement cannot satisfy the requirement.
 
-Rejections under a registration that is not valid, and under the required-issuer rule, take the following form:
-
-* At the token and pushed authorization request endpoints, the client is first authenticated against the registration, and a request that fails that authentication is rejected with `invalid_client`, as for an unknown client. Otherwise the request is rejected with `statement_required` (Section 8.1 of {{STATEMENT}}).
-* An {{RFC7592}} update request is rejected with `invalid_software_statement`.
-* An authorization request is rejected with `statement_required` in the authorization error response (Section 4.1.2.1 of {{RFC6749}}), or with `invalid_request` if it carries the `software_statement` parameter, as Section 8.4 of {{STATEMENT}} provides. The authorization server redirects with the error only after validating the request's `redirect_uri` against the registration. If the `redirect_uri` does not validate against the registration, the authorization server MUST NOT redirect and reports the error to the resource owner instead.
-
-{{RFC7592}} read and delete requests are not rejected.
+Neither the validity model nor the required-issuer rule rejects {{RFC7592}} read and delete requests.
 
 If an authorization server creates a confidential-client registration that permits no grant obtaining tokens without an authorization request or refresh token, such as the client credentials grant or an assertion grant, and for which it does not support {{RFC7592}} update requests, it MUST publish the `pushed_authorization_request_endpoint` metadata value. That registration's client could otherwise renew only while it holds a refresh token ({{revalidation}}).
 
@@ -197,7 +191,7 @@ A statement with the governing statement's `iss` and `sub` and an `iat` no later
 | --- | --- |
 | The governing statement itself, identified by its `iss` and `jti` | No replacement |
 | In an {{RFC7592}} update request, any statement with the governing statement's `iss` and `sub` and an `iat` no later than its own | No replacement |
-| At the token or pushed authorization request endpoint, any other statement with the governing statement's `iss` and `sub` and an earlier `iat` | Superseded under the `iat` floor of Section 6 of {{STATEMENT}}. The request is rejected with `statement_required` |
+| At the token or pushed authorization request endpoint, any other statement with the governing statement's `iss` and `sub` and an earlier `iat` | Superseded under the `iat` floor of Section 6 of {{STATEMENT}}. The request is rejected |
 | A statement with the governing statement's `iss` and `sub` and a later `iat` | A replacement, evaluated below |
 | Any other statement, such as one with another `iss` or `sub` | Fails the replacement rules below |
 
@@ -215,7 +209,7 @@ The replacement MUST satisfy the following:
 
 For a replacement, the authorization server MUST derive the registration's metadata from the document the replacement reviews, under the rules of {{dcr-presentation}}. Renewing on the statement alone would leave in the registration a key, redirection URI, or scope that the new review removed.
 
-A request whose replacement fails the rules above is rejected whether or not the registration has expired. At the token and pushed authorization request endpoints, such a request is rejected with `statement_required`, or with `temporarily_unavailable` if a retrieval needed to check the replacement did not complete for a reason other than the size bound of Section 3.1 of {{STATEMENT}}. At the client configuration endpoint, it is rejected with the codes of {{errors}}. A rejected delivery leaves the governing statement unchanged.
+A request whose replacement fails the rules above is rejected ({{errors}}) whether or not the registration has expired. A rejected delivery leaves the governing statement unchanged.
 
 On success, the replacement becomes the governing statement: the authorization server MUST replace the stored governing statement and its claims ({{registration-validity}}), the effective expiry, and the registration's metadata with the replacement's, and apply any tenant restriction it adds ({{dcr-presentation}}), in a single atomic update, and concurrent deliveries resolve to the most recently issued statement. A valid replacement restores a registration that has ceased to be valid, and an omitted or invalid one does not.
 
@@ -227,14 +221,10 @@ One unexpired statement can be consumed more than once, subject to the bounds Se
 
 # Error Responses {#errors}
 
-A rejection this specification defines, at a client registration endpoint or at the client configuration endpoint of {{RFC7592}}, uses the error response of Section 3.2.2 of {{RFC7591}}, with the HTTP status code that section specifies, except that an authorization server SHOULD respond with HTTP status code 503 to a request it rejects with the `temporarily_unavailable` error code.
-
-Rejections of a registration management request for other reasons use the responses {{RFC7592}} specifies. Rejections at other endpoints use the error responses of Section 8 of {{STATEMENT}}, and registration expiry is reported as {{registration-validity}} defines.
-
-An authorization server rejecting a registration request, or a registration management request for a reason this specification defines, uses the following error codes:
+A rejection this specification defines, at a client registration endpoint or at the client configuration endpoint of {{RFC7592}}, uses the error response of Section 3.2.2 of {{RFC7591}}, with the HTTP status code that section specifies, except that an authorization server SHOULD respond with HTTP status code 503 to a request it rejects with the `temporarily_unavailable` error code. Such a rejection uses the following error codes:
 
 `invalid_software_statement`:
-: The statement is malformed, fails signature or claim validation for a reason `unapproved_software_statement` does not cover, or is expired, refused by a refusal record, or superseded under the `iat` floor of Section 6 of {{STATEMENT}}. The code also applies when the digest of the retrieved document does not match the statement's `cimd_digest` claim, and when a replacement delivered at the client configuration endpoint, or a statement in a repeated public-client registration request evaluated as a replacement ({{public-client-registration}}), fails a replacement-specific rule of {{revalidation}} that this section assigns no other code, such as a `sub` claim that differs from the governing statement's or a change in whether the document declares `token_endpoint_auth_method` of `none`. It also applies to an {{RFC7592}} update request rejected under {{registration-validity}}.
+: The statement is malformed, fails signature or claim validation for a reason `unapproved_software_statement` does not cover, or is expired, refused by a refusal record, or superseded under the `iat` floor of Section 6 of {{STATEMENT}}. The code also applies to a `cimd_digest` mismatch ({{dcr-presentation}}), to an {{RFC7592}} update request rejected under {{registration-validity}}, and to a replacement delivered at the client configuration endpoint, or a statement in a repeated public-client registration request evaluated as a replacement ({{public-client-registration}}), when it fails a replacement-specific rule of {{revalidation}} that this section assigns no other code, such as a change in whether the document declares `token_endpoint_auth_method` of `none`.
 
 `unapproved_software_statement`:
 : The statement is valid but not acceptable here: its issuer is not configured, its `aud` excludes this server, its `sub` is outside the client identifier namespaces the issuer can attest, its `aud_tenant` is not this request's tenant or is absent when required, its issuer is confined to another tenant, or its `statement_uses` excludes this use. This code is also used if a statement this server requires is absent from a registration request.
@@ -243,17 +233,22 @@ An authorization server rejecting a registration request, or a registration mana
 : Any of the following holds for the reviewed document:
 
   * It contains duplicate member names (Section 3.2 of {{STATEMENT}}).
-  * It fails validation as {{CIMD}} requires, including a `client_id` member that does not match the statement's `sub` ({{dcr-presentation}}).
+  * It fails validation as {{CIMD}} requires ({{dcr-presentation}}).
   * It carries metadata this server's policy refuses.
   * It exceeds the server's size bound (Section 3.1 of {{STATEMENT}}).
   * It cannot be obtained for a reason other than a retrieval that did not complete (Section 5.3 of {{STATEMENT}}).
-  * It omits `token_endpoint_auth_method` ({{dcr-presentation}}).
-  * It declares `token_endpoint_auth_method` of `none` and the server does not register it under {{public-client-registration}}.
-  * It declares `token_endpoint_auth_method` of `none` and lists no redirection URI ({{public-client-registration}}).
-  * It carries a redirection URI another application could claim ({{dcr-presentation}}).
+  * It omits `token_endpoint_auth_method`, or carries a redirection URI another application could claim ({{dcr-presentation}}).
+  * It declares `token_endpoint_auth_method` of `none`, and the server does not register it under {{public-client-registration}} or it lists no redirection URI.
 
 `temporarily_unavailable`:
 : A retrieval the request needs did not complete, for a reason other than the size bound of Section 3.1 of {{STATEMENT}}.
+
+Rejections at other endpoints use the error responses of Section 8 of {{STATEMENT}}. At the token, pushed authorization request, and authorization endpoints, rejections take the following form under a statement-governed registration that is not valid, under the required-issuer rule ({{registration-validity}}), and for a delivered statement superseded or failing the replacement rules ({{revalidation}}):
+
+* At the token and pushed authorization request endpoints, the client is first authenticated against the registration, and a request that fails that authentication is rejected with `invalid_client`, as for an unknown client. Otherwise the request is rejected with `statement_required` (Section 8.1 of {{STATEMENT}}), or with `temporarily_unavailable` if a retrieval needed to check the replacement did not complete for a reason other than the size bound of Section 3.1 of {{STATEMENT}}.
+* An authorization request is rejected with `statement_required` in the authorization error response (Section 4.1.2.1 of {{RFC6749}}), or with `invalid_request` if it carries the `software_statement` parameter, as Section 8.4 of {{STATEMENT}} provides. The authorization server redirects with the error only after validating the request's `redirect_uri` against the registration. If the `redirect_uri` does not validate against the registration, the authorization server MUST NOT redirect and reports the error to the resource owner instead.
+
+Rejections of a registration management request for other reasons use the responses {{RFC7592}} specifies.
 
 # Example {#example}
 
