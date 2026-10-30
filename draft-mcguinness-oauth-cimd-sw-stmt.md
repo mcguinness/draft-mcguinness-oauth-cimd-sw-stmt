@@ -367,7 +367,7 @@ A runtime presentation that is not review-only ({{review-only}}) MUST be sender-
 * Confidential client (a method other than `none`): by a key the statement attests ({{confidential-client-presentation}}).
 * Public client (`none`): by an installation key the presenter binds ({{public-client-presentation}}), while its reviewed redirection URIs, with PKCE `S256`, bind the presentation itself.
 
-The authorization server MUST reject a presentation under a reviewed document that omits the `token_endpoint_auth_method` member, even if the presentation is review-only.
+The authorization server MUST reject a presentation made in a request ({{runtime-presentation}}) under a reviewed document that omits the `token_endpoint_auth_method` member, even if the presentation is review-only. {{pull-binding}} covers a pulled statement.
 
 For a presentation that is not review-only, under either model:
 
@@ -386,7 +386,7 @@ The key set at the document's `jwks_uri` is obtained when the presentation is pr
 
 Software distributed to end users cannot hold a key its reviewed document carries: a key shipped in every copy identifies the software, not the installation. Such a document declares `token_endpoint_auth_method` of `none` and carries no key material.
 
-An authorization server MUST reject a presentation, even a review-only one, that opens a new grant at the token endpoint ({{token-requests}}) from a public client. Such a presentation opens no redirect and has nothing to bind it.
+An authorization server MUST reject a presentation made in a request, even a review-only one, that opens a new grant at the token endpoint ({{token-requests}}) from a public client. Such a presentation opens no redirect and has nothing to bind it. {{pull-binding}} covers a pulled statement.
 
 For a public client's presentation that is not review-only, at the pushed authorization request endpoint, the authorization server:
 
@@ -486,7 +486,7 @@ A presentation at the token or pushed authorization request endpoint is rejected
 : Any of the following:
 
   * The statement is malformed or fails validation ({{validation}}) for a reason other than expiry.
-  * The request's `client_id` differs from the statement's `sub` ({{runtime-presentation}}), or the request fails the sender constraint ({{sender-constraint}}), including a presentation under a document that omits `token_endpoint_auth_method` and one opening a new grant at the token endpoint for a public client ({{public-client-presentation}}).
+  * The request's `client_id` differs from the statement's `sub` ({{runtime-presentation}}), or the request fails the sender constraint ({{sender-constraint}}), including a presentation made in a request under a document that omits `token_endpoint_auth_method` and one opening a new grant at the token endpoint for a public client ({{public-client-presentation}}).
   * The reviewed document cannot be obtained, including over the size bound, fails validation as {{CIMD}} requires, contains duplicate member names ({{validation}}), or does not match and the server does not proceed without the statement ({{effective-metadata}}).
   * The bound on establishments is reached ({{establishment-bounds}}).
 
