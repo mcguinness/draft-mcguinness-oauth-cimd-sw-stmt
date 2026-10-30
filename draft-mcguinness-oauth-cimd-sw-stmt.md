@@ -146,7 +146,7 @@ Review-Only:
 : Describes a presentation, or a pulled statement, that the authorization server evaluates but that admits nothing ({{review-only}}).
 
 Tenant:
-: A partition of an authorization server's configuration and issued tokens, such as one customer's, that the server identifies by its own means or from a signed assertion it has validated, never from a value the client chooses ({{validation}}).
+: A partition of an authorization server's configuration and issued tokens, such as one customer's. {{validation}} says how the authorization server determines a request's tenant.
 
 # The Software Statement {#profiles}
 
@@ -212,7 +212,7 @@ Before accepting a statement, a trusting authorization server MUST ensure the fo
 * Every required claim of {{profiles}} is present and of the correct type.
 * The statement is not expired, and its `iat` is not unreasonably far in the future according to the server's clock-skew policy.
 * If the statement carries `aud`, a value in it exactly matches one of the server's audience identifiers that its trust configuration permits the statement's issuer to name ({{issuer-trust}}).
-* If the statement carries `aud_tenant`, `aud` carries exactly one value and `aud_tenant` identifies the tenant this request belongs to, resolved before the statement is evaluated, by the server's own means or from a signed assertion it has validated, and never from a value the client chooses.
+* If the statement carries `aud_tenant`, `aud` carries exactly one value and `aud_tenant` identifies the request's tenant.
 * If the server requires a tenant-scoped decision for the request, the statement carries `aud_tenant`, or the server's trust configuration confines the statement's issuer to the request's tenant ({{issuer-trust}}).
 * If the server's trust configuration confines the statement's issuer to a tenant, the request belongs to that tenant.
 * The use being made of the statement is one it permits: a use its `statement_uses` claim names or, if the claim is absent, presentation ({{profiles}}). A value the server does not recognize names no use it serves.
@@ -220,7 +220,7 @@ Before accepting a statement, a trusting authorization server MUST ensure the fo
 * Any claim the server does not recognize, and any client metadata claim ({{profiles}}), is ignored.
 * The JWT validation guidance in {{RFC8725}} has been applied.
 
-A trusting authorization server that hosts more than one tenant MUST evaluate every tenant-specific check, such as the `aud_tenant` claim and a required issuer ({{issuer-trust}}), against the tenant that scopes what it issues on the statement, never selected by a value the client chooses.
+A trusting authorization server that hosts more than one tenant MUST evaluate every tenant-specific check, such as the `aud_tenant` claim and a required issuer ({{issuer-trust}}), against the request's tenant: the tenant that scopes what it issues on the statement, which it determines before evaluating the statement, by its own means or from a signed assertion it has validated, and never from a value the client chooses.
 
 A trusting authorization server resolving the reviewed document MUST reject a document containing duplicate object member names. Parsers interpret such names differently despite an identical digest.
 
