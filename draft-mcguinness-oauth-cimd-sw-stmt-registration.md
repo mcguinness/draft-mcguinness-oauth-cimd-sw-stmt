@@ -179,11 +179,11 @@ The authorization server MUST process an authorization, token, or pushed authori
 
 ## Renewal {#revalidation}
 
-A client renews a statement-governed registration by delivering a replacement statement in one of the following:
+A client renews a statement-governed registration by delivering a replacement statement in one of the following, authenticated as step 2 of {{registration-requests}} provides:
 
-* The `software_statement` parameter of a token request under the registration, authenticated as the registered client under the registration's own method.
-* The `software_statement` parameter of an authenticated pushed authorization request {{RFC9126}} under the registration.
-* The `software_statement` member of an authenticated {{RFC7592}} update request, if the deployment offers registration management.
+* The `software_statement` parameter of a token request under the registration.
+* The `software_statement` parameter of a pushed authorization request {{RFC9126}} under the registration.
+* The `software_statement` member of an {{RFC7592}} update request, if the deployment offers registration management.
 
 A statement carried in one of these locations under a statement-governed registration is a delivery. A delivery is a `registration` use of the statement (Section 3 of {{STATEMENT}}). A registration request is not a delivery: it never renews an existing registration, except a public-client registration ({{public-client-registration}}). A registration created without a statement is not statement-governed: a statement neither renews nor alters it and is not a delivery. The server applies a reviewed change to such a registration, if at all, through its own registration policy, deriving metadata only from a reviewed document ({{dcr-presentation}}). Nor does runtime presentation (Section 5 of {{STATEMENT}}) alter any registration's metadata.
 
