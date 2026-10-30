@@ -49,7 +49,6 @@ normative:
 informative:
   RFC8705:
   RFC8252:
-  STATUSLIST: I-D.ietf-oauth-status-list
   REGISTRATION:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration
     title: "Client ID Metadata Document Software Statement Registration"
@@ -151,7 +150,7 @@ Tenant:
 
 The software statement is a compact JWT {{RFC7519}} protected by JWS {{RFC7515}}. Although {{RFC7591}} permits a MAC, a statement issued under this specification MUST use an asymmetric digital signature, and the `none` algorithm and symmetric algorithms MUST NOT be used. Issuers and trusting authorization servers follow {{RFC8725}}.
 
-The JOSE header MUST include the `kid` header parameter, identifying the signing key in the issuer's statement key set ({{issuer-trust}}), and the `typ` header parameter with the value `software-statement+jwt` (Section 3.11 of {{RFC8725}}). Extensions can add claims. An incompatible revision would use a new `typ` value.
+The JOSE header MUST include the `kid` header parameter, identifying the signing key in the issuer's statement key set ({{issuer-trust}}), and the `typ` header parameter with the value `software-statement+jwt` (Section 3.11 of {{RFC8725}}). An incompatible revision would use a new `typ` value.
 
 A statement asserts that its issuer evaluated the CIMD whose content the digest identifies, and vouches for that document. The JWT payload contains the following claims.
 
@@ -184,8 +183,7 @@ A statement asserts that its issuer evaluated the CIMD whose content the digest 
 `cimd_digest`:
 : REQUIRED. The metadata digest ({{metadata-digest}}) of the CIMD the issuer evaluated.
 
-`status`:
-: OPTIONAL. The `status` claim as {{STATUSLIST}} defines it, by which a statement locates itself in a Status List Token. Only a withdrawal mechanism that uses the claim processes it. This specification does not ({{LIFECYCLE}}).
+Profiles and extensions can define further claims, such as the `status` claim by which {{LIFECYCLE}} locates a statement in a Status List Token. A trusting authorization server ignores a claim it does not recognize ({{validation}}).
 
 A statement issued under this specification MUST NOT contain a claim named in the IANA "OAuth Dynamic Client Registration Metadata" registry, and a trusting authorization server MUST NOT take client metadata from a statement's claims. A trusting authorization server ignores such a claim rather than rejecting the statement ({{validation}}).
 
@@ -633,7 +631,7 @@ The following extensions are left to separate specifications:
 * Statement conveyance within a client attestation, rather than as a request parameter.
 * Runtime presentation on grants other than those {{token-requests}} names, such as token exchange.
 * Partial review, by which an issuer vouches for particular members rather than a whole document ({{profiles}}).
-* Statement lifecycle ({{LIFECYCLE}}): withdrawal, supersession, requiring a current statement on refresh, and refresh replacement, with withdrawal mechanisms such as Token Status List {{STATUSLIST}}.
+* Statement lifecycle ({{LIFECYCLE}}): withdrawal, supersession, requiring a current statement on refresh, and refresh replacement.
 
 # Implementation Considerations {#implementation-considerations}
 
@@ -834,7 +832,7 @@ Change controller:
 
 ## Claims Defined Elsewhere
 
-This specification uses two claims it does not define: `aud_tenant`, defined and registered by {{IDJAG}}, and `status`, defined and registered by {{STATUSLIST}}. This section requests no IANA action.
+This specification uses one claim it does not define: `aud_tenant`, defined and registered by {{IDJAG}}. This section requests no IANA action.
 
 ## JSON Web Token Claims Registry
 

@@ -216,7 +216,7 @@ For an issuer that is not an authorization server (Section 4 of {{STATEMENT}}) a
 
 ## Status Publication {#status-publication}
 
-An issuer that uses Token Status List publishes the status of its statements as {{STATUSLIST}} defines, and each statement's `status` claim (Section 3 of {{STATEMENT}}) locates its entry in the issuer's Status List Token. An issuer that publishes status:
+An issuer that uses Token Status List publishes the status of its statements as {{STATUSLIST}} defines. A statement locates its entry in the issuer's Status List Token through the `status` claim, whose `status_list` member gives the status list URI and index (Section 6.2 of {{STATUSLIST}}). The claim extends the statement as Section 3 of {{STATEMENT}} permits, and a server that does not implement this specification ignores it. An issuer that publishes status:
 
 * MUST publish status, and carry the `status` claim, for every statement it issues under a given `iss` from the point it begins publishing. Once statements issued before that point have expired, a trusting authorization server can read an absent claim as meaning the issuer publishes no status.
 * MUST NOT assign the same combination of status list URI and index to more than one statement, including across successive Status List Tokens published at that URI. Withdrawing a statement then affects no other.
