@@ -143,7 +143,7 @@ Current Statement:
 : A statement whose effective expiry has not passed and that no extension the server implements, such as {{LIFECYCLE}}, has ended.
 
 Review-Only:
-: Describes a presentation, or a pulled statement, that the authorization server evaluates but that admits nothing ({{review-only}}).
+: Describes a presentation, or a pulled statement, that the authorization server evaluates but whose statement counts for nothing in admission ({{review-only}}).
 
 Tenant:
 : A partition of an authorization server's configuration and issued tokens, such as one customer's. {{validation}} says how the authorization server determines a request's tenant.
