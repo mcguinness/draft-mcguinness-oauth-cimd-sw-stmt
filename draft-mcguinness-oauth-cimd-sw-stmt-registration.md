@@ -190,7 +190,7 @@ A statement with the governing statement's `iss` and `sub` and an `iat` no later
 | Statement delivered | Treatment |
 | --- | --- |
 | The governing statement itself, identified by its `iss` and `jti` | No replacement |
-| In an {{RFC7592}} update request, any statement with the governing statement's `iss` and `sub` and an `iat` no later than its own | No replacement |
+| In an {{RFC7592}} update request, any statement with the governing statement's `iss` and `sub` and an `iat` no later than the governing statement's | No replacement |
 | At the token or pushed authorization request endpoint, any other statement with the governing statement's `iss` and `sub` and an earlier `iat` | Superseded under the `iat` floor of Section 6 of {{STATEMENT}}. The request is rejected |
 | A statement with the governing statement's `iss` and `sub` and a later `iat` | A replacement, evaluated below |
 | Any other statement, such as one with another `iss` or `sub` | Fails the replacement rules below |
