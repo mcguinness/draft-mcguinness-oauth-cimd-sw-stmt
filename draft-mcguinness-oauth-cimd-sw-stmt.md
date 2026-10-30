@@ -222,7 +222,7 @@ A trusting authorization server that hosts more than one tenant MUST evaluate ev
 
 Rejections outside a registration endpoint use {{errors}}.
 
-# Issuer Trust Establishment {#issuer-trust}
+# Issuer Trust {#issuer-trust}
 
 A trusting authorization server accepts statements only from issuers in its trust configuration, which is established out of band. This specification defines no in-band issuer discovery or trust decision. The configuration, not the signature alone, defines acceptance: a trusting authorization server MUST derive trust from it and MUST NOT derive it from an `iss`, `jku`, `x5u`, or other key-location value carried in a presented statement.
 

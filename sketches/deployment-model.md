@@ -171,13 +171,13 @@ What does not compose is metadata. Resolved metadata is derived, and parties oth
 | --- | --- | --- |
 | Statement format, claims, digest | Statement | The Software Statement |
 | Validation a consumer performs | Statement | Validating a Statement |
-| Issuer trust and scoping | Statement | Issuer Trust Establishment |
+| Issuer trust and scoping | Statement | Issuer Trust |
 | Document-authoritative registration, validity, renewal | Registration | Consumption at Registration, Registration Validity, Renewal |
 | Admission without registration | Statement | Runtime Presentation |
 | Fetching a statement the client publishes | Statement | Pulled Statements |
-| A customer's decision in its own tenant | Statement | `aud_tenant` claim, Issuer Trust Establishment |
+| A customer's decision in its own tenant | Statement | `aud_tenant` claim, Issuer Trust |
 | Presenter binding | Statement | Sender Constraint |
-| Discovery | Statement | Authorization Server Metadata, Issuer Trust Establishment |
+| Discovery | Statement | Authorization Server Metadata, Issuer Trust |
 | How a client obtains a statement | Issuance | Token Exchange Profile, Software Statement Authorization Request, Deferred Processing |
 | Renewal from a prior statement | Issuance | Renewal |
 | Ending a review before expiry | Lifecycle | Withdrawal and Refusal Records; Token Status List |

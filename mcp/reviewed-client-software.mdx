@@ -99,7 +99,7 @@ It **MAY** also accept presented statements.
 
 ### 4.2 Issuer Trust
 
-The MCP Authorization Server **MUST** accept statements only from Statement Issuers it has configured, as [Issuer Trust Establishment](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt.html#issuer-trust) requires, and **SHOULD** limit each issuer to the client identifier namespaces it is expected to vouch for. It obtains each issuer's statement signing keys from the issuer's `software_statement_jwks_uri`, or, for an issuer that is not an authorization server, from a statement key set URL recorded in its trust configuration, and never from a statement or the client's document.
+The MCP Authorization Server **MUST** accept statements only from Statement Issuers it has configured, as [Issuer Trust](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt.html#issuer-trust) requires, and **SHOULD** limit each issuer to the client identifier namespaces it is expected to vouch for. It obtains each issuer's statement signing keys from the issuer's `software_statement_jwks_uri`, or, for an issuer that is not an authorization server, from a statement key set URL recorded in its trust configuration, and never from a statement or the client's document.
 
 ### 4.3 Admission
 
