@@ -215,7 +215,7 @@ Table of Contents
 
    *  MUST reject the registration with the invalid_client_metadata
       error code if any of the document's redirection URIs could be
-      claimed by another application on the same device (Section 5.4.1
+      claimed by another application on the same device (Section 5.6.3
       of [STATEMENT]), whatever authentication method the document
       declares.
 
@@ -264,13 +264,13 @@ Table of Contents
    secret to any holder of a copy.  Software whose document declares
    token_endpoint_auth_method of none and that the server does not
    register under Section 3.1 can instead use runtime presentation if it
-   meets the public-client binding requirements of Section 5.4.1 of
+   meets the public-client binding requirements of Section 5.6.2 of
    [STATEMENT].
 
    The retrieval requirements of Sections 3.1 and 5.3 of [STATEMENT]
    apply to retrieving the document as they apply to a runtime
    presentation, and a server can apply the bounds that specification
-   describes.  Following the order of Section 5.3 of [STATEMENT], the
+   describes.  Following the order of Section 5.1 of [STATEMENT], the
    authorization server completes every check that needs no client-
    controlled retrieval before resolving the document.
 
@@ -279,7 +279,7 @@ Table of Contents
    An authorization server MAY register a client whose reviewed document
    declares token_endpoint_auth_method of none.  Such a registration has
    no client credential.  The registration is bound instead as
-   Section 5.4.1 of [STATEMENT] binds a public client at runtime.  A
+   Section 5.6.2 of [STATEMENT] binds a public client at runtime.  A
    server that registers such a client:
 
    *  MUST reject the registration with the invalid_client_metadata
@@ -365,7 +365,7 @@ Table of Contents
 
    A server that uses a withdrawal mechanism for the governing
    statement's issuer SHOULD consult it for that statement at each token
-   request under the registration, as Section 5.6.1 of [STATEMENT]
+   request under the registration, as Section 5.7.1 of [STATEMENT]
    provides for refresh.
 
    A server that records a required issuer for a tenant (Section 4 of
@@ -534,7 +534,7 @@ Table of Contents
 
    Access issued under the registration after that update, including on
    refresh of a grant issued before it, MUST fall within the re-derived
-   metadata, as Section 5.6.1 of [STATEMENT] requires of a refreshed
+   metadata, as Section 5.7.1 of [STATEMENT] requires of a refreshed
    grant.
 
    When a request under a registration that has ceased to be valid
@@ -750,7 +750,7 @@ Table of Contents
    credential rotation, sender-constrained client authentication, and
    the bounds that Sections 12.2 and 12.3 of [STATEMENT] and Section 4
    describe, and ought to treat a credential compromise as requiring re-
-   registration rather than renewal.  Runtime presentation (Section 5.4
+   registration rather than renewal.  Runtime presentation (Section 5.6
    of [STATEMENT]) binds every presenter to the reviewed document,
    through a key the document carries or its reviewed redirection URIs,
    and so does not have this limitation, though the redirection binding

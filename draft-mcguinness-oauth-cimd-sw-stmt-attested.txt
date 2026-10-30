@@ -851,15 +851,15 @@ Table of Contents
     |       | software from the tenant.  | required issuer can admit  |
     |       |                            | the software.              |
     +-------+----------------------------+----------------------------+
-    |5.2    | A statement pulled at the  | The binding is set at the  |
+    |5.5    | A statement pulled at the  | The binding is set at the  |
     |       | authorization endpoint     | PAR endpoint; an           |
     |       | binds the presenter at     | authorization request      |
     |       | code redemption.           | without a PAR request_uri  |
     |       |                            | governed by this profile   |
     |       |                            | is rejected (Section 7.3). |
     +-------+----------------------------+----------------------------+
-    |5.3,   | The statement and the      | The instance is            |
-    |5.5    | document are checked       | authenticated first        |
+    |5.1,   | The statement and the      | The instance is            |
+    |5.2    | document are checked       | authenticated first        |
     |       | before the proof.          | (Section 7.1, step 1).     |
     |       |                            | Statement and document     |
     |       |                            | checks follow, and checks  |
@@ -868,8 +868,8 @@ Table of Contents
     |       |                            | precede such retrieval.    |
     +-------+----------------------------+----------------------------+
     |5.2,   | A request without an       | No fallback: any failed    |
-    |5.4.1, | acceptable statement can   | check rejects the request  |
-    |5.5    | proceed under the policy   | (Section 7.1).             |
+    |5.5,   | acceptable statement can   | check rejects the request  |
+    |5.6.3  | proceed under the policy   | (Section 7.1).             |
     |       | for unreviewed clients, a  |                            |
     |       | review-only presentation   |                            |
     |       | proceeds as a client       |                            |
@@ -878,14 +878,14 @@ Table of Contents
     |       | proceed without the        |                            |
     |       | statement.                 |                            |
     +-------+----------------------------+----------------------------+
-    |5.4    | The proven key appears in  | The proven key is the      |
+    |5.6.1  | The proven key appears in  | The proven key is the      |
     |       | the reviewed document's    | attested key               |
     |       | jwks or at its jwks_uri.   | (Section 6.1), and the     |
     |       |                            | document carries no key    |
     |       |                            | material (Section 4).      |
     +-------+----------------------------+----------------------------+
-    |5.4.1  | A redirection URI another  | A presentation processed   |
-    |       | application could claim    | under Section 7.1 whose    |
+    |5.6.2, | A redirection URI another  | A presentation processed   |
+    |5.6.3  | application could claim    | under Section 7.1 whose    |
     |       | makes a presentation       | redirects meet Section 4.1 |
     |       | review-only, and a         | is not review-only.  The   |
     |       | document declaring         | client is confidential and |
@@ -894,7 +894,7 @@ Table of Contents
     |       | is bound by its            | the public-client rules do |
     |       | redirection URIs.          | not apply.                 |
     +-------+----------------------------+----------------------------+
-    |5.6    | Expiry after presentation  | Redemption also requires   |
+    |5.7    | Expiry after presentation  | Redemption also requires   |
     |       | does not invalidate an     | the recorded statement to  |
     |       | establishment, and         | be unexpired and           |
     |       | redemption checks the      | unrefused, and the current |
@@ -902,7 +902,7 @@ Table of Contents
     |       |                            | recorded digest            |
     |       |                            | (Section 7.4).             |
     +-------+----------------------------+----------------------------+
-    |5.6.1  | A current statement on     | Every refresh requires a   |
+    |5.7.1  | A current statement on     | Every refresh requires a   |
     |       | refresh is a local-policy  | current statement, re-     |
     |       | option, recommended once   | checks the document        |
     |       | the recorded statement     | against the recorded       |
