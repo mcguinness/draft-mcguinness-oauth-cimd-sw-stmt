@@ -416,17 +416,16 @@ The statement of a review-only presentation, or a review-only pulled statement, 
 
 ## Grant Lifecycle {#grant-lifecycle}
 
-A successful presentation creates an establishment comprising the following:
+A successful presentation creates an establishment: the state against which the subsequent authorization request, code redemption and refresh under the grant it opens are checked. It comprises the following:
 
 * The validated `sub`.
 * The statement identity (its `iss` and `jti`), its `iat` and effective expiry, and any claim by which a withdrawal mechanism locates it, such as `status`.
 * The authorization server's own tenant the grant was opened for, if it hosts more than one.
 * The reviewed metadata and the digest it matched ({{effective-metadata}}).
 * The issuer trust decision.
-* The sender-constraint mechanism and proven key.
-* Whether the proven key is set at code redemption, for a statement pulled at the authorization endpoint for a confidential client ({{pulled-statements}}).
+* The sender-constraint mechanism and proven key, which for a statement pulled at the authorization endpoint for a confidential client is set at code redemption ({{pulled-statements}}).
 
-The establishment persists while the grant depends on it. The authorization server MUST bind the resulting `request_uri`, authorization code, refresh token, and other grant continuation state to the establishment, as applicable ({{grant-state}}).
+The authorization server MUST bind the resulting `request_uri`, authorization code, refresh token, and other grant continuation state to the establishment, as applicable.
 
 A replacement accepted on refresh MUST apply only to the grant refreshed ({{refresh}}). Any other grant, `request_uri`, or authorization code bound to the same establishment keeps the state its request was evaluated against.
 
@@ -472,7 +471,7 @@ On refresh-token use, the authorization server proceeds as follows. A refresh re
 
 5. Enforce currency. If the authorization server holds a refusal record for the recorded statement, it MUST reject a refresh without an accepted replacement, whatever its policy on requiring a current statement otherwise. If a required issuer ({{issuer-trust}}) covers the establishment's `sub` in the establishment's tenant, the server MUST reject a refresh unless the recorded statement or an accepted replacement is a current statement from that issuer. A grant recorded under another issuer's statement cannot meet this, so its client opens a new grant by presentation.
 
-6. Bound access and update. The refreshed access MUST fall within the metadata of the document an accepted replacement names or, without one, the establishment's reviewed metadata. If a replacement is accepted, the refreshed grant's statement identity, `iat`, effective expiry, any claim by which a withdrawal mechanism locates the statement, reviewed metadata and the digest it matched, and trust decision become the replacement's ({{grant-state}}) in one atomic update, and concurrent replacements resolve to the most recently issued statement. Without one, the grant's state is unchanged.
+6. Bound access and update. The refreshed access MUST fall within the metadata of the document an accepted replacement names or, without one, the establishment's reviewed metadata. If a replacement is accepted, every item of the refreshed grant's establishment ({{grant-lifecycle}}) other than the `sub`, the tenant, and the sender-constraint mechanism and proven key becomes the replacement's in one atomic update, and concurrent replacements resolve to the most recently issued statement. Without one, the grant's state is unchanged.
 
 Refresh never rotates the establishment's key. A client that needs a new key performs a new presentation.
 
