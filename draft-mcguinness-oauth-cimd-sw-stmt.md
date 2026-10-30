@@ -679,7 +679,7 @@ When a trusting authorization server configures an issuer whose decisions are co
 
 ## Audience and Tenant Claims {#audience-practice}
 
-An issuer ought to name an audience and, for a statement whose `statement_uses` claim permits registration, to omit the `aud` claim only if it accepts that any server trusting the issuer can register the software on the strength of a copy ({{REGISTRATION}}).
+An issuer ought to name an audience.
 
 An issuer ought to omit the `aud_tenant` claim from a statement whose review applies wherever its `aud` reaches, such as a marketplace listing. The claim is also unnecessary if the authorization server has one tenant, or if the issuer and the server have agreed that the server's trust configuration confines the issuer to a tenant, as they can for an issuer that does not know the tenant's identifier.
 
