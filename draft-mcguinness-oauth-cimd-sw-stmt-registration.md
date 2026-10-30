@@ -101,7 +101,7 @@ The reviewed document takes the role that {{RFC7591}} gives a statement's own va
   * A request MAY carry metadata, as {{RFC7591}} clients do, but it does not contribute to the registration.
   * The registered `client_id` is assigned as {{RFC7591}} provides, and the document's own `client_id` member is the URL recorded as `sub`.
 
-The authorization server MUST reject the registration if any of the following holds:
+The authorization server MUST reject the registration, or a replacement ({{revalidation}}), if any of the following holds:
 
 * The document omits the `token_endpoint_auth_method` member.
 * The document declares `token_endpoint_auth_method` of `none`, unless the authorization server registers the client under {{public-client-registration}}.
