@@ -104,8 +104,7 @@ Table of Contents
      11.1.  Caching and Reuse of Retrieved Content
      11.2.  Retrieval and Processing Bounds
      11.3.  Bounding Establishments
-     11.4.  Grant State
-     11.5.  User Interface, Audit, and Logging
+     11.4.  User Interface, Audit, and Logging
    12. Deployment Considerations
      12.1.  Configuring Issuer Trust
      12.2.  Audience and Tenant Claims
@@ -317,8 +316,7 @@ Table of Contents
    iat:  REQUIRED.  A NumericDate value, which MUST be an integer,
       giving the time the statement was issued.  An issuer MUST ensure
       that the iat claim values of its statements for a given iss and
-      sub increase strictly, whichever of its signing nodes signs
-      (Section 5.7.1, Section 3.4).
+      sub increase strictly (Section 3.4, Section 5.7.1).
 
    exp:  REQUIRED.  A NumericDate value giving the expiration time.
 
@@ -934,7 +932,7 @@ Table of Contents
    A review-only presentation or pulled statement creates no
    establishment, admits nothing, and does not advance the iat floor of
    Section 3.4.  The authorization server proceeds as it would for the
-   same CIMD client presenting no statement (Section 11.5).
+   same CIMD client presenting no statement (Section 11.4).
 
    The statement of a review-only presentation, or a review-only pulled
    statement, MUST NOT satisfy a policy requiring reviewed software.  If
@@ -943,7 +941,9 @@ Table of Contents
 
 5.7.  Grant Lifecycle
 
-   A successful presentation creates an establishment comprising the
+   A successful presentation creates an establishment: the state against
+   which the subsequent authorization request, code redemption and
+   refresh under the grant it opens are checked.  It comprises the
    following:
 
    *  The validated sub.
@@ -959,16 +959,13 @@ Table of Contents
 
    *  The issuer trust decision.
 
-   *  The sender-constraint mechanism and proven key.
+   *  The sender-constraint mechanism and proven key, which for a
+      statement pulled at the authorization endpoint for a confidential
+      client is set at code redemption (Section 5.5).
 
-   *  Whether the proven key is set at code redemption, for a statement
-      pulled at the authorization endpoint for a confidential client
-      (Section 5.5).
-
-   The establishment persists while the grant depends on it.  The
-   authorization server MUST bind the resulting request_uri,
+   The authorization server MUST bind the resulting request_uri,
    authorization code, refresh token, and other grant continuation state
-   to the establishment, as applicable (Section 11.4).
+   to the establishment, as applicable.
 
    A replacement accepted on refresh MUST apply only to the grant
    refreshed (Section 5.7.1).  Any other grant, request_uri, or
@@ -1086,11 +1083,10 @@ Table of Contents
    6.  Bound access and update.  The refreshed access MUST fall within
        the metadata of the document an accepted replacement names or,
        without one, the establishment's reviewed metadata.  If a
-       replacement is accepted, the refreshed grant's statement
-       identity, iat, effective expiry, any claim by which a withdrawal
-       mechanism locates the statement, reviewed metadata and the digest
-       it matched, and trust decision become the replacement's
-       (Section 11.4) in one atomic update, and concurrent replacements
+       replacement is accepted, every item of the refreshed grant's
+       establishment (Section 5.7) other than the sub, the tenant, and
+       the sender-constraint mechanism and proven key becomes the
+       replacement's in one atomic update, and concurrent replacements
        resolve to the most recently issued statement.  Without one, the
        grant's state is unchanged.
 
@@ -1507,21 +1503,7 @@ Table of Contents
    server ought to state that reason in error_description, and the
    client can retry once earlier establishments are released.
 
-11.4.  Grant State
-
-   An authorization server can reuse an establishment across
-   presentations that resolve to the same sub, statement, tenant,
-   sender-constraint mechanism, and proven key, and can discard it once
-   no request_uri, authorization code, refresh token, or other
-   continuation state references it (Section 5.7).  A server does not
-   share an establishment whose proven key is set at code redemption
-   (Section 5.5) until that key is set.
-
-   A server that shares an establishment among grants applies a
-   replacement accepted on refresh by giving the refreshed grant its own
-   establishment (Section 5.7.1).
-
-11.5.  User Interface, Audit, and Logging
+11.4.  User Interface, Audit, and Logging
 
    An authorization server ought not to present the review in a review-
    only presentation to the user as an assurance about the presenter
@@ -1785,7 +1767,7 @@ Table of Contents
 
    A central issuer also learns from renewals which of its statements
    are in active use, so issuance and renewal logs deserve the same care
-   as the statements (Section 11.5).
+   as the statements (Section 11.4).
 
    Retrieving the document tells its host that the server is resolving
    the client.  Pulling statements (Section 5.5) tells the host of

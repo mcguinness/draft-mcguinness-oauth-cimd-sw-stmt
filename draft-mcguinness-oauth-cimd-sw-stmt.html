@@ -1287,10 +1287,7 @@ svg {
                 <p id="section-toc.1-1.11.2.3.1"><a href="#section-11.3" class="auto internal xref">11.3</a>.  <a href="#name-bounding-establishments" class="internal xref">Bounding Establishments</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.4">
-                <p id="section-toc.1-1.11.2.4.1"><a href="#section-11.4" class="auto internal xref">11.4</a>.  <a href="#name-grant-state" class="internal xref">Grant State</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.5">
-                <p id="section-toc.1-1.11.2.5.1"><a href="#section-11.5" class="auto internal xref">11.5</a>.  <a href="#name-user-interface-audit-and-lo" class="internal xref">User Interface, Audit, and Logging</a></p>
+                <p id="section-toc.1-1.11.2.4.1"><a href="#section-11.4" class="auto internal xref">11.4</a>.  <a href="#name-user-interface-audit-and-lo" class="internal xref">User Interface, Audit, and Logging</a></p>
 </li>
             </ul>
 </li>
@@ -1534,7 +1531,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <dt id="section-3-4.11">
 <code>iat</code>:</dt>
         <dd style="margin-left: 1.5em" id="section-3-4.12">
-          <p id="section-3-4.12.1"><span class="bcp14">REQUIRED</span>. A NumericDate value, which <span class="bcp14">MUST</span> be an integer, giving the time the statement was issued. An issuer <span class="bcp14">MUST</span> ensure that the <code>iat</code> claim values of its statements for a given <code>iss</code> and <code>sub</code> increase strictly, whichever of its signing nodes signs (<a href="#refresh" class="auto internal xref">Section 5.7.1</a>, <a href="#multi-instance" class="auto internal xref">Section 3.4</a>).<a href="#section-3-4.12.1" class="pilcrow">¶</a></p>
+          <p id="section-3-4.12.1"><span class="bcp14">REQUIRED</span>. A NumericDate value, which <span class="bcp14">MUST</span> be an integer, giving the time the statement was issued. An issuer <span class="bcp14">MUST</span> ensure that the <code>iat</code> claim values of its statements for a given <code>iss</code> and <code>sub</code> increase strictly (<a href="#multi-instance" class="auto internal xref">Section 3.4</a>, <a href="#refresh" class="auto internal xref">Section 5.7.1</a>).<a href="#section-3-4.12.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 <dt id="section-3-4.13">
@@ -1939,7 +1936,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
               <p id="section-5.6.3-2.4.1">A statement pulled for a public client at the pushed authorization request endpoint or the authorization endpoint without PKCE with the <code>S256</code> method and a key bound as <a href="#public-client-presentation" class="auto internal xref">Section 5.6.2</a> provides.<a href="#section-5.6.3-2.4.1" class="pilcrow">¶</a></p>
 </li>
           </ol>
-<p id="section-5.6.3-3">A review-only presentation or pulled statement creates no establishment, admits nothing, and does not advance the <code>iat</code> floor of <a href="#multi-instance" class="auto internal xref">Section 3.4</a>. The authorization server proceeds as it would for the same CIMD client presenting no statement (<a href="#ui-audit" class="auto internal xref">Section 11.5</a>).<a href="#section-5.6.3-3" class="pilcrow">¶</a></p>
+<p id="section-5.6.3-3">A review-only presentation or pulled statement creates no establishment, admits nothing, and does not advance the <code>iat</code> floor of <a href="#multi-instance" class="auto internal xref">Section 3.4</a>. The authorization server proceeds as it would for the same CIMD client presenting no statement (<a href="#ui-audit" class="auto internal xref">Section 11.4</a>).<a href="#section-5.6.3-3" class="pilcrow">¶</a></p>
 <p id="section-5.6.3-4">The statement of a review-only presentation, or a review-only pulled statement, <span class="bcp14">MUST NOT</span> satisfy a policy requiring reviewed software. If the server's policy requires reviewed software, it rejects a review-only client.<a href="#section-5.6.3-4" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1950,7 +1947,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         <h3 id="name-grant-lifecycle">
 <a href="#section-5.7" class="section-number selfRef">5.7. </a><a href="#name-grant-lifecycle" class="section-name selfRef">Grant Lifecycle</a>
         </h3>
-<p id="section-5.7-1">A successful presentation creates an establishment comprising the following:<a href="#section-5.7-1" class="pilcrow">¶</a></p>
+<p id="section-5.7-1">A successful presentation creates an establishment: the state against which the subsequent authorization request, code redemption and refresh under the grant it opens are checked. It comprises the following:<a href="#section-5.7-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-5.7-2.1">
             <p id="section-5.7-2.1.1">The validated <code>sub</code>.<a href="#section-5.7-2.1.1" class="pilcrow">¶</a></p>
@@ -1968,13 +1965,10 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
             <p id="section-5.7-2.5.1">The issuer trust decision.<a href="#section-5.7-2.5.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-5.7-2.6">
-            <p id="section-5.7-2.6.1">The sender-constraint mechanism and proven key.<a href="#section-5.7-2.6.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-5.7-2.7">
-            <p id="section-5.7-2.7.1">Whether the proven key is set at code redemption, for a statement pulled at the authorization endpoint for a confidential client (<a href="#pulled-statements" class="auto internal xref">Section 5.5</a>).<a href="#section-5.7-2.7.1" class="pilcrow">¶</a></p>
+            <p id="section-5.7-2.6.1">The sender-constraint mechanism and proven key, which for a statement pulled at the authorization endpoint for a confidential client is set at code redemption (<a href="#pulled-statements" class="auto internal xref">Section 5.5</a>).<a href="#section-5.7-2.6.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-5.7-3">The establishment persists while the grant depends on it. The authorization server <span class="bcp14">MUST</span> bind the resulting <code>request_uri</code>, authorization code, refresh token, and other grant continuation state to the establishment, as applicable (<a href="#grant-state" class="auto internal xref">Section 11.4</a>).<a href="#section-5.7-3" class="pilcrow">¶</a></p>
+<p id="section-5.7-3">The authorization server <span class="bcp14">MUST</span> bind the resulting <code>request_uri</code>, authorization code, refresh token, and other grant continuation state to the establishment, as applicable.<a href="#section-5.7-3" class="pilcrow">¶</a></p>
 <p id="section-5.7-4">A replacement accepted on refresh <span class="bcp14">MUST</span> apply only to the grant refreshed (<a href="#refresh" class="auto internal xref">Section 5.7.1</a>). Any other grant, <code>request_uri</code>, or authorization code bound to the same establishment keeps the state its request was evaluated against.<a href="#section-5.7-4" class="pilcrow">¶</a></p>
 <p id="section-5.7-5">A token request that redeems an authorization code opened by a presentation:<a href="#section-5.7-5" class="pilcrow">¶</a></p>
 <ul class="normal">
@@ -2051,7 +2045,7 @@ A refresh whose replacement the <code>iat</code> floor of <a href="#multi-instan
               <p id="section-5.7.1-3.5.1">Enforce currency. If the authorization server holds a refusal record for the recorded statement, it <span class="bcp14">MUST</span> reject a refresh without an accepted replacement, whatever its policy on requiring a current statement otherwise. If a required issuer (<a href="#issuer-trust" class="auto internal xref">Section 4</a>) covers the establishment's <code>sub</code> in the establishment's tenant, the server <span class="bcp14">MUST</span> reject a refresh unless the recorded statement or an accepted replacement is a current statement from that issuer. A grant recorded under another issuer's statement cannot meet this, so its client opens a new grant by presentation.<a href="#section-5.7.1-3.5.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-5.7.1-3.6">
-              <p id="section-5.7.1-3.6.1">Bound access and update. The refreshed access <span class="bcp14">MUST</span> fall within the metadata of the document an accepted replacement names or, without one, the establishment's reviewed metadata. If a replacement is accepted, the refreshed grant's statement identity, <code>iat</code>, effective expiry, any claim by which a withdrawal mechanism locates the statement, reviewed metadata and the digest it matched, and trust decision become the replacement's (<a href="#grant-state" class="auto internal xref">Section 11.4</a>) in one atomic update, and concurrent replacements resolve to the most recently issued statement. Without one, the grant's state is unchanged.<a href="#section-5.7.1-3.6.1" class="pilcrow">¶</a></p>
+              <p id="section-5.7.1-3.6.1">Bound access and update. The refreshed access <span class="bcp14">MUST</span> fall within the metadata of the document an accepted replacement names or, without one, the establishment's reviewed metadata. If a replacement is accepted, every item of the refreshed grant's establishment (<a href="#grant-lifecycle" class="auto internal xref">Section 5.7</a>) other than the <code>sub</code>, the tenant, and the sender-constraint mechanism and proven key becomes the replacement's in one atomic update, and concurrent replacements resolve to the most recently issued statement. Without one, the grant's state is unchanged.<a href="#section-5.7.1-3.6.1" class="pilcrow">¶</a></p>
 </li>
           </ol>
 <p id="section-5.7.1-4">Refresh never rotates the establishment's key. A client that needs a new key performs a new presentation.<a href="#section-5.7.1-4" class="pilcrow">¶</a></p>
@@ -2447,22 +2441,13 @@ client-assertion-type%3Ajwt-bearer
 <p id="section-11.3-4">When a request is refused at a bound (<a href="#presentation-errors" class="auto internal xref">Section 7.2</a>), the authorization server ought to state that reason in <code>error_description</code>, and the client can retry once earlier establishments are released.<a href="#section-11.3-4" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="grant-state">
-<section id="section-11.4">
-        <h3 id="name-grant-state">
-<a href="#section-11.4" class="section-number selfRef">11.4. </a><a href="#name-grant-state" class="section-name selfRef">Grant State</a>
-        </h3>
-<p id="section-11.4-1">An authorization server can reuse an establishment across presentations that resolve to the same <code>sub</code>, statement, tenant, sender-constraint mechanism, and proven key, and can discard it once no <code>request_uri</code>, authorization code, refresh token, or other continuation state references it (<a href="#grant-lifecycle" class="auto internal xref">Section 5.7</a>). A server does not share an establishment whose proven key is set at code redemption (<a href="#pulled-statements" class="auto internal xref">Section 5.5</a>) until that key is set.<a href="#section-11.4-1" class="pilcrow">¶</a></p>
-<p id="section-11.4-2">A server that shares an establishment among grants applies a replacement accepted on refresh by giving the refreshed grant its own establishment (<a href="#refresh" class="auto internal xref">Section 5.7.1</a>).<a href="#section-11.4-2" class="pilcrow">¶</a></p>
-</section>
-</div>
 <div id="ui-audit">
-<section id="section-11.5">
+<section id="section-11.4">
         <h3 id="name-user-interface-audit-and-lo">
-<a href="#section-11.5" class="section-number selfRef">11.5. </a><a href="#name-user-interface-audit-and-lo" class="section-name selfRef">User Interface, Audit, and Logging</a>
+<a href="#section-11.4" class="section-number selfRef">11.4. </a><a href="#name-user-interface-audit-and-lo" class="section-name selfRef">User Interface, Audit, and Logging</a>
         </h3>
-<p id="section-11.5-1">An authorization server ought not to present the review in a review-only presentation to the user as an assurance about the presenter (<a href="#review-only" class="auto internal xref">Section 5.6.3</a>). It can record the statement's issuer for audit and inventory.<a href="#section-11.5-1" class="pilcrow">¶</a></p>
-<p id="section-11.5-2">Authorization servers ought to avoid logging software statements, which are sensitive in transit and at rest. A statement names reviewed software and, if it carries an audience, that software's intended relationships.<a href="#section-11.5-2" class="pilcrow">¶</a></p>
+<p id="section-11.4-1">An authorization server ought not to present the review in a review-only presentation to the user as an assurance about the presenter (<a href="#review-only" class="auto internal xref">Section 5.6.3</a>). It can record the statement's issuer for audit and inventory.<a href="#section-11.4-1" class="pilcrow">¶</a></p>
+<p id="section-11.4-2">Authorization servers ought to avoid logging software statements, which are sensitive in transit and at rest. A statement names reviewed software and, if it carries an audience, that software's intended relationships.<a href="#section-11.4-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2633,7 +2618,7 @@ client-assertion-type%3Ajwt-bearer
       </h2>
 <p id="section-14-1">The privacy considerations of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> and Section 6 of <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> apply.<a href="#section-14-1" class="pilcrow">¶</a></p>
 <p id="section-14-2">A presentation or delivery reveals to the authorization server the client's issuer relationship and, if the statement carries an <code>aud</code> claim, the other authorization servers the client intends to use. Omitting that claim discloses nothing beyond the review. Pushed authorization requests (<a href="#authorization-requests" class="auto internal xref">Section 5.4.2</a>) keep statements out of browser history, referrers, and front-channel logs.<a href="#section-14-2" class="pilcrow">¶</a></p>
-<p id="section-14-3">A central issuer also learns from renewals which of its statements are in active use, so issuance and renewal logs deserve the same care as the statements (<a href="#ui-audit" class="auto internal xref">Section 11.5</a>).<a href="#section-14-3" class="pilcrow">¶</a></p>
+<p id="section-14-3">A central issuer also learns from renewals which of its statements are in active use, so issuance and renewal logs deserve the same care as the statements (<a href="#ui-audit" class="auto internal xref">Section 11.4</a>).<a href="#section-14-3" class="pilcrow">¶</a></p>
 <p id="section-14-4">Retrieving the document tells its host that the server is resolving the client. Pulling statements (<a href="#pulled-statements" class="auto internal xref">Section 5.5</a>) tells the host of <code>software_statements_uri</code> the same. That host is an additional party only if the URL is on another origin. Published statements are readable by anyone, so their <code>aud</code> and <code>aud_tenant</code> claims disclose which servers and tenants a review names. A statement whose audience is sensitive is presented rather than published.<a href="#section-14-4" class="pilcrow">¶</a></p>
 </section>
 </div>
