@@ -100,7 +100,7 @@ The statement is consumed in the `software_statement` member of an {{RFC7591}} r
 The reviewed document takes the role that {{RFC7591}} gives a statement's own values. In deriving a registration's metadata, at registration or for a replacement ({{revalidation}}), the authorization server:
 
 * MUST obtain the CIMD at the statement's `sub` claim and compare its digest with the `cimd_digest` claim as Section 5.2 of {{STATEMENT}} requires, rejecting the request if retrieval does not complete or the digests differ, and MUST derive the registered metadata from the octets whose digest matched.
-* MUST validate the document as {{CIMD}} requires, including that its `client_id` member matches the statement's `sub` claim.
+* MUST validate the document as {{CIMD}} requires, including that its `client_id` member matches the statement's `sub` claim, and MUST reject it if it contains duplicate member names (Section 5.2 of {{STATEMENT}}).
 * MUST take every client metadata value from that document, and MUST NOT take any client metadata value from the request, or from any {{RFC7592}} update request for the registration, whether or not the document carries the corresponding member:
   * The registration's metadata changes only by re-derivation from the document a replacement statement reviews ({{revalidation}}).
   * A request MAY carry metadata, as {{RFC7591}} clients do, but it does not contribute to the registration.
