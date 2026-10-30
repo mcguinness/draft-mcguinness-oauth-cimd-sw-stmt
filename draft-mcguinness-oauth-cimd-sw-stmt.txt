@@ -92,9 +92,9 @@ Table of Contents
      6.3.  OpenID Federation
    7.  Error Responses
      7.1.  Statement Required Error
-     7.2.  Presentation
+     7.2.  Presentation Requests
      7.3.  Code Redemption and Refresh
-     7.4.  Authorization Endpoint
+     7.4.  Authorization Requests
      7.5.  Proof Mechanism Errors
      7.6.  Error Descriptions
    8.  Examples
@@ -651,18 +651,16 @@ Table of Contents
 5.4.1.  Token Endpoint
 
    At the token endpoint, a runtime presentation is valid on a request
-   using any one of the following grants:
+   that opens a new grant in that request, such as one using the
+   client_credentials grant, the JWT or SAML 2.0 assertion grant
+   (Section 2.1 of [RFC7523] and Section 2.1 of [RFC7522]), or token
+   exchange [RFC8693].
 
-   *  The client_credentials grant.
-
-   *  The JWT or SAML 2.0 assertion grant (Section 2.1 of [RFC7523] and
-      Section 2.1 of [RFC7522]).
-
-   *  Another grant whose specification provides for runtime
-      presentation under this specification.
-
-   Authorization-code redemption and refresh-token use continue an
-   existing grant (Section 5.7, Section 5.7.1).
+   It is not valid on a request that continues or completes a grant an
+   earlier request began, such as authorization-code redemption,
+   refresh-token use (Section 5.7, Section 5.7.1), or redemption of a
+   device code [RFC8628].  Admission belongs to the request that begins
+   the grant, before the resource owner approves the client.
 
 5.4.2.  Authorization Endpoint
 
@@ -1031,7 +1029,7 @@ Table of Contents
       assign it to further cases.  The client recovers by obtaining a
       statement issued more recently.
 
-7.2.  Presentation
+7.2.  Presentation Requests
 
    A presentation rejected at the token or pushed authorization request
    endpoint for a reason this specification defines uses
@@ -1105,20 +1103,23 @@ Table of Contents
    request rejected for another reason, such as an expired or revoked
    refresh token, uses the error codes of Section 5.2 of [RFC6749].
 
-7.4.  Authorization Endpoint
+7.4.  Authorization Requests
 
-   At the authorization endpoint, if policy or a required issuer
-   requires reviewed software (Section 5.6.3, Section 5.5, Section 4), a
-   review-only client, or software a required issuer excludes from the
-   tenant, is rejected with unauthorized_client, and a client whose pull
-   of statements, or retrieval of a statement key set needed to verify
-   one, did not complete (Section 5.3) is rejected with
-   temporarily_unavailable.
+   If the authorization server's policy or a required issuer (Section 4)
+   requires reviewed software, an authorization request from a client
+   the server has not admitted on a statement is rejected in the
+   authorization error response (Section 4.1.2.1 of [RFC6749]) with the
+   following error codes:
 
-   Apart from those two cases, at the authorization endpoint, if the
-   authorization server requires a statement for a client it has not
-   admitted on one, it MUST return the statement_required error code in
-   the authorization error response (Section 4.1.2.1 of [RFC6749]).
+   unauthorized_client:  The client is review-only (Section 5.6.3), or a
+      required issuer excludes the software from the tenant (Section 4).
+
+   temporarily_unavailable:  A pull of statements (Section 5.5), or the
+      retrieval of a statement key set needed to verify a pulled
+      statement, did not complete (Section 5.3).
+
+   statement_required:  In any other case, the authorization server MUST
+      return this code.
 
    The authorization server redirects with the error only after
    resolving the client's CIMD and validating the request's redirect_uri
@@ -1285,8 +1286,9 @@ Table of Contents
    *  Statement conveyance within a client attestation, rather than as a
       request parameter.
 
-   *  Runtime presentation on grants other than those Section 5.4.1
-      names, such as token exchange.
+   *  Runtime presentation in the request that begins a grant at an
+      endpoint this specification does not cover, such as the device
+      authorization endpoint of [RFC8628].
 
    *  Partial review, by which an issuer vouches for particular members
       rather than a whole document (Section 3).
@@ -1940,6 +1942,16 @@ Table of Contents
    [RFC8252]  Denniss, W. and J. Bradley, "OAuth 2.0 for Native Apps",
               BCP 212, RFC 8252, DOI 10.17487/RFC8252, October 2017,
               <https://www.rfc-editor.org/rfc/rfc8252>.
+
+   [RFC8628]  Denniss, W., Bradley, J., Jones, M., and H. Tschofenig,
+              "OAuth 2.0 Device Authorization Grant", RFC 8628,
+              DOI 10.17487/RFC8628, August 2019,
+              <https://www.rfc-editor.org/rfc/rfc8628>.
+
+   [RFC8693]  Jones, M., Nadalin, A., Campbell, B., Ed., Bradley, J.,
+              and C. Mortimore, "OAuth 2.0 Token Exchange", RFC 8693,
+              DOI 10.17487/RFC8693, January 2020,
+              <https://www.rfc-editor.org/rfc/rfc8693>.
 
    [RFC8705]  Campbell, B., Bradley, J., Sakimura, N., and T.
               Lodderstedt, "OAuth 2.0 Mutual-TLS Client Authentication

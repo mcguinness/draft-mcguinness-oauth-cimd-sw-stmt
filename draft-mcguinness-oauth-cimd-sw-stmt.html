@@ -1243,13 +1243,13 @@ svg {
                 <p id="section-toc.1-1.7.2.1.1"><a href="#section-7.1" class="auto internal xref">7.1</a>.  <a href="#name-statement-required-error" class="internal xref">Statement Required Error</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.2">
-                <p id="section-toc.1-1.7.2.2.1"><a href="#section-7.2" class="auto internal xref">7.2</a>.  <a href="#name-presentation" class="internal xref">Presentation</a></p>
+                <p id="section-toc.1-1.7.2.2.1"><a href="#section-7.2" class="auto internal xref">7.2</a>.  <a href="#name-presentation-requests" class="internal xref">Presentation Requests</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.3">
                 <p id="section-toc.1-1.7.2.3.1"><a href="#section-7.3" class="auto internal xref">7.3</a>.  <a href="#name-code-redemption-and-refresh" class="internal xref">Code Redemption and Refresh</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.4">
-                <p id="section-toc.1-1.7.2.4.1"><a href="#section-7.4" class="auto internal xref">7.4</a>.  <a href="#name-authorization-endpoint-2" class="internal xref">Authorization Endpoint</a></p>
+                <p id="section-toc.1-1.7.2.4.1"><a href="#section-7.4" class="auto internal xref">7.4</a>.  <a href="#name-authorization-requests" class="internal xref">Authorization Requests</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.5">
                 <p id="section-toc.1-1.7.2.5.1"><a href="#section-7.5" class="auto internal xref">7.5</a>.  <a href="#name-proof-mechanism-errors" class="internal xref">Proof Mechanism Errors</a></p>
@@ -1732,19 +1732,8 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
           <h4 id="name-token-endpoint">
 <a href="#section-5.4.1" class="section-number selfRef">5.4.1. </a><a href="#name-token-endpoint" class="section-name selfRef">Token Endpoint</a>
           </h4>
-<p id="section-5.4.1-1">At the token endpoint, a runtime presentation is valid on a request using any one of the following grants:<a href="#section-5.4.1-1" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-5.4.1-2.1">
-              <p id="section-5.4.1-2.1.1">The <code>client_credentials</code> grant.<a href="#section-5.4.1-2.1.1" class="pilcrow">¶</a></p>
-</li>
-            <li class="normal" id="section-5.4.1-2.2">
-              <p id="section-5.4.1-2.2.1">The JWT or SAML 2.0 assertion grant (Section 2.1 of <span>[<a href="#RFC7523" class="cite xref">RFC7523</a>]</span> and Section 2.1 of <span>[<a href="#RFC7522" class="cite xref">RFC7522</a>]</span>).<a href="#section-5.4.1-2.2.1" class="pilcrow">¶</a></p>
-</li>
-            <li class="normal" id="section-5.4.1-2.3">
-              <p id="section-5.4.1-2.3.1">Another grant whose specification provides for runtime presentation under this specification.<a href="#section-5.4.1-2.3.1" class="pilcrow">¶</a></p>
-</li>
-          </ul>
-<p id="section-5.4.1-3">Authorization-code redemption and refresh-token use continue an existing grant (<a href="#grant-lifecycle" class="auto internal xref">Section 5.7</a>, <a href="#refresh" class="auto internal xref">Section 5.7.1</a>).<a href="#section-5.4.1-3" class="pilcrow">¶</a></p>
+<p id="section-5.4.1-1">At the token endpoint, a runtime presentation is valid on a request that opens a new grant in that request, such as one using the <code>client_credentials</code> grant, the JWT or SAML 2.0 assertion grant (Section 2.1 of <span>[<a href="#RFC7523" class="cite xref">RFC7523</a>]</span> and Section 2.1 of <span>[<a href="#RFC7522" class="cite xref">RFC7522</a>]</span>), or token exchange <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>.<a href="#section-5.4.1-1" class="pilcrow">¶</a></p>
+<p id="section-5.4.1-2">It is not valid on a request that continues or completes a grant an earlier request began, such as authorization-code redemption, refresh-token use (<a href="#grant-lifecycle" class="auto internal xref">Section 5.7</a>, <a href="#refresh" class="auto internal xref">Section 5.7.1</a>), or redemption of a device code <span>[<a href="#RFC8628" class="cite xref">RFC8628</a>]</span>. Admission belongs to the request that begins the grant, before the resource owner approves the client.<a href="#section-5.4.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="authorization-requests">
@@ -2060,8 +2049,8 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 </div>
 <div id="presentation-errors">
 <section id="section-7.2">
-        <h3 id="name-presentation">
-<a href="#section-7.2" class="section-number selfRef">7.2. </a><a href="#name-presentation" class="section-name selfRef">Presentation</a>
+        <h3 id="name-presentation-requests">
+<a href="#section-7.2" class="section-number selfRef">7.2. </a><a href="#name-presentation-requests" class="section-name selfRef">Presentation Requests</a>
         </h3>
 <p id="section-7.2-1">A presentation rejected at the token or pushed authorization request endpoint for a reason this specification defines uses <code>temporarily_unavailable</code> if a retrieval it needs, including a pull of statements (<a href="#pulled-statements" class="auto internal xref">Section 5.5</a>), did not complete, and otherwise the following error codes:<a href="#section-7.2-1" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-7.2-2">
@@ -2140,11 +2129,30 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 </div>
 <div id="authorization-errors">
 <section id="section-7.4">
-        <h3 id="name-authorization-endpoint-2">
-<a href="#section-7.4" class="section-number selfRef">7.4. </a><a href="#name-authorization-endpoint-2" class="section-name selfRef">Authorization Endpoint</a>
+        <h3 id="name-authorization-requests">
+<a href="#section-7.4" class="section-number selfRef">7.4. </a><a href="#name-authorization-requests" class="section-name selfRef">Authorization Requests</a>
         </h3>
-<p id="section-7.4-1">At the authorization endpoint, if policy or a required issuer requires reviewed software (<a href="#review-only" class="auto internal xref">Section 5.6.3</a>, <a href="#pulled-statements" class="auto internal xref">Section 5.5</a>, <a href="#issuer-trust" class="auto internal xref">Section 4</a>), a review-only client, or software a required issuer excludes from the tenant, is rejected with <code>unauthorized_client</code>, and a client whose pull of statements, or retrieval of a statement key set needed to verify one, did not complete (<a href="#retrieval" class="auto internal xref">Section 5.3</a>) is rejected with <code>temporarily_unavailable</code>.<a href="#section-7.4-1" class="pilcrow">¶</a></p>
-<p id="section-7.4-2">Apart from those two cases, at the authorization endpoint, if the authorization server requires a statement for a client it has not admitted on one, it <span class="bcp14">MUST</span> return the <code>statement_required</code> error code in the authorization error response (Section 4.1.2.1 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>).<a href="#section-7.4-2" class="pilcrow">¶</a></p>
+<p id="section-7.4-1">If the authorization server's policy or a required issuer (<a href="#issuer-trust" class="auto internal xref">Section 4</a>) requires reviewed software, an authorization request from a client the server has not admitted on a statement is rejected in the authorization error response (Section 4.1.2.1 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>) with the following error codes:<a href="#section-7.4-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-7.4-2">
+          <dt id="section-7.4-2.1">
+<code>unauthorized_client</code>:</dt>
+          <dd style="margin-left: 1.5em" id="section-7.4-2.2">
+            <p id="section-7.4-2.2.1">The client is review-only (<a href="#review-only" class="auto internal xref">Section 5.6.3</a>), or a required issuer excludes the software from the tenant (<a href="#issuer-trust" class="auto internal xref">Section 4</a>).<a href="#section-7.4-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-7.4-2.3">
+<code>temporarily_unavailable</code>:</dt>
+          <dd style="margin-left: 1.5em" id="section-7.4-2.4">
+            <p id="section-7.4-2.4.1">A pull of statements (<a href="#pulled-statements" class="auto internal xref">Section 5.5</a>), or the retrieval of a statement key set needed to verify a pulled statement, did not complete (<a href="#retrieval" class="auto internal xref">Section 5.3</a>).<a href="#section-7.4-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-7.4-2.5">
+<code>statement_required</code>:</dt>
+          <dd style="margin-left: 1.5em" id="section-7.4-2.6">
+            <p id="section-7.4-2.6.1">In any other case, the authorization server <span class="bcp14">MUST</span> return this code.<a href="#section-7.4-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
 <p id="section-7.4-3">The authorization server redirects with the error only after resolving the client's CIMD and validating the request's <code>redirect_uri</code> against it. If the authorization server cannot resolve the document, it <span class="bcp14">MUST NOT</span> redirect, and it reports the error to the resource owner instead.<a href="#section-7.4-3" class="pilcrow">¶</a></p>
 <p id="section-7.4-4">An authorization request carrying the <code>software_statement</code> parameter (<a href="#authorization-requests" class="auto internal xref">Section 5.4.2</a>) is rejected with <code>invalid_request</code> in place of any other code of this section. The authorization server redirects with that error only after validating the request's <code>redirect_uri</code>: against the CIMD as the preceding paragraph requires or, for a registered client, against its registered redirection URIs (Section 4.1.2.1 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>).<a href="#section-7.4-4" class="pilcrow">¶</a></p>
 </section>
@@ -2306,7 +2314,7 @@ client-assertion-type%3Ajwt-bearer
           <p id="section-10-2.2.1">Statement conveyance within a client attestation, rather than as a request parameter.<a href="#section-10-2.2.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-10-2.3">
-          <p id="section-10-2.3.1">Runtime presentation on grants other than those <a href="#token-requests" class="auto internal xref">Section 5.4.1</a> names, such as token exchange.<a href="#section-10-2.3.1" class="pilcrow">¶</a></p>
+          <p id="section-10-2.3.1">Runtime presentation in the request that begins a grant at an endpoint this specification does not cover, such as the device authorization endpoint of <span>[<a href="#RFC8628" class="cite xref">RFC8628</a>]</span>.<a href="#section-10-2.3.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-10-2.4">
           <p id="section-10-2.4.1">Partial review, by which an issuer vouches for particular members rather than a whole document (<a href="#profiles" class="auto internal xref">Section 3</a>).<a href="#section-10-2.4.1" class="pilcrow">¶</a></p>
@@ -3006,6 +3014,14 @@ client-assertion-type%3Ajwt-bearer
 <dt id="RFC8252">[RFC8252]</dt>
         <dd>
 <span class="refAuthor">Denniss, W.</span> and <span class="refAuthor">J. Bradley</span>, <span class="refTitle">"OAuth 2.0 for Native Apps"</span>, <span class="seriesInfo">BCP 212</span>, <span class="seriesInfo">RFC 8252</span>, <span class="seriesInfo">DOI 10.17487/RFC8252</span>, <time datetime="2017-10" class="refDate">October 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8252">https://www.rfc-editor.org/rfc/rfc8252</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8628">[RFC8628]</dt>
+        <dd>
+<span class="refAuthor">Denniss, W.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Jones, M.</span>, and <span class="refAuthor">H. Tschofenig</span>, <span class="refTitle">"OAuth 2.0 Device Authorization Grant"</span>, <span class="seriesInfo">RFC 8628</span>, <span class="seriesInfo">DOI 10.17487/RFC8628</span>, <time datetime="2019-08" class="refDate">August 2019</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8628">https://www.rfc-editor.org/rfc/rfc8628</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8693">[RFC8693]</dt>
+        <dd>
+<span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Nadalin, A.</span>, <span class="refAuthor">Campbell, B., Ed.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">C. Mortimore</span>, <span class="refTitle">"OAuth 2.0 Token Exchange"</span>, <span class="seriesInfo">RFC 8693</span>, <span class="seriesInfo">DOI 10.17487/RFC8693</span>, <time datetime="2020-01" class="refDate">January 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8693">https://www.rfc-editor.org/rfc/rfc8693</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC8705">[RFC8705]</dt>
       <dd>
