@@ -1023,18 +1023,6 @@ Specification Document(s):
 
 --- back
 
-# Open Design Questions {#open-questions}
-
-This appendix is to be removed before publication. It records simpler designs the author would like the working group to weigh against this one. None changes what the statement attests: a configured issuer's review of a document's exact octets, which the client's authentication key or reviewed redirection URIs bind.
-
-1. Issuer-hosted statements. The authorization server could obtain statements from the issuer, per client or as a signed list it synchronizes, instead of from the client. That would remove the `software_statement` parameter and `software_statements_uri`, and could replace the `iat` floor and refusal records derived from a withdrawal mechanism with rules for authoritative current responses, cache freshness, and failure handling, so that a stale response cannot restore a decision the server has seen replaced or withdrawn. It would require issuers to serve statements with high availability, would tell an issuer which servers resolve which clients unless lists are synchronized, and departs from the client-carried statement of {{RFC7591}}.
-
-2. Admission on every token request. The server could re-check a current statement and the served document on every token request instead of recording an establishment. That would remove the establishment's recorded statement and reviewed metadata, refresh replacement, and the pinned proven key, though state carried from a pushed authorization request, or a statement pulled at the authorization endpoint, to code redemption would remain. Every refresh would then need a current statement and the served document, within the reuse bounds of {{retrieval}}, and a grant would end when renewal lapses.
-
-3. The public client's installation key. The server could rely on PKCE and the reviewed redirection URIs, which already bind a public client's presentation ({{public-client-presentation}}), and leave refresh-token protection to {{RFC9700}}. That would remove the key a public client binds at the pushed authorization request or authorization endpoint and proves at code redemption and on refresh. It would give up identifying the installation a grant belongs to.
-
-4. Scope. Requiring a pushed authorization request for every reviewed redirect flow would remove the pull at the authorization endpoint, where a confidential client's key is set at code redemption ({{pulled-statements}}), at the cost of that path for clients that publish statements and make ordinary authorization requests. Admitting only confidential clients in this specification, with public clients in a separate profile, would remove a second binding model, at the cost of public clients with `https` redirection URIs.
-
 # Acknowledgments
 {:numbered="false"}
 
