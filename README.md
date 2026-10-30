@@ -40,6 +40,7 @@ These documents explore deployments and edge cases. They are non-normative and n
 | [Composing with OpenID Federation](sketches/openid-federation-sketch.md) | Issuer trust from a federation, a review carried as a Trust Mark and the mapping that would need, and why Federation's resolved metadata cannot carry a digest |
 | [Design Rationale: Pulled Statements and the MCP Profile](sketches/mcp-profile-sketch.md) | Why statements are pulled from where the client's document points, what that removes and what it keeps, and how the MCP profile composes with Enterprise-Managed Authorization |
 | [Verification Scenarios for Attested Instance Keys](sketches/attested-verification-scenarios.md) | An implementation checklist for the attested draft, with prerequisites and expected results |
+| [Design Alternatives](sketches/design-alternatives.md) | Simpler designs recorded for working-group discussion: issuer-hosted statements, admission on every token request, dropping the public client's installation key, and narrower scope |
 
 ## Related Specifications
 
