@@ -248,29 +248,13 @@ Software whose instances authenticate as the client with keys of their own, whic
 
 # Issuer Trust Establishment {#issuer-trust}
 
-A trusting authorization server accepts statements only from configured issuers. Trust is established out of band. This specification defines no in-band issuer discovery or trust decision.
+A trusting authorization server accepts statements only from issuers in its trust configuration, which is established out of band. This specification defines no in-band issuer discovery or trust decision. The configuration, not the signature alone, defines acceptance: a trusting authorization server MUST derive trust from it and MUST NOT derive it from an `iss`, `jku`, `x5u`, or other key-location value carried in a presented statement.
 
-For each trusted issuer, a trusting authorization server records at least the following:
+For each trusted issuer, the configuration records the exact `iss` value the server accepts, the signing algorithms it accepts from the issuer, the client identifier namespaces the issuer can attest through `sub`, the audience identifiers the issuer can name, any tenant to which the server confines the issuer's decisions, and the maximum statement lifetime the server honors, which sets each statement's effective expiry.
 
-* The exact `iss` identifier it will accept.
-* The source of that issuer's statement signing keys, which is never a `jwks_uri` metadata value: either the `software_statement_jwks_uri` in the issuer's authorization server metadata ({{authorization-server-metadata}}), discovered from the configured `iss` as {{RFC8414}} describes, or, for an issuer that is not an authorization server, a statement key set URL recorded in this trust configuration.
-* The signing algorithms it will accept from the issuer.
-* The client identifier namespaces the issuer can attest through `sub`.
-* The audience identifiers the issuer can name.
-* Any tenant to which it confines the issuer's decisions.
-* For each of its tenants, any client identifier namespaces for which the issuer is a required issuer, one whose current statement the server requires in that tenant for software in those namespaces.
-* The maximum statement lifetime it will honor, which sets each statement's effective expiry.
-* Its own policy on repeated consumption of one statement ({{multi-instance}}).
+The issuer's statement signing keys come from the `software_statement_jwks_uri` in its authorization server metadata ({{authorization-server-metadata}}), discovered from the configured `iss` ({{RFC8414}}), or, for an issuer that is not an authorization server, from a statement key set URL in the configuration, never from a `jwks_uri` metadata value. A configured statement key set URL MUST use the `https` scheme, a trusting authorization server MUST validate the certificate of the host serving it, and the issuer MUST NOT place in it a key from any other JWK Set it publishes, or sign anything other than statements under this specification with its keys. A trusting authorization server reuses a retrieved statement key set only as {{retrieval}} permits.
 
-A statement key set whose URL is recorded in trust configuration is subject to rules corresponding to those {{authorization-server-metadata}} sets for `software_statement_jwks_uri`: its URL MUST use the `https` scheme, a trusting authorization server MUST validate the certificate of the host serving it, and the issuer MUST NOT place in it a key from any other JWK Set it publishes, or sign anything other than statements under this specification with its keys.
-
-A trusting authorization server reuses a retrieved statement key set only as {{retrieval}} permits. If retrieving a statement key set from either source does not complete, the authorization server rejects the request, except that a pull for a request opening a new grant proceeds as {{pulled-statements}} describes.
-
-These inputs, not the signature alone, define acceptance. A trusting authorization server MUST derive trust from this local configuration and MUST NOT derive it from an `iss`, `jku`, `x5u`, or other key-location value carried in a presented statement.
-
-A server that records, for one of its tenants, client identifier namespaces for which a configured issuer's decision is required ({{trust-configuration}}) MUST NOT admit software in a covered namespace in that tenant without a current statement from the required issuer, whatever its policy for clients it has not reviewed. The requirement also applies on refresh ({{refresh}}). Without this rule, a holder could evade the required issuer's withdrawal by withholding that issuer's statement or by presenting or publishing only a broader one, such as a marketplace listing.
-
-A required issuer configured for software whose presentations are review-only ({{review-only}}) excludes that software from the tenant. The server rejects a request for such software in that tenant.
+The configuration can also make an issuer a required issuer for client identifier namespaces in one of the server's tenants ({{trust-configuration}}). The server then MUST NOT admit software in a covered namespace in that tenant without a current statement from the required issuer, whatever its policy for clients it has not reviewed, including on refresh ({{refresh}}). Without this rule, a holder could evade the required issuer's withdrawal by withholding that issuer's statement or by presenting or publishing only a broader one, such as a marketplace listing. A required issuer configured for software whose presentations are review-only ({{review-only}}) excludes that software from the tenant, and the server rejects a request for such software there.
 
 ## Multi-Tenant Issuers {#multi-tenant-issuers}
 
@@ -307,6 +291,8 @@ Every retrieval this specification causes, of the CIMD, a `jwks_uri` it names, o
 If a retrieval fails, the authorization server MUST reject the request and MUST NOT fall back to a weaker proof, except that a failed pull of statements for a request opening a new grant leaves the client unreviewed ({{pulled-statements}}).
 
 A retrieval does not complete only when it times out, its connection fails, or the response has a 429 (Too Many Requests) status code (Section 4 of {{RFC6585}}) or a 5xx status code. Any other failure to obtain an acceptable representation, such as another 4xx status code or a body that is not a JSON object, is final: a document is treated as failing validation, a key set as carrying no acceptable key, and a statements location as publishing no statement.
+
+If retrieving a statement key set ({{issuer-trust}}) does not complete, the authorization server rejects the request, except that a pull for a request opening a new grant proceeds as {{pulled-statements}} describes.
 
 A trusting authorization server MAY reuse document octets it holds for digest comparison ({{effective-metadata}}), a key set retrieved from a document's `jwks_uri`, and a statement key set from either source ({{issuer-trust}}), only within ordinary HTTP caching bounds and a maximum reuse period of its own choosing. It MUST NOT let the publisher's cache directives alone (the client's for the document and its key set, the issuer's for a statement key set) determine how long held octets continue to match a statement or a removed key continues to verify ({{statement-validation}}). Without this rule, a key the document carries inline would continue to verify after the publisher removes it.
 
