@@ -93,7 +93,7 @@ An MCP Client **MAY** also present a statement in a token request or pushed auth
 
 ### 4.1 Pulled Statements
 
-An MCP Authorization Server implementing this profile **MUST** support pulled statements and advertise `software_statement_pull_supported` as `true` in its authorization server metadata. It retrieves a client's `software_statements_uri` when it resolves the client's metadata document, at the authorization endpoint or the token endpoint, and processes what it finds as Pulled Statements specifies: it considers only statements naming the document's URL, from issuers it trusts, that validate, that permit presentation, and whose digest matches the document it fetched.
+An MCP Authorization Server implementing this profile **MUST** support pulled statements and advertise `software_statement_pull_supported` as `true` in its authorization server metadata. It retrieves a client's `software_statements_uri` when the client opens a new grant without presenting a statement, at the authorization endpoint or the token endpoint, and processes what it finds as Pulled Statements specifies: it considers only statements naming the document's URL, from issuers it trusts, that validate, that permit presentation, and whose digest matches the document it fetched.
 
 It **MAY** also accept presented statements.
 
