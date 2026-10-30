@@ -273,11 +273,12 @@ A client presents its statement in a request ({{runtime-presentation}}) or publi
 For a runtime presentation, the authorization server proceeds as follows, rejecting at the first failure ({{errors}}):
 
 1. Obtain the statement, presented in the request ({{runtime-presentation}}) or pulled ({{pulled-statements}}).
-2. Validate the statement ({{validation}}), including the statement requirements of {{profiles}}, the `iat` floor of {{multi-instance}}, and the `client_id` rule of {{runtime-presentation}}, completing every check that needs no client-controlled retrieval before any such retrieval ({{retrieval}}).
-3. Resolve the reviewed document and compare its digest ({{effective-metadata}}).
-4. Verify the sender constraint against that document ({{sender-constraint}}).
-5. Evaluate the request against the reviewed metadata ({{effective-metadata}}).
-6. Create the establishment ({{grant-lifecycle}}).
+2. Validate the statement ({{validation}}), completing every check that needs no client-controlled retrieval before any such retrieval ({{retrieval}}).
+3. Verify the statement requirements of {{profiles}}, the `iat` floor of {{multi-instance}}, and the `client_id` rule of {{runtime-presentation}}.
+4. Resolve the reviewed document and compare its digest ({{effective-metadata}}).
+5. Verify the sender constraint against that document ({{sender-constraint}}).
+6. Evaluate the request against the reviewed metadata ({{effective-metadata}}).
+7. Create the establishment ({{grant-lifecycle}}).
 
 ## Reviewed Metadata {#effective-metadata}
 
@@ -348,7 +349,7 @@ If the server's trust configuration requires an issuer for this client ({{issuer
 
 If retrieving the statements does not complete or no statement remains, the server applies its policy for CIMD clients it has not reviewed, subject to any required issuer ({{issuer-trust}}). If that policy or a required issuer requires reviewed software, the server rejects the request. A retrieval failure is never a withdrawal.
 
-Having selected a statement, the server continues from step 4 of {{processing}}, with the document already resolved. The selection above satisfies the `client_id` rule of step 2.
+Having selected a statement, the server continues from step 5 of {{processing}}, with the document already resolved. The selection above satisfies the `client_id` rule of step 3.
 
 The presenter of a pulled statement is bound as for a presented statement ({{sender-constraint}}), at the point the following table shows, unless the statement is review-only ({{review-only}}). Public and confidential clients are as {{sender-constraint}} defines them:
 
