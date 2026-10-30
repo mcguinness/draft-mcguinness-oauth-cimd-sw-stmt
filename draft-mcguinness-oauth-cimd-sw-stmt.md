@@ -295,8 +295,6 @@ A client presents a software statement by including the following parameter in a
 
 A request making a runtime presentation MUST include the `client_id` parameter, even if the client authenticates, and its value, the client's CIMD URL, MUST exactly equal the statement's `sub` claim. If the `client_id` parameter is absent, the authorization server rejects the request. If the two differ, the authorization server MUST reject the presentation. The effective `client_id` is the statement's `sub`, and the authorization server assigns none.
 
-A request that asks an authorization server to issue a software statement, rather than to consume one, MUST NOT carry the `software_statement` parameter.
-
 An authorization server that does not implement this specification ignores the parameter (Sections 3.1 and 3.2 of {{RFC6749}}).
 
 ### Token Endpoint {#token-requests}

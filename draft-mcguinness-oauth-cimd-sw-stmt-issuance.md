@@ -366,7 +366,7 @@ Host: server.example.com
 
 ## Prohibited Parameters {#prohibited-parameters}
 
-A software statement request does not grant access to a protected resource. The following authorization request parameters MUST NOT be present: `scope`, `resource` as defined by {{RFC8707}}, and `authorization_details` as defined by {{RFC9396}}.
+A software statement request does not grant access to a protected resource, and it asks for a statement rather than presenting one. The following authorization request parameters MUST NOT be present: `scope`, `resource` as defined by {{RFC8707}}, `authorization_details` as defined by {{RFC9396}}, and `software_statement` (Section 5.4 of {{STATEMENT}}).
 
 An authorization server MUST reject a request containing any of these parameters with the `invalid_request` error code. The same prohibition and error apply to a software statement code redemption ({{software-statement-code-redemption}}) and to a token exchange under {{token-exchange-profile}}. The `audience` parameter ({{authorization-request}}) is not prohibited: it describes the requested artifact rather than requesting access.
 
