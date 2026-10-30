@@ -94,7 +94,7 @@ This specification does not define how a client obtains a statement. {{REGISTRAT
 
 ## Protocol Overview
 
-The following non-normative sequence summarizes runtime admission:
+The following non-normative sequence summarizes runtime admission ({{processing}}):
 
 1. Using its CIMD URL as `client_id`, the client presents its statement in a token request or, for a redirect flow, a pushed authorization request, or publishes it at the `software_statements_uri` its document names ({{runtime-presentation}}, {{pulled-statements}}).
 2. The authorization server validates the statement ({{validation}}), resolves the reviewed document ({{effective-metadata}}), and verifies the sender constraint against it ({{sender-constraint}}).
@@ -266,7 +266,34 @@ If an issuer reviews software for several customers whose decisions are each tru
 
 # Runtime Presentation {#cimd-presentation}
 
-A client presents its statement in a request ({{runtime-presentation}}) or publishes it where its document points ({{pulled-statements}}).
+A client presents its statement in a request ({{runtime-presentation}}) or publishes it where its document points ({{pulled-statements}}). Either way, admission follows the steps of {{processing}}.
+
+## Admission {#processing}
+
+For a runtime presentation, the authorization server proceeds as follows, rejecting at the first failure ({{errors}}):
+
+1. Obtain the statement, presented in the request ({{runtime-presentation}}) or pulled ({{pulled-statements}}).
+2. Validate the statement ({{validation}}), including the statement requirements of {{profiles}}, the `iat` floor of {{multi-instance}}, and the `client_id` rule of {{runtime-presentation}}, completing every check that needs no client-controlled retrieval before any such retrieval.
+3. Resolve the reviewed document and compare its digest ({{effective-metadata}}).
+4. Verify the sender constraint against that document ({{sender-constraint}}).
+5. Evaluate the request against the reviewed metadata ({{effective-metadata}}).
+6. Create the establishment ({{grant-lifecycle}}).
+
+Every retrieval this specification causes, of the CIMD, a `jwks_uri` it names, or the statements its `software_statements_uri` names, inherits the server-side request forgery protections in Section 8.6 of {{CIMD}}. A trusted signature does not make a URL safe: the authorization server MUST apply its URL, redirect, address-range, transport, and content-type policy independently to every referenced location.
+
+If a retrieval fails, the authorization server MUST reject the request and MUST NOT fall back to a weaker proof. A failed pull of statements for a request that opens a new grant is the exception: it leaves the client unreviewed, as {{pulled-statements}} describes.
+
+A retrieval does not complete only when it times out, its connection fails, or the response has a 429 (Too Many Requests) status code (Section 4 of {{RFC6585}}) or a 5xx status code, and only then does this specification assign `temporarily_unavailable`. Any other failure to obtain an acceptable representation, such as another 4xx status code or a body that is not a JSON object, is final: a document is treated as failing validation, a key set as carrying no acceptable key, and a statements location as publishing no statement.
+
+## Reviewed Metadata {#effective-metadata}
+
+Having validated the statement, and before verifying the proof ({{processing}}), the authorization server MUST obtain the CIMD at the statement's `sub`, only by retrieval or from octets it has already digested for that identifier, and compare its digest with the `cimd_digest` claim. If octets it already holds do not match, it retrieves the document once more before treating the mismatch as a change.
+
+Octets the authorization server already holds serve for that comparison only within a maximum reuse period of its own choosing, as a key set does ({{sender-constraint}}). The authorization server MUST NOT let the client's cache directives alone determine how long held octets continue to match a statement. Without this rule, a key the document carries inline would continue to verify after the publisher removes it.
+
+A match means the served document is the reviewed one, and its members are the client's metadata for the request. The server takes those members from the octets whose digest matched, not from another retrieval or a copy it has not digested. A mismatch means the document changed after review, and the authorization server MUST NOT treat the changed document as reviewed. It rejects the presentation with `invalid_client` or, by local policy, proceeds without the statement. If it proceeds, it applies its policy for CIMD clients it has not reviewed to the current document and creates no establishment for the statement.
+
+The request is evaluated against the reviewed metadata as against any client's registered metadata ({{RFC6749}}, {{CIMD}}): any requested grant type, response type, or scope MUST fall within it. A document that omits `scope` sets no ceiling on scope beyond the server's own policy.
 
 ## Presentation Request {#runtime-presentation}
 
@@ -276,8 +303,6 @@ A client presents a software statement by including the following parameter in a
 : REQUIRED for presentation. The software statement ({{profiles}}). It is consumed as a runtime presentation, a refresh replacement ({{refresh}}), or, if {{REGISTRATION}} is implemented, a delivery under that specification. A request carrying the parameter in any other role is rejected with `invalid_request`.
 
 A request making a runtime presentation, or carrying a refresh replacement ({{refresh}}), MUST include the `client_id` parameter, even if the client authenticates, and its value, the client's CIMD URL, MUST exactly equal the statement's `sub` claim. If the `client_id` parameter is absent, the authorization server rejects the request with `invalid_request`. If the two differ in a runtime presentation, the authorization server MUST reject the presentation with the `invalid_client` error code. A refresh replacement whose `sub` differs is rejected as {{refresh}} provides. The effective `client_id` is the statement's `sub`, and the authorization server assigns none.
-
-The request carries the proof that {{sender-constraint}} requires. A successful presentation establishes the client for the request and for the grant state derived from it ({{grant-lifecycle}}).
 
 At the token endpoint, a runtime presentation is valid on a request using any one of the following grants:
 
@@ -291,7 +316,7 @@ An authorization server that does not implement this specification ignores the p
 
 ### Authorization Endpoint {#authorization-requests}
 
-Presentation in an authorization request MUST use a pushed authorization request {{RFC9126}}. A pulled statement needs no pushed authorization request ({{pulled-statements}}). The pushed authorization request endpoint processes the statement and its proof as {{processing}} describes. The subsequent authorization request MUST use a `client_id` parameter exactly equal to the establishment's `sub` and MUST NOT include the `software_statement` parameter.
+Presentation in an authorization request MUST use a pushed authorization request {{RFC9126}}. The subsequent authorization request MUST use a `client_id` parameter exactly equal to the establishment's `sub` and MUST NOT include the `software_statement` parameter. A pulled statement needs no pushed authorization request ({{pulled-statements}}).
 
 ## Pulled Statements {#pulled-statements}
 
@@ -319,9 +344,11 @@ The server ignores the rest.
 
 If the server's trust configuration requires an issuer for this client ({{issuer-trust}}), it applies only that issuer's statement, and if none remains, the client is not reviewed. Otherwise, if more than one statement remains, the server keeps only the statement with the latest `iat` from each issuer and applies any one of those. A pulled statement the server does not apply does not advance the `iat` floor.
 
-Having selected a statement, the server continues from step 4 of {{processing}}, with the pulled statement in place of a presented one and the document already resolved. The selection above satisfies the `client_id` rule of step 2.
+If retrieving the statements does not complete or no statement remains, the server applies its policy for CIMD clients it has not reviewed, subject to any required issuer ({{issuer-trust}}). If that policy or a required issuer requires reviewed software, the server rejects the request with `temporarily_unavailable` if retrieving the statements, or a statement key set needed to verify one ({{issuer-trust}}), did not complete, and with `statement_required` otherwise. A retrieval failure is never a withdrawal.
 
-The presenter of a pulled statement is bound as for a presented statement ({{sender-constraint}}), at the point the request allows, as the following table shows for every case except the review-only documents described after it. In the table, a public client is one whose reviewed document declares `token_endpoint_auth_method` of `none`, and a confidential client is one whose document declares another method:
+Having selected a statement, the server continues from step 4 of {{processing}}, with the document already resolved. The selection above satisfies the `client_id` rule of step 2.
+
+The presenter of a pulled statement is bound as for a presented statement ({{sender-constraint}}), at the point the following table shows, unless the statement is review-only ({{review-only}}). Public and confidential clients are as {{sender-constraint}} defines them:
 
 | Where the statement is pulled | Confidential client | Public client |
 | --- | --- | --- |
@@ -329,27 +356,9 @@ The presenter of a pulled statement is bound as for a presented statement ({{sen
 | Pushed authorization request endpoint | The client's authentication binds the presenter | {{public-client-presentation}} binds the presenter if the request uses PKCE with `S256` and binds a key through a DPoP proof or `dpop_jkt`. Otherwise review-only |
 | Authorization endpoint | The client's authentication at code redemption binds the presenter, before any token is issued | {{public-client-presentation}} binds the presenter if the request uses PKCE with `S256` and binds a key through `dpop_jkt`, which redemption then proves. Otherwise review-only |
 
-At code redemption, a confidential client whose statement was pulled at the authorization endpoint authenticates with a key the reviewed document carries, in its `jwks` or at its `jwks_uri` within the reuse bounds of {{sender-constraint}}, not one that only a later retrieval of the document carries, and that key becomes the establishment's proven key. Code redemption and refresh otherwise continue an establishment and keep the binding it already has ({{grant-lifecycle}}, {{refresh}}). A statement pulled for a document that omits `token_endpoint_auth_method` ({{sender-constraint}}), or whose redirection URIs {{public-client-presentation}} does not accept, is review-only wherever it is pulled.
-
-If retrieving the statements does not complete or no statement remains, the server applies its policy for CIMD clients it has not reviewed, subject to any required issuer ({{issuer-trust}}). If that policy or a required issuer requires reviewed software, the server rejects the request with `temporarily_unavailable` if retrieving the statements, or a statement key set needed to verify one ({{issuer-trust}}), did not complete, and with `statement_required` otherwise. A retrieval failure is never a withdrawal.
+At code redemption, a confidential client whose statement was pulled at the authorization endpoint authenticates with a key the reviewed document carries, in its `jwks` or at its `jwks_uri` within the reuse bounds of {{sender-constraint}}, not one that only a later retrieval of the document carries, and that key becomes the establishment's proven key. Code redemption and refresh otherwise continue an establishment and keep the binding it already has ({{grant-lifecycle}}, {{refresh}}).
 
 An authorization server advertises support through `software_statement_pull_supported` ({{authorization-server-metadata}}).
-
-## Presentation Processing {#processing}
-
-On receiving a presentation, the authorization server proceeds as follows, rejecting as {{errors}} defines at the first failure:
-
-1. Validate the statement ({{validation}}), completing every check that does not require a client-controlled network retrieval before performing any such retrieval.
-2. Verify the statement requirements of {{profiles}}, the `iat` floor of {{multi-instance}}, and the `client_id` rule of {{runtime-presentation}}.
-3. Resolve the reviewed document ({{effective-metadata}}), which is the first step requiring a client-controlled retrieval.
-4. Verify the sender constraint against that document ({{sender-constraint}}), then evaluate the request against its metadata ({{effective-metadata}}).
-5. On success, create the establishment ({{grant-lifecycle}}).
-
-Every retrieval this specification causes, of the CIMD, a `jwks_uri` it names, or the statements its `software_statements_uri` names, inherits the server-side request forgery protections in Section 8.6 of {{CIMD}}. A trusted signature does not make a URL safe: the authorization server MUST apply its URL, redirect, address-range, transport, and content-type policy independently to every referenced location.
-
-If a retrieval fails, the authorization server MUST reject the request and MUST NOT fall back to a weaker proof. A failed pull of statements for a request that opens a new grant is the exception: it leaves the client unreviewed, as {{pulled-statements}} describes.
-
-A retrieval does not complete only when it times out, its connection fails, or the response has a 429 (Too Many Requests) status code (Section 4 of {{RFC6585}}) or a 5xx status code, and only then does this specification assign `temporarily_unavailable`. Any other failure to obtain an acceptable representation, such as another 4xx status code or a body that is not a JSON object, is final: a document is treated as failing validation, a key set as carrying no acceptable key, and a statements location as publishing no statement.
 
 ## Sender Constraint {#sender-constraint}
 
@@ -401,16 +410,6 @@ The following are review-only:
 A review-only presentation or pulled statement creates no establishment, admits nothing, and does not advance the `iat` floor of {{multi-instance}}. The authorization server proceeds as it would for the same CIMD client presenting no statement ({{ui-audit}}).
 
 The statement of a review-only presentation, or a review-only pulled statement, MUST NOT satisfy a policy requiring reviewed software. If the server's policy requires reviewed software, it rejects a review-only client with `unauthorized_client`.
-
-## Reviewed Metadata {#effective-metadata}
-
-Having validated the statement, and before verifying the proof ({{processing}}), the authorization server MUST obtain the CIMD at the statement's `sub`, only by retrieval or from octets it has already digested for that identifier, and compare its digest with the `cimd_digest` claim. If octets it already holds do not match, it retrieves the document once more before treating the mismatch as a change.
-
-Octets the authorization server already holds serve for that comparison only within a maximum reuse period of its own choosing, as a key set does ({{sender-constraint}}). The authorization server MUST NOT let the client's cache directives alone determine how long held octets continue to match a statement. Without this rule, a key the document carries inline would continue to verify after the publisher removes it.
-
-A match means the served document is the reviewed one, and its members are the client's metadata for the request. The server takes those members from the octets whose digest matched, not from another retrieval or a copy it has not digested. A mismatch means the document changed after review, and the authorization server MUST NOT treat the changed document as reviewed. It rejects the presentation with `invalid_client` or, by local policy, proceeds without the statement. If it proceeds, it applies its policy for CIMD clients it has not reviewed to the current document and creates no establishment for the statement.
-
-The request is evaluated against the reviewed metadata as against any client's registered metadata ({{RFC6749}}, {{CIMD}}): any requested grant type, response type, or scope MUST fall within it. A document that omits `scope` sets no ceiling on scope beyond the server's own policy.
 
 ## Grant Lifecycle {#grant-lifecycle}
 
