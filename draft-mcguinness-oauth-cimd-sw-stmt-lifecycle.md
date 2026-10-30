@@ -220,7 +220,7 @@ An issuer that uses Token Status List publishes the status of its statements as 
 
 * MUST publish status, and carry the `status` claim, for every statement it issues under a given `iss` from the point it begins publishing. Once statements issued before that point have expired, a trusting authorization server can read an absent claim as meaning the issuer publishes no status.
 * MUST NOT assign the same combination of status list URI and index to more than one statement, including across successive Status List Tokens published at that URI. Withdrawing a statement then affects no other.
-* MUST sign the Status List Token with a key published at the `jwks_uri` metadata value of its authorization server metadata {{RFC8414}}, which Sections 4 and 8 of {{STATEMENT}} keep apart from its statement signing keys, or, for an issuer that is not an authorization server, in its Status List key set ({{token-status-list}}).
+* MUST sign the Status List Token with a key published at the `jwks_uri` metadata value of its authorization server metadata {{RFC8414}}, which Section 4 of {{STATEMENT}} keeps apart from its statement signing keys, or, for an issuer that is not an authorization server, in its Status List key set ({{token-status-list}}).
 * MUST include the `exp` claim in every Status List Token it publishes. An older token then cannot stand in for a newer one indefinitely.
 * MUST give each Status List Token it publishes at a given list URI an `iat` claim value later than that of any token it published there before ({{status-resolution}}).
 
