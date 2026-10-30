@@ -210,7 +210,7 @@ The replacement MUST satisfy the following:
 
 For a replacement, the authorization server MUST derive the registration's metadata from the document the replacement reviews, under the rules of {{dcr-presentation}}. Renewing on the statement alone would leave in the registration a key, redirection URI, or scope that the new review removed.
 
-A request whose replacement fails the rules above is rejected ({{errors}}) whether or not the registration has expired. A rejected delivery leaves the governing statement unchanged.
+A request whose replacement fails the rules above is rejected ({{errors}}) whether or not the registration has ceased to be valid. A rejected delivery leaves the governing statement unchanged.
 
 When a replacement satisfies these rules, the authorization server MUST make it the governing statement and give the registration its effective expiry, its re-derived metadata and any tenant restriction it adds ({{dcr-presentation}}), in a single atomic update, and concurrent deliveries resolve to the most recently issued statement. A valid replacement restores a registration that has ceased to be valid, and an omitted or invalid one does not.
 
@@ -344,7 +344,7 @@ Client Metadata Name:
 : `registration_expires_at`
 
 Client Metadata Description:
-: Latest time at which a statement-governed registration remains valid, as a NumericDate. It can end earlier ({{registration-validity}}). Returned in a client registration response, normally in a registration management response, and in the token or pushed authorization request response to a request that renews the registration or carries its governing statement.
+: Latest time at which a statement-governed registration remains valid, as a NumericDate. The registration can cease to be valid earlier ({{registration-validity}}). Returned in a client registration response, normally in a registration management response, and in the token or pushed authorization request response to a request that renews the registration or carries its governing statement.
 
 Change Controller:
 : IETF
