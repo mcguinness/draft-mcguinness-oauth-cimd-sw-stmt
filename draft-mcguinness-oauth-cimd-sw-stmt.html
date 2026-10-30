@@ -1189,6 +1189,14 @@ svg {
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.5">
                 <p id="section-toc.1-1.5.2.5.1"><a href="#section-5.5" class="auto internal xref">5.5</a>.  <a href="#name-pulled-statements" class="internal xref">Pulled Statements</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.5.2.1">
+                    <p id="section-toc.1-1.5.2.5.2.1.1"><a href="#section-5.5.1" class="auto internal xref">5.5.1</a>.  <a href="#name-retrieval-and-selection" class="internal xref">Retrieval and Selection</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.5.2.2">
+                    <p id="section-toc.1-1.5.2.5.2.2.1"><a href="#section-5.5.2" class="auto internal xref">5.5.2</a>.  <a href="#name-binding" class="internal xref">Binding</a></p>
+</li>
+                </ul>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.6">
                 <p id="section-toc.1-1.5.2.6.1"><a href="#section-5.6" class="auto internal xref">5.6</a>.  <a href="#name-sender-constraint" class="internal xref">Sender Constraint</a></p>
@@ -1451,7 +1459,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         <dd class="break"></dd>
 <dt id="section-2-4.9">Proven Key:</dt>
         <dd style="margin-left: 1.5em" id="section-2-4.10">
-          <p id="section-2-4.10.1">The key an establishment is bound to: the key whose possession the presenter proves during runtime presentation (<a href="#sender-constraint" class="auto internal xref">Section 5.6</a>), the key it binds under <a href="#public-client-presentation" class="auto internal xref">Section 5.6.2</a>, or, for a statement pulled at the authorization endpoint, the key proved at code redemption (<a href="#pulled-statements" class="auto internal xref">Section 5.5</a>).<a href="#section-2-4.10.1" class="pilcrow">¶</a></p>
+          <p id="section-2-4.10.1">The key an establishment is bound to: the key whose possession the presenter proves during runtime presentation (<a href="#sender-constraint" class="auto internal xref">Section 5.6</a>), the key it binds under <a href="#public-client-presentation" class="auto internal xref">Section 5.6.2</a>, or, for a statement pulled at the authorization endpoint, the key proved at code redemption (<a href="#pull-binding" class="auto internal xref">Section 5.5.2</a>).<a href="#section-2-4.10.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 <dt id="section-2-4.11">Effective Expiry:</dt>
@@ -1697,7 +1705,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <a href="#section-5.3" class="section-number selfRef">5.3. </a><a href="#name-retrieval" class="section-name selfRef">Retrieval</a>
         </h3>
 <p id="section-5.3-1">Every retrieval this specification causes, of the CIMD, a <code>jwks_uri</code> it names, or the statements its <code>software_statements_uri</code> names, inherits the server-side request forgery protections in Section 8.6 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>. A trusted signature does not make a URL safe: the authorization server <span class="bcp14">MUST</span> apply its URL, redirect, address-range, transport, and content-type policy independently to every referenced location.<a href="#section-5.3-1" class="pilcrow">¶</a></p>
-<p id="section-5.3-2">If a retrieval fails, the authorization server <span class="bcp14">MUST</span> reject the request and <span class="bcp14">MUST NOT</span> fall back to a weaker proof, except that a failed pull of statements, or a failed retrieval of a statement key set (<a href="#issuer-trust" class="auto internal xref">Section 4</a>) needed to verify a pulled statement, for a request opening a new grant does not reject the request, which proceeds as <a href="#pulled-statements" class="auto internal xref">Section 5.5</a> describes.<a href="#section-5.3-2" class="pilcrow">¶</a></p>
+<p id="section-5.3-2">If a retrieval fails, the authorization server <span class="bcp14">MUST</span> reject the request and <span class="bcp14">MUST NOT</span> fall back to a weaker proof, except that a failed pull of statements, or a failed retrieval of a statement key set (<a href="#issuer-trust" class="auto internal xref">Section 4</a>) needed to verify a pulled statement, for a request opening a new grant does not reject the request, which proceeds as <a href="#pull-selection" class="auto internal xref">Section 5.5.1</a> describes.<a href="#section-5.3-2" class="pilcrow">¶</a></p>
 <p id="section-5.3-3">A retrieval does not complete only when it times out, its connection fails, or the response has a 429 (Too Many Requests) status code (Section 4 of <span>[<a href="#RFC6585" class="cite xref">RFC6585</a>]</span>) or a 5xx status code. Any other failure to obtain an acceptable representation, such as another 4xx status code or a body that is not a JSON object, is final: a document is treated as failing validation, a key set as carrying no acceptable key, and a statements location as publishing no statement.<a href="#section-5.3-3" class="pilcrow">¶</a></p>
 <p id="section-5.3-4">A trusting authorization server <span class="bcp14">MAY</span> reuse document octets it holds for digest comparison (<a href="#effective-metadata" class="auto internal xref">Section 5.2</a>), a key set retrieved from a document's <code>jwks_uri</code>, and a statement key set from either source (<a href="#issuer-trust" class="auto internal xref">Section 4</a>), only within ordinary HTTP caching bounds and a maximum reuse period of its own choosing. It <span class="bcp14">MUST NOT</span> let the publisher's cache directives alone (the client's for the document and its key set, the issuer's for a statement key set) determine how long held octets continue to match a statement or a removed key continues to verify (<a href="#statement-validation" class="auto internal xref">Section 13.2</a>). Without this rule, a key the document carries inline would continue to verify after the publisher removes it.<a href="#section-5.3-4" class="pilcrow">¶</a></p>
 </section>
@@ -1754,76 +1762,100 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         <h3 id="name-pulled-statements">
 <a href="#section-5.5" class="section-number selfRef">5.5. </a><a href="#name-pulled-statements" class="section-name selfRef">Pulled Statements</a>
         </h3>
-<p id="section-5.5-1">This specification defines the following client metadata member:<a href="#section-5.5-1" class="pilcrow">¶</a></p>
-<span class="break"></span><dl class="dlParallel" id="section-5.5-2">
-          <dt id="section-5.5-2.1">
+<p id="section-5.5-1">A client can publish its statements at a URL its document names instead of presenting one. When a client opening a new grant presents no statement, at the token endpoint, the pushed authorization request endpoint, or the authorization endpoint, an authorization server that supports pulled statements <span class="bcp14">MAY</span> retrieve them. Admission then follows <a href="#processing" class="auto internal xref">Section 5.1</a>, except that:<a href="#section-5.5-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-5.5-2.1">
+            <p id="section-5.5-2.1.1">The server chooses the statement (<a href="#pull-selection" class="auto internal xref">Section 5.5.1</a>).<a href="#section-5.5-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-5.5-2.2">
+            <p id="section-5.5-2.2.1">If the pull yields no usable statement, the request proceeds as if the client had presented none (<a href="#pull-selection" class="auto internal xref">Section 5.5.1</a>).<a href="#section-5.5-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-5.5-2.3">
+            <p id="section-5.5-2.3.1">A pulled statement is review-only in the cases <a href="#pull-binding" class="auto internal xref">Section 5.5.2</a> identifies.<a href="#section-5.5-2.3.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-5.5-3">This specification defines the following client metadata member:<a href="#section-5.5-3" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-5.5-4">
+          <dt id="section-5.5-4.1">
 <code>software_statements_uri</code>:</dt>
-          <dd style="margin-left: 1.5em" id="section-5.5-2.2">
-            <p id="section-5.5-2.2.1"><span class="bcp14">OPTIONAL</span>. URL, in a CIMD, at which the client publishes software statements about itself. The member has no meaning in a registration request. The URL <span class="bcp14">MUST</span> use the <code>https</code> scheme. A request to it returns a JSON object whose <code>software_statements</code> member is an array of statements (<a href="#profiles" class="auto internal xref">Section 3</a>), each a string in JWS compact serialization. The metadata digest covers this member (<a href="#metadata-digest" class="auto internal xref">Section 3.1</a>).<a href="#section-5.5-2.2.1" class="pilcrow">¶</a></p>
+          <dd style="margin-left: 1.5em" id="section-5.5-4.2">
+            <p id="section-5.5-4.2.1"><span class="bcp14">OPTIONAL</span>. URL, in a CIMD, at which the client publishes software statements about itself. The member has no meaning in a registration request. The URL <span class="bcp14">MUST</span> use the <code>https</code> scheme. A request to it returns a JSON object whose <code>software_statements</code> member is an array of statements (<a href="#profiles" class="auto internal xref">Section 3</a>), each a string in JWS compact serialization. The metadata digest covers this member (<a href="#metadata-digest" class="auto internal xref">Section 3.1</a>).<a href="#section-5.5-4.2.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
-<p id="section-5.5-3">An authorization server that supports pulled statements <span class="bcp14">MAY</span> retrieve this URL when it resolves the document of a client that presented no statement. In retrieving this URL, the server:<a href="#section-5.5-3" class="pilcrow">¶</a></p>
+<p id="section-5.5-5">An authorization server advertises support through <code>software_statement_pull_supported</code> (<a href="#authorization-server-metadata" class="auto internal xref">Section 9</a>).<a href="#section-5.5-5" class="pilcrow">¶</a></p>
+<div id="pull-selection">
+<section id="section-5.5.1">
+          <h4 id="name-retrieval-and-selection">
+<a href="#section-5.5.1" class="section-number selfRef">5.5.1. </a><a href="#name-retrieval-and-selection" class="section-name selfRef">Retrieval and Selection</a>
+          </h4>
+<p id="section-5.5.1-1">In retrieving the <code>software_statements_uri</code>, the authorization server:<a href="#section-5.5.1-1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5.5-4.1">
-            <p id="section-5.5-4.1.1"><span class="bcp14">MUST</span> send a <code>GET</code> request with <code>Accept: application/json</code>.<a href="#section-5.5-4.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5.5.1-2.1">
+              <p id="section-5.5.1-2.1.1"><span class="bcp14">MUST</span> send a <code>GET</code> request with <code>Accept: application/json</code>.<a href="#section-5.5.1-2.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-5.5-4.2">
-            <p id="section-5.5-4.2.1"><span class="bcp14">MUST NOT</span> automatically follow redirects.<a href="#section-5.5-4.2.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="section-5.5.1-2.2">
+              <p id="section-5.5.1-2.2.1"><span class="bcp14">MUST NOT</span> automatically follow redirects.<a href="#section-5.5.1-2.2.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-5.5-4.3">
-            <p id="section-5.5-4.3.1"><span class="bcp14">MUST</span> accept a new representation only from a <code>200</code> response with a JSON media type, and can instead reuse a stored representation that a <code>304 Not Modified</code> response revalidates (Section 15.4.5 of <span>[<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>).<a href="#section-5.5-4.3.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="section-5.5.1-2.3">
+              <p id="section-5.5.1-2.3.1"><span class="bcp14">MUST</span> accept a new representation only from a <code>200</code> response with a JSON media type, and can instead reuse a stored representation that a <code>304 Not Modified</code> response revalidates (Section 15.4.5 of <span>[<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>).<a href="#section-5.5.1-2.3.1" class="pilcrow">¶</a></p>
 </li>
-        </ul>
-<p id="section-5.5-5">Both the document and this URL are retrieved before any statement exists to validate, so the ordering of <a href="#processing" class="auto internal xref">Section 5.1</a> applies from the first statement verified onward.<a href="#section-5.5-5" class="pilcrow">¶</a></p>
-<p id="section-5.5-6">The server considers only statements that meet all of the following conditions:<a href="#section-5.5-6" class="pilcrow">¶</a></p>
+          </ul>
+<p id="section-5.5.1-3">The document and this URL are necessarily retrieved before any statement is validated, so the ordering of step 2 of <a href="#processing" class="auto internal xref">Section 5.1</a> applies only to the retrievals that follow.<a href="#section-5.5.1-3" class="pilcrow">¶</a></p>
+<p id="section-5.5.1-4">The server considers only statements that meet all of the following conditions, and ignores the rest:<a href="#section-5.5.1-4" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5.5-7.1">
-            <p id="section-5.5-7.1.1">The <code>sub</code> claim equals the document's client identifier.<a href="#section-5.5-7.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5.5.1-5.1">
+              <p id="section-5.5.1-5.1.1">The <code>sub</code> claim equals the document's client identifier.<a href="#section-5.5.1-5.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-5.5-7.2">
-            <p id="section-5.5-7.2.1">The statement validates under <a href="#validation" class="auto internal xref">Section 3.2</a> and permits presentation (<a href="#profiles" class="auto internal xref">Section 3</a>).<a href="#section-5.5-7.2.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="section-5.5.1-5.2">
+              <p id="section-5.5.1-5.2.1">The statement validates under <a href="#validation" class="auto internal xref">Section 3.2</a> and permits presentation (<a href="#profiles" class="auto internal xref">Section 3</a>).<a href="#section-5.5.1-5.2.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-5.5-7.3">
-            <p id="section-5.5-7.3.1">The <code>cimd_digest</code> claim equals the digest of the document the server resolved.<a href="#section-5.5-7.3.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="section-5.5.1-5.3">
+              <p id="section-5.5.1-5.3.1">The <code>cimd_digest</code> claim equals the digest of the document the server resolved.<a href="#section-5.5.1-5.3.1" class="pilcrow">¶</a></p>
 </li>
-        </ul>
-<p id="section-5.5-8">The server ignores the rest.<a href="#section-5.5-8" class="pilcrow">¶</a></p>
-<p id="section-5.5-9">If the server's trust configuration requires an issuer for this client (<a href="#issuer-trust" class="auto internal xref">Section 4</a>), it applies only that issuer's statement, and if none remains, the client is not reviewed. Otherwise, if more than one statement remains, the server keeps only the statement with the latest <code>iat</code> from each issuer and applies any one of those.<a href="#section-5.5-9" class="pilcrow">¶</a></p>
-<p id="section-5.5-10">If retrieving the statements does not complete or no statement remains, the server applies its policy for CIMD clients it has not reviewed, subject to any required issuer (<a href="#issuer-trust" class="auto internal xref">Section 4</a>). If that policy or a required issuer requires reviewed software, the server rejects the request. A retrieval failure is never a withdrawal (<span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span>).<a href="#section-5.5-10" class="pilcrow">¶</a></p>
-<p id="section-5.5-11">Having selected a statement, the server continues from step 5 of <a href="#processing" class="auto internal xref">Section 5.1</a>, with the document already resolved. The selection above satisfies the <code>client_id</code> rule of step 3.<a href="#section-5.5-11" class="pilcrow">¶</a></p>
-<p id="section-5.5-12">The presenter of a pulled statement is bound as for a presented statement (<a href="#sender-constraint" class="auto internal xref">Section 5.6</a>), at the point the following table shows, unless the statement is review-only (<a href="#review-only" class="auto internal xref">Section 5.6.3</a>). Public and confidential clients are as <a href="#sender-constraint" class="auto internal xref">Section 5.6</a> defines them:<a href="#section-5.5-12" class="pilcrow">¶</a></p>
+          </ul>
+<p id="section-5.5.1-6">If the server's trust configuration requires an issuer for this client (<a href="#issuer-trust" class="auto internal xref">Section 4</a>), the server also ignores statements from any other issuer. If more than one statement remains, it applies the most recently issued statement from an issuer of its choice.<a href="#section-5.5.1-6" class="pilcrow">¶</a></p>
+<p id="section-5.5.1-7">Having selected a statement, the server continues from step 5 of <a href="#processing" class="auto internal xref">Section 5.1</a>, with the document already resolved. The selection satisfies the <code>client_id</code> rule of step 3.<a href="#section-5.5.1-7" class="pilcrow">¶</a></p>
+<p id="section-5.5.1-8">If retrieving the statements does not complete or no statement remains, the server applies its policy for CIMD clients it has not reviewed, subject to any required issuer (<a href="#issuer-trust" class="auto internal xref">Section 4</a>), and rejects the request if that policy or a required issuer requires reviewed software.<a href="#section-5.5.1-8" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="pull-binding">
+<section id="section-5.5.2">
+          <h4 id="name-binding">
+<a href="#section-5.5.2" class="section-number selfRef">5.5.2. </a><a href="#name-binding" class="section-name selfRef">Binding</a>
+          </h4>
+<p id="section-5.5.2-1">Unless <a href="#review-only" class="auto internal xref">Section 5.6.3</a> makes it review-only for its redirection URIs, a pulled statement is bound to the presenter as a presented statement is (<a href="#sender-constraint" class="auto internal xref">Section 5.6</a>), at the point the following table shows:<a href="#section-5.5.2-1" class="pilcrow">¶</a></p>
 <table class="center" id="table-1">
-          <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
+            <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
 <thead>
-            <tr>
-              <th class="text-left" rowspan="1" colspan="1">Where the statement is pulled</th>
-              <th class="text-left" rowspan="1" colspan="1">Confidential client</th>
-              <th class="text-left" rowspan="1" colspan="1">Public client</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Token endpoint, opening a new grant</td>
-              <td class="text-left" rowspan="1" colspan="1">The request's client authentication binds the presenter</td>
-              <td class="text-left" rowspan="1" colspan="1">Review-only</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Pushed authorization request endpoint</td>
-              <td class="text-left" rowspan="1" colspan="1">The client's authentication binds the presenter</td>
-              <td class="text-left" rowspan="1" colspan="1">
-                <a href="#public-client-presentation" class="auto internal xref">Section 5.6.2</a> binds the presenter if the request uses PKCE with <code>S256</code> and binds a key through a DPoP proof or <code>dpop_jkt</code>. Otherwise review-only</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Authorization endpoint</td>
-              <td class="text-left" rowspan="1" colspan="1">The client's authentication at code redemption binds the presenter, before any token is issued</td>
-              <td class="text-left" rowspan="1" colspan="1">
-                <a href="#public-client-presentation" class="auto internal xref">Section 5.6.2</a> binds the presenter if the request uses PKCE with <code>S256</code> and binds a key through <code>dpop_jkt</code>, which redemption then proves. Otherwise review-only</td>
-            </tr>
-          </tbody>
-        </table>
-<p id="section-5.5-14">At code redemption, a confidential client whose statement was pulled at the authorization endpoint authenticates with a key the reviewed document carries, in its <code>jwks</code> or at its <code>jwks_uri</code> within the reuse bounds of <a href="#retrieval" class="auto internal xref">Section 5.3</a>, not one that only a later retrieval of the document carries, and that key becomes the establishment's proven key. Code redemption and refresh otherwise continue an establishment and keep the binding it already has (<a href="#grant-lifecycle" class="auto internal xref">Section 5.7</a>, <a href="#refresh" class="auto internal xref">Section 5.7.1</a>).<a href="#section-5.5-14" class="pilcrow">¶</a></p>
-<p id="section-5.5-15">An authorization server advertises support through <code>software_statement_pull_supported</code> (<a href="#authorization-server-metadata" class="auto internal xref">Section 9</a>).<a href="#section-5.5-15" class="pilcrow">¶</a></p>
+              <tr>
+                <th class="text-left" rowspan="1" colspan="1">Where the statement is pulled</th>
+                <th class="text-left" rowspan="1" colspan="1">Confidential client</th>
+                <th class="text-left" rowspan="1" colspan="1">Public client</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="text-left" rowspan="1" colspan="1">Token endpoint, opening a new grant</td>
+                <td class="text-left" rowspan="1" colspan="1">The request's client authentication</td>
+                <td class="text-left" rowspan="1" colspan="1">Review-only</td>
+              </tr>
+              <tr>
+                <td class="text-left" rowspan="1" colspan="1">Pushed authorization request endpoint</td>
+                <td class="text-left" rowspan="1" colspan="1">The request's client authentication</td>
+                <td class="text-left" rowspan="1" colspan="1">PKCE with <code>S256</code> and a key bound through a DPoP proof or <code>dpop_jkt</code>, as <a href="#public-client-presentation" class="auto internal xref">Section 5.6.2</a> requires. Otherwise review-only</td>
+              </tr>
+              <tr>
+                <td class="text-left" rowspan="1" colspan="1">Authorization endpoint</td>
+                <td class="text-left" rowspan="1" colspan="1">Client authentication at code redemption, before any token is issued</td>
+                <td class="text-left" rowspan="1" colspan="1">PKCE with <code>S256</code> and a key bound through <code>dpop_jkt</code>, as <a href="#public-client-presentation" class="auto internal xref">Section 5.6.2</a> requires, which redemption then proves. Otherwise review-only</td>
+              </tr>
+            </tbody>
+          </table>
+<p id="section-5.5.2-3">A statement pulled for a document that omits <code>token_endpoint_auth_method</code> is review-only wherever it is pulled.<a href="#section-5.5.2-3" class="pilcrow">¶</a></p>
+<p id="section-5.5.2-4">At code redemption, a confidential client whose statement was pulled at the authorization endpoint authenticates with a key the reviewed document carries, in its <code>jwks</code> or at its <code>jwks_uri</code> within the reuse bounds of <a href="#retrieval" class="auto internal xref">Section 5.3</a>, not one that only a later retrieval of the document carries, and that key becomes the establishment's proven key.<a href="#section-5.5.2-4" class="pilcrow">¶</a></p>
+</section>
+</div>
 </section>
 </div>
 <div id="sender-constraint">
@@ -1840,7 +1872,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
             <p id="section-5.6-2.2.1">Public client (<code>none</code>): by an installation key the presenter binds (<a href="#public-client-presentation" class="auto internal xref">Section 5.6.2</a>), while its reviewed redirection URIs, with PKCE <code>S256</code>, bind the presentation itself.<a href="#section-5.6-2.2.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-5.6-3">The authorization server <span class="bcp14">MUST</span> reject a presentation under a reviewed document that omits the <code>token_endpoint_auth_method</code> member, even if the presentation is review-only. A statement pulled for such a document is instead review-only (<a href="#review-only" class="auto internal xref">Section 5.6.3</a>).<a href="#section-5.6-3" class="pilcrow">¶</a></p>
+<p id="section-5.6-3">The authorization server <span class="bcp14">MUST</span> reject a presentation under a reviewed document that omits the <code>token_endpoint_auth_method</code> member, even if the presentation is review-only.<a href="#section-5.6-3" class="pilcrow">¶</a></p>
 <p id="section-5.6-4">For a presentation that is not review-only, under either model:<a href="#section-5.6-4" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-5.6-5.1">
@@ -1871,7 +1903,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <a href="#section-5.6.2" class="section-number selfRef">5.6.2. </a><a href="#name-public-clients" class="section-name selfRef">Public Clients</a>
           </h4>
 <p id="section-5.6.2-1">Software distributed to end users cannot hold a key its reviewed document carries: a key shipped in every copy identifies the software, not the installation. Such a document declares <code>token_endpoint_auth_method</code> of <code>none</code> and carries no key material.<a href="#section-5.6.2-1" class="pilcrow">¶</a></p>
-<p id="section-5.6.2-2">An authorization server <span class="bcp14">MUST</span> reject a presentation, even a review-only one, that opens a new grant at the token endpoint (<a href="#token-requests" class="auto internal xref">Section 5.4.1</a>) from a public client. Such a presentation opens no redirect and has nothing to bind it. A statement pulled for such a client at the token endpoint for a request opening a new grant is instead review-only (<a href="#review-only" class="auto internal xref">Section 5.6.3</a>).<a href="#section-5.6.2-2" class="pilcrow">¶</a></p>
+<p id="section-5.6.2-2">An authorization server <span class="bcp14">MUST</span> reject a presentation, even a review-only one, that opens a new grant at the token endpoint (<a href="#token-requests" class="auto internal xref">Section 5.4.1</a>) from a public client. Such a presentation opens no redirect and has nothing to bind it.<a href="#section-5.6.2-2" class="pilcrow">¶</a></p>
 <p id="section-5.6.2-3">For a public client's presentation that is not review-only, at the pushed authorization request endpoint, the authorization server:<a href="#section-5.6.2-3" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-5.6.2-4.1">
@@ -1884,8 +1916,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
               <p id="section-5.6.2-4.3.1"><span class="bcp14">MUST NOT</span> require that key to appear in the reviewed document.<a href="#section-5.6.2-4.3.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
-<p id="section-5.6.2-5">A statement pulled for such a client at the pushed authorization request endpoint or the authorization endpoint (<a href="#pulled-statements" class="auto internal xref">Section 5.5</a>) is bound the same way, under the same requirements, if the request uses PKCE with the <code>S256</code> method and binds a key as those requirements provide.<a href="#section-5.6.2-5" class="pilcrow">¶</a></p>
-<p id="section-5.6.2-6">The reviewed redirection URIs, not the proven key, bind such a presentation (<a href="#public-client-security" class="auto internal xref">Section 13.4</a>). The proven key identifies the installation the grant belongs to.<a href="#section-5.6.2-6" class="pilcrow">¶</a></p>
+<p id="section-5.6.2-5">The reviewed redirection URIs, not the proven key, bind such a presentation (<a href="#public-client-security" class="auto internal xref">Section 13.4</a>). The proven key identifies the installation the grant belongs to.<a href="#section-5.6.2-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="review-only">
@@ -1899,13 +1930,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
               <p id="section-5.6.3-2.1.1">Every presentation and pulled statement for a reviewed document that carries any redirection URI another application on the same device could claim, whatever authentication method the document declares. Such a URI is a non-<code>https</code> URI, such as a private-use scheme or an <code>http</code> loopback redirection URI (Sections 7.1 and 7.3 of <span>[<a href="#RFC8252" class="cite xref">RFC8252</a>]</span>), or an <code>https</code> URI whose host is a loopback address or <code>localhost</code>. The application that claims such a URI receives the code, so neither the reviewed redirection URIs nor a key shipped in every copy of the software can bind the presenter.<a href="#section-5.6.3-2.1.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-5.6.3-2.2">
-              <p id="section-5.6.3-2.2.1">A statement pulled for a document that omits <code>token_endpoint_auth_method</code>, wherever it is pulled. A presentation under such a document is rejected instead (<a href="#sender-constraint" class="auto internal xref">Section 5.6</a>).<a href="#section-5.6.3-2.2.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-5.6.3-2.3">
-              <p id="section-5.6.3-2.3.1">A statement pulled for a public client at the token endpoint for a request opening a new grant.<a href="#section-5.6.3-2.3.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-5.6.3-2.4">
-              <p id="section-5.6.3-2.4.1">A statement pulled for a public client at the pushed authorization request endpoint or the authorization endpoint without PKCE with the <code>S256</code> method and a key bound as <a href="#public-client-presentation" class="auto internal xref">Section 5.6.2</a> provides.<a href="#section-5.6.3-2.4.1" class="pilcrow">¶</a></p>
+              <p id="section-5.6.3-2.2.1">A pulled statement that <a href="#pull-binding" class="auto internal xref">Section 5.5.2</a> makes review-only.<a href="#section-5.6.3-2.2.1" class="pilcrow">¶</a></p>
 </li>
           </ol>
 <p id="section-5.6.3-3">A review-only presentation or pulled statement creates no establishment and admits nothing. The authorization server proceeds as it would for the same CIMD client presenting no statement (<a href="#ui-audit" class="auto internal xref">Section 11.4</a>).<a href="#section-5.6.3-3" class="pilcrow">¶</a></p>
@@ -1937,7 +1962,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
             <p id="section-5.7-2.5.1">The issuer trust decision.<a href="#section-5.7-2.5.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-5.7-2.6">
-            <p id="section-5.7-2.6.1">The sender-constraint mechanism and proven key, which for a statement pulled at the authorization endpoint for a confidential client is set at code redemption (<a href="#pulled-statements" class="auto internal xref">Section 5.5</a>).<a href="#section-5.7-2.6.1" class="pilcrow">¶</a></p>
+            <p id="section-5.7-2.6.1">The sender-constraint mechanism and proven key, which for a statement pulled at the authorization endpoint for a confidential client is set at code redemption (<a href="#pull-binding" class="auto internal xref">Section 5.5.2</a>).<a href="#section-5.7-2.6.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <p id="section-5.7-3">The authorization server <span class="bcp14">MUST</span> bind the resulting <code>request_uri</code>, authorization code, refresh token, and other grant continuation state to the establishment, as applicable. An establishment ends once no continuation state bound to it remains usable.<a href="#section-5.7-3" class="pilcrow">¶</a></p>
@@ -1947,7 +1972,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
             <p id="section-5.7-5.1.1"><span class="bcp14">MUST</span> have a <code>client_id</code> parameter exactly equal to the establishment's <code>sub</code>, even if the client authenticates.<a href="#section-5.7-5.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-5.7-5.2">
-            <p id="section-5.7-5.2.1"><span class="bcp14">MUST</span> demonstrate possession of the establishment's proven key under the same sender-constraint mechanism or, for a confidential client whose statement was pulled at the authorization endpoint (<a href="#pulled-statements" class="auto internal xref">Section 5.5</a>), authenticate with the key that becomes the proven key.<a href="#section-5.7-5.2.1" class="pilcrow">¶</a></p>
+            <p id="section-5.7-5.2.1"><span class="bcp14">MUST</span> demonstrate possession of the establishment's proven key under the same sender-constraint mechanism or, for a confidential client whose statement was pulled at the authorization endpoint (<a href="#pull-binding" class="auto internal xref">Section 5.5.2</a>), authenticate with the key that becomes the proven key.<a href="#section-5.7-5.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-5.7-5.3">
             <p id="section-5.7-5.3.1"><span class="bcp14">MUST NOT</span> carry the <code>software_statement</code> parameter.<a href="#section-5.7-5.3.1" class="pilcrow">¶</a></p>

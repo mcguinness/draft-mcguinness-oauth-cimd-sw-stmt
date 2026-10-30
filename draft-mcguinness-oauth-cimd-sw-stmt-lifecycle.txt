@@ -258,7 +258,7 @@ Table of Contents
    Section 5.1 of [STATEMENT], along with the statement requirements and
    the client_id rule, before it resolves the reviewed document.
 
-   In selecting a pulled statement (Section 5.5 of [STATEMENT]), the
+   In selecting a pulled statement (Section 5.5.1 of [STATEMENT]), the
    server also ignores any statement that the iat floor supersedes.  A
    pulled statement the server does not apply does not advance the iat
    floor.  Nor does a review-only presentation or pulled statement
@@ -339,7 +339,7 @@ Table of Contents
        none, a server that supports pulled statements pulls, however the
        establishment was created, and takes as the replacement the
        newest statement with the recorded iss and sub among those it
-       considers under Section 5.5 of [STATEMENT] and Section 4.  A
+       considers under Section 5.5.1 of [STATEMENT] and Section 4.  A
        refresh that needs a replacement and obtains none is rejected: a
        reviewed grant never continues under the policy for clients the
        server has not reviewed.
