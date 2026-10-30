@@ -106,6 +106,7 @@ The reviewed document takes the role that {{RFC7591}} gives a statement's own va
   * The registration's metadata changes only by re-derivation from the document a replacement statement reviews ({{revalidation}}).
   * A request MAY carry metadata, as {{RFC7591}} clients do, but it does not contribute to the registration.
   * The registered `client_id` is assigned as {{RFC7591}} provides, and the document's own `client_id` member is the URL recorded as `sub`.
+  * A member the document omits, other than `token_endpoint_auth_method` (rejected below), takes its {{RFC7591}} default.
 
 The authorization server MUST reject the registration, or a replacement ({{revalidation}}), if any of the following holds:
 
