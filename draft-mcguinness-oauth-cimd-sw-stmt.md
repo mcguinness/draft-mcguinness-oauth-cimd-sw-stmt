@@ -384,7 +384,7 @@ For a presentation that is not review-only, under either model:
 
 For a confidential client's presentation that is not review-only, the proven key MUST appear in the `jwks` or at the `jwks_uri` of the reviewed document ({{effective-metadata}}). The client authentication method the document declares therefore has to prove possession of such a key, as `private_key_jwt` (Section 2.2 of {{RFC7523}}) and `self_signed_tls_client_auth` (Section 2.2 of {{RFC8705}}) do.
 
-A key at the document's `jwks_uri` is retrieved at presentation time. If that retrieval does not complete ({{retrieval}}), the presentation is rejected.
+The key set at the document's `jwks_uri` is obtained when the presentation is processed, by retrieval or from a copy reused within the bounds of {{retrieval}}. If a retrieval it needs does not complete, the presentation is rejected.
 
 ### Public Clients {#public-client-presentation}
 
