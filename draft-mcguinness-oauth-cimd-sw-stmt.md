@@ -704,7 +704,7 @@ An authorization server can bound the retrieval and processing work of {{externa
 A trusting authorization server can bound the number of establishments, and any registrations ({{REGISTRATION}}), derived from one issuer's statements about one piece of software, identified by `iss` and `sub` claims. How it counts toward a bound is local policy. Two choices keep a bound effective:
 
 * State that anyone holding a copy of a statement can create does not count: a pushed authorization request and its unredeemed code, which anyone holding a copy of a public client's statement can approve with their own account, or a registration under which no access token has been issued. Otherwise a holder of a copy could exhaust the bound for the software's other instances.
-* A count persists across replacements: an establishment created for a refreshed grant does not add to it.
+* A count persists across replacements: a replacement accepted on refresh does not add to it.
 
 For software admitted under {{public-client-presentation}}, a server can also bound establishments per resource owner, so that one user cannot exhaust a bound the software's other users share.
 
