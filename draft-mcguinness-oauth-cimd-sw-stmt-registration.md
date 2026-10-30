@@ -102,7 +102,7 @@ The reviewed document takes the role that {{RFC7591}} gives a statement's own va
   * The registered `client_id` is assigned as {{RFC7591}} provides, and the document's own `client_id` member is the URL recorded as `sub`.
 * MUST reject the registration with the `invalid_client_metadata` error code if the document omits the `token_endpoint_auth_method` member.
 * MUST reject the registration with the `invalid_client_metadata` error code if the document declares `token_endpoint_auth_method` of `none`, unless the authorization server registers the client under {{public-client-registration}}.
-* MUST reject the registration with the `invalid_client_metadata` error code if any of the document's redirection URIs could be claimed by another application on the same device (Section 5.4.1 of {{STATEMENT}}), whatever authentication method the document declares.
+* MUST reject the registration with the `invalid_client_metadata` error code if any of the document's redirection URIs could be claimed by another application on the same device (Section 5.6.3 of {{STATEMENT}}), whatever authentication method the document declares.
 
 If the statement's decision is confined to one of the authorization server's tenants, by its `aud_tenant` claim or by the server's trust configuration for its issuer (Section 4 of {{STATEMENT}}), the authorization server MUST record that tenant with the registration. Tenant restrictions apply to every statement-governed registration as follows:
 
@@ -114,13 +114,13 @@ If the statement's decision is confined to one of the authorization server's ten
 
 Unlike runtime presentation (Section 5 of {{STATEMENT}}), registration has no review-only form: the registration is the admission.
 
-Taking every value from the document prevents metadata substitution. At registration a statement is a bearer artifact, so a request-supplied value for a member the document omits, such as a `jwks` member beside a document naming only `jwks_uri`, would give any holder of a copy a registration with reviewed branding and the holder's own key. Registering a document that omits `token_endpoint_auth_method` under the {{RFC7591}} default, a shared-secret method, would issue a client secret to any holder of a copy. Software whose document declares `token_endpoint_auth_method` of `none` and that the server does not register under {{public-client-registration}} can instead use runtime presentation if it meets the public-client binding requirements of Section 5.4.1 of {{STATEMENT}}.
+Taking every value from the document prevents metadata substitution. At registration a statement is a bearer artifact, so a request-supplied value for a member the document omits, such as a `jwks` member beside a document naming only `jwks_uri`, would give any holder of a copy a registration with reviewed branding and the holder's own key. Registering a document that omits `token_endpoint_auth_method` under the {{RFC7591}} default, a shared-secret method, would issue a client secret to any holder of a copy. Software whose document declares `token_endpoint_auth_method` of `none` and that the server does not register under {{public-client-registration}} can instead use runtime presentation if it meets the public-client binding requirements of Section 5.6.2 of {{STATEMENT}}.
 
-The retrieval requirements of Sections 3.1 and 5.3 of {{STATEMENT}} apply to retrieving the document as they apply to a runtime presentation, and a server can apply the bounds that specification describes. Following the order of Section 5.3 of {{STATEMENT}}, the authorization server completes every check that needs no client-controlled retrieval before resolving the document.
+The retrieval requirements of Sections 3.1 and 5.3 of {{STATEMENT}} apply to retrieving the document as they apply to a runtime presentation, and a server can apply the bounds that specification describes. Following the order of Section 5.1 of {{STATEMENT}}, the authorization server completes every check that needs no client-controlled retrieval before resolving the document.
 
 ## Public Clients {#public-client-registration}
 
-An authorization server MAY register a client whose reviewed document declares `token_endpoint_auth_method` of `none`. Such a registration has no client credential. The registration is bound instead as Section 5.4.1 of {{STATEMENT}} binds a public client at runtime. A server that registers such a client:
+An authorization server MAY register a client whose reviewed document declares `token_endpoint_auth_method` of `none`. Such a registration has no client credential. The registration is bound instead as Section 5.6.2 of {{STATEMENT}} binds a public client at runtime. A server that registers such a client:
 
 * MUST reject the registration with the `invalid_client_metadata` error code if the document lists no redirection URI. {{dcr-presentation}} already rejects a document listing one that another application could claim.
 * MUST issue tokens under the registration only through the authorization code grant and refresh of the grants it opens.
@@ -147,7 +147,7 @@ An authorization server MUST apply the following validity model to every registr
 
 An authorization server stores with each statement-governed registration the governing statement and its `iss`, `jti`, `sub`, and `iat` claims, any claim by which a withdrawal mechanism locates that statement (such as `status`), the registration's effective expiry, and any tenant the registration is restricted to.
 
-A server that uses a withdrawal mechanism for the governing statement's issuer SHOULD consult it for that statement at each token request under the registration, as Section 5.6.1 of {{STATEMENT}} provides for refresh.
+A server that uses a withdrawal mechanism for the governing statement's issuer SHOULD consult it for that statement at each token request under the registration, as Section 5.7.1 of {{STATEMENT}} provides for refresh.
 
 A server that records a required issuer for a tenant (Section 4 of {{STATEMENT}}) MUST reject an authorization, token, or pushed authorization request, or an {{RFC7592}} update request, in that tenant under any registration for software in a covered namespace unless, once any replacement the request delivers has been evaluated ({{revalidation}}), a current statement from the required issuer governs the registration. This rule applies whatever tenant the registration was created in and whenever the requirement was configured. Without this rule, withholding the required issuer's statement would keep such a registration in use after the issuer withdrew or stopped renewing its decision. A registration governed by another issuer's statement cannot satisfy the requirement.
 
@@ -208,7 +208,7 @@ Renewing on the statement alone would leave in the registration a key, redirecti
 
 On success, the replacement becomes the governing statement: the authorization server MUST replace the stored governing statement and its claims ({{registration-validity}}), the effective expiry, and the registration's metadata with the replacement's, and apply any tenant restriction it adds ({{dcr-presentation}}), in a single atomic update, and concurrent deliveries resolve to the most recently issued statement.
 
-Access issued under the registration after that update, including on refresh of a grant issued before it, MUST fall within the re-derived metadata, as Section 5.6.1 of {{STATEMENT}} requires of a refreshed grant.
+Access issued under the registration after that update, including on refresh of a grant issued before it, MUST fall within the re-derived metadata, as Section 5.7.1 of {{STATEMENT}} requires of a refreshed grant.
 
 When a request under a registration that has ceased to be valid contains a replacement, the authorization server MUST authenticate the client against the retained registration and evaluate the replacement before applying the rejection of {{registration-validity}}. A valid replacement restores the registration. An omitted or invalid replacement does not.
 
@@ -307,7 +307,7 @@ A public-client registration ({{public-client-registration}}) has no credential 
 
 Renewal proves possession of the registration's credential and the currency of a statement sharing the governing statement's `iss` and `sub`, not that the renewing party is the reviewed software. An attacker holding a stolen client credential can renew indefinitely with the newer statements distributed to every deployment of the software. A public-client registration's renewal proves only that the replacement is current. No protection is lost, since any party can already use that registration.
 
-Deployments ought to pair statement-governed registrations with credential rotation, sender-constrained client authentication, and the bounds that Sections 12.2 and 12.3 of {{STATEMENT}} and {{repeated-registration}} describe, and ought to treat a credential compromise as requiring re-registration rather than renewal. Runtime presentation (Section 5.4 of {{STATEMENT}}) binds every presenter to the reviewed document, through a key the document carries or its reviewed redirection URIs, and so does not have this limitation, though the redirection binding does not hold against a party that controls the user agent.
+Deployments ought to pair statement-governed registrations with credential rotation, sender-constrained client authentication, and the bounds that Sections 12.2 and 12.3 of {{STATEMENT}} and {{repeated-registration}} describe, and ought to treat a credential compromise as requiring re-registration rather than renewal. Runtime presentation (Section 5.6 of {{STATEMENT}}) binds every presenter to the reviewed document, through a key the document carries or its reviewed redirection URIs, and so does not have this limitation, though the redirection binding does not hold against a party that controls the user agent.
 
 ## Registration Fraud and Impersonation {#registration-fraud}
 
