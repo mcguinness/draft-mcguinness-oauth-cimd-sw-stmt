@@ -528,7 +528,7 @@ A presentation rejected at the token or pushed authorization request endpoint fo
   * The bound on establishments is reached ({{establishment-bounds}}).
 
 `statement_required`:
-: As {{statement-required}} defines, including when a required issuer's statement is absent ({{issuer-trust}}).
+: The statement is expired, refused by a refusal record, or superseded under the `iat` floor ({{statement-required}}), or a required statement is absent, including one from an issuer required for the tenant ({{issuer-trust}}).
 
 `unauthorized_client`:
 : The request exceeds the reviewed document's grant types or response types ({{effective-metadata}}), the document carries metadata this server's policy refuses, or the client is review-only where policy or a required issuer requires reviewed software ({{review-only}}), or the request is for software a required issuer excludes from the tenant ({{issuer-trust}}).
