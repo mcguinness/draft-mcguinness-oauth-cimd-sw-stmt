@@ -113,7 +113,7 @@ Taking every value from the document prevents metadata substitution. At registra
 
 The retrieval requirements of Sections 3.1 and 5.3 of {{STATEMENT}} apply to retrieving the document as they apply to a runtime presentation, and a server can apply the bounds that specification describes. Following the order of Section 5.1 of {{STATEMENT}}, the authorization server completes every check that needs no client-controlled retrieval before resolving the document.
 
-If the statement's decision is confined to one of the authorization server's tenants, by its `aud_tenant` claim or by the server's trust configuration for its issuer (Section 4 of {{STATEMENT}}), the authorization server MUST record that tenant with the registration. Otherwise the registration carries no tenant restriction under this specification. A replacement ({{revalidation}}) determines the restriction as follows:
+If the statement's decision is confined to one of the authorization server's tenants, by its `aud_tenant` claim or by the server's trust configuration for its issuer (Section 4 of {{STATEMENT}}), the registration is restricted to that tenant. Otherwise it carries no tenant restriction under this specification. A replacement ({{revalidation}}) determines the restriction as follows:
 
 | Registration before | Replacement's decision | After |
 | --- | --- | --- |
