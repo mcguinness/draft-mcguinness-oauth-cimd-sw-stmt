@@ -522,9 +522,9 @@ A presentation rejected at the token or pushed authorization request endpoint fo
 `invalid_client`:
 : Any of the following:
 
-  * The statement fails validation ({{validation}}) for a reason other than expiry, a refusal record, or the `iat` floor.
+  * The statement is malformed or fails validation ({{validation}}) for a reason other than expiry, a refusal record, or the `iat` floor.
   * The request's `client_id` differs from the statement's `sub` ({{runtime-presentation}}), or the request fails the sender constraint ({{sender-constraint}}), including a presentation under a document that omits `token_endpoint_auth_method` and one opening a new grant at the token endpoint for a public client ({{public-client-presentation}}).
-  * The reviewed document cannot be obtained, including over the size bound, or validated ({{validation}}), or does not match and the server does not proceed without the statement ({{effective-metadata}}).
+  * The reviewed document cannot be obtained, including over the size bound, fails validation as {{CIMD}} requires, contains duplicate member names ({{validation}}), or does not match and the server does not proceed without the statement ({{effective-metadata}}).
   * The bound on establishments is reached ({{establishment-bounds}}).
 
 `statement_required`:
