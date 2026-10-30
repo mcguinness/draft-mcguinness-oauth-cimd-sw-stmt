@@ -321,7 +321,7 @@ The client sends an authorization request as described in Section 4.1.1 of {{RFC
 : REQUIRED. The client identifier URL described in {{client-identity}}.
 
 `redirect_uri`:
-: REQUIRED. The value MUST exactly match one of the redirection URIs in the CIMD, subject to the redirection URI rules in Section 4.2 of {{CIMD}}. Whatever authentication method the document declares, the value MUST NOT be a redirection URI that another application on the same device could claim, as the public-client presentation rules of {{STATEMENT}} define ({{authorization-response-security}}).
+: REQUIRED. The value MUST exactly match one of the redirection URIs in the CIMD, subject to the redirection URI rules in Section 4.2 of {{CIMD}}. Whatever authentication method the document declares, the value MUST NOT be a redirection URI that another application on the same device could claim, as the review-only rules of {{STATEMENT}} define ({{authorization-response-security}}).
 
 `state`:
 : OPTIONAL. An opaque value used by the client to bind the authorization response to its request. Because the authorization server requires PKCE, a client can rely on PKCE for cross-site request forgery (CSRF) protection instead, as Section 2.1 of {{RFC9700}} permits.
