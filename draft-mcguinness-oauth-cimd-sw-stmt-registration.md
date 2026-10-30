@@ -67,7 +67,7 @@ The following non-normative sequence summarizes a statement-governed registratio
 
 1. The client registers through {{RFC7591}}, carrying a statement in the `software_statement` member.
 2. The authorization server derives the registration's metadata from the reviewed document and records the statement's identity. The registration is valid until the statement's effective expiry ({{registration-validity}}).
-3. The client delivers a replacement statement in a token or pushed authorization request under the registration or, if supported, an {{RFC7592}} update request. The delivery sets the registration's validity to the replacement's effective expiry.
+3. The client delivers a replacement statement in a token or pushed authorization request under the registration or, if supported, an {{RFC7592}} update request. The delivery replaces the registration's metadata with metadata derived from the document the replacement reviews, and sets the registration's validity to the replacement's effective expiry.
 4. If no replacement arrives, the registration expires and requests under it fail.
 
 # Conventions and Definitions
