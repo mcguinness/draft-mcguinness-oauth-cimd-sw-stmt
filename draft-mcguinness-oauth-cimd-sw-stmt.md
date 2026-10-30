@@ -346,7 +346,7 @@ If the server's trust configuration requires an issuer for this client ({{issuer
 
 Having selected a statement, the server continues from step 5 of {{processing}}, with the document already resolved. The selection satisfies the `client_id` rule of step 3.
 
-If retrieving the statements does not complete or no statement remains, the server applies its policy for CIMD clients it has not reviewed, subject to any required issuer ({{issuer-trust}}). If that policy or a required issuer requires reviewed software, the server rejects the request. A retrieval failure is never a withdrawal ({{LIFECYCLE}}).
+If retrieving the statements does not complete or no statement remains, the server applies its policy for CIMD clients it has not reviewed, subject to any required issuer ({{issuer-trust}}). If that policy or a required issuer requires reviewed software, the server rejects the request.
 
 ### Binding {#pull-binding}
 
