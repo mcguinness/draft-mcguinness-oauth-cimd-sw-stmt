@@ -584,7 +584,7 @@ A request to that URL returns the statements, here one:
 }
 ~~~
 
-An authorization server receiving an ordinary authorization request with this `client_id` resolves the document, retrieves the statements, and keeps the one from a trusted issuer whose `cimd_digest` matches the document it retrieved. It completes the binding when the client authenticates with `private_key_jwt` at code redemption ({{pulled-statements}}).
+An authorization server receiving an ordinary authorization request with this `client_id` resolves the document, retrieves the statements, and keeps the one from a trusted issuer whose `cimd_digest` matches the document it retrieved. It completes the binding when the client authenticates with `private_key_jwt` at code redemption ({{pull-binding}}).
 
 ## Statement Header and Payload
 
@@ -633,7 +633,7 @@ The following extensions are left to separate specifications:
 * Attested keys: a client attestation {{ABCA}}, including one from an attester the reviewed document names, vouching for a key that document does not carry. Without one, software whose instances authenticate with keys of their own can neither prove nor register those keys ({{sender-constraint}}, {{REGISTRATION}}).
 * Statement conveyance within a client attestation, rather than as a request parameter.
 * Runtime presentation in the request that begins a grant at an endpoint this specification does not cover, such as the device authorization endpoint of {{RFC8628}}.
-* Partial review, by which an issuer vouches for particular members rather than a whole document ({{profiles}}).
+* Partial review, by which an issuer vouches for particular members rather than a whole document ({{metadata-digest}}).
 * Statement lifecycle ({{LIFECYCLE}}): withdrawal, supersession, requiring a current statement on refresh, and refresh replacement.
 
 # Implementation Considerations {#implementation-considerations}
@@ -710,7 +710,7 @@ The following table states what admission under this specification does and does
 | --- | --- |
 | A configured issuer signed the statement for this client identifier and, if the statement names an audience, one that includes this server | Yes |
 | The served document is the one the issuer reviewed, byte for byte | Yes |
-| The presenter controls a key the reviewed document carries | Yes, except under {{public-client-presentation}}. For a statement pulled at the authorization endpoint, possession is proved at code redemption, before any token is issued ({{pulled-statements}}). Inline `jwks` attests the keys themselves; `jwks_uri` attests only their location ({{statement-validation}}) |
+| The presenter controls a key the reviewed document carries | Yes, except under {{public-client-presentation}}. For a statement pulled at the authorization endpoint, possession is proved at code redemption, before any token is issued ({{pull-binding}}). Inline `jwks` attests the keys themselves; `jwks_uri` attests only their location ({{statement-validation}}) |
 | Authorization codes reach only a reviewed redirection URI | Yes, in a redirect flow. For a public client under {{public-client-presentation}} it is the only binding, and it does not hold against a party that controls the user agent ({{public-client-security}}) |
 | The running software is the software the issuer reviewed | No; an attested-key extension can add evidence for it ({{extensions}}) |
 | The client may access a particular resource | No; the authorization server's policy, and the resource owner's authorization where a grant involves one, decide |
