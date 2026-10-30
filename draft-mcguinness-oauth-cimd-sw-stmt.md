@@ -506,7 +506,7 @@ A rejection uses the error response and HTTP status codes of its endpoint: Secti
 
 At the token and pushed authorization request endpoints, an authorization server SHOULD respond with HTTP status code 503 to a request it rejects with the `temporarily_unavailable` error code. {{REGISTRATION}} defines rejections at a registration endpoint and how registration validity is reported.
 
-This specification assigns `temporarily_unavailable` only to a retrieval that did not complete ({{retrieval}}), never to a response over the size bound of {{metadata-digest}}.
+This specification assigns `temporarily_unavailable` only to a retrieval that did not complete ({{retrieval}}), never to a response over the size bound of {{metadata-digest}}. A request carrying the `software_statement` parameter in a role {{runtime-presentation}} does not permit is rejected with `invalid_request`.
 
 ## Requiring a Current Statement {#statement-required}
 
@@ -537,7 +537,7 @@ A presentation rejected at the token or pushed authorization request endpoint fo
 : The request exceeds the reviewed document's scope ({{effective-metadata}}), or the document carries a scope this server's policy refuses.
 
 `invalid_request`:
-: The request omits `client_id` or carries `software_statement` in a role not permitted ({{runtime-presentation}}).
+: The request omits `client_id` ({{runtime-presentation}}).
 
 A request rejected for another reason, such as an assertion grant whose assertion is invalid (Section 3.1 of {{RFC7523}}), uses the error code its grant or endpoint assigns.
 
@@ -557,7 +557,7 @@ Under an establishment, a refresh-token request rejected for a reason this speci
 : The refreshed access exceeds the reviewed metadata or this server's policy, as for a presentation.
 
 `invalid_request`:
-: The request carries a replacement but omits `client_id`, or carries `software_statement` in a role not permitted ({{runtime-presentation}}).
+: The request carries a replacement but omits `client_id` ({{runtime-presentation}}).
 
 None of these rejections indicates refresh-token replay ({{RFC9700}}), whose detection this specification does not change. A refresh-token request rejected for another reason, such as an expired or revoked refresh token, uses the error codes of Section 5.2 of {{RFC6749}}.
 
