@@ -774,15 +774,14 @@ Table of Contents
 
    On every refresh the server MUST require a current software statement
    and re-evaluate its issuer trust decision.  This strengthens the
-   statement-currency check of [LIFECYCLE], which is a local-policy
-   option until the recorded statement expires and recommended after.
-   It MUST also verify that the currently served document matches the
-   applicable statement and attestation digests and continues to meet
-   Section 4.  A document that no longer selects this profile or meets
-   Section 4, for example one that omits the
-   software_statement_instance_binding member or names another
-   authentication method, fails the refresh.  The refresh is then
-   rejected with invalid_grant without seeking a replacement, as
+   statement-currency check of [LIFECYCLE], which is recommended once
+   the recorded statement expires.  It MUST also verify that the
+   currently served document matches the applicable statement and
+   attestation digests and continues to meet Section 4.  A document that
+   no longer selects this profile or meets Section 4, for example one
+   that omits the software_statement_instance_binding member or names
+   another authentication method, fails the refresh.  The refresh is
+   then rejected with invalid_grant without seeking a replacement, as
    [STATEMENT] rejects a refresh whose document no longer carries the
    proven key.
 
@@ -916,12 +915,11 @@ Table of Contents
     |           |document still carries    |presence in the document  |
     |           |that key.                 |(Section 8).              |
     +-----------+--------------------------+--------------------------+
-    |3.3 and 3.4|A current statement on    |Every refresh requires a  |
-    |of         |refresh is a local-policy |current statement and re- |
-    |[LIFECYCLE]|option, recommended once  |checks the document       |
-    |           |the recorded statement    |against the recorded      |
-    |           |expires, and the          |digests (Section 8).      |
-    |           |document's digest is      |                          |
+    |5.1 and 5.2|A current statement on    |Every refresh requires a  |
+    |of         |refresh is recommended    |current statement and re- |
+    |[LIFECYCLE]|once the recorded         |checks the document       |
+    |           |statement expires, and the|against the recorded      |
+    |           |document's digest is      |digests (Section 8).      |
     |           |checked only for a        |                          |
     |           |replacement.              |                          |
     +-----------+--------------------------+--------------------------+
