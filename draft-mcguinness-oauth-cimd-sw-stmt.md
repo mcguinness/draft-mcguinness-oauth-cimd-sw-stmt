@@ -278,7 +278,7 @@ For a runtime presentation, the authorization server proceeds as follows, reject
 4. Resolve the reviewed document and compare its digest ({{effective-metadata}}).
 5. Verify the sender constraint against that document ({{sender-constraint}}).
 6. Evaluate the request against the reviewed metadata ({{effective-metadata}}).
-7. Create the establishment ({{grant-lifecycle}}).
+7. Create the establishment ({{grant-lifecycle}}), unless the statement is review-only ({{review-only}}) or the server proceeds without it ({{effective-metadata}}).
 
 ## Reviewed Metadata {#effective-metadata}
 
