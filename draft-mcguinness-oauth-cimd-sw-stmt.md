@@ -1023,6 +1023,18 @@ Specification Document(s):
 
 --- back
 
+# Open Design Questions {#open-questions}
+
+This appendix is to be removed before publication. It records simpler designs the author would like the working group to weigh against this one. None changes what the statement attests: a configured issuer's review of a document's exact octets, which the client's authentication key or reviewed redirection URIs bind.
+
+1. Issuer-hosted statements. The authorization server could obtain statements from the issuer, per client or as a signed list it synchronizes, instead of from the client. That would remove the `software_statement` parameter, `software_statements_uri`, the `iat` floor, and refusal records, since the server would always see the issuer's current statement. It would require issuers to serve statements with high availability, would tell an issuer which servers resolve which clients unless lists are synchronized, and departs from the client-carried statement of {{RFC7591}}.
+
+2. Admission on every token request. The server could re-check a current statement and the served document on every token request instead of recording an establishment. That would remove establishments, refresh replacement, and the pinned proven key. Every refresh would then need a current statement and a retrieval of the document, and a grant would end when renewal lapses.
+
+3. The public client's installation key. The server could rely on PKCE and on the sender-constraint and rotation practices of {{RFC9449}} and {{RFC9700}} instead of requiring a bound key, since the reviewed redirection URIs, not that key, bind a public client's presentation ({{public-client-presentation}}).
+
+4. Scope. Requiring a pushed authorization request for every reviewed redirect flow would remove binding at code redemption ({{pulled-statements}}). Admitting only confidential clients in this specification, with public clients in a separate profile, would remove a second binding model.
+
 # Acknowledgments
 {:numbered="false"}
 
