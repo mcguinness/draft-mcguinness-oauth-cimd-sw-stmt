@@ -505,7 +505,16 @@ A request rejected for another reason, such as an assertion grant whose assertio
 
 ## Code Redemption and Refresh {#continuation-errors}
 
-Under an establishment, code redemption ({{grant-lifecycle}}) is rejected with `invalid_request` if it carries a statement, `invalid_grant` for a wrong client identifier or failed key binding, and `invalid_client` at the bound on establishments ({{establishment-bounds}}).
+Under an establishment, code redemption ({{grant-lifecycle}}) is rejected with the following error codes:
+
+`invalid_request`:
+: The request carries a statement.
+
+`invalid_grant`:
+: The request has a wrong client identifier or fails the key binding.
+
+`invalid_client`:
+: The bound on establishments is reached ({{establishment-bounds}}).
 
 Under an establishment, a refresh-token request rejected for a reason this specification defines uses `temporarily_unavailable` if a retrieval it needs did not complete, and otherwise the following error codes:
 
