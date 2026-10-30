@@ -113,11 +113,11 @@ Taking every value from the document prevents metadata substitution. At registra
 
 The retrieval requirements of Sections 3.1 and 5.3 of {{STATEMENT}} apply to retrieving the document as they apply to a runtime presentation, and a server can apply the bounds that specification describes. Following the order of Section 5.1 of {{STATEMENT}}, the authorization server completes every check that needs no client-controlled retrieval before resolving the document.
 
-If the statement's decision is confined to one of the authorization server's tenants, by its `aud_tenant` claim or by the server's trust configuration for its issuer (Section 4 of {{STATEMENT}}), the authorization server MUST record that tenant with the registration. Otherwise the registration carries no tenant restriction under this specification. A replacement ({{revalidation}}) determines the restriction as follows:
+If the statement's decision is confined to one of the authorization server's tenants, by its `aud_tenant` claim or by the server's trust configuration for its issuer (Section 4 of {{STATEMENT}}), the authorization server MUST record that tenant with the registration. Otherwise the registration carries no tenant restriction under this specification. An accepted replacement ({{revalidation}}) determines the restriction as follows:
 
 | Registration before | Replacement's decision | After |
 | --- | --- | --- |
-| Restricted to a tenant | Acceptable for that tenant | Restricted to that tenant |
+| Restricted to a tenant | Confined to that tenant, or not confined | Restricted to that tenant |
 | No restriction, confidential client | Confined to a tenant | Restricted to that tenant |
 | No restriction, public client | Confined to a tenant | Not a valid replacement |
 | No restriction | Not confined to a tenant | No restriction |
