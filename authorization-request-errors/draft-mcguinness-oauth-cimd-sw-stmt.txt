@@ -651,18 +651,16 @@ Table of Contents
 5.4.1.  Token Endpoint
 
    At the token endpoint, a runtime presentation is valid on a request
-   using any one of the following grants:
+   that opens a new grant in that request, such as one using the
+   client_credentials grant, the JWT or SAML 2.0 assertion grant
+   (Section 2.1 of [RFC7523] and Section 2.1 of [RFC7522]), or token
+   exchange [RFC8693].
 
-   *  The client_credentials grant.
-
-   *  The JWT or SAML 2.0 assertion grant (Section 2.1 of [RFC7523] and
-      Section 2.1 of [RFC7522]).
-
-   *  Another grant whose specification provides for runtime
-      presentation under this specification.
-
-   Authorization-code redemption and refresh-token use continue an
-   existing grant (Section 5.7, Section 5.7.1).
+   It is not valid on a request that continues or completes a grant an
+   earlier request began, such as authorization-code redemption,
+   refresh-token use (Section 5.7, Section 5.7.1), or redemption of a
+   device code [RFC8628].  Admission belongs to the request that begins
+   the grant, before the resource owner approves the client.
 
 5.4.2.  Authorization Endpoint
 
@@ -1288,8 +1286,9 @@ Table of Contents
    *  Statement conveyance within a client attestation, rather than as a
       request parameter.
 
-   *  Runtime presentation on grants other than those Section 5.4.1
-      names, such as token exchange.
+   *  Runtime presentation in the request that begins a grant at an
+      endpoint this specification does not cover, such as the device
+      authorization endpoint of [RFC8628].
 
    *  Partial review, by which an issuer vouches for particular members
       rather than a whole document (Section 3).
@@ -1943,6 +1942,16 @@ Table of Contents
    [RFC8252]  Denniss, W. and J. Bradley, "OAuth 2.0 for Native Apps",
               BCP 212, RFC 8252, DOI 10.17487/RFC8252, October 2017,
               <https://www.rfc-editor.org/rfc/rfc8252>.
+
+   [RFC8628]  Denniss, W., Bradley, J., Jones, M., and H. Tschofenig,
+              "OAuth 2.0 Device Authorization Grant", RFC 8628,
+              DOI 10.17487/RFC8628, August 2019,
+              <https://www.rfc-editor.org/rfc/rfc8628>.
+
+   [RFC8693]  Jones, M., Nadalin, A., Campbell, B., Ed., Bradley, J.,
+              and C. Mortimore, "OAuth 2.0 Token Exchange", RFC 8693,
+              DOI 10.17487/RFC8693, January 2020,
+              <https://www.rfc-editor.org/rfc/rfc8693>.
 
    [RFC8705]  Campbell, B., Bradley, J., Sakimura, N., and T.
               Lodderstedt, "OAuth 2.0 Mutual-TLS Client Authentication
