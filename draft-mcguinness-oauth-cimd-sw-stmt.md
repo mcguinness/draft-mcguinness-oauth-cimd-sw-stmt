@@ -364,7 +364,7 @@ For a presentation that is not review-only, under either model:
 
 For a confidential client's presentation that is not review-only, the proven key MUST appear in the `jwks` or at the `jwks_uri` of the reviewed document ({{effective-metadata}}). Methods that prove possession of a key the document carries, such as `private_key_jwt` (Section 8.2 of {{CIMD}}) and `self_signed_tls_client_auth` (Section 2.2 of {{RFC8705}}), satisfy this directly.
 
-The key set at the document's `jwks_uri` is obtained when the presentation is processed, by retrieval or from a copy reused within the bounds of {{retrieval}}. If a retrieval it needs does not complete, the presentation is rejected.
+The key set at the document's `jwks_uri` is obtained when the presentation is processed, by retrieval or from a copy reused within the bounds of {{retrieval}}.
 
 ### Public Clients {#public-client-presentation}
 
@@ -389,7 +389,7 @@ The following are review-only:
 
 A review-only presentation or pulled statement creates no establishment and admits nothing. The authorization server proceeds as it would for the same CIMD client presenting no statement ({{ui-audit}}).
 
-The statement of a review-only presentation, or a review-only pulled statement, MUST NOT satisfy a policy requiring reviewed software. If the server's policy requires reviewed software, it rejects a review-only client.
+The statement of a review-only presentation, or a review-only pulled statement, MUST NOT satisfy a policy requiring reviewed software.
 
 ## Grant Binding {#grant-lifecycle}
 
