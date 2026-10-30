@@ -97,7 +97,7 @@ Presentations by a native application whose redirection URIs another application
 
 A statement records approval of a client configuration, not of the software's code or behavior ({{what-statement-attests}}). Possession of a statement alone admits nothing: the presenter is bound to the reviewed document ({{sender-constraint}}), though for a public client that binding does not hold against a party that controls the user agent ({{public-client-security}}).
 
-Under this specification, a statement's expiry limits new admissions and does not end grants already opened. Following later reviews or withdrawals requires the lifecycle extension {{LIFECYCLE}}. Without it, an older statement that has not expired remains admissible after a newer one is issued: short statement lifetimes bound new admissions, and grant lifetimes bound continued access.
+Under this specification, a statement's expiry limits new admissions and does not end grants already opened, and an older statement that has not expired remains admissible after a newer one is issued ({{enforcement-bounds}}). Withdrawal, supersession, and grants that follow later reviews are left to {{LIFECYCLE}}.
 
 This specification does not define how a client obtains a statement. {{REGISTRATION}} builds on this specification, which does not depend on it, to define consumption of the same statement in an {{RFC7591}} registration request. {{relationship}} relates this specification to other work.
 
