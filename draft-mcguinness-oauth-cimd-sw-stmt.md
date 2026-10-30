@@ -425,7 +425,7 @@ A successful presentation creates an establishment: the state against which the 
 * The issuer trust decision.
 * The sender-constraint mechanism and proven key, which for a statement pulled at the authorization endpoint for a confidential client is set at code redemption ({{pulled-statements}}).
 
-The authorization server MUST bind the resulting `request_uri`, authorization code, refresh token, and other grant continuation state to the establishment, as applicable.
+The authorization server MUST bind the resulting `request_uri`, authorization code, refresh token, and other grant continuation state to the establishment, as applicable. An establishment ends once no continuation state bound to it remains usable.
 
 A replacement accepted on refresh MUST apply only to the grant refreshed ({{refresh}}). Any other grant, `request_uri`, or authorization code bound to the same establishment keeps the state its request was evaluated against.
 
@@ -708,7 +708,7 @@ A trusting authorization server can bound the number of establishments, and any 
 
 For software admitted under {{public-client-presentation}}, a server can also bound establishments per resource owner, so that one user cannot exhaust a bound the software's other users share.
 
-When a request is refused at a bound ({{presentation-errors}}), the authorization server ought to state that reason in `error_description`, and the client can retry once earlier establishments are released.
+When a request is refused at a bound ({{presentation-errors}}), the authorization server ought to state that reason in `error_description`, and the client can retry once earlier establishments end ({{grant-lifecycle}}).
 
 ## User Interface, Audit, and Logging {#ui-audit}
 
