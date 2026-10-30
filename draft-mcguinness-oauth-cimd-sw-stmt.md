@@ -372,7 +372,7 @@ Software distributed to end users cannot hold a key its reviewed document carrie
 
 An authorization server MUST reject a presentation made in a request, even a review-only one, that opens a new grant at the token endpoint ({{token-requests}}) from a public client. Such a presentation opens no redirect and has nothing to bind it. {{pull-binding}} covers a pulled statement.
 
-For a public client's presentation that is not review-only, made at the pushed authorization request endpoint or pulled at the authorization endpoint ({{pull-binding}}), the authorization server:
+For a public client's presentation that is not review-only, made or pulled at the pushed authorization request endpoint, or pulled at the authorization endpoint ({{pull-binding}}), the authorization server:
 
 * MUST require PKCE {{RFC7636}} with the `S256` method.
 * MUST require the presenter to bind a key it holds, through the `dpop_jkt` parameter or, at the pushed authorization request endpoint, a DPoP proof (Section 10.1 of {{RFC9449}}), and records that key as the proven key of the establishment ({{grant-lifecycle}}).
