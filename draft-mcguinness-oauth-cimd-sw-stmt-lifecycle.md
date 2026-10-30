@@ -133,7 +133,7 @@ A trusting authorization server MUST retain, per `iss` and `sub` claims and, on 
 
 At admission, the server verifies the `iat` floor in step 3 of Section 5.1 of {{STATEMENT}}, along with the statement requirements and the `client_id` rule, before it resolves the reviewed document.
 
-In selecting a pulled statement (Section 5.5 of {{STATEMENT}}), the server also ignores any statement that the `iat` floor supersedes. A pulled statement the server does not apply does not advance the `iat` floor. Nor does a review-only presentation or pulled statement (Section 5.6.3 of {{STATEMENT}}).
+In selecting a pulled statement (Section 5.5.1 of {{STATEMENT}}), the server also ignores any statement that the `iat` floor supersedes. A pulled statement the server does not apply does not advance the `iat` floor. Nor does a review-only presentation or pulled statement (Section 5.6.3 of {{STATEMENT}}).
 
 The first presentation of a later statement that establishes the client supersedes its predecessor for new admissions by every instance of the software at that server ({{instance-practice}}). Grants the predecessor already opened continue under {{refresh-lifecycle}}.
 
@@ -160,7 +160,7 @@ On refresh-token use under an establishment, the authorization server first comp
    * A refusal record covers the recorded statement.
    * The recorded statement has expired, and the server requires a current statement under {{currency}} or because a required issuer (Section 4 of {{STATEMENT}}) covers the establishment's `sub` in the establishment's tenant.
 
-2. Obtain a replacement. A client can offer one on any refresh in the `software_statement` parameter. A statement with the recorded `iss` and `jti` is not a replacement and is treated as the recorded statement. When a replacement is needed and the request carries none, a server that supports pulled statements pulls, however the establishment was created, and takes as the replacement the newest statement with the recorded `iss` and `sub` among those it considers under Section 5.5 of {{STATEMENT}} and {{supersession}}. A refresh that needs a replacement and obtains none is rejected: a reviewed grant never continues under the policy for clients the server has not reviewed.
+2. Obtain a replacement. A client can offer one on any refresh in the `software_statement` parameter. A statement with the recorded `iss` and `jti` is not a replacement and is treated as the recorded statement. When a replacement is needed and the request carries none, a server that supports pulled statements pulls, however the establishment was created, and takes as the replacement the newest statement with the recorded `iss` and `sub` among those it considers under Section 5.5.1 of {{STATEMENT}} and {{supersession}}. A refresh that needs a replacement and obtains none is rejected: a reviewed grant never continues under the policy for clients the server has not reviewed.
 
    The pull follows the retrieval rules of Sections 5.3 and 5.5 of {{STATEMENT}}. Only a request opening a new grant proceeds after a pull that does not complete, so a refresh whose pull does not complete is rejected.
 
