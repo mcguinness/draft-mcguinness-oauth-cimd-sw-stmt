@@ -1,0 +1,2002 @@
+<!DOCTYPE html>
+<html lang="en" class="Internet-Draft">
+<head>
+<meta charset="utf-8">
+<meta content="Common,Latin" name="scripts">
+<meta content="initial-scale=1.0" name="viewport">
+<title>Client ID Metadata Document Software Statement Lifecycle</title>
+<meta content="Karl McGuinness" name="author">
+<meta content="
+       A software statement for a Client ID Metadata Document (CIMD) records a trusted issuer's review of a client's metadata. The base specification ends no grant at a statement's expiry, keeps an older unexpired statement admissible after a newer one is issued, and evaluates no statement on refresh. This specification lets an issuer withdraw a statement, and an authorization server that learns of it keeps a refusal record. An  iat  floor supersedes an issuer's earlier statements about the same software once a server accepts a later one. Refresh is refused for a grant whose statement is withdrawn or, by recommendation, expired, unless a later statement replaces it. A profile of Token Status List is the withdrawal mechanism defined here, and an optional Shared Signals event prompts servers to check status promptly. 
+    " name="description">
+<meta content="xml2rfc 3.34.1" name="generator">
+<meta content="OAuth" name="keyword">
+<meta content="Software Statement" name="keyword">
+<meta content="Withdrawal" name="keyword">
+<meta content="Supersession" name="keyword">
+<meta content="Refresh Token" name="keyword">
+<meta content="Status List" name="keyword">
+<meta content="Shared Signals" name="keyword">
+<meta content="Security Event Token" name="keyword">
+<meta content="draft-mcguinness-oauth-cimd-sw-stmt-lifecycle-latest" name="ietf.draft">
+<!-- Generator version information:
+  xml2rfc 3.34.1
+    Python 3.14.8
+    ConfigArgParse 1.8.0
+    google-i18n-address 3.1.1
+    intervaltree 3.2.1
+    Jinja2 3.1.6
+    lxml 6.1.1
+    natsort 8.4.0
+    platformdirs 4.13.4
+    pycountry 24.6.1
+    PyYAML 6.0.3
+    requests 2.33.1
+    wcwidth 0.9.2
+-->
+<link href="draft-mcguinness-oauth-cimd-sw-stmt-lifecycle.xml" rel="alternate" type="application/rfc+xml">
+<link href="#copyright" rel="license">
+<style type="text/css">@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Lora SemiBold'), local('Lora-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-semibold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  color-scheme: light dark;
+  --background-color: #fff;
+  --text-color: #222;
+  --title-color: #191919;
+  --link-color: #2a6496;
+  --highlight-color: #f9f9f9;
+  --line-color: #eee;
+  --pilcrow-weak: #ddd;
+  --pilcrow-strong: #bbb;
+  --small-font-size: 14.5px;
+  --font-mono: 'Oxygen Mono', monospace;
+  --font-title: "Sofia Sans Semi Condensed", sans-serif;
+  scrollbar-color: #bbb #eee;
+}
+body {
+  max-width: 600px;
+  margin: 75px auto;
+  padding: 0 5px;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  font: 16px/22px "Lora", serif;
+  scroll-behavior: smooth;
+}
+
+.ears {
+  display: none;
+}
+
+/* headings */
+section {
+  clear: both;
+}
+.section-number {
+  padding-right: 0.5em;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-title);
+  font-weight: 680;
+  margin: 0.8em 0 0.3em;
+  font-size-adjust: 0.5;
+  color: var(--title-color);
+}
+h1 {
+  &#title {
+    font-size: 32px;
+    line-height: 40px;
+    clear: both;
+    margin: 1.5em 0 0.2em;
+  }
+  &#rfcnum {
+    margin: 1.5em 0 0.2em;
+    & + h1#title {
+      margin: 0.2em 0;
+    }
+  }
+}
+
+h1, h2, h3 {
+  font-size: 22px;
+  line-height: 27px;
+}
+h4, h5, h6 {
+  font-size: 20px;
+  line-height: 24px;
+}
+
+/* general structure */
+.author {
+  padding-bottom: 0.3em;
+  vertical-align: top;
+}
+#abstract+p {
+  font-size: 18px;
+  line-height: 24px;
+  & code, & samp, & tt {
+    font-size: 16px;
+    line-height: 0;
+  }
+}
+
+p {
+  padding: 0;
+  margin: 0.5em 0;
+  text-align: left;
+}
+div {
+  margin: 0;
+}
+.alignRight {
+  margin: 1em 0;
+  &.art-text {
+    background-color: var(--highlight-color);
+    border: 1px solid var(--line-color);
+    border-radius: 3px;
+    padding: 0.5em 1em 0;
+    margin-bottom: 0.5em;
+    & pre {
+      padding: 0;
+      width: auto;
+    }
+  }
+  & > *:first-child {
+    border: none;
+    margin: 0;
+    float: right;
+    clear: both;
+  }
+  & > *:nth-child(2) {
+    clear: both;
+    display: block;
+    border: none;
+  }
+}
+svg {
+  display: block;
+  /* font-family isn't space-separated, but =~ will have to do */
+  &[font-family~="monospace" i], & [font-family~="monospace" i] {
+    font-family: var(--font-mono);
+  }
+}
+.alignCenter {
+  margin: 1em 0;
+  &.art-text {
+    background-color: var(--highlight-color);
+    border: 1px solid var(--line-color);
+    border-radius: 3px;
+    padding: 0.5em 1em 0;
+    margin-bottom: 0.5em;
+    & pre {
+      padding: 0;
+      width: auto;
+    }
+  }
+  & > *:first-child {
+    border: none;
+    /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
+       support flexbox yet.
+    */
+    display: table;
+    margin: 0 auto;
+  }
+}
+
+/* lists */
+ol, ul {
+  padding: 0;
+  margin: 0 0 0.5em 2em;
+  & :is(ol, ul) {
+    margin-left: 1em;
+  }
+}
+li {
+  margin: 0 0 0.25em 0;
+}
+ul.empty, .ulEmpty {
+  list-style-type: none;
+  & li {
+    margin-top: 0.5em;
+  }
+}
+:is(ul, ol).compact, .ulCompact, .olCompact {
+  margin: 0 0 0 2em;
+  & li {
+    margin: 0;
+    & :first-child { margin-top: 0; }
+    & :last-child { margin-bottom: 0; }
+  }
+}
+
+/* definition lists */
+dl {
+  clear: left;
+  --indent: 3ch;
+  /* --indent: attr(indent ch); not supported in any browser, but we can dream */
+  &.olPercent {
+    --indent: 5ch;
+    & > dt {
+      min-width: calc(var(--indent) - 2ch);
+      float: none;
+    }
+  }
+
+  dl > dd > & {
+    margin-top: 0.5em;
+    margin-bottom: 0;
+  }
+
+  &:not(.dlNewline) > dt {
+    float: left;
+    margin-right: 2ch;
+    min-width: 8ch;
+  }
+  & > dd {
+    margin-bottom: .8em;
+    margin-left: var(--indent) !important; /* stupid element overrides */
+    min-height: 2ex;
+  }
+}
+:is(dl.compact, .dlCompact) > dd {
+  margin-bottom: 0;
+  & > :is(:first-child, .break:first-child + *) {
+    margin-top: 0;
+  }
+  & > :is(:last-child) {
+    margin-bottom: 0;
+  }
+}
+:is(dd, span).break {
+  display: none;
+}
+
+/* links */
+a {
+  text-decoration: none;
+  &[href] {
+    color: var(--link-color);
+    &:hover { text-decoration: underline; }
+    &.selfRef {
+      color: var(--text-color);
+      &:hover {
+        text-decoration: none;
+        background-color: var(--highlight-color);
+      }
+    }
+  }
+}
+.iref + a[href].internal {
+  color: var(--text-color);
+}
+a.xref:is(.cite, .auto), :is(#status-of-memo, #copyright) a {
+  white-space: nowrap;
+}
+
+/* Figures */
+tt, code, pre {
+  background-color: var(--highlight-color);
+  font: 14px/22px var(--font-mono);
+}
+tt, code {
+  /* changing the font for inline elements leads to different ascender
+     and descender heights; as we want to retain baseline alignment,
+     remove leading to avoid altering the final height of lines
+     note: this fails if these blocks take an entire line,
+     a different solution would be great */
+  line-height: 0;
+}
+:is(h1, h2, h3, h4, h5, h6) :is(tt, code) {
+  font-size: 84%;
+}
+pre {
+  border: 1px solid var(--line-color);
+  font-size: 13.5px;
+  line-height: 16px;
+  letter-spacing: -0.2px;
+  margin: 5px;
+  padding: 5px;
+}
+img {
+  max-width: 100%;
+}
+figure {
+  margin: 0.5em 0;
+  padding: 0;
+  & blockquote {
+    margin: 0.8em 0.4em 0.4em;
+  }
+}
+figcaption, caption {
+  font-style: italic;
+  margin: 0.5em 1.5em;
+  text-align: left;
+  caption-side: bottom;
+}
+@media screen {
+  /* Auto-collapse boilerplate. */
+  :is(#status-of-memo, #copyright) {
+    & p {
+      margin: -2px 0;
+      max-height: 0;
+      transition: max-height 2s ease, margin 0.5s ease 0.5s;
+      overflow: hidden;
+    }
+    &:hover p,
+    & h2:target ~ p {
+      margin: 0.5em 0;
+      max-height: 500px;
+      overflow: auto;
+    }
+  }
+  pre, svg {
+    display: inline-block;
+    /* In the horizontal direction, sometimes people make over-sized figures.
+       Scrollbars for those is therefore necessary: auto adds them as necessary..
+       In the vertical direction, the line-height can combine with the font
+       asender/descender height to produce scrollbars: hidden avoids that. */
+    overflow: auto hidden;
+  }
+  pre {
+    max-width: 100%;
+    width: calc(100% - 22px - 1em);
+  }
+  svg {
+    max-width: calc(100% - 22px - 1em);
+  }
+  figure pre {
+    display: block;
+    width: calc(100% - 25px);
+  }
+  :is(pre, svg) + .pilcrow {
+    display: inline-block;
+    vertical-align: text-bottom;
+    padding-bottom: 8px;
+  }
+}
+
+/* aside, blockquote */
+aside, blockquote {
+  margin-left: 0;
+  padding: 0 2em;
+  font-style: italic;
+}
+blockquote {
+  margin: 1em 0;
+  border-left: 2px var(--pilcrow-strong) solid;
+}
+cite {
+  display: block;
+  text-align: right;
+  font-style: italic;
+}
+
+/* tables */
+table {
+  width: auto;
+  max-width: 100%;
+  margin: 0 0 1em;
+  border-collapse: collapse;
+  &.right { margin-left: auto; }
+  &.center { margin-left: auto; margin-right: auto; }
+  &.left { margin-right: auto; }
+  & .text-left { text-align: left; }
+  & .text-center { text-align: center; }
+  & .text-right { text-align: right; }
+  & caption {
+    margin: 0;
+    padding: 3px 0 3px 1em;
+  }
+  & p { margin: 0; }
+}
+
+thead, tbody {
+  border: 1px solid var(--line-color);
+}
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 5px 10px;
+}
+th {
+  background-color: var(--line-color);
+}
+:is(tr:nth-child(2n), thead+tbody > tr:nth-child(2n+1)) > td {
+  background-color: var(--background-color);
+}
+:is(tr:nth-child(2n+1), thead+tbody > tr:nth-child(2n)) > td {
+  background-color: var(--highlight-color);
+}
+
+/* pilcrow */
+a.pilcrow {
+  margin-left: 3px;
+  opacity: 0.2;
+  user-select: none;
+  &[href] {
+    color: var(--pilcrow-weak);
+    &:hover { text-decoration: none; }
+  }
+  @media not print {
+    :hover > &, &:focus {
+      opacity: 1;
+    }
+    &[href]:hover {
+      color: var(--pilcrow-strong);
+      background-color: transparent;
+    }
+  }
+  @media print {
+    display: none;
+  }
+}
+
+/* misc */
+hr {
+  border: 0;
+  border-top: 1px solid var(--line-color);
+}
+.bcp14 {
+  font-variant: small-caps;
+  font-weight: 600;
+  font-size: var(--small-font-size);
+}
+.role {
+  font-variant: all-small-caps;
+}
+sub, sup {
+  line-height: 1;
+  font-size: 80%;
+}
+
+/* info block */
+#identifiers {
+  margin: 0;
+  font-size: var(--small-font-size);
+  line-height: 18px;
+  --identifier-width: 15ch;
+  & dt {
+    width: var(--identifier-width);
+    min-width: var(--identifier-width);
+    clear: left;
+    float: left;
+    text-align: right;
+    margin-right: 1ch;
+  }
+  & dd {
+    margin: 0;
+    margin-left: calc(1em + var(--identifier-width)) !important;
+    min-width: 5em;
+  }
+  & .authors {
+    & .author {
+      display: inline-block;
+      margin-right: 1.5em;
+    }
+    & .org {
+      font-style: italic;
+    }
+  }
+}
+
+/* The prepared/rendered info at the very bottom of the page */
+.docInfo {
+  color: #999;
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: 2em;
+  & .prepared {
+    float: right;
+  }
+}
+
+/* table of contents */
+#toc {
+  padding: 0.75em 0 2em 0;
+  margin-bottom: 1em;
+
+  & nav {
+    & ul {
+      margin: 0 0.5em 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    & li {
+      line-height: 1.3em;
+      margin: 2px 0;
+      padding-left: 1.2em;
+      text-indent: -1.2em;
+    }
+  }
+  & a.xref {
+    white-space: normal;
+  }
+}
+
+.references {
+  & > dt {
+    text-align: right;
+    font-weight: bold;
+    min-width: 10ch;
+    margin-right: 1.5ch;
+    &:target::before {
+      content: "⇒";
+      margin: 0 10px 0 -25px;
+    }
+  }
+  & > dd {
+    margin-left: 12ch !important;
+    overflow: visible;
+    & .refInstance {
+      margin-bottom: 0.8em;
+    }
+    & .ascii {
+      margin-bottom: 0.25em;
+    }
+  }
+}
+
+#rfc\.index\.index + ul {
+  margin-left: 0;
+}
+
+/* authors */
+address.vcard {
+  font-style: normal;
+  max-width: 20em;
+  margin: 1em auto 1em 0;
+
+  & .nameRole {
+    font-weight: 700;
+    margin-left: 0;
+  }
+  & .label {
+    margin: 0.5em 0;
+  }
+  & .type {
+    display: none;
+  }
+  & .alternative-contact {
+    margin: 0.5em 0 0.25em 0;
+  }
+  & .non-ascii {
+    margin: 0 0 0 2em;
+  }
+  & div.left {
+    text-align: left;
+  }
+  & div.right {
+    text-align: right;
+  }
+}
+
+hr.addr {
+  border-top: 1px dashed;
+  margin: 0;
+  color: #ddd;
+  max-width: calc(100% - 16px);
+}
+@media (min-width: 500px) {
+  #authors-addresses {
+    & > section {
+      column-count: 2;
+      column-gap: 20px;
+    }
+    & > section > h2 {
+      column-span: all;
+    }
+    /* hack for break-inside: avoid-column */
+    & address {
+      display: inline-block;
+      break-inside: avoid-column;
+    }
+  }
+}
+
+/* Comments */
+.rfcEditorRemove {
+  & p:first-of-type {
+    font-style: italic;
+  }
+}
+.cref {
+  background-color: rgba(249, 232, 105, 0.3);
+  padding: 2px 4px;
+}
+.crefSource {
+  font-style: italic;
+}
+
+@media screen {
+  #toc {
+    & nav {
+      font-family: var(--font-title);
+      font-weight: 360;
+      & > ul { margin-bottom: 2em; }
+      & ul {
+        margin: 0 0 0 4px;
+        & :is(p, li) {
+          margin: 2px 0;
+        }
+      }
+    }
+    & a.toplink {
+      float: right;
+    }
+  }
+}
+@media not screen {
+  #toc a.toplink {
+    display: none;
+  }
+}
+
+
+/* TOC layout for smaller screens */
+@media screen and (max-width: 929px) {
+  #toc {
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    padding: 1px 0 0 0;
+    margin: 0;
+    border-bottom: 1px solid #ccc;
+    opacity: 0.6;
+    & h2 {
+      margin: 0;
+      padding: 2px 0 2px 6px;
+      padding-right: 1em;
+      font-size: 18px;
+      line-height: 24px;
+      min-width: 190px;
+      text-align: right;
+      background-color: #444;
+      color: white;
+      cursor: pointer;
+      &::before { /* css hamburger */
+        float: right;
+        position: relative;
+        width: 1em;
+        height: 1px;
+        left: -164px;
+        margin: 8px 0 0 0;
+        background: white none repeat scroll 0 0;
+        box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+        content: "";
+      }
+    }
+    & nav {
+      display: none;
+      background-color: var(--background-color);
+      padding: 0.5em 1em 1em;
+      overflow: auto;
+      overscroll-behavior: contain;
+      height: calc(100vh - 48px);
+      border-left: 1px solid #ddd;
+    }
+    &.active {
+      opacity: 1;
+      & nav { display: block; }
+    }
+    /* Make the collapsed ToC header render white on gray also when it's a link */
+    & h2 a,
+    & h2 a:is(:link, :focus, :hover),
+    & a.toplink,
+    & a.toplink:hover {
+      color: white;
+      background-color: #444;
+      text-decoration: none;
+    }
+    & a.toplink {
+      margin: 2px 0.5em 0;
+    }
+  }
+}
+
+/* TOC layout for wide screens */
+@media screen and (min-width: 930px) {
+  body {
+    padding-right: 360px;
+    padding-right: calc(min(180px + 20%, 500px));
+  }
+  #toc {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    right: calc(50vw - 480px);
+    width: 312px;
+    margin: 0;
+    padding: 0;
+    z-index: 1;
+    & h2 {
+      margin: 0;
+      padding: 0.25em 1em 1em 0;
+    }
+    & nav {
+      display: block;
+      height: calc(90vh - 84px);
+      bottom: 0;
+      padding: 0.5em 0 2em;
+      overflow: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+    }
+    & a.toplink {
+      margin: 8px 0.5em 0;
+    }
+  }
+  img { /* future proofing */
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* pagination */
+@media print {
+  body {
+    width: 100%;
+  }
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+  #n-copyright-notice {
+    border-bottom: none;
+  }
+  #toc {
+    page-break-before: always;
+    border-top: none;
+    padding-top: 0;
+  }
+  #n-introduction {
+    page-break-before: always;
+  }
+  figure, pre, .vcard {
+    page-break-inside: avoid;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+  :is(h2, h3, h4, h5, h6)+*, dd {
+    page-break-before: avoid;
+  }
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 10pt;
+  }
+  table {
+    border: 1px solid #ddd;
+  }
+  td {
+    border-top: 1px solid #ddd;
+  }
+}
+
+@page :first {
+  padding-top: 0;
+  @top-left {
+    content: normal;
+    border: none;
+  }
+  @top-center {
+    content: normal;
+    border: none;
+  }
+  @top-right {
+    content: normal;
+    border: none;
+  }
+}
+
+@page {
+  size: A4;
+  margin-bottom: 45mm;
+  padding-top: 20px;
+}
+
+/* Dark mode. */
+@media (prefers-color-scheme: dark) {
+:root {
+  --background-color: #121212;
+  --text-color: #f0f0f0;
+  --title-color: #fff;
+  --link-color: #4da4f0;
+  --highlight-color: #282828;
+  --line-color: #444;
+  --pilcrow-weak: #444;
+  --pilcrow-strong: #666;
+  scrollbar-color: #777 #333;
+}
+}
+
+/* SVG Trick: a prefix match works because only black and white are allowed */
+svg {
+  & :is([stroke="black"], [stroke^="#000"]) {
+    stroke: var(--text-color);
+  }
+  & :is([stroke="white"], [stroke^="#fff"]) {
+    stroke: var(--background-color);
+  }
+  & :is([fill="black"], [fill^="#000"], :not([fill])) {
+    fill: var(--text-color);
+  }
+  & :is([fill="white"], [fill^="#fff"]) {
+    fill: var(--background-color);
+  }
+}
+</style>
+
+</head>
+<body class="xml2rfc">
+<table class="ears">
+<thead><tr>
+<td class="left">Internet-Draft</td>
+<td class="center">oauth-cimd-sw-stmt-lifecycle</td>
+<td class="right">October 2026</td>
+</tr></thead>
+<tfoot><tr>
+<td class="left">McGuinness</td>
+<td class="center">Expires 3 May 2027</td>
+<td class="right">[Page]</td>
+</tr></tfoot>
+</table>
+<div id="external-metadata" class="document-information"></div>
+<div id="internal-metadata" class="document-information">
+<dl id="identifiers">
+<dt class="label-workgroup">Workgroup:</dt>
+<dd class="workgroup">Web Authorization Protocol</dd>
+<dt class="label-internet-draft">Internet-Draft:</dt>
+<dd class="internet-draft">draft-mcguinness-oauth-cimd-sw-stmt-lifecycle-latest</dd>
+<dt class="label-published">Published:</dt>
+<dd class="published">
+<time datetime="2026-10-30" class="published">30 October 2026</time>
+    </dd>
+<dt class="label-intended-status">Intended Status:</dt>
+<dd class="intended-status">Standards Track</dd>
+<dt class="label-expires">Expires:</dt>
+<dd class="expires"><time datetime="2027-05-03">3 May 2027</time></dd>
+<dt class="label-authors">Author:</dt>
+<dd class="authors">
+<div class="author">
+      <div class="author-name">K. McGuinness</div>
+<div class="org">Independent</div>
+</div>
+</dd>
+</dl>
+</div>
+<h1 id="title">Client ID Metadata Document Software Statement Lifecycle</h1>
+<section id="section-abstract">
+      <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
+<p id="section-abstract-1">A software statement for a Client ID Metadata Document (CIMD) records a trusted issuer's review of a client's metadata. The base specification ends no grant at a statement's expiry, keeps an older unexpired statement admissible after a newer one is issued, and evaluates no statement on refresh. This specification lets an issuer withdraw a statement, and an authorization server that learns of it keeps a refusal record. An <code>iat</code> floor supersedes an issuer's earlier statements about the same software once a server accepts a later one. Refresh is refused for a grant whose statement is withdrawn or, by recommendation, expired, unless a later statement replaces it. A profile of Token Status List is the withdrawal mechanism defined here, and an optional Shared Signals event prompts servers to check status promptly.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+</section>
+<div id="status-of-memo">
+<section id="section-boilerplate.1">
+        <h2 id="name-status-of-this-memo">
+<a href="#name-status-of-this-memo" class="section-name selfRef">Status of This Memo</a>
+        </h2>
+<p id="section-boilerplate.1-1">
+        This Internet-Draft is submitted in full conformance with the
+        provisions of BCP 78 and BCP 79.<a href="#section-boilerplate.1-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-2">
+        Internet-Drafts are working documents of the Internet Engineering Task
+        Force (IETF). Note that other groups may also distribute working
+        documents as Internet-Drafts. The list of current Internet-Drafts is
+        at <span><a href="https://datatracker.ietf.org/drafts/current/">https://datatracker.ietf.org/drafts/current/</a></span>.<a href="#section-boilerplate.1-2" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-3">
+        Internet-Drafts are draft documents valid for a maximum of six months
+        and may be updated, replaced, or obsoleted by other documents at any
+        time. It is inappropriate to use Internet-Drafts as reference
+        material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-4">
+        This Internet-Draft will expire on 3 May 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="copyright">
+<section id="section-boilerplate.2">
+        <h2 id="name-copyright-notice">
+<a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
+        </h2>
+<p id="section-boilerplate.2-1">
+            Copyright (c) 2026 IETF Trust and the persons identified as the
+            document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.2-2">
+            This document is subject to BCP 78 and the IETF Trust's Legal
+            Provisions Relating to IETF Documents
+            (<span><a href="https://trustee.ietf.org/license-info">https://trustee.ietf.org/license-info</a></span>) in effect on the date of
+            publication of this document. Please review these documents
+            carefully, as they describe your rights and restrictions with
+            respect to this document. Code Components extracted from this
+            document must include Revised BSD License text as described in
+            Section 4.e of the Trust Legal Provisions and are provided without
+            warranty as described in the Revised BSD License.<a href="#section-boilerplate.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="toc">
+<section id="section-toc.1">
+        <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents">
+<a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
+        </h2>
+<nav class="toc"><ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1">
+            <p id="section-toc.1-1.1.1" class="keepWithNext"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
+            <p id="section-toc.1-1.2.1" class="keepWithNext"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-conventions-and-definitions" class="internal xref">Conventions and Definitions</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
+            <p id="section-toc.1-1.3.1" class="keepWithNext"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-withdrawal-and-refusal-reco" class="internal xref">Withdrawal and Refusal Records</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-supersession" class="internal xref">Supersession</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-refresh" class="internal xref">Refresh</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.1">
+                <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="auto internal xref">5.1</a>.  <a href="#name-requiring-a-current-stateme" class="internal xref">Requiring a Current Statement</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.2">
+                <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="auto internal xref">5.2</a>.  <a href="#name-refresh-replacement" class="internal xref">Refresh Replacement</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-error-responses" class="internal xref">Error Responses</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-token-status-list" class="internal xref">Token Status List</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.1">
+                <p id="section-toc.1-1.7.2.1.1"><a href="#section-7.1" class="auto internal xref">7.1</a>.  <a href="#name-status-publication" class="internal xref">Status Publication</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.2">
+                <p id="section-toc.1-1.7.2.2.1"><a href="#section-7.2" class="auto internal xref">7.2</a>.  <a href="#name-status-resolution" class="internal xref">Status Resolution</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-status-change-events" class="internal xref">Status Change Events</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.1">
+                <p id="section-toc.1-1.8.2.1.1"><a href="#section-8.1" class="auto internal xref">8.1</a>.  <a href="#name-event-issuer-trust-and-keys" class="internal xref">Event Issuer Trust and Keys</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.2">
+                <p id="section-toc.1-1.8.2.2.1"><a href="#section-8.2" class="auto internal xref">8.2</a>.  <a href="#name-subject-identification" class="internal xref">Subject Identification</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.3">
+                <p id="section-toc.1-1.8.2.3.1"><a href="#section-8.3" class="auto internal xref">8.3</a>.  <a href="#name-status-changed-event" class="internal xref">Status Changed Event</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.4">
+                <p id="section-toc.1-1.8.2.4.1"><a href="#section-8.4" class="auto internal xref">8.4</a>.  <a href="#name-receiver-processing" class="internal xref">Receiver Processing</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.5">
+                <p id="section-toc.1-1.8.2.5.1"><a href="#section-8.5" class="auto internal xref">8.5</a>.  <a href="#name-stream-configuration" class="internal xref">Stream Configuration</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
+            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-implementation-consideratio" class="internal xref">Implementation Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.1">
+                <p id="section-toc.1-1.9.2.1.1"><a href="#section-9.1" class="auto internal xref">9.1</a>.  <a href="#name-supersession-state" class="internal xref">Supersession State</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.2">
+                <p id="section-toc.1-1.9.2.2.1"><a href="#section-9.2" class="auto internal xref">9.2</a>.  <a href="#name-resolution-in-response-to-e" class="internal xref">Resolution in Response to Events</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.3">
+                <p id="section-toc.1-1.9.2.3.1"><a href="#section-9.3" class="auto internal xref">9.3</a>.  <a href="#name-event-logs" class="internal xref">Event Logs</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
+            <p id="section-toc.1-1.10.1"><a href="#section-10" class="auto internal xref">10</a>. <a href="#name-deployment-considerations" class="internal xref">Deployment Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.1">
+                <p id="section-toc.1-1.10.2.1.1"><a href="#section-10.1" class="auto internal xref">10.1</a>.  <a href="#name-withdrawal-practice" class="internal xref">Withdrawal Practice</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.2">
+                <p id="section-toc.1-1.10.2.2.1"><a href="#section-10.2" class="auto internal xref">10.2</a>.  <a href="#name-instances-and-supersession" class="internal xref">Instances and Supersession</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.3">
+                <p id="section-toc.1-1.10.2.3.1"><a href="#section-10.3" class="auto internal xref">10.3</a>.  <a href="#name-resolution-schedule-and-lif" class="internal xref">Resolution Schedule and Lifetimes</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.4">
+                <p id="section-toc.1-1.10.2.4.1"><a href="#section-10.4" class="auto internal xref">10.4</a>.  <a href="#name-stream-coverage-and-monitor" class="internal xref">Stream Coverage and Monitoring</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
+            <p id="section-toc.1-1.11.1"><a href="#section-11" class="auto internal xref">11</a>. <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.1">
+                <p id="section-toc.1-1.11.2.1.1"><a href="#section-11.1" class="auto internal xref">11.1</a>.  <a href="#name-withdrawal-and-open-grants" class="internal xref">Withdrawal and Open Grants</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.2">
+                <p id="section-toc.1-1.11.2.2.1"><a href="#section-11.2" class="auto internal xref">11.2</a>.  <a href="#name-supersession-and-refresh-re" class="internal xref">Supersession and Refresh Replacement</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.3">
+                <p id="section-toc.1-1.11.2.3.1"><a href="#section-11.3" class="auto internal xref">11.3</a>.  <a href="#name-forged-and-replayed-events" class="internal xref">Forged and Replayed Events</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.4">
+                <p id="section-toc.1-1.11.2.4.1"><a href="#section-11.4" class="auto internal xref">11.4</a>.  <a href="#name-event-suppression" class="internal xref">Event Suppression</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.5">
+                <p id="section-toc.1-1.11.2.5.1"><a href="#section-11.5" class="auto internal xref">11.5</a>.  <a href="#name-key-separation-and-compromi" class="internal xref">Key Separation and Compromise</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
+            <p id="section-toc.1-1.12.1"><a href="#section-12" class="auto internal xref">12</a>. <a href="#name-privacy-considerations" class="internal xref">Privacy Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13">
+            <p id="section-toc.1-1.13.1"><a href="#section-13" class="auto internal xref">13</a>. <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13.2.1">
+                <p id="section-toc.1-1.13.2.1.1"><a href="#section-13.1" class="auto internal xref">13.1</a>.  <a href="#name-oauth-uri-registry" class="internal xref">OAuth URI Registry</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13.2.2">
+                <p id="section-toc.1-1.13.2.2.1"><a href="#section-13.2" class="auto internal xref">13.2</a>.  <a href="#name-set-payload-claims" class="internal xref">SET Payload Claims</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14">
+            <p id="section-toc.1-1.14.1"><a href="#section-14" class="auto internal xref">14</a>. <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14.2.1">
+                <p id="section-toc.1-1.14.2.1.1"><a href="#section-14.1" class="auto internal xref">14.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14.2.2">
+                <p id="section-toc.1-1.14.2.2.1"><a href="#section-14.2" class="auto internal xref">14.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15">
+            <p id="section-toc.1-1.15.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.16">
+            <p id="section-toc.1-1.16.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
+</li>
+        </ul>
+</nav>
+</section>
+</div>
+<div id="introduction">
+<section id="section-1">
+      <h2 id="name-introduction">
+<a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
+      </h2>
+<p id="section-1-1"><span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> defines a software statement by which a configured issuer records its review of the exact octets of a Client ID Metadata Document (CIMD) <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>, and how an authorization server admits a client and binds a grant on that review. It leaves out what follows admission: expiry ends no grant already opened, an issuer cannot withdraw a statement before it expires, an older unexpired statement remains admissible after a newer one is issued, and refresh evaluates no statement.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">This specification adds withdrawal and refusal records (<a href="#withdrawal" class="auto internal xref">Section 3</a>), supersession of earlier statements through an <code>iat</code> floor (<a href="#supersession" class="auto internal xref">Section 4</a>), and refresh rules (<a href="#refresh-lifecycle" class="auto internal xref">Section 5</a>) under which a grant whose recorded statement is withdrawn, or by recommendation expired, continues only if a later statement replaces it.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">A trusting authorization server that implements this specification applies all of <a href="#withdrawal" class="auto internal xref">Section 3</a> through <a href="#lifecycle-errors" class="auto internal xref">Section 6</a>, whatever withdrawal mechanism it uses, if any. An issuer that uses a withdrawal mechanism withdraws statements through it, and <a href="#withdrawal" class="auto internal xref">Section 3</a> recommends that it withdraw an earlier statement when it issues a later, narrower one. Publishing status and sending events are optional for an issuer, and supersession and refresh replacement work without them. A client can offer a later statement on refresh (<a href="#refresh-replacement" class="auto internal xref">Section 5.2</a>).<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-4"><a href="#token-status-list" class="auto internal xref">Section 7</a> profiles Token Status List <span>[<a href="#STATUSLIST" class="cite xref">STATUSLIST</a>]</span> as the withdrawal mechanism of this specification: an issuer withdraws a statement by setting its status, and a trusting authorization server learns of it when it next resolves the list. <a href="#shared-signals" class="auto internal xref">Section 8</a> defines an optional Shared Signals Framework <span>[<a href="#SSF" class="cite xref">SSF</a>]</span> event, not itself a withdrawal mechanism, that prompts the trusting authorization servers that have configured an issuer to resolve a changed status promptly.<a href="#section-1-4" class="pilcrow">¶</a></p>
+<p id="section-1-5"><span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> does not depend on this specification. Registrations under <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span> advance the <code>iat</code> floor, and a refusal record ends a registration's validity at the server that holds it. This specification defines no new endpoint.<a href="#section-1-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="conventions-and-definitions">
+<section id="section-2">
+      <h2 id="name-conventions-and-definitions">
+<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-conventions-and-definitions" class="section-name selfRef">Conventions and Definitions</a>
+      </h2>
+<p id="section-2-1">The key words "<span class="bcp14">MUST</span>", "<span class="bcp14">MUST NOT</span>", "<span class="bcp14">REQUIRED</span>", "<span class="bcp14">SHALL</span>", "<span class="bcp14">SHALL NOT</span>", "<span class="bcp14">SHOULD</span>", "<span class="bcp14">SHOULD NOT</span>", "<span class="bcp14">RECOMMENDED</span>", "<span class="bcp14">NOT RECOMMENDED</span>",
+"<span class="bcp14">MAY</span>", and "<span class="bcp14">OPTIONAL</span>" in this document are to be interpreted as
+described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="cite xref">RFC8174</a>]</span> when, and only when, they
+appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶</a></p>
+<p id="section-2-2">This specification uses the terms Transmitter, Receiver, and Stream from <span>[<a href="#SSF" class="cite xref">SSF</a>]</span>, Security Event Token (SET) from <span>[<a href="#RFC8417" class="cite xref">RFC8417</a>]</span>, Status List Token from <span>[<a href="#STATUSLIST" class="cite xref">STATUSLIST</a>]</span>, and the terms defined in Section 2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>.<a href="#section-2-2" class="pilcrow">¶</a></p>
+<p id="section-2-3">This specification defines the following terms.<a href="#section-2-3" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-2-4">
+        <dt id="section-2-4.1">Withdrawal Mechanism:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-4.2">
+          <p id="section-2-4.2.1">The means by which a trusting authorization server learns that an issuer has withdrawn a statement before its expiry (<a href="#withdrawal" class="auto internal xref">Section 3</a>), such as the Token Status List profile of <a href="#token-status-list" class="auto internal xref">Section 7</a>.<a href="#section-2-4.2.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-2-4.3">Refusal Record:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-4.4">
+          <p id="section-2-4.4.1">State an authorization server holds when it has learned that a statement ceased to be acceptable before its expiry, whether from a withdrawal mechanism it uses for the issuer (<a href="#withdrawal" class="auto internal xref">Section 3</a>) or from its own operator.<a href="#section-2-4.4.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-2-4.5">Recorded Statement:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-4.6">
+          <p id="section-2-4.6.1">The statement an establishment records: the one presented or pulled to create it or, after a refresh accepts a replacement, the replacement most recently accepted for it (<a href="#refresh-replacement" class="auto internal xref">Section 5.2</a>).<a href="#section-2-4.6.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-2-4.7">
+<code>iat</code> Floor:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-4.8">
+          <p id="section-2-4.8.1">For a trusting authorization server, the greatest <code>iat</code> claim value among the statements it has accepted for a given <code>iss</code> and <code>sub</code>, per tenant on a multi-tenant server (<a href="#supersession" class="auto internal xref">Section 4</a>).<a href="#section-2-4.8.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
+<p id="section-2-5">This specification also extends the following term of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>.<a href="#section-2-5" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-2-6">
+        <dt id="section-2-6.1">Current Statement:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-6.2">
+          <p id="section-2-6.2.1">As Section 2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> defines it. Under this specification, a refusal record ends a statement, so a statement that a refusal record covers is not current (<a href="#withdrawal" class="auto internal xref">Section 3</a>). The <code>iat</code> floor (<a href="#supersession" class="auto internal xref">Section 4</a>) separately limits which current statements a server accepts.<a href="#section-2-6.2.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="withdrawal">
+<section id="section-3">
+      <h2 id="name-withdrawal-and-refusal-reco">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-withdrawal-and-refusal-reco" class="section-name selfRef">Withdrawal and Refusal Records</a>
+      </h2>
+<div id="lifecycle">
+<p id="section-3-1">An issuer can withdraw a statement before its <code>exp</code>. Unlike OAuth token revocation (<span>[<a href="#RFC7009" class="cite xref">RFC7009</a>]</span>), a withdrawal revokes no issued token: a server holding a refusal record refuses new admissions and refresh under the statement (<a href="#currency" class="auto internal xref">Section 5.1</a>, <a href="#open-grants" class="auto internal xref">Section 11.1</a>).<a href="#section-3-1" class="pilcrow">¶</a></p>
+</div>
+<p id="section-3-2">How a trusting authorization server learns of a withdrawal is a withdrawal mechanism. This specification requires no withdrawal mechanism. It defines one, the Token Status List profile of <a href="#token-status-list" class="auto internal xref">Section 7</a>, and other specifications can define how another mechanism applies to these statements.<a href="#section-3-2" class="pilcrow">¶</a></p>
+<p id="section-3-3">In addition to the checks of Section 3.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, a trusting authorization server <span class="bcp14">MUST</span> reject a statement for which it holds a refusal record. A server that uses a withdrawal mechanism for the statement's issuer <span class="bcp14">SHOULD</span> consult it before accepting the statement for a new admission, within the caching and freshness rules that mechanism defines.<a href="#section-3-3" class="pilcrow">¶</a></p>
+<p id="section-3-4">A refusal derived from a withdrawal mechanism lasts until a later authoritative result from that mechanism replaces it, or until an expiry the mechanism itself defines for the withdrawal. A server <span class="bcp14">MUST NOT</span> retain such a refusal once it is replaced or expired in that way. A failure to consult the mechanism, or cached evidence that has lapsed, neither replaces nor expires a refusal.<a href="#section-3-4" class="pilcrow">¶</a></p>
+<p id="section-3-5">A withdrawal constrains and never relaxes. A statement for which no withdrawal mechanism reports a withdrawal, or for which the server cannot consult the mechanism it uses (<a href="#withdrawal-practice" class="auto internal xref">Section 10.1</a>), is bounded by its effective expiry as it would be otherwise, and a server <span class="bcp14">MUST NOT</span> treat any withdrawal mechanism as grounds to accept a statement past its effective expiry.<a href="#section-3-5" class="pilcrow">¶</a></p>
+<p id="section-3-6">An issuer that uses a withdrawal mechanism and issues a later statement narrower than the one it replaces <span class="bcp14">SHOULD</span> withdraw the earlier statement. A later statement is narrower if the document it names no longer carries a key, redirection URI, or scope the earlier document carried, if its <code>aud</code>, <code>aud_tenant</code>, or <code>statement_uses</code> is narrower, or if its remaining lifetime is shorter.<a href="#section-3-6" class="pilcrow">¶</a></p>
+<p id="section-3-7">Without that withdrawal, a trusting authorization server that has not yet seen the later statement, or at which the later statement does not validate, accepts the earlier statement until it expires.<a href="#section-3-7" class="pilcrow">¶</a></p>
+<p id="section-3-8">Rejections under this section use the error responses of <a href="#lifecycle-errors" class="auto internal xref">Section 6</a>.<a href="#section-3-8" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="supersession">
+<section id="section-4">
+      <h2 id="name-supersession">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-supersession" class="section-name selfRef">Supersession</a>
+      </h2>
+<p id="section-4-1">Under <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, one unexpired statement is consumable more than once, and an older statement that has not expired remains admissible after a newer one is issued (Section 3.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). Because the <code>iat</code> claim values of an issuer's statements for a given <code>iss</code> and <code>sub</code> increase strictly (Section 3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), a later <code>iat</code> marks a later review. Supersession ends the admissibility of earlier statements once a server accepts a later one: a statement whose <code>iat</code> claim is earlier than the server's <code>iat</code> floor is superseded.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<p id="section-4-2">A trusting authorization server <span class="bcp14">MUST</span> retain, per <code>iss</code> and <code>sub</code> claims and, on a multi-tenant server, per tenant, the greatest <code>iat</code> claim value among the statements it has accepted, as its <code>iat</code> floor, for at least the maximum statement lifetime it honors for the issuer after that <code>iat</code>. A statement is accepted for the floor once the server admits a client on it, applies it as a replacement (<a href="#refresh-replacement" class="auto internal xref">Section 5.2</a>), or registers a client with it (<span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>). The server <span class="bcp14">MUST</span> reject a statement whose <code>iat</code> claim is earlier than the retained <code>iat</code>, whether it arrives as a replacement, a new registration, or a new presentation. A client holding a superseded, broader statement therefore cannot defer a narrowing by opening a fresh registration or establishment with it.<a href="#section-4-2" class="pilcrow">¶</a></p>
+<p id="section-4-3">At admission, the server verifies the <code>iat</code> floor in step 3 of Section 5.1 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, along with the statement requirements and the <code>client_id</code> rule, before it resolves the reviewed document.<a href="#section-4-3" class="pilcrow">¶</a></p>
+<p id="section-4-4">In selecting a pulled statement (Section 5.5.1 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), the server also ignores any statement that the <code>iat</code> floor supersedes. A pulled statement the server does not apply does not advance the <code>iat</code> floor. Nor does a review-only presentation or pulled statement (Section 5.6.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-4-4" class="pilcrow">¶</a></p>
+<p id="section-4-5">The first presentation of a later statement that establishes the client supersedes its predecessor for new admissions by every instance of the software at that server (<a href="#instance-practice" class="auto internal xref">Section 10.2</a>). Grants the predecessor already opened continue under <a href="#refresh-lifecycle" class="auto internal xref">Section 5</a>.<a href="#section-4-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="refresh-lifecycle">
+<section id="section-5">
+      <h2 id="name-refresh">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-refresh" class="section-name selfRef">Refresh</a>
+      </h2>
+<p id="section-5-1">Under <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, refresh evaluates no statement: it checks the establishment's proven key (Section 5.7.1 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). This section extends refresh so that a grant can depend on a current statement.<a href="#section-5-1" class="pilcrow">¶</a></p>
+<div id="currency">
+<section id="section-5.1">
+        <h3 id="name-requiring-a-current-stateme">
+<a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-requiring-a-current-stateme" class="section-name selfRef">Requiring a Current Statement</a>
+        </h3>
+<p id="section-5.1-1">When the establishment's recorded statement has expired, the authorization server <span class="bcp14">SHOULD</span> require a current statement on refresh-token use (<a href="#open-grants" class="auto internal xref">Section 11.1</a>). The recorded statement satisfies a requirement for a current statement while it is current, even after a later statement has raised the <code>iat</code> floor (<a href="#supersession" class="auto internal xref">Section 4</a>). A server that uses a withdrawal mechanism for the recorded statement's issuer <span class="bcp14">SHOULD</span> consult it for that statement at each refresh.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+<p id="section-5.1-2">If the authorization server holds a refusal record for the recorded statement, it <span class="bcp14">MUST</span> reject a refresh without an accepted replacement (<a href="#refresh-replacement" class="auto internal xref">Section 5.2</a>), even if it does not otherwise require a current statement. The required-issuer requirement of Section 4 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> also applies on refresh: if a required issuer covers the establishment's <code>sub</code> in the establishment's tenant, the server <span class="bcp14">MUST</span> reject a refresh unless the recorded statement or an accepted replacement is a current statement from that issuer. A grant recorded under another issuer's statement cannot meet this, so its client opens a new grant by presentation.<a href="#section-5.1-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="refresh-replacement">
+<section id="section-5.2">
+        <h3 id="name-refresh-replacement">
+<a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-refresh-replacement" class="section-name selfRef">Refresh Replacement</a>
+        </h3>
+<p id="section-5.2-1">A refresh replacement is a later statement from the recorded statement's issuer about the same software, offered or pulled on refresh to take the recorded statement's place (<a href="#replacement-security" class="auto internal xref">Section 11.2</a>). It is a <code>presentation</code> use of the statement (Section 3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). A server that does not implement this specification ignores an offered later statement (Section 5.4 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-5.2-1" class="pilcrow">¶</a></p>
+<p id="section-5.2-2">A request carrying a refresh replacement in the <code>software_statement</code> parameter (Section 5.4 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>) <span class="bcp14">MUST</span> include the <code>client_id</code> parameter, even if the client authenticates, and its value, the client's CIMD URL, <span class="bcp14">MUST</span> exactly equal the statement's <code>sub</code> claim. If the <code>client_id</code> parameter is absent, the request is rejected. A refresh replacement whose <code>sub</code> differs is rejected as step 3 below provides.<a href="#section-5.2-2" class="pilcrow">¶</a></p>
+<p id="section-5.2-3">On refresh-token use under an establishment, the authorization server first completes the checks of Section 5.7.1 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> on the establishment's proven key, unchanged, before it considers any replacement. A server that implements this specification then proceeds as follows. A refresh rejected at any step leaves the grant's state unchanged.<a href="#section-5.2-3" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-5.2-4">
+<li id="section-5.2-4.1">
+            <p id="section-5.2-4.1.1">Decide whether a replacement is needed. One is needed in either of the following cases, and otherwise none is, though the client can still offer one:<a href="#section-5.2-4.1.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-5.2-4.1.2.1">
+                <p id="section-5.2-4.1.2.1.1">A refusal record covers the recorded statement.<a href="#section-5.2-4.1.2.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-5.2-4.1.2.2">
+                <p id="section-5.2-4.1.2.2.1">The recorded statement has expired, and the server requires a current statement under <a href="#currency" class="auto internal xref">Section 5.1</a> or because a required issuer (Section 4 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>) covers the establishment's <code>sub</code> in the establishment's tenant.<a href="#section-5.2-4.1.2.2.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
+</li>
+          <li id="section-5.2-4.2">
+            <p id="section-5.2-4.2.1">Obtain a replacement. A client can offer one on any refresh in the <code>software_statement</code> parameter. A statement with the recorded <code>iss</code> and <code>jti</code> is not a replacement and is treated as the recorded statement. When a replacement is needed and the request carries none, a server that supports pulled statements pulls, however the establishment was created, and takes as the replacement the newest statement with the recorded <code>iss</code> and <code>sub</code> among those it considers under Section 5.5.1 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> and <a href="#supersession" class="auto internal xref">Section 4</a>. A refresh that needs a replacement and obtains none is rejected: a reviewed grant never continues under the policy for clients the server has not reviewed.<a href="#section-5.2-4.2.1" class="pilcrow">¶</a></p>
+<p id="section-5.2-4.2.2">
+The pull follows the retrieval rules of Sections 5.3 and 5.5 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>. Only a request opening a new grant proceeds after a pull that does not complete, so a refresh whose pull does not complete is rejected.<a href="#section-5.2-4.2.2" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-5.2-4.3">
+            <p id="section-5.2-4.3.1">Validate the replacement. A refresh whose replacement fails any of the following requirements is rejected, even when no replacement was needed. The replacement:<a href="#section-5.2-4.3.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-5.2-4.3.2.1">
+                <p id="section-5.2-4.3.2.1.1"><span class="bcp14">MUST</span> validate under Section 3.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> and <a href="#withdrawal" class="auto internal xref">Section 3</a>, including its audience if it carries one.<a href="#section-5.2-4.3.2.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-5.2-4.3.2.2">
+                <p id="section-5.2-4.3.2.2.1"><span class="bcp14">MUST</span> have the recorded statement's <code>iss</code> and <code>sub</code>.<a href="#section-5.2-4.3.2.2.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-5.2-4.3.2.3">
+                <p id="section-5.2-4.3.2.3.1"><span class="bcp14">MUST</span> have an <code>iat</code> later than the recorded statement's.<a href="#section-5.2-4.3.2.3.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-5.2-4.3.2.4">
+                <p id="section-5.2-4.3.2.4.1"><span class="bcp14">MUST</span> name in <code>cimd_digest</code> the document currently served at that <code>sub</code>, which the server confirms by retrieval or by revalidating octets it holds.<a href="#section-5.2-4.3.2.4.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-5.2-4.3.2.5">
+                <p id="section-5.2-4.3.2.5.1"><span class="bcp14">MUST</span> name a document that carries the establishment's proven key, in its <code>jwks</code> or at its <code>jwks_uri</code> (Section 5.6.1 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), or, for an establishment created under Section 5.6.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, a document that still satisfies that section.<a href="#section-5.2-4.3.2.5.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
+<p id="section-5.2-4.3.3">
+A refresh whose replacement the <code>iat</code> floor (<a href="#supersession" class="auto internal xref">Section 4</a>) supersedes is also rejected. A replacement that meets these requirements and that the floor does not supersede is accepted.<a href="#section-5.2-4.3.3" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-5.2-4.4">
+            <p id="section-5.2-4.4.1">Apply the requirements of <a href="#currency" class="auto internal xref">Section 5.1</a>.<a href="#section-5.2-4.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-5.2-4.5">
+            <p id="section-5.2-4.5.1">Bound access and update. The refreshed access <span class="bcp14">MUST</span> fall within the metadata of the document an accepted replacement names or, without one, the establishment's reviewed metadata. If a replacement is accepted, the refreshed grant's statement identity (<code>iss</code> and <code>jti</code>), <code>iat</code>, effective expiry, any claim an extension uses to locate the statement, reviewed metadata and the digest it matched, and issuer trust decision become the replacement's, in one atomic update. Without one, the grant's state is unchanged. Concurrent replacements resolve to the most recently issued statement.<a href="#section-5.2-4.5.1" class="pilcrow">¶</a></p>
+</li>
+        </ol>
+<p id="section-5.2-5">An accepted replacement is the only way refresh changes the refreshed grant's recorded statement and reviewed metadata, which refresh under <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> alone never changes. The bound that Section 5.7.1 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> sets on refreshed access applies to the reviewed metadata as step 5 leaves it. A replacement never changes the proven key: a client that needs a different key opens a new grant by presentation.<a href="#section-5.2-5" class="pilcrow">¶</a></p>
+<p id="section-5.2-6">A replacement accepted on refresh <span class="bcp14">MUST</span> apply only to the grant refreshed.<a href="#section-5.2-6" class="pilcrow">¶</a></p>
+<p id="section-5.2-7">If the server bounds establishments (Section 11.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), a count persists across replacements: a replacement accepted on refresh does not add to it.<a href="#section-5.2-7" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="lifecycle-errors">
+<section id="section-6">
+      <h2 id="name-error-responses">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-error-responses" class="section-name selfRef">Error Responses</a>
+      </h2>
+<p id="section-6-1">This section extends Section 7 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, whose error responses and HTTP status codes apply at each endpoint.<a href="#section-6-1" class="pilcrow">¶</a></p>
+<p id="section-6-2">The <code>statement_required</code> error code (Section 7.1 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>) also applies when the statement supplied or pulled is refused by a refusal record (<a href="#withdrawal" class="auto internal xref">Section 3</a>) or superseded under the <code>iat</code> floor (<a href="#supersession" class="auto internal xref">Section 4</a>), and when a statement offered as a replacement on refresh (<a href="#refresh-replacement" class="auto internal xref">Section 5.2</a>) does not satisfy the requirements for one.<a href="#section-6-2" class="pilcrow">¶</a></p>
+<p id="section-6-3">A presentation whose statement is refused by a refusal record or superseded under the <code>iat</code> floor is rejected with <code>statement_required</code>, in place of the <code>invalid_client</code> error code that Section 7.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> assigns to a statement that fails validation.<a href="#section-6-3" class="pilcrow">¶</a></p>
+<p id="section-6-4">A statement whose <code>status</code> claim references an index outside the list (<a href="#status-resolution" class="auto internal xref">Section 7.2</a>) is rejected with the error code assigned to a statement refused by a refusal record, such as <code>statement_required</code>.<a href="#section-6-4" class="pilcrow">¶</a></p>
+<p id="section-6-5">Under an establishment, a refresh-token request rejected for a reason this specification defines uses <code>temporarily_unavailable</code> if a retrieval it needs did not complete, including a pull of a replacement, as Section 7 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> provides, and otherwise the following error codes:<a href="#section-6-5" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-6-6">
+        <dt id="section-6-6.1">
+<code>statement_required</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-6-6.2">
+          <p id="section-6-6.2.1">A replacement fails step 3 of <a href="#refresh-replacement" class="auto internal xref">Section 5.2</a> or the <code>iat</code> floor, a needed replacement is not obtained in step 2, including when a completed pull yields none, or the refresh fails step 4 (<a href="#currency" class="auto internal xref">Section 5.1</a>). These cases use <code>statement_required</code> in place of <code>invalid_grant</code>.<a href="#section-6-6.2.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-6-6.3">
+<code>unauthorized_client</code> or <code>invalid_scope</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-6-6.4">
+          <p id="section-6-6.4.1">The refreshed access exceeds the metadata of the document an accepted replacement names, as Section 7.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> provides for the reviewed metadata.<a href="#section-6-6.4.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-6-6.5">
+<code>invalid_request</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-6-6.6">
+          <p id="section-6-6.6.1">The request carries a replacement but omits <code>client_id</code> (<a href="#refresh-replacement" class="auto internal xref">Section 5.2</a>).<a href="#section-6-6.6.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
+<p id="section-6-7">If a statement is refused by a refusal record rather than merely expired, and the client is authenticated, the authorization server ought to indicate in the <code>error_description</code> parameter that a statement issued more recently is required (Section 7.6 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-6-7" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="token-status-list">
+<section id="section-7">
+      <h2 id="name-token-status-list">
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-token-status-list" class="section-name selfRef">Token Status List</a>
+      </h2>
+<div id="status-mechanisms">
+<p id="section-7-1">This section defines the withdrawal mechanism (<a href="#withdrawal" class="auto internal xref">Section 3</a>) of this specification, a profile of Token Status List <span>[<a href="#STATUSLIST" class="cite xref">STATUSLIST</a>]</span> through which an issuer publishes the authoritative status of its statements. A trusting authorization server can resolve those statuses for any issuer it has configured. An issuer can also withdraw a statement through another withdrawal mechanism. The events of <a href="#shared-signals" class="auto internal xref">Section 8</a> are not a withdrawal mechanism: they only prompt a trusting authorization server to resolve a status promptly.<a href="#section-7-1" class="pilcrow">¶</a></p>
+</div>
+<p id="section-7-2">For an issuer that is not an authorization server (Section 4 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>) and publishes status, the trust configuration records a Status List key set URL in place of the <code>jwks_uri</code> metadata value (<a href="#status-publication" class="auto internal xref">Section 7.1</a>, <a href="#status-resolution" class="auto internal xref">Section 7.2</a>). A configured Status List key set URL <span class="bcp14">MUST</span> use the <code>https</code> scheme, and a trusting authorization server <span class="bcp14">MUST</span> validate the certificate of the host serving it. The issuer <span class="bcp14">MUST</span> keep that key set apart from its statement key set and from the <code>jwks_uri</code> of any Transmitter configuration it publishes (<a href="#relationship" class="auto internal xref">Section 8.1</a>), serving it at neither location and placing in it no key that appears at either.<a href="#section-7-2" class="pilcrow">¶</a></p>
+<div id="status-publication">
+<section id="section-7.1">
+        <h3 id="name-status-publication">
+<a href="#section-7.1" class="section-number selfRef">7.1. </a><a href="#name-status-publication" class="section-name selfRef">Status Publication</a>
+        </h3>
+<p id="section-7.1-1">An issuer that uses Token Status List publishes the status of its statements as <span>[<a href="#STATUSLIST" class="cite xref">STATUSLIST</a>]</span> defines. A statement locates its entry in the issuer's Status List Token through the <code>status</code> claim, whose <code>status_list</code> member gives the status list URI and index (Section 6.2 of <span>[<a href="#STATUSLIST" class="cite xref">STATUSLIST</a>]</span>). The claim extends the statement as Section 3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> permits, and a server that does not implement this specification ignores it. An issuer that publishes status:<a href="#section-7.1-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-7.1-2.1">
+            <p id="section-7.1-2.1.1"><span class="bcp14">MUST</span> publish status, and carry the <code>status</code> claim, for every statement it issues under a given <code>iss</code> from the point it begins publishing. Once statements issued before that point have expired, a trusting authorization server can read an absent claim as meaning the issuer publishes no status.<a href="#section-7.1-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-7.1-2.2">
+            <p id="section-7.1-2.2.1"><span class="bcp14">MUST NOT</span> assign the same combination of status list URI and index to more than one statement, including across successive Status List Tokens published at that URI. Withdrawing a statement then affects no other.<a href="#section-7.1-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-7.1-2.3">
+            <p id="section-7.1-2.3.1"><span class="bcp14">MUST</span> sign the Status List Token with a key published at the <code>jwks_uri</code> metadata value of its authorization server metadata <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span>, which Sections 4 and 9 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> keep apart from its statement signing keys, or, for an issuer that is not an authorization server, in its Status List key set (<a href="#token-status-list" class="auto internal xref">Section 7</a>).<a href="#section-7.1-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-7.1-2.4">
+            <p id="section-7.1-2.4.1"><span class="bcp14">MUST</span> include the <code>exp</code> claim in every Status List Token it publishes. An older token then cannot stand in for a newer one indefinitely.<a href="#section-7.1-2.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-7.1-2.5">
+            <p id="section-7.1-2.5.1"><span class="bcp14">MUST</span> give each Status List Token it publishes at a given list URI an <code>iat</code> claim value later than that of any token it published there before (<a href="#status-resolution" class="auto internal xref">Section 7.2</a>).<a href="#section-7.1-2.5.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+</section>
+</div>
+<div id="status-resolution">
+<section id="section-7.2">
+        <h3 id="name-status-resolution">
+<a href="#section-7.2" class="section-number selfRef">7.2. </a><a href="#name-status-resolution" class="section-name selfRef">Status Resolution</a>
+        </h3>
+<p id="section-7.2-1">If a statement carries the <code>status</code> claim and the trusting authorization server resolves statuses for the statement's issuer, the server <span class="bcp14">MUST</span> reject the statement if its status is <code>INVALID</code>, and <span class="bcp14">MUST</span> apply its configured policy for that issuer to the statement if its status is <code>SUSPENDED</code> or any other value except <code>VALID</code> and <code>INVALID</code>.<a href="#section-7.2-1" class="pilcrow">¶</a></p>
+<p id="section-7.2-2">A status of <code>INVALID</code> is a withdrawal, as is any other status except <code>VALID</code> when the policy configured for that issuer refuses the statement. On a withdrawal, the server holds a refusal record (<a href="#withdrawal" class="auto internal xref">Section 3</a>). Token Status List defines no expiry for a withdrawal, so the refusal ends only when a later resolution returns a status that no longer refuses the statement.<a href="#section-7.2-2" class="pilcrow">¶</a></p>
+<p id="section-7.2-3">Resolution follows <span>[<a href="#STATUSLIST" class="cite xref">STATUSLIST</a>]</span>. In particular:<a href="#section-7.2-3" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-7.2-4.1">
+            <p id="section-7.2-4.1.1">If the referenced index lies outside the list, the statement is rejected as <span>[<a href="#STATUSLIST" class="cite xref">STATUSLIST</a>]</span> requires (<a href="#lifecycle-errors" class="auto internal xref">Section 6</a>).<a href="#section-7.2-4.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-7.2-4.2">
+            <p id="section-7.2-4.2.1">The caching rules of <span>[<a href="#STATUSLIST" class="cite xref">STATUSLIST</a>]</span> apply to resolution, and also apply when the server checks a recorded statement at refresh (<a href="#currency" class="auto internal xref">Section 5.1</a>).<a href="#section-7.2-4.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-7.2-4.3">
+            <p id="section-7.2-4.3.1">A server <span class="bcp14">SHOULD</span> retrieve the list on the list's own schedule, within the expiration and caching bounds its <code>exp</code> and <code>ttl</code> claims set (Section 11.5 of <span>[<a href="#STATUSLIST" class="cite xref">STATUSLIST</a>]</span>), rather than once per request (<a href="#schedule-practice" class="auto internal xref">Section 10.3</a>, <a href="#resolution-schedule" class="auto internal xref">Section 12, Paragraph 2</a>).<a href="#section-7.2-4.3.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-7.2-5">A server <span class="bcp14">MUST NOT</span> replace a Status List Token it holds with one whose <code>iat</code> claim is earlier, and <span class="bcp14">MUST</span> treat one whose <code>iat</code> claim is equal but whose contents differ as a resolution failure. A host serving an older token then cannot restore a status the issuer has withdrawn. Section 8.3 of <span>[<a href="#STATUSLIST" class="cite xref">STATUSLIST</a>]</span> recommends rejecting a statement whose status the server cannot resolve. A statement the server accepts without a resolved status remains bounded by its effective expiry (Section 2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-7.2-5" class="pilcrow">¶</a></p>
+<p id="section-7.2-6">A server <span class="bcp14">MUST</span> obtain a Status List Token's verification keys from the <code>jwks_uri</code> metadata value of the issuer's authorization server metadata <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span>, discovered from the configured <code>iss</code>, or, for an issuer that is not an authorization server, from the Status List key set URL recorded for it in trust configuration (<a href="#token-status-list" class="auto internal xref">Section 7</a>), and never from the Status List Token itself. The server reuses a retrieved key set only as Section 5.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> permits for a statement key set, so that a removed key stops verifying within the server's own bound.<a href="#section-7.2-6" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="shared-signals">
+<section id="section-8">
+      <h2 id="name-status-change-events">
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-status-change-events" class="section-name selfRef">Status Change Events</a>
+      </h2>
+<p id="section-8-1">This section defines an optional Shared Signals Framework <span>[<a href="#SSF" class="cite xref">SSF</a>]</span> event that tells a trusting authorization server that a status published under <a href="#token-status-list" class="auto internal xref">Section 7</a> has changed. The requirements of <a href="#relationship" class="auto internal xref">Section 8.1</a> through <a href="#configuration" class="auto internal xref">Section 8.5</a> apply only to implementations that support the events.<a href="#section-8-1" class="pilcrow">¶</a></p>
+<p id="section-8-2">For the events defined here, the issuer acts as a Transmitter, and a trusting authorization server that has configured it acts as a Receiver.<a href="#section-8-2" class="pilcrow">¶</a></p>
+<div id="relationship">
+<section id="section-8.1">
+        <h3 id="name-event-issuer-trust-and-keys">
+<a href="#section-8.1" class="section-number selfRef">8.1. </a><a href="#name-event-issuer-trust-and-keys" class="section-name selfRef">Event Issuer Trust and Keys</a>
+        </h3>
+<p id="section-8.1-1">A trusting authorization server <span class="bcp14">MUST NOT</span> accept an event from an issuer it has not configured. It <span class="bcp14">MUST</span> verify the SET using keys from the <code>jwks_uri</code> member of the issuer's Transmitter configuration <span>[<a href="#SSF" class="cite xref">SSF</a>]</span>, discovered from the issuer identifier it has configured, and never from a key-location value carried in the event. The SET's <code>iss</code> claim is that issuer identifier, which is also the <code>iss</code> claim value of the statements the event concerns.<a href="#section-8.1-1" class="pilcrow">¶</a></p>
+<p id="section-8.1-2">An issuer serves three key sets, each at its own location:<a href="#section-8.1-2" class="pilcrow">¶</a></p>
+<span id="name-issuer-key-set-locations"></span><table class="center" id="table-1">
+          <caption>
+<a href="#table-1" class="selfRef">Table 1</a>:
+<a href="#name-issuer-key-set-locations" class="selfRef">Issuer Key Set Locations</a>
+          </caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Keys</th>
+              <th class="text-left" rowspan="1" colspan="1">Issuer that is an authorization server</th>
+              <th class="text-left" rowspan="1" colspan="1">Other issuer</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Statement signing keys</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>software_statement_jwks_uri</code> (Sections 4 and 9 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>)</td>
+              <td class="text-left" rowspan="1" colspan="1">The URL at which it serves its statement key set (Section 4 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>)</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Status List Token keys</td>
+              <td class="text-left" rowspan="1" colspan="1">The <code>jwks_uri</code> metadata value of its authorization server metadata <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">Its Status List key set URL (<a href="#token-status-list" class="auto internal xref">Section 7</a>)</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">SET keys</td>
+              <td class="text-left" rowspan="1" colspan="1">The <code>jwks_uri</code> member of its Transmitter configuration <span>[<a href="#SSF" class="cite xref">SSF</a>]</span>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">The <code>jwks_uri</code> member of its Transmitter configuration <span>[<a href="#SSF" class="cite xref">SSF</a>]</span>
+</td>
+            </tr>
+          </tbody>
+        </table>
+<p id="section-8.1-4">An issuer <span class="bcp14">MUST</span> ensure that its Transmitter configuration's <code>jwks_uri</code> member differs from both the statement key location and the Status List Token key location in the table above. A receiver <span class="bcp14">MUST NOT</span> create or keep a stream whose Transmitter configuration names either of those locations. An issuer <span class="bcp14">MUST NOT</span> publish at its Transmitter configuration's <code>jwks_uri</code> a key that also appears in the key set at either location.<a href="#section-8.1-4" class="pilcrow">¶</a></p>
+<p id="section-8.1-5">A SET carrying an event defined here <span class="bcp14">MUST</span> use the explicit <code>typ</code> JOSE header parameter value <code>secevent+jwt</code> (Section 2.3 of <span>[<a href="#RFC8417" class="cite xref">RFC8417</a>]</span>). Its <code>aud</code> claim <span class="bcp14">MUST</span> contain the audience of the stream that delivers it, which <span>[<a href="#SSF" class="cite xref">SSF</a>]</span> lets the transmitter and receiver agree on. A receiver <span class="bcp14">MUST NOT</span> create or keep a stream whose audience does not identify it.<a href="#section-8.1-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="subjects">
+<section id="section-8.2">
+        <h3 id="name-subject-identification">
+<a href="#section-8.2" class="section-number selfRef">8.2. </a><a href="#name-subject-identification" class="section-name selfRef">Subject Identification</a>
+        </h3>
+<p id="section-8.2-1">The subject of every event defined here is client software. Events carry it in the <code>sub_id</code> claim of <span>[<a href="#SSF" class="cite xref">SSF</a>]</span> using the <code>uri</code> subject identifier format of <span>[<a href="#RFC9493" class="cite xref">RFC9493</a>]</span>. The <code>uri</code> member carries the client's CIMD URL exactly as it appears in the <code>sub</code> claim of the statements the event concerns.<a href="#section-8.2-1" class="pilcrow">¶</a></p>
+<p id="section-8.2-2">A trusting authorization server <span class="bcp14">MUST</span> match the subject by exact comparison of the <code>uri</code> member against a statement's <code>sub</code> claim.<a href="#section-8.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="status-changed">
+<section id="section-8.3">
+        <h3 id="name-status-changed-event">
+<a href="#section-8.3" class="section-number selfRef">8.3. </a><a href="#name-status-changed-event" class="section-name selfRef">Status Changed Event</a>
+        </h3>
+<p id="section-8.3-1">The event type identifier is <code>urn:ietf:params:oauth:event-type:software-statement-status-changed</code> (<a href="#iana-event-type" class="auto internal xref">Section 13.1</a>).<a href="#section-8.3-1" class="pilcrow">¶</a></p>
+<p id="section-8.3-2">The event reports that the issuer has changed the published status of one or more statements for the subject. A transmitter <span class="bcp14">MUST NOT</span> transmit the event until a Status List Token reflecting the change is retrievable at the status list URI, including through any caching layer it operates. A receiver resolving before then would fetch the status from before the change.<a href="#section-8.3-2" class="pilcrow">¶</a></p>
+<p id="section-8.3-3">The event does not say what the new status is, and a receiver <span class="bcp14">MUST NOT</span> infer one from it. Resolving a status of <code>VALID</code> after an event is not an error.<a href="#section-8.3-3" class="pilcrow">¶</a></p>
+<div id="events">
+<p id="section-8.3-4">The payload (<span>[<a href="#RFC8417" class="cite xref">RFC8417</a>]</span>) of an event defined here has the following claims:<a href="#section-8.3-4" class="pilcrow">¶</a></p>
+</div>
+<span class="break"></span><dl class="dlParallel" id="section-8.3-5">
+          <dt id="section-8.3-5.1">
+<code>event_timestamp</code>:</dt>
+          <dd style="margin-left: 1.5em" id="section-8.3-5.2">
+            <p id="section-8.3-5.2.1"><span class="bcp14">OPTIONAL</span>. The claim defined by <span>[<a href="#CAEP" class="cite xref">CAEP</a>]</span>, a NumericDate value that here gives the time at which the issuer changed the status the event reports. It is informational: a receiver does not use it to order, bound, or scope anything.<a href="#section-8.3-5.2.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-8.3-5.3">
+<code>software_statement_jti</code>:</dt>
+          <dd style="margin-left: 1.5em" id="section-8.3-5.4">
+            <p id="section-8.3-5.4.1"><span class="bcp14">OPTIONAL</span>. The <code>jti</code> claim value of a single statement whose status changed (<a href="#processing" class="auto internal xref">Section 8.4</a>).<a href="#section-8.3-5.4.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-8.3-5.5">
+<code>reason_admin</code>:</dt>
+          <dd style="margin-left: 1.5em" id="section-8.3-5.6">
+            <p id="section-8.3-5.6.1"><span class="bcp14">OPTIONAL</span>. An administrative message, as <span>[<a href="#CAEP" class="cite xref">CAEP</a>]</span> defines the claim.<a href="#section-8.3-5.6.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
+<p id="section-8.3-6">The following is a non-normative example of the payload of a SET carrying this event for one statement:<a href="#section-8.3-6" class="pilcrow">¶</a></p>
+<div class="lang-json sourcecode" id="section-8.3-7">
+<pre>
+{
+  "iss": "https://issuer.example",
+  "jti": "4d3559ec67504aaba65d40b0363faad8",
+  "iat": 1767225600,
+  "aud": "https://as.example",
+  "sub_id": {
+    "format": "uri",
+    "uri": "https://client.example/app"
+  },
+  "events": {
+"urn:ietf:params:oauth:event-type:software-statement-status-changed":
+    {
+      "event_timestamp": 1767225590,
+      "software_statement_jti": "c2a907b34d28"
+    }
+  }
+}
+</pre><a href="#section-8.3-7" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="processing">
+<section id="section-8.4">
+        <h3 id="name-receiver-processing">
+<a href="#section-8.4" class="section-number selfRef">8.4. </a><a href="#name-receiver-processing" class="section-name selfRef">Receiver Processing</a>
+        </h3>
+<p id="section-8.4-1">A trusting authorization server that receives an event defined here <span class="bcp14">MUST</span> process it as follows:<a href="#section-8.4-1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-8.4-2">
+<li id="section-8.4-2.1">
+            <p id="section-8.4-2.1.1">Verify the SET as <span>[<a href="#RFC8417" class="cite xref">RFC8417</a>]</span> requires, including its <code>typ</code> JOSE header parameter, and verify that the SET's issuer is configured and that the keys verifying the SET were obtained as <a href="#relationship" class="auto internal xref">Section 8.1</a> requires.<a href="#section-8.4-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-8.4-2.2">
+            <p id="section-8.4-2.2.1">Reject an event whose <code>aud</code> claim does not contain the audience of the stream that delivered it (<a href="#relationship" class="auto internal xref">Section 8.1</a>).<a href="#section-8.4-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-8.4-2.3">
+            <p id="section-8.4-2.3.1">Resolve the subject (<a href="#subjects" class="auto internal xref">Section 8.2</a>).<a href="#section-8.4-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-8.4-2.4">
+            <p id="section-8.4-2.4.1">Retrieve the Status List Token each affected statement's <code>status</code> claim references, as <span>[<a href="#STATUSLIST" class="cite xref">STATUSLIST</a>]</span> defines, using a copy that the status list URI served, or confirmed by revalidation, in response to a request begun after the event arrived, without waiting for the schedule that would otherwise apply.<a href="#section-8.4-2.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-8.4-2.5">
+            <p id="section-8.4-2.5.1">Apply the resolved status as <a href="#status-resolution" class="auto internal xref">Section 7.2</a> defines.<a href="#section-8.4-2.5.1" class="pilcrow">¶</a></p>
+</li>
+        </ol>
+<p id="section-8.4-3">If step 1 or 2 fails, the receiver reports a SET error as <span>[<a href="#RFC8935" class="cite xref">RFC8935</a>]</span> or <span>[<a href="#RFC8936" class="cite xref">RFC8936</a>]</span> provides. Otherwise, it acknowledges the SET, whatever steps 3 to 5 produce. A receiver ignores any other member of the SET's <code>events</code> claim.<a href="#section-8.4-3" class="pilcrow">¶</a></p>
+<p id="section-8.4-4">The affected statements are those the transmitting issuer made about the subject, never statements another issuer made about the same software. They are the statement the event's <code>software_statement_jti</code> claim names or, if the event names none, those the receiver holds or has cached a status for. An event about a subject for which the receiver holds no state requires nothing of it. A receiver ignores events for subjects outside the client identifier namespaces for which it accepts the transmitting issuer (Section 4 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-8.4-4" class="pilcrow">¶</a></p>
+<p id="section-8.4-5">Revalidation suffices because a transmitter sends the event only once a token reflecting the change is retrievable (<a href="#status-changed" class="auto internal xref">Section 8.3</a>). One request begun after several events arrived serves every one of them that concerns the list it retrieves. An event is never grounds for refusal. Until the request succeeds, the copy the receiver holds remains in effect within its validity. If resolution does not complete, the receiver proceeds as it would had no event arrived: a refusal record it holds still applies, and the statement remains bounded by its effective expiry (Section 2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-8.4-5" class="pilcrow">¶</a></p>
+<p id="section-8.4-6">A receiver <span class="bcp14">MUST</span> treat an event it has already applied as successfully delivered and acknowledge it as <span>[<a href="#RFC8935" class="cite xref">RFC8935</a>]</span> or <span>[<a href="#RFC8936" class="cite xref">RFC8936</a>]</span> requires, rather than reporting a delivery error. Rejecting a retry can stall or disable a stream carrying later events. Duplicate detection is per transmitting issuer.<a href="#section-8.4-6" class="pilcrow">¶</a></p>
+<p id="section-8.4-7">Two constraints bound every event:<a href="#section-8.4-7" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-8.4-8.1">
+            <p id="section-8.4-8.1.1">A receiver <span class="bcp14">MUST NOT</span> let an event by itself create standing, extend a statement's lifetime, or otherwise increase what a client can do. A receiver <span class="bcp14">MUST</span> ignore any payload claim that would have such an effect.<a href="#section-8.4-8.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.4-8.2">
+            <p id="section-8.4-8.2.1">A receiver <span class="bcp14">MUST</span> continue to resolve status as <a href="#status-resolution" class="auto internal xref">Section 7.2</a> provides, and to enforce statement expiry, independently of this mechanism. Stream loss, transmitter unavailability, or delivery failure then leaves both controls in force.<a href="#section-8.4-8.2.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+</section>
+</div>
+<div id="configuration">
+<section id="section-8.5">
+        <h3 id="name-stream-configuration">
+<a href="#section-8.5" class="section-number selfRef">8.5. </a><a href="#name-stream-configuration" class="section-name selfRef">Stream Configuration</a>
+        </h3>
+<p id="section-8.5-1">An issuer that supports the events defined here publishes Transmitter configuration metadata as <span>[<a href="#SSF" class="cite xref">SSF</a>]</span> defines, discoverable from its issuer identifier. Stream creation, subject management, verification, and delivery follow <span>[<a href="#SSF" class="cite xref">SSF</a>]</span>.<a href="#section-8.5-1" class="pilcrow">¶</a></p>
+<p id="section-8.5-2">A trusting authorization server that supports these events <span class="bcp14">SHOULD</span> create one stream per configured issuer that offers them (<a href="#stream-practice" class="auto internal xref">Section 10.4</a>).<a href="#section-8.5-2" class="pilcrow">¶</a></p>
+<p id="section-8.5-3">The subjects appropriate to a stream are those of the issuer's statements whose <code>aud</code> claim is absent or names the receiving authorization server. A transmitter <span class="bcp14">SHOULD</span> scope each stream to those subjects.<a href="#section-8.5-3" class="pilcrow">¶</a></p>
+<p id="section-8.5-4">A receiver <span class="bcp14">SHOULD</span> request the event this specification defines, and <span class="bcp14">SHOULD</span> use the stream verification facility of <span>[<a href="#SSF" class="cite xref">SSF</a>]</span> periodically.<a href="#section-8.5-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="implementation-considerations">
+<section id="section-9">
+      <h2 id="name-implementation-consideratio">
+<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-implementation-consideratio" class="section-name selfRef">Implementation Considerations</a>
+      </h2>
+<p id="section-9-1">This section gives guidance to implementers. It adds no requirement.<a href="#section-9-1" class="pilcrow">¶</a></p>
+<div id="supersession-state">
+<section id="section-9.1">
+        <h3 id="name-supersession-state">
+<a href="#section-9.1" class="section-number selfRef">9.1. </a><a href="#name-supersession-state" class="section-name selfRef">Supersession State</a>
+        </h3>
+<p id="section-9.1-1">For the <code>iat</code> floor (<a href="#supersession" class="auto internal xref">Section 4</a>), a server keeps one <code>iat</code> value for each <code>iss</code> and <code>sub</code> and, on a multi-tenant server, each tenant, not the statements themselves. Every statement the floor refuses has an earlier <code>iat</code>, so its effective expiry passes within the maximum statement lifetime the server honors for the issuer, counted from the floor's value. Once that period and any clock-skew allowance have passed, the floor refuses nothing that expiry would not refuse. A server that raises the lifetime it honors for an issuer extends that period for the floors it already holds. A floor lost before then readmits the statements it superseded until they expire.<a href="#section-9.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="event-resolution">
+<section id="section-9.2">
+        <h3 id="name-resolution-in-response-to-e">
+<a href="#section-9.2" class="section-number selfRef">9.2. </a><a href="#name-resolution-in-response-to-e" class="section-name selfRef">Resolution in Response to Events</a>
+        </h3>
+<p id="section-9.2-1">A receiver can bound the rate of the retrievals that events cause by deferring a retrieval briefly and coalescing events that concern the same status list URI, since one request begun after those events serves them all (<a href="#processing" class="auto internal xref">Section 8.4</a>). Its scheduled resolution continues regardless.<a href="#section-9.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="event-logs">
+<section id="section-9.3">
+        <h3 id="name-event-logs">
+<a href="#section-9.3" class="section-number selfRef">9.3. </a><a href="#name-event-logs" class="section-name selfRef">Event Logs</a>
+        </h3>
+<p id="section-9.3-1">A receiver ought to treat event logs as sensitive at rest, as Section 11.4 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> treats statements. A log of events is a record about client identifiers that can outlive the issuer's own published status, so a receiver ought to bound its retention.<a href="#section-9.3-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="deployment-considerations">
+<section id="section-10">
+      <h2 id="name-deployment-considerations">
+<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-deployment-considerations" class="section-name selfRef">Deployment Considerations</a>
+      </h2>
+<p id="section-10-1">This section gives guidance to operators and issuers. It adds no requirement.<a href="#section-10-1" class="pilcrow">¶</a></p>
+<div id="withdrawal-practice">
+<section id="section-10.1">
+        <h3 id="name-withdrawal-practice">
+<a href="#section-10.1" class="section-number selfRef">10.1. </a><a href="#name-withdrawal-practice" class="section-name selfRef">Withdrawal Practice</a>
+        </h3>
+<p id="section-10.1-1">What a server does when it cannot consult a withdrawal mechanism it relies on is local policy (<a href="#withdrawal" class="auto internal xref">Section 3</a>). Refusing makes issuer availability a precondition for every request the statement governs. Proceeding leaves a withdrawn statement acceptable until it expires.<a href="#section-10.1-1" class="pilcrow">¶</a></p>
+<p id="section-10.1-2">A refusal that the server's operator entered, rather than one derived from a withdrawal mechanism, persists on the operator's own terms.<a href="#section-10.1-2" class="pilcrow">¶</a></p>
+<p id="section-10.1-3">Withdrawal does not replace lifetime: an issuer chooses <code>exp</code> assuming no trusting authorization server uses a withdrawal mechanism.<a href="#section-10.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="instance-practice">
+<section id="section-10.2">
+        <h3 id="name-instances-and-supersession">
+<a href="#section-10.2" class="section-number selfRef">10.2. </a><a href="#name-instances-and-supersession" class="section-name selfRef">Instances and Supersession</a>
+        </h3>
+<p id="section-10.2-1">Once a later statement supersedes its predecessor at a server (<a href="#supersession" class="auto internal xref">Section 4</a>), an instance holding only the predecessor can open no new grant there. Section 12.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> says instances need the most recently issued statement from a shared source.<a href="#section-10.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="schedule-practice">
+<section id="section-10.3">
+        <h3 id="name-resolution-schedule-and-lif">
+<a href="#section-10.3" class="section-number selfRef">10.3. </a><a href="#name-resolution-schedule-and-lif" class="section-name selfRef">Resolution Schedule and Lifetimes</a>
+        </h3>
+<p id="section-10.3-1">Retrieving the list on its own schedule (<a href="#status-resolution" class="auto internal xref">Section 7.2</a>) keeps each request a statement governs independent of issuer availability. Because events can be suppressed, a deployment ought to choose a resolution schedule and statement lifetimes it would accept with no event stream (<a href="#processing" class="auto internal xref">Section 8.4</a>).<a href="#section-10.3-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="stream-practice">
+<section id="section-10.4">
+        <h3 id="name-stream-coverage-and-monitor">
+<a href="#section-10.4" class="section-number selfRef">10.4. </a><a href="#name-stream-coverage-and-monitor" class="section-name selfRef">Stream Coverage and Monitoring</a>
+        </h3>
+<p id="section-10.4-1">A stream can cover every subject appropriate to it (<a href="#configuration" class="auto internal xref">Section 8.5</a>), or the receiver can add each subject through the subject management of <span>[<a href="#SSF" class="cite xref">SSF</a>]</span> when it first admits that software. Admission checks and the receiver's own status resolution (<a href="#status-resolution" class="auto internal xref">Section 7.2</a>, <a href="#processing" class="auto internal xref">Section 8.4</a>) remain independent of the subjects a stream covers, so a withdrawal whose event was transmitted before the subject was added to the stream is found at a later resolution.<a href="#section-10.4-1" class="pilcrow">¶</a></p>
+<p id="section-10.4-2">A receiver ought to alert on stream loss rather than assume quiescence.<a href="#section-10.4-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="security-considerations">
+<section id="section-11">
+      <h2 id="name-security-considerations">
+<a href="#section-11" class="section-number selfRef">11. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      </h2>
+<p id="section-11-1">The security considerations of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, <span>[<a href="#STATUSLIST" class="cite xref">STATUSLIST</a>]</span>, <span>[<a href="#SSF" class="cite xref">SSF</a>]</span>, and <span>[<a href="#RFC8417" class="cite xref">RFC8417</a>]</span> apply.<a href="#section-11-1" class="pilcrow">¶</a></p>
+<div id="open-grants">
+<section id="section-11.1">
+        <h3 id="name-withdrawal-and-open-grants">
+<a href="#section-11.1" class="section-number selfRef">11.1. </a><a href="#name-withdrawal-and-open-grants" class="section-name selfRef">Withdrawal and Open Grants</a>
+        </h3>
+<p id="section-11.1-1">Expiry and withdrawal (<a href="#withdrawal" class="auto internal xref">Section 3</a>) govern new admissions on a statement. Neither revokes an issued access token. A grant opened by a statement lasts for the life of its refresh tokens, whatever the statement's lifetime, unless the server requires a current statement on refresh (<a href="#currency" class="auto internal xref">Section 5.1</a>), holds a refusal record, or finds the proven key gone from the client's document (Section 5.7.1 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). Section 13.7 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> describes what removing an issuer from trust configuration, or narrowing what it can attest, leaves in place. Under this specification, a server can also end those grants and registrations by entering refusal records for the issuer's statements.<a href="#section-11.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="replacement-security">
+<section id="section-11.2">
+        <h3 id="name-supersession-and-refresh-re">
+<a href="#section-11.2" class="section-number selfRef">11.2. </a><a href="#name-supersession-and-refresh-re" class="section-name selfRef">Supersession and Refresh Replacement</a>
+        </h3>
+<p id="section-11.2-1">The <code>iat</code> floor (<a href="#supersession" class="auto internal xref">Section 4</a>) exists because one statement is consumable more than once (Section 3.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). Without it, a client holding an older, broader statement could keep opening registrations and establishments with it after its issuer narrows the review, until that statement expires. The floor closes this at a server only once the server accepts the later statement. A server that has not seen the later statement still accepts the earlier one, which is why <a href="#withdrawal" class="auto internal xref">Section 3</a> recommends that an issuer withdraw an earlier statement when it issues a later, narrower one.<a href="#section-11.2-1" class="pilcrow">¶</a></p>
+<p id="section-11.2-2">A replacement never changes the establishment's proven key. Refresh verifies possession of that key before it considers a replacement (<a href="#refresh-replacement" class="auto internal xref">Section 5.2</a>), so holding a statement gives a party nothing at refresh without the key, and a replacement cannot move a grant to another key.<a href="#section-11.2-2" class="pilcrow">¶</a></p>
+<p id="section-11.2-3">A replacement validates only against the document currently served at its <code>sub</code> (step 3 of <a href="#refresh-replacement" class="auto internal xref">Section 5.2</a>). A client cannot use a later statement over a document it no longer serves, so an accepted replacement brings the grant to the current reviewed document, and the refreshed access falls within that document's metadata.<a href="#section-11.2-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="forged-and-replayed-events">
+<section id="section-11.3">
+        <h3 id="name-forged-and-replayed-events">
+<a href="#section-11.3" class="section-number selfRef">11.3. </a><a href="#name-forged-and-replayed-events" class="section-name selfRef">Forged and Replayed Events</a>
+        </h3>
+<p id="section-11.3-1">An event names no status, so a forged, replayed, delayed, or reordered event cannot change whether any statement is acceptable. Its only effect is a resolution the receiver would otherwise have performed on its own schedule.<a href="#section-11.3-1" class="pilcrow">¶</a></p>
+<p id="section-11.3-2">The remaining exposure is resource cost: an attacker holding the issuer's SET signing key, or a misbehaving transmitter, can trigger resolutions (<a href="#event-resolution" class="auto internal xref">Section 9.2</a>).<a href="#section-11.3-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="event-suppression">
+<section id="section-11.4">
+        <h3 id="name-event-suppression">
+<a href="#section-11.4" class="section-number selfRef">11.4. </a><a href="#name-event-suppression" class="section-name selfRef">Event Suppression</a>
+        </h3>
+<p id="section-11.4-1">Because a receiver resolves status independently (<a href="#processing" class="auto internal xref">Section 8.4</a>), an attacker who suppresses events delays a withdrawal at most until the receiver's next scheduled resolution and, for new admissions, never beyond the affected statements' effective expiry (<a href="#schedule-practice" class="auto internal xref">Section 10.3</a>). Grants already open continue until a refresh at which the receiver holds a refusal record, which <a href="#currency" class="auto internal xref">Section 5.1</a> then rejects unless a replacement is accepted.<a href="#section-11.4-1" class="pilcrow">¶</a></p>
+<p id="section-11.4-2">The absence of events looks the same on a healthy stream and a suppressed one. Periodic stream verification (<a href="#configuration" class="auto internal xref">Section 8.5</a>) makes the difference observable (<a href="#stream-practice" class="auto internal xref">Section 10.4</a>).<a href="#section-11.4-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="key-separation-and-compromise">
+<section id="section-11.5">
+        <h3 id="name-key-separation-and-compromi">
+<a href="#section-11.5" class="section-number selfRef">11.5. </a><a href="#name-key-separation-and-compromi" class="section-name selfRef">Key Separation and Compromise</a>
+        </h3>
+<p id="section-11.5-1">The distinct key sets of <a href="#token-status-list" class="auto internal xref">Section 7</a> and <a href="#relationship" class="auto internal xref">Section 8.1</a> separate SET keys from statement and Status List Token keys. With the keys separated, compromise of a SET key lets an attacker trigger resolutions and nothing more. Compromise of a statement signing key has wider effect, because statements grant standing and events do not.<a href="#section-11.5-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="privacy-considerations">
+<section id="section-12">
+      <h2 id="name-privacy-considerations">
+<a href="#section-12" class="section-number selfRef">12. </a><a href="#name-privacy-considerations" class="section-name selfRef">Privacy Considerations</a>
+      </h2>
+<p id="section-12-1">The privacy considerations of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, <span>[<a href="#STATUSLIST" class="cite xref">STATUSLIST</a>]</span>, <span>[<a href="#SSF" class="cite xref">SSF</a>]</span>, and <span>[<a href="#RFC8417" class="cite xref">RFC8417</a>]</span> apply.<a href="#section-12-1" class="pilcrow">¶</a></p>
+<div id="resolution-schedule">
+<p id="section-12-2">Because <span>[<a href="#STATUSLIST" class="cite xref">STATUSLIST</a>]</span> aggregates many statements into one list, a retrieval tells the issuer only that some trusting authorization server is checking. Retrieving the list on its own schedule (<a href="#status-resolution" class="auto internal xref">Section 7.2</a>) keeps the server's request timing from disclosing the client population it serves. A retrieval that an event prompts shows the issuer that the receiver holds a statement or a cached status for the event's subject.<a href="#section-12-2" class="pilcrow">¶</a></p>
+</div>
+<p id="section-12-3">Subject identifiers in these events name reviewed software and, in aggregate, describe an organization's approved software estate. For this reason, a stream is scoped as <a href="#configuration" class="auto internal xref">Section 8.5</a> provides. Event logs deserve the same care as statements (<a href="#event-logs" class="auto internal xref">Section 9.3</a>).<a href="#section-12-3" class="pilcrow">¶</a></p>
+<p id="section-12-4">Refusal records (<a href="#withdrawal" class="auto internal xref">Section 3</a>) and <code>iat</code> floors (<a href="#supersession" class="auto internal xref">Section 4</a>) are durable state that an authorization server keeps per client identifier. They show which software an issuer has withdrawn or reviewed again, so a server ought to protect them as it protects statements (Section 11.4 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>) and ought not to keep an <code>iat</code> floor longer than its purpose requires (<a href="#supersession-state" class="auto internal xref">Section 9.1</a>).<a href="#section-12-4" class="pilcrow">¶</a></p>
+<p id="section-12-5">The events this specification defines create no durable receiver-side record of their own, so they add no negative state about a client identifier that outlives the issuer's own published status. A receiver that logs events creates such a record (<a href="#event-logs" class="auto internal xref">Section 9.3</a>).<a href="#section-12-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="iana-considerations">
+<section id="section-13">
+      <h2 id="name-iana-considerations">
+<a href="#section-13" class="section-number selfRef">13. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+      </h2>
+<div id="iana-event-type">
+<section id="section-13.1">
+        <h3 id="name-oauth-uri-registry">
+<a href="#section-13.1" class="section-number selfRef">13.1. </a><a href="#name-oauth-uri-registry" class="section-name selfRef">OAuth URI Registry</a>
+        </h3>
+<p id="section-13.1-1"><span>[<a href="#RFC8417" class="cite xref">RFC8417</a>]</span> establishes no registry of event types, so this specification takes its identifier from the <code>oauth</code> sub-namespace <span>[<a href="#RFC6755" class="cite xref">RFC6755</a>]</span> and requests registration of the following value in the IANA "OAuth URI" registry:<a href="#section-13.1-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-13.1-2">
+          <dt id="section-13.1-2.1">URN:</dt>
+          <dd style="margin-left: 1.5em" id="section-13.1-2.2">
+            <p id="section-13.1-2.2.1"><code>urn:ietf:params:oauth:event-type:software-statement-status-changed</code><a href="#section-13.1-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-13.1-2.3">Common Name:</dt>
+          <dd style="margin-left: 1.5em" id="section-13.1-2.4">
+            <p id="section-13.1-2.4.1">Client ID Metadata Document Software Statement Status Changed Event Type<a href="#section-13.1-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-13.1-2.5">Change Controller:</dt>
+          <dd style="margin-left: 1.5em" id="section-13.1-2.6">
+            <p id="section-13.1-2.6.1">IETF<a href="#section-13.1-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-13.1-2.7">Specification Document(s):</dt>
+          <dd style="margin-left: 1.5em" id="section-13.1-2.8">
+            <p id="section-13.1-2.8.1">This specification, <a href="#status-changed" class="auto internal xref">Section 8.3</a><a href="#section-13.1-2.8.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="set-payload-claims">
+<section id="section-13.2">
+        <h3 id="name-set-payload-claims">
+<a href="#section-13.2" class="section-number selfRef">13.2. </a><a href="#name-set-payload-claims" class="section-name selfRef">SET Payload Claims</a>
+        </h3>
+<p id="section-13.2-1">Under Section 2 of <span>[<a href="#RFC8417" class="cite xref">RFC8417</a>]</span>, the <code>software_statement_jti</code> payload claim of <a href="#status-changed" class="auto internal xref">Section 8.3</a> is defined by this specification and need not be registered as a JWT claim. No IANA registry of SET payload claims exists, so no registration is requested.<a href="#section-13.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="sec-combined-references">
+<section id="section-14">
+      <h2 id="name-references">
+<a href="#section-14" class="section-number selfRef">14. </a><a href="#name-references" class="section-name selfRef">References</a>
+      </h2>
+<div id="sec-normative-references">
+<section id="section-14.1">
+        <h3 id="name-normative-references">
+<a href="#section-14.1" class="section-number selfRef">14.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+        </h3>
+<dl class="references">
+<dt id="CAEP">[CAEP]</dt>
+        <dd>
+<span class="refTitle">"OpenID Continuous Access Evaluation Profile 1.0"</span>, <span>n.d.</span>, <span>&lt;<a href="https://openid.net/specs/openid-caep-1_0.html">https://openid.net/specs/openid-caep-1_0.html</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="CIMD">[CIMD]</dt>
+        <dd>
+<span class="refAuthor">Parecki, A.</span> and <span class="refAuthor">E. Smith</span>, <span class="refTitle">"OAuth Client ID Metadata Document"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-client-id-metadata-document-02</span>, <time datetime="2026-07-06" class="refDate">6 July 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-02">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-02</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC2119">[RFC2119]</dt>
+        <dd>
+<span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2119">https://www.rfc-editor.org/rfc/rfc2119</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8174">[RFC8174]</dt>
+        <dd>
+<span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8174">https://www.rfc-editor.org/rfc/rfc8174</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8414">[RFC8414]</dt>
+        <dd>
+<span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Sakimura, N.</span>, and <span class="refAuthor">J. Bradley</span>, <span class="refTitle">"OAuth 2.0 Authorization Server Metadata"</span>, <span class="seriesInfo">RFC 8414</span>, <span class="seriesInfo">DOI 10.17487/RFC8414</span>, <time datetime="2018-06" class="refDate">June 2018</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8414">https://www.rfc-editor.org/rfc/rfc8414</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8417">[RFC8417]</dt>
+        <dd>
+<span class="refAuthor">Hunt, P., Ed.</span>, <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Denniss, W.</span>, and <span class="refAuthor">M. Ansari</span>, <span class="refTitle">"Security Event Token (SET)"</span>, <span class="seriesInfo">RFC 8417</span>, <span class="seriesInfo">DOI 10.17487/RFC8417</span>, <time datetime="2018-07" class="refDate">July 2018</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8417">https://www.rfc-editor.org/rfc/rfc8417</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8935">[RFC8935]</dt>
+        <dd>
+<span class="refAuthor">Backman, A., Ed.</span>, <span class="refAuthor">Jones, M., Ed.</span>, <span class="refAuthor">Scurtescu, M.</span>, <span class="refAuthor">Ansari, M.</span>, and <span class="refAuthor">A. Nadalin</span>, <span class="refTitle">"Push-Based Security Event Token (SET) Delivery Using HTTP"</span>, <span class="seriesInfo">RFC 8935</span>, <span class="seriesInfo">DOI 10.17487/RFC8935</span>, <time datetime="2020-11" class="refDate">November 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8935">https://www.rfc-editor.org/rfc/rfc8935</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8936">[RFC8936]</dt>
+        <dd>
+<span class="refAuthor">Backman, A., Ed.</span>, <span class="refAuthor">Jones, M., Ed.</span>, <span class="refAuthor">Scurtescu, M.</span>, <span class="refAuthor">Ansari, M.</span>, and <span class="refAuthor">A. Nadalin</span>, <span class="refTitle">"Poll-Based Security Event Token (SET) Delivery Using HTTP"</span>, <span class="seriesInfo">RFC 8936</span>, <span class="seriesInfo">DOI 10.17487/RFC8936</span>, <time datetime="2020-11" class="refDate">November 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8936">https://www.rfc-editor.org/rfc/rfc8936</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9493">[RFC9493]</dt>
+        <dd>
+<span class="refAuthor">Backman, A., Ed.</span>, <span class="refAuthor">Scurtescu, M.</span>, and <span class="refAuthor">P. Jain</span>, <span class="refTitle">"Subject Identifiers for Security Event Tokens"</span>, <span class="seriesInfo">RFC 9493</span>, <span class="seriesInfo">DOI 10.17487/RFC9493</span>, <time datetime="2023-12" class="refDate">December 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9493">https://www.rfc-editor.org/rfc/rfc9493</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="SSF">[SSF]</dt>
+        <dd>
+<span class="refTitle">"OpenID Shared Signals Framework Specification 1.0"</span>, <span>n.d.</span>, <span>&lt;<a href="https://openid.net/specs/openid-sharedsignals-framework-1_0.html">https://openid.net/specs/openid-sharedsignals-framework-1_0.html</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="STATEMENT">[STATEMENT]</dt>
+        <dd>
+<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"Client ID Metadata Document Software Statement"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-mcguinness-oauth-cimd-sw-stmt-00</span>, <time datetime="2026-10" class="refDate">October 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt">https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="STATUSLIST">[STATUSLIST]</dt>
+      <dd>
+<span class="refAuthor">Looker, T.</span>, <span class="refAuthor">Bastian, P.</span>, and <span class="refAuthor">C. Bormann</span>, <span class="refTitle">"Token Status List (TSL)"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-status-list-21</span>, <time datetime="2026-06-21" class="refDate">21 June 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-status-list-21">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-status-list-21</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="sec-informative-references">
+<section id="section-14.2">
+        <h3 id="name-informative-references">
+<a href="#section-14.2" class="section-number selfRef">14.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+        </h3>
+<dl class="references">
+<dt id="REGISTRATION">[REGISTRATION]</dt>
+        <dd>
+<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"Client ID Metadata Document Software Statement Registration"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-mcguinness-oauth-cimd-sw-stmt-registration-00</span>, <time datetime="2026-10" class="refDate">October 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration">https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC6755">[RFC6755]</dt>
+        <dd>
+<span class="refAuthor">Campbell, B.</span> and <span class="refAuthor">H. Tschofenig</span>, <span class="refTitle">"An IETF URN Sub-Namespace for OAuth"</span>, <span class="seriesInfo">RFC 6755</span>, <span class="seriesInfo">DOI 10.17487/RFC6755</span>, <time datetime="2012-10" class="refDate">October 2012</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6755">https://www.rfc-editor.org/rfc/rfc6755</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7009">[RFC7009]</dt>
+      <dd>
+<span class="refAuthor">Lodderstedt, T., Ed.</span>, <span class="refAuthor">Dronia, S.</span>, and <span class="refAuthor">M. Scurtescu</span>, <span class="refTitle">"OAuth 2.0 Token Revocation"</span>, <span class="seriesInfo">RFC 7009</span>, <span class="seriesInfo">DOI 10.17487/RFC7009</span>, <time datetime="2013-08" class="refDate">August 2013</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7009">https://www.rfc-editor.org/rfc/rfc7009</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+</section>
+</div>
+<div id="acknowledgments">
+<section id="appendix-A">
+      <h2 id="name-acknowledgments">
+<a href="#name-acknowledgments" class="section-name selfRef">Acknowledgments</a>
+      </h2>
+<p id="appendix-A-1">This specification draws on the Shared Signals Framework and the Continuous Access Evaluation Profile for its transport and payload conventions. The lifecycle rules of <a href="#withdrawal" class="auto internal xref">Section 3</a> through <a href="#lifecycle-errors" class="auto internal xref">Section 6</a> began in <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> and were separated from it so that its admission baseline stands alone.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="authors-addresses">
+<section id="appendix-B">
+      <h2 id="name-authors-address">
+<a href="#name-authors-address" class="section-name selfRef">Author's Address</a>
+      </h2>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Karl McGuinness</span></div>
+<div dir="auto" class="left"><span class="org">Independent</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:public@karlmcguinness.com" class="email">public@karlmcguinness.com</a>
+</div>
+</address>
+</section>
+</div>
+<script>const toc = document.getElementById("toc");
+toc.querySelector("h2").addEventListener("click", e => {
+  toc.classList.toggle("active");
+});
+toc.querySelector("nav").addEventListener("click", e => {
+  toc.classList.remove("active");
+});
+</script>
+</body>
+</html>
