@@ -150,8 +150,6 @@ An authorization server MUST apply the following validity model to every registr
 * Once the registration ceases to be valid without a replacement ({{revalidation}}), the authorization server MUST reject authorization, token, and pushed authorization requests and {{RFC7592}} update requests under the registration, at step 4 of {{registration-requests}}.
 * The authorization server SHOULD retain a registration that has ceased to be valid for a later renewal ({{oracle-considerations}}).
 
-An authorization server stores with each statement-governed registration the governing statement and its `iss`, `jti`, `sub`, and `iat` claims, any claim by which a withdrawal mechanism locates that statement (such as `status`), the registration's effective expiry, and any tenant the registration is restricted to.
-
 A server that uses a withdrawal mechanism for the governing statement's issuer SHOULD consult it for that statement at each token request under the registration, as Section 5.7.1 of {{STATEMENT}} provides for refresh.
 
 A server that records a required issuer for a tenant (Section 4 of {{STATEMENT}}) MUST reject an authorization, token, or pushed authorization request, or an {{RFC7592}} update request, in that tenant under any registration for software in a covered namespace unless, once any replacement the request delivers has been evaluated (step 3 of {{registration-requests}}), a current statement from the required issuer governs the registration. This rule applies whatever tenant the registration was created in and whenever the requirement was configured. Without this rule, withholding the required issuer's statement would keep such a registration in use after the issuer withdrew or stopped renewing its decision. A registration governed by another issuer's statement cannot satisfy the requirement.
@@ -211,7 +209,7 @@ For a replacement, the authorization server MUST derive the registration's metad
 
 A request whose replacement fails the rules above is rejected ({{errors}}) whether or not the registration has expired. A rejected delivery leaves the governing statement unchanged.
 
-On success, the replacement becomes the governing statement: the authorization server MUST replace the stored governing statement and its claims ({{registration-validity}}), the effective expiry, and the registration's metadata with the replacement's, and apply any tenant restriction it adds ({{dcr-presentation}}), in a single atomic update, and concurrent deliveries resolve to the most recently issued statement. A valid replacement restores a registration that has ceased to be valid, and an omitted or invalid one does not.
+On success, the authorization server MUST make the replacement the governing statement and give the registration its effective expiry, its re-derived metadata and any tenant restriction it adds ({{dcr-presentation}}), in a single atomic update, and concurrent deliveries resolve to the most recently issued statement. A valid replacement restores a registration that has ceased to be valid, and an omitted or invalid one does not.
 
 Access issued under the registration after that update, including on refresh of a grant issued before it, MUST fall within the re-derived metadata, as Section 5.7.1 of {{STATEMENT}} requires of a refreshed grant.
 
