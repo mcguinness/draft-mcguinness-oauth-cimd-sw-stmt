@@ -43,12 +43,12 @@ normative:
   RFC9449:
   RFC9700:
   RFC9110:
+  RFC8252:
   CIMD: I-D.ietf-oauth-client-id-metadata-document
   IDJAG: I-D.ietf-oauth-identity-assertion-authz-grant
 
 informative:
   RFC8705:
-  RFC8252:
   RFC8628:
   RFC8693:
   REGISTRATION:
