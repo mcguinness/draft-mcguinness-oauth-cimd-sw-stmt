@@ -442,20 +442,25 @@ Expiry after presentation does not by itself invalidate an establishment already
 
 ### Refresh {#refresh}
 
-On refresh-token use, the authorization server proceeds as follows:
+The authorization server MAY, by local policy, require a current statement on refresh-token use, and SHOULD require one once the establishment's recorded statement has expired ({{enforcement-bounds}}). The recorded statement satisfies that requirement while it is current, even after a later statement has raised the `iat` floor of {{multi-instance}}. A server that uses a withdrawal mechanism for the recorded statement's issuer SHOULD consult it for that statement at each refresh.
 
-1. Proven key. The authorization server:
+On refresh-token use, the authorization server proceeds as follows. A refresh rejected at any step leaves the grant's state unchanged.
+
+1. Check the proven key. The authorization server:
 
    * MUST verify possession of the establishment's proven key under the same sender-constraint mechanism.
    * MUST, except for an establishment created under {{public-client-presentation}}, verify the document currently served at the establishment's `sub` still carries that key, in its `jwks` or at its `jwks_uri`, within the reuse bounds of {{retrieval}}.
 
-   If either check fails, including when the document does not carry the key, cannot be obtained, or exceeds the size bound of {{metadata-digest}}, the server rejects the refresh. It completes these checks before evaluating any replacement.
+   If either check fails, including when the document does not carry the key, cannot be obtained, or exceeds the size bound of {{metadata-digest}}, the server rejects the refresh. It completes these checks before considering any replacement.
 
-2. Need for a replacement. The authorization server MAY, by local policy, require a current statement, and SHOULD require one once the recorded statement has expired ({{enforcement-bounds}}). The recorded statement satisfies that requirement while it is current, even after a later statement has raised the `iat` floor of {{multi-instance}}. A server that uses a withdrawal mechanism for the recorded statement's issuer SHOULD consult it for that statement at each refresh. A replacement is needed when a refusal record covers the recorded statement, or when the server requires a current statement, by local policy or under a required issuer ({{issuer-trust}}), and the recorded statement has expired.
+2. Decide whether a replacement is needed. One is needed in either of the following cases, and otherwise none is, though the client can still offer one:
 
-3. Replacement. A client can offer a replacement on any refresh in the `software_statement` parameter. A statement with the recorded `iss` and `jti` is not a replacement and is rechecked as the recorded statement. When a replacement is needed and the request carries none, a server that supports pulled statements pulls, however the establishment was created, and takes as the replacement the newest statement with the recorded `iss` and `sub` among those {{pulled-statements}} considers. If that is the recorded statement, nothing is replaced. A reviewed grant never continues under the policy for clients the server has not reviewed.
+   * A refusal record covers the recorded statement.
+   * The recorded statement has expired, and the server requires a current statement, by local policy or because a required issuer ({{issuer-trust}}) covers the establishment's `sub` in its tenant.
 
-   The following requirements apply to any replacement:
+3. Obtain a replacement. A client can offer one on any refresh in the `software_statement` parameter. A statement with the recorded `iss` and `jti` is not a replacement and is rechecked as the recorded statement. When a replacement is needed and the request carries none, a server that supports pulled statements pulls, however the establishment was created, and takes as the replacement the newest statement with the recorded `iss` and `sub` among those {{pulled-statements}} considers. If that is the recorded statement, nothing is replaced. A refresh that needs a replacement and obtains none is rejected: a reviewed grant never continues under the policy for clients the server has not reviewed.
+
+4. Validate the replacement. The following requirements apply to any replacement, and a refresh whose replacement fails them is rejected even when none was needed:
 
    * It MUST validate under {{validation}}, including its audience if it carries one.
    * Its `iss` and `sub` MUST equal the recorded statement's.
@@ -463,11 +468,9 @@ On refresh-token use, the authorization server proceeds as follows:
    * Its `cimd_digest` MUST name the document currently served at that `sub`, which the server confirms by retrieval or by revalidating octets it holds.
    * It MUST authorize the establishment's proven key ({{sender-constraint}}) or, for an establishment created under {{public-client-presentation}}, name a document that still satisfies that section.
 
-4. Current statement. If the authorization server holds a refusal record for the recorded statement, it MUST reject a refresh without a replacement (step 3) satisfying this section, whatever its policy on requiring a current statement otherwise. If a required issuer ({{issuer-trust}}) covers the establishment's `sub` in the establishment's tenant, the server MUST reject a refresh unless the recorded statement or a replacement satisfying this section is a current statement from that issuer. A grant recorded under another issuer's statement cannot meet this, so its client opens a new grant by presentation.
+5. Enforce currency. If the authorization server holds a refusal record for the recorded statement, it MUST reject a refresh without an accepted replacement, whatever its policy on requiring a current statement otherwise. If a required issuer ({{issuer-trust}}) covers the establishment's `sub` in the establishment's tenant, the server MUST reject a refresh unless the recorded statement or an accepted replacement is a current statement from that issuer. A grant recorded under another issuer's statement cannot meet this, so its client opens a new grant by presentation.
 
-5. Access and update. The refreshed access MUST fall within the metadata of the document an accepted replacement names or, without one, the establishment's reviewed metadata. If a replacement is accepted, the refreshed grant's statement identity, `iat`, effective expiry, any claim by which a withdrawal mechanism locates the statement, reviewed metadata and the digest it matched, and trust decision become the replacement's ({{grant-state}}) in one atomic update, and concurrent replacements resolve to the most recently issued statement. Without one, the grant's state is unchanged.
-
-A refresh whose replacement fails step 3, even when none was needed, or that needs a replacement and obtains none, is rejected and leaves the grant's state unchanged.
+6. Bound access and update. The refreshed access MUST fall within the metadata of the document an accepted replacement names or, without one, the establishment's reviewed metadata. If a replacement is accepted, the refreshed grant's statement identity, `iat`, effective expiry, any claim by which a withdrawal mechanism locates the statement, reviewed metadata and the digest it matched, and trust decision become the replacement's ({{grant-state}}) in one atomic update, and concurrent replacements resolve to the most recently issued statement. Without one, the grant's state is unchanged.
 
 Refresh never rotates the establishment's key. A client that needs a new key performs a new presentation.
 
@@ -540,7 +543,7 @@ Under an establishment, a refresh-token request rejected for a reason this speci
 : A check of step 1 of {{refresh}} fails.
 
 `statement_required`:
-: A replacement fails step 3 of {{refresh}} or the `iat` floor, a needed replacement is not obtained, including when a completed pull yields none, or the refresh fails step 4. These cases use `statement_required` in place of `invalid_grant`.
+: A replacement fails step 4 of {{refresh}} or the `iat` floor, a needed replacement is not obtained in step 3, including when a completed pull yields none, or the refresh fails step 5. These cases use `statement_required` in place of `invalid_grant`.
 
 `unauthorized_client` or `invalid_scope`:
 : The refreshed access exceeds the reviewed metadata or this server's policy, as for a presentation.
