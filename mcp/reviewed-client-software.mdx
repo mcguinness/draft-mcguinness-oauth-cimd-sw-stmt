@@ -4,7 +4,7 @@ title: Reviewed Client Software
 
 <Info>**Status**: Draft</Info>
 
-<Note>This extension depends on draft-mcguinness-oauth-cimd-sw-stmt, cited here by its editor's copy until -00 is submitted. Its references will be pinned to that revision and to draft-ietf-oauth-client-id-metadata-document-02, and it will be proposed through the MCP SEP process.</Note>
+<Note>This extension depends on draft-mcguinness-oauth-cimd-sw-stmt, cited here by its editor's copy until -00 is submitted, and uses draft-mcguinness-oauth-cimd-sw-stmt-lifecycle for withdrawal. Its references will be pinned to that revision and to draft-ietf-oauth-client-id-metadata-document-02, and it will be proposed through the MCP SEP process.</Note>
 
 ## 1. Introduction
 
@@ -19,7 +19,7 @@ A review answers a question about software: who vouched for this client, and aga
 The benefits:
 
 - For MCP server operators, a client a trusted party has reviewed can be admitted without per-client onboarding, and a change to its document after review is detected rather than silently accepted.
-- For enterprise administrators, a security team, a client catalog, or a server vendor's marketplace can vouch for agent software once, and every MCP authorization server that trusts that reviewer honours the decision until it expires or is withdrawn.
+- For enterprise administrators, a security team, a client catalog, or a server vendor's marketplace can vouch for agent software once, and every MCP authorization server that trusts that reviewer honours the decision until it expires or, at a server implementing the lifecycle extension, is withdrawn.
 - For MCP client publishers, being reviewed requires publishing statements at a URL the client's own metadata document names. Most MCP clients change nothing; a public client with `https` redirection URIs that wants reviewed admission adds a DPoP key (Section 3.3).
 
 ### 1.2 Roles and Terminology
