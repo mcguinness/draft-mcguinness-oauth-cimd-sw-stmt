@@ -240,7 +240,7 @@ Resolution follows {{STATUSLIST}}. In particular:
 
 A server MUST NOT replace a Status List Token it holds with one whose `iat` claim is earlier, and MUST treat one whose `iat` claim is equal but whose contents differ as a resolution failure. A host serving an older token then cannot restore a status the issuer has withdrawn. Section 8.3 of {{STATUSLIST}} recommends rejecting a statement whose status the server cannot resolve. A statement the server accepts without a resolved status remains bounded by its effective expiry (Section 2 of {{STATEMENT}}).
 
-A server MUST obtain a Status List Token's verification keys from the `jwks_uri` metadata value of the issuer's authorization server metadata {{RFC8414}}, discovered from the configured `iss`, or, for an issuer that is not an authorization server, from the Status List key set URL recorded for it in trust configuration ({{token-status-list}}), and never from the Status List Token itself.
+A server MUST obtain a Status List Token's verification keys from the `jwks_uri` metadata value of the issuer's authorization server metadata {{RFC8414}}, discovered from the configured `iss`, or, for an issuer that is not an authorization server, from the Status List key set URL recorded for it in trust configuration ({{token-status-list}}), and never from the Status List Token itself. The server reuses a retrieved key set only as Section 5.3 of {{STATEMENT}} permits for a statement key set, so that a removed key stops verifying within the server's own bound.
 
 # Status Change Events {#shared-signals}
 
