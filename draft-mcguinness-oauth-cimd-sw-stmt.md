@@ -313,7 +313,7 @@ Presentation in an authorization request MUST use a pushed authorization request
 
 ## Pulled Statements {#pulled-statements}
 
-A client can publish its statements at a URL its document names instead of presenting one. An authorization server that supports pulled statements MAY retrieve them when it resolves the document of a client that presented no statement. Admission then follows {{processing}}, except that:
+A client can publish its statements at a URL its document names instead of presenting one. When a client opening a new grant presents no statement, at the token endpoint, the pushed authorization request endpoint, or the authorization endpoint, an authorization server that supports pulled statements MAY retrieve them. Admission then follows {{processing}}, except that:
 
 * The server chooses the statement ({{pull-selection}}).
 * If the pull yields no usable statement, the request proceeds as if the client had presented none ({{pull-selection}}).
