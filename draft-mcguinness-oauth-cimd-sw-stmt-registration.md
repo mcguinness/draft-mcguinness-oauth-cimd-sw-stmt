@@ -46,6 +46,14 @@ normative:
 
 informative:
   RFC7592:
+  LIFECYCLE:
+    target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle
+    title: "Client ID Metadata Document Software Statement Lifecycle"
+    author:
+      - fullname: Karl McGuinness
+    date: 2026-10
+    seriesinfo:
+      Internet-Draft: draft-mcguinness-oauth-cimd-sw-stmt-lifecycle-00
 
 --- abstract
 
@@ -136,7 +144,7 @@ An authorization server MAY register a client whose reviewed document declares `
 * MUST answer a later registration request with the existing registration if all of the following hold:
   * The request is in a tenant where the registration can be used.
   * The request's statement has the same `iss` and `sub` claims as the governing statement.
-  * That statement validates and is not superseded under the `iat` floor of Section 3.4 of {{STATEMENT}}.
+  * That statement validates, and its `iat` is no earlier than the governing statement's.
   * That statement is confined to no tenant other than one the registration is already restricted to.
 
 If those conditions hold and that statement's `iat` is later than the governing statement's, the server evaluates it as {{revalidation}} provides for a delivery, renewing the registration with it or rejecting the request ({{errors}}).
@@ -146,11 +154,11 @@ If those conditions hold and that statement's `iat` is later than the governing 
 An authorization server MUST apply the following validity model to every registration it creates from a statement validated under Section 3.2 of {{STATEMENT}}, whichever issuer signed it:
 
 * The registration's effective expiry (Section 2 of {{STATEMENT}}) is that of its governing statement, which the server identifies by the statement's `iss` and `jti` claims.
-* The registration is valid until that effective expiry. If the server holds a refusal record for the governing statement (Section 3.3 of {{STATEMENT}}), the registration ceases to be valid as it does at its effective expiry. The client learns of the withdrawal only from the rejection, and whether the server revokes access and refresh tokens already issued under the registration is local policy.
+* The registration is valid until that effective expiry. If an extension the server implements, such as {{LIFECYCLE}}, withdraws the governing statement, the registration ceases to be valid as it does at its effective expiry. The client learns of the withdrawal only from the rejection, and whether the server revokes access and refresh tokens already issued under the registration is local policy.
 * Once the registration ceases to be valid without a replacement ({{revalidation}}), the authorization server MUST reject authorization, token, and pushed authorization requests and {{RFC7592}} update requests under the registration, at step 4 of {{registration-requests}}.
 * The authorization server SHOULD retain a registration that has ceased to be valid for a later renewal ({{oracle-considerations}}).
 
-A server that uses a withdrawal mechanism for the governing statement's issuer SHOULD consult it for that statement at each token request under the registration, as Section 5.7.1 of {{STATEMENT}} provides for refresh.
+A server that uses a withdrawal mechanism ({{LIFECYCLE}}) for the governing statement's issuer SHOULD consult it for that statement at each token request under the registration.
 
 A server that records a required issuer for a tenant (Section 4 of {{STATEMENT}}) MUST reject an authorization, token, or pushed authorization request, or an {{RFC7592}} update request, in that tenant under any registration for software in a covered namespace unless, once any replacement the request delivers has been evaluated (step 3 of {{registration-requests}}), a current statement from the required issuer governs the registration. This rule applies whatever tenant the registration was created in and whenever the requirement was configured. Without this rule, withholding the required issuer's statement would keep such a registration in use after the issuer withdrew or stopped renewing its decision. A registration governed by another issuer's statement cannot satisfy the requirement.
 
@@ -189,21 +197,23 @@ A statement with the governing statement's `iss` and `sub` and an `iat` no later
 | --- | --- |
 | The governing statement itself, identified by its `iss` and `jti` | No replacement |
 | In an {{RFC7592}} update request, any statement with the governing statement's `iss` and `sub` and an `iat` no later than the governing statement's | No replacement |
-| At the token or pushed authorization request endpoint, any other statement with the governing statement's `iss` and `sub` and an earlier `iat` | Superseded under the `iat` floor of Section 3.4 of {{STATEMENT}}. The request is rejected |
+| At the token or pushed authorization request endpoint, any other statement with the governing statement's `iss` and `sub` and an earlier `iat` | Earlier than the governing statement. The request is rejected |
 | A statement with the governing statement's `iss` and `sub` and a later `iat` | A replacement, evaluated below |
 | Any other statement, such as one with another `iss` or `sub` | Fails the replacement rules below |
 
 An {{RFC7592}} update request repeats, unmodified, the statement that a registration, read, or update response returned (Section 3.2.1 of {{RFC7591}}; Section 2.2 of {{RFC7592}}), which can be older than the governing statement after a token or pushed authorization request has renewed the registration. An {{RFC7592}} read or update response returns the governing statement as its `software_statement` member.
 
-A request that carries no replacement leaves the registration unchanged, and the request proceeds only while the registration remains valid ({{registration-validity}}). While the registration is valid, its governing statement is current, even after a later statement has raised the `iat` floor of Section 3.4 of {{STATEMENT}}, and satisfies any requirement the server has for a current statement on refresh. When a request under an expired registration carries no replacement, its rejection ({{registration-validity}}) MUST NOT by itself cause the authorization server to revoke refresh tokens as it does on detecting refresh-token replay (Section 4.14.2 of {{RFC9700}}).
+A request that carries no replacement leaves the registration unchanged, and the request proceeds only while the registration remains valid ({{registration-validity}}). While the registration is valid, its governing statement is current, even if a later statement has since raised the `iat` floor of {{LIFECYCLE}}, and satisfies any requirement the server has for a current statement on refresh. When a request under an expired registration carries no replacement, its rejection ({{registration-validity}}) MUST NOT by itself cause the authorization server to revoke refresh tokens as it does on detecting refresh-token replay (Section 4.14.2 of {{RFC9700}}).
 
 The replacement MUST satisfy the following:
 
-* It validates under the validation rules of Section 3.2 of {{STATEMENT}}, including its audience if it carries one, and is not superseded under the `iat` floor of Section 3.4 of {{STATEMENT}}.
+* It validates under the validation rules of Section 3.2 of {{STATEMENT}}, including its audience if it carries one.
 * The `iss` and `sub` claims equal those of the governing statement.
 * The `iat` claim is later than that of the governing statement.
 * Its document declares `token_endpoint_auth_method` of `none` if and only if the governing statement's document does.
 * For a public-client registration that carries no tenant restriction, its decision is not confined to a tenant ({{dcr-presentation}}).
+
+A server that implements {{LIFECYCLE}} also rejects a replacement that its `iat` floor supersedes.
 
 For a replacement, the authorization server MUST derive the registration's metadata from the document the replacement reviews, under the rules of {{dcr-presentation}}. Renewing on the statement alone would leave in the registration a key, redirection URI, or scope that the new review removed.
 
@@ -222,7 +232,7 @@ One unexpired statement can be consumed more than once, subject to the bounds Se
 A rejection this specification defines, at a client registration endpoint or at the client configuration endpoint of {{RFC7592}}, uses the error response of Section 3.2.2 of {{RFC7591}}, with the HTTP status code that section specifies, except that an authorization server SHOULD respond with HTTP status code 503 to a request it rejects with the `temporarily_unavailable` error code. Such a rejection uses the following error codes:
 
 `invalid_software_statement`:
-: The statement is malformed, fails signature or claim validation for a reason `unapproved_software_statement` does not cover, or is expired, refused by a refusal record, or superseded under the `iat` floor of Section 3.4 of {{STATEMENT}}. The code also applies to a `cimd_digest` mismatch ({{dcr-presentation}}), to an {{RFC7592}} update request rejected under {{registration-validity}}, and to a replacement delivered at the client configuration endpoint, or a statement in a repeated public-client registration request evaluated as a replacement ({{public-client-registration}}), when it fails a replacement-specific rule of {{revalidation}} that this section assigns no other code, such as a change in whether the document declares `token_endpoint_auth_method` of `none`.
+: The statement is malformed, fails signature or claim validation for a reason `unapproved_software_statement` does not cover, or is expired, or is withdrawn or superseded under an extension the server implements, such as {{LIFECYCLE}}. The code also applies to a `cimd_digest` mismatch ({{dcr-presentation}}), to an {{RFC7592}} update request rejected under {{registration-validity}}, and to a replacement delivered at the client configuration endpoint, or a statement in a repeated public-client registration request evaluated as a replacement ({{public-client-registration}}), when it fails a replacement-specific rule of {{revalidation}} that this section assigns no other code, such as a change in whether the document declares `token_endpoint_auth_method` of `none`.
 
 `unapproved_software_statement`:
 : The statement is valid but not acceptable here: its issuer is not configured, its `aud` excludes this server, its `sub` is outside the client identifier namespaces the issuer can attest, its `aud_tenant` is not this request's tenant or is absent when required, its issuer is confined to another tenant, or its `statement_uses` excludes this use. This code is also used if a statement this server requires is absent from a registration request.
@@ -242,7 +252,7 @@ A rejection this specification defines, at a client registration endpoint or at 
 `temporarily_unavailable`:
 : A retrieval the request needs did not complete, for a reason other than the size bound of Section 3.1 of {{STATEMENT}}.
 
-Rejections at other endpoints use the error responses of Section 7 of {{STATEMENT}}. At the token, pushed authorization request, and authorization endpoints, rejections take the following form under a statement-governed registration that is not valid, under the required-issuer rule ({{registration-validity}}), and for a delivered statement superseded or failing the replacement rules ({{revalidation}}):
+Rejections at other endpoints use the error responses of Section 7 of {{STATEMENT}}. At the token, pushed authorization request, and authorization endpoints, rejections take the following form under a statement-governed registration that is not valid, under the required-issuer rule ({{registration-validity}}), and for a delivered statement that is earlier than the governing statement or fails the replacement rules ({{revalidation}}):
 
 * At the token and pushed authorization request endpoints, the request is authenticated as step 2 of {{registration-requests}} provides, before any statement it delivers is evaluated, and a request that fails that authentication is rejected with `invalid_client`, as for an unknown client. Otherwise the request is rejected with `statement_required` (Section 7.1 of {{STATEMENT}}), or with `temporarily_unavailable` if a retrieval needed to check the replacement did not complete for a reason other than the size bound of Section 3.1 of {{STATEMENT}}.
 * An authorization request is rejected with `statement_required` in the authorization error response (Section 4.1.2.1 of {{RFC6749}}), or with `invalid_request` if it carries the `software_statement` parameter, as Section 7.4 of {{STATEMENT}} provides. The authorization server redirects with the error only after validating the request's `redirect_uri` against the registration. If the `redirect_uri` does not validate against the registration, the authorization server MUST NOT redirect and reports the error to the resource owner instead.
@@ -318,7 +328,7 @@ Requiring a statement also means a removed client cannot register again under a 
 
 ## Observable State {#oracle-considerations}
 
-A retained expired registration is distinguishable from an unknown client ({{registration-requests}}, {{errors}}). At the token and pushed authorization request endpoints, only a requester that authenticates as the registration's client can observe this, except for a public-client registration. At the authorization endpoint, anyone who sends an authorization request naming the client and one of its registered redirection URIs learns of the lapse from the `statement_required` redirection. If an observer knows the governing statement's `exp`, a lapse before it shows that the server either holds a refusal record for the statement or caps the lifetime it honors for the issuer.
+A retained expired registration is distinguishable from an unknown client ({{registration-requests}}, {{errors}}). At the token and pushed authorization request endpoints, only a requester that authenticates as the registration's client can observe this, except for a public-client registration. At the authorization endpoint, anyone who sends an authorization request naming the client and one of its registered redirection URIs learns of the lapse from the `statement_required` redirection. If an observer knows the governing statement's `exp`, a lapse before it shows that the server either has withdrawn the statement under an extension such as {{LIFECYCLE}} or caps the lifetime it honors for the issuer.
 
 These disclosures are accepted because a client that cannot learn why it was refused cannot act. Beyond a lapse and its timing, they reveal nothing of the server's issuer trust configuration (Section 7.6 of {{STATEMENT}}). Publishing `software_statement_registration_validity_supported` discloses that statement-governed registrations expire there, which a client needs to know before registering.
 
