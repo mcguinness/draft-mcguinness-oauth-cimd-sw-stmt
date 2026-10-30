@@ -73,6 +73,7 @@ Table of Contents
    7.  Authorization Server Metadata
    8.  Deployment Considerations
      8.1.  Renewal Cadence
+     8.2.  Default Registration Policy
    9.  Security Considerations
      9.1.  Statements at Registration
      9.2.  Credential Theft and Renewal
@@ -245,10 +246,9 @@ Table of Contents
    If the statement's decision is confined to one of the authorization
    server's tenants, by its aud_tenant claim or by the server's trust
    configuration for its issuer (Section 4 of [STATEMENT]), the
-   authorization server MUST record that tenant with the registration.
-   Otherwise the registration carries no tenant restriction under this
-   specification.  A replacement (Section 3.4) determines the
-   restriction as follows:
+   registration is restricted to that tenant.  Otherwise it carries no
+   tenant restriction under this specification.  A replacement
+   (Section 3.4) determines the restriction as follows:
 
    +========================+=========================+===============+
    | Registration before    | Replacement's decision  | After         |
@@ -332,10 +332,9 @@ Table of Contents
    every registration it creates from a statement validated under
    Section 3.2 of [STATEMENT], whichever issuer signed it:
 
-   *  The authorization server MUST bind the registration to its
-      governing statement, identified by the statement's iss and jti
-      claims.  The registration's effective expiry is the governing
-      statement's effective expiry (Section 2 of [STATEMENT]).
+   *  The registration's effective expiry (Section 2 of [STATEMENT]) is
+      that of its governing statement, which the server identifies by
+      the statement's iss and jti claims.
 
    *  The registration is valid until that effective expiry.  If the
       server holds a refusal record for the governing statement
@@ -539,13 +538,12 @@ Table of Contents
 
    One unexpired statement can be consumed more than once, subject to
    the bounds Sections 11.2 and 11.3 of [STATEMENT] describe and the
-   server's registration policy.  The safe default is one registration
-   per (iss, sub) at one authorization server.  On repeated consumption,
-   except for a public-client registration, local policy can reject the
-   request, treat it as idempotent, or create another registration.  A
-   repeated public-client registration is answered with the existing
-   registration as Section 3.1 provides.  An idempotent response MUST
-   NOT return the existing registration's credentials, such as its
+   server's registration policy.  On repeated consumption, except for a
+   public-client registration, local policy can reject the request,
+   treat it as idempotent, or create another registration.  A repeated
+   public-client registration is answered with the existing registration
+   as Section 3.1 provides.  An idempotent response MUST NOT return the
+   existing registration's credentials, such as its
    registration_access_token member.
 
 5.  Error Responses
@@ -692,6 +690,11 @@ Table of Contents
    before effective expiry, and ought to weigh that cadence against how
    quickly a narrowed or withdrawn review needs to take effect.
 
+8.2.  Default Registration Policy
+
+   The safe default for the registration policy of Section 4 is one
+   registration per (iss, sub) at one authorization server.
+
 9.  Security Considerations
 
    The security considerations in Section 13 of [STATEMENT] and
@@ -704,7 +707,7 @@ Table of Contents
    (Section 3 of [STATEMENT]) and the registration policy of Section 4
    limit what a stolen statement can create.
 
-   Under the one-registration default (Section 4), whoever first
+   Under the one-registration default (Section 8.2), whoever first
    registers with a copy of a statement holds that registration and its
    registration access token, and can keep the software's publisher from
    registering at that server.  Such a holder cannot authenticate as the
