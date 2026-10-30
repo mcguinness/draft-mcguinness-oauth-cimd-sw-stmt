@@ -207,7 +207,7 @@ A server MUST NOT compare a digest against any representation other than one it 
 
 Before accepting a statement, a trusting authorization server MUST ensure the following:
 
-* The `typ` JOSE header parameter has the value `software-statement+jwt`.
+* The `typ` JOSE header parameter has the value `software-statement+jwt`, and the `kid` header parameter is present.
 * The signature verifies under a key trusted for the exact `iss` value, obtained as {{issuer-trust}} requires.
 * Every required claim of {{profiles}} is present and of the correct type.
 * The statement is not expired, and its `iat` is not unreasonably far in the future according to the server's clock-skew policy.
