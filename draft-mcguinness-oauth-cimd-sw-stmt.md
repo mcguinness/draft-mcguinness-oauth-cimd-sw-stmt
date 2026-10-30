@@ -422,7 +422,7 @@ A token request that redeems an authorization code opened by a presentation:
 * MUST demonstrate possession of the establishment's proven key under the same sender-constraint mechanism or, for a confidential client whose statement was pulled at the authorization endpoint ({{pulled-statements}}), authenticate with the key that becomes the proven key.
 * MUST NOT carry the `software_statement` parameter.
 
-A redemption that carries a statement, has a wrong client identifier, or fails the key binding is rejected. The prohibition on carrying a statement covers redemption of a code bound to an establishment. A registered client redeeming its own code can deliver a replacement statement under {{REGISTRATION}}, which that specification calls a delivery and which is not a presentation.
+A redemption that carries a statement, has a wrong client identifier, or fails the key binding is rejected. The prohibition on carrying a statement covers redemption of a code bound to an establishment.
 
 ### Refresh {#refresh}
 
