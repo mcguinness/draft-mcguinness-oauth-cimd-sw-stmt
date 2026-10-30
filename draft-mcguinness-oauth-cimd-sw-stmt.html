@@ -2028,9 +2028,21 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
       <h2 id="name-error-responses">
 <a href="#section-7" class="section-number selfRef">7. </a><a href="#name-error-responses" class="section-name selfRef">Error Responses</a>
       </h2>
-<p id="section-7-1">A rejection uses the error response and HTTP status codes of its endpoint: Section 5.2 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> at the token endpoint, Section 2.3 of <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span> at the pushed authorization request endpoint, and Section 4.1.2.1 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> at the authorization endpoint.<a href="#section-7-1" class="pilcrow">¶</a></p>
-<p id="section-7-2">At the token and pushed authorization request endpoints, an authorization server <span class="bcp14">SHOULD</span> respond with HTTP status code 503 to a request it rejects with the <code>temporarily_unavailable</code> error code. <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span> defines rejections at a registration endpoint and how registration validity is reported.<a href="#section-7-2" class="pilcrow">¶</a></p>
-<p id="section-7-3">This specification assigns <code>temporarily_unavailable</code> only to a retrieval that did not complete (<a href="#retrieval" class="auto internal xref">Section 5.3</a>), never to a response over the size bound of <a href="#metadata-digest" class="auto internal xref">Section 3.1</a>. A request carrying the <code>software_statement</code> parameter in a role <a href="#runtime-presentation" class="auto internal xref">Section 5.4</a> does not permit is rejected with <code>invalid_request</code>.<a href="#section-7-3" class="pilcrow">¶</a></p>
+<p id="section-7-1">A rejection uses the error response and HTTP status codes of its endpoint: Section 5.2 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> at the token endpoint, Section 2.3 of <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span> at the pushed authorization request endpoint, and Section 4.1.2.1 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> at the authorization endpoint. <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span> defines rejections at a registration endpoint and how registration validity is reported.<a href="#section-7-1" class="pilcrow">¶</a></p>
+<p id="section-7-2">A rejection for a reason this specification defines uses the first of the following error codes that applies:<a href="#section-7-2" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-7-3">
+<li id="section-7-3.1">
+          <p id="section-7-3.1.1"><code>invalid_request</code>, if the request carries the <code>software_statement</code> parameter in a role <a href="#runtime-presentation" class="auto internal xref">Section 5.4</a> does not permit.<a href="#section-7-3.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li id="section-7-3.2">
+          <p id="section-7-3.2.1"><code>temporarily_unavailable</code>, if a retrieval the request needs did not complete (<a href="#retrieval" class="auto internal xref">Section 5.3</a>), including a pull of statements (<a href="#pulled-statements" class="auto internal xref">Section 5.5</a>) or the retrieval of a statement key set needed to verify a pulled statement. A response over the size bound of <a href="#metadata-digest" class="auto internal xref">Section 3.1</a> is not such a retrieval.<a href="#section-7-3.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li id="section-7-3.3">
+          <p id="section-7-3.3.1">The code that <a href="#presentation-errors" class="auto internal xref">Section 7.2</a>, <a href="#continuation-errors" class="auto internal xref">Section 7.3</a>, or <a href="#authorization-errors" class="auto internal xref">Section 7.4</a> assigns.<a href="#section-7-3.3.1" class="pilcrow">¶</a></p>
+</li>
+      </ol>
+<p id="section-7-4">At the token and pushed authorization request endpoints, an authorization server <span class="bcp14">SHOULD</span> respond with HTTP status code 503 to a request it rejects with the <code>temporarily_unavailable</code> error code.<a href="#section-7-4" class="pilcrow">¶</a></p>
+<p id="section-7-5">A rejection for another reason, such as an assertion grant whose assertion is invalid (Section 3.1 of <span>[<a href="#RFC7523" class="cite xref">RFC7523</a>]</span>) or an expired or revoked refresh token, uses the error code its grant or endpoint assigns. An extension such as <span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span> assigns codes to the rejections it defines.<a href="#section-7-5" class="pilcrow">¶</a></p>
 <div id="statement-required">
 <section id="section-7.1">
         <h3 id="name-statement-required-error">
@@ -2052,7 +2064,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         <h3 id="name-presentation-requests">
 <a href="#section-7.2" class="section-number selfRef">7.2. </a><a href="#name-presentation-requests" class="section-name selfRef">Presentation Requests</a>
         </h3>
-<p id="section-7.2-1">A presentation rejected at the token or pushed authorization request endpoint for a reason this specification defines uses <code>temporarily_unavailable</code> if a retrieval it needs, including a pull of statements (<a href="#pulled-statements" class="auto internal xref">Section 5.5</a>), did not complete, and otherwise the following error codes:<a href="#section-7.2-1" class="pilcrow">¶</a></p>
+<p id="section-7.2-1">A presentation at the token or pushed authorization request endpoint is rejected with the following error codes:<a href="#section-7.2-1" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-7.2-2">
           <dt id="section-7.2-2.1">
 <code>invalid_client</code>:</dt>
@@ -2083,7 +2095,21 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <dt id="section-7.2-2.5">
 <code>unauthorized_client</code>:</dt>
           <dd style="margin-left: 1.5em" id="section-7.2-2.6">
-            <p id="section-7.2-2.6.1">The request exceeds the reviewed document's grant types or response types (<a href="#effective-metadata" class="auto internal xref">Section 5.2</a>), the document carries metadata this server's policy refuses, or the client is review-only where policy or a required issuer requires reviewed software (<a href="#review-only" class="auto internal xref">Section 5.6.3</a>), or the request is for software a required issuer excludes from the tenant (<a href="#issuer-trust" class="auto internal xref">Section 4</a>), in place of <code>statement_required</code>.<a href="#section-7.2-2.6.1" class="pilcrow">¶</a></p>
+            <p id="section-7.2-2.6.1">Any of the following, in place of <code>statement_required</code> if both apply:<a href="#section-7.2-2.6.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-7.2-2.6.2.1">
+                <p id="section-7.2-2.6.2.1.1">The request exceeds the reviewed document's grant types or response types (<a href="#effective-metadata" class="auto internal xref">Section 5.2</a>).<a href="#section-7.2-2.6.2.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-7.2-2.6.2.2">
+                <p id="section-7.2-2.6.2.2.1">The document carries metadata this server's policy refuses.<a href="#section-7.2-2.6.2.2.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-7.2-2.6.2.3">
+                <p id="section-7.2-2.6.2.3.1">The client is review-only where policy or a required issuer requires reviewed software (<a href="#review-only" class="auto internal xref">Section 5.6.3</a>).<a href="#section-7.2-2.6.2.3.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-7.2-2.6.2.4">
+                <p id="section-7.2-2.6.2.4.1">The request is for software a required issuer excludes from the tenant (<a href="#issuer-trust" class="auto internal xref">Section 4</a>).<a href="#section-7.2-2.6.2.4.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
 </dd>
           <dd class="break"></dd>
 <dt id="section-7.2-2.7">
@@ -2099,7 +2125,6 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 </dd>
         <dd class="break"></dd>
 </dl>
-<p id="section-7.2-3">A request rejected for another reason, such as an assertion grant whose assertion is invalid (Section 3.1 of <span>[<a href="#RFC7523" class="cite xref">RFC7523</a>]</span>), uses the error code its grant or endpoint assigns.<a href="#section-7.2-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="continuation-errors">
@@ -2107,24 +2132,37 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         <h3 id="name-code-redemption-and-refresh">
 <a href="#section-7.3" class="section-number selfRef">7.3. </a><a href="#name-code-redemption-and-refresh" class="section-name selfRef">Code Redemption and Refresh</a>
         </h3>
-<p id="section-7.3-1">Under an establishment, code redemption (<a href="#grant-lifecycle" class="auto internal xref">Section 5.7</a>) is rejected with <code>invalid_request</code> if it carries a statement, <code>invalid_grant</code> for a wrong client identifier or failed key binding, and <code>invalid_client</code> at the bound on establishments (<a href="#establishment-bounds" class="auto internal xref">Section 11.3</a>).<a href="#section-7.3-1" class="pilcrow">¶</a></p>
-<p id="section-7.3-2">Under an establishment, a refresh-token request rejected for a reason this specification defines uses <code>temporarily_unavailable</code> if a retrieval it needs did not complete, and otherwise the following error codes:<a href="#section-7.3-2" class="pilcrow">¶</a></p>
-<span class="break"></span><dl class="dlParallel" id="section-7.3-3">
-          <dt id="section-7.3-3.1">
+<p id="section-7.3-1">Under an establishment, code redemption (<a href="#grant-lifecycle" class="auto internal xref">Section 5.7</a>) is rejected with the following error codes:<a href="#section-7.3-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-7.3-2">
+          <dt id="section-7.3-2.1">
 <code>invalid_grant</code>:</dt>
-          <dd style="margin-left: 1.5em" id="section-7.3-3.2">
-            <p id="section-7.3-3.2.1">A check of <a href="#refresh" class="auto internal xref">Section 5.7.1</a> fails.<a href="#section-7.3-3.2.1" class="pilcrow">¶</a></p>
+          <dd style="margin-left: 1.5em" id="section-7.3-2.2">
+            <p id="section-7.3-2.2.1">The request has a wrong client identifier or fails the key binding.<a href="#section-7.3-2.2.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-7.3-3.3">
-<code>unauthorized_client</code> or <code>invalid_scope</code>:</dt>
-          <dd style="margin-left: 1.5em" id="section-7.3-3.4">
-            <p id="section-7.3-3.4.1">The refreshed access exceeds the reviewed metadata or this server's policy, as for a presentation.<a href="#section-7.3-3.4.1" class="pilcrow">¶</a></p>
+<dt id="section-7.3-2.3">
+<code>invalid_client</code>:</dt>
+          <dd style="margin-left: 1.5em" id="section-7.3-2.4">
+            <p id="section-7.3-2.4.1">The bound on establishments is reached (<a href="#establishment-bounds" class="auto internal xref">Section 11.3</a>).<a href="#section-7.3-2.4.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
-<p id="section-7.3-4">An extension such as <span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span> assigns codes to the refresh rejections it defines.<a href="#section-7.3-4" class="pilcrow">¶</a></p>
-<p id="section-7.3-5">None of these rejections indicates refresh-token replay (<span>[<a href="#RFC9700" class="cite xref">RFC9700</a>]</span>), whose detection this specification does not change. A refresh-token request rejected for another reason, such as an expired or revoked refresh token, uses the error codes of Section 5.2 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>.<a href="#section-7.3-5" class="pilcrow">¶</a></p>
+<p id="section-7.3-3">Under an establishment, a refresh-token request is rejected with the following error codes:<a href="#section-7.3-3" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-7.3-4">
+          <dt id="section-7.3-4.1">
+<code>invalid_grant</code>:</dt>
+          <dd style="margin-left: 1.5em" id="section-7.3-4.2">
+            <p id="section-7.3-4.2.1">A check of <a href="#refresh" class="auto internal xref">Section 5.7.1</a> fails.<a href="#section-7.3-4.2.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-7.3-4.3">
+<code>unauthorized_client</code> or <code>invalid_scope</code>:</dt>
+          <dd style="margin-left: 1.5em" id="section-7.3-4.4">
+            <p id="section-7.3-4.4.1">The refreshed access exceeds the reviewed metadata or this server's policy, as for a presentation.<a href="#section-7.3-4.4.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
+<p id="section-7.3-5">None of these rejections indicates refresh-token replay (<span>[<a href="#RFC9700" class="cite xref">RFC9700</a>]</span>), whose detection this specification does not change.<a href="#section-7.3-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="authorization-errors">
@@ -2141,20 +2179,13 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 </dd>
           <dd class="break"></dd>
 <dt id="section-7.4-2.3">
-<code>temporarily_unavailable</code>:</dt>
-          <dd style="margin-left: 1.5em" id="section-7.4-2.4">
-            <p id="section-7.4-2.4.1">A pull of statements (<a href="#pulled-statements" class="auto internal xref">Section 5.5</a>), or the retrieval of a statement key set needed to verify a pulled statement, did not complete (<a href="#retrieval" class="auto internal xref">Section 5.3</a>).<a href="#section-7.4-2.4.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-7.4-2.5">
 <code>statement_required</code>:</dt>
-          <dd style="margin-left: 1.5em" id="section-7.4-2.6">
-            <p id="section-7.4-2.6.1">In any other case, the authorization server <span class="bcp14">MUST</span> return this code.<a href="#section-7.4-2.6.1" class="pilcrow">¶</a></p>
+          <dd style="margin-left: 1.5em" id="section-7.4-2.4">
+            <p id="section-7.4-2.4.1">In any other case, the authorization server <span class="bcp14">MUST</span> return this code.<a href="#section-7.4-2.4.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
-<p id="section-7.4-3">The authorization server redirects with the error only after resolving the client's CIMD and validating the request's <code>redirect_uri</code> against it. If the authorization server cannot resolve the document, it <span class="bcp14">MUST NOT</span> redirect, and it reports the error to the resource owner instead.<a href="#section-7.4-3" class="pilcrow">¶</a></p>
-<p id="section-7.4-4">An authorization request carrying the <code>software_statement</code> parameter (<a href="#authorization-requests" class="auto internal xref">Section 5.4.2</a>) is rejected with <code>invalid_request</code> in place of any other code of this section. The authorization server redirects with that error only after validating the request's <code>redirect_uri</code>: against the CIMD as the preceding paragraph requires or, for a registered client, against its registered redirection URIs (Section 4.1.2.1 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>).<a href="#section-7.4-4" class="pilcrow">¶</a></p>
+<p id="section-7.4-3">The authorization server redirects with an error only after validating the request's <code>redirect_uri</code>: against the client's CIMD, which it resolves first, or, for a registered client, against its registered redirection URIs (Section 4.1.2.1 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>). If the authorization server cannot resolve a CIMD client's document, it <span class="bcp14">MUST NOT</span> redirect, and it reports the error to the resource owner instead.<a href="#section-7.4-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="proof-errors">
@@ -2912,7 +2943,7 @@ client-assertion-type%3Ajwt-bearer
 <dd class="break"></dd>
 <dt id="IDJAG">[IDJAG]</dt>
         <dd>
-<span class="refAuthor">Parecki, A.</span>, <span class="refAuthor">McGuinness, K.</span>, and <span class="refAuthor">B. Campbell</span>, <span class="refTitle">"Identity Assertion JWT Authorization Grant"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-identity-assertion-authz-grant-04</span>, <time datetime="2026-05-21" class="refDate">21 May 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-identity-assertion-authz-grant-04">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-identity-assertion-authz-grant-04</a>&gt;</span>. </dd>
+<span class="refAuthor">Parecki, A.</span>, <span class="refAuthor">McGuinness, K.</span>, and <span class="refAuthor">B. Campbell</span>, <span class="refTitle">"Identity Assertion JWT Authorization Grant"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-identity-assertion-authz-grant-05</span>, <time datetime="2026-10-30" class="refDate">30 October 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-identity-assertion-authz-grant-05">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-identity-assertion-authz-grant-05</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC2119">[RFC2119]</dt>
         <dd>

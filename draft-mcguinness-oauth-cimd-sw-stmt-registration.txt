@@ -634,7 +634,7 @@ Table of Contents
    *  An authorization request is rejected with statement_required in
       the authorization error response (Section 4.1.2.1 of [RFC6749]),
       or with invalid_request if it carries the software_statement
-      parameter, as Section 7.4 of [STATEMENT] provides.  The
+      parameter, as Section 7 of [STATEMENT] provides.  The
       authorization server redirects with the error only after
       validating the request's redirect_uri against the registration.
       If the redirect_uri does not validate against the registration,

@@ -1006,18 +1006,32 @@ Table of Contents
    endpoint: Section 5.2 of [RFC6749] at the token endpoint, Section 2.3
    of [RFC9126] at the pushed authorization request endpoint, and
    Section 4.1.2.1 of [RFC6749] at the authorization endpoint.
+   [REGISTRATION] defines rejections at a registration endpoint and how
+   registration validity is reported.
+
+   A rejection for a reason this specification defines uses the first of
+   the following error codes that applies:
+
+   1.  invalid_request, if the request carries the software_statement
+       parameter in a role Section 5.4 does not permit.
+
+   2.  temporarily_unavailable, if a retrieval the request needs did not
+       complete (Section 5.3), including a pull of statements
+       (Section 5.5) or the retrieval of a statement key set needed to
+       verify a pulled statement.  A response over the size bound of
+       Section 3.1 is not such a retrieval.
+
+   3.  The code that Section 7.2, Section 7.3, or Section 7.4 assigns.
 
    At the token and pushed authorization request endpoints, an
    authorization server SHOULD respond with HTTP status code 503 to a
    request it rejects with the temporarily_unavailable error code.
-   [REGISTRATION] defines rejections at a registration endpoint and how
-   registration validity is reported.
 
-   This specification assigns temporarily_unavailable only to a
-   retrieval that did not complete (Section 5.3), never to a response
-   over the size bound of Section 3.1.  A request carrying the
-   software_statement parameter in a role Section 5.4 does not permit is
-   rejected with invalid_request.
+   A rejection for another reason, such as an assertion grant whose
+   assertion is invalid (Section 3.1 of [RFC7523]) or an expired or
+   revoked refresh token, uses the error code its grant or endpoint
+   assigns.  An extension such as [LIFECYCLE] assigns codes to the
+   rejections it defines.
 
 7.1.  Statement Required Error
 
@@ -1031,11 +1045,8 @@ Table of Contents
 
 7.2.  Presentation Requests
 
-   A presentation rejected at the token or pushed authorization request
-   endpoint for a reason this specification defines uses
-   temporarily_unavailable if a retrieval it needs, including a pull of
-   statements (Section 5.5), did not complete, and otherwise the
-   following error codes:
+   A presentation at the token or pushed authorization request endpoint
+   is rejected with the following error codes:
 
    invalid_client:  Any of the following:
 
@@ -1059,13 +1070,19 @@ Table of Contents
       required statement is absent, including one from an issuer
       required for the tenant (Section 4).
 
-   unauthorized_client:  The request exceeds the reviewed document's
-      grant types or response types (Section 5.2), the document carries
-      metadata this server's policy refuses, or the client is review-
-      only where policy or a required issuer requires reviewed software
-      (Section 5.6.3), or the request is for software a required issuer
-      excludes from the tenant (Section 4), in place of
-      statement_required.
+   unauthorized_client:  Any of the following, in place of
+      statement_required if both apply:
+
+      *  The request exceeds the reviewed document's grant types or
+         response types (Section 5.2).
+
+      *  The document carries metadata this server's policy refuses.
+
+      *  The client is review-only where policy or a required issuer
+         requires reviewed software (Section 5.6.3).
+
+      *  The request is for software a required issuer excludes from the
+         tenant (Section 4).
 
    invalid_scope:  The request exceeds the reviewed document's scope
       (Section 5.2), or the document carries a scope this server's
@@ -1073,21 +1090,19 @@ Table of Contents
 
    invalid_request:  The request omits client_id (Section 5.4).
 
-   A request rejected for another reason, such as an assertion grant
-   whose assertion is invalid (Section 3.1 of [RFC7523]), uses the error
-   code its grant or endpoint assigns.
-
 7.3.  Code Redemption and Refresh
 
    Under an establishment, code redemption (Section 5.7) is rejected
-   with invalid_request if it carries a statement, invalid_grant for a
-   wrong client identifier or failed key binding, and invalid_client at
-   the bound on establishments (Section 11.3).
+   with the following error codes:
 
-   Under an establishment, a refresh-token request rejected for a reason
-   this specification defines uses temporarily_unavailable if a
-   retrieval it needs did not complete, and otherwise the following
-   error codes:
+   invalid_grant:  The request has a wrong client identifier or fails
+      the key binding.
+
+   invalid_client:  The bound on establishments is reached
+      (Section 11.3).
+
+   Under an establishment, a refresh-token request is rejected with the
+   following error codes:
 
    invalid_grant:  A check of Section 5.7.1 fails.
 
@@ -1095,13 +1110,8 @@ Table of Contents
       the reviewed metadata or this server's policy, as for a
       presentation.
 
-   An extension such as [LIFECYCLE] assigns codes to the refresh
-   rejections it defines.
-
    None of these rejections indicates refresh-token replay ([RFC9700]),
-   whose detection this specification does not change.  A refresh-token
-   request rejected for another reason, such as an expired or revoked
-   refresh token, uses the error codes of Section 5.2 of [RFC6749].
+   whose detection this specification does not change.
 
 7.4.  Authorization Requests
 
@@ -1114,26 +1124,15 @@ Table of Contents
    unauthorized_client:  The client is review-only (Section 5.6.3), or a
       required issuer excludes the software from the tenant (Section 4).
 
-   temporarily_unavailable:  A pull of statements (Section 5.5), or the
-      retrieval of a statement key set needed to verify a pulled
-      statement, did not complete (Section 5.3).
-
    statement_required:  In any other case, the authorization server MUST
       return this code.
 
-   The authorization server redirects with the error only after
-   resolving the client's CIMD and validating the request's redirect_uri
-   against it.  If the authorization server cannot resolve the document,
-   it MUST NOT redirect, and it reports the error to the resource owner
-   instead.
-
-   An authorization request carrying the software_statement parameter
-   (Section 5.4.2) is rejected with invalid_request in place of any
-   other code of this section.  The authorization server redirects with
-   that error only after validating the request's redirect_uri: against
-   the CIMD as the preceding paragraph requires or, for a registered
-   client, against its registered redirection URIs (Section 4.1.2.1 of
-   [RFC6749]).
+   The authorization server redirects with an error only after
+   validating the request's redirect_uri: against the client's CIMD,
+   which it resolves first, or, for a registered client, against its
+   registered redirection URIs (Section 4.1.2.1 of [RFC6749]).  If the
+   authorization server cannot resolve a CIMD client's document, it MUST
+   NOT redirect, and it reports the error to the resource owner instead.
 
 7.5.  Proof Mechanism Errors
 
@@ -1820,9 +1819,9 @@ Table of Contents
    [IDJAG]    Parecki, A., McGuinness, K., and B. Campbell, "Identity
               Assertion JWT Authorization Grant", Work in Progress,
               Internet-Draft, draft-ietf-oauth-identity-assertion-authz-
-              grant-04, 21 May 2026,
+              grant-05, 30 October 2026,
               <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
-              identity-assertion-authz-grant-04>.
+              identity-assertion-authz-grant-05>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,

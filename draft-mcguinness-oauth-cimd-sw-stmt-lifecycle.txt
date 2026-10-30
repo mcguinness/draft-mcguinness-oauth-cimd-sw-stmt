@@ -424,8 +424,8 @@ Table of Contents
    Under an establishment, a refresh-token request rejected for a reason
    this specification defines uses temporarily_unavailable if a
    retrieval it needs did not complete, including a pull of a
-   replacement, as Section 7.3 of [STATEMENT] provides, and otherwise
-   the following error codes:
+   replacement, as Section 7 of [STATEMENT] provides, and otherwise the
+   following error codes:
 
    statement_required:  A replacement fails step 3 of Section 5.2 or the
       iat floor, a needed replacement is not obtained in step 2,
