@@ -117,7 +117,7 @@ Runtime Presentation:
 : The consumption of a validated software statement presented in a token request or pushed authorization request, or pulled from where the client's document points ({{pulled-statements}}), without creating a client registration.
 
 Admission:
-: A trusting authorization server's acceptance of a client for a request or a registration, either on a valid statement, at request time ({{processing}}) or under {{REGISTRATION}} at registration, after which the client's requests are evaluated against the reviewed metadata, or under the server's policy for clients it has not reviewed.
+: A trusting authorization server's acceptance of a client for a request or a registration: on a valid statement (at request time ({{processing}}) or at registration ({{REGISTRATION}})), after which its requests are evaluated against the reviewed metadata, or under the server's policy for clients it has not reviewed.
 
 Establishment:
 : The state a successful runtime presentation creates for the grant it opens, or that a replacement accepted on refresh gives that grant, enumerated in {{grant-lifecycle}}.
@@ -281,7 +281,7 @@ For a runtime presentation, the authorization server proceeds as follows, reject
 1. Obtain the statement, presented in the request ({{runtime-presentation}}) or pulled ({{pulled-statements}}).
 2. Validate the statement ({{validation}}), completing every check that needs no client-controlled retrieval before any such retrieval ({{retrieval}}).
 3. Verify the statement requirements of {{profiles}}, the `iat` floor of {{multi-instance}}, and the `client_id` rule of {{runtime-presentation}}.
-4. Resolve the reviewed document and compare its digest ({{effective-metadata}}). A server that proceeds without the statement on a mismatch ends admission here.
+4. Resolve the reviewed document and compare its digest ({{effective-metadata}}). A server that proceeds without the statement on a mismatch ends admission on the statement here.
 5. Verify the sender constraint against that document ({{sender-constraint}}).
 6. Evaluate the request against the reviewed metadata ({{effective-metadata}}).
 7. Create the establishment ({{grant-lifecycle}}), unless the statement is review-only ({{review-only}}).
@@ -809,7 +809,7 @@ These retrievals happen before any client is registered or any user has interact
 
 ## Expiry, Withdrawal, and Open Grants {#enforcement-bounds}
 
-Expiry and withdrawal ({{withdrawal}}) govern new admissions. Neither revokes an issued access token. A grant opened by a statement lasts for the life of its refresh tokens, whatever the statement's lifetime, unless the server requires a current statement on refresh, holds a refusal record, or finds the proven key gone from the client's document ({{refresh}}). Removing an issuer from trust configuration, or narrowing what it can attest, does not by itself end a grant or a registration ({{REGISTRATION}}) already admitted on one of its statements. A server ends them by its own means, such as entering refusal records, revoking refresh tokens, or deleting registrations.
+Expiry and withdrawal ({{withdrawal}}) govern new admissions on a statement. Neither revokes an issued access token. A grant opened by a statement lasts for the life of its refresh tokens, whatever the statement's lifetime, unless the server requires a current statement on refresh, holds a refusal record, or finds the proven key gone from the client's document ({{refresh}}). Removing an issuer from trust configuration, or narrowing what it can attest, does not by itself end a grant or a registration ({{REGISTRATION}}) already admitted on one of its statements. A server ends them by its own means, such as entering refusal records, revoking refresh tokens, or deleting registrations.
 
 ## Observable State {#oracle-considerations}
 
