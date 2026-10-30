@@ -1,0 +1,1964 @@
+
+
+
+
+Web Authorization Protocol                                 K. McGuinness
+Internet-Draft                                               Independent
+Intended status: Standards Track                         30 October 2026
+Expires: 3 May 2027
+
+
+             Client ID Metadata Document Software Statement
+               draft-mcguinness-oauth-cimd-sw-stmt-latest
+
+Abstract
+
+   A Client ID Metadata Document (CIMD) carries a client's own claims,
+   which can change at any time.  This specification defines a software
+   statement in which a trusted party records its review of the exact
+   bytes of such a document, and how an authorization server enforces
+   that review when it admits the client at request time, without a
+   registration.  The client presents the statement in a token or pushed
+   authorization request, or publishes it where the reviewed document
+   points.  Possession of the statement alone does not complete a grant:
+   the presenter is also bound to the reviewed document.  Because the
+   document remains the metadata, one review is portable across the
+   authorization servers that trust its issuer.  A companion
+   specification covers RFC 7591 registration.  Withdrawal,
+   supersession, and keeping grants in step with later reviews are left
+   to a separate lifecycle extension.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on 3 May 2027.
+
+Copyright Notice
+
+   Copyright (c) 2026 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.  Code Components
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
+
+Table of Contents
+
+   1.  Introduction
+     1.1.  Protocol Overview
+   2.  Conventions and Definitions
+   3.  The Software Statement
+     3.1.  Metadata Digest
+     3.2.  Validating a Statement
+     3.3.  Repeated Consumption of One Statement
+   4.  Issuer Trust Establishment
+     4.1.  Multi-Tenant Issuers
+   5.  Runtime Presentation
+     5.1.  Admission
+     5.2.  Reviewed Metadata
+     5.3.  Retrieval
+     5.4.  Presentation Request
+       5.4.1.  Token Endpoint
+       5.4.2.  Authorization Endpoint
+     5.5.  Pulled Statements
+       5.5.1.  Retrieval and Selection
+       5.5.2.  Binding
+     5.6.  Sender Constraint
+       5.6.1.  Confidential Clients
+       5.6.2.  Public Clients
+       5.6.3.  Review-Only Presentations
+     5.7.  Grant Binding
+       5.7.1.  Refresh
+   6.  Relationship to Other Work
+     6.1.  Client Attestation
+     6.2.  Identity Assertions
+     6.3.  OpenID Federation
+   7.  Error Responses
+     7.1.  Statement Required Error
+     7.2.  Presentation Requests
+     7.3.  Code Redemption and Refresh
+     7.4.  Authorization Requests
+     7.5.  Proof Mechanism Errors
+     7.6.  Error Descriptions
+   8.  Examples
+     8.1.  Presenting at the Token Endpoint
+     8.2.  Publishing a Statement for Servers to Pull
+     8.3.  Statement Header and Payload
+   9.  Authorization Server Metadata
+   10. Extension Points
+   11. Implementation Considerations
+     11.1.  Caching and Reuse of Retrieved Content
+     11.2.  Retrieval and Processing Bounds
+     11.3.  Bounding Establishments
+     11.4.  User Interface, Audit, and Logging
+   12. Deployment Considerations
+     12.1.  Configuring Issuer Trust
+     12.2.  Audience and Tenant Claims
+     12.3.  Statement Lifetime and Renewal
+   13. Security Considerations
+     13.1.  Assurance Provided by a Statement
+     13.2.  Statement Theft and Replay
+     13.3.  Servers That Do Not Implement This Specification
+     13.4.  Copied Statements and Public Clients
+     13.5.  Tenant Confusion at a Multi-Tenant Authorization Server
+     13.6.  External Retrieval and Resource Exhaustion
+     13.7.  Expiry and Open Grants
+     13.8.  Observable State
+   14. Privacy Considerations
+   15. IANA Considerations
+     15.1.  OAuth Parameters Registry
+     15.2.  Media Type Registration
+     15.3.  Claims Defined Elsewhere
+     15.4.  JSON Web Token Claims Registry
+     15.5.  OAuth Extensions Error Registry
+     15.6.  OAuth Dynamic Client Registration Metadata Registry
+     15.7.  OAuth Authorization Server Metadata Registry
+   16. References
+     16.1.  Normative References
+     16.2.  Informative References
+   Acknowledgments
+   Author's Address
+
+1.  Introduction
+
+   A Client ID Metadata Document (CIMD) [CIMD] identifies a client by a
+   URL and supplies its metadata from a document the client controls.
+   That metadata is the client's own claim and can change at any time.
+   An organization that reviews client software has no interoperable way
+   to record its review of a particular version of the document, or to
+   have authorization servers that trust the organization, but have no
+   relationship with the client, enforce that review.
+
+   This specification profiles the software statement (Section 2.3 of
+   [RFC7591]) for that purpose.  A statement names the client by its
+   document URL and binds the review to the document's exact octets by a
+   digest (Section 3.1).  An authorization server that trusts the
+   statement's issuer (Section 4) admits the client at request time on
+   the reviewed document, and no other, without creating a registration
+   (Section 5), so one review is portable across every authorization
+   server in the statement's audience.
+
+   This specification serves deployments in which a party other than the
+   client decides which software can connect, such as a marketplace or
+   registry that vouches for software to authorization servers it does
+   not operate, or an enterprise that approves software for its users at
+   a service run by someone else.  It also serves server-hosted
+   software, such as an agent, that uses the client_credentials grant.
+   Admission grants no access to resources: the authorization server's
+   policy, and the resource owner's authorization where a grant involves
+   one, still govern what it issues.
+
+   Presentations by a native application whose redirection URIs another
+   application on the device could claim are review-only (Section 5.6.3)
+   until an extension binds an installation key that a third party
+   vouches for (Section 10).
+
+   A statement records approval of a client configuration, not of the
+   software's code or behavior (Section 13.1).  Possession of a
+   statement alone admits nothing: the presenter is bound to the
+   reviewed document (Section 5.6), though for a public client that
+   binding does not hold against a party that controls the user agent
+   (Section 13.4).
+
+   Under this specification, a statement's expiry limits new admissions
+   and does not end grants already opened.  Following later reviews or
+   withdrawals requires the lifecycle extension [LIFECYCLE].  Without
+   it, an older statement that has not expired remains admissible after
+   a newer one is issued: short statement lifetimes bound new
+   admissions, and grant lifetimes bound continued access.
+
+   This specification does not define how a client obtains a statement.
+   [REGISTRATION] builds on this specification, which does not depend on
+   it, to define consumption of the same statement in an [RFC7591]
+   registration request.  Section 6 relates this specification to other
+   work.
+
+1.1.  Protocol Overview
+
+   The following non-normative sequence summarizes runtime admission
+   (Section 5.1):
+
+   1.  Using its CIMD URL as client_id, the client presents its
+       statement in a token request or, for a redirect flow, a pushed
+       authorization request, or publishes it at the
+       software_statements_uri its document names (Section 5.4,
+       Section 5.5).
+
+   2.  The authorization server validates the statement (Section 3.2),
+       resolves the reviewed document (Section 5.2), and verifies the
+       sender constraint against it (Section 5.6).
+
+   3.  The request proceeds under that document's metadata, without a
+       registration.
+
+   4.  The state on which the rest of the grant depends persists as an
+       establishment (Section 5.7).
+
+2.  Conventions and Definitions
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in
+   BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
+
+   This specification uses terminology from [RFC6749] (OAuth), [RFC7591]
+   (client metadata and software statements), and [CIMD] (Client ID
+   Metadata Documents).
+
+   This specification defines the following terms.
+
+   Trusting Authorization Server:  An authorization server that consumes
+      a software statement, at runtime under this specification or at
+      registration under [REGISTRATION].
+
+   Runtime Presentation:  The consumption of a validated software
+      statement presented in a token request or pushed authorization
+      request, or pulled from where the client's document points
+      (Section 5.5), without creating a client registration.
+
+   Admission:  A trusting authorization server's acceptance of a client
+      for a request or a registration: on a valid statement (at request
+      time (Section 5.1) or at registration ([REGISTRATION])), after
+      which its requests are evaluated against the reviewed metadata, or
+      under the server's policy for clients it has not reviewed.
+
+   Establishment:  The state a successful runtime presentation creates
+      for the grant it opens, enumerated in Section 5.7.  [LIFECYCLE]
+      lets a replacement accepted on refresh update it.
+
+   Proven Key:  The key an establishment is bound to: the key whose
+      possession the presenter proves during runtime presentation
+      (Section 5.6), the key it binds under Section 5.6.2, or, for a
+      statement pulled at the authorization endpoint, the key proved at
+      code redemption (Section 5.5.2).
+
+   Effective Expiry:  The earlier of a statement's exp and its iat plus
+      the maximum statement lifetime the trusting authorization server
+      honors for its issuer (Section 4).  A statement is expired once
+      its effective expiry has passed.
+
+   Required Issuer:  An issuer whose current statement a trusting
+      authorization server requires in one of its tenants for software
+      in configured client identifier namespaces (Section 4).
+
+   Current Statement:  A statement whose effective expiry has not passed
+      and that no extension the server implements, such as [LIFECYCLE],
+      has ended.
+
+   Review-Only:  Describes a presentation, or a pulled statement, that
+      the authorization server evaluates but that admits nothing
+      (Section 5.6.3).
+
+   Tenant:  A partition of an authorization server's configuration and
+      issued tokens, such as one customer's, that the server identifies
+      by its own means or from a signed assertion it has validated,
+      never from a value the client chooses (Section 3.2).
+
+3.  The Software Statement
+
+   The software statement is a compact JWT [RFC7519] protected by JWS
+   [RFC7515].  Although [RFC7591] permits a MAC, a statement issued
+   under this specification MUST use an asymmetric digital signature,
+   and the none algorithm and symmetric algorithms MUST NOT be used.
+   Issuers and trusting authorization servers follow [RFC8725].
+
+   The JOSE header MUST include the kid header parameter, identifying
+   the signing key in the issuer's statement key set (Section 4), and
+   the typ header parameter with the value software-statement+jwt
+   (Section 3.11 of [RFC8725]).  An incompatible revision would use a
+   new typ value.
+
+   A statement asserts that its issuer evaluated the CIMD whose content
+   the digest identifies, and vouches for that document.  The JWT
+   payload contains the following claims.
+
+   iss:  REQUIRED.  The issuer's identifier, a URL using the https
+      scheme with no query or fragment component.  For an issuer that is
+      an authorization server, it is its issuer identifier as defined by
+      [RFC8414].
+
+   sub:  REQUIRED.  The exact client identifier URL of the CIMD the
+      issuer reviewed.
+
+   aud:  OPTIONAL.  One or more authorization server issuer identifiers
+      ([RFC8414]) restricting which authorization servers can accept the
+      statement.  If the claim is absent, any authorization server that
+      trusts the issuer for the subject can accept it (Section 4).
+
+   aud_tenant:  OPTIONAL.  A tenant identifier at a trusting
+      authorization server, as [IDJAG] defines the claim, naming the
+      tenant in which the statement's decision applies.  A statement
+      whose decision is confined to one of a server's tenants MUST carry
+      an aud claim naming exactly one authorization server and, unless
+      the issuer and that server have agreed that the server confines
+      the issuer to the tenant through its own trust configuration
+      (Section 4), an aud_tenant claim naming the tenant.
+
+      The absence of aud_tenant does not mean that the statement applies
+      in every tenant (Section 12.2).
+
+   statement_uses:  OPTIONAL.  A JSON array identifying the permitted
+      uses of the statement: registration ([REGISTRATION]) and
+      presentation (Section 5).  If the claim is absent, only
+      presentation is permitted.  A pulled statement (Section 5.5) is a
+      presentation use.
+
+   iat:  REQUIRED.  A NumericDate value, which MUST be an integer,
+      giving the time the statement was issued.  An issuer MUST ensure
+      that the iat claim values of its statements for a given iss and
+      sub increase strictly, which registration renewal ([REGISTRATION])
+      and supersession ([LIFECYCLE]) rely on.
+
+   exp:  REQUIRED.  A NumericDate value giving the expiration time.
+
+   jti:  REQUIRED.  A unique identifier for the statement within the
+      issuer's namespace.
+
+   cimd_digest:  REQUIRED.  The metadata digest (Section 3.1) of the
+      CIMD the issuer evaluated.
+
+   Profiles and extensions can define further claims, such as the status
+   claim by which [LIFECYCLE] locates a statement in a Status List
+   Token.  A trusting authorization server ignores a claim it does not
+   recognize (Section 3.2).
+
+   A statement issued under this specification MUST NOT contain a claim
+   named in the IANA "OAuth Dynamic Client Registration Metadata"
+   registry, and a trusting authorization server MUST NOT take client
+   metadata from a statement's claims.  A trusting authorization server
+   ignores such a claim rather than rejecting the statement
+   (Section 3.2).
+
+   A CIMD can carry a software_statement member (Section 4.3 of [CIMD]).
+   A trusting authorization server MUST NOT consume a statement of this
+   profile from that member, and MUST NOT treat that member as
+   satisfying any requirement of this specification.  A statement inside
+   the document could not name the document's digest, because it would
+   be part of the octets it digests, so this specification carries
+   statements in requests (Section 5.4) or at a separate location
+   (Section 5.5).  Statements of other kinds in the member are out of
+   scope for this specification.
+
+   An authorization server implementing this specification MUST reject a
+   statement of this profile in an [RFC7591] registration request with
+   the unapproved_software_statement error code (Section 3.2.2 of
+   [RFC7591]), unless it consumes the statement as [REGISTRATION]
+   specifies.  The server's configured statement key set (Section 4)
+   verifies the statement, so a generic registration path would
+   otherwise attach the issuer's review to metadata the request supplies
+   (Section 13.3).
+
+3.1.  Metadata Digest
+
+   The metadata digest is the unpadded base64url-encoded SHA-256 hash
+   [RFC6234] of the retrieved representation body after removal of
+   content coding.  The body is not transcoded, normalized, or re-
+   serialized.  Any byte order mark or trailing newline is included.
+
+   Retrieval for digest purposes follows [CIMD] and MUST NOT use content
+   negotiation: the retrieving party sends the Accept header field that
+   [CIMD] specifies for retrieving the document, or Accept: application/
+   json if it specifies none, and no other variant selection.  Equal
+   digests show that the issuer and the trusting authorization server
+   obtained the same octets, so any condition that makes retrieval
+   depend on who is asking defeats the comparison.
+
+   A trusting authorization server MUST treat a response exceeding its
+   configured size bound (Section 8.7 of [CIMD]) as a retrieval failure
+   rather than digesting what it read.
+
+   A server MUST NOT compare a digest against any representation other
+   than one it retrieved itself or stored under this section.  A 304 Not
+   Modified response shows that stored octets, and their digest, are
+   still current only if it carries a strong entity tag that matches the
+   one stored with them under strong comparison (Section 8.8.3.2 of
+   [RFC9110]).  Otherwise, the server retrieves the body again.
+
+3.2.  Validating a Statement
+
+   Before accepting a statement, a trusting authorization server MUST
+   ensure the following:
+
+   *  The typ JOSE header parameter has the value software-
+      statement+jwt.
+
+   *  The signature verifies under a key trusted for the exact iss
+      value, obtained as Section 4 requires.
+
+   *  Every required claim of Section 3 is present and of the correct
+      type.
+
+   *  The statement is not expired, and its iat is not unreasonably far
+      in the future according to the server's clock-skew policy.
+
+   *  If the statement carries aud, a value in it exactly matches one of
+      the server's audience identifiers that its trust configuration
+      permits the statement's issuer to name (Section 4).
+
+   *  If the statement carries aud_tenant, aud carries exactly one value
+      and aud_tenant identifies the tenant this request belongs to,
+      resolved before the statement is evaluated, by the server's own
+      means or from a signed assertion it has validated, and never from
+      a value the client chooses.
+
+   *  If the server requires a tenant-scoped decision for the request,
+      the statement carries aud_tenant, or the server's trust
+      configuration confines the statement's issuer to the request's
+      tenant (Section 4).
+
+   *  If the server's trust configuration confines the statement's
+      issuer to a tenant, the request belongs to that tenant.
+
+   *  The use being made of the statement is one it permits: a use its
+      statement_uses claim names or, if the claim is absent,
+      presentation (Section 3).  A value the server does not recognize
+      names no use it serves.
+
+   *  The sub claim is a client identifier URL conforming to [CIMD] and
+      falls within the client identifier namespaces for which this
+      server accepts the issuer (Section 4).
+
+   *  Any claim the server does not recognize, and any client metadata
+      claim (Section 3), is ignored.
+
+   *  The JWT validation guidance in [RFC8725] has been applied.
+
+   A trusting authorization server that hosts more than one tenant MUST
+   evaluate every tenant-specific check, such as the aud_tenant claim
+   and a required issuer (Section 4), against the tenant that scopes
+   what it issues on the statement, never selected by a value the client
+   chooses.
+
+   An extension such as [LIFECYCLE] can end a statement's acceptance
+   before its effective expiry.
+
+   A trusting authorization server resolving the reviewed document MUST
+   reject a document containing duplicate object member names.  Parsers
+   interpret such names differently despite an identical digest.
+
+   Rejections outside a registration endpoint use Section 7.
+
+3.3.  Repeated Consumption of One Statement
+
+   A statement attests client software, identified by sub, not its
+   runtime instances.  This specification defines no instance
+   identifier.  One unexpired statement is therefore consumable more
+   than once: at each trusting authorization server in its audience, and
+   in more than one establishment at that server (Section 11.3).
+
+   Under this specification, an older statement that has not expired
+   remains admissible after a newer one is issued.  [LIFECYCLE] defines
+   supersession, which ends that; otherwise short statement lifetimes
+   bound it.
+
+   A multi-tenant server keeps any bound on establishments
+   (Section 11.3) per tenant.
+
+   Software whose instances authenticate as the client with keys of
+   their own, which the reviewed document does not carry, can neither
+   prove nor register those keys (Section 5.6, [REGISTRATION]) and
+   depends on the attested-key extension of Section 10.
+
+4.  Issuer Trust Establishment
+
+   A trusting authorization server accepts statements only from issuers
+   in its trust configuration, which is established out of band.  This
+   specification defines no in-band issuer discovery or trust decision.
+   The configuration, not the signature alone, defines acceptance: a
+   trusting authorization server MUST derive trust from it and MUST NOT
+   derive it from an iss, jku, x5u, or other key-location value carried
+   in a presented statement.
+
+   For each trusted issuer, the configuration records at least the exact
+   iss value the server accepts, the signing algorithms it accepts from
+   the issuer, the client identifier namespaces the issuer can attest
+   through sub, the audience identifiers the issuer can name, any tenant
+   to which the server confines the issuer's decisions, and the maximum
+   statement lifetime the server honors, which sets each statement's
+   effective expiry.
+
+   The issuer's statement signing keys come from the
+   software_statement_jwks_uri in its authorization server metadata
+   (Section 9), discovered from the configured iss ([RFC8414]), or, for
+   an issuer that is not an authorization server, from a statement key
+   set URL in the configuration, never from a jwks_uri metadata value.
+   A configured statement key set URL MUST use the https scheme, a
+   trusting authorization server MUST validate the certificate of the
+   host serving it, and the issuer MUST NOT place in that key set a key
+   from any other JWK Set it publishes, or sign anything other than
+   statements under this specification with its keys.  A trusting
+   authorization server reuses a retrieved statement key set only as
+   Section 5.3 permits.
+
+   The configuration can also make an issuer a required issuer for
+   client identifier namespaces in one of the server's tenants
+   (Section 12.1).  The server then MUST NOT admit software in a covered
+   namespace in that tenant without a current statement from the
+   required issuer, whatever its policy for clients it has not reviewed.
+   [LIFECYCLE] applies the requirement on refresh.  Without this rule, a
+   holder could evade the required issuer's decision by withholding that
+   issuer's statement or by presenting or publishing only a broader one,
+   such as a marketplace listing.  A required issuer configured for
+   software whose presentations are review-only (Section 5.6.3) excludes
+   that software from the tenant, and the server rejects a request for
+   such software there.
+
+4.1.  Multi-Tenant Issuers
+
+   If an issuer reviews software for several customers whose decisions
+   are each trusted independently, it MUST issue under a distinct iss
+   value for each customer, so that each customer's decisions, and any
+   state a server keeps per iss value, stay separate.
+
+5.  Runtime Presentation
+
+   A client presents its statement in a request (Section 5.4) or
+   publishes it where its document points (Section 5.5).  Either way,
+   admission follows the steps of Section 5.1.
+
+5.1.  Admission
+
+   For a runtime presentation, the authorization server proceeds as
+   follows, rejecting at the first failure (Section 7):
+
+   1.  Obtain the statement, presented in the request (Section 5.4) or
+       pulled (Section 5.5).
+
+   2.  Validate the statement (Section 3.2), completing every check that
+       needs no client-controlled retrieval before any such retrieval
+       (Section 5.3).
+
+   3.  Verify the statement requirements of Section 3 and the client_id
+       rule of Section 5.4.
+
+   4.  Resolve the reviewed document and compare its digest
+       (Section 5.2).  A server that proceeds without the statement on a
+       mismatch ends admission on the statement here.
+
+   5.  Verify the sender constraint against that document (Section 5.6).
+
+   6.  Evaluate the request against the reviewed metadata (Section 5.2).
+
+   7.  Create the establishment (Section 5.7), unless the statement is
+       review-only (Section 5.6.3).
+
+5.2.  Reviewed Metadata
+
+   Having validated the statement, and before verifying the proof
+   (Section 5.1), the authorization server MUST obtain the CIMD at the
+   statement's sub, only by retrieval or from octets it has already
+   digested for that identifier (Section 5.3), and compare its digest
+   with the cimd_digest claim.  If octets it already holds do not match,
+   it retrieves the document once more before treating the mismatch as a
+   change.
+
+   A match means the served document is the reviewed one, and its
+   members are the client's metadata for the request.  The server takes
+   those members from the octets whose digest matched, not from another
+   retrieval or a copy it has not digested.  A mismatch means the
+   document changed after review, and the authorization server MUST NOT
+   treat the changed document as reviewed.  It rejects the presentation
+   or, by local policy, proceeds without the statement.  If it proceeds,
+   it applies its policy for CIMD clients it has not reviewed to the
+   current document and creates no establishment for the statement.
+
+   The request is evaluated against the reviewed metadata as against any
+   client's registered metadata ([RFC6749], [CIMD]): any requested grant
+   type, response type, or scope MUST fall within it.  A document that
+   omits scope sets no ceiling on scope beyond the server's own policy.
+
+5.3.  Retrieval
+
+   Every retrieval this specification causes, of the CIMD, a jwks_uri it
+   names, or the statements its software_statements_uri names, inherits
+   the server-side request forgery protections in Section 8.6 of [CIMD].
+   A trusted signature does not make a URL safe: the authorization
+   server MUST apply its URL, redirect, address-range, transport, and
+   content-type policy independently to every referenced location.
+
+   If a retrieval fails, the authorization server MUST reject the
+   request and MUST NOT fall back to a weaker proof, except that a
+   failed pull of statements, or a failed retrieval of a statement key
+   set (Section 4) needed to verify a pulled statement, for a request
+   opening a new grant does not reject the request, which proceeds as
+   Section 5.5.1 describes.
+
+   A retrieval does not complete only when it times out, its connection
+   fails, or the response has a 429 (Too Many Requests) status code
+   (Section 4 of [RFC6585]) or a 5xx status code.  Any other failure to
+   obtain an acceptable representation, such as another 4xx status code
+   or a body that is not a JSON object, is final: a document is treated
+   as failing validation, a key set as carrying no acceptable key, and a
+   statements location as publishing no statement.
+
+   A trusting authorization server MAY reuse document octets it holds
+   for digest comparison (Section 5.2), a key set retrieved from a
+   document's jwks_uri, and a statement key set from either source
+   (Section 4), only within ordinary HTTP caching bounds and a maximum
+   reuse period of its own choosing.  It MUST NOT let the publisher's
+   cache directives alone (the client's for the document and its key
+   set, the issuer's for a statement key set) determine how long held
+   octets continue to match a statement or a removed key continues to
+   verify (Section 13.2).  Without this rule, a key the document carries
+   inline would continue to verify after the publisher removes it.
+
+5.4.  Presentation Request
+
+   A client presents a software statement by including the following
+   parameter in a token request or a pushed authorization request:
+
+   software_statement:  REQUIRED for presentation.  The software
+      statement (Section 3).  It is consumed as a runtime presentation
+      or, where implemented, as a refresh replacement under [LIFECYCLE]
+      or a delivery under [REGISTRATION].  On refresh-token use under an
+      establishment, a server that does not implement [LIFECYCLE]
+      ignores the parameter.  A request carrying the parameter in any
+      other role is rejected.
+
+   A request making a runtime presentation MUST include the client_id
+   parameter, even if the client authenticates, and its value, the
+   client's CIMD URL, MUST exactly equal the statement's sub claim.  If
+   the client_id parameter is absent, the authorization server rejects
+   the request.  If the two differ, the authorization server MUST reject
+   the presentation.  The effective client_id is the statement's sub,
+   and the authorization server assigns none.
+
+   A request that asks an authorization server to issue a software
+   statement, rather than to consume one, MUST NOT carry the
+   software_statement parameter.
+
+   An authorization server that does not implement this specification
+   ignores the parameter (Sections 3.1 and 3.2 of [RFC6749]).
+
+5.4.1.  Token Endpoint
+
+   At the token endpoint, a runtime presentation is valid on a request
+   using any one of the following grants:
+
+   *  The client_credentials grant.
+
+   *  The JWT or SAML 2.0 assertion grant (Section 2.1 of [RFC7523] and
+      Section 2.1 of [RFC7522]).
+
+   *  Another grant whose specification provides for runtime
+      presentation under this specification.
+
+   Authorization-code redemption and refresh-token use continue an
+   existing grant (Section 5.7, Section 5.7.1).
+
+5.4.2.  Authorization Endpoint
+
+   Presentation in an authorization request MUST use a pushed
+   authorization request [RFC9126].  The subsequent authorization
+   request MUST use a client_id parameter exactly equal to the
+   establishment's sub and MUST NOT include the software_statement
+   parameter.  A pulled statement needs no pushed authorization request
+   (Section 5.5).
+
+5.5.  Pulled Statements
+
+   A client can publish its statements at a URL its document names
+   instead of presenting one.  When a client opening a new grant
+   presents no statement, at the token endpoint, the pushed
+   authorization request endpoint, or the authorization endpoint, an
+   authorization server that supports pulled statements MAY retrieve
+   them.  Admission then follows Section 5.1, except that:
+
+   *  The server chooses the statement (Section 5.5.1).
+
+   *  If the pull yields no usable statement, the request proceeds as if
+      the client had presented none (Section 5.5.1).
+
+   *  A pulled statement is review-only in the cases Section 5.5.2
+      identifies.
+
+   This specification defines the following client metadata member:
+
+   software_statements_uri:  OPTIONAL.  URL, in a CIMD, at which the
+      client publishes software statements about itself.  The member has
+      no meaning in a registration request.  The URL MUST use the https
+      scheme.  A request to it returns a JSON object whose
+      software_statements member is an array of statements (Section 3),
+      each a string in JWS compact serialization.  The metadata digest
+      covers this member (Section 3.1).
+
+   An authorization server advertises support through
+   software_statement_pull_supported (Section 9).
+
+5.5.1.  Retrieval and Selection
+
+   In retrieving the software_statements_uri, the authorization server:
+
+   *  MUST send a GET request with Accept: application/json.
+
+   *  MUST NOT automatically follow redirects.
+
+   *  MUST accept a new representation only from a 200 response with a
+      JSON media type, and can instead reuse a stored representation
+      that a 304 Not Modified response revalidates (Section 15.4.5 of
+      [RFC9110]).
+
+   The document and this URL are necessarily retrieved before any
+   statement is validated, so the ordering of step 2 of Section 5.1
+   applies only to the retrievals that follow.
+
+   The server considers only statements that meet all of the following
+   conditions, and ignores the rest:
+
+   *  The sub claim equals the document's client identifier.
+
+   *  The statement validates under Section 3.2 and permits presentation
+      (Section 3).
+
+   *  The cimd_digest claim equals the digest of the document the server
+      resolved.
+
+   If the server's trust configuration requires an issuer for this
+   client (Section 4), the server also ignores statements from any other
+   issuer.  If more than one statement remains, it applies the most
+   recently issued statement from an issuer of its choice.
+
+   Having selected a statement, the server continues from step 5 of
+   Section 5.1, with the document already resolved.  The selection
+   satisfies the client_id rule of step 3.
+
+   If retrieving the statements does not complete or no statement
+   remains, the server applies its policy for CIMD clients it has not
+   reviewed, subject to any required issuer (Section 4), and rejects the
+   request if that policy or a required issuer requires reviewed
+   software.
+
+5.5.2.  Binding
+
+   Unless Section 5.6.3 makes it review-only for its redirection URIs, a
+   pulled statement is bound to the presenter as a presented statement
+   is (Section 5.6), at the point the following table shows:
+
+   +===============+===================+===============================+
+   | Where the     | Confidential      | Public client                 |
+   | statement is  | client            |                               |
+   | pulled        |                   |                               |
+   +===============+===================+===============================+
+   | Token         | The request's     | Review-only                   |
+   | endpoint,     | client            |                               |
+   | opening a new | authentication    |                               |
+   | grant         |                   |                               |
+   +---------------+-------------------+-------------------------------+
+   | Pushed        | The request's     | PKCE with S256 and a key      |
+   | authorization | client            | bound through a DPoP          |
+   | request       | authentication    | proof or dpop_jkt, as         |
+   | endpoint      |                   | Section 5.6.2 requires.       |
+   |               |                   | Otherwise review-only         |
+   +---------------+-------------------+-------------------------------+
+   | Authorization | Client            | PKCE with S256 and a key      |
+   | endpoint      | authentication at | bound through dpop_jkt,       |
+   |               | code redemption,  | as Section 5.6.2              |
+   |               | before any token  | requires, which               |
+   |               | is issued         | redemption then proves.       |
+   |               |                   | Otherwise review-only         |
+   +---------------+-------------------+-------------------------------+
+
+                                  Table 1
+
+   A statement pulled for a document that omits
+   token_endpoint_auth_method is review-only wherever it is pulled.
+
+   At code redemption, a confidential client whose statement was pulled
+   at the authorization endpoint authenticates with a key the reviewed
+   document carries, in its jwks or at its jwks_uri within the reuse
+   bounds of Section 5.3, not one that only a later retrieval of the
+   document carries, and that key becomes the establishment's proven
+   key.
+
+5.6.  Sender Constraint
+
+   A runtime presentation that is not review-only (Section 5.6.3) MUST
+   be sender-constrained under one of two models, set by the
+   token_endpoint_auth_method its reviewed document declares:
+
+   *  Confidential client (a method other than none): by a key the
+      statement attests (Section 5.6.1).
+
+   *  Public client (none): by an installation key the presenter binds
+      (Section 5.6.2), while its reviewed redirection URIs, with PKCE
+      S256, bind the presentation itself.
+
+   The authorization server MUST reject a presentation under a reviewed
+   document that omits the token_endpoint_auth_method member, even if
+   the presentation is review-only.
+
+   For a presentation that is not review-only, under either model:
+
+   *  The presenter proves possession of the key its model requires
+      through the applicable client authentication method or a DPoP
+      proof [RFC9449] or, for a public client that binds its key through
+      dpop_jkt, at code redemption (Section 5.7).  If a request carries
+      both, the key its client authentication proves is the proven key.
+
+   *  The proof MUST be bound to the current request and validated with
+      the replay protections of that mechanism.
+
+   *  If the reviewed document declares a client authentication method
+      in its token_endpoint_auth_method member ([CIMD]), the presenter
+      MUST use that method.
+
+   *  The authorization server MUST reject a presentation without such a
+      proof or, for a confidential client, whose proven key the reviewed
+      document does not carry.
+
+5.6.1.  Confidential Clients
+
+   For a confidential client's presentation that is not review-only, the
+   proven key MUST appear in the jwks or at the jwks_uri of the reviewed
+   document (Section 5.2).  Methods that prove possession of a key the
+   document carries, such as private_key_jwt (Section 8.2 of [CIMD]) and
+   self_signed_tls_client_auth (Section 2.2 of [RFC8705]), satisfy this
+   directly.
+
+   The key set at the document's jwks_uri is obtained when the
+   presentation is processed, by retrieval or from a copy reused within
+   the bounds of Section 5.3.  If a retrieval it needs does not
+   complete, the presentation is rejected.
+
+5.6.2.  Public Clients
+
+   Software distributed to end users cannot hold a key its reviewed
+   document carries: a key shipped in every copy identifies the
+   software, not the installation.  Such a document declares
+   token_endpoint_auth_method of none and carries no key material.
+
+   An authorization server MUST reject a presentation, even a review-
+   only one, that opens a new grant at the token endpoint
+   (Section 5.4.1) from a public client.  Such a presentation opens no
+   redirect and has nothing to bind it.
+
+   For a public client's presentation that is not review-only, at the
+   pushed authorization request endpoint, the authorization server:
+
+   *  MUST require PKCE [RFC7636] with the S256 method.
+
+   *  MUST require the presenter to bind a key it holds, through the
+      dpop_jkt parameter or, at the pushed authorization request
+      endpoint, a DPoP proof (Section 10.1 of [RFC9449]), and records
+      that key as the proven key of the establishment (Section 5.7).
+
+   *  MUST NOT require that key to appear in the reviewed document.
+
+   The reviewed redirection URIs, not the proven key, bind such a
+   presentation (Section 13.4).  The proven key identifies the
+   installation the grant belongs to.
+
+5.6.3.  Review-Only Presentations
+
+   The following are review-only:
+
+   1.  Every presentation and pulled statement for a reviewed document
+       that carries any redirection URI another application on the same
+       device could claim, whatever authentication method the document
+       declares.  Such a URI is a non-https URI, such as a private-use
+       scheme or an http loopback redirection URI (Sections 7.1 and 7.3
+       of [RFC8252]), or an https URI whose host is a loopback address
+       or localhost.  The application that claims such a URI receives
+       the code, so neither the reviewed redirection URIs nor a key
+       shipped in every copy of the software can bind the presenter.
+
+   2.  A pulled statement that Section 5.5.2 makes review-only.
+
+   A review-only presentation or pulled statement creates no
+   establishment and admits nothing.  The authorization server proceeds
+   as it would for the same CIMD client presenting no statement
+   (Section 11.4).
+
+   The statement of a review-only presentation, or a review-only pulled
+   statement, MUST NOT satisfy a policy requiring reviewed software.  If
+   the server's policy requires reviewed software, it rejects a review-
+   only client.
+
+5.7.  Grant Binding
+
+   A successful presentation creates an establishment: the state against
+   which the subsequent authorization request, code redemption and
+   refresh under the grant it opens are checked.  It comprises the
+   following:
+
+   *  The validated sub.
+
+   *  The statement identity (its iss and jti), its iat and effective
+      expiry, and any claim an extension uses to locate it, such as
+      status.
+
+   *  The authorization server's own tenant the grant was opened for, if
+      it hosts more than one.
+
+   *  The reviewed metadata and the digest it matched (Section 5.2).
+
+   *  The issuer trust decision.
+
+   *  The sender-constraint mechanism and proven key, which for a
+      statement pulled at the authorization endpoint for a confidential
+      client is set at code redemption (Section 5.5.2).
+
+   The authorization server MUST bind the resulting request_uri,
+   authorization code, refresh token, and other grant continuation state
+   to the establishment, as applicable.  An establishment ends once no
+   continuation state bound to it remains usable.
+
+   A token request that redeems an authorization code opened by a
+   presentation:
+
+   *  MUST have a client_id parameter exactly equal to the
+      establishment's sub, even if the client authenticates.
+
+   *  MUST demonstrate possession of the establishment's proven key
+      under the same sender-constraint mechanism or, for a confidential
+      client whose statement was pulled at the authorization endpoint
+      (Section 5.5.2), authenticate with the key that becomes the proven
+      key.
+
+   *  MUST NOT carry the software_statement parameter.
+
+   A redemption that carries a statement, has a wrong client identifier,
+   or fails the key binding is rejected.  The prohibition on carrying a
+   statement covers redemption of a code bound to an establishment.
+
+5.7.1.  Refresh
+
+   On refresh-token use under an establishment, the authorization
+   server:
+
+   *  MUST verify possession of the establishment's proven key under the
+      same sender-constraint mechanism.
+
+   *  MUST, except for an establishment created under Section 5.6.2,
+      verify that the document currently served at the establishment's
+      sub still carries that key, in its jwks or at its jwks_uri, within
+      the reuse bounds of Section 5.3.
+
+   If either check fails, including when the document does not carry the
+   key, cannot be obtained, or exceeds the size bound of Section 3.1,
+   the server rejects the refresh.  The refreshed access MUST fall
+   within the establishment's reviewed metadata.
+
+   Under this specification, refresh evaluates no statement: a
+   statement's expiry does not end a grant it opened (Section 13.7), and
+   refresh never changes the establishment's proven key or reviewed
+   metadata.  A client that needs a different key opens a new grant by
+   presentation, as does, without [LIFECYCLE], a client that needs a
+   different review.  [LIFECYCLE] defines replacements that keep a grant
+   in step with later reviews and withdrawals.
+
+6.  Relationship to Other Work
+
+   This section is non-normative.
+
+6.1.  Client Attestation
+
+   A software statement and a client attestation [ABCA] are both signed
+   third-party assertions.  A statement attests client software and the
+   metadata its issuer evaluated.  A client attestation attests a
+   running instance and the key it holds, and is presented with a proof
+   bound to the request.
+
+   Neither assertion grants access nor substitutes for the other.
+   Runtime presentation therefore always requires a sender constraint
+   (Section 5.6).  Binding a presenter attestation defined elsewhere is
+   an extension (Section 10).
+
+6.2.  Identity Assertions
+
+   A statement records that a named party reviewed software, not that a
+   particular customer currently permits that software to act in its
+   tenant.  A tenant-scoped decision (aud_tenant) authorizes no
+   particular user or transaction.  When a customer's identity provider
+   mediates a grant, as with a cross-domain identity assertion [IDJAG],
+   it issues assertions per grant only for clients the customer permits.
+   A statement serves when the issuer is not in the request path, or
+   when a customer wants a portable record of what its review covered.
+
+6.3.  OpenID Federation
+
+   A trust mark [OPENID-FED] is also a signed third-party assertion
+   about an entity, but it is resolved through a federation in which
+   both parties enroll.  A statement needs no federation: a trusting
+   authorization server configures its issuer directly (Section 4), and
+   the statement binds the exact octets of the client's own document
+   rather than metadata the federation resolves.
+
+7.  Error Responses
+
+   A rejection uses the error response and HTTP status codes of its
+   endpoint: Section 5.2 of [RFC6749] at the token endpoint, Section 2.3
+   of [RFC9126] at the pushed authorization request endpoint, and
+   Section 4.1.2.1 of [RFC6749] at the authorization endpoint.
+
+   At the token and pushed authorization request endpoints, an
+   authorization server SHOULD respond with HTTP status code 503 to a
+   request it rejects with the temporarily_unavailable error code.
+   [REGISTRATION] defines rejections at a registration endpoint and how
+   registration validity is reported.
+
+   This specification assigns temporarily_unavailable only to a
+   retrieval that did not complete (Section 5.3), never to a response
+   over the size bound of Section 3.1.  A request carrying the
+   software_statement parameter in a role Section 5.4 does not permit is
+   rejected with invalid_request.
+
+7.1.  Statement Required Error
+
+   This specification defines the following error code:
+
+   statement_required:  A current software statement is required and
+      none was supplied or pulled, or the one supplied or pulled is
+      expired.  An extension such as [REGISTRATION] or [LIFECYCLE] can
+      assign it to further cases.  The client recovers by obtaining a
+      statement issued more recently.
+
+7.2.  Presentation Requests
+
+   A presentation rejected at the token or pushed authorization request
+   endpoint for a reason this specification defines uses
+   temporarily_unavailable if a retrieval it needs, including a pull of
+   statements (Section 5.5), did not complete, and otherwise the
+   following error codes:
+
+   invalid_client:  Any of the following:
+
+      *  The statement is malformed or fails validation (Section 3.2)
+         for a reason other than expiry.
+
+      *  The request's client_id differs from the statement's sub
+         (Section 5.4), or the request fails the sender constraint
+         (Section 5.6), including a presentation under a document that
+         omits token_endpoint_auth_method and one opening a new grant at
+         the token endpoint for a public client (Section 5.6.2).
+
+      *  The reviewed document cannot be obtained, including over the
+         size bound, fails validation as [CIMD] requires, contains
+         duplicate member names (Section 3.2), or does not match and the
+         server does not proceed without the statement (Section 5.2).
+
+      *  The bound on establishments is reached (Section 11.3).
+
+   statement_required:  The statement is expired (Section 7.1), or a
+      required statement is absent, including one from an issuer
+      required for the tenant (Section 4).
+
+   unauthorized_client:  The request exceeds the reviewed document's
+      grant types or response types (Section 5.2), the document carries
+      metadata this server's policy refuses, or the client is review-
+      only where policy or a required issuer requires reviewed software
+      (Section 5.6.3), or the request is for software a required issuer
+      excludes from the tenant (Section 4), in place of
+      statement_required.
+
+   invalid_scope:  The request exceeds the reviewed document's scope
+      (Section 5.2), or the document carries a scope this server's
+      policy refuses.
+
+   invalid_request:  The request omits client_id (Section 5.4).
+
+   A request rejected for another reason, such as an assertion grant
+   whose assertion is invalid (Section 3.1 of [RFC7523]), uses the error
+   code its grant or endpoint assigns.
+
+7.3.  Code Redemption and Refresh
+
+   Under an establishment, code redemption (Section 5.7) is rejected
+   with invalid_request if it carries a statement, invalid_grant for a
+   wrong client identifier or failed key binding, and invalid_client at
+   the bound on establishments (Section 11.3).
+
+   Under an establishment, a refresh-token request rejected for a reason
+   this specification defines uses temporarily_unavailable if a
+   retrieval it needs did not complete, and otherwise the following
+   error codes:
+
+   invalid_grant:  A check of Section 5.7.1 fails.
+
+   unauthorized_client or invalid_scope:  The refreshed access exceeds
+      the reviewed metadata or this server's policy, as for a
+      presentation.
+
+   An extension such as [LIFECYCLE] assigns codes to the refresh
+   rejections it defines.
+
+   None of these rejections indicates refresh-token replay ([RFC9700]),
+   whose detection this specification does not change.  A refresh-token
+   request rejected for another reason, such as an expired or revoked
+   refresh token, uses the error codes of Section 5.2 of [RFC6749].
+
+7.4.  Authorization Requests
+
+   If the authorization server's policy or a required issuer (Section 4)
+   requires reviewed software, an authorization request from a client
+   the server has not admitted on a statement is rejected in the
+   authorization error response (Section 4.1.2.1 of [RFC6749]) with the
+   following error codes:
+
+   unauthorized_client:  The client is review-only (Section 5.6.3), or a
+      required issuer excludes the software from the tenant (Section 4).
+
+   temporarily_unavailable:  A pull of statements (Section 5.5), or the
+      retrieval of a statement key set needed to verify a pulled
+      statement, did not complete (Section 5.3).
+
+   statement_required:  In any other case, the authorization server MUST
+      return this code.
+
+   The authorization server redirects with the error only after
+   resolving the client's CIMD and validating the request's redirect_uri
+   against it.  If the authorization server cannot resolve the document,
+   it MUST NOT redirect, and it reports the error to the resource owner
+   instead.
+
+   An authorization request carrying the software_statement parameter
+   (Section 5.4.2) is rejected with invalid_request in place of any
+   other code of this section.  The authorization server redirects with
+   that error only after validating the request's redirect_uri: against
+   the CIMD as the preceding paragraph requires or, for a registered
+   client, against its registered redirection URIs (Section 4.1.2.1 of
+   [RFC6749]).
+
+7.5.  Proof Mechanism Errors
+
+   If the proof mechanism defines an error of its own for a proof it
+   does not accept, such as invalid_dpop_proof for a DPoP proof that
+   fails the checks of Section 4.3 of [RFC9449] or use_dpop_nonce for a
+   nonce challenge (Section 8 of [RFC9449]), the request is rejected
+   with that error in place of the code this specification assigns to a
+   failed sender constraint.
+
+   A proof that its mechanism accepts but that proves a key other than
+   the one this specification requires, such as a key the reviewed
+   document does not carry or one other than the establishment's proven
+   key, is not an invalid proof but a failed sender constraint.
+
+7.6.  Error Descriptions
+
+   The authorization server can return non-sensitive diagnostics in the
+   error_description parameter to a client it has authenticated, but
+   MUST NOT reveal details of its issuer trust configuration
+   (Section 4), such as the client identifier namespaces an issuer can
+   attest, to an unauthenticated requester.
+
+8.  Examples
+
+   The examples in this section are non-normative.
+
+8.1.  Presenting at the Token Endpoint
+
+   The following is an example of a client presenting a statement at the
+   token endpoint of a server holding no record for the client (line
+   breaks for display purposes only).  The reviewed document, which is
+   not shown, names a jwks_uri, the private_key_jwt authentication
+   method, the client_credentials grant type, and a scope that includes
+   tools.read, so the client authenticates with a key that document
+   carries.  The client_id is the statement's sub.
+
+   POST /token HTTP/1.1
+   Host: as.example
+   Content-Type: application/x-www-form-urlencoded
+
+   grant_type=client_credentials
+   &scope=tools.read
+   &client_id=https%3A%2F%2Fclient.example%2Fapp
+   &client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3A
+   client-assertion-type%3Ajwt-bearer
+   &client_assertion=eyJhbGciOiJFUzI1NiIsImtpZCI6IjIwMjYtMDgifQ...
+   &software_statement=eyJ0eXAiOiJzb2Z0d2FyZS1zdGF0ZW1l...
+
+   The authorization server validates the statement, retrieves the
+   document its digest names, verifies the client assertion against a
+   key from that document's jwks_uri, and checks that the requested
+   scope falls within the document's scope.  It keeps no registration.
+
+8.2.  Publishing a Statement for Servers to Pull
+
+   The following is an example of a CIMD that names where its statements
+   are published:
+
+   {
+     "client_id": "https://client.example/app",
+     "redirect_uris": ["https://client.example/cb"],
+     "token_endpoint_auth_method": "private_key_jwt",
+     "jwks_uri": "https://client.example/jwks.json",
+     "software_statements_uri":
+       "https://client.example/statements.json"
+   }
+
+   A request to that URL returns the statements, here one:
+
+   {
+     "software_statements": [
+       "eyJ0eXAiOiJzb2Z0d2FyZS1zdGF0ZW1lbnQrand0Iiwi..."
+     ]
+   }
+
+   An authorization server receiving an ordinary authorization request
+   with this client_id resolves the document, retrieves the statements,
+   and keeps the one from a trusted issuer whose cimd_digest matches the
+   document it retrieved.  It completes the binding when the client
+   authenticates with private_key_jwt at code redemption (Section 5.5).
+
+8.3.  Statement Header and Payload
+
+   The following is an example of the JOSE header and payload of a
+   statement over the document in the previous example, served exactly
+   as shown there and ending in a single newline:
+
+   {
+     "typ": "software-statement+jwt",
+     "alg": "ES256",
+     "kid": "2026-10"
+   }
+
+   {
+     "iss": "https://issuer.example",
+     "sub": "https://client.example/app",
+     "aud": ["https://as.example"],
+     "statement_uses": ["presentation"],
+     "iat": 1790812800,
+     "exp": 1793404800,
+     "jti": "c2a907b34d28",
+     "cimd_digest": "vBIuTBeHfYmEC8CPwbfa2a9XciuKfGTEGf-qGij4N_Q"
+   }
+
+   The statement names one audience and permits only runtime
+   presentation, as omitting statement_uses would.  It carries no client
+   metadata: the document its cimd_digest names supplies it.
+
+9.  Authorization Server Metadata
+
+   This specification defines the following authorization server
+   metadata [RFC8414] values:
+
+   software_statement_jwks_uri:  REQUIRED for an authorization server
+      that issues statements under this specification.  URL of a JWK Set
+      containing only the keys with which it signs them.  The URL MUST
+      use the https scheme, and a trusting authorization server MUST
+      validate the server's certificate when retrieving it.
+
+      The keys in this set MUST NOT appear in the JWK Set at the
+      server's jwks_uri metadata value, and the server MUST NOT sign
+      anything other than statements under this specification with them.
+      As a result, a key that signs another artifact, such as a Status
+      List Token or a software statement of another profile, cannot
+      verify a statement (Section 13.3).
+
+   software_statement_signing_alg_values_supported:  REQUIRED for an
+      authorization server that issues statements under this
+      specification.  A JSON array containing the asymmetric JWS alg
+      values that the authorization server can use to sign them.  The
+      array MUST NOT contain none or a symmetric algorithm.  An
+      authorization server that only accepts software statements does
+      not publish it.
+
+   software_statement_pull_supported:  OPTIONAL.  Boolean value
+      indicating whether the authorization server retrieves statements
+      from a client's software_statements_uri member when admitting a
+      client that presented none (Section 5.5).  If omitted, the default
+      value is false.
+
+10.  Extension Points
+
+   The following extensions are left to separate specifications:
+
+   *  Attested keys: a client attestation [ABCA], including one from an
+      attester the reviewed document names, vouching for a key that
+      document does not carry (Section 3.3).
+
+   *  Statement conveyance within a client attestation, rather than as a
+      request parameter.
+
+   *  Runtime presentation on grants other than those Section 5.4.1
+      names, such as token exchange.
+
+   *  Partial review, by which an issuer vouches for particular members
+      rather than a whole document (Section 3).
+
+   *  Statement lifecycle ([LIFECYCLE]): withdrawal, supersession,
+      requiring a current statement on refresh, and refresh replacement.
+
+11.  Implementation Considerations
+
+   This section gives guidance to implementers.  It adds no requirement.
+
+11.1.  Caching and Reuse of Retrieved Content
+
+   A server can revalidate octets it holds with a conditional request
+   rather than retrieving them again (Section 3.1).
+
+   A failed retrieval (Section 5.3) is followed by back-off rather than
+   caching, which [CIMD] forbids.  A response from a
+   software_statements_uri ought to be cached no longer than the
+   document is, and can be revalidated with a conditional request, as
+   the document can (Section 5.5).
+
+11.2.  Retrieval and Processing Bounds
+
+   An authorization server can bound the retrieval and processing work
+   of Section 13.6 as follows:
+
+   *  Rate-limit presentations per statement identity, per subject, and
+      per source, and pulls (Section 5.5) per client identifier and per
+      source, before spending retrieval or storage on a new
+      presentation.
+
+   *  Refuse a presentation that would create a new establishment,
+      before spending retrieval or storage on it, once a bound on
+      establishments (Section 11.3) is reached.
+
+   *  Bound JWT size and parsing work, concurrent retrievals, response
+      size, and response time.
+
+   *  Bound the size of a software_statements_uri response and the
+      number of statements examined separately from the document's.
+      Several issuers' statements outgrow a document-sized bound, and a
+      host can pad the array.
+
+   *  Discard pulled statements from unconfigured issuers before
+      verifying any signature.
+
+11.3.  Bounding Establishments
+
+   A trusting authorization server can bound the number of
+   establishments, and any registrations ([REGISTRATION]), derived from
+   one issuer's statements about one piece of software, identified by
+   iss and sub claims.  How it counts toward a bound is local policy.  A
+   bound stays effective only if what anyone holding a copy of a
+   statement can create does not count toward it: a pushed authorization
+   request and its unredeemed code, which anyone holding a copy of a
+   public client's statement can approve with their own account, or a
+   registration under which no access token has been issued.  Otherwise
+   a holder of a copy could exhaust the bound for the software's other
+   instances.
+
+   For software admitted under Section 5.6.2, a server can also bound
+   establishments per resource owner, so that one user cannot exhaust a
+   bound the software's other users share.
+
+   When a request is refused at a bound (Section 7.2), the authorization
+   server ought to state that reason in error_description, and the
+   client can retry once earlier establishments end (Section 5.7).
+
+11.4.  User Interface, Audit, and Logging
+
+   An authorization server ought not to present the review in a review-
+   only presentation to the user as an assurance about the presenter
+   (Section 5.6.3).  It can record the statement's issuer for audit and
+   inventory.
+
+   Authorization servers ought to avoid logging software statements,
+   which are sensitive in transit and at rest.  A statement names
+   reviewed software and, if it carries an audience, that software's
+   intended relationships.
+
+12.  Deployment Considerations
+
+   This section gives guidance to operators and issuers.  It adds no
+   requirement.
+
+12.1.  Configuring Issuer Trust
+
+   Trust configuration ought to constrain each issuer to the client
+   identifier namespaces it is expected to attest (Section 3.2), for
+   example URLs under the domains of the software publishers it serves.
+   Without such a scope, a compromised or over-broad issuer can mint
+   acceptable statements about any client software.
+
+   When a trusting authorization server configures an issuer whose
+   decisions are confined to one of its tenants, as a customer's own
+   issuer is, it ought to record with that configuration the client
+   identifier namespaces for which the issuer's decision is required in
+   that tenant (Section 4).
+
+12.2.  Audience and Tenant Claims
+
+   An issuer ought to name an audience.
+
+   An issuer ought to omit the aud_tenant claim from a statement whose
+   review applies wherever its aud reaches, such as a marketplace
+   listing.  The claim is also unnecessary if the authorization server
+   has one tenant, or if the issuer and the server have agreed that the
+   server's trust configuration confines the issuer to a tenant, as they
+   can for an issuer that does not know the tenant's identifier.
+
+12.3.  Statement Lifetime and Renewal
+
+   Short lifetimes tighten an issuer's control and increase renewal
+   traffic.  A fleet of statements issued together expires together, so
+   issuers ought to stagger expiries or renew ahead of the boundary.
+
+   A changed document is always served before a statement over it
+   exists.  Until the new statement exists, a presentation under the
+   earlier one fails the digest comparison (Section 5.2).  The
+   statement's lifetime bounds how stale an unobserved review can
+   become.
+
+   Instances need the most recently issued statement from a shared
+   source rather than a copy fixed at build or install time: the
+   document can change, and a server implementing [LIFECYCLE] rejects a
+   superseded statement (Section 3.3).
+
+13.  Security Considerations
+
+   The security considerations of [CIMD] and Section 5 of [RFC7591]
+   apply.
+
+13.1.  Assurance Provided by a Statement
+
+   A statement binds an issuer's review to the octets of a CIMD, which
+   describes an OAuth client configuration.  It does not bind the
+   software's code, dependencies, or behavior.  Software can change
+   while its document stays the same, and the statement remains
+   acceptable until it expires (Section 13.7) or, under [LIFECYCLE], is
+   withdrawn.  Assurance about the software itself rests on the issuer's
+   review process.  Any change to the document's octets, including one
+   that changes no metadata value, makes statements over the earlier
+   octets fail the digest comparison (Section 5.2).  The digest covers a
+   URL the document carries, such as logo_uri, but not the content
+   served at it, which can change after review.
+
+   The following table states what admission under this specification
+   does and does not establish:
+
+    +=======================+=========================================+
+    | Property              | Established                             |
+    +=======================+=========================================+
+    | A configured issuer   | Yes                                     |
+    | signed the statement  |                                         |
+    | for this client       |                                         |
+    | identifier and, if    |                                         |
+    | the statement names   |                                         |
+    | an audience, one that |                                         |
+    | includes this server  |                                         |
+    +-----------------------+-----------------------------------------+
+    | The served document   | Yes                                     |
+    | is the one the issuer |                                         |
+    | reviewed, byte for    |                                         |
+    | byte                  |                                         |
+    +-----------------------+-----------------------------------------+
+    | The presenter         | Yes, except under Section 5.6.2.  For a |
+    | controls a key the    | statement pulled at the authorization   |
+    | reviewed document     | endpoint, possession is proved at code  |
+    | carries               | redemption, before any token is issued  |
+    |                       | (Section 5.5).  Inline jwks attests the |
+    |                       | keys themselves; jwks_uri attests only  |
+    |                       | their location (Section 13.2)           |
+    +-----------------------+-----------------------------------------+
+    | Authorization codes   | Yes, in a redirect flow.  For a public  |
+    | reach only a reviewed | client under Section 5.6.2 it is the    |
+    | redirection URI       | only binding, and it does not hold      |
+    |                       | against a party that controls the user  |
+    |                       | agent (Section 13.4)                    |
+    +-----------------------+-----------------------------------------+
+    | The running software  | No; an attested-key extension can add   |
+    | is the software the   | evidence for it (Section 10)            |
+    | issuer reviewed       |                                         |
+    +-----------------------+-----------------------------------------+
+    | The client may access | No; the authorization server's policy,  |
+    | a particular resource | and the resource owner's authorization  |
+    |                       | where a grant involves one, decide      |
+    +-----------------------+-----------------------------------------+
+
+                                  Table 2
+
+13.2.  Statement Theft and Replay
+
+   A copied statement admits nothing without the sender constraint
+   (Section 5.6).  Except under Section 5.6.2 (Section 13.4), admitting
+   only keys the reviewed document carries also prevents a downgrade to
+   a key the issuer did not review.  An extension admitting attested
+   keys (Section 10) has to address downgrade itself.
+
+   Attesting a jwks_uri attests the location, not its contents: a
+   compromised key host can add keys that satisfy the proof without a
+   digest change.  If that matters, an issuer attests jwks inline and
+   accepts that rotation changes the digest.  A server reusing a cached
+   key set (Section 5.3) also accepts that a just-removed key can
+   briefly continue to verify.
+
+13.3.  Servers That Do Not Implement This Specification
+
+   A statement carries no client metadata, so an [RFC7591] server that
+   verified one without implementing this specification would take every
+   metadata value from the registration request, attaching the issuer's
+   approval to an attacker's redirection URIs and keys.  Keeping
+   statement signing keys in a dedicated statement key set, out of any
+   jwks_uri, and away from statements of other profiles (Section 4,
+   Section 9) means such a server finds no key that verifies a statement
+   through the jwks_uri in an issuer's [RFC8414] metadata.  It is
+   exposed only if its operator configures the statement key set in it.
+   For an issuer that is not an authorization server, that configuration
+   is the only route to its keys, so the protection rests on operators
+   recording the statement key set URL only in servers that implement
+   this specification.
+
+13.4.  Copied Statements and Public Clients
+
+   A party holding a copied statement for a public client can open a
+   pushed authorization request in the reviewed software's name.  It
+   cannot receive an authorization code that another resource owner
+   approves in a user agent the party does not control (Section 5.6.2),
+   so other users are exposed only to a consent prompt carrying the
+   reviewed software's name and branding.  Rate limits (Section 11.2)
+   and the issuer's choice of audience and lifetime bound that exposure.
+
+   A party that controls the user agent receives the code: an
+   application embedding a user agent (Section 8.12 of [RFC8252]), or a
+   holder authorizing with its own account.  It redeems the code with a
+   PKCE verifier and key of its own choosing.  An admission under
+   Section 5.6.2 therefore shows where codes are delivered, not which
+   software holds the grant, and a tenant's required issuer (Section 4)
+   cannot keep unreviewed software out for a user who chooses to run it.
+   This is the client impersonation that Section 8.6 of [RFC8252]
+   describes for public clients.  An attested-key extension (Section 10)
+   would strengthen the binding by giving the instance a key a third
+   party vouches for.
+
+13.5.  Tenant Confusion at a Multi-Tenant Authorization Server
+
+   A multi-tenant server that derives the tenant one way to check a
+   decision and another way to scope a token lets a client reach one
+   tenant's resources on another tenant's decision.  Section 3.2
+   requires one tenant for both, selected by no value the client
+   chooses.
+
+   This specification defines no tenant parameter, and a CIMD URL is the
+   same client_id in every tenant, so neither a client nor an issuer can
+   verify that a server honored the tenant rule of Section 3.2.
+
+   The aud_tenant claim names a tenant at the trusting authorization
+   server, not which of the client's own customers is asking.  Software
+   that acts for many customers under one client identifier and key
+   presents the same statement and key for each, so a statement naming a
+   tenant admits the software there on behalf of every customer it
+   serves, and any of those customers can direct the software at another
+   customer's tenant.  A statement attests software and cannot prevent
+   this.  A deployment that needs a customer-to-tenant binding records
+   it at the trusting authorization server.
+
+13.6.  External Retrieval and Resource Exhaustion
+
+   Runtime presentation can cause the authorization server to retrieve
+   the CIMD, a jwks_uri it names, or the statements its
+   software_statements_uri names (Section 5.3).
+
+   These retrievals happen before any client is registered or any user
+   has interacted, so an unauthenticated requester can cause them with
+   one acceptable statement or, at a server that pulls statements, with
+   none.  The bounds of Section 11.2 limit this work but do not prevent
+   it.
+
+13.7.  Expiry and Open Grants
+
+   Under this specification, expiry limits new admissions and ends
+   nothing already opened: a grant lasts for the life of its refresh
+   tokens, whatever the statement's lifetime, unless the server finds
+   the proven key gone from the client's document (Section 5.7.1).  An
+   older statement that has not expired remains admissible after a newer
+   one narrows the review.  Short statement lifetimes bound new
+   admissions, and grant lifetimes bound continued access.  A deployment
+   that needs withdrawal, supersession, or grants that follow later
+   reviews implements [LIFECYCLE].  Removing an issuer from trust
+   configuration, or narrowing what it can attest, does not by itself
+   end a grant or a registration ([REGISTRATION]) already admitted on
+   one of its statements.  A server ends them by its own means, such as
+   revoking refresh tokens or deleting registrations.
+
+13.8.  Observable State
+
+   A statement_required refusal at the authorization endpoint
+   (Section 7.4) travels through the user agent, so anyone who can see
+   the redirection learns that this client has no established standing
+   at this server.  The disclosure is accepted because a client that
+   cannot learn why it was refused cannot act.  The disclosure carries
+   no detail of the server's issuer trust configuration, which
+   Section 7.6 keeps from unauthenticated requesters.
+
+14.  Privacy Considerations
+
+   The privacy considerations of [CIMD] and Section 6 of [RFC7591]
+   apply.
+
+   A presentation or delivery reveals to the authorization server the
+   client's issuer relationship and, if the statement carries an aud
+   claim, the other authorization servers the client intends to use.
+   Omitting that claim discloses nothing beyond the review.  Pushed
+   authorization requests (Section 5.4.2) keep statements out of browser
+   history, referrers, and front-channel logs.
+
+   A central issuer also learns from renewals which of its statements
+   are in active use, so issuance and renewal logs deserve the same care
+   as the statements (Section 11.4).
+
+   Retrieving the document tells its host that the server is resolving
+   the client.  Pulling statements (Section 5.5) tells the host of
+   software_statements_uri the same.  That host is an additional party
+   only if the URL is on another origin.  Published statements are
+   readable by anyone, so their aud and aud_tenant claims disclose which
+   servers and tenants a review names.  A statement whose audience is
+   sensitive is presented rather than published.
+
+15.  IANA Considerations
+
+15.1.  OAuth Parameters Registry
+
+   This specification requests registration of the software_statement
+   parameter in the IANA "OAuth Parameters" registry established by
+   [RFC6749], for runtime presentation and statement delivery of the
+   artifact defined by [RFC7591]:
+
+   Parameter Name:  software_statement
+
+   Parameter Usage Location:  authorization request, token request
+
+   Change Controller:  IETF
+
+   Specification Document(s):  This specification, Section 5.4 and
+      Section 5.4.2
+
+   The "OAuth Dynamic Client Registration Metadata" registry established
+   by [RFC7591] already contains a software_statement member, which this
+   registration does not affect.  The parameter reuses the name because
+   it carries the same [RFC7591] artifact.
+
+15.2.  Media Type Registration
+
+   This specification requests registration of the application/software-
+   statement+jwt media type in the IANA "Media Types" registry
+   [RFC6838].  [RFC7591] defines no media type for software statements.
+   This registration covers only statements under this specification, as
+   its "Applications that use this media type" entry states, and a
+   statement of another profile carries a typ value of its own.
+
+   Type name:  application
+
+   Subtype name:  software-statement+jwt
+
+   Required parameters:  n/a
+
+   Optional parameters:  n/a
+
+   Encoding considerations:  8bit.  A software statement is a JWT.  JWT
+      values are encoded as a series of base64url-encoded values
+      separated by period ('.') characters, as registered for
+      application/jwt in Section 10.3.1 of [RFC7519].
+
+   Security considerations:  See Section 13 of this specification and
+      Section 11 of [RFC7519].
+
+   Interoperability considerations:  n/a
+
+   Published specification:  This specification
+
+   Applications that use this media type:  Authorization servers and
+      clients that issue, request, or accept software statements under
+      this specification; other profiles are distinguished by their own
+      typ values
+
+   Fragment identifier considerations:  n/a
+
+   Additional information:  Magic number(s): n/a.  File extension(s): n/
+      a.  Macintosh file type code(s): n/a.
+
+   Person & email address to contact for further information:  Karl
+      McGuinness, public@karlmcguinness.com
+
+   Intended usage:  COMMON
+
+   Restrictions on usage:  none
+
+   Author:  Karl McGuinness, public@karlmcguinness.com
+
+   Change controller:  IETF
+
+15.3.  Claims Defined Elsewhere
+
+   This specification uses one claim it does not define: aud_tenant,
+   defined and registered by [IDJAG].  This section requests no IANA
+   action.
+
+15.4.  JSON Web Token Claims Registry
+
+   This specification requests registration of the following values in
+   the IANA "JSON Web Token Claims" registry established by [RFC7519]:
+
+   Claim Name:  cimd_digest
+
+   Claim Description:  Unpadded base64url-encoded SHA-256 digest of the
+      retrieved octets of the Client ID Metadata Document evaluated
+      during software statement issuance
+
+   Change Controller:  IETF
+
+   Specification Document(s):  This specification, Section 3
+
+   Claim Name:  statement_uses
+
+   Claim Description:  Permitted uses of a software statement
+
+   Change Controller:  IETF
+
+   Specification Document(s):  This specification, Section 3
+
+15.5.  OAuth Extensions Error Registry
+
+   This specification requests registration of the following error code
+   in the IANA "OAuth Extensions Error Registry" established by
+   [RFC6749]:
+
+   Error Name:  statement_required
+
+   Error Usage Location:  authorization error response, token error
+      response, pushed authorization request error response
+
+   Related Protocol Extension:  Client ID Metadata Document Software
+      Statement
+
+   Change Controller:  IETF
+
+   Specification Document(s):  This specification, Section 7
+
+   This specification also requests that IANA update the existing
+   temporarily_unavailable entry, adding the token and pushed
+   authorization request error responses to its usage locations and this
+   specification as a reference:
+
+   Error Name:  temporarily_unavailable
+
+   Error Usage Location:  token error response and pushed authorization
+      request error response, in addition to the locations already
+      registered
+
+   Related Protocol Extension:  OAuth 2.0 Authorization Framework
+
+   Change Controller:  IETF
+
+   Specification Document(s):  [RFC6749], this specification (Section 7)
+
+15.6.  OAuth Dynamic Client Registration Metadata Registry
+
+   This specification requests registration of the following value in
+   the IANA "OAuth Dynamic Client Registration Metadata" registry
+   established by [RFC7591].  A client publishes this member in its
+   CIMD:
+
+   Client Metadata Name:  software_statements_uri
+
+   Client Metadata Description:  URL, in a Client ID Metadata Document,
+      at which the client publishes software statements about itself for
+      an authorization server to retrieve.  It is not meaningful in a
+      registration request.
+
+   Change Controller:  IETF
+
+   Specification Document(s):  This specification, Section 5.5
+
+15.7.  OAuth Authorization Server Metadata Registry
+
+   This specification requests registration of the following values in
+   the IANA "OAuth Authorization Server Metadata" registry established
+   by [RFC8414]:
+
+   Metadata Name:  software_statement_signing_alg_values_supported
+
+   Metadata Description:  JSON array containing the asymmetric JWS
+      algorithms supported by the authorization server for signing
+      software statements.
+
+   Change Controller:  IETF
+
+   Specification Document(s):  This specification, Section 9
+
+   Metadata Name:  software_statement_jwks_uri
+
+   Metadata Description:  URL of the JWK Set containing only the keys
+      with which the authorization server signs software statements.
+
+   Change Controller:  IETF
+
+   Specification Document(s):  This specification, Section 9
+
+   Metadata Name:  software_statement_pull_supported
+
+   Metadata Description:  Boolean value indicating whether the
+      authorization server retrieves software statements from a client's
+      software_statements_uri.
+
+   Change Controller:  IETF
+
+   Specification Document(s):  This specification, Section 9
+
+16.  References
+
+16.1.  Normative References
+
+   [CIMD]     Parecki, A. and E. Smith, "OAuth Client ID Metadata
+              Document", Work in Progress, Internet-Draft, draft-ietf-
+              oauth-client-id-metadata-document-02, 6 July 2026,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
+              client-id-metadata-document-02>.
+
+   [IDJAG]    Parecki, A., McGuinness, K., and B. Campbell, "Identity
+              Assertion JWT Authorization Grant", Work in Progress,
+              Internet-Draft, draft-ietf-oauth-identity-assertion-authz-
+              grant-04, 21 May 2026,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
+              identity-assertion-authz-grant-04>.
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/rfc/rfc2119>.
+
+   [RFC6234]  Eastlake 3rd, D. and T. Hansen, "US Secure Hash Algorithms
+              (SHA and SHA-based HMAC and HKDF)", RFC 6234,
+              DOI 10.17487/RFC6234, May 2011,
+              <https://www.rfc-editor.org/rfc/rfc6234>.
+
+   [RFC6585]  Nottingham, M. and R. Fielding, "Additional HTTP Status
+              Codes", RFC 6585, DOI 10.17487/RFC6585, April 2012,
+              <https://www.rfc-editor.org/rfc/rfc6585>.
+
+   [RFC6749]  Hardt, D., Ed., "The OAuth 2.0 Authorization Framework",
+              RFC 6749, DOI 10.17487/RFC6749, October 2012,
+              <https://www.rfc-editor.org/rfc/rfc6749>.
+
+   [RFC6838]  Freed, N., Klensin, J., and T. Hansen, "Media Type
+              Specifications and Registration Procedures", BCP 13,
+              RFC 6838, DOI 10.17487/RFC6838, January 2013,
+              <https://www.rfc-editor.org/rfc/rfc6838>.
+
+   [RFC7515]  Jones, M., Bradley, J., and N. Sakimura, "JSON Web
+              Signature (JWS)", RFC 7515, DOI 10.17487/RFC7515, May
+              2015, <https://www.rfc-editor.org/rfc/rfc7515>.
+
+   [RFC7519]  Jones, M., Bradley, J., and N. Sakimura, "JSON Web Token
+              (JWT)", RFC 7519, DOI 10.17487/RFC7519, May 2015,
+              <https://www.rfc-editor.org/rfc/rfc7519>.
+
+   [RFC7522]  Campbell, B., Mortimore, C., and M. Jones, "Security
+              Assertion Markup Language (SAML) 2.0 Profile for OAuth 2.0
+              Client Authentication and Authorization Grants", RFC 7522,
+              DOI 10.17487/RFC7522, May 2015,
+              <https://www.rfc-editor.org/rfc/rfc7522>.
+
+   [RFC7523]  Jones, M., Campbell, B., and C. Mortimore, "JSON Web Token
+              (JWT) Profile for OAuth 2.0 Client Authentication and
+              Authorization Grants", RFC 7523, DOI 10.17487/RFC7523, May
+              2015, <https://www.rfc-editor.org/rfc/rfc7523>.
+
+   [RFC7591]  Richer, J., Ed., Jones, M., Bradley, J., Machulak, M., and
+              P. Hunt, "OAuth 2.0 Dynamic Client Registration Protocol",
+              RFC 7591, DOI 10.17487/RFC7591, July 2015,
+              <https://www.rfc-editor.org/rfc/rfc7591>.
+
+   [RFC7636]  Sakimura, N., Ed., Bradley, J., and N. Agarwal, "Proof Key
+              for Code Exchange by OAuth Public Clients", RFC 7636,
+              DOI 10.17487/RFC7636, September 2015,
+              <https://www.rfc-editor.org/rfc/rfc7636>.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
+
+   [RFC8414]  Jones, M., Sakimura, N., and J. Bradley, "OAuth 2.0
+              Authorization Server Metadata", RFC 8414,
+              DOI 10.17487/RFC8414, June 2018,
+              <https://www.rfc-editor.org/rfc/rfc8414>.
+
+   [RFC8725]  Sheffer, Y., Hardt, D., and M. Jones, "JSON Web Token Best
+              Current Practices", BCP 225, RFC 8725,
+              DOI 10.17487/RFC8725, February 2020,
+              <https://www.rfc-editor.org/rfc/rfc8725>.
+
+   [RFC9110]  Fielding, R., Ed., Nottingham, M., Ed., and J. Reschke,
+              Ed., "HTTP Semantics", STD 97, RFC 9110,
+              DOI 10.17487/RFC9110, June 2022,
+              <https://www.rfc-editor.org/rfc/rfc9110>.
+
+   [RFC9126]  Lodderstedt, T., Campbell, B., Sakimura, N., Tonge, D.,
+              and F. Skokan, "OAuth 2.0 Pushed Authorization Requests",
+              RFC 9126, DOI 10.17487/RFC9126, September 2021,
+              <https://www.rfc-editor.org/rfc/rfc9126>.
+
+   [RFC9449]  Fett, D., Campbell, B., Bradley, J., Lodderstedt, T.,
+              Jones, M., and D. Waite, "OAuth 2.0 Demonstrating Proof of
+              Possession (DPoP)", RFC 9449, DOI 10.17487/RFC9449,
+              September 2023, <https://www.rfc-editor.org/rfc/rfc9449>.
+
+   [RFC9700]  Lodderstedt, T., Bradley, J., Labunets, A., and D. Fett,
+              "Best Current Practice for OAuth 2.0 Security", BCP 240,
+              RFC 9700, DOI 10.17487/RFC9700, January 2025,
+              <https://www.rfc-editor.org/rfc/rfc9700>.
+
+16.2.  Informative References
+
+   [ABCA]     Looker, T., Bastian, P., and C. Bormann, "OAuth 2.0
+              Attestation-Based Client Authentication", Work in
+              Progress, Internet-Draft, draft-ietf-oauth-attestation-
+              based-client-auth-12, 12 October 2026,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
+              attestation-based-client-auth-12>.
+
+   [LIFECYCLE]
+              McGuinness, K., "Client ID Metadata Document Software
+              Statement Lifecycle", October 2026,
+              <https://mcguinness.github.io/draft-mcguinness-oauth-cimd-
+              sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-
+              lifecycle.html>.
+
+   [OPENID-FED]
+              Hedberg, R., Ed., Jones, M. B., Solberg, A. Å., Bradley,
+              J., De Marco, G., and V. Dzhuvinov, "OpenID Federation
+              1.0", 17 February 2026,
+              <https://openid.net/specs/openid-federation-1_0.html>.
+
+   [REGISTRATION]
+              McGuinness, K., "Client ID Metadata Document Software
+              Statement Registration", Work in Progress, Internet-Draft,
+              draft-mcguinness-oauth-cimd-sw-stmt-registration-00,
+              October 2026, <https://datatracker.ietf.org/doc/draft-
+              mcguinness-oauth-cimd-sw-stmt-registration>.
+
+   [RFC8252]  Denniss, W. and J. Bradley, "OAuth 2.0 for Native Apps",
+              BCP 212, RFC 8252, DOI 10.17487/RFC8252, October 2017,
+              <https://www.rfc-editor.org/rfc/rfc8252>.
+
+   [RFC8705]  Campbell, B., Bradley, J., Sakimura, N., and T.
+              Lodderstedt, "OAuth 2.0 Mutual-TLS Client Authentication
+              and Certificate-Bound Access Tokens", RFC 8705,
+              DOI 10.17487/RFC8705, February 2020,
+              <https://www.rfc-editor.org/rfc/rfc8705>.
+
+Acknowledgments
+
+   This mechanism began as the consumption part of a draft on software
+   statement issuance and was split out so that consumption can evolve
+   separately from issuance.  It draws on working-group discussion of
+   CIMDs and attestation-based client authentication.
+
+Author's Address
+
+   Karl McGuinness
+   Independent
+   Email: public@karlmcguinness.com
