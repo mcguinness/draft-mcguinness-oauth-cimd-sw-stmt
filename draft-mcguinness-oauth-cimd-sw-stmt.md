@@ -59,13 +59,11 @@ informative:
     seriesinfo:
       Internet-Draft: draft-mcguinness-oauth-cimd-sw-stmt-registration-00
   LIFECYCLE:
-    target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle
+    target: https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle.html
     title: "Client ID Metadata Document Software Statement Lifecycle"
     author:
       - fullname: Karl McGuinness
     date: 2026-10
-    seriesinfo:
-      Internet-Draft: draft-mcguinness-oauth-cimd-sw-stmt-lifecycle-00
   ABCA: I-D.ietf-oauth-attestation-based-client-auth
   OPENID-FED:
     target: https://openid.net/specs/openid-federation-1_0.html
