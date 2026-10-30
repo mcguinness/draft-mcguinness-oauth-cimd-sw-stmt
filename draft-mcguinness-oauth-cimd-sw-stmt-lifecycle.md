@@ -65,7 +65,7 @@ informative:
 
 --- abstract
 
-A software statement for a Client ID Metadata Document (CIMD) records a trusted issuer's review of a client's metadata. The base specification ends no grant at a statement's expiry, keeps an older unexpired statement admissible after a newer one is issued, and evaluates no statement on refresh. This specification lets an issuer withdraw a statement, and an authorization server that learns of it keeps a refusal record. An `iat` floor supersedes an issuer's earlier statements once a server accepts a later one. Refresh is refused for a grant whose statement is withdrawn and, by recommendation, expired, unless a later statement replaces it. A profile of Token Status List is the withdrawal mechanism defined here, and an optional Shared Signals event prompts servers to check status promptly.
+A software statement for a Client ID Metadata Document (CIMD) records a trusted issuer's review of a client's metadata. The base specification ends no grant at a statement's expiry, keeps an older unexpired statement admissible after a newer one is issued, and evaluates no statement on refresh. This specification lets an issuer withdraw a statement, and an authorization server that learns of it keeps a refusal record. An `iat` floor supersedes an issuer's earlier statements about the same software once a server accepts a later one. Refresh is refused for a grant whose statement is withdrawn or, by recommendation, expired, unless a later statement replaces it. A profile of Token Status List is the withdrawal mechanism defined here, and an optional Shared Signals event prompts servers to check status promptly.
 
 --- middle
 
