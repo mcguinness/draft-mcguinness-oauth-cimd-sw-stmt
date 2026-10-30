@@ -466,7 +466,7 @@ This specification assigns `temporarily_unavailable` only to a retrieval that di
 This specification defines the following error code:
 
 `statement_required`:
-: A current software statement is required and none was supplied or pulled, or the one supplied or pulled is expired. The code also applies when a statement delivered at the token or pushed authorization request endpoint under {{REGISTRATION}} does not satisfy the requirements for a replacement, and an extension such as {{LIFECYCLE}} can assign it to further cases. The client recovers by obtaining a statement issued more recently.
+: A current software statement is required and none was supplied or pulled, or the one supplied or pulled is expired. An extension such as {{REGISTRATION}} or {{LIFECYCLE}} can assign it to further cases. The client recovers by obtaining a statement issued more recently.
 
 ## Presentation {#presentation-errors}
 
