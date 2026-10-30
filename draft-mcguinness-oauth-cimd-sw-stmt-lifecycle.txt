@@ -234,10 +234,10 @@ Table of Contents
 
    Under [STATEMENT], one unexpired statement is consumable more than
    once, and an older statement that has not expired remains admissible
-   after a newer one is issued (Section 3.3 of [STATEMENT]).  Because
-   the iat claim values of an issuer's statements for a given iss and
-   sub increase strictly (Section 3 of [STATEMENT]), a later iat marks a
-   later review.  Supersession ends the admissibility of earlier
+   after a newer one is issued (Sections 11.3 and 13.7 of [STATEMENT]).
+   Because the iat claim values of an issuer's statements for a given
+   iss and sub increase strictly (Section 3 of [STATEMENT]), a later iat
+   marks a later review.  Supersession ends the admissibility of earlier
    statements once a server accepts a later one: a statement whose iat
    claim is earlier than the server's iat floor is superseded.
 
@@ -247,16 +247,17 @@ Table of Contents
    least the maximum statement lifetime it honors for the issuer after
    that iat.  A statement is accepted for the floor once the server
    admits a client on it, applies it as a replacement (Section 5.2), or
-   registers a client with it ([REGISTRATION]).  The server MUST reject
-   a statement whose iat claim is earlier than the retained iat, whether
-   it arrives as a replacement, a new registration, or a new
-   presentation.  A client holding a superseded, broader statement
+   registers a client or renews a registration with it ([REGISTRATION]).
+   The server MUST reject a statement whose iat claim is earlier than
+   the retained iat, whether it arrives as a replacement on refresh, a
+   new registration or a replacement delivered under [REGISTRATION], or
+   a new presentation.  A client holding a superseded, broader statement
    therefore cannot defer a narrowing by opening a fresh registration or
    establishment with it.
 
    At admission, the server verifies the iat floor in step 3 of
-   Section 5.1 of [STATEMENT], along with the statement requirements and
-   the client_id rule, before it resolves the reviewed document.
+   Section 5.1 of [STATEMENT], along with the client_id rule, before it
+   resolves the reviewed document.
 
    In selecting a pulled statement (Section 5.5.1 of [STATEMENT]), the
    server also ignores any statement that the iat floor supersedes.  A
@@ -282,9 +283,12 @@ Table of Contents
    authorization server SHOULD require a current statement on refresh-
    token use (Section 11.1).  The recorded statement satisfies a
    requirement for a current statement while it is current, even after a
-   later statement has raised the iat floor (Section 4).  A server that
-   uses a withdrawal mechanism for the recorded statement's issuer
-   SHOULD consult it for that statement at each refresh.
+   later statement has raised the iat floor (Section 4), and so does the
+   governing statement of a valid registration under [REGISTRATION].  A
+   server that uses a withdrawal mechanism for a statement's issuer
+   SHOULD consult it for that statement at each refresh of a grant that
+   records it and, if the statement governs a registration under
+   [REGISTRATION], at each token request under the registration.
 
    If the authorization server holds a refusal record for the recorded
    statement, it MUST reject a refresh without an accepted replacement
@@ -403,10 +407,10 @@ Table of Contents
 
 6.  Error Responses
 
-   This section extends Section 7 of [STATEMENT], whose error responses
+   This section extends Section 6 of [STATEMENT], whose error responses
    and HTTP status codes apply at each endpoint.
 
-   The statement_required error code (Section 7.1 of [STATEMENT]) also
+   The statement_required error code (Section 6.1 of [STATEMENT]) also
    applies when the statement supplied or pulled is refused by a refusal
    record (Section 3) or superseded under the iat floor (Section 4), and
    when a statement offered as a replacement on refresh (Section 5.2)
@@ -414,7 +418,7 @@ Table of Contents
 
    A presentation whose statement is refused by a refusal record or
    superseded under the iat floor is rejected with statement_required,
-   in place of the invalid_client error code that Section 7.2 of
+   in place of the invalid_client error code that Section 6.2 of
    [STATEMENT] assigns to a statement that fails validation.
 
    A statement whose status claim references an index outside the list
@@ -424,7 +428,7 @@ Table of Contents
    Under an establishment, a refresh-token request rejected for a reason
    this specification defines uses temporarily_unavailable if a
    retrieval it needs did not complete, including a pull of a
-   replacement, as Section 7 of [STATEMENT] provides, and otherwise the
+   replacement, as Section 6 of [STATEMENT] provides, and otherwise the
    following error codes:
 
    statement_required:  A replacement fails step 3 of Section 5.2 or the
@@ -435,7 +439,7 @@ Table of Contents
 
    unauthorized_client or invalid_scope:  The refreshed access exceeds
       the metadata of the document an accepted replacement names, as
-      Section 7.3 of [STATEMENT] provides for the reviewed metadata.
+      Section 6.3 of [STATEMENT] provides for the reviewed metadata.
 
    invalid_request:  The request carries a replacement but omits
       client_id (Section 5.2).
@@ -443,7 +447,7 @@ Table of Contents
    If a statement is refused by a refusal record rather than merely
    expired, and the client is authenticated, the authorization server
    ought to indicate in the error_description parameter that a statement
-   issued more recently is required (Section 7.6 of [STATEMENT]).
+   issued more recently is required (Section 6.6 of [STATEMENT]).
 
 7.  Token Status List
 
@@ -490,8 +494,8 @@ Table of Contents
 
    *  MUST sign the Status List Token with a key published at the
       jwks_uri metadata value of its authorization server metadata
-      [RFC8414], which Sections 4 and 9 of [STATEMENT] keep apart from
-      its statement signing keys, or, for an issuer that is not an
+      [RFC8414], which Section 4 of [STATEMENT] keeps apart from its
+      statement signing keys, or, for an issuer that is not an
       authorization server, in its Status List key set (Section 7).
 
    *  MUST include the exp claim in every Status List Token it
@@ -577,7 +581,7 @@ Table of Contents
     |           | authorization server        |                      |
     +===========+=============================+======================+
     | Statement | software_statement_jwks_uri | The URL at which it  |
-    | signing   | (Sections 4 and 9 of        | serves its statement |
+    | signing   | (Sections 4 and 8 of        | serves its statement |
     | keys      | [STATEMENT])                | key set (Section 4   |
     |           |                             | of [STATEMENT])      |
     +-----------+-----------------------------+----------------------+
@@ -853,7 +857,7 @@ Table of Contents
 11.2.  Supersession and Refresh Replacement
 
    The iat floor (Section 4) exists because one statement is consumable
-   more than once (Section 3.3 of [STATEMENT]).  Without it, a client
+   more than once (Section 11.3 of [STATEMENT]).  Without it, a client
    holding an older, broader statement could keep opening registrations
    and establishments with it after its issuer narrows the review, until
    that statement expires.  The floor closes this at a server only once
