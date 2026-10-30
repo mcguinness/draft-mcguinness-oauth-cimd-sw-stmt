@@ -368,13 +368,13 @@ An authorization server advertises support through `software_statement_pull_supp
 A runtime presentation that is not review-only ({{review-only}}) MUST be sender-constrained under one of two models, set by the `token_endpoint_auth_method` its reviewed document declares:
 
 * Confidential client (a method other than `none`): by a key the statement attests ({{confidential-client-presentation}}).
-* Public client (`none`): by an installation key the presenter binds ({{public-client-presentation}}). The reviewed redirection URIs, with PKCE `S256`, bind the presentation itself, and continuation proves the key.
+* Public client (`none`): by an installation key the presenter binds ({{public-client-presentation}}), while its reviewed redirection URIs, with PKCE `S256`, bind the presentation itself.
 
 The authorization server MUST reject a presentation under a reviewed document that omits the `token_endpoint_auth_method` member, even if the presentation is review-only. A statement pulled for such a document is instead review-only ({{review-only}}).
 
 For a presentation that is not review-only, under either model:
 
-* The presenter proves possession of that key through the applicable client authentication method or a DPoP proof {{RFC9449}}. If a request carries both, the key its client authentication proves is the proven key.
+* The presenter proves possession of the key its model requires through the applicable client authentication method or a DPoP proof {{RFC9449}} or, for a public client that binds its key through `dpop_jkt`, at code redemption ({{grant-lifecycle}}). If a request carries both, the key its client authentication proves is the proven key.
 * The proof MUST be bound to the current request and validated with the replay protections of that mechanism.
 * If the reviewed document declares a client authentication method in its `token_endpoint_auth_method` member ({{CIMD}}), the presenter MUST use that method.
 * The authorization server MUST reject a presentation without such a proof or, for a confidential client, whose proven key the reviewed document does not carry.
