@@ -389,7 +389,7 @@ A key at the document's `jwks_uri` is retrieved at presentation time. If that re
 
 Software distributed to end users cannot hold a key its reviewed document carries: a key shipped in every copy identifies the software, not the installation. Such a document declares `token_endpoint_auth_method` of `none` and carries no key material.
 
-An authorization server MUST reject a presentation, even a review-only one, that opens a new grant at the token endpoint ({{runtime-presentation}}) from a public client. Such a presentation opens no redirect and has nothing to bind it. A statement pulled for such a client at the token endpoint is instead review-only ({{review-only}}).
+An authorization server MUST reject a presentation, even a review-only one, that opens a new grant at the token endpoint ({{runtime-presentation}}) from a public client. Such a presentation opens no redirect and has nothing to bind it. A statement pulled for such a client at the token endpoint for a request opening a new grant is instead review-only ({{review-only}}).
 
 For a public client's presentation that is not review-only, at the pushed authorization request endpoint, the authorization server:
 
