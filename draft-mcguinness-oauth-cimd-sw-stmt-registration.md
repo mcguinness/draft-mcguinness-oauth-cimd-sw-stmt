@@ -226,7 +226,12 @@ One unexpired statement can be consumed more than once, subject to the bounds Se
 A rejection this specification defines, at a client registration endpoint or at the client configuration endpoint of {{RFC7592}}, uses the error response of Section 3.2.2 of {{RFC7591}}, with the HTTP status code that section specifies, except that an authorization server SHOULD respond with HTTP status code 503 to a request it rejects with the `temporarily_unavailable` error code. Such a rejection uses the following error codes:
 
 `invalid_software_statement`:
-: The statement is malformed, fails signature or claim validation for a reason `unapproved_software_statement` does not cover, or is expired or otherwise not current (Section 2 of {{STATEMENT}}). The code also applies to a `cimd_digest` mismatch ({{dcr-presentation}}), to an {{RFC7592}} update request rejected under {{registration-validity}}, and to a replacement delivered at the client configuration endpoint, or a statement in a repeated public-client registration request that is earlier than the governing statement or is evaluated as a replacement ({{public-client-registration}}), when it fails a replacement-specific rule of {{revalidation}} that this section assigns no other code, such as a change in whether the document declares `token_endpoint_auth_method` of `none`.
+: Any of the following:
+
+  * The statement is malformed, fails signature or claim validation for a reason `unapproved_software_statement` does not cover, or is expired or otherwise not current (Section 2 of {{STATEMENT}}).
+  * The document's digest does not equal the statement's `cimd_digest` claim ({{dcr-presentation}}).
+  * An {{RFC7592}} update request is rejected under {{registration-validity}}.
+  * A replacement delivered at the client configuration endpoint, or a statement in a repeated public-client registration request that is earlier than the governing statement or is evaluated as a replacement ({{public-client-registration}}), fails a replacement-specific rule of {{revalidation}} that this section assigns no other code, such as a change in whether the document declares `token_endpoint_auth_method` of `none`.
 
 `unapproved_software_statement`:
 : The statement is valid but not acceptable here: its issuer is not configured, its `aud` excludes this server, its `sub` is outside the client identifier namespaces the issuer can attest, its `aud_tenant` is not this request's tenant or is absent when required, its issuer is confined to another tenant, or its `statement_uses` excludes this use. This code is also used if a statement this server requires is absent from a registration request.
