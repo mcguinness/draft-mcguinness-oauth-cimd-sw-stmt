@@ -293,7 +293,7 @@ A trusting authorization server MAY reuse document octets it holds for digest co
 A client presents a software statement by including the following parameter in a token request or a pushed authorization request:
 
 `software_statement`:
-: REQUIRED for presentation. The software statement ({{profiles}}). It is consumed as a runtime presentation or, where implemented, as a refresh replacement under {{LIFECYCLE}} or a delivery under {{REGISTRATION}}. A request carrying the parameter in any other role is rejected.
+: REQUIRED for presentation. The software statement ({{profiles}}). It is consumed as a runtime presentation or, where implemented, as a refresh replacement under {{LIFECYCLE}} or a delivery under {{REGISTRATION}}. On refresh-token use under an establishment, a server that does not implement {{LIFECYCLE}} ignores the parameter. A request carrying the parameter in any other role is rejected.
 
 A request making a runtime presentation MUST include the `client_id` parameter, even if the client authenticates, and its value, the client's CIMD URL, MUST exactly equal the statement's `sub` claim. If the `client_id` parameter is absent, the authorization server rejects the request. If the two differ, the authorization server MUST reject the presentation. The effective `client_id` is the statement's `sub`, and the authorization server assigns none.
 
