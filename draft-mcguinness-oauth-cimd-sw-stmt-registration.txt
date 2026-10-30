@@ -316,7 +316,7 @@ Table of Contents
          governing statement.
 
       -  That statement validates and is not superseded under the iat
-         floor of Section 6 of [STATEMENT].
+         floor of Section 3.4 of [STATEMENT].
 
       -  That statement is confined to no tenant other than one the
          registration is already restricted to.
@@ -458,29 +458,29 @@ Table of Contents
    later than the governing statement's iat is not a replacement.  The
    authorization server treats a delivered statement as follows:
 
-    +=======================================+========================+
-    | Statement delivered                   | Treatment              |
-    +=======================================+========================+
-    | The governing statement itself,       | No replacement         |
-    | identified by its iss and jti         |                        |
-    +---------------------------------------+------------------------+
-    | In an [RFC7592] update request, any   | No replacement         |
-    | statement with the governing          |                        |
-    | statement's iss and sub and an iat no |                        |
-    | later than the governing statement's  |                        |
-    +---------------------------------------+------------------------+
-    | At the token or pushed authorization  | Superseded under the   |
-    | request endpoint, any other statement | iat floor of Section 6 |
-    | with the governing statement's iss    | of [STATEMENT].  The   |
-    | and sub and an earlier iat            | request is rejected    |
-    +---------------------------------------+------------------------+
-    | A statement with the governing        | A replacement,         |
-    | statement's iss and sub and a later   | evaluated below        |
-    | iat                                   |                        |
-    +---------------------------------------+------------------------+
-    | Any other statement, such as one with | Fails the replacement  |
-    | another iss or sub                    | rules below            |
-    +---------------------------------------+------------------------+
+   +=======================================+==========================+
+   | Statement delivered                   | Treatment                |
+   +=======================================+==========================+
+   | The governing statement itself,       | No replacement           |
+   | identified by its iss and jti         |                          |
+   +---------------------------------------+--------------------------+
+   | In an [RFC7592] update request, any   | No replacement           |
+   | statement with the governing          |                          |
+   | statement's iss and sub and an iat no |                          |
+   | later than the governing statement's  |                          |
+   +---------------------------------------+--------------------------+
+   | At the token or pushed authorization  | Superseded under the iat |
+   | request endpoint, any other statement | floor of Section 3.4 of  |
+   | with the governing statement's iss    | [STATEMENT].  The        |
+   | and sub and an earlier iat            | request is rejected      |
+   +---------------------------------------+--------------------------+
+   | A statement with the governing        | A replacement, evaluated |
+   | statement's iss and sub and a later   | below                    |
+   | iat                                   |                          |
+   +---------------------------------------+--------------------------+
+   | Any other statement, such as one with | Fails the replacement    |
+   | another iss or sub                    | rules below              |
+   +---------------------------------------+--------------------------+
 
                                  Table 2
 
@@ -495,7 +495,7 @@ Table of Contents
    unchanged, and the request proceeds only while the registration
    remains valid (Section 3.2).  While the registration is valid, its
    governing statement is current, even after a later statement has
-   raised the iat floor of Section 6 of [STATEMENT], and satisfies any
+   raised the iat floor of Section 3.4 of [STATEMENT], and satisfies any
    requirement the server has for a current statement on refresh.  When
    a request under an expired registration carries no replacement, its
    rejection (Section 3.2) MUST NOT by itself cause the authorization
@@ -506,7 +506,7 @@ Table of Contents
 
    *  It validates under the validation rules of Section 3.2 of
       [STATEMENT], including its audience if it carries one, and is not
-      superseded under the iat floor of Section 6 of [STATEMENT].
+      superseded under the iat floor of Section 3.4 of [STATEMENT].
 
    *  The iss and sub claims equal those of the governing statement.
 
@@ -545,7 +545,7 @@ Table of Contents
 4.  Repeated Registration
 
    One unexpired statement can be consumed more than once, subject to
-   the bounds Sections 12.2 and 12.3 of [STATEMENT] describe and the
+   the bounds Sections 11.2 and 11.3 of [STATEMENT] describe and the
    server's registration policy.  The safe default is one registration
    per (iss, sub) at one authorization server.  On repeated consumption,
    except for a public-client registration, local policy can reject the
@@ -569,14 +569,15 @@ Table of Contents
       signature or claim validation for a reason
       unapproved_software_statement does not cover, or is expired,
       refused by a refusal record, or superseded under the iat floor of
-      Section 6 of [STATEMENT].  The code also applies to a cimd_digest
-      mismatch (Section 3), to an [RFC7592] update request rejected
-      under Section 3.2, and to a replacement delivered at the client
-      configuration endpoint, or a statement in a repeated public-client
-      registration request evaluated as a replacement (Section 3.1),
-      when it fails a replacement-specific rule of Section 3.4 that this
-      section assigns no other code, such as a change in whether the
-      document declares token_endpoint_auth_method of none.
+      Section 3.4 of [STATEMENT].  The code also applies to a
+      cimd_digest mismatch (Section 3), to an [RFC7592] update request
+      rejected under Section 3.2, and to a replacement delivered at the
+      client configuration endpoint, or a statement in a repeated
+      public-client registration request evaluated as a replacement
+      (Section 3.1), when it fails a replacement-specific rule of
+      Section 3.4 that this section assigns no other code, such as a
+      change in whether the document declares token_endpoint_auth_method
+      of none.
 
    unapproved_software_statement:  The statement is valid but not
       acceptable here: its issuer is not configured, its aud excludes
@@ -616,7 +617,7 @@ Table of Contents
       complete, for a reason other than the size bound of Section 3.1 of
       [STATEMENT].
 
-   Rejections at other endpoints use the error responses of Section 8 of
+   Rejections at other endpoints use the error responses of Section 7 of
    [STATEMENT].  At the token, pushed authorization request, and
    authorization endpoints, rejections take the following form under a
    statement-governed registration that is not valid, under the
@@ -628,7 +629,7 @@ Table of Contents
       any statement it delivers is evaluated, and a request that fails
       that authentication is rejected with invalid_client, as for an
       unknown client.  Otherwise the request is rejected with
-      statement_required (Section 8.1 of [STATEMENT]), or with
+      statement_required (Section 7.1 of [STATEMENT]), or with
       temporarily_unavailable if a retrieval needed to check the
       replacement did not complete for a reason other than the size
       bound of Section 3.1 of [STATEMENT].
@@ -636,7 +637,7 @@ Table of Contents
    *  An authorization request is rejected with statement_required in
       the authorization error response (Section 4.1.2.1 of [RFC6749]),
       or with invalid_request if it carries the software_statement
-      parameter, as Section 8.4 of [STATEMENT] provides.  The
+      parameter, as Section 7.4 of [STATEMENT] provides.  The
       authorization server redirects with the error only after
       validating the request's redirect_uri against the registration.
       If the redirect_uri does not validate against the registration,
@@ -693,14 +694,14 @@ Table of Contents
    An issuer outage longer than a statement-governed registration's
    remaining lifetime takes the registration out of service
    (Section 3.2) until the client delivers a replacement (Section 3.4).
-   The lifetimes an issuer chooses set the renewal cadence (Section 13.3
+   The lifetimes an issuer chooses set the renewal cadence (Section 12.3
    of [STATEMENT]).  A deployment ought to have clients renew well
    before effective expiry, and ought to weigh that cadence against how
    quickly a narrowed or withdrawn review needs to take effect.
 
 9.  Security Considerations
 
-   The security considerations in Section 14 of [STATEMENT] and
+   The security considerations in Section 13 of [STATEMENT] and
    Section 5 of [RFC7591] apply.
 
 9.1.  Statements at Registration
@@ -730,7 +731,7 @@ Table of Contents
    codes under it reach only the reviewed redirection URIs, and its
    grants are bound to keys that installations hold.  A holder of a copy
    therefore gains what it would gain at runtime, including the exposure
-   Section 14.4 of [STATEMENT] describes for a holder that controls the
+   Section 13.4 of [STATEMENT] describes for a holder that controls the
    user agent.
 
 9.2.  Credential Theft and Renewal
@@ -746,7 +747,7 @@ Table of Contents
 
    Deployments ought to pair statement-governed registrations with
    credential rotation, sender-constrained client authentication, and
-   the bounds that Sections 12.2 and 12.3 of [STATEMENT] and Section 4
+   the bounds that Sections 11.2 and 11.3 of [STATEMENT] and Section 4
    describe, and ought to treat a credential compromise as requiring re-
    registration rather than renewal.  Runtime presentation (Section 5.6
    of [STATEMENT]) binds every presenter to the reviewed document,
@@ -761,7 +762,7 @@ Table of Contents
    [RFC7591]).  Requiring a statement replaces self-asserted branding
    with issuer-reviewed values, though content served at a URL the
    document carries, such as a logo, can change after review
-   (Section 14.1 of [STATEMENT]).  Servers that render such values on
+   (Section 13.1 of [STATEMENT]).  Servers that render such values on
    consent screens ought to prefer those from a reviewed document and to
    apply heightened scrutiny to registrations that claim user-visible
    branding without a statement.
@@ -788,14 +789,14 @@ Table of Contents
    These disclosures are accepted because a client that cannot learn why
    it was refused cannot act.  Beyond a lapse and its timing, they
    reveal nothing of the server's issuer trust configuration
-   (Section 8.6 of [STATEMENT]).  Publishing
+   (Section 7.6 of [STATEMENT]).  Publishing
    software_statement_registration_validity_supported discloses that
    statement-governed registrations expire there, which a client needs
    to know before registering.
 
 10.  Privacy Considerations
 
-   The privacy considerations in Section 15 of [STATEMENT] and Section 6
+   The privacy considerations in Section 14 of [STATEMENT] and Section 6
    of [RFC7591] apply.  A registration request reveals to the
    authorization server the same information as a runtime presentation.
 

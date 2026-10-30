@@ -912,7 +912,7 @@ Table of Contents
     |       | checked only for a         | presence in the document   |
     |       | replacement.               | (Section 8).               |
     +-------+----------------------------+----------------------------+
-    |8.3    | Code redemption is         | Redemption can also return |
+    |7.3    | Code redemption is         | Redemption can also return |
     |       | rejected with              | invalid_client or          |
     |       | invalid_request,           | invalid_client_attestation |
     |       | invalid_grant, or, at the  | for failed authentication, |
@@ -921,7 +921,7 @@ Table of Contents
     |       |                            | temporarily_unavailable    |
     |       |                            | (Section 11.1).            |
     +-------+----------------------------+----------------------------+
-    |8.4    | A client not admitted on a | A missing or invalid       |
+    |7.4    | A client not admitted on a | A missing or invalid       |
     |       | statement receives         | required pushed            |
     |       | statement_required.        | authorization request is   |
     |       |                            | rejected with              |
