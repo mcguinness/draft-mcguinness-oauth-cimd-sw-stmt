@@ -275,10 +275,10 @@ For a runtime presentation, the authorization server proceeds as follows, reject
 1. Obtain the statement, presented in the request ({{runtime-presentation}}) or pulled ({{pulled-statements}}).
 2. Validate the statement ({{validation}}), completing every check that needs no client-controlled retrieval before any such retrieval ({{retrieval}}).
 3. Verify the statement requirements of {{profiles}}, the `iat` floor of {{multi-instance}}, and the `client_id` rule of {{runtime-presentation}}.
-4. Resolve the reviewed document and compare its digest ({{effective-metadata}}).
+4. Resolve the reviewed document and compare its digest ({{effective-metadata}}). A server that proceeds without the statement on a mismatch ends admission here.
 5. Verify the sender constraint against that document ({{sender-constraint}}).
 6. Evaluate the request against the reviewed metadata ({{effective-metadata}}).
-7. Create the establishment ({{grant-lifecycle}}), unless the statement is review-only ({{review-only}}) or the server proceeds without it ({{effective-metadata}}).
+7. Create the establishment ({{grant-lifecycle}}), unless the statement is review-only ({{review-only}}).
 
 ## Reviewed Metadata {#effective-metadata}
 
