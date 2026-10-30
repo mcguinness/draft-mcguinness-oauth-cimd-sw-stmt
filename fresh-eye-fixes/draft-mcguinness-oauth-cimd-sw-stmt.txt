@@ -2151,13 +2151,15 @@ Appendix A.  Open Design Questions
    1.  Issuer-hosted statements.  The authorization server could obtain
        statements from the issuer, per client or as a signed list it
        synchronizes, instead of from the client.  That would remove the
-       software_statement parameter, software_statements_uri, the iat
-       floor, and refusal records derived from a withdrawal mechanism,
-       since the server would see the issuer's current statement within
-       the bounds of its caching.  It would require issuers to serve
-       statements with high availability, would tell an issuer which
-       servers resolve which clients unless lists are synchronized, and
-       departs from the client-carried statement of [RFC7591].
+       software_statement parameter and software_statements_uri, and
+       could replace the iat floor and refusal records derived from a
+       withdrawal mechanism with rules for authoritative current
+       responses, cache freshness, and failure handling, so that a stale
+       response cannot restore a decision the server has seen replaced
+       or withdrawn.  It would require issuers to serve statements with
+       high availability, would tell an issuer which servers resolve
+       which clients unless lists are synchronized, and departs from the
+       client-carried statement of [RFC7591].
 
    2.  Admission on every token request.  The server could re-check a
        current statement and the served document on every token request
