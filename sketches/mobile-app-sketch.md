@@ -142,8 +142,8 @@ sequenceDiagram
 | Admission without presentation | Issuance | Issuer as Trusting Authorization Server |
 | Presenting as a public client | Statement | Public Clients |
 | Binding the grant to one install | Statement | Grant Binding |
-| Ending open grants on withdrawal | Statement | Refresh |
-| Withdrawal before expiry | Statement, Status | Withdrawal; Token Status List |
+| Ending open grants on withdrawal | Lifecycle | Refresh |
+| Withdrawal before expiry | Lifecycle | Withdrawal and Refusal Records; Token Status List |
 | Reaching the third party | Not in this family | Identity Assertion Authorization Grant |
 
 ## What is still missing

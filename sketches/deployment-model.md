@@ -180,8 +180,8 @@ What does not compose is metadata. Resolved metadata is derived, and parties oth
 | Discovery | Statement | Authorization Server Metadata, Issuer Trust Establishment |
 | How a client obtains a statement | Issuance | Token Exchange Profile, Software Statement Authorization Request, Deferred Processing |
 | Renewal from a prior statement | Issuance | Renewal |
-| Ending a review before expiry | Statement, Status | Withdrawal; Token Status List |
-| Reducing withdrawal latency | Status | Status Changed, Receiver Processing |
+| Ending a review before expiry | Lifecycle | Withdrawal and Refusal Records; Token Status List |
+| Reducing withdrawal latency | Lifecycle | Status Changed Event, Receiver Processing |
 | Loopback native clients with attested keys | Attested | Runtime Admission |
 | Issuer trust without per-reviewer enrollment | None yet | Sketched in the Federation companion |
 
