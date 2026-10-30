@@ -319,15 +319,17 @@ A client presents a software statement by including the following parameter in a
 
 A request making a runtime presentation, or carrying a refresh replacement ({{refresh}}), MUST include the `client_id` parameter, even if the client authenticates, and its value, the client's CIMD URL, MUST exactly equal the statement's `sub` claim. If the `client_id` parameter is absent, the authorization server rejects the request. If the two differ in a runtime presentation, the authorization server MUST reject the presentation. A refresh replacement whose `sub` differs is rejected as {{refresh}} provides. The effective `client_id` is the statement's `sub`, and the authorization server assigns none.
 
+A request that asks an authorization server to issue a software statement, rather than to consume one, MUST NOT carry the `software_statement` parameter. An authorization server that does not implement this specification ignores the parameter (Sections 3.1 and 3.2 of {{RFC6749}}).
+
+### Token Endpoint {#token-requests}
+
 At the token endpoint, a runtime presentation is valid on a request using any one of the following grants:
 
 * The `client_credentials` grant.
 * The JWT or SAML 2.0 assertion grant (Section 2.1 of {{RFC7523}} and Section 2.1 of {{RFC7522}}).
 * Another grant whose specification provides for runtime presentation under this specification.
 
-Authorization-code redemption and refresh-token use continue an existing grant ({{grant-lifecycle}}, {{refresh}}). A request that asks an authorization server to issue a software statement, rather than to consume one, MUST NOT carry the `software_statement` parameter.
-
-An authorization server that does not implement this specification ignores the parameter (Sections 3.1 and 3.2 of {{RFC6749}}).
+Authorization-code redemption and refresh-token use continue an existing grant ({{grant-lifecycle}}, {{refresh}}).
 
 ### Authorization Endpoint {#authorization-requests}
 
