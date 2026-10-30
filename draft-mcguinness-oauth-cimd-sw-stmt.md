@@ -252,7 +252,7 @@ For each trusted issuer, a trusting authorization server records at least the fo
 
 A statement key set whose URL is recorded in trust configuration is subject to rules corresponding to those {{authorization-server-metadata}} sets for `software_statement_jwks_uri`: its URL MUST use the `https` scheme, a trusting authorization server MUST validate the certificate of the host serving it, and the issuer MUST NOT place in it a key from any other JWK Set it publishes, or sign anything other than statements under this specification with its keys.
 
-Whichever route supplies it, a trusting authorization server MAY reuse a retrieved statement key set only within ordinary HTTP caching bounds and a maximum reuse period of its own choosing, and MUST NOT let the issuer's cache directives alone determine how long a removed key continues to verify. If retrieving the key set does not complete, the authorization server rejects the request with `temporarily_unavailable`, except that a pull for a request opening a new grant proceeds as {{pulled-statements}} describes.
+A trusting authorization server reuses a retrieved statement key set only as {{retrieval}} permits. If retrieving a statement key set from either source does not complete, the authorization server rejects the request with `temporarily_unavailable`, except that a pull for a request opening a new grant proceeds as {{pulled-statements}} describes.
 
 These inputs, not the signature alone, define acceptance. A trusting authorization server MUST derive trust from this local configuration and MUST NOT derive it from an `iss`, `jku`, `x5u`, or other key-location value carried in a presented statement.
 
@@ -273,27 +273,29 @@ A client presents its statement in a request ({{runtime-presentation}}) or publi
 For a runtime presentation, the authorization server proceeds as follows, rejecting at the first failure ({{errors}}):
 
 1. Obtain the statement, presented in the request ({{runtime-presentation}}) or pulled ({{pulled-statements}}).
-2. Validate the statement ({{validation}}), including the statement requirements of {{profiles}}, the `iat` floor of {{multi-instance}}, and the `client_id` rule of {{runtime-presentation}}, completing every check that needs no client-controlled retrieval before any such retrieval.
+2. Validate the statement ({{validation}}), including the statement requirements of {{profiles}}, the `iat` floor of {{multi-instance}}, and the `client_id` rule of {{runtime-presentation}}, completing every check that needs no client-controlled retrieval before any such retrieval ({{retrieval}}).
 3. Resolve the reviewed document and compare its digest ({{effective-metadata}}).
 4. Verify the sender constraint against that document ({{sender-constraint}}).
 5. Evaluate the request against the reviewed metadata ({{effective-metadata}}).
 6. Create the establishment ({{grant-lifecycle}}).
 
-Every retrieval this specification causes, of the CIMD, a `jwks_uri` it names, or the statements its `software_statements_uri` names, inherits the server-side request forgery protections in Section 8.6 of {{CIMD}}. A trusted signature does not make a URL safe: the authorization server MUST apply its URL, redirect, address-range, transport, and content-type policy independently to every referenced location.
-
-If a retrieval fails, the authorization server MUST reject the request and MUST NOT fall back to a weaker proof. A failed pull of statements for a request that opens a new grant is the exception: it leaves the client unreviewed, as {{pulled-statements}} describes.
-
-A retrieval does not complete only when it times out, its connection fails, or the response has a 429 (Too Many Requests) status code (Section 4 of {{RFC6585}}) or a 5xx status code, and only then does this specification assign `temporarily_unavailable`. Any other failure to obtain an acceptable representation, such as another 4xx status code or a body that is not a JSON object, is final: a document is treated as failing validation, a key set as carrying no acceptable key, and a statements location as publishing no statement.
-
 ## Reviewed Metadata {#effective-metadata}
 
-Having validated the statement, and before verifying the proof ({{processing}}), the authorization server MUST obtain the CIMD at the statement's `sub`, only by retrieval or from octets it has already digested for that identifier, and compare its digest with the `cimd_digest` claim. If octets it already holds do not match, it retrieves the document once more before treating the mismatch as a change.
-
-Octets the authorization server already holds serve for that comparison only within a maximum reuse period of its own choosing, as a key set does ({{sender-constraint}}). The authorization server MUST NOT let the client's cache directives alone determine how long held octets continue to match a statement. Without this rule, a key the document carries inline would continue to verify after the publisher removes it.
+Having validated the statement, and before verifying the proof ({{processing}}), the authorization server MUST obtain the CIMD at the statement's `sub`, only by retrieval or from octets it has already digested for that identifier ({{retrieval}}), and compare its digest with the `cimd_digest` claim. If octets it already holds do not match, it retrieves the document once more before treating the mismatch as a change.
 
 A match means the served document is the reviewed one, and its members are the client's metadata for the request. The server takes those members from the octets whose digest matched, not from another retrieval or a copy it has not digested. A mismatch means the document changed after review, and the authorization server MUST NOT treat the changed document as reviewed. It rejects the presentation with `invalid_client` or, by local policy, proceeds without the statement. If it proceeds, it applies its policy for CIMD clients it has not reviewed to the current document and creates no establishment for the statement.
 
 The request is evaluated against the reviewed metadata as against any client's registered metadata ({{RFC6749}}, {{CIMD}}): any requested grant type, response type, or scope MUST fall within it. A document that omits `scope` sets no ceiling on scope beyond the server's own policy.
+
+## Retrieval {#retrieval}
+
+Every retrieval this specification causes, of the CIMD, a `jwks_uri` it names, or the statements its `software_statements_uri` names, inherits the server-side request forgery protections in Section 8.6 of {{CIMD}}. A trusted signature does not make a URL safe: the authorization server MUST apply its URL, redirect, address-range, transport, and content-type policy independently to every referenced location.
+
+If a retrieval fails, the authorization server MUST reject the request and MUST NOT fall back to a weaker proof, except that a failed pull of statements for a request opening a new grant leaves the client unreviewed ({{pulled-statements}}).
+
+A retrieval does not complete only when it times out, its connection fails, or the response has a 429 (Too Many Requests) status code (Section 4 of {{RFC6585}}) or a 5xx status code, and only then does this specification assign `temporarily_unavailable`. Any other failure to obtain an acceptable representation, such as another 4xx status code or a body that is not a JSON object, is final: a document is treated as failing validation, a key set as carrying no acceptable key, and a statements location as publishing no statement.
+
+A trusting authorization server MAY reuse document octets it holds for digest comparison ({{effective-metadata}}), a key set retrieved from a document's `jwks_uri`, and a statement key set from either source ({{issuer-trust}}), only within ordinary HTTP caching bounds and a maximum reuse period of its own choosing. It MUST NOT let the publisher's cache directives alone (the client's for the document and its key set, the issuer's for a statement key set) determine how long held octets continue to match a statement or a removed key continues to verify ({{statement-validation}}). Without this rule, a key the document carries inline would continue to verify after the publisher removes it.
 
 ## Presentation Request {#runtime-presentation}
 
@@ -356,7 +358,7 @@ The presenter of a pulled statement is bound as for a presented statement ({{sen
 | Pushed authorization request endpoint | The client's authentication binds the presenter | {{public-client-presentation}} binds the presenter if the request uses PKCE with `S256` and binds a key through a DPoP proof or `dpop_jkt`. Otherwise review-only |
 | Authorization endpoint | The client's authentication at code redemption binds the presenter, before any token is issued | {{public-client-presentation}} binds the presenter if the request uses PKCE with `S256` and binds a key through `dpop_jkt`, which redemption then proves. Otherwise review-only |
 
-At code redemption, a confidential client whose statement was pulled at the authorization endpoint authenticates with a key the reviewed document carries, in its `jwks` or at its `jwks_uri` within the reuse bounds of {{sender-constraint}}, not one that only a later retrieval of the document carries, and that key becomes the establishment's proven key. Code redemption and refresh otherwise continue an establishment and keep the binding it already has ({{grant-lifecycle}}, {{refresh}}).
+At code redemption, a confidential client whose statement was pulled at the authorization endpoint authenticates with a key the reviewed document carries, in its `jwks` or at its `jwks_uri` within the reuse bounds of {{retrieval}}, not one that only a later retrieval of the document carries, and that key becomes the establishment's proven key. Code redemption and refresh otherwise continue an establishment and keep the binding it already has ({{grant-lifecycle}}, {{refresh}}).
 
 An authorization server advertises support through `software_statement_pull_supported` ({{authorization-server-metadata}}).
 
@@ -380,7 +382,7 @@ For a presentation that is not review-only, under either model:
 
 For a confidential client's presentation that is not review-only, the proven key MUST appear in the `jwks` or at the `jwks_uri` of the reviewed document ({{effective-metadata}}).
 
-A key at the document's `jwks_uri` is retrieved at presentation time. If that retrieval does not complete ({{processing}}), the presentation is rejected with `temporarily_unavailable`. A server MAY reuse a retrieved key set only within ordinary HTTP caching bounds and a maximum reuse period of its own choosing, and MUST NOT let the client's cache directives alone determine how long a removed key continues to verify ({{statement-validation}}).
+A key at the document's `jwks_uri` is retrieved at presentation time. If that retrieval does not complete ({{retrieval}}), the presentation is rejected with `temporarily_unavailable`.
 
 ### Public Clients {#public-client-presentation}
 
@@ -444,9 +446,9 @@ On refresh-token use, the authorization server proceeds as follows:
 1. Proven key. The authorization server:
 
    * MUST verify possession of the establishment's proven key under the same sender-constraint mechanism.
-   * MUST, except for an establishment created under {{public-client-presentation}}, verify the document currently served at the establishment's `sub` still carries that key, in its `jwks` or at its `jwks_uri`, within the reuse bounds of {{sender-constraint}}.
+   * MUST, except for an establishment created under {{public-client-presentation}}, verify the document currently served at the establishment's `sub` still carries that key, in its `jwks` or at its `jwks_uri`, within the reuse bounds of {{retrieval}}.
 
-   If a retrieval needed to check the key did not complete ({{processing}}), the server rejects the refresh with `temporarily_unavailable`. If either check otherwise fails, including when the document does not carry the key, cannot be obtained, or exceeds the size bound of {{metadata-digest}}, it rejects the refresh with `invalid_grant`. It completes these checks before evaluating any replacement.
+   If a retrieval needed to check the key did not complete ({{retrieval}}), the server rejects the refresh with `temporarily_unavailable`. If either check otherwise fails, including when the document does not carry the key, cannot be obtained, or exceeds the size bound of {{metadata-digest}}, it rejects the refresh with `invalid_grant`. It completes these checks before evaluating any replacement.
 
 2. Need for a replacement. The authorization server MAY, by local policy, require a current statement, and SHOULD require one once the recorded statement has expired ({{enforcement-bounds}}). The recorded statement satisfies that requirement while it is current, even after a later statement has raised the `iat` floor of {{multi-instance}}. A server that uses a withdrawal mechanism for the recorded statement's issuer SHOULD consult it for that statement at each refresh. A replacement is needed when a refusal record covers the recorded statement, or when the server requires a current statement, by local policy or under a required issuer ({{issuer-trust}}), and the recorded statement has expired.
 
@@ -464,7 +466,7 @@ On refresh-token use, the authorization server proceeds as follows:
 
 5. Access and update. The refreshed access MUST fall within the metadata of the document an accepted replacement names or, without one, the establishment's reviewed metadata. If a replacement is accepted, the refreshed grant's statement identity, `iat`, effective expiry, any claim by which a withdrawal mechanism locates the statement, reviewed metadata and the digest it matched, and trust decision become the replacement's ({{grant-state}}) in one atomic update, and concurrent replacements resolve to the most recently issued statement. Without one, the grant's state is unchanged.
 
-A refresh whose replacement fails step 3, even when none was needed, or that needs a replacement and obtains none, leaves the grant's state unchanged. It is rejected with `temporarily_unavailable` if a retrieval needed to obtain or check the replacement did not complete ({{processing}}) for a reason other than the size bound of {{metadata-digest}}, and otherwise with `statement_required`, including when a completed pull yields none.
+A refresh whose replacement fails step 3, even when none was needed, or that needs a replacement and obtains none, leaves the grant's state unchanged. It is rejected with `temporarily_unavailable` if a retrieval needed to obtain or check the replacement did not complete ({{retrieval}}) for a reason other than the size bound of {{metadata-digest}}, and otherwise with `statement_required`, including when a completed pull yields none.
 
 Refresh never rotates the establishment's key. A client that needs a new key performs a new presentation.
 
@@ -527,7 +529,7 @@ A presentation rejected at the token or pushed authorization request endpoint fo
   * The statement is malformed, or fails signature or claim validation ({{validation}}) for a reason other than expiry or a refusal record.
   * The statement is valid but not acceptable here: its issuer is not configured, its `aud` excludes this server, its `sub` is outside the client identifier namespaces the issuer can attest, its `aud_tenant` is not this request's tenant or is absent when required, its issuer is confined to another tenant, or its `statement_uses` excludes this use.
   * The request's `client_id` differs from the statement's `sub` ({{runtime-presentation}}).
-  * The reviewed document cannot be obtained for a reason other than a retrieval that did not complete ({{processing}}), fails validation as {{CIMD}} requires, contains duplicate member names ({{validation}}), or exceeds the server's size bound ({{metadata-digest}}).
+  * The reviewed document cannot be obtained for a reason other than a retrieval that did not complete ({{retrieval}}), fails validation as {{CIMD}} requires, contains duplicate member names ({{validation}}), or exceeds the server's size bound ({{metadata-digest}}).
   * The document's digest does not match `cimd_digest` and the server does not proceed without the statement ({{effective-metadata}}).
   * The request fails the sender constraint, including a presentation under a document that omits `token_endpoint_auth_method` and one opening a new grant at the token endpoint under a document declaring `token_endpoint_auth_method` of `none` ({{sender-constraint}}, {{public-client-presentation}}).
   * The server's bound on establishments is reached ({{establishment-bounds}}).
@@ -574,7 +576,7 @@ None of these rejections indicates refresh-token replay ({{RFC9700}}). A refresh
 
 ## Authorization Endpoint {#authorization-errors}
 
-At the authorization endpoint, if reviewed software is required ({{review-only}}, {{pulled-statements}}), a review-only client is rejected with `unauthorized_client`, and a client whose pull of statements, or retrieval of a statement key set needed to verify one ({{issuer-trust}}), did not complete ({{processing}}) is rejected with `temporarily_unavailable`.
+At the authorization endpoint, if reviewed software is required ({{review-only}}, {{pulled-statements}}), a review-only client is rejected with `unauthorized_client`, and a client whose pull of statements, or retrieval of a statement key set needed to verify one ({{issuer-trust}}), did not complete ({{retrieval}}) is rejected with `temporarily_unavailable`.
 
 Apart from those two cases, at the authorization endpoint, if the authorization server requires a statement for a client it has not admitted on one, it MUST return the `statement_required` error code in the authorization error response (Section 4.1.2.1 of {{RFC6749}}).
 
@@ -705,7 +707,7 @@ This section gives guidance to implementers. It adds no requirement.
 
 A server can revalidate octets it holds with a conditional request rather than retrieving them again ({{metadata-digest}}).
 
-Successful retrievals can be cached within the document's caching directives. A failure is followed by back-off rather than caching, which {{CIMD}} forbids. A response from a `software_statements_uri` ought to be cached no longer than the document is, and can be revalidated with a conditional request, as the document can ({{pulled-statements}}).
+A failed retrieval ({{retrieval}}) is followed by back-off rather than caching, which {{CIMD}} forbids. A response from a `software_statements_uri` ought to be cached no longer than the document is, and can be revalidated with a conditional request, as the document can ({{pulled-statements}}).
 
 ## Retrieval and Processing Bounds {#processing-bounds}
 
@@ -795,7 +797,7 @@ The following table states what admission under this specification does and does
 
 A copied statement admits nothing without the sender constraint ({{sender-constraint}}). Except under {{public-client-presentation}} ({{public-client-security}}), admitting only keys the reviewed document carries also prevents a downgrade to a key the issuer did not review. An extension admitting attested keys ({{extensions}}) has to address downgrade itself.
 
-Attesting a `jwks_uri` attests the location, not its contents: a compromised key host can add keys that satisfy the proof without a digest change. If that matters, an issuer attests `jwks` inline and accepts that rotation changes the digest. A server reusing a cached key set ({{sender-constraint}}) also accepts that a just-removed key can briefly continue to verify.
+Attesting a `jwks_uri` attests the location, not its contents: a compromised key host can add keys that satisfy the proof without a digest change. If that matters, an issuer attests `jwks` inline and accepts that rotation changes the digest. A server reusing a cached key set ({{retrieval}}) also accepts that a just-removed key can briefly continue to verify.
 
 ## Servers That Do Not Implement This Specification {#legacy-servers}
 
@@ -817,7 +819,7 @@ The `aud_tenant` claim names a tenant at the trusting authorization server, not 
 
 ## External Retrieval and Resource Exhaustion {#external-retrieval}
 
-Runtime presentation can cause the authorization server to retrieve the CIMD, a `jwks_uri` it names, or the statements its `software_statements_uri` names ({{processing}}).
+Runtime presentation can cause the authorization server to retrieve the CIMD, a `jwks_uri` it names, or the statements its `software_statements_uri` names ({{retrieval}}).
 
 These retrievals happen before any client is registered or any user has interacted, so an unauthenticated requester can cause them with one acceptable statement or, at a server that pulls statements, with none. The bounds of {{processing-bounds}} limit this work but do not prevent it.
 
