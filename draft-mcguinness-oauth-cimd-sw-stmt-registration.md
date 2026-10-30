@@ -234,7 +234,7 @@ A rejection this specification defines, at a client registration endpoint or at 
 `invalid_client_metadata`:
 : Any of the following holds for the reviewed document:
 
-  * It contains duplicate member names (Section 3.2 of {{STATEMENT}}).
+  * It contains duplicate member names (Section 5.2 of {{STATEMENT}}).
   * It fails validation as {{CIMD}} requires ({{dcr-presentation}}).
   * It carries metadata this server's policy refuses.
   * It exceeds the server's size bound (Section 5.3 of {{STATEMENT}}).
