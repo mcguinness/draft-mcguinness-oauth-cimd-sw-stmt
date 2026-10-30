@@ -369,7 +369,7 @@ A runtime presentation that is not review-only ({{review-only}}) MUST be sender-
 * Confidential client (a method other than `none`): by a key the statement attests ({{confidential-client-presentation}}).
 * Public client (`none`): by an installation key the presenter binds ({{public-client-presentation}}), while its reviewed redirection URIs, with PKCE `S256`, bind the presentation itself.
 
-The authorization server MUST reject a presentation under a reviewed document that omits the `token_endpoint_auth_method` member, even if the presentation is review-only. A statement pulled for such a document is instead review-only ({{review-only}}).
+The authorization server MUST reject a presentation under a reviewed document that omits the `token_endpoint_auth_method` member, even if the presentation is review-only.
 
 For a presentation that is not review-only, under either model:
 
@@ -388,15 +388,13 @@ The key set at the document's `jwks_uri` is obtained when the presentation is pr
 
 Software distributed to end users cannot hold a key its reviewed document carries: a key shipped in every copy identifies the software, not the installation. Such a document declares `token_endpoint_auth_method` of `none` and carries no key material.
 
-An authorization server MUST reject a presentation, even a review-only one, that opens a new grant at the token endpoint ({{token-requests}}) from a public client. Such a presentation opens no redirect and has nothing to bind it. A statement pulled for such a client at the token endpoint for a request opening a new grant is instead review-only ({{review-only}}).
+An authorization server MUST reject a presentation, even a review-only one, that opens a new grant at the token endpoint ({{token-requests}}) from a public client. Such a presentation opens no redirect and has nothing to bind it.
 
 For a public client's presentation that is not review-only, at the pushed authorization request endpoint, the authorization server:
 
 * MUST require PKCE {{RFC7636}} with the `S256` method.
 * MUST require the presenter to bind a key it holds, through the `dpop_jkt` parameter or, at the pushed authorization request endpoint, a DPoP proof (Section 10.1 of {{RFC9449}}), and records that key as the proven key of the establishment ({{grant-lifecycle}}).
 * MUST NOT require that key to appear in the reviewed document.
-
-A statement pulled for such a client at the pushed authorization request endpoint or the authorization endpoint ({{pulled-statements}}) is bound the same way, under the same requirements, if the request uses PKCE with the `S256` method and binds a key as those requirements provide.
 
 The reviewed redirection URIs, not the proven key, bind such a presentation ({{public-client-security}}). The proven key identifies the installation the grant belongs to.
 
@@ -405,9 +403,7 @@ The reviewed redirection URIs, not the proven key, bind such a presentation ({{p
 The following are review-only:
 
 1. Every presentation and pulled statement for a reviewed document that carries any redirection URI another application on the same device could claim, whatever authentication method the document declares. Such a URI is a non-`https` URI, such as a private-use scheme or an `http` loopback redirection URI (Sections 7.1 and 7.3 of {{RFC8252}}), or an `https` URI whose host is a loopback address or `localhost`. The application that claims such a URI receives the code, so neither the reviewed redirection URIs nor a key shipped in every copy of the software can bind the presenter.
-2. A statement pulled for a document that omits `token_endpoint_auth_method`, wherever it is pulled. A presentation under such a document is rejected instead ({{sender-constraint}}).
-3. A statement pulled for a public client at the token endpoint for a request opening a new grant.
-4. A statement pulled for a public client at the pushed authorization request endpoint or the authorization endpoint without PKCE with the `S256` method and a key bound as {{public-client-presentation}} provides.
+2. A pulled statement that {{pull-binding}} makes review-only.
 
 A review-only presentation or pulled statement creates no establishment and admits nothing. The authorization server proceeds as it would for the same CIMD client presenting no statement ({{ui-audit}}).
 
