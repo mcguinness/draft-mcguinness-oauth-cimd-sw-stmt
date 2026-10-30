@@ -79,14 +79,14 @@ normative:
       Internet-Draft: draft-mcguinness-oauth-cimd-sw-stmt-registration-00
 
 informative:
-  STATUS:
-    target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-status
-    title: "Client ID Metadata Document Software Statement Status"
+  LIFECYCLE:
+    target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle
+    title: "Client ID Metadata Document Software Statement Lifecycle"
     author:
       - fullname: Karl McGuinness
     date: 2026-10
     seriesinfo:
-      Internet-Draft: draft-mcguinness-oauth-cimd-sw-stmt-status-00
+      Internet-Draft: draft-mcguinness-oauth-cimd-sw-stmt-lifecycle-00
   RFC9864:
   ATTESTERS: I-D.mcguinness-oauth-client-attesters
   RFC8252:
@@ -302,9 +302,9 @@ That authentication is the holder binding: without it, whoever held a copy of th
 
 A client rotating keys inline renews while its document carries both the old and the new key. For a document naming `jwks_uri`, the binding is to whatever that location serves. A public client holds no such key and obtains a replacement through the redirect flow ({{authorization-request}}).
 
-A replacement carries the subject statement's `aud_tenant` claim if the decision is confined to that tenant. It also carries the uses the subject statement permits, unless issuance policy narrows them. A replacement MUST NOT permit a use the subject statement does not. It is matched to the statement it replaces by `iss` and `sub` ({{STATEMENT}}).
+A replacement carries the subject statement's `aud_tenant` claim if the decision is confined to that tenant. It also carries the uses the subject statement permits, unless issuance policy narrows them. A replacement MUST NOT permit a use the subject statement does not. It is matched to the statement it replaces by `iss` and `sub` ({{LIFECYCLE}}, {{REGISTRATION}}).
 
-An issuer MUST NOT accept as the subject token a statement it has withdrawn ({{STATEMENT}}), or one whose status it publishes under {{STATUS}} as other than `VALID`. Renewing such a statement would reissue the decision that withdrawal ended.
+An issuer MUST NOT accept as the subject token a statement it has withdrawn, or one whose status it publishes as other than `VALID` ({{LIFECYCLE}}). Renewing such a statement would reissue the decision that withdrawal ended.
 
 The authorization server MAY accept a statement that has expired, and SHOULD bound how long after expiry it will do so. A renewal after an extended absence amounts to a new issuance request.
 
@@ -545,7 +545,7 @@ The denial is terminal for the request. A denied deferral behaves as {{DTR}} spe
 
 # Withdrawal {#status-publication}
 
-An issuer that ends a decision before its expiry does so through a withdrawal mechanism ({{STATEMENT}}), such as the Token Status List profile of {{STATUS}}. Withdrawing a statement does not withdraw a replacement obtained through {{renewal}}, and withdrawing a replacement does not restore its predecessor.
+An issuer that ends a decision before its expiry does so through a withdrawal mechanism, such as the Token Status List profile of {{LIFECYCLE}}. Withdrawing a statement does not withdraw a replacement obtained through {{renewal}}, and withdrawing a replacement does not restore its predecessor.
 
 # Issuer as Trusting Authorization Server {#same-server}
 

@@ -53,6 +53,14 @@ normative:
     date: 2026-10
     seriesinfo:
       Internet-Draft: draft-mcguinness-oauth-cimd-sw-stmt-00
+  LIFECYCLE:
+    target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle
+    title: "Client ID Metadata Document Software Statement Lifecycle"
+    author:
+      - fullname: Karl McGuinness
+    date: 2026-10
+    seriesinfo:
+      Internet-Draft: draft-mcguinness-oauth-cimd-sw-stmt-lifecycle-00
 
 informative:
   REGISTRATION:
@@ -163,7 +171,9 @@ The following non-normative sequence summarizes admission under this profile:
 
 {::boilerplate bcp14-tagged}
 
-This specification uses terminology from {{RFC6749}}, {{RFC7591}}, {{CIMD}}, and {{ABCA}}, and the terms defined in Section 2 of {{STATEMENT}}. An installation is a Client Instance as defined by {{ABCA}}.
+This specification uses terminology from {{RFC6749}}, {{RFC7591}}, {{CIMD}}, and {{ABCA}}, the terms defined in Section 2 of {{STATEMENT}}, and the terms defined in {{LIFECYCLE}}. An installation is a Client Instance as defined by {{ABCA}}.
+
+This specification depends on {{LIFECYCLE}}, because continuous review and replacement are part of its security model: every refresh requires a current statement, refusal records are enforced at code redemption and refresh, and a replacement statement keeps a grant in step with a later review ({{refresh}}, {{withdrawal}}).
 
 This specification defines the following terms:
 
@@ -323,7 +333,7 @@ The client presents its software statement using `software_statement` as defined
 Before returning a successful PAR response, the server MUST:
 
 1. Validate request syntax and the client identifier, resolve the applicable tenant, and authenticate the instance under {{trust}}, {{attestation}}, and {{proof}}. Checks needing no client-controlled retrieval precede such retrieval.
-2. Validate the selected statement under {{STATEMENT}}, including issuer and tenant policy, audience, effective expiry, permission for runtime presentation, refusal records, and the applicable `iat` floor. If statements are pulled, step 3 resolves the document first, since the document names where statements are published, and that specification's retrieval and selection rules apply.
+2. Validate the selected statement under {{STATEMENT}}, including issuer and tenant policy, audience, effective expiry, and permission for runtime presentation, and apply the refusal records and the applicable `iat` floor of {{LIFECYCLE}}. If statements are pulled, step 3 resolves the document first, since the document names where statements are published, and the retrieval and selection rules of {{STATEMENT}} apply.
 3. Resolve the CIMD and perform the digest and metadata checks of {{STATEMENT}}. Parse the same bytes the server digested, enforce {{client-metadata}}, and complete the cross-artifact checks of {{attestation-validation}}.
 4. Validate the requested redirect under {{loopback}}, require PKCE `S256`, and evaluate the request against the reviewed metadata and authorization policy.
 5. Create or reuse an establishment under {{establishment}}, bind the accepted request to it, and return a PAR response under {{RFC9126}}.
@@ -366,19 +376,19 @@ The server MUST issue tokens only within the user's authorization, tenant policy
 
 Every refresh request MUST carry the original client identifier, the refresh token, a current instance attestation, and a fresh DPoP proof under the establishment's proven key. The server MUST authenticate the instance, verify the refresh-token binding, and enforce the fixed values of {{establishment}} before accepting any replacement statement.
 
-On every refresh the server MUST require a current software statement and re-evaluate its issuer trust decision. This strengthens the statement-currency check of {{STATEMENT}}, which is a local-policy option until the recorded statement expires and recommended after. It MUST also verify that the currently served document matches the applicable statement and attestation digests and continues to meet {{client-metadata}}. A document that no longer selects this profile or meets {{client-metadata}}, for example one that omits the `software_statement_instance_binding` member or names another authentication method, fails the refresh. The refresh is then rejected with `invalid_grant` without seeking a replacement, as {{STATEMENT}} rejects a refresh whose document no longer carries the proven key.
+On every refresh the server MUST require a current software statement and re-evaluate its issuer trust decision. This strengthens the statement-currency check of {{LIFECYCLE}}, which is a local-policy option until the recorded statement expires and recommended after. It MUST also verify that the currently served document matches the applicable statement and attestation digests and continues to meet {{client-metadata}}. A document that no longer selects this profile or meets {{client-metadata}}, for example one that omits the `software_statement_instance_binding` member or names another authentication method, fails the refresh. The refresh is then rejected with `invalid_grant` without seeking a replacement, as {{STATEMENT}} rejects a refresh whose document no longer carries the proven key.
 
-The recorded statement can remain applicable while it is unexpired, not refused, and matches the current document, even if a newer statement has raised the `iat` floor for new admissions. If it no longer qualifies, a replacement is required. The client can present a replacement in `software_statement`, or a server that supports pulled statements pulls one, however the establishment was created, as {{STATEMENT}} specifies.
+The recorded statement can remain applicable while it is unexpired, not refused, and matches the current document, even if a newer statement has raised the `iat` floor for new admissions. If it no longer qualifies, a replacement is required. The client can present a replacement in `software_statement`, or a server that supports pulled statements pulls one, however the establishment was created, as {{LIFECYCLE}} specifies.
 
-A replacement MUST satisfy the replacement validation of {{STATEMENT}}, including identical statement `iss` and `sub` claims, a later `iat` claim, and current metadata. Its decision MUST apply to the establishment's recorded tenant and runtime use. Instead of authorizing a document key or preserving the public-client conditions of {{STATEMENT}}, the replacement MUST preserve this profile and authorize the establishment's proven key through a current attestation from the recorded attester under the recorded policy. The replacement and attestation MUST name the same current metadata digest. A replacement cannot expand access beyond the original grant, resource-owner authorization, or current server policy.
+A replacement MUST satisfy the replacement validation of {{LIFECYCLE}}, including identical statement `iss` and `sub` claims, a later `iat` claim, and current metadata. Its decision MUST apply to the establishment's recorded tenant and runtime use. Instead of authorizing a document key or preserving the public-client conditions of {{STATEMENT}}, the replacement MUST preserve this profile and authorize the establishment's proven key through a current attestation from the recorded attester under the recorded policy. The replacement and attestation MUST name the same current metadata digest. A replacement cannot expand access beyond the original grant, resource-owner authorization, or current server policy.
 
-On success, the server MUST apply the replacement to the refreshed grant alone, as {{STATEMENT}} does, atomically updating that grant's recorded statement, metadata, digest, and trust decisions under the concurrency rules of {{STATEMENT}}. A failed attempt MUST NOT replace the recorded binding or rotate a refresh token. This does not prevent the server from recording a withdrawal or trust removal learned during processing, or applying independent refresh-token replay protections.
+On success, the server MUST apply the replacement to the refreshed grant alone, as {{LIFECYCLE}} does, atomically updating that grant's recorded statement, metadata, digest, and trust decisions under the concurrency rules of {{LIFECYCLE}}. A failed attempt MUST NOT replace the recorded binding or rotate a refresh token. This does not prevent the server from recording a withdrawal or trust removal learned during processing, or applying independent refresh-token replay protections.
 
 Attestation renewal for the proven key is not key rotation and does not reset the `iat` floor or an establishment count.
 
 # Withdrawal and Trust Changes {#withdrawal}
 
-A known refusal record for the software statement is enforced as {{STATEMENT}} requires. A current replacement can restore continuation only under {{refresh}}. A server using a statement withdrawal mechanism SHOULD consult it at code redemption, within that mechanism's freshness rules, as {{STATEMENT}} provides for refresh. A failure to retrieve metadata, statements or their status, or trust updates MUST NOT extend a recorded expiry or remove a refusal.
+A known refusal record for the software statement is enforced as {{LIFECYCLE}} requires. A current replacement can restore continuation only under {{refresh}}. A server using a statement withdrawal mechanism SHOULD consult it at code redemption, within that mechanism's freshness rules, as {{LIFECYCLE}} provides for refresh. A failure to retrieve metadata, statements or their status, or trust updates MUST NOT extend a recorded expiry or remove a refusal.
 
 Because {{attestation-validation}} checks current attester trust and local denial rules at each pushed authorization request, code redemption, and refresh, removing an attester's authorization for this client and tenant, removing the policy, or denying the instance key prevents further use of the affected binding. A fresh attestation does not override those decisions. A server that cannot refresh trust data remains bound by the maximum reuse period of {{trust}}.
 
@@ -386,7 +396,7 @@ This specification defines no interoperable attestation or instance revocation p
 
 # Exceptions to Software Statement Processing {#core-exceptions}
 
-For establishments governed by this specification, the following rules replace or add to the corresponding rules of {{STATEMENT}}:
+For establishments governed by this specification, the following rules replace or add to the corresponding rules of {{STATEMENT}}, cited by section number, and of {{LIFECYCLE}}:
 
 | Section | Rule | Under this profile |
 | --- | --- | --- |
@@ -397,17 +407,18 @@ For establishments governed by this specification, the following rules replace o
 | 5.6.1 | The proven key appears in the reviewed document's `jwks` or at its `jwks_uri`. | The proven key is the attested key ({{attestation-validation}}), and the document carries no key material ({{client-metadata}}). |
 | 5.6.2, 5.6.3 | A redirection URI another application could claim makes a presentation review-only, and a document declaring `token_endpoint_auth_method` of `none` without such a URI is bound by its redirection URIs. | A presentation processed under {{par}} whose redirects meet {{loopback}} is not review-only. The client is confidential and authenticates with the method of {{selection}}, so the public-client rules do not apply. |
 | 5.7 | Expiry after presentation does not invalidate an establishment, and redemption checks the client identifier and key. | Redemption also requires the recorded statement to be unexpired and unrefused, and the current document to match the recorded digest ({{redemption}}). |
-| 5.7.1 | A current statement on refresh is a local-policy option, recommended once the recorded statement expires; the document is checked for the proven key; and its digest is checked only for a replacement. | Every refresh requires a current statement, re-checks the document against the recorded digests, and verifies a current attestation of the key instead of its presence in the document ({{refresh}}). |
+| 5.7.1 | Refresh checks possession of the proven key and that the currently served document still carries that key. | Refresh verifies a current attestation of the proven key instead of its presence in the document ({{refresh}}). |
+| {{LIFECYCLE}} | A current statement on refresh is a local-policy option, recommended once the recorded statement expires, and the document's digest is checked only for a replacement. | Every refresh requires a current statement and re-checks the document against the recorded digests ({{refresh}}). |
 | 7.3 | Code redemption is rejected with `invalid_request`, `invalid_grant`, or, at the establishment bound, `invalid_client`. | Redemption can also return `invalid_client` or `invalid_client_attestation` for failed authentication, `statement_required`, `use_fresh_attestation`, or `temporarily_unavailable` ({{error-codes}}). |
 | 7.4 | A client not admitted on a statement receives `statement_required`. | A missing or invalid required pushed authorization request is rejected with `invalid_request` ({{authorization-errors}}). |
 
-Code redemption and refresh continue an establishment and are not new token-endpoint presentations, so the rejection in {{STATEMENT}} of a token-endpoint presentation that opens a new grant for a client whose document declares `token_endpoint_auth_method` of `none` is unchanged. All other requirements of {{STATEMENT}} continue to apply. This specification applies equally to presented and pulled statements. It adds no requirement to issue statements or implement {{REGISTRATION}}.
+Code redemption and refresh continue an establishment and are not new token-endpoint presentations, so the rejection in {{STATEMENT}} of a token-endpoint presentation that opens a new grant for a client whose document declares `token_endpoint_auth_method` of `none` is unchanged. All other requirements of {{STATEMENT}} and {{LIFECYCLE}} continue to apply. This specification applies equally to presented and pulled statements. It adds no requirement to issue statements or implement {{REGISTRATION}}.
 
 A supporting server MUST NOT infer this profile's assurance from successful generic client authentication without all of this specification's checks.
 
 # Error Responses {#errors}
 
-The error rules of {{STATEMENT}}, {{ABCA}}, and {{RFC9449}} apply. This specification defines no new error code.
+The error rules of {{STATEMENT}}, {{LIFECYCLE}}, {{ABCA}}, and {{RFC9449}} apply. This specification defines no new error code.
 
 ## Error Codes {#error-codes}
 
@@ -561,7 +572,7 @@ grant_type=refresh_token
 &refresh_token=<refresh-token>
 ~~~
 
-If the recorded statement has expired, a server that supports pulled statements pulls a current replacement, as {{STATEMENT}} provides for any establishment. If the replacement names changed metadata, the attestation needs to name that same new digest while retaining the proven key and the recorded attester and policy. Otherwise the refresh fails without changing the binding.
+If the recorded statement has expired, a server that supports pulled statements pulls a current replacement, as {{LIFECYCLE}} provides for any establishment. If the replacement names changed metadata, the attestation needs to name that same new digest while retaining the proven key and the recorded attester and policy. Otherwise the refresh fails without changing the binding.
 
 # Authorization Server Metadata {#server-metadata}
 
@@ -614,7 +625,7 @@ Because an access token expires no later than the attestation accepted for it ({
 
 # Security Considerations {#security-considerations}
 
-The security considerations of {{STATEMENT}}, {{ABCA}}, {{CIMD}}, {{RFC8252}}, and {{RFC9700}} apply. This section describes the additional trust boundary introduced by this specification.
+The security considerations of {{STATEMENT}}, {{LIFECYCLE}}, {{ABCA}}, {{CIMD}}, {{RFC8252}}, and {{RFC9700}} apply. This section describes the additional trust boundary introduced by this specification.
 
 ## Software Evidence and Key Use {#software-evidence}
 
@@ -656,7 +667,7 @@ Attestations do not remove the need for bounded document retrieval, statement se
 
 # Privacy Considerations {#privacy}
 
-The privacy considerations of {{STATEMENT}} and Section 11 of {{ABCA}} apply.
+The privacy considerations of {{STATEMENT}}, {{LIFECYCLE}}, and Section 11 of {{ABCA}} apply.
 
 An instance key reused at multiple servers can correlate installations across them. Clients SHOULD use separate instance keys for separate server relationships where the evidence mechanism permits, and SHOULD avoid adding stable installation identifiers unless needed by the deployment. This profile does not require a globally stable instance identifier or an attestation audience.
 
