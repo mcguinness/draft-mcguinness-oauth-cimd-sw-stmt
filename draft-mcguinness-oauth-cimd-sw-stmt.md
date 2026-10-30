@@ -144,7 +144,7 @@ Review-Only:
 : Describes a presentation, or a pulled statement, that the authorization server evaluates but that admits nothing ({{review-only}}).
 
 Tenant:
-: A partition of an authorization server's configuration and issued tokens, such as one customer's, that the server identifies by its own means and never by a value the client chooses ({{validation}}).
+: A partition of an authorization server's configuration and issued tokens, such as one customer's, that the server identifies by its own means or from a signed assertion it has validated, never from a value the client chooses ({{validation}}).
 
 `iat` Floor:
 : For a trusting authorization server, the greatest `iat` claim value among the statements it has accepted for a given `iss` and `sub`, per tenant on a multi-tenant server ({{multi-instance}}).
