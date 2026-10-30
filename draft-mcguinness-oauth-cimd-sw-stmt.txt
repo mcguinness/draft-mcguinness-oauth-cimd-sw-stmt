@@ -89,7 +89,7 @@ Table of Contents
      6.2.  Identity Assertions
      6.3.  OpenID Federation
    7.  Error Responses
-     7.1.  Requiring a Current Statement
+     7.1.  Statement Required Error
      7.2.  Presentation
      7.3.  Code Redemption and Refresh
      7.4.  Authorization Endpoint
@@ -316,10 +316,8 @@ Table of Contents
    statement_uses:  OPTIONAL.  A JSON array identifying the permitted
       uses of the statement: registration ([REGISTRATION]) and
       presentation (Section 5).  If the claim is absent, only
-      presentation is permitted.  A delivery renewing a registration
-      ([REGISTRATION]) is a registration use.  A pulled statement
-      (Section 5.5) is a presentation use, as is a refresh replacement
-      under [LIFECYCLE].
+      presentation is permitted.  A pulled statement (Section 5.5) is a
+      presentation use.
 
    iat:  REQUIRED.  A NumericDate value, which MUST be an integer,
       giving the time the statement was issued.  An issuer MUST ensure
@@ -461,10 +459,8 @@ Table of Contents
    A statement attests client software, identified by sub, not its
    runtime instances.  This specification defines no instance
    identifier.  One unexpired statement is therefore consumable more
-   than once: at each trusting authorization server in its audience, in
-   more than one establishment at that server (Section 11.3), and, if
-   the server registers clients ([REGISTRATION]) and its policy permits,
-   in more than one registration there.
+   than once: at each trusting authorization server in its audience, and
+   in more than one establishment at that server (Section 11.3).
 
    Under this specification, an older statement that has not expired
    remains admissible after a newer one is issued.  [LIFECYCLE] defines
@@ -946,10 +942,7 @@ Table of Contents
 
    A redemption that carries a statement, has a wrong client identifier,
    or fails the key binding is rejected.  The prohibition on carrying a
-   statement covers redemption of a code bound to an establishment.  A
-   registered client redeeming its own code can deliver a replacement
-   statement under [REGISTRATION], which that specification calls a
-   delivery and which is not a presentation.
+   statement covers redemption of a code bound to an establishment.
 
 5.7.1.  Refresh
 
@@ -1033,18 +1026,15 @@ Table of Contents
    software_statement parameter in a role Section 5.4 does not permit is
    rejected with invalid_request.
 
-7.1.  Requiring a Current Statement
+7.1.  Statement Required Error
 
    This specification defines the following error code:
 
    statement_required:  A current software statement is required and
       none was supplied or pulled, or the one supplied or pulled is
-      expired.  The code also applies when a statement delivered at the
-      token or pushed authorization request endpoint under
-      [REGISTRATION] does not satisfy the requirements for a
-      replacement, and an extension such as [LIFECYCLE] can assign it to
-      further cases.  The client recovers by obtaining a statement
-      issued more recently.
+      expired.  An extension such as [REGISTRATION] or [LIFECYCLE] can
+      assign it to further cases.  The client recovers by obtaining a
+      statement issued more recently.
 
 7.2.  Presentation
 
@@ -1404,10 +1394,7 @@ Table of Contents
 
 12.2.  Audience and Tenant Claims
 
-   An issuer ought to name an audience and, for a statement whose
-   statement_uses claim permits registration, to omit the aud claim only
-   if it accepts that any server trusting the issuer can register the
-   software on the strength of a copy ([REGISTRATION]).
+   An issuer ought to name an audience.
 
    An issuer ought to omit the aud_tenant claim from a statement whose
    review applies wherever its aud reaches, such as a marketplace
@@ -1419,16 +1406,14 @@ Table of Contents
 12.3.  Statement Lifetime and Renewal
 
    Short lifetimes tighten an issuer's control and increase renewal
-   traffic.  At a server that registers clients under [REGISTRATION],
-   the lifetime also sets the registration's renewal cadence.  A fleet
-   of statements issued together expires together, so issuers ought to
-   stagger expiries or renew ahead of the boundary.
+   traffic.  A fleet of statements issued together expires together, so
+   issuers ought to stagger expiries or renew ahead of the boundary.
 
    A changed document is always served before a statement over it
    exists.  Until the new statement exists, a presentation under the
-   earlier one fails the digest comparison (Section 5.2), and at
-   registration a mismatch is fatal ([REGISTRATION]).  The statement's
-   lifetime bounds how stale an unobserved review can become.
+   earlier one fails the digest comparison (Section 5.2).  The
+   statement's lifetime bounds how stale an unobserved review can
+   become.
 
    Instances need the most recently issued statement from a shared
    source rather than a copy fixed at build or install time: the

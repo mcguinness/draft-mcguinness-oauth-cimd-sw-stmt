@@ -1232,7 +1232,7 @@ svg {
             <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-error-responses" class="internal xref">Error Responses</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.1">
-                <p id="section-toc.1-1.7.2.1.1"><a href="#section-7.1" class="auto internal xref">7.1</a>.  <a href="#name-requiring-a-current-stateme" class="internal xref">Requiring a Current Statement</a></p>
+                <p id="section-toc.1-1.7.2.1.1"><a href="#section-7.1" class="auto internal xref">7.1</a>.  <a href="#name-statement-required-error" class="internal xref">Statement Required Error</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.2">
                 <p id="section-toc.1-1.7.2.2.1"><a href="#section-7.2" class="auto internal xref">7.2</a>.  <a href="#name-presentation" class="internal xref">Presentation</a></p>
@@ -1519,7 +1519,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <dt id="section-3-4.9">
 <code>statement_uses</code>:</dt>
         <dd style="margin-left: 1.5em" id="section-3-4.10">
-          <p id="section-3-4.10.1"><span class="bcp14">OPTIONAL</span>. A JSON array identifying the permitted uses of the statement: <code>registration</code> (<span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>) and <code>presentation</code> (<a href="#cimd-presentation" class="auto internal xref">Section 5</a>). If the claim is absent, only <code>presentation</code> is permitted. A delivery renewing a registration (<span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>) is a <code>registration</code> use. A pulled statement (<a href="#pulled-statements" class="auto internal xref">Section 5.5</a>) is a <code>presentation</code> use, as is a refresh replacement under <span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span>.<a href="#section-3-4.10.1" class="pilcrow">¶</a></p>
+          <p id="section-3-4.10.1"><span class="bcp14">OPTIONAL</span>. A JSON array identifying the permitted uses of the statement: <code>registration</code> (<span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>) and <code>presentation</code> (<a href="#cimd-presentation" class="auto internal xref">Section 5</a>). If the claim is absent, only <code>presentation</code> is permitted. A pulled statement (<a href="#pulled-statements" class="auto internal xref">Section 5.5</a>) is a <code>presentation</code> use.<a href="#section-3-4.10.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 <dt id="section-3-4.11">
@@ -1617,7 +1617,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         <h3 id="name-repeated-consumption-of-one">
 <a href="#section-3.3" class="section-number selfRef">3.3. </a><a href="#name-repeated-consumption-of-one" class="section-name selfRef">Repeated Consumption of One Statement</a>
         </h3>
-<p id="section-3.3-1">A statement attests client software, identified by <code>sub</code>, not its runtime instances. This specification defines no instance identifier. One unexpired statement is therefore consumable more than once: at each trusting authorization server in its audience, in more than one establishment at that server (<a href="#establishment-bounds" class="auto internal xref">Section 11.3</a>), and, if the server registers clients (<span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>) and its policy permits, in more than one registration there.<a href="#section-3.3-1" class="pilcrow">¶</a></p>
+<p id="section-3.3-1">A statement attests client software, identified by <code>sub</code>, not its runtime instances. This specification defines no instance identifier. One unexpired statement is therefore consumable more than once: at each trusting authorization server in its audience, and in more than one establishment at that server (<a href="#establishment-bounds" class="auto internal xref">Section 11.3</a>).<a href="#section-3.3-1" class="pilcrow">¶</a></p>
 <p id="section-3.3-2">Under this specification, an older statement that has not expired remains admissible after a newer one is issued. <span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span> defines supersession, which ends that; otherwise short statement lifetimes bound it.<a href="#section-3.3-2" class="pilcrow">¶</a></p>
 <p id="section-3.3-3">A multi-tenant server keeps any bound on establishments (<a href="#establishment-bounds" class="auto internal xref">Section 11.3</a>) per tenant.<a href="#section-3.3-3" class="pilcrow">¶</a></p>
 <p id="section-3.3-4">Software whose instances authenticate as the client with keys of their own, which the reviewed document does not carry, can neither prove nor register those keys (<a href="#sender-constraint" class="auto internal xref">Section 5.6</a>, <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>) and depends on the attested-key extension of <a href="#extensions" class="auto internal xref">Section 10</a>.<a href="#section-3.3-4" class="pilcrow">¶</a></p>
@@ -1953,7 +1953,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
             <p id="section-5.7-5.3.1"><span class="bcp14">MUST NOT</span> carry the <code>software_statement</code> parameter.<a href="#section-5.7-5.3.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-5.7-6">A redemption that carries a statement, has a wrong client identifier, or fails the key binding is rejected. The prohibition on carrying a statement covers redemption of a code bound to an establishment. A registered client redeeming its own code can deliver a replacement statement under <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>, which that specification calls a delivery and which is not a presentation.<a href="#section-5.7-6" class="pilcrow">¶</a></p>
+<p id="section-5.7-6">A redemption that carries a statement, has a wrong client identifier, or fails the key binding is rejected. The prohibition on carrying a statement covers redemption of a code bound to an establishment.<a href="#section-5.7-6" class="pilcrow">¶</a></p>
 <div id="refresh">
 <section id="section-5.7.1">
           <h4 id="name-refresh">
@@ -2019,15 +2019,15 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <p id="section-7-3">This specification assigns <code>temporarily_unavailable</code> only to a retrieval that did not complete (<a href="#retrieval" class="auto internal xref">Section 5.3</a>), never to a response over the size bound of <a href="#metadata-digest" class="auto internal xref">Section 3.1</a>. A request carrying the <code>software_statement</code> parameter in a role <a href="#runtime-presentation" class="auto internal xref">Section 5.4</a> does not permit is rejected with <code>invalid_request</code>.<a href="#section-7-3" class="pilcrow">¶</a></p>
 <div id="statement-required">
 <section id="section-7.1">
-        <h3 id="name-requiring-a-current-stateme">
-<a href="#section-7.1" class="section-number selfRef">7.1. </a><a href="#name-requiring-a-current-stateme" class="section-name selfRef">Requiring a Current Statement</a>
+        <h3 id="name-statement-required-error">
+<a href="#section-7.1" class="section-number selfRef">7.1. </a><a href="#name-statement-required-error" class="section-name selfRef">Statement Required Error</a>
         </h3>
 <p id="section-7.1-1">This specification defines the following error code:<a href="#section-7.1-1" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-7.1-2">
           <dt id="section-7.1-2.1">
 <code>statement_required</code>:</dt>
           <dd style="margin-left: 1.5em" id="section-7.1-2.2">
-            <p id="section-7.1-2.2.1">A current software statement is required and none was supplied or pulled, or the one supplied or pulled is expired. The code also applies when a statement delivered at the token or pushed authorization request endpoint under <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span> does not satisfy the requirements for a replacement, and an extension such as <span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span> can assign it to further cases. The client recovers by obtaining a statement issued more recently.<a href="#section-7.1-2.2.1" class="pilcrow">¶</a></p>
+            <p id="section-7.1-2.2.1">A current software statement is required and none was supplied or pulled, or the one supplied or pulled is expired. An extension such as <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span> or <span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span> can assign it to further cases. The client recovers by obtaining a statement issued more recently.<a href="#section-7.1-2.2.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
@@ -2373,7 +2373,7 @@ client-assertion-type%3Ajwt-bearer
         <h3 id="name-audience-and-tenant-claims">
 <a href="#section-12.2" class="section-number selfRef">12.2. </a><a href="#name-audience-and-tenant-claims" class="section-name selfRef">Audience and Tenant Claims</a>
         </h3>
-<p id="section-12.2-1">An issuer ought to name an audience and, for a statement whose <code>statement_uses</code> claim permits registration, to omit the <code>aud</code> claim only if it accepts that any server trusting the issuer can register the software on the strength of a copy (<span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>).<a href="#section-12.2-1" class="pilcrow">¶</a></p>
+<p id="section-12.2-1">An issuer ought to name an audience.<a href="#section-12.2-1" class="pilcrow">¶</a></p>
 <p id="section-12.2-2">An issuer ought to omit the <code>aud_tenant</code> claim from a statement whose review applies wherever its <code>aud</code> reaches, such as a marketplace listing. The claim is also unnecessary if the authorization server has one tenant, or if the issuer and the server have agreed that the server's trust configuration confines the issuer to a tenant, as they can for an issuer that does not know the tenant's identifier.<a href="#section-12.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -2382,8 +2382,8 @@ client-assertion-type%3Ajwt-bearer
         <h3 id="name-statement-lifetime-and-rene">
 <a href="#section-12.3" class="section-number selfRef">12.3. </a><a href="#name-statement-lifetime-and-rene" class="section-name selfRef">Statement Lifetime and Renewal</a>
         </h3>
-<p id="section-12.3-1">Short lifetimes tighten an issuer's control and increase renewal traffic. At a server that registers clients under <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>, the lifetime also sets the registration's renewal cadence. A fleet of statements issued together expires together, so issuers ought to stagger expiries or renew ahead of the boundary.<a href="#section-12.3-1" class="pilcrow">¶</a></p>
-<p id="section-12.3-2">A changed document is always served before a statement over it exists. Until the new statement exists, a presentation under the earlier one fails the digest comparison (<a href="#effective-metadata" class="auto internal xref">Section 5.2</a>), and at registration a mismatch is fatal (<span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>). The statement's lifetime bounds how stale an unobserved review can become.<a href="#section-12.3-2" class="pilcrow">¶</a></p>
+<p id="section-12.3-1">Short lifetimes tighten an issuer's control and increase renewal traffic. A fleet of statements issued together expires together, so issuers ought to stagger expiries or renew ahead of the boundary.<a href="#section-12.3-1" class="pilcrow">¶</a></p>
+<p id="section-12.3-2">A changed document is always served before a statement over it exists. Until the new statement exists, a presentation under the earlier one fails the digest comparison (<a href="#effective-metadata" class="auto internal xref">Section 5.2</a>). The statement's lifetime bounds how stale an unobserved review can become.<a href="#section-12.3-2" class="pilcrow">¶</a></p>
 <p id="section-12.3-3">Instances need the most recently issued statement from a shared source rather than a copy fixed at build or install time: the document can change, and a server implementing <span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span> rejects a superseded statement (<a href="#multi-instance" class="auto internal xref">Section 3.3</a>).<a href="#section-12.3-3" class="pilcrow">¶</a></p>
 </section>
 </div>
