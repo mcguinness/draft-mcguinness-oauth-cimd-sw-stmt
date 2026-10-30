@@ -531,7 +531,7 @@ A presentation rejected at the token or pushed authorization request endpoint fo
 : As {{statement-required}} defines, including when a required issuer's statement is absent ({{issuer-trust}}).
 
 `unauthorized_client`:
-: The request exceeds the reviewed document's grant types or response types ({{effective-metadata}}), the document carries metadata this server's policy refuses, or the client is review-only where policy or a required issuer requires reviewed software ({{review-only}}, {{issuer-trust}}).
+: The request exceeds the reviewed document's grant types or response types ({{effective-metadata}}), the document carries metadata this server's policy refuses, or the client is review-only where policy or a required issuer requires reviewed software ({{review-only}}), or the request is for software a required issuer excludes from the tenant ({{issuer-trust}}).
 
 `invalid_scope`:
 : The request exceeds the reviewed document's scope ({{effective-metadata}}), or the document carries a scope this server's policy refuses.
@@ -563,7 +563,7 @@ None of these rejections indicates refresh-token replay ({{RFC9700}}), whose det
 
 ## Authorization Endpoint {#authorization-errors}
 
-At the authorization endpoint, if policy or a required issuer requires reviewed software ({{review-only}}, {{pulled-statements}}, {{issuer-trust}}), a review-only client is rejected with `unauthorized_client`, and a client whose pull of statements, or retrieval of a statement key set needed to verify one, did not complete ({{retrieval}}) is rejected with `temporarily_unavailable`.
+At the authorization endpoint, if policy or a required issuer requires reviewed software ({{review-only}}, {{pulled-statements}}, {{issuer-trust}}), a review-only client, or software a required issuer excludes from the tenant, is rejected with `unauthorized_client`, and a client whose pull of statements, or retrieval of a statement key set needed to verify one, did not complete ({{retrieval}}) is rejected with `temporarily_unavailable`.
 
 Apart from those two cases, at the authorization endpoint, if the authorization server requires a statement for a client it has not admitted on one, it MUST return the `statement_required` error code in the authorization error response (Section 4.1.2.1 of {{RFC6749}}).
 
