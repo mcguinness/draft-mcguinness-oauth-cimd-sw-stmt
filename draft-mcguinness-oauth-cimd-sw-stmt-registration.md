@@ -139,7 +139,7 @@ An authorization server MAY register a client whose reviewed document declares `
   * That statement validates and is not superseded under the `iat` floor of Section 6 of {{STATEMENT}}.
   * That statement is confined to no tenant other than one the registration is already restricted to.
 
-If the later request's statement has an `iat` later than the governing statement's, the server evaluates it as {{revalidation}} provides for a delivery, renewing the registration with it or rejecting the request ({{errors}}).
+If those conditions hold and that statement's `iat` is later than the governing statement's, the server evaluates it as {{revalidation}} provides for a delivery, renewing the registration with it or rejecting the request ({{errors}}).
 
 ## Registration Validity {#registration-validity}
 
