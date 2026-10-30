@@ -250,7 +250,16 @@ For the events defined here, the issuer acts as a Transmitter, and a trusting au
 
 A trusting authorization server MUST NOT accept an event from an issuer it has not configured. It MUST verify the SET using keys from the `jwks_uri` member of the issuer's Transmitter configuration {{SSF}}, discovered from the issuer identifier it has configured, and never from a key-location value carried in the event. The SET's `iss` claim is that issuer identifier, which is also the `iss` claim value of the statements the event concerns.
 
-An issuer MUST ensure that its Transmitter configuration's `jwks_uri` member differs both from the issuer's statement key set location, its `software_statement_jwks_uri` (Sections 4 and 9 of {{STATEMENT}}) or, for an issuer that is not an authorization server, the URL at which it serves its statement key set (Section 4 of {{STATEMENT}}), and from the location whose keys verify its Status List Tokens: the `jwks_uri` metadata value in its authorization server metadata {{RFC8414}} or, for an issuer that is not an authorization server, its Status List key set URL ({{token-status-list}}). A receiver MUST NOT create or keep a stream whose Transmitter configuration names either of those locations. An issuer MUST NOT publish at its Transmitter configuration's `jwks_uri` a key that also appears in the key set at either location.
+An issuer serves three key sets, each at its own location:
+
+| Keys | Issuer that is an authorization server | Other issuer |
+| --- | --- | --- |
+| Statement signing keys | `software_statement_jwks_uri` (Sections 4 and 9 of {{STATEMENT}}) | The URL at which it serves its statement key set (Section 4 of {{STATEMENT}}) |
+| Status List Token keys | The `jwks_uri` metadata value of its authorization server metadata {{RFC8414}} | Its Status List key set URL ({{token-status-list}}) |
+| SET keys | The `jwks_uri` member of its Transmitter configuration {{SSF}} | The `jwks_uri` member of its Transmitter configuration {{SSF}} |
+{: title="Issuer Key Set Locations"}
+
+An issuer MUST ensure that its Transmitter configuration's `jwks_uri` member differs from both the statement key location and the Status List Token key location in the table above. A receiver MUST NOT create or keep a stream whose Transmitter configuration names either of those locations. An issuer MUST NOT publish at its Transmitter configuration's `jwks_uri` a key that also appears in the key set at either location.
 
 A SET carrying an event defined here MUST use the explicit `typ` JOSE header parameter value `secevent+jwt` (Section 2.3 of {{RFC8417}}). Its `aud` claim MUST contain the audience of the stream that delivers it, which {{SSF}} lets the transmitter and receiver agree on. A receiver MUST NOT create or keep a stream whose audience does not identify it.
 
