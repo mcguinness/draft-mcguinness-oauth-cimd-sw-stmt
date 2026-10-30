@@ -129,7 +129,7 @@ Establishment:
 : The state a successful runtime presentation creates for the grant it opens, enumerated in {{grant-lifecycle}}. {{LIFECYCLE}} lets a replacement accepted on refresh update it.
 
 Proven Key:
-: The key an establishment is bound to: the key whose possession the presenter proves during runtime presentation ({{sender-constraint}}), the key it binds under {{public-client-presentation}}, or, for a statement pulled at the authorization endpoint, the key proved at code redemption ({{pulled-statements}}).
+: The key an establishment is bound to: the key whose possession the presenter proves during runtime presentation ({{sender-constraint}}), the key it binds under {{public-client-presentation}}, or, for a statement pulled at the authorization endpoint, the key proved at code redemption ({{pull-binding}}).
 
 Effective Expiry:
 : The earlier of a statement's `exp` and its `iat` plus the maximum statement lifetime the trusting authorization server honors for its issuer ({{issuer-trust}}). A statement is expired once its effective expiry has passed.
@@ -278,7 +278,7 @@ The request is evaluated against the reviewed metadata as against any client's r
 
 Every retrieval this specification causes, of the CIMD, a `jwks_uri` it names, or the statements its `software_statements_uri` names, inherits the server-side request forgery protections in Section 8.6 of {{CIMD}}. A trusted signature does not make a URL safe: the authorization server MUST apply its URL, redirect, address-range, transport, and content-type policy independently to every referenced location.
 
-If a retrieval fails, the authorization server MUST reject the request and MUST NOT fall back to a weaker proof, except that a failed pull of statements, or a failed retrieval of a statement key set ({{issuer-trust}}) needed to verify a pulled statement, for a request opening a new grant does not reject the request, which proceeds as {{pulled-statements}} describes.
+If a retrieval fails, the authorization server MUST reject the request and MUST NOT fall back to a weaker proof, except that a failed pull of statements, or a failed retrieval of a statement key set ({{issuer-trust}}) needed to verify a pulled statement, for a request opening a new grant does not reject the request, which proceeds as {{pull-selection}} describes.
 
 A retrieval does not complete only when it times out, its connection fails, or the response has a 429 (Too Many Requests) status code (Section 4 of {{RFC6585}}) or a 5xx status code. Any other failure to obtain an acceptable representation, such as another 4xx status code or a body that is not a JSON object, is final: a document is treated as failing validation, a key set as carrying no acceptable key, and a statements location as publishing no statement.
 
@@ -313,44 +313,54 @@ Presentation in an authorization request MUST use a pushed authorization request
 
 ## Pulled Statements {#pulled-statements}
 
+A client can publish its statements at a URL its document names instead of presenting one. An authorization server that supports pulled statements MAY retrieve them when it resolves the document of a client that presented no statement. Admission then follows {{processing}}, except that:
+
+* The server chooses the statement ({{pull-selection}}).
+* If the pull yields no usable statement, the request proceeds as if the client had presented none ({{pull-selection}}).
+* A pulled statement that the request cannot bind is review-only rather than a reason to reject the request ({{pull-binding}}).
+
 This specification defines the following client metadata member:
 
 `software_statements_uri`:
 : OPTIONAL. URL, in a CIMD, at which the client publishes software statements about itself. The member has no meaning in a registration request. The URL MUST use the `https` scheme. A request to it returns a JSON object whose `software_statements` member is an array of statements ({{profiles}}), each a string in JWS compact serialization. The metadata digest covers this member ({{metadata-digest}}).
 
-An authorization server that supports pulled statements MAY retrieve this URL when it resolves the document of a client that presented no statement. In retrieving this URL, the server:
+An authorization server advertises support through `software_statement_pull_supported` ({{authorization-server-metadata}}).
+
+### Retrieval and Selection {#pull-selection}
+
+In retrieving the `software_statements_uri`, the authorization server:
 
 * MUST send a `GET` request with `Accept: application/json`.
 * MUST NOT automatically follow redirects.
 * MUST accept a new representation only from a `200` response with a JSON media type, and can instead reuse a stored representation that a `304 Not Modified` response revalidates (Section 15.4.5 of {{RFC9110}}).
 
-Both the document and this URL are retrieved before any statement exists to validate, so the ordering of {{processing}} applies from the first statement verified onward.
+The document and this URL are necessarily retrieved before any statement is validated, so the ordering of step 2 of {{processing}} applies only to the retrievals that follow.
 
-The server considers only statements that meet all of the following conditions:
+The server considers only statements that meet all of the following conditions, and ignores the rest:
 
 * The `sub` claim equals the document's client identifier.
 * The statement validates under {{validation}} and permits presentation ({{profiles}}).
 * The `cimd_digest` claim equals the digest of the document the server resolved.
 
-The server ignores the rest.
+If the server's trust configuration requires an issuer for this client ({{issuer-trust}}), it applies only that issuer's statement, and if none remains, the client is not reviewed. Otherwise, if more than one statement remains, the server applies the most recently issued statement from an issuer of its choice.
 
-If the server's trust configuration requires an issuer for this client ({{issuer-trust}}), it applies only that issuer's statement, and if none remains, the client is not reviewed. Otherwise, if more than one statement remains, the server keeps only the statement with the latest `iat` from each issuer and applies any one of those.
+Having selected a statement, the server continues from step 5 of {{processing}}, with the document already resolved. The selection satisfies the `client_id` rule of step 3.
 
 If retrieving the statements does not complete or no statement remains, the server applies its policy for CIMD clients it has not reviewed, subject to any required issuer ({{issuer-trust}}). If that policy or a required issuer requires reviewed software, the server rejects the request. A retrieval failure is never a withdrawal ({{LIFECYCLE}}).
 
-Having selected a statement, the server continues from step 5 of {{processing}}, with the document already resolved. The selection above satisfies the `client_id` rule of step 3.
+### Binding {#pull-binding}
 
-The presenter of a pulled statement is bound as for a presented statement ({{sender-constraint}}), at the point the following table shows, unless the statement is review-only ({{review-only}}). Public and confidential clients are as {{sender-constraint}} defines them:
+Unless {{review-only}} makes it review-only for its redirection URIs, a pulled statement is bound to the presenter as a presented statement is ({{sender-constraint}}), at the point the following table shows:
 
 | Where the statement is pulled | Confidential client | Public client |
 | --- | --- | --- |
-| Token endpoint, opening a new grant | The request's client authentication binds the presenter | Review-only |
-| Pushed authorization request endpoint | The client's authentication binds the presenter | {{public-client-presentation}} binds the presenter if the request uses PKCE with `S256` and binds a key through a DPoP proof or `dpop_jkt`. Otherwise review-only |
-| Authorization endpoint | The client's authentication at code redemption binds the presenter, before any token is issued | {{public-client-presentation}} binds the presenter if the request uses PKCE with `S256` and binds a key through `dpop_jkt`, which redemption then proves. Otherwise review-only |
+| Token endpoint, opening a new grant | The request's client authentication | Review-only |
+| Pushed authorization request endpoint | The request's client authentication | PKCE with `S256` and a key bound through a DPoP proof or `dpop_jkt`, as {{public-client-presentation}} requires. Otherwise review-only |
+| Authorization endpoint | Client authentication at code redemption, before any token is issued | PKCE with `S256` and a key bound through `dpop_jkt`, as {{public-client-presentation}} requires, which redemption then proves. Otherwise review-only |
 
-At code redemption, a confidential client whose statement was pulled at the authorization endpoint authenticates with a key the reviewed document carries, in its `jwks` or at its `jwks_uri` within the reuse bounds of {{retrieval}}, not one that only a later retrieval of the document carries, and that key becomes the establishment's proven key. Code redemption and refresh otherwise continue an establishment and keep the binding it already has ({{grant-lifecycle}}, {{refresh}}).
+A statement pulled for a document that omits `token_endpoint_auth_method` is review-only wherever it is pulled.
 
-An authorization server advertises support through `software_statement_pull_supported` ({{authorization-server-metadata}}).
+At code redemption, a confidential client whose statement was pulled at the authorization endpoint authenticates with a key the reviewed document carries, in its `jwks` or at its `jwks_uri` within the reuse bounds of {{retrieval}}, not one that only a later retrieval of the document carries, and that key becomes the establishment's proven key.
 
 ## Sender Constraint {#sender-constraint}
 
@@ -412,14 +422,14 @@ A successful presentation creates an establishment: the state against which the 
 * The authorization server's own tenant the grant was opened for, if it hosts more than one.
 * The reviewed metadata and the digest it matched ({{effective-metadata}}).
 * The issuer trust decision.
-* The sender-constraint mechanism and proven key, which for a statement pulled at the authorization endpoint for a confidential client is set at code redemption ({{pulled-statements}}).
+* The sender-constraint mechanism and proven key, which for a statement pulled at the authorization endpoint for a confidential client is set at code redemption ({{pull-binding}}).
 
 The authorization server MUST bind the resulting `request_uri`, authorization code, refresh token, and other grant continuation state to the establishment, as applicable. An establishment ends once no continuation state bound to it remains usable.
 
 A token request that redeems an authorization code opened by a presentation:
 
 * MUST have a `client_id` parameter exactly equal to the establishment's `sub`, even if the client authenticates.
-* MUST demonstrate possession of the establishment's proven key under the same sender-constraint mechanism or, for a confidential client whose statement was pulled at the authorization endpoint ({{pulled-statements}}), authenticate with the key that becomes the proven key.
+* MUST demonstrate possession of the establishment's proven key under the same sender-constraint mechanism or, for a confidential client whose statement was pulled at the authorization endpoint ({{pull-binding}}), authenticate with the key that becomes the proven key.
 * MUST NOT carry the `software_statement` parameter.
 
 A redemption that carries a statement, has a wrong client identifier, or fails the key binding is rejected. The prohibition on carrying a statement covers redemption of a code bound to an establishment.
