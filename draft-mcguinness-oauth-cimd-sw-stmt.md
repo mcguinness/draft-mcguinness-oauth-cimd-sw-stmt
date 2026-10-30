@@ -461,7 +461,7 @@ At the token and pushed authorization request endpoints, an authorization server
 
 This specification assigns `temporarily_unavailable` only to a retrieval that did not complete ({{retrieval}}), never to a response over the size bound of {{metadata-digest}}. A request carrying the `software_statement` parameter in a role {{runtime-presentation}} does not permit is rejected with `invalid_request`.
 
-## Requiring a Current Statement {#statement-required}
+## Statement Required Error {#statement-required}
 
 This specification defines the following error code:
 
