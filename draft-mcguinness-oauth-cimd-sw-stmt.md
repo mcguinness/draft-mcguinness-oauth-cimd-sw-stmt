@@ -342,11 +342,11 @@ The server considers only statements that meet all of the following conditions, 
 * The statement validates under {{validation}} and permits presentation ({{profiles}}).
 * The `cimd_digest` claim equals the digest of the document the server resolved.
 
-If the server's trust configuration requires an issuer for this client ({{issuer-trust}}), it applies only that issuer's statement, and if none remains, the client is not reviewed. Otherwise, if more than one statement remains, the server applies the most recently issued statement from an issuer of its choice.
+If the server's trust configuration requires an issuer for this client ({{issuer-trust}}), the server also ignores statements from any other issuer. If more than one statement remains, it applies the most recently issued statement from an issuer of its choice.
 
 Having selected a statement, the server continues from step 5 of {{processing}}, with the document already resolved. The selection satisfies the `client_id` rule of step 3.
 
-If retrieving the statements does not complete or no statement remains, the server applies its policy for CIMD clients it has not reviewed, subject to any required issuer ({{issuer-trust}}). If that policy or a required issuer requires reviewed software, the server rejects the request.
+If retrieving the statements does not complete or no statement remains, the server applies its policy for CIMD clients it has not reviewed, subject to any required issuer ({{issuer-trust}}), and rejects the request if that policy or a required issuer requires reviewed software.
 
 ### Binding {#pull-binding}
 
