@@ -165,7 +165,7 @@ A statement asserts that its issuer evaluated the CIMD whose content the digest 
 : OPTIONAL. A JSON array identifying the permitted uses of the statement: `registration` ({{REGISTRATION}}) and `presentation` ({{cimd-presentation}}). If the claim is absent, only `presentation` is permitted. A delivery renewing a registration ({{REGISTRATION}}) is a `registration` use. A refresh replacement ({{refresh}}) and a pulled statement ({{pulled-statements}}) are `presentation` uses.
 
 `iat`:
-: REQUIRED. A NumericDate value, which MUST be an integer, giving the time the statement was issued. An issuer MUST ensure that the `iat` claim values of its statements for a given `iss` and `sub` increase strictly, whichever of its signing nodes signs ({{refresh}}, {{multi-instance}}).
+: REQUIRED. A NumericDate value, which MUST be an integer, giving the time the statement was issued. An issuer MUST ensure that the `iat` claim values of its statements for a given `iss` and `sub` increase strictly ({{multi-instance}}, {{refresh}}).
 
 `exp`:
 : REQUIRED. A NumericDate value giving the expiration time.
