@@ -516,9 +516,16 @@ None of these rejections indicates refresh-token replay ({{RFC9700}}), whose det
 
 ## Authorization Requests {#authorization-errors}
 
-At the authorization endpoint, if policy or a required issuer requires reviewed software ({{review-only}}, {{pulled-statements}}, {{issuer-trust}}), a review-only client, or software a required issuer excludes from the tenant, is rejected with `unauthorized_client`, and a client whose pull of statements, or retrieval of a statement key set needed to verify one, did not complete ({{retrieval}}) is rejected with `temporarily_unavailable`.
+If the authorization server's policy or a required issuer ({{issuer-trust}}) requires reviewed software, an authorization request from a client the server has not admitted on a statement is rejected in the authorization error response (Section 4.1.2.1 of {{RFC6749}}) with the following error codes:
 
-Apart from those two cases, at the authorization endpoint, if the authorization server requires a statement for a client it has not admitted on one, it MUST return the `statement_required` error code in the authorization error response (Section 4.1.2.1 of {{RFC6749}}).
+`unauthorized_client`:
+: The client is review-only ({{review-only}}), or a required issuer excludes the software from the tenant ({{issuer-trust}}).
+
+`temporarily_unavailable`:
+: A pull of statements ({{pulled-statements}}), or the retrieval of a statement key set needed to verify a pulled statement, did not complete ({{retrieval}}).
+
+`statement_required`:
+: In any other case, the authorization server MUST return this code.
 
 The authorization server redirects with the error only after resolving the client's CIMD and validating the request's `redirect_uri` against it. If the authorization server cannot resolve the document, it MUST NOT redirect, and it reports the error to the resource owner instead.
 
