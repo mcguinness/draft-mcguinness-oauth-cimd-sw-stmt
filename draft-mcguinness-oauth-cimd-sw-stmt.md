@@ -506,7 +506,7 @@ A rejection uses the error response and HTTP status codes of its endpoint: Secti
 
 At the token and pushed authorization request endpoints, an authorization server SHOULD respond with HTTP status code 503 to a request it rejects with the `temporarily_unavailable` error code. {{REGISTRATION}} defines rejections at a registration endpoint and how registration validity is reported.
 
-The `temporarily_unavailable` code applies only to a retrieval that did not complete ({{retrieval}}), never to a response over the size bound of {{metadata-digest}}.
+This specification assigns `temporarily_unavailable` only to a retrieval that did not complete ({{retrieval}}), never to a response over the size bound of {{metadata-digest}}.
 
 ## Requiring a Current Statement {#statement-required}
 
