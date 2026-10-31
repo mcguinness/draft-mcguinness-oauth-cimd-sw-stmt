@@ -251,18 +251,18 @@ Attestation acquisition and platform evidence formats are out of scope. They req
 
 # Instance Attestation {#attestation}
 
-An instance attestation is a Client Attestation JWT (Section 4 of {{ABCA}}) with the following additional requirements. Section 4 of {{ABCA}} permits additional claims, and Section 13 of {{ABCA}} permits a profile its own `typ`. Together with the document's selection of this profile ({{selection}}), its type tells a server that this profile applies. Its `typ` JOSE header parameter MUST have the value `cimd-instance-attestation+jwt`, which is the media type of {{media-type}} without its `application/` prefix. It MUST be digitally signed using an accepted asymmetric algorithm. A MAC or `none` MUST NOT be accepted. Its header and claims MUST contain no duplicate member names. Validation MUST apply {{RFC8725}}.
+An instance attestation is a Client Attestation JWT (Section 4 of {{ABCA}}) with the following additional requirements. Its `typ` JOSE header parameter MUST have the value `cimd-instance-attestation+jwt` (Section 13 of {{ABCA}}), which is the media type of {{media-type}} without its `application/` prefix. Together with the document's selection of this profile ({{selection}}), its type tells a server that this profile applies. It MUST be digitally signed using an accepted asymmetric algorithm. A MAC or `none` MUST NOT be accepted. Its header and claims MUST contain no duplicate member names. Validation MUST apply {{RFC8725}}.
 
 The attestation contains the following claims. The `sub`, `iat`, `exp`, and `cnf` claims also retain the requirements of Section 4 of {{ABCA}}.
 
 `iss`:
-: REQUIRED. The attester's identifier, an HTTPS URL without a fragment. It is matched exactly against the configured attester `iss` identifier ({{trust}}). URL normalization MUST NOT be used to broaden that match.
+: REQUIRED. The attester's identifier, an HTTPS URL without a fragment. It is matched exactly against the configured attester `iss` identifier ({{trust}}).
 
 `sub`:
 : REQUIRED. It MUST be the exact client identifier URL.
 
 `aud`:
-: OPTIONAL. If present, the receiving server MUST validate it under {{RFC7519}} against its own issuer identifier ({{RFC8414}}). The proof targets a particular endpoint ({{proof}}). The attestation can be used at more than one authorization server.
+: OPTIONAL. If present, it contains the server's issuer identifier ({{RFC8414}}).
 
 `iat`:
 : REQUIRED. It is not an evidence timestamp, and an attester can round or randomize it as Section 11.1 of {{ABCA}} recommends.
@@ -279,8 +279,6 @@ The attestation contains the following claims. The `sub`, `iat`, `exp`, and `cnf
 `cimd_instance_policy`:
 : REQUIRED. A string containing an absolute URI identifying the evidence policy under which the attester attested the instance key. The URI is an identifier, not a retrieval instruction. It MUST be compared exactly with an accepted policy identifier.
 
-A server MUST reject an attestation whose `exp` claim has passed or is later than the current time plus the maximum evidence age it accepts for the attester and evidence policy. It MUST NOT reject an attestation only because its `iat` claim was rounded or randomized. No field supplied by the client can extend these bounds.
-
 An attestation is not tied to a statement's `jti`, so a statement renewed over unchanged bytes need not cause re-attestation.
 
 ## Validation {#attestation-validation}
@@ -294,7 +292,9 @@ At each pushed authorization request, code redemption, and refresh, the authoriz
 * The attestation's `cimd_digest`, the applicable software statement's `cimd_digest`, and the digest of the reviewed document are equal.
 * The attested key and the key of the DPoP proof are equal under the key-comparison rules of Section 7.3 of {{ABCA}}.
 
-On continuation, the proven key and the recorded attester, policy, and tenant constraints of {{establishment}} also apply. The server MUST NOT treat an attestation for another digest as permission to update metadata without the software statement replacement required by {{refresh}}.
+A server MUST reject an attestation whose `exp` claim has passed or is later than the current time plus the maximum evidence age it accepts for the attester and evidence policy. It MUST NOT reject an attestation only because its `iat` claim was rounded or randomized.
+
+On continuation, the proven key and the recorded attester, policy, and tenant constraints of {{establishment}} also apply.
 
 A server MUST NOT accept a software statement as an instance attestation, or an instance attestation as a software statement. The statement issuer and the attester are separate roles: one entity can perform both, but neither role implies trust in the other, and statement signing keys never sign instance attestations (Section 4 of {{STATEMENT}}).
 
