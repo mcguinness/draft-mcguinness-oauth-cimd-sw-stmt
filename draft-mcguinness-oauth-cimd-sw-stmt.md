@@ -60,12 +60,6 @@ informative:
     date: 2026-10
     seriesinfo:
       Internet-Draft: draft-mcguinness-oauth-cimd-sw-stmt-registration-00
-  LIFECYCLE:
-    target: https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle.html
-    title: "Client ID Metadata Document Software Statement Lifecycle"
-    author:
-      - fullname: Karl McGuinness
-    date: 2026-10
   ABCA: I-D.ietf-oauth-attestation-based-client-auth
   OPENID-FED:
     target: https://openid.net/specs/openid-federation-1_0.html
@@ -94,9 +88,9 @@ This specification profiles the software statement (Section 2.3 of {{RFC7591}}) 
 
 This specification serves deployments in which a party other than the client decides which software can connect, such as a marketplace or registry that vouches for software to authorization servers it does not operate, or an enterprise that approves software for its users at a service run by someone else. It also serves server-hosted software, such as an agent, that uses the `client_credentials` grant. Admission grants no access to resources: the authorization server's policy, and the resource owner's authorization where a grant involves one, still govern what it issues.
 
-A statement records approval of a client configuration, not of the software's code or behavior ({{what-statement-attests}}). Possession of a statement alone admits nothing: the presenter is bound to the reviewed document ({{sender-constraint}}), though for a public client that binding does not hold against a party that controls the user agent ({{public-client-security}}). Presentations by a native application whose redirection URIs another application on the device could claim are review-only ({{review-only}}). A statement's expiry limits new admissions but ends no open grant, and an older statement that has not expired remains admissible after a newer one is issued ({{enforcement-bounds}}). Withdrawal, supersession, and grants that follow later reviews are left to {{LIFECYCLE}}.
+A statement records approval of a client configuration, not of the software's code or behavior ({{what-statement-attests}}). Possession of a statement alone admits nothing: the presenter is bound to the reviewed document ({{sender-constraint}}), though for a public client that binding does not hold against a party that controls the user agent ({{public-client-security}}). Presentations by a native application whose redirection URIs another application on the device could claim are review-only ({{review-only}}). A statement's expiry limits new admissions but ends no open grant, and an older statement that has not expired remains admissible after a newer one is issued ({{enforcement-bounds}}). Withdrawal, supersession, and grants that follow later reviews are left to extensions ({{extensions}}).
 
-This specification does not define how a client obtains a statement. {{REGISTRATION}} builds on this specification, which does not depend on it, to define consumption of the same statement in an {{RFC7591}} registration request. {{relationship}} relates this specification to other work.
+This specification does not define how a client obtains a statement. {{extensions}} lists extensions left to separate specifications, including consumption at registration, and {{relationship}} relates this specification to other work.
 
 ## Protocol Overview
 
@@ -607,11 +601,12 @@ This specification defines the following authorization server metadata {{RFC8414
 
 The following extensions are left to separate specifications:
 
-* Attested keys: a client attestation {{ABCA}} vouching for a key the reviewed document does not carry. Without one, software whose instances authenticate with keys of their own can neither prove nor register those keys ({{sender-constraint}}, {{REGISTRATION}}).
+* Consumption at registration ({{REGISTRATION}}): a statement in an {{RFC7591}} registration request, with the registered metadata taken from the reviewed document.
+* Attested keys: a client attestation {{ABCA}} vouching for a key the reviewed document does not carry. Without one, software whose instances authenticate with keys of their own cannot prove those keys ({{sender-constraint}}).
 * Statement conveyance within a client attestation, rather than as a request parameter.
 * Runtime presentation in the request that begins a grant at an endpoint this specification does not cover, such as the device authorization endpoint of {{RFC8628}}.
 * Partial review, by which an issuer vouches for particular members rather than a whole document ({{metadata-digest}}).
-* Statement lifecycle ({{LIFECYCLE}}): withdrawal, supersession, requiring a current statement on refresh, and refresh replacement.
+* Statement lifecycle: withdrawal, supersession, requiring a current statement on refresh, and refresh replacement.
 
 # Relationship to Other Work {#relationship}
 
