@@ -188,7 +188,7 @@ A statement issued under this specification MUST NOT contain a claim named in th
 
 A CIMD can carry a `software_statement` member (Section 4.3 of {{CIMD}}). A trusting authorization server MUST NOT consume a statement of this profile from that member, and MUST NOT treat that member as satisfying any requirement of this specification. A statement inside the document could not name the document's digest, because it would be part of the octets it digests, so this specification carries statements in requests ({{runtime-presentation}}) or at a separate location ({{pulled-statements}}). Statements of other kinds in the member are out of scope for this specification.
 
-An authorization server implementing this specification MUST reject a statement of this profile in an {{RFC7591}} registration request with the `unapproved_software_statement` error code (Section 3.2.2 of {{RFC7591}}), unless it consumes the statement as {{REGISTRATION}} specifies. {{legacy-servers}} explains why.
+An authorization server implementing this specification MUST reject a statement of this profile in an {{RFC7591}} registration request with the `unapproved_software_statement` error code (Section 3.2.2 of {{RFC7591}}), unless an extension it implements defines consumption of the statement at registration ({{extensions}}). {{legacy-servers}} explains why.
 
 ## Metadata Digest {#metadata-digest}
 
@@ -279,7 +279,7 @@ A trusting authorization server MAY reuse document octets it holds for digest co
 A client presents a software statement by including the following parameter in a token request or a pushed authorization request:
 
 `software_statement`:
-: REQUIRED for a presentation made in a request. The software statement ({{profiles}}). It is consumed as a runtime presentation or, where implemented, as a refresh replacement under {{LIFECYCLE}} or a delivery under {{REGISTRATION}}. On refresh-token use under an establishment, a server that does not implement {{LIFECYCLE}} ignores the parameter. A request carrying the parameter in any other role is rejected.
+: REQUIRED for a presentation made in a request. The software statement ({{profiles}}). It is consumed as a runtime presentation or in a role defined by an extension the server implements. On refresh-token use under an establishment, a server ignores the parameter unless an extension it implements defines its role there. A request carrying the parameter in any other role is rejected.
 
 A request making a runtime presentation MUST include the `client_id` parameter, even if the client authenticates, and its value, the client's CIMD URL, MUST exactly equal the statement's `sub` claim. The authorization server MUST reject a request that omits the parameter or carries another value. The effective `client_id` is the statement's `sub`, and the authorization server assigns none.
 
