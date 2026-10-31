@@ -190,7 +190,7 @@ The software statement's issuer and the client attester are separate roles. One 
 
 An authorization server implementing this specification MUST support PAR, PKCE with `S256` {{RFC7636}}, DPoP {{RFC9449}}, and the `attest_jwt_client_auth_dpop` method of {{ABCA}}, which uses a DPoP proof as the proof of possession (Sections 5.2 and 7.3 of {{ABCA}}). Clients MUST use that method at the PAR endpoint and at every token request under this specification. This profile does not support the Client Attestation PoP JWT (Section 5.1 of {{ABCA}}).
 
-Each installation holds its own credential, the attested key, so a client under this profile is a confidential client although it is a native application, as Section 8.4 of {{RFC8252}} contemplates for per-instance credentials.
+Each installation holds its own credential, the attested key, so a client under this profile is a confidential client although it is a native application, as Section 8.4 of {{RFC8252}} contemplates for per-instance credentials. A presentation processed under {{par}} whose redirection URIs meet {{loopback}} is not review-only (Section 5.6.3 of {{STATEMENT}}).
 
 The client selects this profile by publishing the `software_statement_instance_binding` client metadata member with the value `true` in its reviewed document ({{client-metadata}}). A server creates a new establishment under the profile only if the server supports this specification, the reviewed document selects the profile, and all admission checks succeed.
 
@@ -394,25 +394,25 @@ This specification defines no interoperable attestation or instance revocation p
 
 # Exceptions to Software Statement Processing {#core-exceptions}
 
-For establishments governed by this specification, the following rules replace or add to the corresponding rules of {{STATEMENT}}, cited by section number, and of {{LIFECYCLE}}:
+The following table summarizes where this profile departs from {{STATEMENT}} and {{LIFECYCLE}}.
 
 | Section | Rule | Under this profile |
 | --- | --- | --- |
 | 4 | A required issuer configured for software whose presentations are review-only excludes that software from the tenant. | A presentation processed under {{par}} is not review-only, so a current statement from the required issuer can admit the software. |
-| 5.5 | A statement pulled at the authorization endpoint binds the presenter at code redemption. | The binding is set at the PAR endpoint; an authorization request without a PAR `request_uri` governed by this profile is rejected ({{authorization}}). |
 | 5.1, 5.2 | The statement and the document are checked before the proof. | The instance is authenticated first ({{par}}, step 1). Statement and document checks follow, and checks needing no client-controlled retrieval still precede such retrieval. |
 | 5.2, 5.5, 5.6.3 | A request without an acceptable statement can proceed under the policy for unreviewed clients, a review-only presentation proceeds as a client presenting no statement, and a digest mismatch can proceed without the statement. | No fallback: any failed check rejects the request ({{par}}). |
-| 5.6.1 | The proven key appears in the reviewed document's `jwks` or at its `jwks_uri`. | The proven key is the attested key ({{attestation-validation}}), and the document carries no key material ({{client-metadata}}). |
-| 5.6.2, 5.6.3 | A redirection URI another application could claim makes a presentation review-only, and a document declaring `token_endpoint_auth_method` of `none` without such a URI is bound by its redirection URIs. | A presentation processed under {{par}} whose redirects meet {{loopback}} is not review-only. The client is confidential and authenticates with the method of {{selection}}, so the public-client rules do not apply. |
+| 5.4.2, 5.5.2 | A pulled statement needs no PAR, and one pulled at the authorization endpoint binds the presenter at code redemption. | The binding is set at the PAR endpoint. An authorization request without a PAR `request_uri` governed by this profile is rejected ({{authorization}}). |
+| 5.6, 5.6.1 | The proven key appears in the reviewed document's `jwks` or at its `jwks_uri`. | The proven key is the attested key ({{attestation-validation}}), and the document carries no key material ({{client-metadata}}). |
+| 5.6.3 | A redirection URI another application could claim makes a presentation review-only. | Loopback redirects under {{par}} do not make a presentation review-only ({{selection}}). |
 | 5.7 | Redemption checks the client identifier and key, not the statement's expiry. | Redemption also requires the recorded statement to be unexpired and unrefused, and the current document to match the recorded digest ({{redemption}}). |
+| 5.7, 5.7.1, 13.7 | Redemption and refresh do not re-evaluate issuer trust, so removing an issuer ends no open grant. | Redemption and refresh re-evaluate issuer trust ({{redemption}}, {{refresh}}). |
 | 5.7.1 | Refresh checks possession of the proven key and that the currently served document still carries that key. | Refresh verifies a current attestation of the proven key instead of its presence in the document ({{refresh}}). |
-| 5.1 and 5.2 of {{LIFECYCLE}} | A current statement on refresh is recommended once the recorded statement expires, and the document's digest is checked only for a replacement. | Every refresh requires a current statement and re-checks the document against the recorded digests ({{refresh}}). |
-| 6.3 | Code redemption is rejected with `invalid_request`, `invalid_grant`, or, at the establishment bound, `invalid_client`. | Redemption can also return `invalid_client` or `invalid_client_attestation` for failed authentication, `statement_required`, `use_fresh_attestation`, or `temporarily_unavailable` ({{error-codes}}). |
+| 6.3 | Code redemption is rejected with `invalid_grant` or, at the establishment bound, `invalid_client`. | Redemption can also return `statement_required` ({{error-codes}}). |
 | 6.4 | A client not admitted on a statement receives `statement_required`. | A missing or invalid required pushed authorization request is rejected with `invalid_request` ({{authorization-errors}}). |
+| 5.1 of {{LIFECYCLE}} | A current statement on refresh is recommended once the recorded statement expires. | Every refresh requires a current statement ({{refresh}}). |
+| 5.2 of {{LIFECYCLE}} | A replacement is needed only when the recorded statement is refused or expired, the document's digest is checked only for a replacement, and the replacement's document carries the proven key. | Every refresh re-checks the document against the recorded digests, a replacement is also needed when the recorded statement no longer matches the document, and a current attestation of the proven key takes the place of the key check ({{refresh}}). |
 
-Code redemption and refresh continue an establishment and are not new token-endpoint presentations, so the rejection in {{STATEMENT}} of a token-endpoint presentation that opens a new grant for a client whose document declares `token_endpoint_auth_method` of `none` is unchanged. All other requirements of {{STATEMENT}} and {{LIFECYCLE}} continue to apply. This specification applies equally to presented and pulled statements. It adds no requirement to issue statements or implement {{REGISTRATION}}.
-
-A supporting server MUST NOT infer this profile's assurance from successful generic client authentication without all of this specification's checks.
+All other requirements of {{STATEMENT}} and {{LIFECYCLE}} continue to apply.
 
 # Error Responses {#errors}
 
