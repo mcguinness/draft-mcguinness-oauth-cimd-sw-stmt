@@ -129,7 +129,7 @@ informative:
 
 --- abstract
 
-A software statement for a Client ID Metadata Document (CIMD) binds a review of client software to the exact octets of that document. It does not, by itself, bind an installation of that software to a key. This specification defines an instance-binding extension in which an independently trusted client attester attests an installation's key for the reviewed document. The client proves that key through attestation-based client authentication when opening and continuing an authorization code grant. When an attester can verify which software controls an installation's key, as on managed devices, this specification permits native applications, including command-line clients, to use loopback redirects while satisfying a policy requiring reviewed software. The specification defines attestation and metadata requirements, processing at the pushed authorization request and token endpoints, and the exceptions to the base software statement rules needed for attested keys.
+A companion specification defines a software statement that binds a review of client software to the exact octets of its Client ID Metadata Document (CIMD). It does not, by itself, bind an installation of that software to a key. This specification defines an instance-binding extension in which an independently trusted client attester attests an installation's key for the reviewed document. The client proves that key through attestation-based client authentication when opening and continuing an authorization code grant. When an attester can verify which software controls an installation's key, as on managed devices, this specification permits native applications, including command-line clients, to use loopback redirects while satisfying a policy requiring reviewed software.
 
 --- middle
 
@@ -139,7 +139,7 @@ A native application's installations cannot safely authenticate by a private key
 
 Section 5.6.3 of {{STATEMENT}} therefore treats a presentation under a document containing a redirection URI that another application on the same device could claim as review-only: the server evaluates the statement but admits nothing on it, and such a presentation cannot satisfy a policy requiring reviewed software. This excludes loopback redirects, even though they are an established response-delivery mechanism for native applications under {{RFC8252}}.
 
-Existing mechanisms do not provide reviewed-software admission for loopback clients. Loopback redirects with Proof Key for Code Exchange (PKCE) {{RFC7636}} protect an authorization code from interception, but any application can start a transaction with a native client's identifier, the client impersonation that Section 8.6 of {{RFC8252}} describes. Attestation-based client authentication {{ABCA}} alone shows that an installation holds a key an attester vouches for, not that the installation runs the software a statement issuer approved for a particular document. The public-client binding of {{STATEMENT}} relies on redirection URIs no other application can claim, which loopback URIs are not.
+Existing mechanisms do not provide reviewed-software admission for loopback clients. Loopback redirects with Proof Key for Code Exchange (PKCE) {{RFC7636}} protect an authorization code from interception, but any application can start a transaction with a native client's identifier, the client impersonation that Section 8.6 of {{RFC8252}} describes. Attestation-based client authentication {{ABCA}} alone shows that an installation holds a key an attester vouches for, not that the installation runs the software a statement issuer approved for a particular document.
 
 This specification defines an alternative binding made of three elements, which stay separate even when one organization operates both issuing roles:
 
@@ -149,9 +149,11 @@ This specification defines an alternative binding made of three elements, which 
 
 The callback delivers the authorization response but supplies no evidence of the presenter's software identity.
 
-This specification serves authorization code flows using pushed authorization requests (PAR) {{RFC9126}} and refresh of the resulting grants. It defines neither registration nor new token-endpoint presentations for other grants. {{REGISTRATION}} is unchanged: it rejects loopback redirects, so a document selecting this profile is never registered, whatever the `statement_uses` claim of a statement over it permits. Neither {{STATEMENT}} nor {{REGISTRATION}} depends on this specification.
+This specification serves authorization code flows using pushed authorization requests (PAR) {{RFC9126}} and refresh of the resulting grants. It defines neither registration nor new token-endpoint presentations for other grants. {{REGISTRATION}} is unchanged: it rejects loopback redirects, so a document selecting this profile is never registered, whatever the `statement_uses` claim of a statement over it permits.
 
 The binding is only as strong as the attester's evidence that the software, not merely the device or the user, controls the key ({{software-evidence}}). Such evidence is available today mainly on managed devices, through an enterprise agent or launcher ({{launcher}}). On an unmanaged desktop, or for an interpreted command-line client, an attester typically cannot meet the requirements of {{trust}}, and the client remains review-only under Section 5.6.3 of {{STATEMENT}}.
+
+This specification extends {{STATEMENT}} and {{LIFECYCLE}}, which do not depend on it, and relies on {{LIFECYCLE}} to keep each grant in step with the current review ({{refresh}}).
 
 ## Protocol Overview
 
@@ -170,8 +172,6 @@ The following non-normative sequence summarizes admission under this profile:
 
 This specification uses terminology from {{RFC6749}}, {{RFC7591}}, {{CIMD}}, and {{ABCA}}, the terms defined in Section 2 of {{STATEMENT}}, and the terms defined in Section 2 of {{LIFECYCLE}}. An installation is a Client Instance as defined by {{ABCA}}.
 
-This specification depends on {{LIFECYCLE}}, because continuous review and replacement are part of its security model: every refresh requires a current statement, refusal records are enforced at code redemption and refresh, and a replacement statement keeps a grant in step with a later review ({{redemption}}, {{refresh}}).
-
 This specification defines the following terms:
 
 Instance Attestation:
@@ -189,9 +189,7 @@ An authorization server implementing this specification MUST support pushed auth
 
 Each installation holds its own credential, the attested key, so a client under this profile is a confidential client although it is a native application, as Section 8.4 of {{RFC8252}} contemplates for per-instance credentials. A presentation processed under {{par}} whose redirection URIs meet {{loopback}} is not review-only (Section 5.6.3 of {{STATEMENT}}).
 
-The client selects this profile by publishing the `software_statement_instance_binding` client metadata member with the value `true` in its reviewed document ({{client-metadata}}). A server creates a new establishment under the profile only if the server supports this specification, the reviewed document selects the profile, and all admission checks succeed.
-
-Once an establishment is created, its recorded binding selects the profile for every continuation. Selection MUST NOT depend on whether a continuation happens to include an attestation or on a newly fetched document omitting the selection member. Such omissions fail the request; they do not change the grant's binding.
+The client selects this profile by publishing the `software_statement_instance_binding` client metadata member with the value `true` in its reviewed document ({{client-metadata}}). A server creates a new establishment under the profile only if the server supports this specification, the reviewed document selects the profile, and all admission checks succeed. The establishment's recorded binding then governs every continuation ({{establishment}}).
 
 This specification permits only the authorization code grant opened through a pushed authorization request, and refresh of that grant. It does not authorize private-use URI schemes, `localhost` hostnames, non-loopback redirects, implicit responses, device authorization, client credentials, or assertion grants. Other specifications can define additional bindings without changing the behavior of this profile.
 
@@ -316,7 +314,7 @@ The client presents its software statement in the `software_statement` parameter
 
 Before responding successfully to a pushed authorization request, the authorization server MUST:
 
-1. Validate request syntax and the client identifier, resolve the applicable tenant, and authenticate the instance under {{trust}}, {{attestation}}, and {{proof}}. Checks needing no client-controlled retrieval precede such retrieval.
+1. Validate request syntax and the client identifier, and resolve the applicable tenant. If the request carries an instance attestation, authenticate the instance under {{trust}}, {{attestation}}, and {{proof}}. Checks needing no client-controlled retrieval precede such retrieval.
 2. Validate the selected statement (Section 3.2 of {{STATEMENT}}) and apply the refusal records and `iat` floor (Sections 3 and 4 of {{LIFECYCLE}}). If statements are pulled, step 3 resolves the document first, since the document names where statements are published, and Sections 5.3 and 5.5.1 of {{STATEMENT}} apply.
 3. Resolve the CIMD (Section 5.3 of {{STATEMENT}}), perform the digest and metadata checks of Section 5.2 of {{STATEMENT}}, enforce {{client-metadata}}, and complete the cross-artifact checks of {{attestation-validation}}.
 4. Validate the requested redirect under {{loopback}}, require PKCE `S256`, and evaluate the request against the reviewed metadata and authorization policy.
@@ -587,7 +585,7 @@ Because an access token expires no later than the attestation accepted for it ({
 
 # Security Considerations {#security-considerations}
 
-The security considerations of {{STATEMENT}}, {{LIFECYCLE}}, {{ABCA}}, {{CIMD}}, {{RFC8252}}, and {{RFC9700}} apply. This section describes the additional trust boundary introduced by this specification.
+The security considerations of Section 13 of {{STATEMENT}}, Section 11 of {{LIFECYCLE}}, Section 12 of {{ABCA}}, {{CIMD}}, {{RFC8252}}, and {{RFC9700}} apply.
 
 ## Software Evidence and Key Use {#software-evidence}
 
@@ -607,7 +605,7 @@ The client binds its listener only to the selected loopback interface, opens it 
 
 A requester can try to avoid this profile by omitting every review artifact, by presenting a statement over an earlier document, or by opening a grant another way. Because {{required-binding}} bases a server's requirement for reviewed software on its own policy, withholding an artifact does not avoid it.
 
-Existing grants retain their recorded binding ({{selection}}, {{establishment}}). A server implementing only {{STATEMENT}} continues to reject clients that select this profile where review is required (Section 5.6.3 of {{STATEMENT}}).
+Existing grants retain their recorded binding ({{establishment}}). A server implementing only {{STATEMENT}} continues to reject clients that select this profile where review is required (Section 5.6.3 of {{STATEMENT}}).
 
 ## Artifact Substitution and Key Separation
 
@@ -629,7 +627,7 @@ Attestations do not remove the need for bounded document retrieval, statement se
 
 # Privacy Considerations {#privacy}
 
-The privacy considerations of {{STATEMENT}}, {{LIFECYCLE}}, and Section 11 of {{ABCA}} apply.
+The privacy considerations of Section 14 of {{STATEMENT}}, Section 12 of {{LIFECYCLE}}, and Section 11 of {{ABCA}} apply.
 
 An attested key reused at multiple authorization servers can correlate installations across them. Clients SHOULD use separate attested keys for separate authorization servers where the evidence mechanism permits, and SHOULD avoid adding stable installation identifiers unless needed by the deployment. This profile does not require a globally stable instance identifier or an attestation audience.
 
