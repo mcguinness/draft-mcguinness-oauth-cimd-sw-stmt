@@ -31,9 +31,7 @@ normative:
   RFC7519:
   RFC7591:
   RFC8414:
-  RFC7636:
   RFC9126:
-  RFC9449:
   RFC9700:
   STATEMENT:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt
