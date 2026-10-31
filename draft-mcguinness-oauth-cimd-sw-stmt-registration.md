@@ -242,7 +242,7 @@ A rejection this specification defines, at a client registration endpoint or at 
   * The document's digest does not equal the statement's `cimd_digest` claim ({{dcr-presentation}}).
   * An {{RFC7592}} update request is rejected under {{registration-validity}}.
   * A statement delivered at the client configuration endpoint, or the statement of a repeated public-client registration request evaluated as a replacement ({{repeated-registration}}), fails the replacement rules of {{revalidation}} where this section assigns no other code, such as a change in whether the document declares `token_endpoint_auth_method` of `none`.
-  * The statement of a repeated public-client registration request is earlier than the governing statement ({{repeated-registration}}).
+  * The statement of a repeated public-client registration request is not the governing statement and has an `iat` no later than the governing statement's ({{repeated-registration}}).
 
 `unapproved_software_statement`:
 : The statement is well formed but not acceptable here: its issuer is not configured, its `aud` excludes this server, its `sub` is outside the client identifier namespaces the issuer can attest, its `aud_tenant` is not this request's tenant or is absent when required, its issuer is confined to another tenant, or its `statement_uses` excludes this use. This code is also used if a statement this server requires is absent from a registration request, and for a repeated registration request that the server's policy refuses ({{repeated-registration}}).
