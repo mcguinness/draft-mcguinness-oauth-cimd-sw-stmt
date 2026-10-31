@@ -7,7 +7,7 @@
 <title>Client ID Metadata Document Software Statement</title>
 <meta content="Karl McGuinness" name="author">
 <meta content="
-       A Client ID Metadata Document (CIMD) carries a client's own claims, which can change at any time. This specification defines a software statement in which a trusted party records its review of the exact bytes of such a document, and how an authorization server enforces that review when it admits the client at request time, without a registration. The client presents the statement in a token or pushed authorization request, or publishes it where the reviewed document points. Possession of the statement alone does not complete a grant: the presenter is also bound to the reviewed document. Because the document remains the metadata, one review is portable across the authorization servers that trust its issuer. A companion specification covers RFC 7591 registration. Withdrawal, supersession, and keeping grants in step with later reviews are left to a separate lifecycle extension. 
+       A Client ID Metadata Document (CIMD) carries a client's own claims, which can change at any time. This specification defines a software statement in which a trusted party records its review of the exact octets of such a document, and how an authorization server enforces that review when it admits the client at request time, without a registration. The client presents the statement in a token or pushed authorization request, or publishes it where the reviewed document points. Possession of the statement alone does not complete a grant: the presenter is also bound to the reviewed document. Because the document remains the metadata, one review is portable across the authorization servers that trust its issuer. A companion specification covers RFC 7591 registration. Withdrawal, supersession, and keeping grants in step with later reviews are left to a separate lifecycle extension. 
     " name="description">
 <meta content="xml2rfc 3.34.1" name="generator">
 <meta content="OAuth" name="keyword">
@@ -1081,7 +1081,7 @@ svg {
 <h1 id="title">Client ID Metadata Document Software Statement</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
-<p id="section-abstract-1">A Client ID Metadata Document (CIMD) carries a client's own claims, which can change at any time. This specification defines a software statement in which a trusted party records its review of the exact bytes of such a document, and how an authorization server enforces that review when it admits the client at request time, without a registration. The client presents the statement in a token or pushed authorization request, or publishes it where the reviewed document points. Possession of the statement alone does not complete a grant: the presenter is also bound to the reviewed document. Because the document remains the metadata, one review is portable across the authorization servers that trust its issuer. A companion specification covers RFC 7591 registration. Withdrawal, supersession, and keeping grants in step with later reviews are left to a separate lifecycle extension.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+<p id="section-abstract-1">A Client ID Metadata Document (CIMD) carries a client's own claims, which can change at any time. This specification defines a software statement in which a trusted party records its review of the exact octets of such a document, and how an authorization server enforces that review when it admits the client at request time, without a registration. The client presents the statement in a token or pushed authorization request, or publishes it where the reviewed document points. Possession of the statement alone does not complete a grant: the presenter is also bound to the reviewed document. Because the document remains the metadata, one review is portable across the authorization servers that trust its issuer. A companion specification covers RFC 7591 registration. Withdrawal, supersession, and keeping grants in step with later reviews are left to a separate lifecycle extension.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <div id="status-of-memo">
 <section id="section-boilerplate.1">
@@ -1349,19 +1349,16 @@ svg {
                 <p id="section-toc.1-1.15.2.2.1"><a href="#section-15.2" class="auto internal xref">15.2</a>.  <a href="#name-media-type-registration" class="internal xref">Media Type Registration</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15.2.3">
-                <p id="section-toc.1-1.15.2.3.1"><a href="#section-15.3" class="auto internal xref">15.3</a>.  <a href="#name-claims-defined-elsewhere" class="internal xref">Claims Defined Elsewhere</a></p>
+                <p id="section-toc.1-1.15.2.3.1"><a href="#section-15.3" class="auto internal xref">15.3</a>.  <a href="#name-json-web-token-claims-regis" class="internal xref">JSON Web Token Claims Registry</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15.2.4">
-                <p id="section-toc.1-1.15.2.4.1"><a href="#section-15.4" class="auto internal xref">15.4</a>.  <a href="#name-json-web-token-claims-regis" class="internal xref">JSON Web Token Claims Registry</a></p>
+                <p id="section-toc.1-1.15.2.4.1"><a href="#section-15.4" class="auto internal xref">15.4</a>.  <a href="#name-oauth-extensions-error-regi" class="internal xref">OAuth Extensions Error Registry</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15.2.5">
-                <p id="section-toc.1-1.15.2.5.1"><a href="#section-15.5" class="auto internal xref">15.5</a>.  <a href="#name-oauth-extensions-error-regi" class="internal xref">OAuth Extensions Error Registry</a></p>
+                <p id="section-toc.1-1.15.2.5.1"><a href="#section-15.5" class="auto internal xref">15.5</a>.  <a href="#name-oauth-dynamic-client-regist" class="internal xref">OAuth Dynamic Client Registration Metadata Registry</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15.2.6">
-                <p id="section-toc.1-1.15.2.6.1"><a href="#section-15.6" class="auto internal xref">15.6</a>.  <a href="#name-oauth-dynamic-client-regist" class="internal xref">OAuth Dynamic Client Registration Metadata Registry</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15.2.7">
-                <p id="section-toc.1-1.15.2.7.1"><a href="#section-15.7" class="auto internal xref">15.7</a>.  <a href="#name-oauth-authorization-server-" class="internal xref">OAuth Authorization Server Metadata Registry</a></p>
+                <p id="section-toc.1-1.15.2.6.1"><a href="#section-15.6" class="auto internal xref">15.6</a>.  <a href="#name-oauth-authorization-server-" class="internal xref">OAuth Authorization Server Metadata Registry</a></p>
 </li>
             </ul>
 </li>
@@ -1394,10 +1391,8 @@ svg {
 <p id="section-1-1">A Client ID Metadata Document (CIMD) <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> identifies a client by a URL and supplies its metadata from a document the client controls. That metadata is the client's own claim and can change at any time. An organization that reviews client software has no interoperable way to record its review of a particular version of the document, or to have authorization servers that trust the organization, but have no relationship with the client, enforce that review.<a href="#section-1-1" class="pilcrow">¶</a></p>
 <p id="section-1-2">This specification profiles the software statement (Section 2.3 of <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>) for that purpose. A statement names the client by its document URL and binds the review to the document's exact octets by a digest (<a href="#metadata-digest" class="auto internal xref">Section 3.1</a>). An authorization server that trusts the statement's issuer (<a href="#issuer-trust" class="auto internal xref">Section 4</a>) admits the client at request time on the reviewed document, and no other, without creating a registration (<a href="#cimd-presentation" class="auto internal xref">Section 5</a>), so one review is portable across every authorization server in the statement's audience.<a href="#section-1-2" class="pilcrow">¶</a></p>
 <p id="section-1-3">This specification serves deployments in which a party other than the client decides which software can connect, such as a marketplace or registry that vouches for software to authorization servers it does not operate, or an enterprise that approves software for its users at a service run by someone else. It also serves server-hosted software, such as an agent, that uses the <code>client_credentials</code> grant. Admission grants no access to resources: the authorization server's policy, and the resource owner's authorization where a grant involves one, still govern what it issues.<a href="#section-1-3" class="pilcrow">¶</a></p>
-<p id="section-1-4">Presentations by a native application whose redirection URIs another application on the device could claim are review-only (<a href="#review-only" class="auto internal xref">Section 5.6.3</a>) until an extension binds an installation key that a third party vouches for (<a href="#extensions" class="auto internal xref">Section 9</a>).<a href="#section-1-4" class="pilcrow">¶</a></p>
-<p id="section-1-5">A statement records approval of a client configuration, not of the software's code or behavior (<a href="#what-statement-attests" class="auto internal xref">Section 13.1</a>). Possession of a statement alone admits nothing: the presenter is bound to the reviewed document (<a href="#sender-constraint" class="auto internal xref">Section 5.6</a>), though for a public client that binding does not hold against a party that controls the user agent (<a href="#public-client-security" class="auto internal xref">Section 13.4</a>).<a href="#section-1-5" class="pilcrow">¶</a></p>
-<p id="section-1-6">Under this specification, a statement's expiry limits new admissions and does not end grants already opened, and an older statement that has not expired remains admissible after a newer one is issued (<a href="#enforcement-bounds" class="auto internal xref">Section 13.7</a>). Withdrawal, supersession, and grants that follow later reviews are left to <span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span>.<a href="#section-1-6" class="pilcrow">¶</a></p>
-<p id="section-1-7">This specification does not define how a client obtains a statement. <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span> builds on this specification, which does not depend on it, to define consumption of the same statement in an <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> registration request. <a href="#relationship" class="auto internal xref">Section 10</a> relates this specification to other work.<a href="#section-1-7" class="pilcrow">¶</a></p>
+<p id="section-1-4">A statement records approval of a client configuration, not of the software's code or behavior (<a href="#what-statement-attests" class="auto internal xref">Section 13.1</a>). Possession of a statement alone admits nothing: the presenter is bound to the reviewed document (<a href="#sender-constraint" class="auto internal xref">Section 5.6</a>), though for a public client that binding does not hold against a party that controls the user agent (<a href="#public-client-security" class="auto internal xref">Section 13.4</a>). Presentations by a native application whose redirection URIs another application on the device could claim are review-only (<a href="#review-only" class="auto internal xref">Section 5.6.3</a>). A statement's expiry limits new admissions but ends no open grant, and an older statement that has not expired remains admissible after a newer one is issued (<a href="#enforcement-bounds" class="auto internal xref">Section 13.7</a>). Withdrawal, supersession, and grants that follow later reviews are left to <span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span>.<a href="#section-1-4" class="pilcrow">¶</a></p>
+<p id="section-1-5">This specification does not define how a client obtains a statement. <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span> builds on this specification, which does not depend on it, to define consumption of the same statement in an <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> registration request. <a href="#relationship" class="auto internal xref">Section 10</a> relates this specification to other work.<a href="#section-1-5" class="pilcrow">¶</a></p>
 <div id="protocol-overview">
 <section id="section-1.1">
         <h3 id="name-protocol-overview">
@@ -1552,8 +1547,8 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 </dd>
       <dd class="break"></dd>
 </dl>
-<p id="section-3-5">Profiles and extensions can define further claims, such as <code>status</code> (<span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span>). A trusting authorization server ignores a claim it does not recognize (<a href="#validation" class="auto internal xref">Section 3.2</a>).<a href="#section-3-5" class="pilcrow">¶</a></p>
-<p id="section-3-6">A statement issued under this specification <span class="bcp14">MUST NOT</span> contain a claim named in the IANA "OAuth Dynamic Client Registration Metadata" registry, and a trusting authorization server <span class="bcp14">MUST NOT</span> take client metadata from a statement's claims. A trusting authorization server ignores such a claim rather than rejecting the statement (<a href="#validation" class="auto internal xref">Section 3.2</a>).<a href="#section-3-6" class="pilcrow">¶</a></p>
+<p id="section-3-5">Profiles and extensions can define further claims, such as <code>status</code> (<span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span>).<a href="#section-3-5" class="pilcrow">¶</a></p>
+<p id="section-3-6">A statement issued under this specification <span class="bcp14">MUST NOT</span> contain a claim named in the IANA "OAuth Dynamic Client Registration Metadata" registry, and a trusting authorization server <span class="bcp14">MUST NOT</span> take client metadata from a statement's claims.<a href="#section-3-6" class="pilcrow">¶</a></p>
 <p id="section-3-7">A CIMD can carry a <code>software_statement</code> member (Section 4.3 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>). A trusting authorization server <span class="bcp14">MUST NOT</span> consume a statement of this profile from that member, and <span class="bcp14">MUST NOT</span> treat that member as satisfying any requirement of this specification. A statement inside the document could not name the document's digest, because it would be part of the octets it digests, so this specification carries statements in requests (<a href="#runtime-presentation" class="auto internal xref">Section 5.4</a>) or at a separate location (<a href="#pulled-statements" class="auto internal xref">Section 5.5</a>). Statements of other kinds in the member are out of scope for this specification.<a href="#section-3-7" class="pilcrow">¶</a></p>
 <p id="section-3-8">An authorization server implementing this specification <span class="bcp14">MUST</span> reject a statement of this profile in an <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> registration request with the <code>unapproved_software_statement</code> error code (Section 3.2.2 of <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>), unless it consumes the statement as <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span> specifies. <a href="#legacy-servers" class="auto internal xref">Section 13.3</a> explains why.<a href="#section-3-8" class="pilcrow">¶</a></p>
 <div id="metadata-digest">
@@ -1563,7 +1558,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         </h3>
 <p id="section-3.1-1">The metadata digest is the unpadded base64url-encoded SHA-256 hash <span>[<a href="#RFC6234" class="cite xref">RFC6234</a>]</span> of the retrieved representation body after removal of content coding. The body is not transcoded, normalized, or re-serialized. Any byte order mark or trailing newline is included.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
 <p id="section-3.1-2">Retrieval for digest purposes follows <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> and <span class="bcp14">MUST NOT</span> use content negotiation: the retrieving party sends the <code>Accept</code> header field that <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> specifies for retrieving the document, or <code>Accept: application/json</code> if it specifies none, and no other variant selection. Equal digests show that the issuer and the trusting authorization server obtained the same octets, so any condition that makes retrieval depend on who is asking defeats the comparison.<a href="#section-3.1-2" class="pilcrow">¶</a></p>
-<p id="section-3.1-3">A server <span class="bcp14">MUST NOT</span> compare a digest against any representation other than one it retrieved itself or stored under this section. A <code>304 Not Modified</code> response shows that stored octets, and their digest, are still current only if it carries a strong entity tag that matches the one stored with them under strong comparison (Section 8.8.3.2 of <span>[<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>). Otherwise, the server retrieves the body again.<a href="#section-3.1-3" class="pilcrow">¶</a></p>
+<p id="section-3.1-3">A <code>304 Not Modified</code> response shows that stored octets, and their digest, are still current only if it carries a strong entity tag that matches the one stored with them under strong comparison (Section 8.8.3.2 of <span>[<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>). Otherwise, the server retrieves the body again.<a href="#section-3.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="validation">
@@ -1598,7 +1593,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
             <p id="section-3.2-2.8.1">If the server's trust configuration confines the statement's issuer to a tenant, the request belongs to that tenant.<a href="#section-3.2-2.8.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-3.2-2.9">
-            <p id="section-3.2-2.9.1">The use being made of the statement is one it permits: a use its <code>statement_uses</code> claim names or, if the claim is absent, presentation (<a href="#profiles" class="auto internal xref">Section 3</a>). A value the server does not recognize names no use it serves.<a href="#section-3.2-2.9.1" class="pilcrow">¶</a></p>
+            <p id="section-3.2-2.9.1">The use being made of the statement is one its <code>statement_uses</code> claim permits (<a href="#profiles" class="auto internal xref">Section 3</a>).<a href="#section-3.2-2.9.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-3.2-2.10">
             <p id="section-3.2-2.10.1">The <code>sub</code> claim is a client identifier URL conforming to <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> and falls within the client identifier namespaces for which this server accepts the issuer (<a href="#issuer-trust" class="auto internal xref">Section 4</a>).<a href="#section-3.2-2.10.1" class="pilcrow">¶</a></p>
@@ -1610,7 +1605,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
             <p id="section-3.2-2.12.1">The JWT validation guidance in <span>[<a href="#RFC8725" class="cite xref">RFC8725</a>]</span> has been applied.<a href="#section-3.2-2.12.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-3.2-3">A trusting authorization server that hosts more than one tenant <span class="bcp14">MUST</span> evaluate every tenant-specific check, such as the <code>aud_tenant</code> claim and a required issuer (<a href="#issuer-trust" class="auto internal xref">Section 4</a>), against the request's tenant: the tenant that scopes what it issues on the statement, which it determines before evaluating the statement, by its own means or from a signed assertion it has validated, and never from a value the client chooses.<a href="#section-3.2-3" class="pilcrow">¶</a></p>
+<p id="section-3.2-3">A trusting authorization server that hosts more than one tenant <span class="bcp14">MUST</span> evaluate every tenant-specific check, such as the <code>aud_tenant</code> claim and a required issuer (<a href="#issuer-trust" class="auto internal xref">Section 4</a>), against the request's tenant. The request's tenant is the tenant that scopes what the server issues on the statement. The server <span class="bcp14">MUST</span> determine it before evaluating the statement, by its own means or from a signed assertion it has validated, and never from a value the client chooses.<a href="#section-3.2-3" class="pilcrow">¶</a></p>
 <p id="section-3.2-4">Rejections outside a registration endpoint use <a href="#errors" class="auto internal xref">Section 6</a>.<a href="#section-3.2-4" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1621,10 +1616,30 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
       <h2 id="name-issuer-trust">
 <a href="#section-4" class="section-number selfRef">4. </a><a href="#name-issuer-trust" class="section-name selfRef">Issuer Trust</a>
       </h2>
-<p id="section-4-1">A trusting authorization server accepts statements only from issuers in its trust configuration, which is established out of band. This specification defines no in-band issuer discovery or trust decision. The configuration, not the signature alone, defines acceptance: a trusting authorization server <span class="bcp14">MUST</span> derive trust from it and <span class="bcp14">MUST NOT</span> derive it from an <code>iss</code>, <code>jku</code>, <code>x5u</code>, or other key-location value carried in a presented statement.<a href="#section-4-1" class="pilcrow">¶</a></p>
-<p id="section-4-2">For each trusted issuer, the configuration records at least the exact <code>iss</code> value the server accepts, the signing algorithms it accepts from the issuer, the client identifier namespaces the issuer can attest through <code>sub</code>, the audience identifiers the issuer can name, any tenant to which the server confines the issuer's decisions, and the maximum statement lifetime the server honors, which sets each statement's effective expiry.<a href="#section-4-2" class="pilcrow">¶</a></p>
-<p id="section-4-3">The issuer's statement key set is the JWK Set at the <code>software_statement_jwks_uri</code> in its authorization server metadata (<a href="#authorization-server-metadata" class="auto internal xref">Section 8</a>), discovered from the configured <code>iss</code> (<span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span>), or, for an issuer that is not an authorization server, at a statement key set URL in the configuration, and never one at a <code>jwks_uri</code> metadata value. Its URL <span class="bcp14">MUST</span> use the <code>https</code> scheme, and a trusting authorization server <span class="bcp14">MUST</span> validate the certificate of the host serving it. The issuer <span class="bcp14">MUST NOT</span> publish a key of its statement key set in any other JWK Set, or sign anything other than statements under this specification with those keys. A trusting authorization server reuses a retrieved statement key set only as <a href="#retrieval" class="auto internal xref">Section 5.3</a> permits.<a href="#section-4-3" class="pilcrow">¶</a></p>
-<p id="section-4-4">The configuration can also make an issuer a required issuer for client identifier namespaces in one of the server's tenants (<a href="#trust-configuration" class="auto internal xref">Section 12.1</a>). The server then <span class="bcp14">MUST NOT</span> admit software in a covered namespace in that tenant without a current statement from the required issuer, whatever its policy for CIMD clients it has not reviewed. Without this rule, a holder could evade the required issuer's decision by withholding that issuer's statement or by presenting or publishing only a broader one, such as a marketplace listing. A required issuer configured for software whose presentations are review-only (<a href="#review-only" class="auto internal xref">Section 5.6.3</a>) excludes that software from the tenant, and the server rejects a request for such software there.<a href="#section-4-4" class="pilcrow">¶</a></p>
+<p id="section-4-1">A trusting authorization server <span class="bcp14">MUST</span> derive issuer trust from its trust configuration, which is established out of band, and <span class="bcp14">MUST NOT</span> derive it from an <code>iss</code>, <code>jku</code>, <code>x5u</code>, or other key-location value carried in a statement. This specification defines no in-band issuer discovery or trust decision.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<p id="section-4-2">For each trusted issuer, the configuration records at least the following:<a href="#section-4-2" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4-3.1">
+          <p id="section-4-3.1.1">The exact <code>iss</code> value the server accepts.<a href="#section-4-3.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-4-3.2">
+          <p id="section-4-3.2.1">The signing algorithms it accepts from the issuer.<a href="#section-4-3.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-4-3.3">
+          <p id="section-4-3.3.1">The client identifier namespaces the issuer can attest through <code>sub</code>.<a href="#section-4-3.3.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-4-3.4">
+          <p id="section-4-3.4.1">The audience identifiers the issuer can name.<a href="#section-4-3.4.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-4-3.5">
+          <p id="section-4-3.5.1">Any tenant to which the server confines the issuer's decisions.<a href="#section-4-3.5.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-4-3.6">
+          <p id="section-4-3.6.1">The maximum statement lifetime the server honors, which sets each statement's effective expiry.<a href="#section-4-3.6.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-4-4">The issuer's statement key set is the JWK Set at the <code>software_statement_jwks_uri</code> in its authorization server metadata (<a href="#authorization-server-metadata" class="auto internal xref">Section 8</a>), discovered from the configured <code>iss</code> (<span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span>). For an issuer that is not an authorization server, it is the JWK Set at a statement key set URL in the configuration. It is never the JWK Set at a <code>jwks_uri</code> metadata value. Its URL <span class="bcp14">MUST</span> use the <code>https</code> scheme, and a trusting authorization server <span class="bcp14">MUST</span> validate the certificate of the host serving it. The issuer <span class="bcp14">MUST NOT</span> publish a key of its statement key set in any other JWK Set, or sign anything other than statements under this specification with those keys. A trusting authorization server reuses a retrieved statement key set only as <a href="#retrieval" class="auto internal xref">Section 5.3</a> permits.<a href="#section-4-4" class="pilcrow">¶</a></p>
+<p id="section-4-5">The configuration can also make an issuer a required issuer for client identifier namespaces in one of the server's tenants (<a href="#trust-configuration" class="auto internal xref">Section 12.1</a>). The server then <span class="bcp14">MUST NOT</span> admit software in a covered namespace in that tenant without a current statement from the required issuer, whatever its policy for CIMD clients it has not reviewed. Without this rule, a holder could evade the required issuer's decision by withholding that issuer's statement or by presenting or publishing only a broader one, such as a marketplace listing. A required issuer configured for software whose presentations are review-only (<a href="#review-only" class="auto internal xref">Section 5.6.3</a>) excludes that software from the tenant, and the server rejects a request for such software there.<a href="#section-4-5" class="pilcrow">¶</a></p>
 <div id="multi-tenant-issuers">
 <section id="section-4.1">
         <h3 id="name-multi-tenant-issuers">
@@ -1640,7 +1655,6 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
       <h2 id="name-runtime-presentation">
 <a href="#section-5" class="section-number selfRef">5. </a><a href="#name-runtime-presentation" class="section-name selfRef">Runtime Presentation</a>
       </h2>
-<p id="section-5-1">A client presents its statement in a request (<a href="#runtime-presentation" class="auto internal xref">Section 5.4</a>) or publishes it where its document points (<a href="#pulled-statements" class="auto internal xref">Section 5.5</a>). Either way, admission follows the steps of <a href="#processing" class="auto internal xref">Section 5.1</a>.<a href="#section-5-1" class="pilcrow">¶</a></p>
 <div id="processing">
 <section id="section-5.1">
         <h3 id="name-admission">
@@ -1661,7 +1675,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
             <p id="section-5.1-2.4.1">Resolve the reviewed document and compare its digest (<a href="#effective-metadata" class="auto internal xref">Section 5.2</a>). A server that proceeds without the statement on a mismatch ends admission on the statement here.<a href="#section-5.1-2.4.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-5.1-2.5">
-            <p id="section-5.1-2.5.1">Apply <a href="#sender-constraint" class="auto internal xref">Section 5.6</a> to that document, verifying the sender constraint unless the statement is review-only (<a href="#review-only" class="auto internal xref">Section 5.6.3</a>). Where <a href="#sender-constraint" class="auto internal xref">Section 5.6</a> or <a href="#pull-binding" class="auto internal xref">Section 5.5.2</a> defers the proof to code redemption, as for a key bound through <code>dpop_jkt</code> or a statement pulled at the authorization endpoint, it comes there.<a href="#section-5.1-2.5.1" class="pilcrow">¶</a></p>
+            <p id="section-5.1-2.5.1">Apply <a href="#sender-constraint" class="auto internal xref">Section 5.6</a> to that document, verifying the sender constraint unless the statement is review-only (<a href="#review-only" class="auto internal xref">Section 5.6.3</a>). If <a href="#sender-constraint" class="auto internal xref">Section 5.6</a> or <a href="#pull-binding" class="auto internal xref">Section 5.5.2</a> defers the proof to code redemption, the server verifies it there.<a href="#section-5.1-2.5.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-5.1-2.6">
             <p id="section-5.1-2.6.1">Evaluate the request against the reviewed metadata (<a href="#effective-metadata" class="auto internal xref">Section 5.2</a>).<a href="#section-5.1-2.6.1" class="pilcrow">¶</a></p>
@@ -1704,7 +1718,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
           <dt id="section-5.4-2.1">
 <code>software_statement</code>:</dt>
           <dd style="margin-left: 1.5em" id="section-5.4-2.2">
-            <p id="section-5.4-2.2.1"><span class="bcp14">REQUIRED</span> for presentation. The software statement (<a href="#profiles" class="auto internal xref">Section 3</a>). It is consumed as a runtime presentation or, where implemented, as a refresh replacement under <span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span> or a delivery under <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>. On refresh-token use under an establishment, a server that does not implement <span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span> ignores the parameter. A request carrying the parameter in any other role is rejected.<a href="#section-5.4-2.2.1" class="pilcrow">¶</a></p>
+            <p id="section-5.4-2.2.1"><span class="bcp14">REQUIRED</span> for a presentation made in a request. The software statement (<a href="#profiles" class="auto internal xref">Section 3</a>). It is consumed as a runtime presentation or, where implemented, as a refresh replacement under <span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span> or a delivery under <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>. On refresh-token use under an establishment, a server that does not implement <span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span> ignores the parameter. A request carrying the parameter in any other role is rejected.<a href="#section-5.4-2.2.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
@@ -1780,7 +1794,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
               <p id="section-5.5.1-5.1.1">The <code>sub</code> claim equals the document's client identifier.<a href="#section-5.5.1-5.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-5.5.1-5.2">
-              <p id="section-5.5.1-5.2.1">The statement validates under <a href="#validation" class="auto internal xref">Section 3.2</a> and permits presentation (<a href="#profiles" class="auto internal xref">Section 3</a>).<a href="#section-5.5.1-5.2.1" class="pilcrow">¶</a></p>
+              <p id="section-5.5.1-5.2.1">The statement validates under <a href="#validation" class="auto internal xref">Section 3.2</a>.<a href="#section-5.5.1-5.2.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-5.5.1-5.3">
               <p id="section-5.5.1-5.3.1">The <code>cimd_digest</code> claim equals the digest of the document the server resolved.<a href="#section-5.5.1-5.3.1" class="pilcrow">¶</a></p>
@@ -1838,10 +1852,10 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <p id="section-5.6-1">A runtime presentation that is not review-only (<a href="#review-only" class="auto internal xref">Section 5.6.3</a>) <span class="bcp14">MUST</span> be sender-constrained under one of two models, set by the <code>token_endpoint_auth_method</code> its reviewed document declares:<a href="#section-5.6-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-5.6-2.1">
-            <p id="section-5.6-2.1.1">Confidential client (a method other than <code>none</code>): by a key the statement attests (<a href="#confidential-client-presentation" class="auto internal xref">Section 5.6.1</a>).<a href="#section-5.6-2.1.1" class="pilcrow">¶</a></p>
+            <p id="section-5.6-2.1.1">Confidential client (a method other than <code>none</code>): by a key the reviewed document carries (<a href="#confidential-client-presentation" class="auto internal xref">Section 5.6.1</a>).<a href="#section-5.6-2.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-5.6-2.2">
-            <p id="section-5.6-2.2.1">Public client (<code>none</code>): by an installation key the presenter binds (<a href="#public-client-presentation" class="auto internal xref">Section 5.6.2</a>), while its reviewed redirection URIs, with PKCE <code>S256</code>, bind the presentation itself.<a href="#section-5.6-2.2.1" class="pilcrow">¶</a></p>
+            <p id="section-5.6-2.2.1">Public client (<code>none</code>): by an installation key the presenter binds (<a href="#public-client-presentation" class="auto internal xref">Section 5.6.2</a>), while its reviewed redirection URIs, with PKCE <code>S256</code>, bind the presentation itself (<a href="#public-client-security" class="auto internal xref">Section 13.4</a>).<a href="#section-5.6-2.2.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <p id="section-5.6-3">The authorization server <span class="bcp14">MUST</span> reject a presentation made in a request (<a href="#runtime-presentation" class="auto internal xref">Section 5.4</a>) under a reviewed document that omits the <code>token_endpoint_auth_method</code> member, even if the presentation is review-only. <a href="#pull-binding" class="auto internal xref">Section 5.5.2</a> covers a pulled statement.<a href="#section-5.6-3" class="pilcrow">¶</a></p>
@@ -1866,7 +1880,6 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <a href="#section-5.6.1" class="section-number selfRef">5.6.1. </a><a href="#name-confidential-clients" class="section-name selfRef">Confidential Clients</a>
           </h4>
 <p id="section-5.6.1-1">For a confidential client's presentation that is not review-only, the proven key <span class="bcp14">MUST</span> appear in the <code>jwks</code> or at the <code>jwks_uri</code> of the reviewed document (<a href="#effective-metadata" class="auto internal xref">Section 5.2</a>). Methods that prove possession of a key the document carries, such as <code>private_key_jwt</code> (Section 8.2 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>) and <code>self_signed_tls_client_auth</code> (Section 2.2 of <span>[<a href="#RFC8705" class="cite xref">RFC8705</a>]</span>), satisfy this directly.<a href="#section-5.6.1-1" class="pilcrow">¶</a></p>
-<p id="section-5.6.1-2">The key set at the document's <code>jwks_uri</code> is obtained when the presentation is processed, by retrieval or from a copy reused within the bounds of <a href="#retrieval" class="auto internal xref">Section 5.3</a>.<a href="#section-5.6.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="public-client-presentation">
@@ -1888,7 +1901,6 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
               <p id="section-5.6.2-4.3.1"><span class="bcp14">MUST NOT</span> require that key to appear in the reviewed document.<a href="#section-5.6.2-4.3.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
-<p id="section-5.6.2-5">The reviewed redirection URIs, not the proven key, bind such a presentation (<a href="#public-client-security" class="auto internal xref">Section 13.4</a>). The proven key identifies the installation the grant belongs to.<a href="#section-5.6.2-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="review-only">
@@ -1905,8 +1917,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
               <p id="section-5.6.3-2.2.1">A pulled statement that <a href="#pull-binding" class="auto internal xref">Section 5.5.2</a> makes review-only.<a href="#section-5.6.3-2.2.1" class="pilcrow">¶</a></p>
 </li>
           </ol>
-<p id="section-5.6.3-3">A review-only presentation or pulled statement creates no establishment, and its statement counts for nothing in admission: the authorization server proceeds as it would for the same CIMD client presenting no statement (<a href="#ui-audit" class="auto internal xref">Section 11.4</a>).<a href="#section-5.6.3-3" class="pilcrow">¶</a></p>
-<p id="section-5.6.3-4">The statement of a review-only presentation, or a review-only pulled statement, <span class="bcp14">MUST NOT</span> satisfy a policy requiring reviewed software.<a href="#section-5.6.3-4" class="pilcrow">¶</a></p>
+<p id="section-5.6.3-3">A review-only presentation or pulled statement creates no establishment, and its statement <span class="bcp14">MUST NOT</span> satisfy a policy requiring reviewed software: the authorization server proceeds as it would for the same CIMD client presenting no statement (<a href="#ui-audit" class="auto internal xref">Section 11.4</a>).<a href="#section-5.6.3-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1916,7 +1927,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         <h3 id="name-grant-binding">
 <a href="#section-5.7" class="section-number selfRef">5.7. </a><a href="#name-grant-binding" class="section-name selfRef">Grant Binding</a>
         </h3>
-<p id="section-5.7-1">A successful presentation creates an establishment: the state against which the subsequent authorization request, code redemption and refresh under the grant it opens are checked. It comprises the following:<a href="#section-5.7-1" class="pilcrow">¶</a></p>
+<p id="section-5.7-1">A successful presentation creates an establishment: the state against which the subsequent authorization request, code redemption, and refresh under the grant it opens are checked. It comprises the following:<a href="#section-5.7-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-5.7-2.1">
             <p id="section-5.7-2.1.1">The validated <code>sub</code>.<a href="#section-5.7-2.1.1" class="pilcrow">¶</a></p>
@@ -1934,7 +1945,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
             <p id="section-5.7-2.5.1">The issuer trust decision.<a href="#section-5.7-2.5.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-5.7-2.6">
-            <p id="section-5.7-2.6.1">The sender-constraint mechanism and proven key, which for a statement pulled at the authorization endpoint for a confidential client is set at code redemption (<a href="#pull-binding" class="auto internal xref">Section 5.5.2</a>).<a href="#section-5.7-2.6.1" class="pilcrow">¶</a></p>
+            <p id="section-5.7-2.6.1">The sender-constraint mechanism and proven key.<a href="#section-5.7-2.6.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <p id="section-5.7-3">The authorization server <span class="bcp14">MUST</span> bind the resulting <code>request_uri</code>, authorization code, refresh token, and other grant continuation state to the establishment, as applicable. An establishment ends once no continuation state bound to it remains usable.<a href="#section-5.7-3" class="pilcrow">¶</a></p>
@@ -1965,8 +1976,8 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
               <p id="section-5.7.1-2.2.1"><span class="bcp14">MUST</span>, except for an establishment created under <a href="#public-client-presentation" class="auto internal xref">Section 5.6.2</a>, verify that the document currently served at the establishment's <code>sub</code> still carries that key, in its <code>jwks</code> or at its <code>jwks_uri</code>, within the reuse bounds of <a href="#retrieval" class="auto internal xref">Section 5.3</a>.<a href="#section-5.7.1-2.2.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
-<p id="section-5.7.1-3">If either check fails, including when the document does not carry the key, cannot be obtained, or exceeds the size bound (<a href="#retrieval" class="auto internal xref">Section 5.3</a>), the server rejects the refresh. The refreshed access <span class="bcp14">MUST</span> fall within the establishment's reviewed metadata.<a href="#section-5.7.1-3" class="pilcrow">¶</a></p>
-<p id="section-5.7.1-4">Under this specification, refresh evaluates no statement: a statement's expiry does not end a grant it opened (<a href="#enforcement-bounds" class="auto internal xref">Section 13.7</a>), and refresh never changes the establishment's proven key or reviewed metadata. A client that needs a different key opens a new grant by presentation, as does, without <span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span>, a client that needs a different review. <span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span> defines replacements that keep a grant in step with later reviews and withdrawals.<a href="#section-5.7.1-4" class="pilcrow">¶</a></p>
+<p id="section-5.7.1-3">If either check fails, the server rejects the refresh. The refreshed access <span class="bcp14">MUST</span> fall within the establishment's reviewed metadata.<a href="#section-5.7.1-3" class="pilcrow">¶</a></p>
+<p id="section-5.7.1-4">Under this specification, refresh evaluates no statement (<a href="#enforcement-bounds" class="auto internal xref">Section 13.7</a>) and never changes the establishment's proven key or reviewed metadata. A client that needs a different key, or, without <span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span>, a different review, opens a new grant by presentation.<a href="#section-5.7.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1978,7 +1989,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
       <h2 id="name-error-responses">
 <a href="#section-6" class="section-number selfRef">6. </a><a href="#name-error-responses" class="section-name selfRef">Error Responses</a>
       </h2>
-<p id="section-6-1">A rejection uses the error response and HTTP status codes of its endpoint: Section 5.2 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> at the token endpoint, Section 2.3 of <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span> at the pushed authorization request endpoint, and Section 4.1.2.1 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> at the authorization endpoint. <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span> defines rejections at a registration endpoint and how registration validity is reported.<a href="#section-6-1" class="pilcrow">¶</a></p>
+<p id="section-6-1">A rejection uses the error response and HTTP status codes of its endpoint: Section 5.2 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> at the token endpoint, Section 2.3 of <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span> at the pushed authorization request endpoint, and Section 4.1.2.1 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> at the authorization endpoint. <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span> defines rejections at a registration endpoint.<a href="#section-6-1" class="pilcrow">¶</a></p>
 <p id="section-6-2">A rejection for a reason this specification defines uses the first of the following error codes that applies:<a href="#section-6-2" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-6-3">
 <li id="section-6-3.1">
@@ -2025,13 +2036,16 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
                 <p id="section-6.2-2.2.2.1.1">The statement is malformed or fails validation (<a href="#validation" class="auto internal xref">Section 3.2</a>) for a reason other than expiry.<a href="#section-6.2-2.2.2.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-6.2-2.2.2.2">
-                <p id="section-6.2-2.2.2.2.1">The request's <code>client_id</code> differs from the statement's <code>sub</code> (<a href="#runtime-presentation" class="auto internal xref">Section 5.4</a>), or the request fails the sender constraint (<a href="#sender-constraint" class="auto internal xref">Section 5.6</a>), including a presentation made in a request under a document that omits <code>token_endpoint_auth_method</code> and one opening a new grant at the token endpoint for a public client (<a href="#public-client-presentation" class="auto internal xref">Section 5.6.2</a>).<a href="#section-6.2-2.2.2.2.1" class="pilcrow">¶</a></p>
+                <p id="section-6.2-2.2.2.2.1">The request's <code>client_id</code> differs from the statement's <code>sub</code> (<a href="#runtime-presentation" class="auto internal xref">Section 5.4</a>).<a href="#section-6.2-2.2.2.2.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-6.2-2.2.2.3">
-                <p id="section-6.2-2.2.2.3.1">The reviewed document cannot be obtained, including over the size bound, fails validation as <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> requires, contains duplicate member names (<a href="#effective-metadata" class="auto internal xref">Section 5.2</a>), or does not match and the server does not proceed without the statement (<a href="#effective-metadata" class="auto internal xref">Section 5.2</a>).<a href="#section-6.2-2.2.2.3.1" class="pilcrow">¶</a></p>
+                <p id="section-6.2-2.2.2.3.1">The request fails the sender constraint (<a href="#sender-constraint" class="auto internal xref">Section 5.6</a>), including a presentation made in a request under a document that omits <code>token_endpoint_auth_method</code>, and one opening a new grant at the token endpoint for a public client (<a href="#public-client-presentation" class="auto internal xref">Section 5.6.2</a>).<a href="#section-6.2-2.2.2.3.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-6.2-2.2.2.4">
-                <p id="section-6.2-2.2.2.4.1">The bound on establishments is reached (<a href="#establishment-bounds" class="auto internal xref">Section 11.3</a>).<a href="#section-6.2-2.2.2.4.1" class="pilcrow">¶</a></p>
+                <p id="section-6.2-2.2.2.4.1">The reviewed document cannot be obtained, including over the size bound, fails validation as <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> requires, contains duplicate member names (<a href="#effective-metadata" class="auto internal xref">Section 5.2</a>), or does not match and the server does not proceed without the statement (<a href="#effective-metadata" class="auto internal xref">Section 5.2</a>).<a href="#section-6.2-2.2.2.4.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-6.2-2.2.2.5">
+                <p id="section-6.2-2.2.2.5.1">The bound on establishments is reached (<a href="#establishment-bounds" class="auto internal xref">Section 11.3</a>).<a href="#section-6.2-2.2.2.5.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </dd>
@@ -2135,7 +2149,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 </dd>
         <dd class="break"></dd>
 </dl>
-<p id="section-6.4-3">The authorization server redirects with an error only after validating the request's <code>redirect_uri</code>: against the client's CIMD, which it resolves first, or, for a registered client, against its registered redirection URIs (Section 4.1.2.1 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>). If the authorization server cannot resolve a CIMD client's document, it <span class="bcp14">MUST NOT</span> redirect, and it reports the error to the resource owner instead.<a href="#section-6.4-3" class="pilcrow">¶</a></p>
+<p id="section-6.4-3">Before redirecting with an error, the authorization server validates the <code>redirect_uri</code> against the client's CIMD, which it resolves first, or, for a registered client, against its registered redirection URIs (Section 4.1.2.1 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>). If it cannot resolve a CIMD client's document, it <span class="bcp14">MUST NOT</span> redirect.<a href="#section-6.4-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="proof-errors">
@@ -2184,7 +2198,7 @@ client-assertion-type%3Ajwt-bearer
 &amp;software_statement=eyJ0eXAiOiJzb2Z0d2FyZS1zdGF0ZW1l...
 </pre><a href="#section-7.1-2" class="pilcrow">¶</a>
 </div>
-<p id="section-7.1-3">The authorization server validates the statement, retrieves the document its digest names, verifies the client assertion against a key from that document's <code>jwks_uri</code>, and checks that the requested <code>scope</code> falls within the document's <code>scope</code>. It keeps no registration.<a href="#section-7.1-3" class="pilcrow">¶</a></p>
+<p id="section-7.1-3">The authorization server validates the statement, retrieves the document at the statement's <code>sub</code>, checks its digest, verifies the client assertion against a key from that document's <code>jwks_uri</code>, and checks that the requested <code>scope</code> falls within the document's <code>scope</code>. It keeps no registration.<a href="#section-7.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="publishing-a-statement-for-servers-to-pull">
@@ -2215,7 +2229,7 @@ client-assertion-type%3Ajwt-bearer
 }
 </pre><a href="#section-7.2-4" class="pilcrow">¶</a>
 </div>
-<p id="section-7.2-5">An authorization server receiving an ordinary authorization request with this <code>client_id</code> resolves the document, retrieves the statements, and keeps the one from a trusted issuer whose <code>cimd_digest</code> matches the document it retrieved. It completes the binding when the client authenticates with <code>private_key_jwt</code> at code redemption (<a href="#pull-binding" class="auto internal xref">Section 5.5.2</a>).<a href="#section-7.2-5" class="pilcrow">¶</a></p>
+<p id="section-7.2-5">An authorization server receiving an ordinary authorization request with this <code>client_id</code> resolves the document, retrieves the statements, and selects the one from a trusted issuer whose <code>cimd_digest</code> matches the document it retrieved. It completes the binding when the client authenticates with <code>private_key_jwt</code> at code redemption (<a href="#pull-binding" class="auto internal xref">Section 5.5.2</a>).<a href="#section-7.2-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="statement-header-and-payload">
@@ -2247,7 +2261,7 @@ client-assertion-type%3Ajwt-bearer
 }
 </pre><a href="#section-7.3-3" class="pilcrow">¶</a>
 </div>
-<p id="section-7.3-4">The statement names one audience and permits only runtime presentation, as omitting <code>statement_uses</code> would. It carries no client metadata: the document its <code>cimd_digest</code> names supplies it.<a href="#section-7.3-4" class="pilcrow">¶</a></p>
+<p id="section-7.3-4">The statement names one audience and permits only runtime presentation, as omitting <code>statement_uses</code> would. It carries no client metadata: the reviewed document supplies it.<a href="#section-7.3-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2268,7 +2282,7 @@ client-assertion-type%3Ajwt-bearer
 <dt id="section-8-2.3">
 <code>software_statement_signing_alg_values_supported</code>:</dt>
         <dd style="margin-left: 1.5em" id="section-8-2.4">
-          <p id="section-8-2.4.1"><span class="bcp14">REQUIRED</span> for an authorization server that issues statements under this specification. A JSON array containing the asymmetric JWS <code>alg</code> values that the authorization server can use to sign them. The array <span class="bcp14">MUST NOT</span> contain <code>none</code> or a symmetric algorithm. An authorization server that only accepts software statements does not publish it.<a href="#section-8-2.4.1" class="pilcrow">¶</a></p>
+          <p id="section-8-2.4.1"><span class="bcp14">REQUIRED</span> for an authorization server that issues statements under this specification. A JSON array containing the asymmetric JWS <code>alg</code> values that the authorization server can use to sign them. The array <span class="bcp14">MUST NOT</span> contain <code>none</code> or a symmetric algorithm.<a href="#section-8-2.4.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 <dt id="section-8-2.5">
@@ -2288,7 +2302,7 @@ client-assertion-type%3Ajwt-bearer
 <p id="section-9-1">The following extensions are left to separate specifications:<a href="#section-9-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-9-2.1">
-          <p id="section-9-2.1.1">Attested keys: a client attestation <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span>, including one from an attester the reviewed document names, vouching for a key that document does not carry. Without one, software whose instances authenticate with keys of their own can neither prove nor register those keys (<a href="#sender-constraint" class="auto internal xref">Section 5.6</a>, <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>).<a href="#section-9-2.1.1" class="pilcrow">¶</a></p>
+          <p id="section-9-2.1.1">Attested keys: a client attestation <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span> vouching for a key the reviewed document does not carry. Without one, software whose instances authenticate with keys of their own can neither prove nor register those keys (<a href="#sender-constraint" class="auto internal xref">Section 5.6</a>, <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>).<a href="#section-9-2.1.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-9-2.2">
           <p id="section-9-2.2.1">Statement conveyance within a client attestation, rather than as a request parameter.<a href="#section-9-2.2.1" class="pilcrow">¶</a></p>
@@ -2317,7 +2331,7 @@ client-assertion-type%3Ajwt-bearer
 <a href="#section-10.1" class="section-number selfRef">10.1. </a><a href="#name-client-attestation" class="section-name selfRef">Client Attestation</a>
         </h3>
 <p id="section-10.1-1">A software statement and a client attestation <span>[<a href="#ABCA" class="cite xref">ABCA</a>]</span> are both signed third-party assertions. A statement attests client software and the metadata its issuer evaluated. A client attestation attests a running instance and the key it holds, and is presented with a proof bound to the request.<a href="#section-10.1-1" class="pilcrow">¶</a></p>
-<p id="section-10.1-2">Neither assertion grants access nor substitutes for the other. A runtime presentation that is not review-only therefore requires a sender constraint (<a href="#sender-constraint" class="auto internal xref">Section 5.6</a>). Binding a presenter attestation defined elsewhere is an extension (<a href="#extensions" class="auto internal xref">Section 9</a>).<a href="#section-10.1-2" class="pilcrow">¶</a></p>
+<p id="section-10.1-2">Neither assertion grants access nor substitutes for the other.<a href="#section-10.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="identity-assertions">
@@ -2349,8 +2363,7 @@ client-assertion-type%3Ajwt-bearer
         <h3 id="name-caching-and-reuse-of-retrie">
 <a href="#section-11.1" class="section-number selfRef">11.1. </a><a href="#name-caching-and-reuse-of-retrie" class="section-name selfRef">Caching and Reuse of Retrieved Content</a>
         </h3>
-<p id="section-11.1-1">A server can revalidate octets it holds with a conditional request rather than retrieving them again (<a href="#metadata-digest" class="auto internal xref">Section 3.1</a>).<a href="#section-11.1-1" class="pilcrow">¶</a></p>
-<p id="section-11.1-2"><span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> forbids caching an error response (Section 5.2 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>), so a failed retrieval (<a href="#retrieval" class="auto internal xref">Section 5.3</a>) is followed by back-off. A response from a <code>software_statements_uri</code> ought to be cached no longer than the document is, and can be revalidated with a conditional request, as the document can (<a href="#pulled-statements" class="auto internal xref">Section 5.5</a>).<a href="#section-11.1-2" class="pilcrow">¶</a></p>
+<p id="section-11.1-1">A response from a <code>software_statements_uri</code> ought to be cached no longer than the document is. Because <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> forbids caching an error response (Section 5.2 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>), a failed retrieval (<a href="#retrieval" class="auto internal xref">Section 5.3</a>) is followed by back-off.<a href="#section-11.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="processing-bounds">
@@ -2430,7 +2443,7 @@ client-assertion-type%3Ajwt-bearer
 <a href="#section-12.3" class="section-number selfRef">12.3. </a><a href="#name-statement-lifetime-and-rene" class="section-name selfRef">Statement Lifetime and Renewal</a>
         </h3>
 <p id="section-12.3-1">Short lifetimes tighten an issuer's control and increase renewal traffic. A fleet of statements issued together expires together, so issuers ought to stagger expiries or renew ahead of the boundary.<a href="#section-12.3-1" class="pilcrow">¶</a></p>
-<p id="section-12.3-2">A changed document is always served before a statement over it exists. Until the new statement exists, a presentation under the earlier one fails the digest comparison (<a href="#effective-metadata" class="auto internal xref">Section 5.2</a>). The statement's lifetime bounds how stale an unobserved review can become.<a href="#section-12.3-2" class="pilcrow">¶</a></p>
+<p id="section-12.3-2">A changed document is always served before a statement over it exists, so presentations under an earlier statement fail the digest comparison (<a href="#effective-metadata" class="auto internal xref">Section 5.2</a>) until a statement over the changed document exists. A statement's lifetime bounds how long a review stands without being renewed.<a href="#section-12.3-2" class="pilcrow">¶</a></p>
 <p id="section-12.3-3">Instances need the most recently issued statement from a shared source rather than a copy fixed at build or install time, because the document can change (<a href="#effective-metadata" class="auto internal xref">Section 5.2</a>).<a href="#section-12.3-3" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -2448,7 +2461,7 @@ client-assertion-type%3Ajwt-bearer
 <a href="#section-13.1" class="section-number selfRef">13.1. </a><a href="#name-assurance-provided-by-a-sta" class="section-name selfRef">Assurance Provided by a Statement</a>
         </h3>
 <p id="section-13.1-1">A statement binds an issuer's review to the octets of a CIMD, which describes an OAuth client configuration. It does not bind the software's code, dependencies, or behavior. Software can change while its document stays the same, and the statement remains acceptable until it expires (<a href="#enforcement-bounds" class="auto internal xref">Section 13.7</a>) or, under <span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span>, is withdrawn. Assurance about the software itself rests on the issuer's review process. Any change to the document's octets, including one that changes no metadata value, makes statements over the earlier octets fail the digest comparison (<a href="#effective-metadata" class="auto internal xref">Section 5.2</a>). The digest covers a URL the document carries, such as <code>logo_uri</code>, but not the content served at it, which can change after review.<a href="#section-13.1-1" class="pilcrow">¶</a></p>
-<p id="section-13.1-2">The following table states what admission under this specification does and does not establish:<a href="#section-13.1-2" class="pilcrow">¶</a></p>
+<p id="section-13.1-2">The following table states what admission on a statement does and does not establish:<a href="#section-13.1-2" class="pilcrow">¶</a></p>
 <table class="center" id="table-2">
           <caption><a href="#table-2" class="selfRef">Table 2</a></caption>
 <thead>
@@ -2463,12 +2476,12 @@ client-assertion-type%3Ajwt-bearer
               <td class="text-left" rowspan="1" colspan="1">Yes</td>
             </tr>
             <tr>
-              <td class="text-left" rowspan="1" colspan="1">The served document is the one the issuer reviewed, byte for byte</td>
+              <td class="text-left" rowspan="1" colspan="1">The served document is the one the issuer reviewed, octet for octet</td>
               <td class="text-left" rowspan="1" colspan="1">Yes</td>
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">The presenter controls a key the reviewed document carries</td>
-              <td class="text-left" rowspan="1" colspan="1">Yes, except under <a href="#public-client-presentation" class="auto internal xref">Section 5.6.2</a>. For a statement pulled at the authorization endpoint, possession is proved at code redemption, before any token is issued (<a href="#pull-binding" class="auto internal xref">Section 5.5.2</a>). Inline <code>jwks</code> attests the keys themselves; <code>jwks_uri</code> attests only their location (<a href="#statement-validation" class="auto internal xref">Section 13.2</a>)</td>
+              <td class="text-left" rowspan="1" colspan="1">Yes, before any token is issued, except under <a href="#public-client-presentation" class="auto internal xref">Section 5.6.2</a>. A <code>jwks_uri</code> attests only the keys' location (<a href="#statement-validation" class="auto internal xref">Section 13.2</a>)</td>
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">Authorization codes reach only a reviewed redirection URI</td>
@@ -2527,8 +2540,7 @@ client-assertion-type%3Ajwt-bearer
         <h3 id="name-external-retrieval-and-reso">
 <a href="#section-13.6" class="section-number selfRef">13.6. </a><a href="#name-external-retrieval-and-reso" class="section-name selfRef">External Retrieval and Resource Exhaustion</a>
         </h3>
-<p id="section-13.6-1">Runtime presentation can cause the authorization server to retrieve the CIMD, a <code>jwks_uri</code> it names, or the statements its <code>software_statements_uri</code> names (<a href="#retrieval" class="auto internal xref">Section 5.3</a>).<a href="#section-13.6-1" class="pilcrow">¶</a></p>
-<p id="section-13.6-2">These retrievals happen before any client is registered or any user has interacted, so an unauthenticated requester can cause them with one acceptable statement or, at a server that pulls statements, with none. The bounds of <a href="#processing-bounds" class="auto internal xref">Section 11.2</a> limit this work but do not prevent it.<a href="#section-13.6-2" class="pilcrow">¶</a></p>
+<p id="section-13.6-1">The retrievals of <a href="#retrieval" class="auto internal xref">Section 5.3</a> happen before any client is registered or any user has interacted, so an unauthenticated requester can cause them with one acceptable statement or, at a server that pulls statements, with none. The bounds of <a href="#processing-bounds" class="auto internal xref">Section 11.2</a> limit this work but do not prevent it.<a href="#section-13.6-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="enforcement-bounds">
@@ -2536,7 +2548,7 @@ client-assertion-type%3Ajwt-bearer
         <h3 id="name-expiry-and-open-grants">
 <a href="#section-13.7" class="section-number selfRef">13.7. </a><a href="#name-expiry-and-open-grants" class="section-name selfRef">Expiry and Open Grants</a>
         </h3>
-<p id="section-13.7-1">Under this specification, expiry limits new admissions and ends nothing already opened: a grant lasts for the life of its refresh tokens, whatever the statement's lifetime, unless the server finds the proven key gone from the client's document (<a href="#refresh" class="auto internal xref">Section 5.7.1</a>). An older statement that has not expired remains admissible after a newer one narrows the review. Short statement lifetimes bound new admissions, and grant lifetimes bound continued access. A deployment that needs withdrawal, supersession, or grants that follow later reviews implements <span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span>. Removing an issuer from trust configuration, or narrowing what it can attest, does not by itself end a grant or a registration (<span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>) already admitted on one of its statements. A server ends them by its own means, such as revoking refresh tokens or deleting registrations.<a href="#section-13.7-1" class="pilcrow">¶</a></p>
+<p id="section-13.7-1">Under this specification, expiry limits new admissions and ends nothing already opened: a grant lasts for the life of its refresh tokens, whatever the statement's lifetime, unless the server finds the proven key gone from the client's document (<a href="#refresh" class="auto internal xref">Section 5.7.1</a>). An older statement that has not expired remains admissible after a newer one narrows the review. A deployment that needs withdrawal, supersession, or grants that follow later reviews implements <span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span>. Removing an issuer from trust configuration, or narrowing what it can attest, does not by itself end a grant or a registration (<span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>) already admitted on one of its statements. A server ends them by its own means, such as revoking refresh tokens or deleting registrations.<a href="#section-13.7-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="oracle-considerations">
@@ -2569,7 +2581,7 @@ client-assertion-type%3Ajwt-bearer
         <h3 id="name-oauth-parameters-registry">
 <a href="#section-15.1" class="section-number selfRef">15.1. </a><a href="#name-oauth-parameters-registry" class="section-name selfRef">OAuth Parameters Registry</a>
         </h3>
-<p id="section-15.1-1">This specification requests registration of the <code>software_statement</code> parameter in the IANA "OAuth Parameters" registry established by <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, for runtime presentation and statement delivery of the artifact defined by <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>:<a href="#section-15.1-1" class="pilcrow">¶</a></p>
+<p id="section-15.1-1">This specification requests registration of the <code>software_statement</code> parameter in the IANA "OAuth Parameters" registry established by <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>:<a href="#section-15.1-1" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-15.1-2">
           <dt id="section-15.1-2.1">Parameter Name:</dt>
           <dd style="margin-left: 1.5em" id="section-15.1-2.2">
@@ -2685,142 +2697,164 @@ client-assertion-type%3Ajwt-bearer
 </dl>
 </section>
 </div>
-<div id="claims-defined-elsewhere">
-<section id="section-15.3">
-        <h3 id="name-claims-defined-elsewhere">
-<a href="#section-15.3" class="section-number selfRef">15.3. </a><a href="#name-claims-defined-elsewhere" class="section-name selfRef">Claims Defined Elsewhere</a>
-        </h3>
-<p id="section-15.3-1">This specification uses one claim it does not define: <code>aud_tenant</code>, defined and registered by <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span>. This section requests no IANA action.<a href="#section-15.3-1" class="pilcrow">¶</a></p>
-</section>
-</div>
 <div id="json-web-token-claims-registry">
-<section id="section-15.4">
+<section id="section-15.3">
         <h3 id="name-json-web-token-claims-regis">
-<a href="#section-15.4" class="section-number selfRef">15.4. </a><a href="#name-json-web-token-claims-regis" class="section-name selfRef">JSON Web Token Claims Registry</a>
+<a href="#section-15.3" class="section-number selfRef">15.3. </a><a href="#name-json-web-token-claims-regis" class="section-name selfRef">JSON Web Token Claims Registry</a>
         </h3>
-<p id="section-15.4-1">This specification requests registration of the following values in the IANA "JSON Web Token Claims" registry established by <span>[<a href="#RFC7519" class="cite xref">RFC7519</a>]</span>:<a href="#section-15.4-1" class="pilcrow">¶</a></p>
-<span class="break"></span><dl class="dlParallel" id="section-15.4-2">
-          <dt id="section-15.4-2.1">Claim Name:</dt>
-          <dd style="margin-left: 1.5em" id="section-15.4-2.2">
-            <p id="section-15.4-2.2.1"><code>cimd_digest</code><a href="#section-15.4-2.2.1" class="pilcrow">¶</a></p>
+<p id="section-15.3-1">This specification requests registration of the following values in the IANA "JSON Web Token Claims" registry established by <span>[<a href="#RFC7519" class="cite xref">RFC7519</a>]</span>:<a href="#section-15.3-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-15.3-2">
+          <dt id="section-15.3-2.1">Claim Name:</dt>
+          <dd style="margin-left: 1.5em" id="section-15.3-2.2">
+            <p id="section-15.3-2.2.1"><code>cimd_digest</code><a href="#section-15.3-2.2.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-15.4-2.3">Claim Description:</dt>
-          <dd style="margin-left: 1.5em" id="section-15.4-2.4">
-            <p id="section-15.4-2.4.1">Unpadded base64url-encoded SHA-256 digest of the retrieved octets of the Client ID Metadata Document evaluated during software statement issuance<a href="#section-15.4-2.4.1" class="pilcrow">¶</a></p>
+<dt id="section-15.3-2.3">Claim Description:</dt>
+          <dd style="margin-left: 1.5em" id="section-15.3-2.4">
+            <p id="section-15.3-2.4.1">Unpadded base64url-encoded SHA-256 digest of the retrieved octets of the Client ID Metadata Document evaluated during software statement issuance<a href="#section-15.3-2.4.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-15.4-2.5">Change Controller:</dt>
-          <dd style="margin-left: 1.5em" id="section-15.4-2.6">
-            <p id="section-15.4-2.6.1">IETF<a href="#section-15.4-2.6.1" class="pilcrow">¶</a></p>
+<dt id="section-15.3-2.5">Change Controller:</dt>
+          <dd style="margin-left: 1.5em" id="section-15.3-2.6">
+            <p id="section-15.3-2.6.1">IETF<a href="#section-15.3-2.6.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-15.4-2.7">Specification Document(s):</dt>
-          <dd style="margin-left: 1.5em" id="section-15.4-2.8">
-            <p id="section-15.4-2.8.1">This specification, <a href="#profiles" class="auto internal xref">Section 3</a><a href="#section-15.4-2.8.1" class="pilcrow">¶</a></p>
+<dt id="section-15.3-2.7">Specification Document(s):</dt>
+          <dd style="margin-left: 1.5em" id="section-15.3-2.8">
+            <p id="section-15.3-2.8.1">This specification, <a href="#profiles" class="auto internal xref">Section 3</a><a href="#section-15.3-2.8.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-15.4-2.9">Claim Name:</dt>
-          <dd style="margin-left: 1.5em" id="section-15.4-2.10">
-            <p id="section-15.4-2.10.1"><code>statement_uses</code><a href="#section-15.4-2.10.1" class="pilcrow">¶</a></p>
+<dt id="section-15.3-2.9">Claim Name:</dt>
+          <dd style="margin-left: 1.5em" id="section-15.3-2.10">
+            <p id="section-15.3-2.10.1"><code>statement_uses</code><a href="#section-15.3-2.10.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-15.4-2.11">Claim Description:</dt>
-          <dd style="margin-left: 1.5em" id="section-15.4-2.12">
-            <p id="section-15.4-2.12.1">Permitted uses of a software statement<a href="#section-15.4-2.12.1" class="pilcrow">¶</a></p>
+<dt id="section-15.3-2.11">Claim Description:</dt>
+          <dd style="margin-left: 1.5em" id="section-15.3-2.12">
+            <p id="section-15.3-2.12.1">Permitted uses of a software statement<a href="#section-15.3-2.12.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-15.4-2.13">Change Controller:</dt>
-          <dd style="margin-left: 1.5em" id="section-15.4-2.14">
-            <p id="section-15.4-2.14.1">IETF<a href="#section-15.4-2.14.1" class="pilcrow">¶</a></p>
+<dt id="section-15.3-2.13">Change Controller:</dt>
+          <dd style="margin-left: 1.5em" id="section-15.3-2.14">
+            <p id="section-15.3-2.14.1">IETF<a href="#section-15.3-2.14.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-15.4-2.15">Specification Document(s):</dt>
-          <dd style="margin-left: 1.5em" id="section-15.4-2.16">
-            <p id="section-15.4-2.16.1">This specification, <a href="#profiles" class="auto internal xref">Section 3</a><a href="#section-15.4-2.16.1" class="pilcrow">¶</a></p>
+<dt id="section-15.3-2.15">Specification Document(s):</dt>
+          <dd style="margin-left: 1.5em" id="section-15.3-2.16">
+            <p id="section-15.3-2.16.1">This specification, <a href="#profiles" class="auto internal xref">Section 3</a><a href="#section-15.3-2.16.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
 </section>
 </div>
 <div id="oauth-extensions-error-registry">
-<section id="section-15.5">
+<section id="section-15.4">
         <h3 id="name-oauth-extensions-error-regi">
-<a href="#section-15.5" class="section-number selfRef">15.5. </a><a href="#name-oauth-extensions-error-regi" class="section-name selfRef">OAuth Extensions Error Registry</a>
+<a href="#section-15.4" class="section-number selfRef">15.4. </a><a href="#name-oauth-extensions-error-regi" class="section-name selfRef">OAuth Extensions Error Registry</a>
         </h3>
-<p id="section-15.5-1">This specification requests registration of the following error code in the IANA "OAuth Extensions Error Registry" established by <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>:<a href="#section-15.5-1" class="pilcrow">¶</a></p>
-<span class="break"></span><dl class="dlParallel" id="section-15.5-2">
-          <dt id="section-15.5-2.1">Error Name:</dt>
-          <dd style="margin-left: 1.5em" id="section-15.5-2.2">
-            <p id="section-15.5-2.2.1"><code>statement_required</code><a href="#section-15.5-2.2.1" class="pilcrow">¶</a></p>
+<p id="section-15.4-1">This specification requests registration of the following error code in the IANA "OAuth Extensions Error Registry" established by <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>:<a href="#section-15.4-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-15.4-2">
+          <dt id="section-15.4-2.1">Error Name:</dt>
+          <dd style="margin-left: 1.5em" id="section-15.4-2.2">
+            <p id="section-15.4-2.2.1"><code>statement_required</code><a href="#section-15.4-2.2.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-15.5-2.3">Error Usage Location:</dt>
-          <dd style="margin-left: 1.5em" id="section-15.5-2.4">
-            <p id="section-15.5-2.4.1">authorization error response, token error response, pushed authorization request error response<a href="#section-15.5-2.4.1" class="pilcrow">¶</a></p>
+<dt id="section-15.4-2.3">Error Usage Location:</dt>
+          <dd style="margin-left: 1.5em" id="section-15.4-2.4">
+            <p id="section-15.4-2.4.1">authorization error response, token error response, pushed authorization request error response<a href="#section-15.4-2.4.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-15.5-2.5">Related Protocol Extension:</dt>
-          <dd style="margin-left: 1.5em" id="section-15.5-2.6">
-            <p id="section-15.5-2.6.1">Client ID Metadata Document Software Statement<a href="#section-15.5-2.6.1" class="pilcrow">¶</a></p>
+<dt id="section-15.4-2.5">Related Protocol Extension:</dt>
+          <dd style="margin-left: 1.5em" id="section-15.4-2.6">
+            <p id="section-15.4-2.6.1">Client ID Metadata Document Software Statement<a href="#section-15.4-2.6.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-15.5-2.7">Change Controller:</dt>
-          <dd style="margin-left: 1.5em" id="section-15.5-2.8">
-            <p id="section-15.5-2.8.1">IETF<a href="#section-15.5-2.8.1" class="pilcrow">¶</a></p>
+<dt id="section-15.4-2.7">Change Controller:</dt>
+          <dd style="margin-left: 1.5em" id="section-15.4-2.8">
+            <p id="section-15.4-2.8.1">IETF<a href="#section-15.4-2.8.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-15.5-2.9">Specification Document(s):</dt>
-          <dd style="margin-left: 1.5em" id="section-15.5-2.10">
-            <p id="section-15.5-2.10.1">This specification, <a href="#errors" class="auto internal xref">Section 6</a><a href="#section-15.5-2.10.1" class="pilcrow">¶</a></p>
+<dt id="section-15.4-2.9">Specification Document(s):</dt>
+          <dd style="margin-left: 1.5em" id="section-15.4-2.10">
+            <p id="section-15.4-2.10.1">This specification, <a href="#errors" class="auto internal xref">Section 6</a><a href="#section-15.4-2.10.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
-<p id="section-15.5-3">This specification also requests that IANA update the existing <code>temporarily_unavailable</code> entry, adding the token and pushed authorization request error responses to its usage locations and this specification as a reference:<a href="#section-15.5-3" class="pilcrow">¶</a></p>
-<span class="break"></span><dl class="dlParallel" id="section-15.5-4">
-          <dt id="section-15.5-4.1">Error Name:</dt>
-          <dd style="margin-left: 1.5em" id="section-15.5-4.2">
-            <p id="section-15.5-4.2.1"><code>temporarily_unavailable</code><a href="#section-15.5-4.2.1" class="pilcrow">¶</a></p>
+<p id="section-15.4-3">This specification also requests that IANA update the existing <code>temporarily_unavailable</code> entry, adding the token error response to its usage locations and this specification as a reference:<a href="#section-15.4-3" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-15.4-4">
+          <dt id="section-15.4-4.1">Error Name:</dt>
+          <dd style="margin-left: 1.5em" id="section-15.4-4.2">
+            <p id="section-15.4-4.2.1"><code>temporarily_unavailable</code><a href="#section-15.4-4.2.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-15.5-4.3">Error Usage Location:</dt>
-          <dd style="margin-left: 1.5em" id="section-15.5-4.4">
-            <p id="section-15.5-4.4.1">token error response and pushed authorization request error response, in addition to the locations already registered<a href="#section-15.5-4.4.1" class="pilcrow">¶</a></p>
+<dt id="section-15.4-4.3">Error Usage Location:</dt>
+          <dd style="margin-left: 1.5em" id="section-15.4-4.4">
+            <p id="section-15.4-4.4.1">token error response, in addition to the locations already registered<a href="#section-15.4-4.4.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-15.5-4.5">Related Protocol Extension:</dt>
-          <dd style="margin-left: 1.5em" id="section-15.5-4.6">
-            <p id="section-15.5-4.6.1">OAuth 2.0 Authorization Framework<a href="#section-15.5-4.6.1" class="pilcrow">¶</a></p>
+<dt id="section-15.4-4.5">Related Protocol Extension:</dt>
+          <dd style="margin-left: 1.5em" id="section-15.4-4.6">
+            <p id="section-15.4-4.6.1">OAuth 2.0 Authorization Framework<a href="#section-15.4-4.6.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-15.5-4.7">Change Controller:</dt>
-          <dd style="margin-left: 1.5em" id="section-15.5-4.8">
-            <p id="section-15.5-4.8.1">IETF<a href="#section-15.5-4.8.1" class="pilcrow">¶</a></p>
+<dt id="section-15.4-4.7">Change Controller:</dt>
+          <dd style="margin-left: 1.5em" id="section-15.4-4.8">
+            <p id="section-15.4-4.8.1">IETF<a href="#section-15.4-4.8.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-15.5-4.9">Specification Document(s):</dt>
-          <dd style="margin-left: 1.5em" id="section-15.5-4.10">
-            <p id="section-15.5-4.10.1"><span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, this specification (<a href="#errors" class="auto internal xref">Section 6</a>)<a href="#section-15.5-4.10.1" class="pilcrow">¶</a></p>
+<dt id="section-15.4-4.9">Specification Document(s):</dt>
+          <dd style="margin-left: 1.5em" id="section-15.4-4.10">
+            <p id="section-15.4-4.10.1"><span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, this specification (<a href="#errors" class="auto internal xref">Section 6</a>)<a href="#section-15.4-4.10.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
 </section>
 </div>
 <div id="oauth-dynamic-client-registration-metadata-registry">
-<section id="section-15.6">
+<section id="section-15.5">
         <h3 id="name-oauth-dynamic-client-regist">
-<a href="#section-15.6" class="section-number selfRef">15.6. </a><a href="#name-oauth-dynamic-client-regist" class="section-name selfRef">OAuth Dynamic Client Registration Metadata Registry</a>
+<a href="#section-15.5" class="section-number selfRef">15.5. </a><a href="#name-oauth-dynamic-client-regist" class="section-name selfRef">OAuth Dynamic Client Registration Metadata Registry</a>
         </h3>
-<p id="section-15.6-1">This specification requests registration of the following value in the IANA "OAuth Dynamic Client Registration Metadata" registry established by <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>. A client publishes this member in its CIMD:<a href="#section-15.6-1" class="pilcrow">¶</a></p>
-<span class="break"></span><dl class="dlParallel" id="section-15.6-2">
-          <dt id="section-15.6-2.1">Client Metadata Name:</dt>
-          <dd style="margin-left: 1.5em" id="section-15.6-2.2">
-            <p id="section-15.6-2.2.1"><code>software_statements_uri</code><a href="#section-15.6-2.2.1" class="pilcrow">¶</a></p>
+<p id="section-15.5-1">This specification requests registration of the following value in the IANA "OAuth Dynamic Client Registration Metadata" registry established by <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>. A client publishes this member in its CIMD:<a href="#section-15.5-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-15.5-2">
+          <dt id="section-15.5-2.1">Client Metadata Name:</dt>
+          <dd style="margin-left: 1.5em" id="section-15.5-2.2">
+            <p id="section-15.5-2.2.1"><code>software_statements_uri</code><a href="#section-15.5-2.2.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-15.6-2.3">Client Metadata Description:</dt>
+<dt id="section-15.5-2.3">Client Metadata Description:</dt>
+          <dd style="margin-left: 1.5em" id="section-15.5-2.4">
+            <p id="section-15.5-2.4.1">URL, in a Client ID Metadata Document, at which the client publishes software statements about itself for an authorization server to retrieve. It is not meaningful in a registration request.<a href="#section-15.5-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-15.5-2.5">Change Controller:</dt>
+          <dd style="margin-left: 1.5em" id="section-15.5-2.6">
+            <p id="section-15.5-2.6.1">IETF<a href="#section-15.5-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-15.5-2.7">Specification Document(s):</dt>
+          <dd style="margin-left: 1.5em" id="section-15.5-2.8">
+            <p id="section-15.5-2.8.1">This specification, <a href="#pulled-statements" class="auto internal xref">Section 5.5</a><a href="#section-15.5-2.8.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="oauth-authorization-server-metadata-registry">
+<section id="section-15.6">
+        <h3 id="name-oauth-authorization-server-">
+<a href="#section-15.6" class="section-number selfRef">15.6. </a><a href="#name-oauth-authorization-server-" class="section-name selfRef">OAuth Authorization Server Metadata Registry</a>
+        </h3>
+<p id="section-15.6-1">This specification requests registration of the following values in the IANA "OAuth Authorization Server Metadata" registry established by <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span>:<a href="#section-15.6-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-15.6-2">
+          <dt id="section-15.6-2.1">Metadata Name:</dt>
+          <dd style="margin-left: 1.5em" id="section-15.6-2.2">
+            <p id="section-15.6-2.2.1"><code>software_statement_jwks_uri</code><a href="#section-15.6-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-15.6-2.3">Metadata Description:</dt>
           <dd style="margin-left: 1.5em" id="section-15.6-2.4">
-            <p id="section-15.6-2.4.1">URL, in a Client ID Metadata Document, at which the client publishes software statements about itself for an authorization server to retrieve. It is not meaningful in a registration request.<a href="#section-15.6-2.4.1" class="pilcrow">¶</a></p>
+            <p id="section-15.6-2.4.1">URL of the JWK Set containing only the keys with which the authorization server signs software statements.<a href="#section-15.6-2.4.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 <dt id="section-15.6-2.5">Change Controller:</dt>
@@ -2830,77 +2864,47 @@ client-assertion-type%3Ajwt-bearer
           <dd class="break"></dd>
 <dt id="section-15.6-2.7">Specification Document(s):</dt>
           <dd style="margin-left: 1.5em" id="section-15.6-2.8">
-            <p id="section-15.6-2.8.1">This specification, <a href="#pulled-statements" class="auto internal xref">Section 5.5</a><a href="#section-15.6-2.8.1" class="pilcrow">¶</a></p>
-</dd>
-        <dd class="break"></dd>
-</dl>
-</section>
-</div>
-<div id="oauth-authorization-server-metadata-registry">
-<section id="section-15.7">
-        <h3 id="name-oauth-authorization-server-">
-<a href="#section-15.7" class="section-number selfRef">15.7. </a><a href="#name-oauth-authorization-server-" class="section-name selfRef">OAuth Authorization Server Metadata Registry</a>
-        </h3>
-<p id="section-15.7-1">This specification requests registration of the following values in the IANA "OAuth Authorization Server Metadata" registry established by <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span>:<a href="#section-15.7-1" class="pilcrow">¶</a></p>
-<span class="break"></span><dl class="dlParallel" id="section-15.7-2">
-          <dt id="section-15.7-2.1">Metadata Name:</dt>
-          <dd style="margin-left: 1.5em" id="section-15.7-2.2">
-            <p id="section-15.7-2.2.1"><code>software_statement_signing_alg_values_supported</code><a href="#section-15.7-2.2.1" class="pilcrow">¶</a></p>
+            <p id="section-15.6-2.8.1">This specification, <a href="#authorization-server-metadata" class="auto internal xref">Section 8</a><a href="#section-15.6-2.8.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-15.7-2.3">Metadata Description:</dt>
-          <dd style="margin-left: 1.5em" id="section-15.7-2.4">
-            <p id="section-15.7-2.4.1">JSON array containing the asymmetric JWS algorithms supported by the authorization server for signing software statements.<a href="#section-15.7-2.4.1" class="pilcrow">¶</a></p>
+<dt id="section-15.6-2.9">Metadata Name:</dt>
+          <dd style="margin-left: 1.5em" id="section-15.6-2.10">
+            <p id="section-15.6-2.10.1"><code>software_statement_signing_alg_values_supported</code><a href="#section-15.6-2.10.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-15.7-2.5">Change Controller:</dt>
-          <dd style="margin-left: 1.5em" id="section-15.7-2.6">
-            <p id="section-15.7-2.6.1">IETF<a href="#section-15.7-2.6.1" class="pilcrow">¶</a></p>
+<dt id="section-15.6-2.11">Metadata Description:</dt>
+          <dd style="margin-left: 1.5em" id="section-15.6-2.12">
+            <p id="section-15.6-2.12.1">JSON array containing the asymmetric JWS algorithms supported by the authorization server for signing software statements.<a href="#section-15.6-2.12.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-15.7-2.7">Specification Document(s):</dt>
-          <dd style="margin-left: 1.5em" id="section-15.7-2.8">
-            <p id="section-15.7-2.8.1">This specification, <a href="#authorization-server-metadata" class="auto internal xref">Section 8</a><a href="#section-15.7-2.8.1" class="pilcrow">¶</a></p>
+<dt id="section-15.6-2.13">Change Controller:</dt>
+          <dd style="margin-left: 1.5em" id="section-15.6-2.14">
+            <p id="section-15.6-2.14.1">IETF<a href="#section-15.6-2.14.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-15.7-2.9">Metadata Name:</dt>
-          <dd style="margin-left: 1.5em" id="section-15.7-2.10">
-            <p id="section-15.7-2.10.1"><code>software_statement_jwks_uri</code><a href="#section-15.7-2.10.1" class="pilcrow">¶</a></p>
+<dt id="section-15.6-2.15">Specification Document(s):</dt>
+          <dd style="margin-left: 1.5em" id="section-15.6-2.16">
+            <p id="section-15.6-2.16.1">This specification, <a href="#authorization-server-metadata" class="auto internal xref">Section 8</a><a href="#section-15.6-2.16.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-15.7-2.11">Metadata Description:</dt>
-          <dd style="margin-left: 1.5em" id="section-15.7-2.12">
-            <p id="section-15.7-2.12.1">URL of the JWK Set containing only the keys with which the authorization server signs software statements.<a href="#section-15.7-2.12.1" class="pilcrow">¶</a></p>
+<dt id="section-15.6-2.17">Metadata Name:</dt>
+          <dd style="margin-left: 1.5em" id="section-15.6-2.18">
+            <p id="section-15.6-2.18.1"><code>software_statement_pull_supported</code><a href="#section-15.6-2.18.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-15.7-2.13">Change Controller:</dt>
-          <dd style="margin-left: 1.5em" id="section-15.7-2.14">
-            <p id="section-15.7-2.14.1">IETF<a href="#section-15.7-2.14.1" class="pilcrow">¶</a></p>
+<dt id="section-15.6-2.19">Metadata Description:</dt>
+          <dd style="margin-left: 1.5em" id="section-15.6-2.20">
+            <p id="section-15.6-2.20.1">Boolean value indicating whether the authorization server retrieves software statements from a client's <code>software_statements_uri</code>.<a href="#section-15.6-2.20.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-15.7-2.15">Specification Document(s):</dt>
-          <dd style="margin-left: 1.5em" id="section-15.7-2.16">
-            <p id="section-15.7-2.16.1">This specification, <a href="#authorization-server-metadata" class="auto internal xref">Section 8</a><a href="#section-15.7-2.16.1" class="pilcrow">¶</a></p>
+<dt id="section-15.6-2.21">Change Controller:</dt>
+          <dd style="margin-left: 1.5em" id="section-15.6-2.22">
+            <p id="section-15.6-2.22.1">IETF<a href="#section-15.6-2.22.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-15.7-2.17">Metadata Name:</dt>
-          <dd style="margin-left: 1.5em" id="section-15.7-2.18">
-            <p id="section-15.7-2.18.1"><code>software_statement_pull_supported</code><a href="#section-15.7-2.18.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-15.7-2.19">Metadata Description:</dt>
-          <dd style="margin-left: 1.5em" id="section-15.7-2.20">
-            <p id="section-15.7-2.20.1">Boolean value indicating whether the authorization server retrieves software statements from a client's <code>software_statements_uri</code>.<a href="#section-15.7-2.20.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-15.7-2.21">Change Controller:</dt>
-          <dd style="margin-left: 1.5em" id="section-15.7-2.22">
-            <p id="section-15.7-2.22.1">IETF<a href="#section-15.7-2.22.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-15.7-2.23">Specification Document(s):</dt>
-          <dd style="margin-left: 1.5em" id="section-15.7-2.24">
-            <p id="section-15.7-2.24.1">This specification, <a href="#authorization-server-metadata" class="auto internal xref">Section 8</a><a href="#section-15.7-2.24.1" class="pilcrow">¶</a></p>
+<dt id="section-15.6-2.23">Specification Document(s):</dt>
+          <dd style="margin-left: 1.5em" id="section-15.6-2.24">
+            <p id="section-15.6-2.24.1">This specification, <a href="#authorization-server-metadata" class="auto internal xref">Section 8</a><a href="#section-15.6-2.24.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
@@ -2955,14 +2959,6 @@ client-assertion-type%3Ajwt-bearer
         <dd>
 <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">N. Sakimura</span>, <span class="refTitle">"JSON Web Token (JWT)"</span>, <span class="seriesInfo">RFC 7519</span>, <span class="seriesInfo">DOI 10.17487/RFC7519</span>, <time datetime="2015-05" class="refDate">May 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7519">https://www.rfc-editor.org/rfc/rfc7519</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="RFC7522">[RFC7522]</dt>
-        <dd>
-<span class="refAuthor">Campbell, B.</span>, <span class="refAuthor">Mortimore, C.</span>, and <span class="refAuthor">M. Jones</span>, <span class="refTitle">"Security Assertion Markup Language (SAML) 2.0 Profile for OAuth 2.0 Client Authentication and Authorization Grants"</span>, <span class="seriesInfo">RFC 7522</span>, <span class="seriesInfo">DOI 10.17487/RFC7522</span>, <time datetime="2015-05" class="refDate">May 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7522">https://www.rfc-editor.org/rfc/rfc7522</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="RFC7523">[RFC7523]</dt>
-        <dd>
-<span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Campbell, B.</span>, and <span class="refAuthor">C. Mortimore</span>, <span class="refTitle">"JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication and Authorization Grants"</span>, <span class="seriesInfo">RFC 7523</span>, <span class="seriesInfo">DOI 10.17487/RFC7523</span>, <time datetime="2015-05" class="refDate">May 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7523">https://www.rfc-editor.org/rfc/rfc7523</a>&gt;</span>. </dd>
-<dd class="break"></dd>
 <dt id="RFC7591">[RFC7591]</dt>
         <dd>
 <span class="refAuthor">Richer, J., Ed.</span>, <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Machulak, M.</span>, and <span class="refAuthor">P. Hunt</span>, <span class="refTitle">"OAuth 2.0 Dynamic Client Registration Protocol"</span>, <span class="seriesInfo">RFC 7591</span>, <span class="seriesInfo">DOI 10.17487/RFC7591</span>, <time datetime="2015-07" class="refDate">July 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7591">https://www.rfc-editor.org/rfc/rfc7591</a>&gt;</span>. </dd>
@@ -2996,12 +2992,8 @@ client-assertion-type%3Ajwt-bearer
 <span class="refAuthor">Lodderstedt, T.</span>, <span class="refAuthor">Campbell, B.</span>, <span class="refAuthor">Sakimura, N.</span>, <span class="refAuthor">Tonge, D.</span>, and <span class="refAuthor">F. Skokan</span>, <span class="refTitle">"OAuth 2.0 Pushed Authorization Requests"</span>, <span class="seriesInfo">RFC 9126</span>, <span class="seriesInfo">DOI 10.17487/RFC9126</span>, <time datetime="2021-09" class="refDate">September 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9126">https://www.rfc-editor.org/rfc/rfc9126</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC9449">[RFC9449]</dt>
-        <dd>
-<span class="refAuthor">Fett, D.</span>, <span class="refAuthor">Campbell, B.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Lodderstedt, T.</span>, <span class="refAuthor">Jones, M.</span>, and <span class="refAuthor">D. Waite</span>, <span class="refTitle">"OAuth 2.0 Demonstrating Proof of Possession (DPoP)"</span>, <span class="seriesInfo">RFC 9449</span>, <span class="seriesInfo">DOI 10.17487/RFC9449</span>, <time datetime="2023-09" class="refDate">September 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9449">https://www.rfc-editor.org/rfc/rfc9449</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="RFC9700">[RFC9700]</dt>
       <dd>
-<span class="refAuthor">Lodderstedt, T.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Labunets, A.</span>, and <span class="refAuthor">D. Fett</span>, <span class="refTitle">"Best Current Practice for OAuth 2.0 Security"</span>, <span class="seriesInfo">BCP 240</span>, <span class="seriesInfo">RFC 9700</span>, <span class="seriesInfo">DOI 10.17487/RFC9700</span>, <time datetime="2025-01" class="refDate">January 2025</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9700">https://www.rfc-editor.org/rfc/rfc9700</a>&gt;</span>. </dd>
+<span class="refAuthor">Fett, D.</span>, <span class="refAuthor">Campbell, B.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Lodderstedt, T.</span>, <span class="refAuthor">Jones, M.</span>, and <span class="refAuthor">D. Waite</span>, <span class="refTitle">"OAuth 2.0 Demonstrating Proof of Possession (DPoP)"</span>, <span class="seriesInfo">RFC 9449</span>, <span class="seriesInfo">DOI 10.17487/RFC9449</span>, <time datetime="2023-09" class="refDate">September 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9449">https://www.rfc-editor.org/rfc/rfc9449</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
@@ -3028,6 +3020,14 @@ client-assertion-type%3Ajwt-bearer
         <dd>
 <span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"Client ID Metadata Document Software Statement Registration"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-mcguinness-oauth-cimd-sw-stmt-registration-00</span>, <time datetime="2026-10" class="refDate">October 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration">https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="RFC7522">[RFC7522]</dt>
+        <dd>
+<span class="refAuthor">Campbell, B.</span>, <span class="refAuthor">Mortimore, C.</span>, and <span class="refAuthor">M. Jones</span>, <span class="refTitle">"Security Assertion Markup Language (SAML) 2.0 Profile for OAuth 2.0 Client Authentication and Authorization Grants"</span>, <span class="seriesInfo">RFC 7522</span>, <span class="seriesInfo">DOI 10.17487/RFC7522</span>, <time datetime="2015-05" class="refDate">May 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7522">https://www.rfc-editor.org/rfc/rfc7522</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7523">[RFC7523]</dt>
+        <dd>
+<span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Campbell, B.</span>, and <span class="refAuthor">C. Mortimore</span>, <span class="refTitle">"JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication and Authorization Grants"</span>, <span class="seriesInfo">RFC 7523</span>, <span class="seriesInfo">DOI 10.17487/RFC7523</span>, <time datetime="2015-05" class="refDate">May 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7523">https://www.rfc-editor.org/rfc/rfc7523</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC8628">[RFC8628]</dt>
         <dd>
 <span class="refAuthor">Denniss, W.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Jones, M.</span>, and <span class="refAuthor">H. Tschofenig</span>, <span class="refTitle">"OAuth 2.0 Device Authorization Grant"</span>, <span class="seriesInfo">RFC 8628</span>, <span class="seriesInfo">DOI 10.17487/RFC8628</span>, <time datetime="2019-08" class="refDate">August 2019</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8628">https://www.rfc-editor.org/rfc/rfc8628</a>&gt;</span>. </dd>
@@ -3037,8 +3037,12 @@ client-assertion-type%3Ajwt-bearer
 <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Nadalin, A.</span>, <span class="refAuthor">Campbell, B., Ed.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">C. Mortimore</span>, <span class="refTitle">"OAuth 2.0 Token Exchange"</span>, <span class="seriesInfo">RFC 8693</span>, <span class="seriesInfo">DOI 10.17487/RFC8693</span>, <time datetime="2020-01" class="refDate">January 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8693">https://www.rfc-editor.org/rfc/rfc8693</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC8705">[RFC8705]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Campbell, B.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Sakimura, N.</span>, and <span class="refAuthor">T. Lodderstedt</span>, <span class="refTitle">"OAuth 2.0 Mutual-TLS Client Authentication and Certificate-Bound Access Tokens"</span>, <span class="seriesInfo">RFC 8705</span>, <span class="seriesInfo">DOI 10.17487/RFC8705</span>, <time datetime="2020-02" class="refDate">February 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8705">https://www.rfc-editor.org/rfc/rfc8705</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9700">[RFC9700]</dt>
+      <dd>
+<span class="refAuthor">Lodderstedt, T.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Labunets, A.</span>, and <span class="refAuthor">D. Fett</span>, <span class="refTitle">"Best Current Practice for OAuth 2.0 Security"</span>, <span class="seriesInfo">BCP 240</span>, <span class="seriesInfo">RFC 9700</span>, <span class="seriesInfo">DOI 10.17487/RFC9700</span>, <time datetime="2025-01" class="refDate">January 2025</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9700">https://www.rfc-editor.org/rfc/rfc9700</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
