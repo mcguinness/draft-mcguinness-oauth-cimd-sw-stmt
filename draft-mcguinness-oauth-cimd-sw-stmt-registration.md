@@ -26,6 +26,7 @@ author:
     email: public@karlmcguinness.com
 
 normative:
+  RFC7592:
   RFC6749:
   RFC7519:
   RFC7591:
@@ -45,7 +46,6 @@ normative:
   CIMD: I-D.ietf-oauth-client-id-metadata-document
 
 informative:
-  RFC7592:
   LIFECYCLE:
     target: https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle.html
     title: "Client ID Metadata Document Software Statement Lifecycle"
