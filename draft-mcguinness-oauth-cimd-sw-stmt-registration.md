@@ -158,12 +158,15 @@ For a repeated request for a public-client registration ({{public-client-registr
 
 # Registration Validity {#registration-validity}
 
-An authorization server MUST apply the following validity model to every registration it creates from a statement validated under Section 3.2 of {{STATEMENT}}, whichever issuer signed it:
+An authorization server MUST apply the following validity model to every statement-governed registration:
 
-* The registration's effective expiry (Section 2 of {{STATEMENT}}) is that of its governing statement, which the server identifies by the statement's `iss` and `jti` claims.
+* The registration's effective expiry (Section 2 of {{STATEMENT}}) is that of its governing statement.
 * The registration is valid until its governing statement ceases to be current (Section 2 of {{STATEMENT}}), and so at most until that effective expiry.
-* Once the registration ceases to be valid without a replacement ({{revalidation}}), the authorization server MUST reject authorization, token, and pushed authorization requests and {{RFC7592}} update requests under the registration, at step 4 of {{registration-requests}}.
-* The authorization server SHOULD retain a registration that has ceased to be valid for a later renewal ({{oracle-considerations}}).
+* Once the registration has ceased to be valid, the authorization server MUST reject authorization, token, and pushed authorization requests and {{RFC7592}} update requests under it, unless the request delivers a replacement that restores it (step 4 of {{registration-requests}}).
+* The authorization server SHOULD retain a registration that has ceased to be valid, so that a replacement can restore it.
+* Ceasing to be valid does not expire the registration's credentials, including its registration access token, and does not by itself revoke access tokens already issued under the registration.
+
+If a request that carries no replacement is rejected because the registration has ceased to be valid, the rejection MUST NOT by itself cause the authorization server to revoke refresh tokens as it does on detecting refresh-token replay (Section 4.14.2 of {{RFC9700}}).
 
 If the authorization server records a required issuer for a tenant (Section 4 of {{STATEMENT}}), it MUST reject an authorization, token, or pushed authorization request, or an {{RFC7592}} update request, in that tenant under any statement-governed registration whose governing statement's `sub` falls within a covered namespace, unless a current statement from the required issuer governs the registration as step 3 of {{registration-requests}} leaves it. This rule applies whatever tenant the registration was created in and whenever the requirement was configured. Without this rule, withholding the required issuer's statement would keep such a registration in use after the issuer withdrew or stopped renewing its decision.
 
@@ -205,8 +208,6 @@ A statement with the governing statement's `iss` and `sub` and an `iat` no later
 | Any other statement, such as one with another `iss` or `sub` | Fails the replacement rules below |
 
 An {{RFC7592}} update request repeats, unmodified, the statement that a registration, read, or update response returned (Section 3.2.1 of {{RFC7591}}; Section 2.2 of {{RFC7592}}), which can be older than the governing statement after a token or pushed authorization request has renewed the registration. An {{RFC7592}} read or update response returns the governing statement as its `software_statement` member.
-
-A request that carries no replacement leaves the registration unchanged, and the request proceeds only while the registration remains valid ({{registration-validity}}). When a request under a registration that has ceased to be valid carries no replacement, its rejection ({{registration-validity}}) MUST NOT by itself cause the authorization server to revoke refresh tokens as it does on detecting refresh-token replay (Section 4.14.2 of {{RFC9700}}).
 
 The replacement MUST satisfy the following:
 
