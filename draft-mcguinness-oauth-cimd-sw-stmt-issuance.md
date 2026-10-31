@@ -579,6 +579,7 @@ An authorization server ought to keep an audit record that binds each decision, 
 * The time of decision.
 
 An authorization server ought to retain the exact retrieved octets of the approved document for audit, because a re-serialized copy cannot reproduce the digest. A deployment that requires approver attribution can retain it in an audit record or define a statement claim and its privacy semantics.
+
 # Deployment Considerations {#deployment-considerations}
 
 This section gives guidance to operators and issuers. It adds no requirement.
