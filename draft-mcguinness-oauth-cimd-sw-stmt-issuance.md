@@ -529,7 +529,7 @@ An authorization server that issued a statement already holds the decision that 
 
 Because the record of a decision is not a fresh retrieval of the document, a server admitting a client on the record of a statement it issued MUST apply every check Sections 3.2 and 5.1 of {{STATEMENT}} apply to a presented statement, and at registration every check {{REGISTRATION}} applies, taking the statement's claims from its record of the decision.
 
-At runtime, the record takes the place of the statement in step 1 of Section 5.1 of {{STATEMENT}} and replaces only its signature check: the server still resolves the document at `sub`, compares its digest, verifies the sender constraint (Section 5.6 of {{STATEMENT}}), and creates an establishment.
+At runtime, the record takes the place of the statement in step 1 of Section 5.1 of {{STATEMENT}} and replaces only its signature check: the server still performs steps 2 through 7 of Section 5.1 of {{STATEMENT}}, taking the claims from the record.
 
 # Authorization Server Metadata {#authorization-server-metadata}
 
