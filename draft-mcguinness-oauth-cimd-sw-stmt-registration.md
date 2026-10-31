@@ -126,11 +126,10 @@ If the statement's decision is confined to one of the authorization server's ten
 | Registration before | Replacement's decision | After |
 | --- | --- | --- |
 | Restricted to a tenant | Confined to that tenant, or not confined | Restricted to that tenant |
+| Restricted to a tenant | Confined to another tenant | Fails validation (Section 3.2 of {{STATEMENT}}) |
 | No restriction, confidential client | Confined to a tenant | Restricted to that tenant |
 | No restriction, public client | Confined to a tenant | Not a valid replacement |
 | No restriction | Not confined to a tenant | No restriction |
-
-The authorization server MUST treat a request under a statement-governed registration, including a delivery ({{revalidation}}), made in a tenant other than the one the registration is restricted to, as a request from a client it has not registered. In a tenant where it requires a tenant-scoped decision (Section 3.2 of {{STATEMENT}}), it MUST treat a request under such a registration that carries no tenant restriction under this specification as a request from a client it has not registered unless, after step 3 of {{registration-requests}}, the registration is restricted to that tenant.
 
 ## Public Clients {#public-client-registration}
 
@@ -181,10 +180,10 @@ The `registration_expires_at` member is a NumericDate (Section 2 of {{RFC7519}})
 
 The authorization server MUST process an authorization, token, or pushed authorization request, or an {{RFC7592}} update request, under a statement-governed registration in the following order, stopping at the first step that rejects the request or treats it as from a client the server has not registered:
 
-1. It applies any tenant restriction ({{tenant-restriction}}).
+1. If the registration is restricted to a tenant ({{tenant-restriction}}) and the request, including one that delivers a statement, is made in another tenant, it MUST treat the request as from a client it has not registered.
 2. It authenticates a token or pushed authorization request under the registration's own client authentication method, against the retained registration if the registration has ceased to be valid. A public-client registration has no client credential, so no client authentication applies to such a request under it, whether or not the request delivers a statement ({{public-client-registration}}). It authenticates an {{RFC7592}} update request with the registration access token (Section 2 of {{RFC7592}}).
 3. It classifies any statement the request delivers by its claims, before validating it, and evaluates a replacement ({{revalidation}}). A replacement applied at this step stands even if a later step, or the request's grant, rejects the request.
-4. It applies the rejections of {{registration-validity}}, and the rule of {{tenant-restriction}} for a tenant that requires a tenant-scoped decision, to the registration as step 3 leaves it.
+4. It applies the rejections of {{registration-validity}} to the registration as step 3 leaves it. If the request is made in a tenant where the authorization server requires a tenant-scoped decision (Section 3.2 of {{STATEMENT}}) and the registration, as step 3 leaves it, carries no tenant restriction, it MUST treat the request as from a client it has not registered.
 5. It evaluates the request against the registration's metadata.
 
 # Renewal {#revalidation}
