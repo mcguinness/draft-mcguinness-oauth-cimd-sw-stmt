@@ -693,10 +693,11 @@ Table of Contents
 11.1.  Withdrawal and Open Grants
 
    A withdrawal revokes no issued token (Section 3).  Beyond the cases
-   of Section 13.7 of [STATEMENT], a grant ends at a refresh that
-   Section 5.1 rejects, and a server can end the grants and
-   registrations of an issuer it removes from trust by entering refusal
-   records for its statements.
+   of Section 13.7 of [STATEMENT], Section 5.1 can prevent further
+   refresh of a grant until the server accepts a replacement
+   (Section 5.2), and a server can end the grants and registrations of
+   an issuer it removes from trust by entering refusal records for its
+   statements.
 
 11.2.  Supersession and Refresh Replacement
 

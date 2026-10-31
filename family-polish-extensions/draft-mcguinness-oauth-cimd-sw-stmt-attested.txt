@@ -682,18 +682,19 @@ Table of Contents
    authenticate under Section 6.2 with a current instance attestation
    and a fresh proof under the establishment's proven key.  In place of
    the document-key check of Section 5.7.1 of [STATEMENT], the server
-   MUST complete the checks of Section 6.1, verify the refresh-token
-   binding, and enforce the fixed values of Section 7.2 before it
-   considers any replacement.
+   MUST complete the checks of Section 6.1 other than the digest
+   comparison, verify the refresh-token binding, and enforce the fixed
+   values of Section 7.2 before it considers any replacement.
 
    On every refresh, the server MUST require a current software
    statement and re-evaluate its issuer trust decision.  It MUST also
-   verify that the currently served document matches the applicable
-   statement and attestation digests and meets Section 4.  If the
-   document fails Section 4, for example by omitting the
-   software_statement_instance_binding member or naming another
-   authentication method, the refresh is rejected with invalid_grant
-   without seeking a replacement.
+   verify that the currently served document meets Section 4 and that
+   its digest equals the cimd_digest of the attestation and of the
+   applicable statement, which is the recorded statement or, if one is
+   needed, the replacement.  If the document fails Section 4, for
+   example by omitting the software_statement_instance_binding member or
+   naming another authentication method, the refresh is rejected with
+   invalid_grant without seeking a replacement.
 
    A replacement (Section 5.2 of [LIFECYCLE]) is needed when the
    recorded statement is expired, refused, or no longer matches the
@@ -708,112 +709,113 @@ Table of Contents
    The following table summarizes where this profile departs from
    [STATEMENT] and [LIFECYCLE].
 
-   +=============+========================+===========================+
-   | Section     | Rule                   | Under this profile        |
-   +=============+========================+===========================+
-   | 4           | A required issuer      | A presentation processed  |
-   |             | configured for         | under Section 7.1 is not  |
-   |             | software whose         | review-only, so a current |
-   |             | presentations are      | statement from the        |
-   |             | review-only excludes   | required issuer can admit |
-   |             | that software from the | the software.             |
-   |             | tenant.                |                           |
-   +-------------+------------------------+---------------------------+
-   | 5.1, 5.2    | The statement and the  | The instance is           |
-   |             | document are checked   | authenticated first       |
-   |             | before the proof.      | (Section 7.1, step 1).    |
-   |             |                        | Statement and document    |
-   |             |                        | checks follow, and checks |
-   |             |                        | needing no client-        |
-   |             |                        | controlled retrieval      |
-   |             |                        | still precede such        |
-   |             |                        | retrieval.                |
-   +-------------+------------------------+---------------------------+
-   | 5.2, 5.5,   | A request without an   | No fallback: any failed   |
-   | 5.6.3       | acceptable statement   | check rejects the request |
-   |             | can proceed under the  | (Section 7.1).            |
-   |             | policy for unreviewed  |                           |
-   |             | clients, a review-only |                           |
-   |             | presentation proceeds  |                           |
-   |             | as a client presenting |                           |
-   |             | no statement, and a    |                           |
-   |             | digest mismatch can    |                           |
-   |             | proceed without the    |                           |
-   |             | statement.             |                           |
-   +-------------+------------------------+---------------------------+
-   | 5.4.2,      | A pulled statement     | The binding is set at the |
-   | 5.5.2       | needs no PAR, and one  | PAR endpoint.  An         |
-   |             | pulled at the          | authorization request     |
-   |             | authorization endpoint | without a PAR request_uri |
-   |             | binds the presenter at | governed by this profile  |
-   |             | code redemption.       | is rejected               |
-   |             |                        | (Section 7.3).            |
-   +-------------+------------------------+---------------------------+
-   | 5.6, 5.6.1  | The proven key appears | The proven key is the     |
-   |             | in the reviewed        | attested key              |
-   |             | document's jwks or at  | (Section 6.1), and the    |
-   |             | its jwks_uri.          | document carries no key   |
-   |             |                        | material (Section 4).     |
-   +-------------+------------------------+---------------------------+
-   | 5.6.3       | A redirection URI      | Loopback redirects under  |
-   |             | another application    | Section 7.1 do not make a |
-   |             | could claim makes a    | presentation review-only  |
-   |             | presentation review-   | (Section 3).              |
-   |             | only.                  |                           |
-   +-------------+------------------------+---------------------------+
-   | 5.7         | Redemption checks the  | Redemption also requires  |
-   |             | client identifier and  | the recorded statement to |
-   |             | key, not the           | be unexpired and          |
-   |             | statement's expiry.    | unrefused, and the        |
-   |             |                        | current document to match |
-   |             |                        | the recorded digest       |
-   |             |                        | (Section 7.4).            |
-   +-------------+------------------------+---------------------------+
-   | 5.7, 5.7.1, | Redemption and refresh | Redemption and refresh    |
-   | 13.7        | do not re-evaluate     | re-evaluate issuer trust  |
-   |             | issuer trust, so       | (Section 7.4, Section 8). |
-   |             | removing an issuer     |                           |
-   |             | ends no open grant.    |                           |
-   +-------------+------------------------+---------------------------+
-   | 5.7.1       | Refresh checks         | Refresh verifies a        |
-   |             | possession of the      | current attestation of    |
-   |             | proven key and that    | the proven key instead of |
-   |             | the currently served   | its presence in the       |
-   |             | document still carries | document (Section 8).     |
-   |             | that key.              |                           |
-   +-------------+------------------------+---------------------------+
-   | 6.3         | Code redemption is     | Redemption can also       |
-   |             | rejected with          | return statement_required |
-   |             | invalid_grant or, at   | (Section 10.1).           |
-   |             | the establishment      |                           |
-   |             | bound, invalid_client. |                           |
-   +-------------+------------------------+---------------------------+
-   | 6.4         | A client not admitted  | A missing or invalid      |
-   |             | on a statement         | required pushed           |
-   |             | receives               | authorization request is  |
-   |             | statement_required.    | rejected with             |
-   |             |                        | invalid_request           |
-   |             |                        | (Section 10.3).           |
-   +-------------+------------------------+---------------------------+
-   | 5.1 of      | A current statement on | Every refresh requires a  |
-   | [LIFECYCLE] | refresh is recommended | current statement         |
-   |             | once the recorded      | (Section 8).              |
-   |             | statement expires.     |                           |
-   +-------------+------------------------+---------------------------+
-   | 5.1, 5.2 of | A replacement is       | Every refresh re-checks   |
-   | [LIFECYCLE] | needed only when the   | the document against the  |
-   |             | recorded statement is  | recorded digests, a       |
-   |             | refused or expired,    | replacement is also       |
-   |             | the document's digest  | needed when the recorded  |
-   |             | is checked only for a  | statement no longer       |
-   |             | replacement, and the   | matches the document, and |
-   |             | replacement's document | a current attestation of  |
-   |             | carries the proven     | the proven key takes the  |
-   |             | key.                   | place of the key check    |
-   |             |                        | (Section 8).              |
-   +-------------+------------------------+---------------------------+
+   +=============+========================+============================+
+   | Section     | Rule                   | Under this profile         |
+   +=============+========================+============================+
+   | 4           | A required issuer      | A presentation processed   |
+   |             | configured for         | under Section 7.1 is not   |
+   |             | software whose         | review-only, so a current  |
+   |             | presentations are      | statement from the         |
+   |             | review-only excludes   | required issuer can admit  |
+   |             | that software from the | the software.              |
+   |             | tenant.                |                            |
+   +-------------+------------------------+----------------------------+
+   | 5.1, 5.2    | The statement and the  | The instance is            |
+   |             | document are checked   | authenticated first        |
+   |             | before the proof.      | (Section 7.1, step 1).     |
+   |             |                        | Statement and document     |
+   |             |                        | checks follow, and checks  |
+   |             |                        | needing no client-         |
+   |             |                        | controlled retrieval       |
+   |             |                        | still precede such         |
+   |             |                        | retrieval.                 |
+   +-------------+------------------------+----------------------------+
+   | 5.2, 5.5,   | A request without an   | No fallback: any failed    |
+   | 5.6.3       | acceptable statement   | check rejects the request  |
+   |             | can proceed under the  | (Section 7.1).             |
+   |             | policy for unreviewed  |                            |
+   |             | clients, a review-only |                            |
+   |             | presentation proceeds  |                            |
+   |             | as a client presenting |                            |
+   |             | no statement, and a    |                            |
+   |             | digest mismatch can    |                            |
+   |             | proceed without the    |                            |
+   |             | statement.             |                            |
+   +-------------+------------------------+----------------------------+
+   | 5.4.2,      | A pulled statement     | The binding is set at the  |
+   | 5.5.2       | needs no PAR, and one  | PAR endpoint.  An          |
+   |             | pulled at the          | authorization request      |
+   |             | authorization endpoint | without a PAR request_uri  |
+   |             | binds the presenter at | governed by this profile   |
+   |             | code redemption.       | is rejected                |
+   |             |                        | (Section 7.3).             |
+   +-------------+------------------------+----------------------------+
+   | 5.6, 5.6.1  | The proven key appears | The proven key is the      |
+   |             | in the reviewed        | attested key               |
+   |             | document's jwks or at  | (Section 6.1), and the     |
+   |             | its jwks_uri.          | document carries no key    |
+   |             |                        | material (Section 4).      |
+   +-------------+------------------------+----------------------------+
+   | 5.6.3       | A redirection URI      | Loopback redirects under   |
+   |             | another application    | Section 7.1 do not make a  |
+   |             | could claim makes a    | presentation review-only   |
+   |             | presentation review-   | (Section 3).               |
+   |             | only.                  |                            |
+   +-------------+------------------------+----------------------------+
+   | 5.7         | Redemption checks the  | Redemption also requires   |
+   |             | client identifier and  | the recorded statement to  |
+   |             | key, not the           | be unexpired and           |
+   |             | statement's expiry.    | unrefused, and the         |
+   |             |                        | current document to match  |
+   |             |                        | the recorded digest        |
+   |             |                        | (Section 7.4).             |
+   +-------------+------------------------+----------------------------+
+   | 5.7, 5.7.1, | Redemption and refresh | Redemption and refresh     |
+   | 13.7        | do not re-evaluate     | re-evaluate issuer trust   |
+   |             | issuer trust, so       | (Section 7.4, Section 8).  |
+   |             | removing an issuer     |                            |
+   |             | ends no open grant.    |                            |
+   +-------------+------------------------+----------------------------+
+   | 5.7.1       | Refresh checks         | Refresh verifies a         |
+   |             | possession of the      | current attestation of     |
+   |             | proven key and that    | the proven key instead of  |
+   |             | the currently served   | its presence in the        |
+   |             | document still carries | document (Section 8).      |
+   |             | that key.              |                            |
+   +-------------+------------------------+----------------------------+
+   | 6.3         | Code redemption is     | Redemption can also        |
+   |             | rejected with          | return statement_required  |
+   |             | invalid_grant or, at   | (Section 10.1).            |
+   |             | the establishment      |                            |
+   |             | bound, invalid_client. |                            |
+   +-------------+------------------------+----------------------------+
+   | 6.4         | A client not admitted  | A missing or invalid       |
+   |             | on a statement         | required pushed            |
+   |             | receives               | authorization request is   |
+   |             | statement_required.    | rejected with              |
+   |             |                        | invalid_request            |
+   |             |                        | (Section 10.3).            |
+   +-------------+------------------------+----------------------------+
+   | 5.1 of      | A current statement on | Every refresh requires a   |
+   | [LIFECYCLE] | refresh is recommended | current statement          |
+   |             | once the recorded      | (Section 8).               |
+   |             | statement expires.     |                            |
+   +-------------+------------------------+----------------------------+
+   | 5.1, 5.2 of | A replacement is       | Every refresh re-checks    |
+   | [LIFECYCLE] | needed only when the   | the document against the   |
+   |             | recorded statement is  | statement and attestation  |
+   |             | refused or expired,    | digests, a replacement is  |
+   |             | the document's digest  | also needed when the       |
+   |             | is checked only for a  | recorded statement no      |
+   |             | replacement, and the   | longer matches the         |
+   |             | replacement's document | document, and a current    |
+   |             | carries the proven     | attestation of the proven  |
+   |             | key.                   | key takes the place of     |
+   |             |                        | the key check              |
+   |             |                        | (Section 8).               |
+   +-------------+------------------------+----------------------------+
 
-                                 Table 1
+                                  Table 1
 
    All other requirements of [STATEMENT] and [LIFECYCLE] continue to
    apply.

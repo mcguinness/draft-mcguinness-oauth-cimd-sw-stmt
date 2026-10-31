@@ -552,7 +552,7 @@ Table of Contents
    audience:  OPTIONAL.  The requested audience (Section 4.1).
 
    completion_mode:  OPTIONAL.  A value that includes deferred, sent as
-      the advance hint of Section 4.2 of [DTR].
+      the advance hint of Section 5.2 of [DTR].
 
    dpop_jkt:  REQUIRED for a public client and OPTIONAL otherwise.  The
       parameter has the semantics of Section 10 of [RFC9449].
@@ -1156,11 +1156,11 @@ Table of Contents
               <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
               client-id-metadata-document-02>.
 
-   [DTR]      Jacobsen, F. K., de Oliveira Niero, G., and M. Gerber,
-              "Deferred Token Response", Work in Progress, Internet-
-              Draft, draft-ietf-oauth-deferred-token-response-00, 16
-              September 2026, <https://datatracker.ietf.org/doc/html/
-              draft-ietf-oauth-deferred-token-response-00>.
+   [DTR]      de Oliveira Niero, G. and D. Liu, "Deferred Token
+              Response", Work in Progress, Internet-Draft, draft-ietf-
+              oauth-deferred-token-response-01, 31 October 2026,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
+              deferred-token-response-01>.
 
    [FORM-POST]
               Jones, M. B. and B. Campbell, "OAuth 2.0 Form Post
