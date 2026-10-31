@@ -329,7 +329,7 @@ The client sends an authorization request as described in Section 4.1.1 of {{RFC
 : REQUIRED. The value MUST exactly match one of the redirection URIs in the CIMD, subject to the redirection URI rules in Section 4.2 of {{CIMD}}. Whatever authentication method the document declares, the value MUST NOT be a redirection URI that another application on the same device could claim, as Section 5.6.3 of {{STATEMENT}} defines ({{authorization-response-security}}).
 
 `state`:
-: OPTIONAL, as in Section 4.1.1 of {{RFC6749}}.
+: OPTIONAL. Because the authorization server requires PKCE, a client can rely on PKCE for CSRF protection (Section 2.1 of {{RFC9700}}).
 
 `code_challenge`:
 : REQUIRED. A PKCE challenge as defined by {{RFC7636}}.
