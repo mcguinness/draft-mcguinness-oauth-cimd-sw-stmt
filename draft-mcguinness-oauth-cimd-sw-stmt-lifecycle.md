@@ -317,10 +317,6 @@ For the `iat` floor ({{supersession}}), a server keeps one `iat` value for each 
 
 A receiver can bound the rate of the retrievals that events cause by deferring a retrieval briefly and coalescing events that concern the same status list URI ({{processing}}). Its scheduled resolution continues regardless.
 
-## Event Logs {#event-logs}
-
-A receiver ought to treat event logs as sensitive at rest, as Section 11.4 of {{STATEMENT}} treats statements. A log of events is a record about client identifiers that can outlive the issuer's own published status, so a receiver ought to bound its retention.
-
 # Deployment Considerations {#deployment-considerations}
 
 This section gives guidance to operators and issuers. It adds no requirement.
@@ -349,15 +345,15 @@ The security considerations of {{STATEMENT}}, {{STATUSLIST}}, {{SSF}}, and {{RFC
 
 ## Withdrawal and Open Grants {#open-grants}
 
-Expiry and withdrawal ({{withdrawal}}) govern new admissions on a statement. Neither revokes an issued access token. A grant opened by a statement lasts for the life of its refresh tokens, whatever the statement's lifetime, unless the server requires a current statement on refresh ({{currency}}), holds a refusal record, or finds the proven key gone from the client's document (Section 5.7.1 of {{STATEMENT}}). Section 13.7 of {{STATEMENT}} describes what removing an issuer from trust configuration, or narrowing what it can attest, leaves in place. Under this specification, a server can also end those grants and registrations by entering refusal records for the issuer's statements.
+A withdrawal revokes no issued token ({{withdrawal}}). Beyond the cases of Section 13.7 of {{STATEMENT}}, a grant ends at a refresh that {{currency}} rejects, and a server can end the grants and registrations of an issuer it removes from trust by entering refusal records for its statements.
 
 ## Supersession and Refresh Replacement {#replacement-security}
 
 The `iat` floor ({{supersession}}) exists because one statement is consumable more than once (Section 11.3 of {{STATEMENT}}). Without it, a client holding an older, broader statement could keep opening registrations and establishments with it after its issuer narrows the review, until that statement expires. The floor closes this at a server only once the server accepts the later statement. A server that has not seen the later statement still accepts the earlier one, which is why {{withdrawal}} recommends that an issuer withdraw an earlier statement when it issues a later, narrower one.
 
-A replacement never changes the establishment's proven key. Refresh verifies possession of that key before it considers a replacement ({{refresh-replacement}}), so holding a statement gives a party nothing at refresh without the key, and a replacement cannot move a grant to another key.
+Refresh verifies possession of the establishment's proven key before it considers a replacement ({{refresh-replacement}}), so holding a statement gives a party nothing at refresh without the key, and a replacement cannot move a grant to another key.
 
-A replacement validates only against the document currently served at its `sub` (step 3 of {{refresh-replacement}}). A client cannot use a later statement over a document it no longer serves, so an accepted replacement brings the grant to the current reviewed document, and the refreshed access falls within that document's metadata.
+Because a replacement must name the document currently served (step 3 of {{refresh-replacement}}), a client cannot move a grant to a reviewed document it no longer serves.
 
 ## Forged and Replayed Events
 
@@ -378,11 +374,9 @@ The privacy considerations of {{STATEMENT}}, {{STATUSLIST}}, {{SSF}}, and {{RFC8
 Because {{STATUSLIST}} aggregates many statements into one list, a retrieval tells the issuer only that some trusting authorization server is checking. Retrieving the list on its own schedule ({{status-resolution}}) keeps the server's request timing from disclosing the client population it serves. A retrieval that an event prompts shows the issuer that the receiver holds a statement or a cached status for the event's subject.
 {: #resolution-schedule}
 
-Subject identifiers in these events name reviewed software and, in aggregate, describe an organization's approved software estate. For this reason, a stream is scoped as {{configuration}} provides. Event logs deserve the same care as statements ({{event-logs}}).
+Subject identifiers in these events name reviewed software and, in aggregate, describe an organization's approved software estate. For this reason, a stream is scoped as {{configuration}} provides. A receiver ought to treat event logs as sensitive at rest, as Section 11.4 of {{STATEMENT}} treats statements. A log of events is a record about client identifiers that can outlive the issuer's own published status, so a receiver ought to bound its retention.
 
 Refusal records ({{withdrawal}}) and `iat` floors ({{supersession}}) are durable state that an authorization server keeps per client identifier. They show which software an issuer has withdrawn or reviewed again, so a server ought to protect them as it protects statements (Section 11.4 of {{STATEMENT}}) and ought not to keep an `iat` floor longer than its purpose requires ({{supersession-state}}).
-
-The events this specification defines create no durable receiver-side record of their own, so they add no negative state about a client identifier that outlives the issuer's own published status. A receiver that logs events creates such a record ({{event-logs}}).
 
 # IANA Considerations
 
