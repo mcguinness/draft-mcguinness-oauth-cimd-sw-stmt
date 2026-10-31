@@ -87,14 +87,10 @@ informative:
     date: 2026-10
   RFC9864:
   ATTESTERS: I-D.mcguinness-oauth-client-attesters
-  RFC8252:
   APPROVAL-DCR: I-D.dellaert-oauth-approval-based-dcr
   AU-CDR:
     target: https://consumerdatastandardsaustralia.github.io/standards/
     title: "Consumer Data Standards (Australia)"
-  OPENID-FED:
-    target: https://openid.net/specs/openid-federation-1_0.html
-    title: "OpenID Federation 1.0"
   UK-OPEN-BANKING:
     target: https://openbankinguk.github.io/dcr-docs-pub/v3.3/dynamic-client-registration.html
     title: "Open Banking UK Dynamic Client Registration Specification v3.3"
@@ -228,9 +224,9 @@ The authorization server MUST NOT combine values from different document version
 
 Replacing the snapshot does not alter the sender-constraint context fixed for a deferral at origination ({{deferred-processing}}). If a replacement snapshot no longer authorizes the key material behind that context, for example because the client-authentication key is absent from the new document, the authorization server MUST invalidate the deferral. The client then makes a new request under its current keys.
 
-The authorization server MUST reject a document containing duplicate object member names. Parsers can interpret duplicate members differently despite an identical digest.
+The authorization server MUST reject a document containing duplicate object member names (Section 5.2 of {{STATEMENT}}).
 
-A document carries its keys inline through the `jwks` member, which the digest binds, or by reference through the `jwks_uri` member, which the digest binds only as a location. Section 13.2 of {{STATEMENT}} weighs the trade-off, and an issuer can require either.
+An issuer can require `jwks` inline (Section 13.2 of {{STATEMENT}}).
 
 {{CIMD}} permits a document to carry a `software_statement` member. An issuer evaluates the document as served and MUST NOT refuse a document because it carries the member. Trusting authorization servers ignore a statement embedded there (Section 3 of {{STATEMENT}}), and refusing would leave a client that published its statement unable to renew it.
 
@@ -627,7 +623,7 @@ An issuer ought to protect its signing keys according to the scope of its trust 
 
 # Security Considerations {#security-considerations}
 
-The security considerations of {{STATEMENT}} apply.
+The security considerations of Section 13 of {{STATEMENT}}, {{CIMD}}, and Section 5 of {{RFC8693}} apply.
 
 ## Software Statements and Access Grants
 
@@ -635,21 +631,11 @@ A software statement grants no resource access or consent on behalf of the softw
 
 An authorization server that shows an approval interface MUST NOT imply through that interface that the approver is granting the client access to resources. An erroneous approval affects every authorization server in the statement's audience until expiry ({{approval-interface}}, {{review-practice}}).
 
-## Assurance Provided by Issuance {#what-issuance-attests}
-
-A software statement means only that its issuer evaluated the document captured in the metadata snapshot ({{metadata-snapshot}}) under its issuance policy and decided to vouch for it, not that the document's contents are true. Because the client authors the metadata document, the document alone does not establish its contents ({{review-practice}}). Verification depth is part of the trust relationship.
-
-## Client Metadata Retrieval
-
-Fetching a CIMD and the resources it references exposes the authorization server to server-side request forgery, resource exhaustion, malicious content, and client impersonation. The considerations of {{CIMD}} apply.
-
 ## Authorization Response Security {#authorization-response-security}
 
 The software statement is a signed credential and can contain sensitive deployment information, so it is never returned in an authorization response ({{authorization-response}}). PKCE, or the client's `state` check, counters cross-site request forgery, and the client's `iss` check ({{software-statement-code-response}}) counters mix-up.
 
-A public client presents no client authentication, so its association with the software depends on delivery to a metadata-listed redirection endpoint. Another application can claim a private-use or loopback endpoint ({{RFC8252}}). PKCE and DPoP bind the code to the initiator but cannot stop an attacker from initiating under another party's `client_id`. Only an `https` endpoint no other application can claim demonstrates control of the publisher's origin, so {{authorization-request}} requires one. A native public client can host such an endpoint or use the token exchange profile ({{token-exchange-profile}}).
-
-A confidential client's authentication proves possession of a key, not that the key is absent from software distributed to end users, so the requirement applies to it as well. Presentations of a statement over a document listing an endpoint another application can claim are in any case review-only at a trusting authorization server (Section 5.6.3 of {{STATEMENT}}).
+{{authorization-request}} refuses a redirection URI another application can claim for the reason Section 5.6.3 of {{STATEMENT}} gives. A native public client can host an `https` endpoint or use the token exchange profile ({{token-exchange-profile}}).
 
 Endpoint or key control informs issuance policy but does not determine issuance ({{review-practice}}).
 
@@ -818,9 +804,7 @@ Specification Document(s):
 
 **Why not the device authorization grant.** {{RFC8628}} fits a human decision that outlives a request, and an issuer whose approval is always out of band can use it. It assumes a user co-present with a constrained device who enters a user code elsewhere. Issuance approval is made by an administrator or reviewer who does not operate the client and is often not present, and the client already has a browser. The redirect flow covers an approver reachable through that browser. The token exchange profile covers the case with no browser.
 
-**Why not a profile of attestation-based client authentication.** An attester vouches for a running instance and its key, for as long as it chooses, to the server in front of it. A statement issuer vouches for reviewed software, for days, to every server that trusts it. Profiling one as the other would give the reviewed-software decision an instance-scoped trust model, or give instance attestation unwarranted portability.
-
-**Why not OpenID Federation trust marks.** A trust mark {{OPENID-FED}} is a signed third-party assertion about an entity, resolved through a federation that supplies key discovery, policy, and delegation and requires both parties to enroll. This specification is pairwise: a trusting authorization server configures an issuer directly. Federation standardizes trust resolution, not enrollment, approval, or deferred completion. Ecosystems already operating a federation are better served by trust marks.
+**Why not client attestation or OpenID Federation.** Section 10 of {{STATEMENT}} relates statements to client attestation and OpenID Federation. Federation standardizes trust resolution, not enrollment, approval, or deferred completion.
 
 # Acknowledgments
 {:numbered="false"}
