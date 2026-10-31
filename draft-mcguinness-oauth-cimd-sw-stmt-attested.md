@@ -384,6 +384,7 @@ Under this profile, a pushed authorization request, code redemption, or refresh 
 
   * At code redemption, the recorded statement is expired or refused.
   * At code redemption or refresh, the recorded statement's issuer is no longer trusted.
+  * At refresh, a replacement that {{refresh}} needs is not obtained.
 
 ## Error Precedence and Disclosure {#error-precedence}
 
