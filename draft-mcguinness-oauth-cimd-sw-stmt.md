@@ -185,9 +185,9 @@ A statement asserts that its issuer evaluated the CIMD whose content the digest 
 `cimd_digest`:
 : REQUIRED. The metadata digest ({{metadata-digest}}) of the CIMD the issuer evaluated.
 
-Profiles and extensions can define further claims, such as `status` ({{LIFECYCLE}}). A trusting authorization server ignores a claim it does not recognize ({{validation}}).
+Profiles and extensions can define further claims, such as `status` ({{LIFECYCLE}}).
 
-A statement issued under this specification MUST NOT contain a claim named in the IANA "OAuth Dynamic Client Registration Metadata" registry, and a trusting authorization server MUST NOT take client metadata from a statement's claims. A trusting authorization server ignores such a claim rather than rejecting the statement ({{validation}}).
+A statement issued under this specification MUST NOT contain a claim named in the IANA "OAuth Dynamic Client Registration Metadata" registry, and a trusting authorization server MUST NOT take client metadata from a statement's claims.
 
 A CIMD can carry a `software_statement` member (Section 4.3 of {{CIMD}}). A trusting authorization server MUST NOT consume a statement of this profile from that member, and MUST NOT treat that member as satisfying any requirement of this specification. A statement inside the document could not name the document's digest, because it would be part of the octets it digests, so this specification carries statements in requests ({{runtime-presentation}}) or at a separate location ({{pulled-statements}}). Statements of other kinds in the member are out of scope for this specification.
 
@@ -213,7 +213,7 @@ Before accepting a statement, a trusting authorization server MUST ensure the fo
 * If the statement carries `aud_tenant`, `aud` carries exactly one value and `aud_tenant` identifies the request's tenant.
 * If the server requires a tenant-scoped decision for the request, the statement carries `aud_tenant`, or the server's trust configuration confines the statement's issuer to the request's tenant ({{issuer-trust}}).
 * If the server's trust configuration confines the statement's issuer to a tenant, the request belongs to that tenant.
-* The use being made of the statement is one it permits: a use its `statement_uses` claim names or, if the claim is absent, presentation ({{profiles}}). A value the server does not recognize names no use it serves.
+* The use being made of the statement is one its `statement_uses` claim permits ({{profiles}}).
 * The `sub` claim is a client identifier URL conforming to {{CIMD}} and falls within the client identifier namespaces for which this server accepts the issuer ({{issuer-trust}}).
 * Any claim the server does not recognize, and any client metadata claim ({{profiles}}), is ignored.
 * The JWT validation guidance in {{RFC8725}} has been applied.
@@ -321,7 +321,7 @@ The document and this URL are necessarily retrieved before any statement is vali
 The server considers only statements that meet all of the following conditions, and ignores the rest:
 
 * The `sub` claim equals the document's client identifier.
-* The statement validates under {{validation}} and permits presentation ({{profiles}}).
+* The statement validates under {{validation}}.
 * The `cimd_digest` claim equals the digest of the document the server resolved.
 
 If the server's trust configuration requires an issuer for this client ({{issuer-trust}}), the server also ignores statements from any other issuer. If more than one statement remains, it applies the most recently issued statement from an issuer of its choice.
