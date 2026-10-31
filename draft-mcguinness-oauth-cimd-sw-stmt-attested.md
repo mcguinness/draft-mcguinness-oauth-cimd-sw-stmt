@@ -396,7 +396,7 @@ Details of configured issuers, attesters, evidence policies, and tenant restrict
 
 ## Authorization Endpoint {#authorization-errors}
 
-At the authorization endpoint, when {{authorization}} requires a `request_uri` from a pushed authorization request, a request without a valid one is rejected with `invalid_request`. An authorization request carrying an instance attestation or an instance proof is rejected with `invalid_request`.
+At the authorization endpoint, when {{authorization}} or {{required-binding}} requires a `request_uri` from a pushed authorization request, a request without a valid one is rejected with `invalid_request`. Before redirecting with an error, the server validates the redirection URI as Section 6.4 of {{STATEMENT}} provides. An authorization request carrying an instance attestation or an instance proof is rejected with `invalid_request`.
 
 # Examples {#examples}
 
@@ -576,7 +576,7 @@ The client binds its listener only to the selected loopback interface, opens it 
 
 ## Downgrade Prevention {#downgrade}
 
-A requester can try to avoid this profile by omitting every review artifact, by presenting a statement over an earlier document, or by opening a grant another way. Because {{required-binding}} bases a server's requirement for reviewed software on its own policy, withholding an artifact does not avoid it.
+A requester can try to avoid this profile by omitting every review artifact, by presenting a statement over an earlier document, or by opening a grant another way. Because {{required-binding}} bases a server's requirement for this binding on its own policy, withholding an artifact does not avoid it.
 
 Existing grants retain their recorded binding ({{establishment}}). A server implementing only {{STATEMENT}} continues to reject clients that select this profile where review is required (Section 5.6.3 of {{STATEMENT}}).
 
