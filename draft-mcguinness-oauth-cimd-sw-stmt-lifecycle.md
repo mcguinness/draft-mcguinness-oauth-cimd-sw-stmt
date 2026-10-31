@@ -75,7 +75,7 @@ A software statement for a Client ID Metadata Document (CIMD) records a trusted 
 
 This specification adds withdrawal and refusal records ({{withdrawal}}), supersession of earlier statements through an `iat` floor ({{supersession}}), and refresh rules ({{refresh-lifecycle}}) under which a grant whose recorded statement is withdrawn, or by recommendation expired, continues only if a later statement replaces it.
 
-A trusting authorization server that implements this specification applies all of {{withdrawal}} through {{lifecycle-errors}}, whatever withdrawal mechanism it uses, if any. An issuer that uses a withdrawal mechanism withdraws statements through it, and {{withdrawal}} recommends that it withdraw an earlier statement when it issues a later, narrower one. Publishing status and sending events are optional for an issuer, and supersession and refresh replacement work without them. A client can offer a later statement on refresh ({{refresh-replacement}}).
+A trusting authorization server that implements this specification applies all of {{withdrawal}} through {{refresh-lifecycle}} and {{lifecycle-errors}}, whatever withdrawal mechanism it uses, if any. An issuer that uses a withdrawal mechanism withdraws statements through it, and {{withdrawal}} recommends that it withdraw an earlier statement when it issues a later, narrower one. Publishing status and sending events are optional for an issuer, and supersession and refresh replacement work without them. A client can offer a later statement on refresh ({{refresh-replacement}}).
 
 {{token-status-list}} profiles Token Status List {{STATUSLIST}} as the withdrawal mechanism of this specification: an issuer withdraws a statement by setting its status, and a trusting authorization server learns of it when it next resolves the list. {{shared-signals}} defines an optional Shared Signals Framework {{SSF}} event, not itself a withdrawal mechanism, that prompts the trusting authorization servers that have configured an issuer to resolve a changed status promptly.
 
@@ -176,29 +176,6 @@ An accepted replacement is the only way refresh changes the refreshed grant's re
 A replacement accepted on refresh MUST apply only to the grant refreshed.
 
 If the server bounds establishments (Section 11.3 of {{STATEMENT}}), a count persists across replacements: a replacement accepted on refresh does not add to it.
-
-# Error Responses {#lifecycle-errors}
-
-This section extends Section 6 of {{STATEMENT}}, whose error responses and HTTP status codes apply at each endpoint.
-
-The `statement_required` error code (Section 6.1 of {{STATEMENT}}) also applies when the statement supplied or pulled is refused by a refusal record ({{withdrawal}}) or superseded under the `iat` floor ({{supersession}}), and when a statement offered as a replacement on refresh ({{refresh-replacement}}) does not satisfy the requirements for one.
-
-A presentation whose statement is refused by a refusal record or superseded under the `iat` floor is rejected with `statement_required`, in place of the `invalid_client` error code that Section 6.2 of {{STATEMENT}} assigns to a statement that fails validation.
-
-A statement whose `status` claim references an index outside the list ({{status-resolution}}) is rejected with the error code assigned to a statement refused by a refusal record, such as `statement_required`.
-
-Under an establishment, a refresh-token request rejected for a reason this specification defines uses `temporarily_unavailable` if a retrieval it needs did not complete, including a pull of a replacement, as Section 6 of {{STATEMENT}} provides, and otherwise the following error codes:
-
-`statement_required`:
-: A replacement fails step 3 of {{refresh-replacement}} or the `iat` floor, a needed replacement is not obtained in step 2, including when a completed pull yields none, or {{currency}} rejects the refresh. These cases use `statement_required` in place of `invalid_grant`.
-
-`unauthorized_client` or `invalid_scope`:
-: The refreshed access exceeds the metadata of the document an accepted replacement names, as Section 6.3 of {{STATEMENT}} provides for the reviewed metadata.
-
-`invalid_request`:
-: The request carries a replacement but omits `client_id` ({{refresh-replacement}}).
-
-If a statement is refused by a refusal record rather than merely expired, and the client is authenticated, the authorization server ought to indicate in the `error_description` parameter that a statement issued more recently is required (Section 6.6 of {{STATEMENT}}).
 
 # Token Status List {#token-status-list}
 
@@ -327,6 +304,14 @@ The subjects appropriate to a stream are those of the issuer's statements whose 
 
 A receiver SHOULD request the event this specification defines, and SHOULD use the stream verification facility of {{SSF}} periodically.
 
+# Error Responses {#lifecycle-errors}
+
+This section extends Section 6 of {{STATEMENT}}, whose error responses and HTTP status codes apply at each endpoint.
+
+A presentation is rejected with `statement_required`, in place of the `invalid_client` that Section 6.2 of {{STATEMENT}} assigns, if a refusal record covers its statement ({{withdrawal}}), the statement's status index lies outside the list ({{status-resolution}}), or the `iat` floor supersedes the statement ({{supersession}}).
+
+A refresh-token request that {{currency}} rejects, or whose replacement is rejected ({{refresh-replacement}}), uses `statement_required`, subject to the order of Section 6 of {{STATEMENT}}. A request that carries a replacement but omits `client_id` ({{refresh-replacement}}) is rejected with `invalid_request`.
+
 # Implementation Considerations {#implementation-considerations}
 
 This section gives guidance to implementers. It adds no requirement.
@@ -441,4 +426,4 @@ Under Section 2 of {{RFC8417}}, the `software_statement_jti` payload claim of {{
 # Acknowledgments
 {:numbered="false"}
 
-This specification draws on the Shared Signals Framework and the Continuous Access Evaluation Profile for its transport and payload conventions. The lifecycle rules of {{withdrawal}} through {{lifecycle-errors}} began in {{STATEMENT}} and were separated from it so that its admission baseline stands alone.
+This specification draws on the Shared Signals Framework and the Continuous Access Evaluation Profile for its transport and payload conventions. The lifecycle rules of {{withdrawal}} through {{refresh-lifecycle}} began in {{STATEMENT}} and were separated from it so that its admission baseline stands alone.
