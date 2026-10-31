@@ -322,7 +322,7 @@ Deployments ought to pair statement-governed registrations with credential rotat
 
 Open registration permits `client_name`, `logo_uri`, and `client_uri` values that imitate trusted software on consent screens (Section 5 of {{RFC7591}}). Requiring a statement replaces self-asserted branding with issuer-reviewed values, though content served at a URL the document carries, such as a logo, can change after review (Section 13.1 of {{STATEMENT}}). Servers that render such values on consent screens ought to prefer those from a reviewed document and to apply heightened scrutiny to registrations that claim user-visible branding without a statement.
 
-Requiring a statement also means a removed client cannot register again under a new identity without another issuer decision. A client that misleads the issuer's review can obtain a genuine statement for fraudulent metadata, so a statement is only as reliable as the issuer's verification.
+Requiring a statement also means a removed client cannot register again under a new client identifier URL without another issuer decision. A client that misleads the issuer's review can obtain a genuine statement for fraudulent metadata, so a statement is only as reliable as the issuer's verification.
 
 ## Observable State {#oracle-considerations}
 
@@ -402,10 +402,3 @@ Change Controller:
 
 Specification Document(s):
 : {{RFC6749}}, this specification ({{errors}})
-
---- back
-
-# Acknowledgments
-{:numbered="false"}
-
-This specification was separated from {{STATEMENT}}, where registration consumption was first defined, so that runtime admission could be implemented without it.
