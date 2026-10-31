@@ -1906,7 +1906,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         <h3 id="name-authorization-endpoint">
 <a href="#section-10.3" class="section-number selfRef">10.3. </a><a href="#name-authorization-endpoint" class="section-name selfRef">Authorization Endpoint</a>
         </h3>
-<p id="section-10.3-1">At the authorization endpoint, when <a href="#authorization" class="auto internal xref">Section 7.3</a> requires a <code>request_uri</code> from a pushed authorization request, a request without a valid one is rejected with <code>invalid_request</code>. An authorization request carrying an instance attestation or an instance proof is rejected with <code>invalid_request</code>.<a href="#section-10.3-1" class="pilcrow">¶</a></p>
+<p id="section-10.3-1">At the authorization endpoint, when <a href="#authorization" class="auto internal xref">Section 7.3</a> or <a href="#required-binding" class="auto internal xref">Section 3.1</a> requires a <code>request_uri</code> from a pushed authorization request, a request without a valid one is rejected with <code>invalid_request</code>. Before redirecting with an error, the server validates the redirection URI as Section 6.4 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> provides. An authorization request carrying an instance attestation or an instance proof is rejected with <code>invalid_request</code>.<a href="#section-10.3-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2158,7 +2158,7 @@ grant_type=refresh_token
         <h3 id="name-downgrade-prevention">
 <a href="#section-15.3" class="section-number selfRef">15.3. </a><a href="#name-downgrade-prevention" class="section-name selfRef">Downgrade Prevention</a>
         </h3>
-<p id="section-15.3-1">A requester can try to avoid this profile by omitting every review artifact, by presenting a statement over an earlier document, or by opening a grant another way. Because <a href="#required-binding" class="auto internal xref">Section 3.1</a> bases a server's requirement for reviewed software on its own policy, withholding an artifact does not avoid it.<a href="#section-15.3-1" class="pilcrow">¶</a></p>
+<p id="section-15.3-1">A requester can try to avoid this profile by omitting every review artifact, by presenting a statement over an earlier document, or by opening a grant another way. Because <a href="#required-binding" class="auto internal xref">Section 3.1</a> bases a server's requirement for this binding on its own policy, withholding an artifact does not avoid it.<a href="#section-15.3-1" class="pilcrow">¶</a></p>
 <p id="section-15.3-2">Existing grants retain their recorded binding (<a href="#establishment" class="auto internal xref">Section 7.2</a>). A server implementing only <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> continues to reject clients that select this profile where review is required (Section 5.6.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-15.3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -2556,7 +2556,7 @@ grant_type=refresh_token
           <dd class="break"></dd>
 <dt id="appendix-A.1-2.5">Caller identification:</dt>
           <dd style="margin-left: 1.5em" id="appendix-A.1-2.6">
-            <p id="appendix-A.1-2.6.1">The client connects to the launcher over XPC, and the launcher sets a code-signing requirement naming the publisher's Team ID and the client's signing identifier, which the system enforces on the connection <span>[<a href="#APPLE-XPC" class="cite xref">APPLE-XPC</a>]</span>. The launcher never relies on a process ID or a reported path.<a href="#appendix-A.1-2.6.1" class="pilcrow">¶</a></p>
+            <p id="appendix-A.1-2.6.1">The client connects to the launcher over XPC, and the launcher sets a code-signing requirement naming an Apple-issued certificate chain, the publisher's Team ID, and the client's signing identifier, which the system enforces on the connection <span>[<a href="#APPLE-XPC" class="cite xref">APPLE-XPC</a>]</span>. The launcher never relies on a process ID or a reported path.<a href="#appendix-A.1-2.6.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 <dt id="appendix-A.1-2.7">Code injection:</dt>
@@ -2566,7 +2566,7 @@ grant_type=refresh_token
           <dd class="break"></dd>
 <dt id="appendix-A.1-2.9">Launcher authentication:</dt>
           <dd style="margin-left: 1.5em" id="appendix-A.1-2.10">
-            <p id="appendix-A.1-2.10.1">The launcher registers an App Attest key, which Apple certifies as belonging to the launcher <span>[<a href="#APPLE-APPATTEST" class="cite xref">APPLE-APPATTEST</a>]</span>, and ties it to the managed device with a single-use secret delivered through managed app configuration. Each later report, carrying the installation's public key and the client's signing identity, bears an App Attest assertion.<a href="#appendix-A.1-2.10.1" class="pilcrow">¶</a></p>
+            <p id="appendix-A.1-2.10.1">The launcher registers an App Attest key, which Apple certifies as belonging to the launcher <span>[<a href="#APPLE-APPATTEST" class="cite xref">APPLE-APPATTEST</a>]</span>, and ties it to the managed device with a single-use secret delivered through managed app configuration, which macOS delivers only to an app with a matching code signature. Each later report, carrying the installation's public key and the client's signing identity, bears an App Attest assertion.<a href="#appendix-A.1-2.10.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 <dt id="appendix-A.1-2.11">Evidence and renewal:</dt>
