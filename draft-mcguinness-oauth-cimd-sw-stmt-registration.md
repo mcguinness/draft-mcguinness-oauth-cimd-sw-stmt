@@ -3,6 +3,7 @@ title: "Client ID Metadata Document Software Statement Registration"
 abbrev: oauth-cimd-sw-stmt-registration
 docname: draft-mcguinness-oauth-cimd-sw-stmt-registration-latest
 category: std
+submissiontype: IETF
 
 ipr: trust200902
 area: "Security"

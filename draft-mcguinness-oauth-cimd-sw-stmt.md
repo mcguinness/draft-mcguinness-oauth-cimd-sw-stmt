@@ -3,6 +3,7 @@ title: "Client ID Metadata Document Software Statement"
 abbrev: oauth-cimd-sw-stmt
 docname: draft-mcguinness-oauth-cimd-sw-stmt-latest
 category: std
+submissiontype: IETF
 
 ipr: trust200902
 area: "Security"
@@ -34,20 +35,20 @@ normative:
   RFC7515:
   RFC7519:
   RFC8725:
-  RFC7522:
-  RFC7523:
   RFC7591:
   RFC8414:
   RFC9126:
   RFC7636:
   RFC9449:
-  RFC9700:
   RFC9110:
   RFC8252:
   CIMD: I-D.ietf-oauth-client-id-metadata-document
   IDJAG: I-D.ietf-oauth-identity-assertion-authz-grant
 
 informative:
+  RFC7522:
+  RFC7523:
+  RFC9700:
   RFC8705:
   RFC8628:
   RFC8693:
