@@ -91,7 +91,7 @@ Statement-Governed Registration:
 
 # Consumption at Registration {#dcr-presentation}
 
-The statement is consumed in the `software_statement` member of an {{RFC7591}} registration request. The authorization server validates it under Section 3.2 of {{STATEMENT}} and registers the client under its ordinary registration policy.
+The statement is consumed in the `software_statement` member of an {{RFC7591}} registration request. The authorization server validates it under Section 3.2 of {{STATEMENT}} and registers the client under its ordinary registration policy. If a required issuer covers the statement's `sub` in the request's tenant (Section 4 of {{STATEMENT}}), the authorization server MUST NOT create a registration on a statement from another issuer.
 
 The retrieval requirements of Sections 3.1 and 5.3 of {{STATEMENT}} apply to retrieving the document as they apply to a runtime presentation, and a server can apply the bounds of Section 11.2 of {{STATEMENT}}. Following the order of Section 5.1 of {{STATEMENT}}, the authorization server completes every check that needs no client-controlled retrieval before resolving the document.
 
@@ -243,7 +243,7 @@ A rejection this specification defines, at a client registration endpoint or at 
   * The statement of a repeated public-client registration request is not the governing statement and has an `iat` no later than the governing statement's ({{repeated-registration}}).
 
 `unapproved_software_statement`:
-: The statement is well formed but not acceptable here: its issuer is not configured, its `aud` excludes this server, its `sub` is outside the client identifier namespaces the issuer can attest, its `aud_tenant` is not this request's tenant or is absent when required, its issuer is confined to another tenant, or its `statement_uses` excludes this use. This code is also used if a statement this server requires is absent from a registration request, and for a repeated registration request that the server's policy refuses ({{repeated-registration}}).
+: The statement is well formed but not acceptable here: its issuer is not configured, its `aud` excludes this server, its `sub` is outside the client identifier namespaces the issuer can attest, its `aud_tenant` is not this request's tenant or is absent when required, its issuer is confined to another tenant, a required issuer covers its `sub` in this request's tenant and it is from another issuer ({{dcr-presentation}}), or its `statement_uses` excludes this use. This code is also used if a statement this server requires is absent from a registration request, and for a repeated registration request that the server's policy refuses ({{repeated-registration}}).
 
 `invalid_client_metadata`:
 : Any of the following holds for the reviewed document:
