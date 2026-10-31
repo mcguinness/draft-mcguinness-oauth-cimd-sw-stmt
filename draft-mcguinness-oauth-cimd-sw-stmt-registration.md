@@ -142,8 +142,7 @@ An authorization server MAY register a client whose reviewed document declares `
 
 * MUST reject the registration if the document lists no redirection URI.
 * MUST issue tokens under the registration only through the authorization code grant and the refresh of grants it opens.
-* MUST require PKCE {{RFC7636}} with the `S256` method on every authorization request under the registration.
-* MUST require every authorization request under the registration to bind a key the client holds, through the `dpop_jkt` parameter or, at the pushed authorization request endpoint, a DPoP proof (Section 10.1 of {{RFC9449}}), and MUST require code redemption and every refresh of the resulting grant to prove that key.
+* MUST apply Section 5.6.2 of {{STATEMENT}} to every authorization request under the registration, and MUST require code redemption and every refresh of the resulting grant to prove the key bound there.
 * MUST NOT issue a registration access token {{RFC7592}} for the registration.
 
 ## Repeated Registration {#repeated-registration}
@@ -317,7 +316,7 @@ The security considerations of Section 13 of {{STATEMENT}} and Section 5 of {{RF
 
 A statement consumed at registration is a reusable bearer artifact until it expires. Its audience, lifetime, and `statement_uses` claim (Section 3 of {{STATEMENT}}) and the registration policy of {{repeated-registration}} limit what a copied statement can create.
 
-Taking every value from the document prevents metadata substitution. A request-supplied value for a member the document omits, such as a `jwks` member beside a document naming only `jwks_uri`, would give any holder of a copy a registration with reviewed branding and the holder's own key. Registering a document that omits `token_endpoint_auth_method` under the {{RFC7591}} default would register a shared-secret method, which {{CIMD}} forbids (Section 4.1 of {{CIMD}}) and the issuer never reviewed. An issuer ought to omit the `aud` claim from a statement whose `statement_uses` claim permits registration only if it accepts that any server trusting the issuer can register the software on the strength of a copy.
+Taking every value from the document prevents metadata substitution. A request-supplied value for a member the document omits, such as a `jwks` member beside a document naming only `jwks_uri`, would give any holder of a copy a registration with reviewed branding and the holder's own key. Registering a document that omits `token_endpoint_auth_method` under the {{RFC7591}} default would register a shared-secret method, which {{CIMD}} forbids (Section 4.1 of {{CIMD}}) and the issuer never reviewed. An issuer that omits `aud` from a statement permitting registration accepts that any server trusting the issuer can register the software on the strength of a copy.
 
 Under the one-registration default ({{repeated-registration}}), whoever first registers with a copy of a statement holds that registration and its registration access token, and can keep the software's publisher from registering there. Such a holder cannot authenticate as the client if the reviewed document's authentication method requires a key the document carries.
 
