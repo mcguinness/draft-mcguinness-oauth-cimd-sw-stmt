@@ -343,7 +343,7 @@ The security considerations of Section 13 of {{STATEMENT}}, {{STATUSLIST}}, {{SS
 
 ## Withdrawal and Open Grants {#open-grants}
 
-A withdrawal revokes no issued token ({{withdrawal}}). Beyond the cases of Section 13.7 of {{STATEMENT}}, a grant ends at a refresh that {{currency}} rejects, and a server can end the grants and registrations of an issuer it removes from trust by entering refusal records for its statements.
+A withdrawal revokes no issued token ({{withdrawal}}). Beyond the cases of Section 13.7 of {{STATEMENT}}, {{currency}} can prevent further refresh of a grant until the server accepts a replacement ({{refresh-replacement}}), and a server can end the grants and registrations of an issuer it removes from trust by entering refusal records for its statements.
 
 ## Supersession and Refresh Replacement {#replacement-security}
 
