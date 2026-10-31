@@ -145,17 +145,17 @@ An authorization server MAY register a client whose reviewed document declares `
 
 ## Repeated Registration {#repeated-registration}
 
-A registration request is repeated if its statement has the `iss` and `sub` claims of the governing statement of an existing statement-governed registration that can be used in the request's tenant ({{tenant-restriction}}). One current statement can be consumed more than once, subject to the bounds of Sections 11.2 and 11.3 of {{STATEMENT}} and the server's registration policy.
+A registration request is repeated if its statement has the `iss` and `sub` claims of the governing statement of an existing statement-governed registration that, whether or not it has ceased to be valid, is not restricted to another tenant and, if the request's tenant requires a tenant-scoped decision (Section 3.2 of {{STATEMENT}}), is restricted to that tenant ({{tenant-restriction}}). One current statement can be consumed more than once, subject to the bounds of Sections 11.2 and 11.3 of {{STATEMENT}} and the server's registration policy.
 
-For a repeated request for a confidential client, local policy can reject the request, treat it as idempotent, or create another registration. An idempotent response MUST NOT return the existing registration's credentials, such as its `registration_access_token` member. A common default is one registration per `iss` and `sub`, per tenant on a multi-tenant server, at the cost {{statement-bearer}} describes.
+If the registration a request repeats is a confidential-client registration, local policy can reject the request, treat it as idempotent, or create another registration. An idempotent response MUST NOT return the existing registration's credentials, such as its `registration_access_token` member. A common default is one registration per `iss` and `sub`, per tenant on a multi-tenant server, at the cost {{statement-bearer}} describes.
 
-For a repeated request for a public-client registration ({{public-client-registration}}), the authorization server MUST NOT create another registration and handles the request by its statement, once the statement validates:
+If the registration a request repeats is a public-client registration ({{public-client-registration}}), the authorization server MUST NOT create another registration and handles the request by its statement, once the statement validates:
 
 | Statement in the repeated request | Outcome |
 | --- | --- |
 | The governing statement, identified by its `iss` and `jti` | The existing registration is returned |
 | A later `iat` than the governing statement's | Evaluated as a delivery ({{revalidation}}); the renewed registration is returned or the request is rejected ({{errors}}) |
-| An earlier `iat` than the governing statement's | The request is rejected |
+| Any other statement with an `iat` no later than the governing statement's | The request is rejected |
 
 # Registration Validity {#registration-validity}
 
