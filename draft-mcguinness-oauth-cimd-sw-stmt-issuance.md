@@ -694,8 +694,6 @@ Specification Document(s):
 
 This specification requests that IANA add this specification, {{audience}}, as an additional reference for the existing `audience` parameter registered by {{RFC8693}} and extend its usage location to include authorization requests. The parameter name and change controller are unchanged.
 
-This specification likewise requests that IANA add it as an additional reference for the `completion_mode` parameter ({{authorization-request}}). The parameter is defined by {{DTR}}, whose registration already includes authorization requests. The name, usage location, and change controller are unchanged.
-
 This specification also requests registration of the following value in the IANA "OAuth Parameters" registry established by {{RFC6749}}:
 
 Parameter Name:
@@ -712,22 +710,7 @@ Specification Document(s):
 
 ## OAuth Extensions Error Registry
 
-The `access_denied` and `invalid_target` error codes are already registered. This specification requests that IANA add this specification as a reference to the existing `access_denied` entry, and update the existing `invalid_target` entry, adding authorization error responses to its usage locations and this specification as a reference:
-
-Error Name:
-: `access_denied`
-
-Error Usage Location:
-: token error response
-
-Related Protocol Extension:
-: RFC 8628
-
-Change Controller:
-: IETF
-
-Specification Document(s):
-: {{RFC8628}}, this specification ({{terminal-denial}})
+This specification requests that IANA update the existing `invalid_target` entry, adding authorization error responses to its usage locations and this specification as a reference:
 
 Error Name:
 : `invalid_target`
@@ -752,7 +735,7 @@ Metadata Name:
 : `software_statement_subject_token_types_supported`
 
 Metadata Description:
-: JSON array of subject token type values accepted for exchanging into software statements; signals support for the token exchange profile.
+: JSON array of subject token types accepted for exchange into a software statement.
 
 Change Controller:
 : IETF
