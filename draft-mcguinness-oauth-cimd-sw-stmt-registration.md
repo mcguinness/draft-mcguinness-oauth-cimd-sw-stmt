@@ -45,12 +45,6 @@ normative:
 
 informative:
   RFC7592:
-  LIFECYCLE:
-    target: https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle.html
-    title: "Client ID Metadata Document Software Statement Lifecycle"
-    author:
-      - fullname: Karl McGuinness
-    date: 2026-10
 
 --- abstract
 
@@ -242,7 +236,7 @@ A rejection this specification defines, at a client registration endpoint or at 
 `invalid_software_statement`:
 : Any of the following:
 
-  * The statement is malformed, fails signature or claim validation for a reason `unapproved_software_statement` does not cover, or is expired or otherwise not current (Section 2 of {{STATEMENT}}), or is superseded under an extension the server implements, such as {{LIFECYCLE}}.
+  * The statement is malformed, fails signature or claim validation for a reason `unapproved_software_statement` does not cover, or is expired or otherwise not current (Section 2 of {{STATEMENT}}), or is superseded under an extension the server implements.
   * The document's digest does not equal the statement's `cimd_digest` claim ({{dcr-presentation}}).
   * An {{RFC7592}} update request is rejected under {{registration-validity}}.
   * A statement delivered at the client configuration endpoint, or the statement of a repeated public-client registration request evaluated as a replacement ({{repeated-registration}}), fails the replacement rules of {{revalidation}} where this section assigns no other code, such as a change in whether the document declares `token_endpoint_auth_method` of `none`.
@@ -329,7 +323,7 @@ A public-client registration ({{public-client-registration}}) has no credential 
 
 Renewal proves possession of the registration's credential and the currency of a statement sharing the governing statement's `iss` and `sub`, not that the renewing party is the reviewed software. An attacker holding a stolen client credential can renew indefinitely with the newer statements distributed to every deployment of the software. A public-client registration's renewal proves only that the replacement is current. No protection is lost, since any party can already use that registration.
 
-A narrower review takes effect at a registration when the client delivers it or when the governing statement ceases to be current. Withdrawal before then requires an extension such as {{LIFECYCLE}}.
+A narrower review takes effect at a registration when the client delivers it or when the governing statement ceases to be current. Withdrawal before then requires an extension.
 
 Deployments ought to pair statement-governed registrations with credential rotation, sender-constrained client authentication, and the bounds that Sections 11.2 and 11.3 of {{STATEMENT}} and {{repeated-registration}} describe, and ought to treat a credential compromise as requiring re-registration rather than renewal. Runtime presentation binds every presenter to the reviewed document (Sections 5.6 and 13.4 of {{STATEMENT}}) and so does not have this limitation.
 
@@ -341,7 +335,7 @@ Requiring a statement also means a removed client cannot register again under a 
 
 ## Observable State {#oracle-considerations}
 
-A retained registration that has ceased to be valid is distinguishable from an unknown client ({{registration-requests}}, {{errors}}). At the token and pushed authorization request endpoints, only a requester that authenticates as the registration's client can observe this, except for a public-client registration. At the authorization endpoint, anyone who sends an authorization request naming the client and one of its registered redirection URIs learns from the `statement_required` redirection that the registration has ceased to be valid. If an observer knows the governing statement's `exp`, a lapse before it shows that an extension such as {{LIFECYCLE}} ended the statement or that the server caps the lifetime it honors for the issuer.
+A retained registration that has ceased to be valid is distinguishable from an unknown client ({{registration-requests}}, {{errors}}). At the token and pushed authorization request endpoints, only a requester that authenticates as the registration's client can observe this, except for a public-client registration. At the authorization endpoint, anyone who sends an authorization request naming the client and one of its registered redirection URIs learns from the `statement_required` redirection that the registration has ceased to be valid. If an observer knows the governing statement's `exp`, a lapse before it shows that an extension ended the statement or that the server caps the lifetime it honors for the issuer.
 
 As at runtime (Section 13.8 of {{STATEMENT}}), these disclosures are accepted, and they reveal nothing of the server's issuer trust configuration beyond the fact and time that the registration ceased to be valid (Section 6.6 of {{STATEMENT}}). Publishing `software_statement_registration_supported` discloses that statement-governed registrations expire there, which a client needs to know before registering.
 
