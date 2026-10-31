@@ -1,5 +1,5 @@
 ---
-title: "Attested Instance Keys for Client ID Metadata Document Software Statements"
+title: "Client ID Metadata Document Software Statement Attested Instance Keys"
 abbrev: oauth-cimd-sw-stmt-attested
 docname: draft-mcguinness-oauth-cimd-sw-stmt-attested-latest
 category: std
