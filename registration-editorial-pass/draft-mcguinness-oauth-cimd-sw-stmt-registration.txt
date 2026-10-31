@@ -244,26 +244,33 @@ Table of Contents
    tenant restriction under this specification.  A replacement
    (Section 6) determines the restriction as follows:
 
-       +==============+=========================+==================+
-       | Registration | Replacement's decision  | After            |
-       | before       |                         |                  |
-       +==============+=========================+==================+
-       | Restricted   | Confined to that        | Restricted to    |
-       | to a tenant  | tenant, or not confined | that tenant      |
-       +--------------+-------------------------+------------------+
-       | Restricted   | Confined to another     | Fails validation |
-       | to a tenant  | tenant                  | (Section 3.2 of  |
-       |              |                         | [STATEMENT])     |
-       +--------------+-------------------------+------------------+
+     +=================+=========================+==================+
+     | Registration    | Replacement's decision  | After            |
+     | before          |                         |                  |
+     +=================+=========================+==================+
+     | Restricted to a | Confined to that        | Restricted to    |
+     | tenant          | tenant, or not confined | that tenant      |
+     +-----------------+-------------------------+------------------+
+     | Restricted to a | Confined to another     | Fails validation |
+     | tenant          | tenant                  | (Section 3.2 of  |
+     |                 |                         | [STATEMENT])     |
+     +-----------------+-------------------------+------------------+
+     | No restriction, | Confined to a tenant    | Restricted to    |
+     | confidential    |                         | that tenant      |
+     | client          |                         |                  |
+     +-----------------+-------------------------+------------------+
+     | No restriction, | Confined to a tenant    | Not a valid      |
+     | public client   |                         | replacement      |
+     +-----------------+-------------------------+------------------+
+     | No restriction  | Not confined to a       | No restriction   |
+     |                 | tenant                  |                  |
+     +-----------------+-------------------------+------------------+
 
-                                  Table 1
+                                 Table 1
 
    The tenant rules of steps 1 and 4 of Section 5 also apply to any
    other request under the registration, including [RFC7592] read and
-   delete requests. | No restriction, confidential client | Confined to
-   a tenant | Restricted to that tenant | | No restriction, public
-   client | Confined to a tenant | Not a valid replacement | | No
-   restriction | Not confined to a tenant | No restriction |
+   delete requests.
 
 3.2.  Public Clients
 
@@ -566,7 +573,8 @@ Table of Contents
          token_endpoint_auth_method of none.
 
       *  The statement of a repeated public-client registration request
-         is earlier than the governing statement (Section 3.3).
+         is not the governing statement and has an iat no later than the
+         governing statement's (Section 3.3).
 
    unapproved_software_statement:  The statement is well formed but not
       acceptable here: its issuer is not configured, its aud excludes

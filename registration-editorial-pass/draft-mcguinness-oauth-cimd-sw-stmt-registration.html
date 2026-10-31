@@ -1361,12 +1361,24 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
               <td class="text-left" rowspan="1" colspan="1">Confined to another tenant</td>
               <td class="text-left" rowspan="1" colspan="1">Fails validation (Section 3.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>)</td>
             </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">No restriction, confidential client</td>
+              <td class="text-left" rowspan="1" colspan="1">Confined to a tenant</td>
+              <td class="text-left" rowspan="1" colspan="1">Restricted to that tenant</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">No restriction, public client</td>
+              <td class="text-left" rowspan="1" colspan="1">Confined to a tenant</td>
+              <td class="text-left" rowspan="1" colspan="1">Not a valid replacement</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">No restriction</td>
+              <td class="text-left" rowspan="1" colspan="1">Not confined to a tenant</td>
+              <td class="text-left" rowspan="1" colspan="1">No restriction</td>
+            </tr>
           </tbody>
         </table>
-<p id="section-3.1-3">The tenant rules of steps 1 and 4 of <a href="#registration-requests" class="auto internal xref">Section 5</a> also apply to any other request under the registration, including <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> read and delete requests.
-| No restriction, confidential client | Confined to a tenant | Restricted to that tenant |
-| No restriction, public client | Confined to a tenant | Not a valid replacement |
-| No restriction | Not confined to a tenant | No restriction |<a href="#section-3.1-3" class="pilcrow">¶</a></p>
+<p id="section-3.1-3">The tenant rules of steps 1 and 4 of <a href="#registration-requests" class="auto internal xref">Section 5</a> also apply to any other request under the registration, including <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> read and delete requests.<a href="#section-3.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="public-client-registration">
@@ -1600,7 +1612,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
               <p id="section-7-2.2.2.4.1">A statement delivered at the client configuration endpoint, or the statement of a repeated public-client registration request evaluated as a replacement (<a href="#repeated-registration" class="auto internal xref">Section 3.3</a>), fails the replacement rules of <a href="#revalidation" class="auto internal xref">Section 6</a> where this section assigns no other code, such as a change in whether the document declares <code>token_endpoint_auth_method</code> of <code>none</code>.<a href="#section-7-2.2.2.4.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-7-2.2.2.5">
-              <p id="section-7-2.2.2.5.1">The statement of a repeated public-client registration request is earlier than the governing statement (<a href="#repeated-registration" class="auto internal xref">Section 3.3</a>).<a href="#section-7-2.2.2.5.1" class="pilcrow">¶</a></p>
+              <p id="section-7-2.2.2.5.1">The statement of a repeated public-client registration request is not the governing statement and has an <code>iat</code> no later than the governing statement's (<a href="#repeated-registration" class="auto internal xref">Section 3.3</a>).<a href="#section-7-2.2.2.5.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
 </dd>
