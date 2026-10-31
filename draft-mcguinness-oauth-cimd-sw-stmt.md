@@ -417,7 +417,7 @@ On refresh-token use under an establishment, the authorization server:
 
 If either check fails, the server rejects the refresh. The refreshed access MUST fall within the establishment's reviewed metadata.
 
-Under this specification, refresh evaluates no statement: a statement's expiry does not end a grant it opened ({{enforcement-bounds}}), and refresh never changes the establishment's proven key or reviewed metadata. A client that needs a different key opens a new grant by presentation, as does, without {{LIFECYCLE}}, a client that needs a different review. {{LIFECYCLE}} defines replacements that keep a grant in step with later reviews and withdrawals.
+Under this specification, refresh evaluates no statement ({{enforcement-bounds}}) and never changes the establishment's proven key or reviewed metadata. A client that needs a different key, or without {{LIFECYCLE}} a different review, opens a new grant by presentation.
 
 # Error Responses {#errors}
 
@@ -737,7 +737,7 @@ The retrievals of {{retrieval}} happen before any client is registered or any us
 
 ## Expiry and Open Grants {#enforcement-bounds}
 
-Under this specification, expiry limits new admissions and ends nothing already opened: a grant lasts for the life of its refresh tokens, whatever the statement's lifetime, unless the server finds the proven key gone from the client's document ({{refresh}}). An older statement that has not expired remains admissible after a newer one narrows the review. Short statement lifetimes bound new admissions, and grant lifetimes bound continued access. A deployment that needs withdrawal, supersession, or grants that follow later reviews implements {{LIFECYCLE}}. Removing an issuer from trust configuration, or narrowing what it can attest, does not by itself end a grant or a registration ({{REGISTRATION}}) already admitted on one of its statements. A server ends them by its own means, such as revoking refresh tokens or deleting registrations.
+Under this specification, expiry limits new admissions and ends nothing already opened: a grant lasts for the life of its refresh tokens, whatever the statement's lifetime, unless the server finds the proven key gone from the client's document ({{refresh}}). An older statement that has not expired remains admissible after a newer one narrows the review. A deployment that needs withdrawal, supersession, or grants that follow later reviews implements {{LIFECYCLE}}. Removing an issuer from trust configuration, or narrowing what it can attest, does not by itself end a grant or a registration ({{REGISTRATION}}) already admitted on one of its statements. A server ends them by its own means, such as revoking refresh tokens or deleting registrations.
 
 ## Observable State {#oracle-considerations}
 
