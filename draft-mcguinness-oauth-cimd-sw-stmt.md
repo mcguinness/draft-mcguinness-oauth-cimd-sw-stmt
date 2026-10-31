@@ -691,7 +691,7 @@ An issuer ought to omit the `aud_tenant` claim from a statement whose review app
 
 Short lifetimes tighten an issuer's control and increase renewal traffic. A fleet of statements issued together expires together, so issuers ought to stagger expiries or renew ahead of the boundary.
 
-A changed document is always served before a statement over it exists. Until the new statement exists, a presentation under the earlier one fails the digest comparison ({{effective-metadata}}). The statement's lifetime bounds how stale an unobserved review can become.
+A changed document is always served before a statement over it exists, so presentations fail the digest comparison ({{effective-metadata}}) until the issuer reviews the change. A statement's lifetime bounds how long a review stands without being renewed.
 
 Instances need the most recently issued statement from a shared source rather than a copy fixed at build or install time, because the document can change ({{effective-metadata}}).
 
@@ -703,7 +703,7 @@ The security considerations of {{CIMD}} and Section 5 of {{RFC7591}} apply.
 
 A statement binds an issuer's review to the octets of a CIMD, which describes an OAuth client configuration. It does not bind the software's code, dependencies, or behavior. Software can change while its document stays the same, and the statement remains acceptable until it expires ({{enforcement-bounds}}) or, under {{LIFECYCLE}}, is withdrawn. Assurance about the software itself rests on the issuer's review process. Any change to the document's octets, including one that changes no metadata value, makes statements over the earlier octets fail the digest comparison ({{effective-metadata}}). The digest covers a URL the document carries, such as `logo_uri`, but not the content served at it, which can change after review.
 
-The following table states what admission under this specification does and does not establish:
+The following table states what admission on a statement does and does not establish:
 
 | Property | Established |
 | --- | --- |
