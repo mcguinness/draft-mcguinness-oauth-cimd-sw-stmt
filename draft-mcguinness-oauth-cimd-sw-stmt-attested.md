@@ -171,7 +171,7 @@ The following non-normative sequence summarizes admission under this profile:
 
 This specification uses terminology from {{RFC6749}}, {{RFC7591}}, {{CIMD}}, and {{ABCA}}, the terms defined in Section 2 of {{STATEMENT}}, and the terms defined in {{LIFECYCLE}}. An installation is a Client Instance as defined by {{ABCA}}.
 
-This specification depends on {{LIFECYCLE}}, because continuous review and replacement are part of its security model: every refresh requires a current statement, refusal records are enforced at code redemption and refresh, and a replacement statement keeps a grant in step with a later review ({{refresh}}, {{withdrawal}}).
+This specification depends on {{LIFECYCLE}}, because continuous review and replacement are part of its security model: every refresh requires a current statement, refusal records are enforced at code redemption and refresh, and a replacement statement keeps a grant in step with a later review ({{redemption}}, {{refresh}}).
 
 This specification defines the following terms:
 
@@ -364,7 +364,7 @@ The server authenticates the resource owner and applies authorization policy ind
 
 The client sends `grant_type=authorization_code`, the code, the same `client_id` and `redirect_uri`, and the PKCE `code_verifier`. It MUST authenticate with a current instance attestation and a fresh proof under the proven key. It does not send the `software_statement` parameter, which {{STATEMENT}} prohibits on code redemption.
 
-Before issuing tokens, the server MUST verify the code and PKCE binding and every fixed establishment value in {{establishment}}. It MUST re-evaluate both trust decisions, require the recorded statement to be unexpired and not refused, and confirm that the current CIMD still matches its recorded digest and meets {{client-metadata}}. Retrieval and cache reuse use the reuse bounds of {{STATEMENT}}. The attestation MUST match that digest and not be past its `exp`.
+Before issuing tokens, the server MUST verify the code and PKCE binding and every fixed establishment value in {{establishment}}. It MUST re-evaluate both trust decisions, require the recorded statement to be unexpired and not refused, and confirm that the current CIMD still matches its recorded digest and meets {{client-metadata}}. Retrieval and cache reuse use the reuse bounds of {{STATEMENT}}. The attestation MUST match that digest and not be past its `exp`. A server using a statement withdrawal mechanism SHOULD consult it at code redemption, within that mechanism's freshness rules, as Section 5.1 of {{LIFECYCLE}} provides for refresh.
 
 If the metadata changed or the recorded statement needs replacement, the client MUST start a new PAR transaction; code redemption cannot replace the governing review. A raised `iat` floor alone does not invalidate a code already bound to an acceptable recorded statement.
 
@@ -372,25 +372,11 @@ The server MUST issue tokens only within the user's authorization, tenant policy
 
 # Refresh {#refresh}
 
-Every refresh request MUST carry the original client identifier, the refresh token, a current instance attestation, and a fresh DPoP proof under the establishment's proven key. The server MUST authenticate the instance, verify the refresh-token binding, and enforce the fixed values of {{establishment}} before accepting any replacement statement.
+Every refresh request MUST carry the original `client_id` and authenticate under {{proof}} with a current instance attestation and a fresh proof under the establishment's proven key. In place of the document-key check of Section 5.7.1 of {{STATEMENT}}, the server MUST complete the checks of {{attestation-validation}}, verify the refresh-token binding, and enforce the fixed values of {{establishment}} before it considers any replacement.
 
-On every refresh the server MUST require a current software statement and re-evaluate its issuer trust decision. This strengthens the statement-currency check of {{LIFECYCLE}}, which is recommended once the recorded statement expires. It MUST also verify that the currently served document matches the applicable statement and attestation digests and continues to meet {{client-metadata}}. A document that no longer selects this profile or meets {{client-metadata}}, for example one that omits the `software_statement_instance_binding` member or names another authentication method, fails the refresh. The refresh is then rejected with `invalid_grant` without seeking a replacement, as {{STATEMENT}} rejects a refresh whose document no longer carries the proven key.
+On every refresh, the server MUST require a current software statement and re-evaluate its issuer trust decision. It MUST also verify that the currently served document matches the applicable statement and attestation digests and meets {{client-metadata}}. If the document fails {{client-metadata}}, for example by omitting the `software_statement_instance_binding` member or naming another authentication method, the refresh is rejected with `invalid_grant` without seeking a replacement.
 
-The recorded statement can remain applicable while it is unexpired, not refused, and matches the current document, even if a newer statement has raised the `iat` floor for new admissions. If it no longer qualifies, a replacement is required. The client can present a replacement in `software_statement`, or a server that supports pulled statements pulls one, however the establishment was created, as {{LIFECYCLE}} specifies.
-
-A replacement MUST satisfy the replacement validation of {{LIFECYCLE}}, including identical statement `iss` and `sub` claims, a later `iat` claim, and current metadata. Its decision MUST apply to the establishment's recorded tenant and runtime use. Instead of authorizing a document key or preserving the public-client conditions that {{LIFECYCLE}} requires of a replacement, the replacement MUST preserve this profile and authorize the establishment's proven key through a current attestation from the recorded attester under the recorded policy. The replacement and attestation MUST name the same current metadata digest. A replacement cannot expand access beyond the original grant, resource-owner authorization, or current server policy.
-
-On success, the server MUST apply the replacement to the refreshed grant alone, as {{LIFECYCLE}} does, atomically updating that grant's recorded statement, metadata, digest, and trust decisions under the concurrency rules of {{LIFECYCLE}}. A failed attempt MUST NOT replace the recorded binding or rotate a refresh token. This does not prevent the server from recording a withdrawal or trust removal learned during processing, or applying independent refresh-token replay protections.
-
-Attestation renewal for the proven key is not key rotation and does not reset the `iat` floor or an establishment count.
-
-# Withdrawal and Trust Changes {#withdrawal}
-
-A known refusal record for the software statement is enforced as {{LIFECYCLE}} requires. A current replacement can restore continuation only under {{refresh}}. A server using a statement withdrawal mechanism SHOULD consult it at code redemption, within that mechanism's freshness rules, as {{LIFECYCLE}} provides for refresh. A failure to retrieve metadata, statements or their status, or trust updates MUST NOT extend a recorded expiry or remove a refusal.
-
-Because {{attestation-validation}} checks current attester trust and local denial rules at each pushed authorization request, code redemption, and refresh, removing an attester's authorization for this client and tenant, removing the policy, or denying the instance key prevents further use of the affected binding. A fresh attestation does not override those decisions. A server that cannot refresh trust data remains bound by the maximum reuse period of {{trust}}.
-
-This specification defines no interoperable attestation or instance revocation protocol. Without an instance revocation mechanism, an instance attestation's `exp` bounds acceptance of evidence that has become stale without the server learning of it. Withdrawal of a review, removal of trust, and denial of an instance key do not themselves revoke access tokens already issued ({{revocation-practice}}).
+A replacement (Section 5.2 of {{LIFECYCLE}}) is needed when the recorded statement is expired, refused, or no longer matches the served document. In place of the key bullet of step 3 of Section 5.2 of {{LIFECYCLE}}, a current attestation of the proven key, from the recorded attester under the recorded policy, MUST name the replacement's metadata digest.
 
 # Exceptions to Software Statement Processing {#core-exceptions}
 
@@ -607,11 +593,11 @@ This section gives guidance to operators and issuers. It adds no requirement.
 
 ## Revocation and Enforcement Latency {#revocation-practice}
 
-A deployment can use independently established revocation mechanisms or local denial lists. A deployment that requires prompt enforcement needs short token lifetimes or independent token revocation, because withdrawal of a review, removal of trust, and denial of an instance key do not revoke access tokens already issued ({{withdrawal}}).
+This specification defines no attestation or instance revocation protocol. Without one, an instance attestation's `exp` bounds acceptance of evidence that has become stale without the server learning of it. A deployment can use independently established revocation mechanisms or local denial lists. A deployment that requires prompt enforcement needs short token lifetimes or independent token revocation, because withdrawal of a review (Section 3 of {{LIFECYCLE}}), removal of trust, and denial of an instance key do not revoke access tokens already issued.
 
 ## Attester Enrollment {#attester-practice}
 
-An attester ought to limit enrollment and renewal so that one approved installation cannot obtain unlimited keys to evade per-key controls, such as denial of an instance key ({{withdrawal}}).
+An attester ought to limit enrollment and renewal so that one approved installation cannot obtain unlimited keys to evade per-key controls, such as denial of an instance key ({{attestation-validation}}).
 
 ## Evidence Age and Token Lifetime {#lifetime-practice}
 
@@ -649,9 +635,9 @@ Attester authorization is scoped independently to client namespaces and tenants.
 
 ## Freshness and Availability
 
-Short effective lifetimes limit stale evidence but make attester availability important. The maximum evidence age ({{attestation}}), the trust-data reuse bound ({{trust}}), and {{withdrawal}} limit how long stale evidence or trust data is accepted. A fresh proof demonstrates current access to a key, not that software was re-evaluated at proof time.
+Short effective lifetimes limit stale evidence but make attester availability important. The maximum evidence age ({{attestation}}) and the trust-data reuse bound ({{trust}}) limit how long stale evidence or trust data is accepted. A fresh proof demonstrates current access to a key, not that software was re-evaluated at proof time.
 
-An access token cannot outlive the attestation accepted when it was issued ({{redemption}}), but it can outlive a review withdrawn or attester trust removed after issuance ({{withdrawal}}).
+An access token cannot outlive the attestation accepted when it was issued ({{redemption}}), but it can outlive a review withdrawn or attester trust removed after issuance ({{revocation-practice}}).
 
 Metadata digest binding can require coordinated publication of a new document, review, and attestation ({{operations}}). During an incomplete transition a request fails: {{STATEMENT}} does not treat the changed document as reviewed, and this profile does not fall back ({{par}}).
 
