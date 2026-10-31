@@ -65,7 +65,7 @@ informative:
 
 --- abstract
 
-A software statement for a Client ID Metadata Document (CIMD) records a trusted issuer's review of a client's metadata. The base specification ends no grant at a statement's expiry, keeps an older unexpired statement admissible after a newer one is issued, and evaluates no statement on refresh. This specification lets an issuer withdraw a statement, and an authorization server that learns of it keeps a refusal record. An `iat` floor supersedes an issuer's earlier statements about the same software once a server accepts a later one. Refresh is refused for a grant whose statement is withdrawn or, by recommendation, expired, unless a later statement replaces it. A profile of Token Status List is the withdrawal mechanism defined here, and an optional Shared Signals event prompts servers to check status promptly.
+A companion specification defines a software statement for a Client ID Metadata Document (CIMD), which records a trusted issuer's review of a client's metadata. That specification ends no grant at a statement's expiry, keeps an older unexpired statement admissible after a newer one is issued, and evaluates no statement on refresh. This specification lets an issuer withdraw a statement, and an authorization server that learns of it keeps a refusal record. An `iat` floor supersedes an issuer's earlier statements about the same software once a server accepts a later one. Refresh is refused for a grant whose statement is withdrawn or, by recommendation, expired, unless a later statement replaces it. A profile of Token Status List is the withdrawal mechanism defined here, and an optional Shared Signals event prompts servers to check status promptly.
 
 --- middle
 
@@ -79,7 +79,7 @@ A trusting authorization server that implements this specification applies all o
 
 {{token-status-list}} profiles Token Status List {{STATUSLIST}} as the withdrawal mechanism of this specification: an issuer withdraws a statement by setting its status, and a trusting authorization server learns of it when it next resolves the list. {{shared-signals}} defines an optional Shared Signals Framework {{SSF}} event, not itself a withdrawal mechanism, that prompts the trusting authorization servers that have configured an issuer to resolve a changed status promptly.
 
-{{STATEMENT}} does not depend on this specification. Registrations under {{REGISTRATION}} advance the `iat` floor, and a refusal record ends a registration's validity at the server that holds it. This specification defines no new endpoint.
+Registrations under {{REGISTRATION}} advance the `iat` floor, and a refusal record ends a registration's validity at the server that holds it. This specification defines no new endpoint. It extends {{STATEMENT}}, which does not depend on it.
 
 # Conventions and Definitions
 
@@ -339,7 +339,7 @@ A receiver ought to alert on stream loss rather than assume quiescence.
 
 # Security Considerations
 
-The security considerations of {{STATEMENT}}, {{STATUSLIST}}, {{SSF}}, and {{RFC8417}} apply.
+The security considerations of Section 13 of {{STATEMENT}}, {{STATUSLIST}}, {{SSF}}, and {{RFC8417}} apply.
 
 ## Withdrawal and Open Grants {#open-grants}
 
@@ -367,7 +367,7 @@ The absence of events looks the same on a healthy stream and a suppressed one. P
 
 # Privacy Considerations {#privacy-considerations}
 
-The privacy considerations of {{STATEMENT}}, {{STATUSLIST}}, {{SSF}}, and {{RFC8417}} apply.
+The privacy considerations of Section 14 of {{STATEMENT}}, {{STATUSLIST}}, {{SSF}}, and {{RFC8417}} apply.
 
 Because {{STATUSLIST}} aggregates many statements into one list, a retrieval tells the issuer only that some trusting authorization server is checking. Retrieving the list on its own schedule ({{status-resolution}}) keeps the server's request timing from disclosing the client population it serves. A retrieval that an event prompts shows the issuer that the receiver holds a statement or a cached status for the event's subject.
 
