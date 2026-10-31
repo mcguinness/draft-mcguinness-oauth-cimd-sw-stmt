@@ -264,9 +264,10 @@ A rejection this specification defines, at a client registration endpoint or at 
 `temporarily_unavailable`:
 : A retrieval the request needs did not complete (Section 5.3 of {{STATEMENT}}).
 
-Rejections at other endpoints use the error responses of Section 6 of {{STATEMENT}}. At the token and pushed authorization request endpoints, a request that fails the authentication of step 2 of {{registration-requests}} is rejected with `invalid_client`.
+Rejections at other endpoints use the error responses of Section 6 of {{STATEMENT}}. At the token and pushed authorization request endpoints, a request that fails the authentication of step 2 of {{registration-requests}} is rejected with `invalid_client`. Subject to the order of Section 6 of {{STATEMENT}}, a token, pushed authorization, or authorization request is rejected with `statement_required` (Section 6.1 of {{STATEMENT}}) if:
 
-A token, pushed authorization, or authorization request rejected because its registration has ceased to be valid or under the required-issuer rule ({{registration-validity}}), or because its delivered statement is earlier than the governing statement or fails the replacement rules ({{revalidation}}), is rejected, subject to the order of Section 6 of {{STATEMENT}}, with `statement_required` (Section 6.1 of {{STATEMENT}}), or with `temporarily_unavailable` if a retrieval needed to check a replacement did not complete (Section 5.3 of {{STATEMENT}}). At the authorization endpoint, the error is returned in the authorization error response only after the request's `redirect_uri` is validated against the registration (Section 4.1.2.1 of {{RFC6749}}).
+* its registration has ceased to be valid, or the required-issuer rule rejects it ({{registration-validity}}), or
+* its delivered statement is earlier than the governing statement or fails the replacement rules ({{revalidation}}).
 
 Rejections of a registration management request for other reasons use the responses {{RFC7592}} specifies.
 
