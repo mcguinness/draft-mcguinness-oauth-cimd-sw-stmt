@@ -224,11 +224,18 @@ Rejections outside a registration endpoint use {{errors}}.
 
 # Issuer Trust {#issuer-trust}
 
-A trusting authorization server accepts statements only from issuers in its trust configuration, which is established out of band. This specification defines no in-band issuer discovery or trust decision. The configuration, not the signature alone, defines acceptance: a trusting authorization server MUST derive trust from it and MUST NOT derive it from an `iss`, `jku`, `x5u`, or other key-location value carried in a presented statement.
+A trusting authorization server MUST derive issuer trust from its trust configuration, which is established out of band, and MUST NOT derive it from an `iss`, `jku`, `x5u`, or other key-location value carried in a statement. This specification defines no in-band issuer discovery or trust decision.
 
-For each trusted issuer, the configuration records at least the exact `iss` value the server accepts, the signing algorithms it accepts from the issuer, the client identifier namespaces the issuer can attest through `sub`, the audience identifiers the issuer can name, any tenant to which the server confines the issuer's decisions, and the maximum statement lifetime the server honors, which sets each statement's effective expiry.
+For each trusted issuer, the configuration records at least the following:
 
-The issuer's statement key set is the JWK Set at the `software_statement_jwks_uri` in its authorization server metadata ({{authorization-server-metadata}}), discovered from the configured `iss` ({{RFC8414}}), or, for an issuer that is not an authorization server, at a statement key set URL in the configuration, and never one at a `jwks_uri` metadata value. Its URL MUST use the `https` scheme, and a trusting authorization server MUST validate the certificate of the host serving it. The issuer MUST NOT publish a key of its statement key set in any other JWK Set, or sign anything other than statements under this specification with those keys. A trusting authorization server reuses a retrieved statement key set only as {{retrieval}} permits.
+* The exact `iss` value the server accepts.
+* The signing algorithms it accepts from the issuer.
+* The client identifier namespaces the issuer can attest through `sub`.
+* The audience identifiers the issuer can name.
+* Any tenant to which the server confines the issuer's decisions.
+* The maximum statement lifetime the server honors, which sets each statement's effective expiry.
+
+The issuer's statement key set is the JWK Set at the `software_statement_jwks_uri` in its authorization server metadata ({{authorization-server-metadata}}), discovered from the configured `iss` ({{RFC8414}}). For an issuer that is not an authorization server, it is the JWK Set at a statement key set URL in the configuration. It is never the JWK Set at a `jwks_uri` metadata value. Its URL MUST use the `https` scheme, and a trusting authorization server MUST validate the certificate of the host serving it. The issuer MUST NOT publish a key of its statement key set in any other JWK Set, or sign anything other than statements under this specification with those keys. A trusting authorization server reuses a retrieved statement key set only as {{retrieval}} permits.
 
 The configuration can also make an issuer a required issuer for client identifier namespaces in one of the server's tenants ({{trust-configuration}}). The server then MUST NOT admit software in a covered namespace in that tenant without a current statement from the required issuer, whatever its policy for CIMD clients it has not reviewed. Without this rule, a holder could evade the required issuer's decision by withholding that issuer's statement or by presenting or publishing only a broader one, such as a marketplace listing. A required issuer configured for software whose presentations are review-only ({{review-only}}) excludes that software from the tenant, and the server rejects a request for such software there.
 
