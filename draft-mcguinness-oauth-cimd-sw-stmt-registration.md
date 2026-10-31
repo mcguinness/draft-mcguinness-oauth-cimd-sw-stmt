@@ -243,7 +243,7 @@ A rejection this specification defines, at a client registration endpoint or at 
   * The statement of a repeated public-client registration request is not the governing statement and has an `iat` no later than the governing statement's ({{repeated-registration}}).
 
 `unapproved_software_statement`:
-: The statement is well formed but not acceptable here: its issuer is not configured, its `aud` excludes this server, its `sub` is outside the client identifier namespaces the issuer can attest, its `aud_tenant` is not this request's tenant or is absent when required, its issuer is confined to another tenant, a required issuer covers its `sub` in this request's tenant and it is from another issuer ({{dcr-presentation}}), or its `statement_uses` excludes this use. This code is also used if a statement this server requires is absent from a registration request, and for a repeated registration request that the server's policy refuses ({{repeated-registration}}).
+: The statement is well formed but not acceptable here: its issuer is not configured, its `aud` excludes this server, its `sub` is outside the client identifier namespaces the issuer can attest, its `aud_tenant` is not this request's tenant or is absent when required, its issuer is confined to another tenant, or its `statement_uses` excludes this use. This code is also used if a statement this server requires is absent from a registration request, if {{dcr-presentation}} forbids creating the registration because a required issuer covers the statement's `sub` and the statement is from another issuer, and for a repeated registration request that the server's policy refuses ({{repeated-registration}}).
 
 `invalid_client_metadata`:
 : Any of the following holds for the reviewed document:
