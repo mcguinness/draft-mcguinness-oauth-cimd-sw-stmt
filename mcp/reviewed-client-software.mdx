@@ -19,7 +19,7 @@ A review answers a question about software: who vouched for this client, and aga
 The benefits:
 
 - For MCP server operators, a client a trusted party has reviewed can be admitted without per-client onboarding, and a change to its document after review is detected rather than silently accepted.
-- For enterprise administrators, a security team, a client catalog, or a server vendor's marketplace can vouch for agent software once, and every MCP authorization server that trusts that reviewer honours the decision until it expires or, at a server implementing the lifecycle extension, is withdrawn.
+- For enterprise administrators, a security team, a client catalog, or a server vendor's marketplace can vouch for agent software once, and every MCP authorization server that trusts that reviewer honors the decision until it expires or, at a server implementing the lifecycle extension, is withdrawn.
 - For MCP client publishers, being reviewed requires publishing statements at a URL the client's own metadata document names. Most MCP clients change nothing; a public client with `https` redirection URIs that wants reviewed admission adds a DPoP key (Section 3.3).
 
 ### 1.2 Roles and Terminology
@@ -148,7 +148,7 @@ That request is one this profile covers. The MCP Authorization Server validates 
 
 Neither carries what the other does. Where the identity provider mediates every grant and an organization only wants to allow or block clients, it can do so in identity provider policy, and a statement adds nothing it needs. A statement earns its place where the reviewer is not the identity provider, such as a client catalog or a server vendor's marketplace, or where a client acts with no user present and there is no ID-JAG.
 
-On a `jwt-bearer` request a confidential MCP Client is bound by authenticating with `private_key_jwt` using a key its document carries. A public client on that request has nothing to bind the review to, so its pulled statement is review-only (Section 4.4) and a presented one is rejected. The Identity Assertion JWT Authorization Grant requires the ID-JAG's `client_id` claim to match the authenticated client making the request ([Section 4.4.1](https://www.ietf.org/archive/id/draft-ietf-oauth-identity-assertion-authz-grant-04.html#section-4.4.1)), so for an MCP Client identified by its metadata document URL, the ID-JAG, the request's `client_id`, and the statement's `sub` all name that URL. That holds where the identity provider issues the ID-JAG with the metadata document URL as `client_id`, which is the identity provider's configuration rather than a consequence of this profile; an ID-JAG naming the client otherwise fails as that specification requires. Where the server's policy requires both, both checks **MUST** pass, and neither substitutes for the other. A server with a single endpoint takes the tenant from the validated ID-JAG, and that one tenant drives the statement's `aud_tenant` check, the required-issuer lookup, and the token's scope; any disagreement rejects the request.
+On a `jwt-bearer` request a confidential MCP Client is bound by authenticating with `private_key_jwt` using a key its document carries. A public client on that request has nothing to bind the review to, so its pulled statement is review-only (Section 4.4) and a presented one is rejected. The Identity Assertion JWT Authorization Grant requires the ID-JAG's `client_id` claim to match the authenticated client making the request ([Section 4.4.1](https://www.ietf.org/archive/id/draft-ietf-oauth-identity-assertion-authz-grant-06.html#section-4.4.1)), so for an MCP Client identified by its metadata document URL, the ID-JAG, the request's `client_id`, and the statement's `sub` all name that URL. That holds where the identity provider issues the ID-JAG with the metadata document URL as `client_id`, which is the identity provider's configuration rather than a consequence of this profile; an ID-JAG naming the client otherwise fails as that specification requires. Where the server's policy requires both, both checks **MUST** pass, and neither substitutes for the other. A server with a single endpoint takes the tenant from the validated ID-JAG, and that one tenant drives the statement's `aud_tenant` check, the required-issuer lookup, and the token's scope; any disagreement rejects the request.
 
 ## 6. Discovery
 
@@ -188,7 +188,7 @@ The response from `software_statements_uri`:
 }
 ```
 
-The decoded payload of that statement. It names no `aud` because it is a catalog listing, honoured wherever the catalog is trusted, and it carries no `statement_uses`, so it is usable only by presentation and a copy cannot register the software elsewhere:
+The decoded payload of that statement. It names no `aud` because it is a catalog listing, honored wherever the catalog is trusted, and it carries no `statement_uses`, so it is usable only by presentation and a copy cannot register the software elsewhere:
 
 ```json
 {
