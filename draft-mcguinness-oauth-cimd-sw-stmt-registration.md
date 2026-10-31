@@ -106,11 +106,10 @@ The reviewed document takes the role that {{RFC7591}} gives a statement's own va
 
 * MUST obtain the CIMD at the statement's `sub` claim and compare its digest with the `cimd_digest` claim as Section 5.2 of {{STATEMENT}} requires, rejecting the request if retrieval does not complete or the digests differ, and MUST derive the registered metadata from the octets whose digest matched.
 * MUST validate the document as {{CIMD}} requires, including that its `client_id` member matches the statement's `sub` claim.
-* MUST take every client metadata value from that document, and MUST NOT take any client metadata value from the request, or from any {{RFC7592}} update request for the registration, whether or not the document carries the corresponding member:
-  * The registration's metadata changes only by re-derivation from the document a replacement statement reviews ({{revalidation}}).
-  * A request MAY carry metadata, as {{RFC7591}} clients do, but it does not contribute to the registration.
-  * The registered `client_id` is assigned as {{RFC7591}} provides, and the document's own `client_id` member is the URL recorded as `sub`.
-  * A member the document omits, other than `token_endpoint_auth_method` (rejected below), takes its {{RFC7591}} default.
+* MUST take every client metadata value except `client_id` from that document.
+* MUST NOT take any client metadata value from the request, or from any {{RFC7592}} update request for the registration, whether or not the document carries the corresponding member.
+
+Metadata in a registration or update request is ignored. The registered `client_id` is assigned as {{RFC7591}} provides, and the document's own `client_id` member is the URL recorded as the governing statement's `sub`. A member the document omits, other than `token_endpoint_auth_method` (rejected below), takes its {{RFC7591}} default. The registration's metadata changes only when a replacement is applied ({{revalidation}}).
 
 The authorization server MUST reject the registration, or a replacement ({{revalidation}}), if any of the following holds:
 
