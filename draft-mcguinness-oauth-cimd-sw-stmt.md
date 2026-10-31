@@ -754,7 +754,7 @@ Retrieving the document tells its host that the server is resolving the client. 
 
 ## OAuth Parameters Registry
 
-This specification requests registration of the `software_statement` parameter in the IANA "OAuth Parameters" registry established by {{RFC6749}}, for runtime presentation and statement delivery of the artifact defined by {{RFC7591}}:
+This specification requests registration of the `software_statement` parameter in the IANA "OAuth Parameters" registry established by {{RFC6749}}:
 
 Parameter Name:
 : `software_statement`
@@ -821,10 +821,6 @@ Author:
 
 Change controller:
 : IETF
-
-## Claims Defined Elsewhere
-
-This specification uses one claim it does not define: `aud_tenant`, defined and registered by {{IDJAG}}. This section requests no IANA action.
 
 ## JSON Web Token Claims Registry
 
@@ -911,10 +907,10 @@ Specification Document(s):
 This specification requests registration of the following values in the IANA "OAuth Authorization Server Metadata" registry established by {{RFC8414}}:
 
 Metadata Name:
-: `software_statement_signing_alg_values_supported`
+: `software_statement_jwks_uri`
 
 Metadata Description:
-: JSON array containing the asymmetric JWS algorithms supported by the authorization server for signing software statements.
+: URL of the JWK Set containing only the keys with which the authorization server signs software statements.
 
 Change Controller:
 : IETF
@@ -923,10 +919,10 @@ Specification Document(s):
 : This specification, {{authorization-server-metadata}}
 
 Metadata Name:
-: `software_statement_jwks_uri`
+: `software_statement_signing_alg_values_supported`
 
 Metadata Description:
-: URL of the JWK Set containing only the keys with which the authorization server signs software statements.
+: JSON array containing the asymmetric JWS algorithms supported by the authorization server for signing software statements.
 
 Change Controller:
 : IETF
