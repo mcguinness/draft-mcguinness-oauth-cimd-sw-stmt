@@ -73,11 +73,6 @@ informative:
     title: "Protecting keys with the Secure Enclave"
     author:
       - org: Apple Inc.
-  APPLE-KEYCHAIN:
-    target: https://developer.apple.com/documentation/technotes/tn3137-on-mac-keychains
-    title: "TN3137: On Mac keychain APIs and implementations"
-    author:
-      - org: Apple Inc.
   APPLE-XPC:
     target: https://developer.apple.com/documentation/foundation/nsxpcconnection/setcodesigningrequirement(_:)
     title: "setCodeSigningRequirement(_:)"
@@ -88,34 +83,9 @@ informative:
     title: "Hardened Runtime"
     author:
       - org: Apple Inc.
-  APPLE-LIBVAL:
-    target: https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.security.cs.disable-library-validation
-    title: "Disable Library Validation Entitlement"
-    author:
-      - org: Apple Inc.
-  APPLE-DYLD:
-    target: https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.security.cs.allow-dyld-environment-variables
-    title: "Allow DYLD environment variables entitlement"
-    author:
-      - org: Apple Inc.
-  APPLE-DEBUGGER:
-    target: https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.security.cs.debugger
-    title: "Debugging tool entitlement"
-    author:
-      - org: Apple Inc.
-  APPLE-MDA:
-    target: https://support.apple.com/guide/deployment/managed-device-attestation-dep28afbde6a/web
-    title: "Managed Device Attestation for Apple devices"
-    author:
-      - org: Apple Inc.
   APPLE-APPATTEST:
     target: https://developer.apple.com/documentation/devicecheck/establishing-your-app-s-integrity
     title: "Establishing your app's integrity"
-    author:
-      - org: Apple Inc.
-  APPLE-APPCONFIG:
-    target: https://developer.apple.com/documentation/devicemanagement/appmanaged
-    title: "AppManaged"
     author:
       - org: Apple Inc.
   APPLE-WWDC26:
@@ -762,25 +732,25 @@ An implementation needs to address changes between checking software and using t
 This example uses macOS 27 or later on Apple silicon, with a launcher application for which App Attest is available {{APPLE-WWDC26}}.
 
 Software identity:
-: The publisher signs each release with an Apple-issued developer certificate, under the hardened runtime {{APPLE-RUNTIME}} and one signing identifier. A manifest served from the client identifier URL's origin and naming the publisher's Team ID and that identifier covers each such release. A manifest naming code directory hashes covers only the listed builds.
+: The publisher signs each release with an Apple-issued developer certificate and one signing identifier. A manifest served from the client identifier URL's origin names the publisher's Team ID and that identifier, covering each such release.
 
 Key isolation:
-: The launcher is a per-user application whose provisioning profile authorizes a data protection keychain access group for the launcher alone. macOS grants such groups only through entitlements a provisioning profile authorizes, and only in a user context {{APPLE-KEYCHAIN}}. The launcher creates a P-256 instance key in the Secure Enclave, from which key material cannot be transferred {{APPLE-ENCLAVE}}, and keeps it under that access group, so the client cannot use the key directly.
+: The launcher creates a P-256 key in the Secure Enclave, from which key material cannot be transferred {{APPLE-ENCLAVE}}. It keeps the key in a keychain access group that only its own provisioning profile authorizes, so the client cannot use the key directly.
 
 Caller identification:
-: The client connects to the launcher over XPC. The launcher sets a code-signing requirement on the connection that requires an Apple-issued certificate chain, the publisher's Team ID, and the client's signing identifier, and the system invalidates a connection whose peer does not satisfy it {{APPLE-XPC}}. The launcher never relies on a process ID or a reported path.
+: The client connects to the launcher over XPC, and the launcher sets a code-signing requirement naming the publisher's Team ID and the client's signing identifier, which the system enforces on the connection {{APPLE-XPC}}. The launcher never relies on a process ID or a reported path.
 
 Code injection:
-: The evidence policy requires that the client's signature carry no entitlement that disables library validation {{APPLE-LIBVAL}}, lets the dynamic linker read `DYLD_` variables {{APPLE-DYLD}}, or lets a debugger obtain the client's task port (`get-task-allow`, {{APPLE-DEBUGGER}}). The client then loads only libraries signed by Apple or by its own team.
+: The client runs under the hardened runtime {{APPLE-RUNTIME}}, and the evidence policy requires that its signature carry no entitlement that disables library validation, allows `DYLD_` environment variables, or permits debugging. The client then loads only libraries signed by Apple or by its own team.
 
 Launcher authentication:
-: Managed Device Attestation shows that the device is a genuine Apple device the organization manages {{APPLE-MDA}}, not which program is reporting. The launcher therefore registers an App Attest key, which Apple certifies as belonging to the launcher {{APPLE-APPATTEST}}. To tie that key to the managed device, the launcher returns with the attestation a single-use secret that the device management service delivered through managed app configuration, which macOS applies only to an application with a matching code signature {{APPLE-APPCONFIG}}. Each later report, carrying the instance public key and the client's signing identity, bears an App Attest assertion.
+: The launcher registers an App Attest key, which Apple certifies as belonging to the launcher {{APPLE-APPATTEST}}, and ties it to the managed device with a single-use secret delivered through managed app configuration. Each later report, carrying the installation's public key and the client's signing identity, bears an App Attest assertion.
 
 Evidence and renewal:
-: No Apple attestation covers the instance key, so the enterprise service relies on the authenticated launcher's report that the key is in the Secure Enclave and usable only by the launcher. The launcher acts as the signing broker of {{signing-brokers}}. Before the maximum evidence age expires, it re-checks the device's management state and the client's signature and obtains an attestation on that new evidence.
+: No Apple attestation covers the installation's key, so the enterprise service relies on the authenticated launcher's report that the key is in the Secure Enclave and usable only by the launcher. Before the maximum evidence age expires, the launcher re-checks the device's management state and the client's signature and obtains an attestation on that new evidence.
 
 Unsupported case:
-: A script run by a signed interpreter with unrestricted imports is not covered. The verified signature is the interpreter's, and library validation does not constrain the scripts and modules it reads. Such a client remains review-only under {{STATEMENT}}.
+: A script run by a signed interpreter with unrestricted imports is not covered, because the verified signature is the interpreter's. Such a client remains review-only under Section 5.6.3 of {{STATEMENT}}.
 
 # Acknowledgments
 {:numbered="false"}
