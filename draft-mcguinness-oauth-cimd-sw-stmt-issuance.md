@@ -111,7 +111,7 @@ The client presents the statement at registration or at runtime, or publishes it
 
 {{STATEMENT}} profiles that statement to carry no client metadata and instead vouch for the exact octets of a Client ID Metadata Document (CIMD), and defines its validation and consumption. This specification defines how a client obtains one, through OAuth token exchange ({{token-exchange-profile}}) or a redirect flow ({{authorization-request}}). An issuer whose review cannot complete within a request can defer its response under {{DTR}}.
 
-A statement makes one issuer's decision portable to the authorization servers in its audience that trust the issuer ({{STATEMENT}}). If the trust decision is local to one authorization server, an initial access token {{RFC7591}}, pre-registration {{CIMD}}, or approval-based registration {{APPROVAL-DCR}} can establish the client directly.
+A statement makes one issuer's decision portable to the authorization servers in its audience that trust the issuer ({{STATEMENT}}). If the trust decision is local to one authorization server, an {{RFC7591}} initial access token for registration, pre-registration {{CIMD}}, or approval-based registration {{APPROVAL-DCR}} can establish the client directly.
 
 Approval workflow, approver identity, external approval integration, acceptance of any particular issuer, and issuer discovery are out of scope. {{STATEMENT}} does not depend on this specification.
 
@@ -258,7 +258,7 @@ The client sends a token exchange request as defined in Section 2.1 of {{RFC8693
 `subject_token` and `subject_token_type`:
 : REQUIRED. One of the following:
 
-  * **First issuance.** An initial access token, presented with a `subject_token_type` of `urn:ietf:params:oauth:token-type:access_token`: an authorization credential issued out of band by this authorization server that pre-authorizes software statement issuance, analogous to the initial access token of {{RFC7591}}. The credential itself is deployment-defined.
+  * **First issuance.** An initial access token, presented with a `subject_token_type` of `urn:ietf:params:oauth:token-type:access_token`: an authorization credential issued out of band by this authorization server that pre-authorizes software statement issuance, analogous to the initial access token of {{RFC7591}} ({{initial-access-tokens}}). The credential itself is deployment-defined.
   * **Renewal.** A software statement this authorization server previously issued with a `sub` claim equal to the request's `client_id`, presented with a `subject_token_type` of `urn:ietf:params:oauth:token-type:software-statement` ({{renewal}}).
 
 `client_id`:
@@ -274,17 +274,7 @@ The request MUST NOT contain the `actor_token` or `actor_token_type` parameters,
 
 The client authenticates, and a public client constrains the request, as described in {{client-identity}}. An assertion-based method such as `private_key_jwt` {{RFC7521}} {{RFC7523}} serves if the document specifies one.
 
-An initial access token presented under this profile MUST be time limited, be limited to the issuer, be bound to an exact client identifier URL or an explicitly authorized client identifier namespace, and, if opaque, have at least 128 bits of entropy.
-
-The initial access token is subject to the following:
-
-* A reusable one MUST be sender-constrained to a client key, for example through DPoP or mutual TLS, and the authorization server MUST verify that binding against the key the exchange request proves.
-* A bearer one MUST be single-use.
-* The authorization server MUST enforce every restriction the credential carries and MUST prevent replay beyond its permitted number of uses.
-
-A DPoP proof on the exchange constrains any resulting deferral, and it protects the subject token only if that token is bound to the proof's key. {{iat-practice}} covers protecting the token in transit and at rest.
-
-A use of an initial access token is consumed when the authorization server commits to an outcome: issuing a statement, creating a deferral, or denying issuance. Concurrent presentations of a single-use credential MUST NOT both be committed.
+A DPoP proof on the exchange constrains any resulting deferral, and it protects the subject token only if that token is bound to the proof's key ({{te-considerations}}).
 
 The authorization server MUST validate the subject token before retrieving client-controlled metadata or enqueueing any processing. A subject token MUST result in the `invalid_request` error code (Section 2.2.2 of {{RFC8693}}) if any of the following holds:
 
@@ -294,7 +284,22 @@ The authorization server MUST validate the subject token before retrieving clien
 
 An error response to a token exchange MUST NOT contain the subject token.
 
-Issuance policy determines whether an initial access token authorizes the client only to request a statement or also authorizes its issuance. The exchange results in a software statement token response ({{software-statement-response}}), a deferral at a deferring issuer ({{deferred-processing}}), or the terminal denial of {{terminal-denial}}.
+The exchange results in a software statement token response ({{software-statement-response}}), a deferral at a deferring issuer ({{deferred-processing}}), or the terminal denial of {{terminal-denial}}.
+
+## Initial Access Tokens {#initial-access-tokens}
+
+An initial access token presented under this profile:
+
+* MUST be time limited.
+* MUST be limited to the issuer.
+* MUST be bound to an exact client identifier URL or an explicitly authorized client identifier namespace.
+* MUST have at least 128 bits of entropy if it is opaque.
+* MUST be sender-constrained to a client key if it is reusable, for example through DPoP or mutual TLS, and the authorization server MUST verify that binding against the key the exchange request proves.
+* MUST be single-use if it is a bearer token.
+
+The authorization server MUST enforce every restriction the token carries, such as on audiences or metadata, and MUST prevent replay beyond its permitted number of uses. A use is consumed when the authorization server commits to an outcome: issuing a statement, creating a deferral, or denying issuance. Concurrent presentations of a single-use token MUST NOT both be committed.
+
+Issuance policy determines whether an initial access token authorizes the client only to request a statement or also authorizes its issuance.
 
 ## Renewal {#renewal}
 
@@ -595,16 +600,9 @@ An authorization server ought to keep an audit record that binds each decision, 
 * The time of decision.
 
 An authorization server ought to retain the exact retrieved octets of the approved document for audit, because a re-serialized copy cannot reproduce the digest. A deployment that requires approver attribution can retain it in an audit record or define a statement claim and its privacy semantics.
-
-Authorization servers ought to keep subject tokens out of logs, traces, and audit records.
-
 # Deployment Considerations {#deployment-considerations}
 
 This section gives guidance to operators and issuers. It adds no requirement.
-
-## Initial Access Tokens {#iat-practice}
-
-An initial access token ought to be integrity protected and kept confidential in transit and at rest. It can further restrict audiences or metadata, and the authorization server enforces every restriction the token carries ({{token-exchange-profile}}).
 
 ## Review and Approval Practice {#review-practice}
 
@@ -644,7 +642,7 @@ Validating the subject token before metadata retrieval or enqueueing ({{token-ex
 
 A subject token is an authorization credential, not a client identifier. If the CIMD declares a method, a subject token does not substitute for client authentication.
 
-A subject token appears in a form body, so any component recording request bodies can expose it ({{token-exchange-profile}}, {{audit-logging}}). Clients and authorization servers MUST protect a subject token as a bearer credential unless its format provides proof of possession.
+A subject token appears in a form body, so any component recording request bodies can expose it. Clients and authorization servers MUST protect a subject token as a bearer credential unless its format provides proof of possession. An authorization server ought to keep subject tokens out of logs, traces, and audit records, and an initial access token ought to be integrity protected and kept confidential in transit and at rest.
 
 A token exchange carries no in-band evidence of user participation. An authorization server MUST NOT treat a token exchange as implying prior user consent. An initial access token that authorizes issuance ({{token-exchange-profile}}) records a decision made, when the token was issued, under the policy that governs approval in the redirect flow.
 
