@@ -85,7 +85,7 @@ A trusting authorization server that implements this specification applies all o
 
 {::boilerplate bcp14-tagged}
 
-This specification uses the terms Transmitter, Receiver, and Stream from {{SSF}}, Security Event Token (SET) from {{RFC8417}}, Status List Token from {{STATUSLIST}}, and the terms defined in Section 2 of {{STATEMENT}}.
+This specification uses the terms transmitter, receiver, stream, and transmitter configuration metadata from {{SSF}}, Security Event Token (SET) from {{RFC8417}}, Status List Token from {{STATUSLIST}}, and the terms defined in Section 2 of {{STATEMENT}}.
 
 This specification defines the following terms.
 
@@ -97,6 +97,9 @@ Refusal Record:
 
 Recorded Statement:
 : The statement an establishment records: the one presented or pulled to create it or, after a refresh accepts a replacement, the replacement most recently accepted for it ({{refresh-replacement}}).
+
+Refresh Replacement:
+: A later statement from the recorded statement's issuer about the same software, offered or pulled on refresh to take the recorded statement's place ({{refresh-replacement}}).
 
 `iat` Floor:
 : For a trusting authorization server, the greatest `iat` claim value among the statements it has accepted for a given `iss` and `sub`, per tenant on a multi-tenant server ({{supersession}}).
@@ -127,7 +130,7 @@ Rejections under this section use the error responses of {{lifecycle-errors}}.
 
 Because an issuer's `iat` values for a given `iss` and `sub` increase strictly (Section 3 of {{STATEMENT}}), a later `iat` marks a later review, and a statement whose `iat` is earlier than the server's `iat` floor is superseded.
 
-A trusting authorization server MUST retain each `iat` floor for at least the maximum statement lifetime it honors for the issuer after the floor's value. A statement is accepted for the floor once the server admits a client on it, applies it as a replacement ({{refresh-replacement}}), or registers a client or renews a registration with it ({{REGISTRATION}}). The server MUST reject a statement whose `iat` claim is earlier than the retained `iat`, whether it arrives as a replacement on refresh, a new registration or a replacement delivered under {{REGISTRATION}}, or a new presentation. A repeated registration request carrying the governing statement of an existing registration (Section 3.3 of {{REGISTRATION}}) is not a new registration. A client holding a superseded, broader statement therefore cannot defer a narrowing by opening a fresh registration or establishment with it.
+A trusting authorization server MUST retain each `iat` floor for at least the maximum statement lifetime it honors for the issuer after the floor's value. A statement is accepted for the floor once the server admits a client on it, applies it as a replacement ({{refresh-replacement}}), or registers a client or renews a registration with it ({{REGISTRATION}}). The server MUST reject a statement whose `iat` claim is earlier than the retained `iat`, whether it arrives as a replacement on refresh, a new registration or a replacement delivered under {{REGISTRATION}}, or a runtime presentation. A repeated registration request carrying the governing statement of an existing registration (Section 3.3 of {{REGISTRATION}}) is not a new registration. A client holding a superseded, broader statement therefore cannot defer a narrowing by opening a fresh registration or establishment with it.
 
 At admission, the server verifies the `iat` floor in step 3 of Section 5.1 of {{STATEMENT}}, along with the `client_id` rule, before it resolves the reviewed document.
 
@@ -145,9 +148,9 @@ When the establishment's recorded statement has expired, the authorization serve
 
 ## Refresh Replacement {#refresh-replacement}
 
-A refresh replacement is a later statement from the recorded statement's issuer about the same software, offered or pulled on refresh to take the recorded statement's place ({{replacement-security}}). It is a `presentation` use of the statement (Section 3 of {{STATEMENT}}).
+A replacement is a `presentation` use of its statement (Section 3 of {{STATEMENT}}).
 
-A request carrying a refresh replacement MUST meet the `client_id` rule that Section 5.4 of {{STATEMENT}} sets for a request making a runtime presentation.
+A request carrying a replacement MUST meet the `client_id` rule that Section 5.4 of {{STATEMENT}} sets for a request making a runtime presentation.
 
 On refresh-token use under an establishment, the authorization server first completes the checks of Section 5.7.1 of {{STATEMENT}} on the establishment's proven key, unchanged, before it considers any replacement. A server that implements this specification then proceeds as follows. A refresh rejected at any step leaves the grant's state unchanged.
 
@@ -204,11 +207,11 @@ A server MUST verify a Status List Token only with keys from the issuer's Status
 
 This section defines an optional Shared Signals Framework {{SSF}} event that tells a trusting authorization server that a status published under {{token-status-list}} has changed. The requirements of {{relationship}} through {{configuration}} apply only to implementations that support the events.
 
-For the events defined here, the issuer acts as a Transmitter, and a trusting authorization server that has configured it acts as a Receiver.
+For the events defined here, the issuer acts as a transmitter, and a trusting authorization server that has configured it acts as a receiver.
 
 ## Event Issuer Trust and Keys {#relationship}
 
-A trusting authorization server MUST NOT accept an event from an issuer it has not configured. It MUST verify the SET using keys from the `jwks_uri` member of the issuer's Transmitter configuration {{SSF}}, discovered from the issuer identifier it has configured, and never from a key-location value carried in the event. The SET's `iss` claim is that issuer identifier, which is also the `iss` claim value of the statements the event concerns.
+A trusting authorization server MUST NOT accept an event from an issuer it has not configured. It MUST verify the SET using keys from the `jwks_uri` member of the issuer's transmitter configuration metadata {{SSF}}, discovered from the issuer identifier it has configured, and never from a key-location value carried in the event. The SET's `iss` claim is that issuer identifier, which is also the `iss` claim value of the statements the event concerns.
 
 A receiver MUST NOT create or keep a stream whose transmitter configuration metadata gives as its `jwks_uri` the location of the issuer's statement key set or Status List key set ({{token-status-list}}).
 
@@ -287,7 +290,7 @@ Two constraints bound every event:
 
 ## Stream Configuration {#configuration}
 
-An issuer that supports the events defined here publishes Transmitter configuration metadata as {{SSF}} defines, discoverable from its issuer identifier. Stream creation, subject management, verification, and delivery follow {{SSF}}.
+An issuer that supports the events defined here publishes transmitter configuration metadata as {{SSF}} defines, discoverable from its issuer identifier. Stream creation, subject management, verification, and delivery follow {{SSF}}.
 
 A trusting authorization server that supports these events SHOULD create one stream per configured issuer that offers them ({{stream-practice}}).
 
