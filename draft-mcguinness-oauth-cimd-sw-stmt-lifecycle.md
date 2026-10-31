@@ -113,7 +113,7 @@ An issuer can withdraw a statement before its `exp`. Unlike OAuth token revocati
 
 How a trusting authorization server learns of a withdrawal is a withdrawal mechanism. This specification requires no withdrawal mechanism. It defines one, the Token Status List profile of {{token-status-list}}, and other specifications can define how another mechanism applies to these statements.
 
-In addition to the checks of Section 3.2 of {{STATEMENT}}, a trusting authorization server MUST reject a statement for which it holds a refusal record. A server that uses a withdrawal mechanism for the statement's issuer SHOULD consult it before accepting the statement for a new admission, within the caching and freshness rules that mechanism defines.
+In addition to the checks of Section 3.2 of {{STATEMENT}}, a trusting authorization server MUST reject a statement for which it holds a refusal record. A server that uses a withdrawal mechanism for a statement's issuer SHOULD consult it, within the caching and freshness rules that mechanism defines, before accepting the statement for a new admission, at each refresh of a grant that records it, and at each token request under a registration it governs ({{REGISTRATION}}).
 
 A refusal derived from a withdrawal mechanism lasts until a later authoritative result from that mechanism replaces it, or until an expiry the mechanism itself defines for the withdrawal. A server MUST NOT retain such a refusal once it is replaced or expired in that way. A failure to consult the mechanism, or cached evidence that has lapsed, neither replaces nor expires a refusal.
 
@@ -143,7 +143,7 @@ Under {{STATEMENT}}, refresh evaluates no statement: it checks the establishment
 
 ## Requiring a Current Statement {#currency}
 
-When the establishment's recorded statement has expired, the authorization server SHOULD require a current statement on refresh-token use ({{open-grants}}). A refresh under an establishment needs a replacement ({{refresh-replacement}}) if a refusal record covers the recorded statement, or if the recorded statement has expired and either the server requires a current statement or a required issuer (Section 4 of {{STATEMENT}}) covers the establishment's `sub` in the establishment's tenant. The server MUST reject a refresh that needs a replacement unless it accepts one, even if it does not otherwise require a current statement. If a required issuer covers that `sub` and tenant and the recorded statement is from another issuer, the server MUST reject the refresh, and the client opens a new grant by presentation. A raised `iat` floor ({{supersession}}) does not by itself require a replacement. A server that uses a withdrawal mechanism for a statement's issuer SHOULD consult it for that statement at each refresh of a grant that records it and, if the statement governs a registration under {{REGISTRATION}}, at each token request under the registration.
+When the establishment's recorded statement has expired, the authorization server SHOULD require a current statement on refresh-token use ({{open-grants}}). A refresh under an establishment needs a replacement ({{refresh-replacement}}) if a refusal record covers the recorded statement, or if the recorded statement has expired and either the server requires a current statement or a required issuer (Section 4 of {{STATEMENT}}) covers the establishment's `sub` in the establishment's tenant. The server MUST reject a refresh that needs a replacement unless it accepts one, even if it does not otherwise require a current statement. If a required issuer covers that `sub` and tenant and the recorded statement is from another issuer, the server MUST reject the refresh, and the client opens a new grant by presentation. A raised `iat` floor ({{supersession}}) does not by itself require a replacement.
 
 ## Refresh Replacement {#refresh-replacement}
 
@@ -226,7 +226,6 @@ A status of `INVALID` is a withdrawal, as is any other status except `VALID` whe
 Resolution follows {{STATUSLIST}}. In particular:
 
 * If the referenced index lies outside the list, the statement is rejected as {{STATUSLIST}} requires ({{lifecycle-errors}}).
-* The caching rules of {{STATUSLIST}} apply to resolution, and also apply when the server checks a recorded statement at refresh ({{currency}}).
 * A server SHOULD retrieve the list on the list's own schedule, within the expiration and caching bounds its `exp` and `ttl` claims set (Section 11.5 of {{STATUSLIST}}), rather than once per request ({{schedule-practice}}, {{resolution-schedule}}).
 
 A server MUST NOT replace a Status List Token it holds with one whose `iat` claim is earlier, and MUST treat one whose `iat` claim is equal but whose contents differ as a resolution failure. A host serving an older token then cannot restore a status the issuer has withdrawn. Section 8.3 of {{STATUSLIST}} recommends rejecting a statement whose status the server cannot resolve. A statement the server accepts without a resolved status remains bounded by its effective expiry (Section 2 of {{STATEMENT}}).
