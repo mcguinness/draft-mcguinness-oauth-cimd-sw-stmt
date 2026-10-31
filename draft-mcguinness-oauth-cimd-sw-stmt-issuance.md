@@ -68,6 +68,7 @@ normative:
       - fullname: Brian Campbell
     date: 2015-04-27
 informative:
+  RFC9864:
   REGISTRATION:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration
     title: "Client ID Metadata Document Software Statement Registration"
@@ -596,6 +597,10 @@ To keep a look-alike document from reaching approval, an issuer ought to limit w
 
 Issuers ought to set deferral code lifetimes that reflect their actual approval latency, which for a review involving human judgment can be hours or days ({{deferred-processing}}).
 
+## Signing Keys {#signing-key-practice}
+
+An issuer ought to protect its signing keys according to the scope of its trust relationships and support controlled key rotation.
+
 # Security Considerations {#security-considerations}
 
 The security considerations of Section 13 of {{STATEMENT}}, {{CIMD}}, and Section 5 of {{RFC8693}} apply.
@@ -617,6 +622,12 @@ A subject token appears in a form body, so any component recording request bodie
 ## Renewal by Prior Statement
 
 If the reviewed and current documents name a `jwks_uri`, whoever controls that location can supply a key that satisfies the holder binding of {{renewal}}. Binding renewal to the client's key spares automated renewal a long-lived reusable initial access token, a standing credential to mint statements.
+
+## Signing Keys and Algorithms
+
+A compromised software statement signing key lets an attacker mint statements for every audience that trusts it ({{signing-key-practice}}).
+
+Issuers SHOULD prefer signature algorithms with modern security properties, such as `PS256`, `ES256`, or `Ed25519` {{RFC9864}}, over RSASSA-PKCS1-v1_5 (`RS256`).
 
 ## Approver Authority
 
