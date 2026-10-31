@@ -200,7 +200,7 @@ At (C), the client redeems the code with its Proof Key for Code Exchange (PKCE) 
 
 The `client_id` parameter in every request defined by this specification MUST be a client identifier URL conforming to {{CIMD}}. The authorization server MUST obtain and validate the document at that URL according to {{CIMD}}.
 
-In the redirect flow, a client identifier whose CIMD cannot be retrieved or validated, including a document rejected for duplicate member names ({{metadata-snapshot}}), is invalid for the purposes of Section 4.1.2.1 of {{RFC6749}}. If the client identifier or redirection URI is missing or invalid, the authorization server MUST NOT redirect the user agent.
+In the redirect flow, a client identifier whose CIMD cannot be retrieved or validated, including a document rejected for duplicate member names ({{metadata-snapshot}}), is invalid for the purposes of Section 4.1.2.1 of {{RFC6749}}.
 
 The client authenticates to the token endpoint using the `token_endpoint_auth_method` and related key metadata in its CIMD. The authorization server classifies the client from that member:
 
@@ -266,7 +266,7 @@ The initial access token is subject to the following:
 * A bearer one MUST be single-use.
 * The authorization server MUST enforce every restriction the credential carries and MUST prevent replay beyond its permitted number of uses.
 
-A DPoP proof on the exchange constrains any resulting deferral but does not authenticate the presenter (Section 3 of {{RFC9449}}), and it protects the subject token only if that token is bound to the proof's key. {{iat-practice}} covers protecting the token in transit and at rest.
+A DPoP proof on the exchange constrains any resulting deferral, and it protects the subject token only if that token is bound to the proof's key. {{iat-practice}} covers protecting the token in transit and at rest.
 
 A use of an initial access token is consumed when the authorization server commits to an outcome: issuing a statement, creating a deferral, or denying issuance. Concurrent presentations of a single-use credential MUST NOT both be committed.
 
@@ -316,7 +316,7 @@ The client sends an authorization request as described in Section 4.1.1 of {{RFC
 : REQUIRED. The value MUST exactly match one of the redirection URIs in the CIMD, subject to the redirection URI rules in Section 4.2 of {{CIMD}}. Whatever authentication method the document declares, the value MUST NOT be a redirection URI that another application on the same device could claim, as Section 5.6.3 of {{STATEMENT}} defines ({{authorization-response-security}}).
 
 `state`:
-: OPTIONAL. An opaque value used by the client to bind the authorization response to its request. Because the authorization server requires PKCE, a client can rely on PKCE for cross-site request forgery (CSRF) protection instead, as Section 2.1 of {{RFC9700}} permits.
+: OPTIONAL, as in Section 4.1.1 of {{RFC6749}}.
 
 `code_challenge`:
 : REQUIRED. A PKCE challenge as defined by {{RFC7636}}.
@@ -425,7 +425,7 @@ The client redeems a software statement code by sending an HTTP `POST` request t
 : REQUIRED. The PKCE verifier corresponding to the `code_challenge` in the authorization request.
 
 `completion_mode`:
-: REQUIRED at a deferring issuer ({{authorization-server-metadata}}), and not used otherwise. An issuer that does not defer ignores it. When present, the value MUST include `deferred`. A deferring issuer rejects a request that omits it with `invalid_request`.
+: REQUIRED at a deferring issuer ({{authorization-server-metadata}}), and not used otherwise. When present, the value MUST include `deferred`. A deferring issuer rejects a request that omits it with `invalid_request`.
 
 The request MUST NOT contain the `audience` parameter, which was bound at the authorization endpoint. A request containing it is rejected with `invalid_request`.
 
@@ -472,7 +472,6 @@ Deferral follows {{DTR}}, including the sender constraint it fixes at originatio
 
 * A deferral created under this specification MUST be delivered by polling. Callback delivery is omitted from this version.
 * A client MUST NOT send the `client_notification_token` parameter of {{DTR}}. An authorization server rejects a request carrying it with the `invalid_request` error code and MUST NOT deliver a callback, whatever the client's metadata says.
-* A successful polling response is the software statement token response of {{software-statement-response}}, not an access token response.
 
 The following is a non-normative example of a first polling request for a deferral created by a token exchange, from a confidential client authenticating with the same `private_key_jwt` method as the exchange (line breaks for display purposes only):
 
@@ -505,7 +504,7 @@ A successful response has HTTP status code 200, a media type of `application/jso
 `expires_in`:
 : RECOMMENDED. The remaining lifetime of the software statement in seconds. If present, it MUST be consistent with the statement's `exp` claim.
 
-The response MUST NOT contain the `refresh_token` or `scope` members. The authorization server MUST include the `Cache-Control` HTTP header field with the value `no-store` and SHOULD also include the `Pragma` HTTP header field with the value `no-cache`.
+The response MUST NOT contain the `refresh_token` or `scope` members. The authorization server MUST include the `Cache-Control` HTTP header field with the value `no-store`.
 
 DPoP under this specification binds requests and deferral state, not the issued artifact. The requirement of {{DTR}} that a final access token inherit the originating DPoP binding does not apply.
 
@@ -531,7 +530,7 @@ The `access_token` member is a security-token container ({{RFC8693}}), not an OA
 
 ## Terminal Denial {#terminal-denial}
 
-When the authorization server decides not to issue the requested software statement, it returns a token error response as defined in Section 5.2 of {{RFC6749}} with the `access_denied` error code (Section 3.5 of {{RFC8628}}) and HTTP status code 400, and MUST include the `Cache-Control: no-store` response header field. This applies to code redemption and token exchange alike, including when the denial answers a polling request ({{deferred-processing}}).
+When the authorization server decides not to issue the requested software statement, it returns a token error response as defined in Section 5.2 of {{RFC6749}} with the `access_denied` error code (Section 3.5 of {{RFC8628}}), and MUST include the `Cache-Control: no-store` response header field. This applies to code redemption and token exchange alike, including when the denial answers a polling request ({{deferred-processing}}).
 
 The denial is terminal for the request. A denied deferral behaves as {{DTR}} specifies for a request resolved with an error, and a client that receives the `access_denied` error code in response to a polling request MUST NOT send another polling request with that `deferral_code`. A denial does not preclude a later issuance request. Whether to accept one is issuance policy.
 
@@ -633,7 +632,7 @@ An authorization server that shows an approval interface MUST NOT imply through 
 
 ## Authorization Response Security {#authorization-response-security}
 
-The software statement is a signed credential and can contain sensitive deployment information, so it is never returned in an authorization response ({{authorization-response}}). PKCE, or the client's `state` check, counters cross-site request forgery, and the client's `iss` check ({{software-statement-code-response}}) counters mix-up.
+The software statement is a signed credential and can contain sensitive deployment information, so it is never returned in an authorization response ({{authorization-response}}). The client's `iss` check ({{software-statement-code-response}}) counters mix-up.
 
 {{authorization-request}} refuses a redirection URI another application can claim for the reason Section 5.6.3 of {{STATEMENT}} gives. A native public client can host an `https` endpoint or use the token exchange profile ({{token-exchange-profile}}).
 
