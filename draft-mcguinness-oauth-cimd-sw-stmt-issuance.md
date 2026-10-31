@@ -233,7 +233,7 @@ The `audience` parameter of an authorization request ({{authorization-request}})
 
 The authorization server selects the final audience according to policy. It MUST NOT place in the statement's `aud` claim any value the request did not carry, except as {{renewal}} provides.
 
-If no requested audience is acceptable, the authorization server MUST reject the request with the `invalid_target` error code, as defined by {{RFC8707}} at the authorization endpoint and by Section 2.2.2 of {{RFC8693}} at the token endpoint. An authorization server whose policy requires a restricted audience rejects a request carrying none with the same error.
+If no requested audience is acceptable, the authorization server MUST reject the request with the `invalid_target` error code, as defined by {{RFC8707}} at the authorization endpoint and by Section 2.2.2 of {{RFC8693}} at the token endpoint. An authorization server whose policy requires a restricted audience rejects a request carrying none, other than a renewal whose subject statement names an audience, with the same error.
 
 These `audience` semantics apply only to software statement requests and do not affect proprietary uses of the parameter for access-token targeting.
 
@@ -308,7 +308,7 @@ That authentication is the holder binding: without it, whoever held a copy of th
 
 A client rotating keys inline renews while its document carries both the old and the new key. For a document naming `jwks_uri`, the binding is to whatever that location serves. A public client holds no such key and obtains a new statement through the redirect flow ({{authorization-request}}).
 
-A renewed statement MUST NOT be broader than the subject statement: its `aud` is the requested audience narrowed to the subject statement's `aud`, or that `aud` if the request names none, it carries any `aud_tenant` claim of the subject statement, and its `statement_uses` permits no use the subject statement does not. It is matched to the subject statement by `iss` and `sub` ({{LIFECYCLE}}, {{REGISTRATION}}).
+A renewed statement MUST NOT be broader than the subject statement: its `aud` is within the requested audience narrowed to the subject statement's `aud`, or within that `aud` if the request names none, it carries any `aud_tenant` claim of the subject statement, and its `statement_uses` permits no use the subject statement does not. It is matched to the subject statement by `iss` and `sub` ({{LIFECYCLE}}, {{REGISTRATION}}).
 
 An issuer MUST NOT accept as the subject token a statement it has withdrawn, or one whose status it publishes as other than `VALID` ({{LIFECYCLE}}). Renewing such a statement would reissue the decision that withdrawal ended.
 
