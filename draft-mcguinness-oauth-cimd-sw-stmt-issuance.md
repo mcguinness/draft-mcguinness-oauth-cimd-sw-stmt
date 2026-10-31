@@ -36,8 +36,6 @@ normative:
     seriesinfo:
       Internet-Draft: draft-mcguinness-oauth-cimd-sw-stmt-00
   RFC6749:
-  RFC7521:
-  RFC7523:
   RFC7591:
   RFC7636:
   RFC8414:
@@ -112,7 +110,7 @@ The client presents the statement at registration or at runtime, or publishes it
 
 A statement makes one issuer's decision portable to the authorization servers in its audience that trust the issuer ({{STATEMENT}}). If the trust decision is local to one authorization server, an {{RFC7591}} initial access token for registration, pre-registration {{CIMD}}, or approval-based registration {{APPROVAL-DCR}} can establish the client directly.
 
-Approval workflow, approver identity, external approval integration, acceptance of any particular issuer, and issuer discovery are out of scope. {{STATEMENT}} does not depend on this specification.
+Approval workflow, approver identity, external approval integration, acceptance of any particular issuer, issuer discovery, and issuance that a publisher's backend authorizes on a client's behalf are out of scope. This specification does not authenticate such a backend. {{STATEMENT}} does not depend on this specification.
 
 # Conventions and Definitions
 
@@ -132,7 +130,7 @@ Deferring Issuer:
 
 A client that holds an initial access token authorizing issuance, or a statement it can renew, uses token exchange at the token endpoint without a user agent ({{token-exchange-profile}}). A client can instead initiate the redirect flow at the authorization endpoint ({{authorization-request}}) and redeem the resulting software statement code at the token endpoint.
 
-The issuer fetches and snapshots the client's CIMD ({{metadata-snapshot}}), decides whether to issue, and signs the statement. The client carries the statement to trusting authorization servers in its audience, at registration ({{REGISTRATION}}) or at runtime ({{STATEMENT}}). A publisher's backend acting for a client is not a party this specification authenticates. Issuance that such a backend authorizes on a client's behalf is out of scope.
+The issuer fetches and snapshots the client's CIMD ({{metadata-snapshot}}), decides whether to issue, and signs the statement. The client carries the statement to trusting authorization servers in its audience, at registration ({{REGISTRATION}}) or at runtime ({{STATEMENT}}).
 
 ~~~
                 +--------------------------+
@@ -204,11 +202,9 @@ The client authenticates to the token endpoint using the `token_endpoint_auth_me
 
 * `none` (explicit) establishes a public client.
 * Any other value establishes a confidential client:
-  * The authorization server MUST require exactly that method. {{CIMD}} states this rule for `private_key_jwt`, and this specification applies it to every declared method.
+  * The authorization server MUST require exactly that method.
   * If the authorization server does not support the declared method, it MUST reject the request rather than treat the client as public, with the `unauthorized_client` error code at the authorization endpoint and with the `invalid_client` error code (Section 5.2 of {{RFC6749}}) at the token endpoint.
 * An omitted value establishes neither, and any request identifying such a client MUST be rejected, with the `invalid_request` error code at the authorization endpoint, returned to the redirection URI validated against the document, and with the `invalid_client` error code (Section 5.2 of {{RFC6749}}) at the token endpoint.
-
-Classification uses the singular `token_endpoint_auth_method`. A list of declared supported methods is not interpreted.
 
 A public client binds its requests with Demonstrating Proof of Possession (DPoP) {{RFC9449}}: in the redirect flow through the `dpop_jkt` parameter ({{authorization-request}}), and in the token exchange profile ({{token-exchange-profile}}) by a DPoP proof, which a public client MUST include on the exchange request. A confidential client MAY use DPoP in addition to its client authentication method.
 
@@ -218,7 +214,7 @@ CIMDs can change while a request is pending. For each request, the authorization
 
 The authorization server MAY retrieve the document again before issuing the software statement. If it does so and the digest differs, it MUST either re-evaluate the request under the new document, binding the new document as the snapshot, or reject the request. This applies even if the change touches no member its policy examines. A statement over a superseded snapshot fails the digest comparison (Section 5.2 of {{STATEMENT}}).
 
-The authorization server MUST NOT combine values from different document versions. An approval recorded against a superseded snapshot does not carry forward without a fresh issuance-policy decision.
+The authorization server MUST NOT combine values from different document versions.
 
 Replacing the snapshot does not alter the sender-constraint context fixed for a deferral at origination ({{deferred-processing}}). If a replacement snapshot no longer authorizes the key material behind that context, for example because the client-authentication key is absent from the new document, the authorization server MUST invalidate the deferral. The client then makes a new request under its current keys.
 
@@ -270,7 +266,7 @@ The client sends a token exchange request as defined in Section 2.1 of {{RFC8693
 
 The request MUST NOT contain the `actor_token` or `actor_token_type` parameters, and the prohibitions of {{prohibited-parameters}} apply.
 
-The client authenticates, and a public client constrains the request, as described in {{client-identity}}. An assertion-based method such as `private_key_jwt` {{RFC7521}} {{RFC7523}} serves if the document specifies one.
+The client authenticates, and a public client constrains the request, as described in {{client-identity}}.
 
 A DPoP proof on the exchange constrains any resulting deferral, and it protects the subject token only if that token is bound to the proof's key ({{te-considerations}}).
 
@@ -315,7 +311,7 @@ A renewed statement MUST NOT be broader than the subject statement: its `aud` is
 
 An issuer MUST NOT accept as the subject token a statement it has withdrawn, or one whose status it publishes as other than `VALID` ({{LIFECYCLE}}). Renewing such a statement would reissue the decision that withdrawal ended.
 
-The authorization server MAY accept a statement that has expired, and SHOULD bound how long after expiry it will do so. A renewal after an extended absence amounts to a new issuance request.
+The authorization server MAY accept a statement that has expired, and SHOULD bound how long after expiry it will do so.
 
 If the current document's digest equals the subject statement's `cimd_digest`, whether renewal requires fresh review is issuer policy. If the digests differ, the issuer MUST apply the decision it would apply to a first issuance for that document, and MUST NOT renew on the strength of the prior statement alone. Without this rule, whoever can change the document could obtain the issuer's signature over an unreviewed change.
 
@@ -403,8 +399,6 @@ Location: https://client.example.org/cb?
   state=4L7xQ2mN9pR6sT1vW8yZ3aB5cD0fG2hJ&
   iss=https%3A%2F%2Fserver.example.com
 ~~~
-
-Request validation errors follow Section 4.1.2.1 of {{RFC6749}}.
 
 # Software Statement Code Redemption {#software-statement-code-redemption}
 
@@ -532,9 +526,9 @@ The denial is terminal for the request. A denied deferral behaves as {{DTR}} spe
 
 An authorization server that issued a statement already holds the decision that statement records. If it is also a trusting authorization server, it MAY admit the client on that record rather than require the statement to be presented back to it, at registration or at runtime.
 
-Because the record of a decision is not a fresh retrieval of the document, a server admitting a client on the record of a statement it issued MUST apply every check Sections 3.2 and 5.1 of {{STATEMENT}} apply to a presented statement, and at registration every check {{REGISTRATION}} applies, taking the statement's claims from its record of the decision. The record replaces only the signature: the server still obtains the document at `sub` and compares its digest with the recorded one.
+Because the record of a decision is not a fresh retrieval of the document, a server admitting a client on the record of a statement it issued MUST apply every check Sections 3.2 and 5.1 of {{STATEMENT}} apply to a presented statement, and at registration every check {{REGISTRATION}} applies, taking the statement's claims from its record of the decision.
 
-At runtime, the recorded decision replaces the presented statement, not the proof of who is making the request. The request MUST meet the sender constraint of Section 5.6 of {{STATEMENT}} against the reviewed document, as a presentation would, and a successful admission creates an establishment.
+At runtime, the record takes the place of the statement in step 1 of Section 5.1 of {{STATEMENT}} and replaces only its signature check: the server still resolves the document at `sub`, compares its digest, verifies the sender constraint (Section 5.6 of {{STATEMENT}}), and creates an establishment.
 
 # Authorization Server Metadata {#authorization-server-metadata}
 
@@ -544,12 +538,12 @@ A deferring issuer publishes the metadata {{DTR}} requires, including `true` for
 
 An authorization server supporting the redirect flow advertises `urn:ietf:params:oauth:grant-type:software-statement` in `grant_types_supported`, `software_statement_code` in `response_types_supported`, and `true` for `authorization_response_iss_parameter_supported` as defined by {{RFC9207}}.
 
-An authorization server supporting the token exchange profile ({{token-exchange-profile}}) advertises `urn:ietf:params:oauth:grant-type:token-exchange` in `grant_types_supported` and publishes the `software_statement_subject_token_types_supported` metadata value defined in this section. An implementation supporting only that profile advertises neither the software statement grant nor the `software_statement_code` response type.
+An authorization server supporting the token exchange profile ({{token-exchange-profile}}) advertises `urn:ietf:params:oauth:grant-type:token-exchange` in `grant_types_supported` and publishes the `software_statement_subject_token_types_supported` metadata value defined in this section.
 
 This specification defines the following additional authorization server metadata {{RFC8414}} value:
 
 `software_statement_subject_token_types_supported`:
-: REQUIRED for an authorization server that supports the token exchange profile ({{token-exchange-profile}}), and absent otherwise. A JSON array of the `subject_token_type` values the authorization server accepts when `requested_token_type` is `urn:ietf:params:oauth:token-type:software-statement`. Publishing this member signals support for the profile. Listing `urn:ietf:params:oauth:token-type:software-statement` among its values advertises renewal by prior statement ({{renewal}}).
+: REQUIRED for an authorization server that supports the token exchange profile ({{token-exchange-profile}}), and absent otherwise. A JSON array of the `subject_token_type` values the authorization server accepts when `requested_token_type` is `urn:ietf:params:oauth:token-type:software-statement`. Listing `urn:ietf:params:oauth:token-type:software-statement` among its values advertises renewal by prior statement ({{renewal}}).
 
 # Implementation Considerations {#implementation-considerations}
 
@@ -611,15 +605,11 @@ The software statement is a signed credential and can contain sensitive deployme
 
 {{authorization-request}} refuses a redirection URI another application can claim for the reason Section 5.6.3 of {{STATEMENT}} gives. A native public client can host an `https` endpoint or use the token exchange profile ({{token-exchange-profile}}).
 
-Endpoint or key control informs issuance policy but does not determine issuance ({{review-practice}}).
-
 A software statement code in a URL is visible to browser history, referrer fields, logs, and other observers. It is short lived, single use, and unredeemable without the PKCE verifier and any bound `dpop_jkt` key. The `form_post` response mode ({{software-statement-code-response}}) keeps the code out of URLs.
 
 ## Token Exchange Considerations {#te-considerations}
 
 Validating the subject token before metadata retrieval or enqueueing ({{token-exchange-profile}}) limits resource consumption by unauthorized requesters. Other bounds are local policy ({{processing-bounds}}).
-
-A subject token is an authorization credential, not a client identifier. If the CIMD declares a method, a subject token does not substitute for client authentication.
 
 A subject token appears in a form body, so any component recording request bodies can expose it. Clients and authorization servers MUST protect a subject token as a bearer credential unless its format provides proof of possession. An authorization server ought to keep subject tokens out of logs, traces, and audit records, and an initial access token ought to be integrity protected and kept confidential in transit and at rest.
 
@@ -629,7 +619,7 @@ If the reviewed and current documents name a `jwks_uri`, whoever controls that l
 
 ## Approver Authority
 
-A software statement does not identify the human or system that approved issuance ({{audit-logging}}). A look-alike document, or one naming attesters in `client_attesters` ({{ATTESTERS}}), can reach an approver ({{review-practice}}).
+A software statement does not identify the human or system that approved issuance ({{audit-logging}}).
 
 An approved statement is accepted at every authorization server in its audience, not only within the approver's own scope. Approval by a party authorized only for a personal or organizational scope MUST NOT produce a statement whose audience exceeds that scope, or whose `aud_tenant` claim names a tenant outside it.
 
