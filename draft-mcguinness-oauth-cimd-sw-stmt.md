@@ -199,7 +199,7 @@ The metadata digest is the unpadded base64url-encoded SHA-256 hash {{RFC6234}} o
 
 Retrieval for digest purposes follows {{CIMD}} and MUST NOT use content negotiation: the retrieving party sends the `Accept` header field that {{CIMD}} specifies for retrieving the document, or `Accept: application/json` if it specifies none, and no other variant selection. Equal digests show that the issuer and the trusting authorization server obtained the same octets, so any condition that makes retrieval depend on who is asking defeats the comparison.
 
-A server MUST NOT compare a digest against any representation other than one it retrieved itself or stored under this section. A `304 Not Modified` response shows that stored octets, and their digest, are still current only if it carries a strong entity tag that matches the one stored with them under strong comparison (Section 8.8.3.2 of {{RFC9110}}). Otherwise, the server retrieves the body again.
+A `304 Not Modified` response shows that stored octets, and their digest, are still current only if it carries a strong entity tag that matches the one stored with them under strong comparison (Section 8.8.3.2 of {{RFC9110}}). Otherwise, the server retrieves the body again.
 
 ## Validating a Statement {#validation}
 
@@ -277,7 +277,7 @@ A trusting authorization server MAY reuse document octets it holds for digest co
 A client presents a software statement by including the following parameter in a token request or a pushed authorization request:
 
 `software_statement`:
-: REQUIRED for presentation. The software statement ({{profiles}}). It is consumed as a runtime presentation or, where implemented, as a refresh replacement under {{LIFECYCLE}} or a delivery under {{REGISTRATION}}. On refresh-token use under an establishment, a server that does not implement {{LIFECYCLE}} ignores the parameter. A request carrying the parameter in any other role is rejected.
+: REQUIRED for a presentation made in a request. The software statement ({{profiles}}). It is consumed as a runtime presentation or, where implemented, as a refresh replacement under {{LIFECYCLE}} or a delivery under {{REGISTRATION}}. On refresh-token use under an establishment, a server that does not implement {{LIFECYCLE}} ignores the parameter. A request carrying the parameter in any other role is rejected.
 
 A request making a runtime presentation MUST include the `client_id` parameter, even if the client authenticates, and its value, the client's CIMD URL, MUST exactly equal the statement's `sub` claim. The authorization server MUST reject a request that omits the parameter or carries another value. The effective `client_id` is the statement's `sub`, and the authorization server assigns none.
 
