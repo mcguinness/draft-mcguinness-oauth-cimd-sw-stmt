@@ -135,7 +135,7 @@ If the statement's decision is confined to one of the authorization server's ten
 
 ## Public Clients {#public-client-registration}
 
-An authorization server MAY register a client whose reviewed document declares `token_endpoint_auth_method` of `none`., creating a public-client registration. Such a registration has no client credential and is shared among installations of the software. A server that registers such a client:
+An authorization server MAY register a client whose reviewed document declares `token_endpoint_auth_method` of `none`, creating a public-client registration. Such a registration has no client credential and is shared among installations of the software. A server that registers such a client:
 
 * MUST reject the registration if the document lists no redirection URI.
 * MUST issue tokens under the registration only through the authorization code grant and the refresh of grants it opens.
