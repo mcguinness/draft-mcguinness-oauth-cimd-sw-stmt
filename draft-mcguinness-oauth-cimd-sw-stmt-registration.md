@@ -117,7 +117,7 @@ The authorization server MUST reject the registration, or a replacement ({{reval
 
 Unlike runtime presentation (Section 5 of {{STATEMENT}}), registration has no review-only form: the registration is the admission.
 
-Taking every value from the document prevents metadata substitution. At registration a statement is a bearer artifact, so a request-supplied value for a member the document omits, such as a `jwks` member beside a document naming only `jwks_uri`, would give any holder of a copy a registration with reviewed branding and the holder's own key. Registering a document that omits `token_endpoint_auth_method` under the {{RFC7591}} default, a shared-secret method the issuer never reviewed, would issue a client secret to any holder of a copy. Software whose document declares `token_endpoint_auth_method` of `none` and that the server does not register under {{public-client-registration}} can instead use runtime presentation if it meets the public-client binding requirements of Section 5.6.2 of {{STATEMENT}}.
+Software whose document declares `token_endpoint_auth_method` of `none` and that the server does not register under {{public-client-registration}} can instead use runtime presentation if it meets the public-client binding requirements of Section 5.6.2 of {{STATEMENT}}.
 
 ## Tenant Restriction {#tenant-restriction}
 
@@ -299,9 +299,11 @@ The security considerations in Section 13 of {{STATEMENT}} and Section 5 of {{RF
 
 ## Statements at Registration {#statement-bearer}
 
-A statement consumed at registration is a reusable bearer artifact until it expires. Its audience, lifetime, and `statement_uses` claim (Section 3 of {{STATEMENT}}) and the registration policy of {{repeated-registration}} limit what a stolen statement can create. An issuer ought to omit the `aud` claim from a statement whose `statement_uses` claim permits registration only if it accepts that any server trusting the issuer can register the software on the strength of a copy.
+A statement consumed at registration is a reusable bearer artifact until it expires. Its audience, lifetime, and `statement_uses` claim (Section 3 of {{STATEMENT}}) and the registration policy of {{repeated-registration}} limit what a copied statement can create.
 
-Under the one-registration default ({{repeated-registration}}), whoever first registers with a copy of a statement holds that registration and its registration access token, and can keep the software's publisher from registering at that server. Such a holder cannot authenticate as the client if the reviewed document's authentication method requires a key the document carries.
+Taking every value from the document prevents metadata substitution. A request-supplied value for a member the document omits, such as a `jwks` member beside a document naming only `jwks_uri`, would give any holder of a copy a registration with reviewed branding and the holder's own key. Registering a document that omits `token_endpoint_auth_method` under the {{RFC7591}} default would register an authentication method the issuer never reviewed. An issuer ought to omit the `aud` claim from a statement whose `statement_uses` claim permits registration only if it accepts that any server trusting the issuer can register the software on the strength of a copy.
+
+Under the one-registration default ({{repeated-registration}}), whoever first registers with a copy of a statement holds that registration and its registration access token, and can keep the software's publisher from registering at that server. Such a holder cannot authenticate as the client if the reviewed document's authentication method requires a key the document carries. If the document declares a shared-secret method, the holder receives the secret and authenticates as the client.
 
 If the publisher's statement permits presentation and the server supports it, the publisher's software can still be admitted through runtime presentation (Section 5 of {{STATEMENT}}). Otherwise, recovery requires intervention by the server's operator or a registration policy other than the one-registration default. This specification defines no way to displace such a registration.
 
