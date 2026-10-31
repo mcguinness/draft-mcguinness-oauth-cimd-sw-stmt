@@ -345,7 +345,7 @@ The client sends an authorization request as described in Section 4.1.1 of {{RFC
 : OPTIONAL. The requested audience ({{audience}}).
 
 `completion_mode`:
-: OPTIONAL. A value that includes `deferred`, sent as the advance hint of Section 4.2 of {{DTR}}.
+: OPTIONAL. A value that includes `deferred`, sent as the advance hint of Section 5.2 of {{DTR}}.
 
 `dpop_jkt`:
 : REQUIRED for a public client and OPTIONAL otherwise. The parameter has the semantics of Section 10 of {{RFC9449}}.
