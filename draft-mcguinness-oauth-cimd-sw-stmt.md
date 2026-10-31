@@ -215,7 +215,7 @@ Before accepting a statement, a trusting authorization server MUST ensure the fo
 * Any claim the server does not recognize, and any client metadata claim ({{profiles}}), is ignored.
 * The JWT validation guidance in {{RFC8725}} has been applied.
 
-A trusting authorization server that hosts more than one tenant MUST evaluate every tenant-specific check, such as the `aud_tenant` claim and a required issuer ({{issuer-trust}}), against the request's tenant. The request's tenant is the tenant that scopes what the server issues on the statement. The server determines it before evaluating the statement, by its own means or from a signed assertion it has validated, and never from a value the client chooses.
+A trusting authorization server that hosts more than one tenant MUST evaluate every tenant-specific check, such as the `aud_tenant` claim and a required issuer ({{issuer-trust}}), against the request's tenant. The request's tenant is the tenant that scopes what the server issues on the statement. The server MUST determine it before evaluating the statement, by its own means or from a signed assertion it has validated, and never from a value the client chooses.
 
 Rejections outside a registration endpoint use {{errors}}.
 
@@ -385,7 +385,7 @@ The following are review-only:
 1. Every presentation and pulled statement for a reviewed document that carries any redirection URI another application on the same device could claim, whatever authentication method the document declares. Such a URI is a non-`https` URI, such as a private-use scheme or an `http` loopback redirection URI (Sections 7.1 and 7.3 of {{RFC8252}}), or an `https` URI whose host is a loopback address or `localhost`. The application that claims such a URI receives the code, so neither the reviewed redirection URIs nor a key shipped in every copy of the software can bind the presenter.
 2. A pulled statement that {{pull-binding}} makes review-only.
 
-A review-only presentation or pulled statement creates no establishment, and its statement MUST NOT satisfy a policy requiring reviewed software: the authorization server proceeds as it would for the same CIMD client presenting no statement.
+A review-only presentation or pulled statement creates no establishment, and its statement MUST NOT satisfy a policy requiring reviewed software: the authorization server proceeds as it would for the same CIMD client presenting no statement ({{ui-audit}}).
 
 ## Grant Binding {#grant-lifecycle}
 
@@ -417,7 +417,7 @@ On refresh-token use under an establishment, the authorization server:
 
 If either check fails, the server rejects the refresh. The refreshed access MUST fall within the establishment's reviewed metadata.
 
-Under this specification, refresh evaluates no statement ({{enforcement-bounds}}) and never changes the establishment's proven key or reviewed metadata. A client that needs a different key, or without {{LIFECYCLE}} a different review, opens a new grant by presentation.
+Under this specification, refresh evaluates no statement ({{enforcement-bounds}}) and never changes the establishment's proven key or reviewed metadata. A client that needs a different key, or, without {{LIFECYCLE}}, a different review, opens a new grant by presentation.
 
 # Error Responses {#errors}
 
@@ -685,7 +685,7 @@ An issuer ought to omit the `aud_tenant` claim from a statement whose review app
 
 Short lifetimes tighten an issuer's control and increase renewal traffic. A fleet of statements issued together expires together, so issuers ought to stagger expiries or renew ahead of the boundary.
 
-A changed document is always served before a statement over it exists, so presentations fail the digest comparison ({{effective-metadata}}) until the issuer reviews the change. A statement's lifetime bounds how long a review stands without being renewed.
+A changed document is always served before a statement over it exists, so presentations under an earlier statement fail the digest comparison ({{effective-metadata}}) until a statement over the changed document exists. A statement's lifetime bounds how long a review stands without being renewed.
 
 Instances need the most recently issued statement from a shared source rather than a copy fixed at build or install time, because the document can change ({{effective-metadata}}).
 
