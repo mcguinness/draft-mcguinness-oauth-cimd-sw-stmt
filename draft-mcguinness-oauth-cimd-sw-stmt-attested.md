@@ -328,7 +328,7 @@ Every refresh request MUST carry the original `client_id` and authenticate under
 
 On every refresh, the server MUST require a current software statement and re-evaluate its issuer trust decision. It MUST also verify that the currently served document matches the applicable statement and attestation digests and meets {{client-metadata}}. If the document fails {{client-metadata}}, for example by omitting the `software_statement_instance_binding` member or naming another authentication method, the refresh is rejected with `invalid_grant` without seeking a replacement.
 
-A replacement (Section 5.2 of {{LIFECYCLE}}) is needed when the recorded statement is expired, refused, or no longer matches the served document. In place of the key bullet of step 3 of Section 5.2 of {{LIFECYCLE}}, a current attestation of the proven key, from the recorded attester under the recorded policy, MUST name the replacement's metadata digest.
+A replacement (Section 5.2 of {{LIFECYCLE}}) is needed when the recorded statement is expired, refused, or no longer matches the served document. In place of the key bullet of step 3 of Section 5.2 of {{LIFECYCLE}}, a current attestation of the proven key, from the recorded attester under the recorded policy, MUST name the replacement's metadata digest. A failed attempt MUST NOT replace the recorded binding or rotate a refresh token.
 
 # Exceptions to Software Statement Processing {#core-exceptions}
 
