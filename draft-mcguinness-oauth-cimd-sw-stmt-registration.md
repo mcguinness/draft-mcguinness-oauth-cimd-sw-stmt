@@ -237,10 +237,11 @@ A rejection this specification defines, at a client registration endpoint or at 
   * The statement is malformed, fails signature or claim validation for a reason `unapproved_software_statement` does not cover, or is expired or otherwise not current (Section 2 of {{STATEMENT}}), or is superseded under an extension the server implements, such as {{LIFECYCLE}}.
   * The document's digest does not equal the statement's `cimd_digest` claim ({{dcr-presentation}}).
   * An {{RFC7592}} update request is rejected under {{registration-validity}}.
-  * A replacement delivered at the client configuration endpoint, or a statement in a repeated public-client registration request that is earlier than the governing statement or is evaluated as a replacement ({{public-client-registration}}), fails a replacement-specific rule of {{revalidation}} that this section assigns no other code, such as a change in whether the document declares `token_endpoint_auth_method` of `none`.
+  * A replacement delivered at the client configuration endpoint, or the statement of a repeated public-client registration request evaluated as a replacement ({{repeated-registration}}), fails a rule of {{revalidation}} that this section assigns no other code, such as a change in whether the document declares `token_endpoint_auth_method` of `none`.
+  * The statement of a repeated public-client registration request is earlier than the governing statement ({{repeated-registration}}).
 
 `unapproved_software_statement`:
-: The statement is valid but not acceptable here: its issuer is not configured, its `aud` excludes this server, its `sub` is outside the client identifier namespaces the issuer can attest, its `aud_tenant` is not this request's tenant or is absent when required, its issuer is confined to another tenant, or its `statement_uses` excludes this use. This code is also used if a statement this server requires is absent from a registration request, and for a repeated registration request that the server's policy refuses ({{repeated-registration}}).
+: The statement is well formed but not acceptable here: its issuer is not configured, its `aud` excludes this server, its `sub` is outside the client identifier namespaces the issuer can attest, its `aud_tenant` is not this request's tenant or is absent when required, its issuer is confined to another tenant, or its `statement_uses` excludes this use. This code is also used if a statement this server requires is absent from a registration request, and for a repeated registration request that the server's policy refuses ({{repeated-registration}}).
 
 `invalid_client_metadata`:
 : Any of the following holds for the reviewed document:
@@ -248,8 +249,7 @@ A rejection this specification defines, at a client registration endpoint or at 
   * It contains duplicate member names (Section 5.2 of {{STATEMENT}}).
   * It fails validation as {{CIMD}} requires ({{dcr-presentation}}).
   * It carries metadata this server's policy refuses.
-  * It exceeds the server's size bound (Section 5.3 of {{STATEMENT}}).
-  * It cannot be obtained for a reason other than a retrieval that did not complete (Section 5.3 of {{STATEMENT}}).
+  * It cannot be obtained, including over the server's size bound, for a reason other than a retrieval that did not complete (Section 5.3 of {{STATEMENT}}).
   * It omits `token_endpoint_auth_method`, or carries a redirection URI another application could claim ({{dcr-presentation}}).
   * It declares `token_endpoint_auth_method` of `none` and the server does not register it under {{public-client-registration}}.
   * It declares `token_endpoint_auth_method` of `none` and lists no redirection URI ({{public-client-registration}}).
@@ -257,10 +257,9 @@ A rejection this specification defines, at a client registration endpoint or at 
 `temporarily_unavailable`:
 : A retrieval the request needs did not complete (Section 5.3 of {{STATEMENT}}).
 
-Rejections at other endpoints use the error responses of Section 6 of {{STATEMENT}}. At the token, pushed authorization request, and authorization endpoints, rejections take the following form under a statement-governed registration that is not valid, under the required-issuer rule ({{registration-validity}}), and for a delivered statement that is earlier than the governing statement or fails the replacement rules ({{revalidation}}):
+Rejections at other endpoints use the error responses of Section 6 of {{STATEMENT}}. At the token and pushed authorization request endpoints, a request that fails the authentication of step 2 of {{registration-requests}} is rejected with `invalid_client`.
 
-* At the token and pushed authorization request endpoints, a request that fails the authentication of step 2 of {{registration-requests}} is rejected with `invalid_client`, as for an unknown client. Otherwise the request is rejected with `statement_required` (Section 6.1 of {{STATEMENT}}), or with `temporarily_unavailable` if a retrieval needed to check the replacement did not complete (Section 5.3 of {{STATEMENT}}).
-* An authorization request is rejected with `statement_required` in the authorization error response (Section 4.1.2.1 of {{RFC6749}}), or with `invalid_request` if it carries the `software_statement` parameter, as Section 6 of {{STATEMENT}} provides. The authorization server redirects with the error only after validating the request's `redirect_uri` against the registration (Section 4.1.2.1 of {{RFC6749}}).
+A token, pushed authorization, or authorization request rejected because its registration has ceased to be valid or under the required-issuer rule ({{registration-validity}}), or because its delivered statement is earlier than the governing statement or fails the replacement rules ({{revalidation}}), is rejected with `statement_required` (Section 6.1 of {{STATEMENT}}), or with `temporarily_unavailable` if a retrieval needed to check a replacement did not complete (Section 5.3 of {{STATEMENT}}). At the authorization endpoint, the error is returned in the authorization error response only after the request's `redirect_uri` is validated against the registration (Section 4.1.2.1 of {{RFC6749}}).
 
 Rejections of a registration management request for other reasons use the responses {{RFC7592}} specifies.
 
