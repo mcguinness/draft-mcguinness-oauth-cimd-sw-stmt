@@ -300,7 +300,7 @@ The authorization server validates the replacement and re-derives the registrati
 This specification defines the following authorization server metadata {{RFC8414}} value:
 
 `software_statement_registration_supported`:
-: OPTIONAL. Boolean value indicating whether the authorization server supports this specification. If omitted, the default value is `false`. A value of `true` means every registration the server creates from a statement under this specification is statement-governed, and does not imply support for runtime presentation.
+: OPTIONAL. Boolean value indicating whether the authorization server supports this specification. If omitted, the default value is `false`. A value of `true` means every registration the server creates from a statement of the profile in Section 3 of {{STATEMENT}} is statement-governed, and does not imply support for runtime presentation.
 
 # Deployment Considerations {#deployment-considerations}
 
