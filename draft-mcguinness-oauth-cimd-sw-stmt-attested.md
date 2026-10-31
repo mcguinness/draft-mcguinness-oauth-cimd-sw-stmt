@@ -331,12 +331,10 @@ The client presents its software statement using `software_statement` as defined
 Before returning a successful PAR response, the server MUST:
 
 1. Validate request syntax and the client identifier, resolve the applicable tenant, and authenticate the instance under {{trust}}, {{attestation}}, and {{proof}}. Checks needing no client-controlled retrieval precede such retrieval.
-2. Validate the selected statement under {{STATEMENT}}, including issuer and tenant policy, audience, effective expiry, and permission for runtime presentation, and apply the refusal records and the applicable `iat` floor of {{LIFECYCLE}}. If statements are pulled, step 3 resolves the document first, since the document names where statements are published, and the retrieval and selection rules of {{STATEMENT}} apply.
-3. Resolve the CIMD and perform the digest and metadata checks of {{STATEMENT}}. Parse the same bytes the server digested, enforce {{client-metadata}}, and complete the cross-artifact checks of {{attestation-validation}}.
+2. Validate the selected statement (Section 3.2 of {{STATEMENT}}) and apply the refusal records and `iat` floor (Sections 3 and 4 of {{LIFECYCLE}}). If statements are pulled, step 3 resolves the document first, since the document names where statements are published, and the retrieval and selection rules of {{STATEMENT}} apply.
+3. Resolve the CIMD (Section 5.3 of {{STATEMENT}}), perform the digest and metadata checks of Section 5.2 of {{STATEMENT}}, enforce {{client-metadata}}, and complete the cross-artifact checks of {{attestation-validation}}.
 4. Validate the requested redirect under {{loopback}}, require PKCE `S256`, and evaluate the request against the reviewed metadata and authorization policy.
 5. Create the establishment ({{establishment}}), bind the accepted request to it, and return a PAR response under {{RFC9126}}.
-
-For step 1, authentication establishes the attester, policy, client identifier, and attested key; it is not yet reviewed-software admission. An attestation whose digest has not been checked cannot establish the client. The ordering of statement checks before client-controlled retrieval in {{STATEMENT}} applies once a statement is available. The retrieval rules of {{STATEMENT}} and {{CIMD}}, including their protections against server-side request forgery, apply throughout, and {{STATEMENT}} describes how a server can bound the work these retrievals cause.
 
 If any required check fails, the server MUST NOT fall back to review-only or unreviewed admission for the same request. A request that carries no instance attestation for a document selecting this profile is an example: the server learns from the document (step 3) that this profile applies, then rejects the request with `invalid_client`. If the instance authenticates (step 1) but no statement is presented or remains after selection, it returns `statement_required`. A failed request MUST NOT advance the `iat` floor.
 
@@ -354,7 +352,7 @@ The client identifier, tenant, key, attester, policy, and binding profile MUST r
 
 ## Browser Authorization {#authorization}
 
-The client MUST use an external user-agent under {{RFC8252}}. The browser authorization request MUST use the `request_uri` parameter from the PAR response and the same `client_id` parameter. It MUST NOT carry the software statement, instance attestation, or an instance proof. The server MUST use the stored PAR parameters and MUST NOT allow front-channel parameters to change the redirect, PKCE challenge, key binding, or tenant.
+The client MUST use an external user-agent under {{RFC8252}}. The browser authorization request MUST use the `request_uri` parameter from the PAR response and the same `client_id` parameter. Besides the software statement, which Section 5.4.2 of {{STATEMENT}} excludes, it MUST NOT carry the instance attestation or an instance proof. The server MUST use the stored PAR parameters and MUST NOT allow front-channel parameters to change the redirect, PKCE challenge, key binding, or tenant.
 
 When the client's CIMD selects this profile or server policy requires it, the server MUST reject a direct authorization request without a PAR `request_uri` governed by this profile. A statement pulled at the authorization endpoint cannot create an exception to that requirement.
 
@@ -368,7 +366,7 @@ Before issuing tokens, the server MUST verify the code and PKCE binding and ever
 
 If the metadata changed or the recorded statement needs replacement, the client MUST start a new PAR transaction; code redemption cannot replace the governing review. A raised `iat` floor alone does not invalidate a code already bound to an acceptable recorded statement.
 
-The server MUST issue tokens only within the user's authorization, tenant policy, and reviewed metadata. It MUST bind any refresh token to the establishment, and MUST issue access tokens, at redemption and on refresh ({{refresh}}), bound to the proven key with a `token_type` of `DPoP` (Section 5 of {{RFC9449}}). The expiry of each access token, whether the token is a JWT or an opaque reference, MUST NOT be later than the `exp` of the instance attestation accepted for the request that obtained it ({{lifetime-practice}}). A resource server that does not accept DPoP-bound access tokens cannot be used under this profile.
+The server MUST issue tokens only within the user's authorization, tenant policy, and reviewed metadata. It MUST issue access tokens, at redemption and on refresh ({{refresh}}), bound to the proven key with a `token_type` of `DPoP` (Section 5 of {{RFC9449}}). The expiry of each access token, whether the token is a JWT or an opaque reference, MUST NOT be later than the `exp` of the instance attestation accepted for the request that obtained it ({{lifetime-practice}}). A resource server that does not accept DPoP-bound access tokens cannot be used under this profile.
 
 # Refresh {#refresh}
 
@@ -402,36 +400,36 @@ All other requirements of {{STATEMENT}} and {{LIFECYCLE}} continue to apply.
 
 # Error Responses {#errors}
 
-The error rules of {{STATEMENT}}, {{LIFECYCLE}}, {{ABCA}}, and {{RFC9449}} apply. This specification defines no new error code.
+This specification defines no new error code.
 
 ## Error Codes {#error-codes}
 
-The following error codes apply to pushed authorization requests, code redemption, and refresh, except where a condition names a particular endpoint. They are defined by Section 5.2 of {{RFC6749}} (`invalid_request`, `invalid_client`, and `invalid_grant`), Section 7.4 of {{ABCA}} (`use_fresh_attestation`, and `invalid_client_attestation`, which can replace `invalid_client` for a failed attestation or proof), Section 8 of {{RFC9449}} (`use_dpop_nonce`), and {{STATEMENT}} (`statement_required`, and `temporarily_unavailable` at the token and pushed authorization request endpoints, extending Section 4.1.2.1 of {{RFC6749}}). Other OAuth errors, such as `invalid_scope`, continue to apply to their respective failures.
-
-`invalid_request`:
-: Malformed or conflicting request parameters, or a `software_statement` parameter on code redemption.
+Under this profile, a pushed authorization request, code redemption, or refresh is rejected with the following error codes. Other rejections use the codes that {{STATEMENT}}, {{LIFECYCLE}}, {{ABCA}}, and {{RFC9449}} assign.
 
 `invalid_client`:
-: Missing or unacceptable attestation, untrusted attester or policy, a request carrying the `OAuth-Client-Attestation-PoP` header field, a DPoP proof under a key other than the attested key, or, at the PAR endpoint, a request carrying an instance attestation for a document that does not select this profile or violates {{client-metadata}}.
+: Any of the following, or `invalid_client_attestation` in its place (Section 7.4 of {{ABCA}}):
+
+  * The attestation is missing or unacceptable, or its attester or evidence policy is not trusted.
+  * The request carries the `OAuth-Client-Attestation-PoP` header field.
+  * A valid DPoP proof is under a key other than the attested key. This fails authentication, not the proof (Section 7.3 of {{ABCA}}).
+  * At the PAR endpoint, the request carries an instance attestation for a document that does not select this profile or violates {{client-metadata}}.
 
 `use_fresh_attestation`:
 : An otherwise valid attestation that this profile treats as not fresh enough (Section 7.4 of {{ABCA}}): its `exp` has passed, or it names a digest other than that of the document currently served while that document matches the applicable statement.
 
-`use_dpop_nonce`:
-: Missing or unacceptable server DPoP nonce.
-
 `invalid_grant`:
-: At redemption or refresh, a validly authenticated instance does not match a fixed establishment value of {{establishment}}; or, at redemption, the current document no longer matches the recorded digest; or, at refresh, the current document no longer selects this profile or meets {{client-metadata}}.
+: Any of the following:
+
+  * At code redemption or refresh, a validly authenticated instance does not match a fixed establishment value of {{establishment}}, including an instance that authenticates under a key other than the proven key.
+  * At code redemption or refresh, the current document exceeds a configured size bound.
+  * At code redemption, the current document no longer matches the recorded digest.
+  * At refresh, the current document no longer selects this profile or meets {{client-metadata}}.
 
 `statement_required`:
-: A required statement is missing, expired, refused, or (at the PAR endpoint) superseded; at code redemption or refresh, the recorded statement's issuer is no longer trusted; or, at refresh, a needed replacement is missing or unacceptable.
+: Any of the following:
 
-`temporarily_unavailable`:
-: A retrieval needed for validation temporarily fails.
-
-Invalid statements and reviewed documents at the PAR endpoint otherwise use the error rules of {{STATEMENT}}. A document exceeding a configured size bound is not a transient failure: it is rejected with `invalid_client` at the PAR endpoint, as {{STATEMENT}} rejects a presentation, and with `invalid_grant` at code redemption and refresh. An invalid or expired code or refresh token, failed PKCE check, or mismatched redemption redirect uses `invalid_grant`.
-
-A DPoP proof that fails the checks of Section 4.3 of {{RFC9449}} is rejected with `invalid_dpop_proof` (Section 5 of {{RFC9449}}), and a missing or unacceptable nonce with `use_dpop_nonce`, in place of any code listed above, as {{STATEMENT}} provides for proof-mechanism errors. A valid proof under a key other than the attestation's `cnf` key is not an invalid proof: authentication fails (Section 7.3 of {{ABCA}}), and the request is rejected with `invalid_client`. At code redemption and refresh, an instance that authenticates under a key other than the establishment's proven key fails the grant binding and is rejected with `invalid_grant`.
+  * At code redemption, the recorded statement is expired or refused.
+  * At code redemption or refresh, the recorded statement's issuer is no longer trusted.
 
 A `use_dpop_nonce` response MUST include the `DPoP-Nonce` HTTP header field.
 
@@ -443,7 +441,7 @@ Details of configured issuers, attesters, evidence policies, and tenant restrict
 
 ## Authorization Endpoint {#authorization-errors}
 
-At the authorization endpoint, when {{authorization}} requires a PAR `request_uri`, a request without a valid one is rejected with `invalid_request`. The server MUST NOT redirect with an error unless it has validated the redirect URI under the applicable client metadata and transaction. Front-channel carriage of the statement or instance-attestation artifacts is rejected with `invalid_request`.
+At the authorization endpoint, when {{authorization}} requires a PAR `request_uri`, a request without a valid one is rejected with `invalid_request`.
 
 # Examples {#examples}
 
