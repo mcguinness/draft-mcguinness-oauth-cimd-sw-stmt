@@ -183,7 +183,7 @@ The authorization server MUST process an authorization, token, or pushed authori
 
 1. It applies any tenant restriction ({{tenant-restriction}}).
 2. It authenticates a token or pushed authorization request under the registration's own client authentication method, against the retained registration if the registration has ceased to be valid. A public-client registration has no client credential, so no client authentication applies to such a request under it, whether or not the request delivers a statement ({{public-client-registration}}). It authenticates an {{RFC7592}} update request with the registration access token (Section 2 of {{RFC7592}}).
-3. It classifies any statement the request delivers and evaluates a replacement ({{revalidation}}).
+3. It classifies any statement the request delivers by its claims, before validating it, and evaluates a replacement ({{revalidation}}). A replacement applied at this step stands even if a later step, or the request's grant, rejects the request.
 4. It applies the rejections of {{registration-validity}}, and the rule of {{tenant-restriction}} for a tenant that requires a tenant-scoped decision, to the registration as step 3 leaves it.
 5. It evaluates the request against the registration's metadata.
 
