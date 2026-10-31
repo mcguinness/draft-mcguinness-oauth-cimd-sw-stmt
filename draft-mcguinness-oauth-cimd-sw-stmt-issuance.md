@@ -220,7 +220,7 @@ A public client binds its requests with Demonstrating Proof of Possession (DPoP)
 
 ## Metadata Snapshot {#metadata-snapshot}
 
-CIMDs can change while a request is pending. Before returning a software statement code or a deferral code, the authorization server MUST bind it to the exact octets of the document it retrieved and validated, and to their metadata digest, retrieved and computed as Section 3.1 of {{STATEMENT}} requires. The octets and metadata digest bound to a request, by this section or by {{token-exchange-profile}}, constitute its metadata snapshot.
+CIMDs can change while a request is pending. For each request, the authorization server retrieves and validates the document ({{client-identity}}) and computes the metadata digest of the exact octets it retrieved, as Section 3.1 of {{STATEMENT}} requires. These octets and their digest are the request's metadata snapshot. The authorization server MUST bind the snapshot and the requested audience to each software statement code and deferral it creates, and issues the statement over that snapshot.
 
 The authorization server MAY retrieve the document again before issuing the software statement. If it does so and the digest differs, it MUST either re-evaluate the request under the new document, binding the new document as the snapshot, or reject the request. This applies even if the change touches no member its policy examines. A statement over a superseded snapshot fails the digest comparison (Section 5.2 of {{STATEMENT}}).
 
@@ -283,8 +283,6 @@ The authorization server MUST validate the subject token before retrieving clien
 If no requested audience is acceptable, the request is rejected with the `invalid_target` error code (Section 2.2.2 of {{RFC8693}}).
 
 An error response to a token exchange MUST NOT contain the subject token.
-
-The authorization server MUST bind a metadata snapshot taken for this request ({{metadata-snapshot}}) and the requested audience before returning either the software statement or a deferral code.
 
 Issuance policy determines whether an initial access token authorizes the client only to request a statement or also authorizes its issuance. The exchange results in a software statement token response ({{software-statement-response}}), a deferral at a deferring issuer ({{deferred-processing}}), or the terminal denial of {{terminal-denial}}.
 
@@ -447,7 +445,7 @@ For a valid, unconsumed code, the authorization server returns the following, ac
 
 * **Approved.** The software statement token response ({{software-statement-response}}).
 * **Denied.** The terminal denial of {{terminal-denial}}.
-* **Pending.** The deferred token response of {{DTR}}, with the deferral bound to the code's metadata snapshot and audience in addition to the bindings {{DTR}} requires. The client then polls ({{deferred-processing}}).
+* **Pending.** A deferred token response ({{deferred-processing}}).
 
 An issuer that does not defer completes the decision before responding.
 
