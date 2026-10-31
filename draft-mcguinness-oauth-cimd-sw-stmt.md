@@ -116,13 +116,13 @@ This specification uses terminology from {{RFC6749}} (OAuth), {{RFC7591}} (clien
 This specification defines the following terms.
 
 Trusting Authorization Server:
-: An authorization server that consumes a software statement, at runtime under this specification or at registration under {{REGISTRATION}}.
+: An authorization server that consumes a software statement.
 
 Runtime Presentation:
 : The consumption of a validated software statement presented in a token request or pushed authorization request, or pulled from where the client's document points ({{pulled-statements}}), without creating a client registration.
 
 Admission:
-: A trusting authorization server's acceptance of a client for a request or a registration, either on a valid statement ({{processing}}, {{REGISTRATION}}), after which the reviewed metadata governs its requests, or under the server's policy for CIMD clients it has not reviewed.
+: A trusting authorization server's acceptance of a client for a request or a registration, either on a valid statement ({{processing}}), after which the reviewed metadata governs its requests, or under the server's policy for CIMD clients it has not reviewed.
 
 Establishment:
 : The state a successful runtime presentation creates for the grant it opens, enumerated in {{grant-lifecycle}}.
@@ -137,7 +137,7 @@ Required Issuer:
 : An issuer whose current statement a trusting authorization server requires in one of its tenants for software in configured client identifier namespaces ({{issuer-trust}}).
 
 Current Statement:
-: A statement whose effective expiry has not passed and that no extension the server implements, such as {{LIFECYCLE}}, has ended.
+: A statement whose effective expiry has not passed and that no extension the server implements has ended.
 
 Review-Only:
 : Describes a presentation, or a pulled statement, that the authorization server evaluates but whose statement counts for nothing in admission ({{review-only}}).
@@ -171,7 +171,7 @@ A statement asserts that its issuer evaluated the CIMD whose content the digest 
 : OPTIONAL. A JSON array identifying the permitted uses of the statement: `registration` ({{REGISTRATION}}) and `presentation` ({{cimd-presentation}}). If the claim is absent, only `presentation` is permitted. A pulled statement ({{pulled-statements}}) is a `presentation` use.
 
 `iat`:
-: REQUIRED. A NumericDate value, which MUST be an integer, giving the time the statement was issued. An issuer MUST ensure that the `iat` claim values of its statements for a given `iss` and `sub` increase strictly, which the selection of a pulled statement ({{pull-selection}}) and extensions such as {{REGISTRATION}} and {{LIFECYCLE}} rely on.
+: REQUIRED. A NumericDate value, which MUST be an integer, giving the time the statement was issued. An issuer MUST ensure that the `iat` claim values of its statements for a given `iss` and `sub` increase strictly, which the selection of a pulled statement ({{pull-selection}}) and extensions rely on.
 
 `exp`:
 : REQUIRED. A NumericDate value giving the expiration time.
@@ -182,7 +182,7 @@ A statement asserts that its issuer evaluated the CIMD whose content the digest 
 `cimd_digest`:
 : REQUIRED. The metadata digest ({{metadata-digest}}) of the CIMD the issuer evaluated.
 
-Profiles and extensions can define further claims, such as `status` ({{LIFECYCLE}}).
+Profiles and extensions can define further claims.
 
 A statement issued under this specification MUST NOT contain a claim named in the IANA "OAuth Dynamic Client Registration Metadata" registry, and a trusting authorization server MUST NOT take client metadata from a statement's claims.
 
@@ -417,11 +417,11 @@ On refresh-token use under an establishment, the authorization server:
 
 If either check fails, the server rejects the refresh. The refreshed access MUST fall within the establishment's reviewed metadata.
 
-Under this specification, refresh evaluates no statement ({{enforcement-bounds}}) and never changes the establishment's proven key or reviewed metadata. A client that needs a different key, or, without {{LIFECYCLE}}, a different review, opens a new grant by presentation.
+Under this specification, refresh evaluates no statement ({{enforcement-bounds}}) and never changes the establishment's proven key or reviewed metadata. A client that needs a different key or review opens a new grant by presentation. An extension can instead provide for replacing the review on refresh.
 
 # Error Responses {#errors}
 
-A rejection uses the error response and HTTP status codes of its endpoint: Section 5.2 of {{RFC6749}} at the token endpoint, Section 2.3 of {{RFC9126}} at the pushed authorization request endpoint, and Section 4.1.2.1 of {{RFC6749}} at the authorization endpoint. {{REGISTRATION}} defines rejections at a registration endpoint.
+A rejection uses the error response and HTTP status codes of its endpoint: Section 5.2 of {{RFC6749}} at the token endpoint, Section 2.3 of {{RFC9126}} at the pushed authorization request endpoint, and Section 4.1.2.1 of {{RFC6749}} at the authorization endpoint.
 
 A rejection for a reason this specification defines uses the first of the following error codes that applies:
 
@@ -431,14 +431,14 @@ A rejection for a reason this specification defines uses the first of the follow
 
 At the token and pushed authorization request endpoints, an authorization server SHOULD respond with HTTP status code 503 to a request it rejects with the `temporarily_unavailable` error code.
 
-A rejection for another reason, such as an assertion grant whose assertion is invalid (Section 3.1 of {{RFC7523}}) or an expired or revoked refresh token, uses the error code its grant or endpoint assigns. An extension such as {{LIFECYCLE}} assigns codes to the rejections it defines.
+A rejection for another reason, such as an assertion grant whose assertion is invalid (Section 3.1 of {{RFC7523}}) or an expired or revoked refresh token, uses the error code its grant or endpoint assigns. An extension assigns codes to the rejections it defines.
 
 ## Statement Required Error {#statement-required}
 
 This specification defines the following error code:
 
 `statement_required`:
-: A current software statement is required and none was presented or pulled, or the one presented or pulled is expired and otherwise valid. An extension such as {{REGISTRATION}} or {{LIFECYCLE}} can assign it to further cases. The client recovers by obtaining a statement issued more recently.
+: A current software statement is required and none was presented or pulled, or the one presented or pulled is expired and otherwise valid. An extension can assign it to further cases. The client recovers by obtaining a statement issued more recently.
 
 ## Presentation Requests {#presentation-errors}
 
@@ -695,7 +695,7 @@ The security considerations of {{CIMD}} and Section 5 of {{RFC7591}} apply.
 
 ## Assurance Provided by a Statement {#what-statement-attests}
 
-A statement binds an issuer's review to the octets of a CIMD, which describes an OAuth client configuration. It does not bind the software's code, dependencies, or behavior. Software can change while its document stays the same, and the statement remains acceptable until it expires ({{enforcement-bounds}}) or, under {{LIFECYCLE}}, is withdrawn. Assurance about the software itself rests on the issuer's review process. Any change to the document's octets, including one that changes no metadata value, makes statements over the earlier octets fail the digest comparison ({{effective-metadata}}). The digest covers a URL the document carries, such as `logo_uri`, but not the content served at it, which can change after review.
+A statement binds an issuer's review to the octets of a CIMD, which describes an OAuth client configuration. It does not bind the software's code, dependencies, or behavior. Software can change while its document stays the same, and the statement remains acceptable until it expires ({{enforcement-bounds}}) or is withdrawn under an extension. Assurance about the software itself rests on the issuer's review process. Any change to the document's octets, including one that changes no metadata value, makes statements over the earlier octets fail the digest comparison ({{effective-metadata}}). The digest covers a URL the document carries, such as `logo_uri`, but not the content served at it, which can change after review.
 
 The following table states what admission on a statement does and does not establish:
 
@@ -738,7 +738,7 @@ The retrievals of {{retrieval}} happen before any client is registered or any us
 
 ## Expiry and Open Grants {#enforcement-bounds}
 
-Under this specification, expiry limits new admissions and ends nothing already opened: a grant lasts for the life of its refresh tokens, whatever the statement's lifetime, unless the server finds the proven key gone from the client's document ({{refresh}}). An older statement that has not expired remains admissible after a newer one narrows the review. A deployment that needs withdrawal, supersession, or grants that follow later reviews implements {{LIFECYCLE}}. Removing an issuer from trust configuration, or narrowing what it can attest, does not by itself end a grant or a registration ({{REGISTRATION}}) already admitted on one of its statements. A server ends them by its own means, such as revoking refresh tokens or deleting registrations.
+Under this specification, expiry limits new admissions and ends nothing already opened: a grant lasts for the life of its refresh tokens, whatever the statement's lifetime, unless the server finds the proven key gone from the client's document ({{refresh}}). An older statement that has not expired remains admissible after a newer one narrows the review. A deployment that needs withdrawal, supersession, or grants that follow later reviews implements an extension providing them ({{extensions}}). Removing an issuer from trust configuration, or narrowing what it can attest, does not by itself end a grant or a registration ({{REGISTRATION}}) already admitted on one of its statements. A server ends them by its own means, such as revoking refresh tokens or deleting registrations.
 
 ## Observable State {#oracle-considerations}
 
