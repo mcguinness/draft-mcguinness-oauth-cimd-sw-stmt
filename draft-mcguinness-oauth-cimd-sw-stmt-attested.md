@@ -183,11 +183,9 @@ Evidence Policy:
 Attested Key:
 : The key an instance attestation's `cnf` claim names.
 
-The software statement's issuer and the client attester are separate roles. One entity can perform both, but neither role implies trust in the other.
-
 # Scope and Profile Selection {#selection}
 
-An authorization server implementing this specification MUST support PAR, PKCE with `S256` {{RFC7636}}, DPoP {{RFC9449}}, and the `attest_jwt_client_auth_dpop` method of {{ABCA}}, which uses a DPoP proof as the proof of possession (Sections 5.2 and 7.3 of {{ABCA}}). Clients MUST use that method at the PAR endpoint and at every token request under this specification. This profile does not support the Client Attestation PoP JWT (Section 5.1 of {{ABCA}}).
+An authorization server implementing this specification MUST support PAR, PKCE with `S256` {{RFC7636}}, DPoP {{RFC9449}}, and the authentication method of {{proof}}.
 
 Each installation holds its own credential, the attested key, so a client under this profile is a confidential client although it is a native application, as Section 8.4 of {{RFC8252}} contemplates for per-instance credentials. A presentation processed under {{par}} whose redirection URIs meet {{loopback}} is not review-only (Section 5.6.3 of {{STATEMENT}}).
 
@@ -199,9 +197,7 @@ This specification permits only the authorization code grant opened through PAR,
 
 ## Required Binding {#required-binding}
 
-A server requiring reviewed software for a client namespace or tenant MUST enforce that requirement even when the requester omits every review artifact or presents a statement over an earlier document. A server requiring this binding MUST reject attempts to open a grant under an alternative authentication method, through a direct authorization request, or through another grant type. These requirements MUST be based on server policy, not inferred only from artifacts a requester can withhold.
-
-The server MUST enforce the reviewed binding selection on every new admission under a reviewed document that selects this profile. A deployment permitting unrelated unreviewed clients can continue to do so under its own policy, but a failed request under this profile is rejected rather than admitted under that policy ({{par}}). Any independently admitted unreviewed client carries none of the assurance of this specification.
+When server policy requires this binding for a client identifier namespace or tenant, the server MUST reject a request that opens a grant there other than under {{par}}, whatever artifacts it carries or omits.
 
 # Client Metadata {#client-metadata}
 
@@ -212,7 +208,7 @@ This specification defines the following member of a CIMD:
 
 A document selecting this profile MUST meet all of the following requirements:
 
-* Its `token_endpoint_auth_method` is the single string `attest_jwt_client_auth_dpop`. No alternative authentication method is offered under this profile.
+* Its `token_endpoint_auth_method` is the single string `attest_jwt_client_auth_dpop` ({{proof}}).
 * Its `grant_types` member explicitly contains `authorization_code` and MAY also contain `refresh_token`. It contains no other grant type.
 * Its `response_types` explicitly contains only `code`.
 * Its `redirect_uris` is a nonempty array, every member of which meets {{loopback}}.
@@ -253,7 +249,7 @@ The server cannot observe how an attester reached its decision, so it relies on 
 * The policy's identifier denotes immutable policy semantics: a material policy change requires a new identifier.
 * The policy establishes an association between the software the statement covers and control of the attested key. User approval of a key, a publisher account login, possession of a shared embedded secret, or device integrity alone does not establish that association.
 
-A server MUST NOT accept for this profile an evidence policy that does not meet these requirements. A server can use weaker evidence for other purposes but MUST NOT report it as satisfying this profile.
+A server MUST NOT accept for this profile an evidence policy that does not meet these requirements.
 
 A statement approves the document and the software that its publisher (the controller of the document URL's origin, or a delegate) associates with it, not a particular executable. The publisher decides which releases that association covers, under the evidence policy's treatment of updates, so a new release with unchanged metadata needs no new statement. This profile cannot enforce an issuer's approval of particular releases.
 
@@ -306,11 +302,11 @@ At each pushed authorization request, code redemption, and refresh, the authoriz
 
 On continuation, the proven key and the recorded attester, policy, and tenant constraints of {{establishment}} also apply. The server MUST NOT treat an attestation for another digest as permission to update metadata without the software statement replacement required by {{refresh}}.
 
-A server MUST NOT accept a software statement as an instance attestation, or an instance attestation as a software statement. Software statement signing keys retain the separation requirements of {{STATEMENT}}, so they never sign instance attestations, even if one organization performs both roles.
+A server MUST NOT accept a software statement as an instance attestation, or an instance attestation as a software statement. The statement issuer and the attester are separate roles: one entity can perform both, but neither role implies trust in the other, and statement signing keys never sign instance attestations (Section 4 of {{STATEMENT}}).
 
 ## Proof of Possession {#proof}
 
-The client sends the instance attestation in the `OAuth-Client-Attestation` HTTP header field and uses DPoP combined mode under Section 7.3 of {{ABCA}}. It MUST NOT also send the `OAuth-Client-Attestation-PoP` HTTP header field, and the server MUST reject a request under this profile that does. A `dpop_jkt` parameter alone is not a proof. The authentication method and its validation remain those defined by {{ABCA}}; this profile supplies the attestation's type and additional bindings.
+Clients MUST use the `attest_jwt_client_auth_dpop` method of {{ABCA}} at the PAR endpoint and on every token request under this profile. The method sends the instance attestation in the `OAuth-Client-Attestation` HTTP header field and uses a DPoP proof as the proof of possession, in DPoP combined mode (Sections 5.2 and 7.3 of {{ABCA}}). This profile does not support the Client Attestation PoP JWT (Section 5.1 of {{ABCA}}): the client MUST NOT send the `OAuth-Client-Attestation-PoP` HTTP header field, and the server MUST reject a request under this profile that does. A `dpop_jkt` parameter alone is not a proof. The authentication method and its validation remain those defined by {{ABCA}}; this profile supplies the attestation's type and additional bindings.
 
 The authorization server MUST require a server-issued DPoP nonce at the PAR endpoint and on every token request under this profile. It MUST reject replay of a proof within its acceptance window. Nonce challenges do not consume a code, rotate a refresh token, create an establishment, or advance the `iat` floor. A request rejected before the instance is authenticated, or rejected with `use_fresh_attestation` or `temporarily_unavailable`, has none of these effects either, so the client can retry with a fresh attestation.
 
@@ -352,7 +348,7 @@ The client identifier, tenant, key, attester, policy, and binding profile MUST r
 
 The client MUST use an external user-agent under {{RFC8252}}. The browser authorization request MUST use the `request_uri` parameter from the PAR response and the same `client_id` parameter. Besides the software statement, which Section 5.4.2 of {{STATEMENT}} excludes, it MUST NOT carry the instance attestation or an instance proof. The server MUST use the stored PAR parameters and MUST NOT allow front-channel parameters to change the redirect, PKCE challenge, key binding, or tenant.
 
-When the client's CIMD selects this profile or server policy requires it, the server MUST reject a direct authorization request without a PAR `request_uri` governed by this profile. A statement pulled at the authorization endpoint cannot create an exception to that requirement.
+When the client's CIMD selects this profile, the server MUST reject an authorization request without a PAR `request_uri` governed by this profile, even if it could pull a statement there. {{required-binding}} covers a server whose policy requires this binding.
 
 The server authenticates the resource owner and applies authorization policy independently of the software and instance checks. It MUST return the authorization response with the issuer identifier in the `iss` parameter defined by {{RFC9207}}. The client MUST validate that identifier, and the `state` parameter if it sent one, against the transaction before redeeming a code. Callback validation and OAuth security requirements in {{RFC8252}} and {{RFC9700}} continue to apply.
 
@@ -364,7 +360,7 @@ Before issuing tokens, the server MUST verify the code and PKCE binding and ever
 
 If the metadata changed or the recorded statement needs replacement, the client MUST start a new PAR transaction; code redemption cannot replace the governing review. A raised `iat` floor alone does not invalidate a code already bound to an acceptable recorded statement.
 
-The server MUST issue tokens only within the user's authorization, tenant policy, and reviewed metadata. It MUST issue access tokens, at redemption and on refresh ({{refresh}}), bound to the proven key with a `token_type` of `DPoP` (Section 5 of {{RFC9449}}). The expiry of each access token, whether the token is a JWT or an opaque reference, MUST NOT be later than the `exp` of the instance attestation accepted for the request that obtained it ({{lifetime-practice}}). A resource server that does not accept DPoP-bound access tokens cannot be used under this profile.
+The server MUST issue access tokens, at redemption and on refresh ({{refresh}}), bound to the proven key with a `token_type` of `DPoP` (Section 5 of {{RFC9449}}). The expiry of each access token, whether the token is a JWT or an opaque reference, MUST NOT be later than the `exp` of the instance attestation accepted for the request that obtained it ({{lifetime-practice}}). A resource server that does not accept DPoP-bound access tokens cannot be used under this profile.
 
 # Refresh {#refresh}
 
@@ -577,7 +573,7 @@ A signing broker ought to expose constrained operations rather than arbitrary si
 
 ## User Interface, Audit, and Logging {#ui-audit}
 
-A server ought not to present assurances stronger than the accepted evidence policy supports.
+A server ought not to present assurances stronger than the accepted evidence policy supports, or report weaker evidence it uses for other purposes as satisfying this profile.
 
 Authorization servers ought to avoid logging complete attestations, verifiers, codes, and refresh tokens. Audit records can retain the trust decisions, policy identifier, digest, and appropriately protected key identifiers without retaining credentials.
 
@@ -595,7 +591,7 @@ An attester ought to limit enrollment and renewal so that one approved installat
 
 ## Evidence Age and Token Lifetime {#lifetime-practice}
 
-Because an access token expires no later than the attestation accepted for it ({{redemption}}), a client holding a refresh token refreshes, with a fresh attestation, at least as often as its attester's evidence age allows, and a client without one starts a new authorization request at the PAR endpoint. {{operations}} works through an example.
+Because an access token expires no later than the attestation accepted for it ({{redemption}}), a client holding a refresh token refreshes, with a fresh attestation, at least as often as its attester's evidence age allows, and a client without one starts a new authorization request at the PAR endpoint.
 
 # Security Considerations {#security-considerations}
 
@@ -607,7 +603,7 @@ A valid signature proves that an accepted attester made an assertion; it does no
 
 A key's non-exportability does not prove which process can use it. An acceptable evidence policy therefore requires key storage and any signing broker to restrict use to the software instance the policy covers ({{trust}}). A general signing service reachable by arbitrary local processes would let unreviewed software authenticate through an approved installation ({{signing-brokers}}). Remote attestation of a device without an application-to-key binding likewise does not prove which process can use the key.
 
-This profile cannot ensure benign user intent, prevent an approved application from being used as a proxy, or preserve an assurance after compromise of the platform on which its evidence depends, so a server ought not to present assurances beyond what the accepted policy supports ({{ui-audit}}). Plugins, scripts, dynamic libraries, debuggers, and injected code can change the effective software identity and require explicit treatment in the evidence policy ({{trust}}).
+This profile cannot ensure benign user intent, prevent an approved application from being used as a proxy, or preserve an assurance after compromise of the platform on which its evidence depends ({{ui-audit}}). Plugins, scripts, dynamic libraries, debuggers, and injected code can change the effective software identity and require explicit treatment in the evidence policy ({{trust}}).
 
 ## Loopback and Transaction Theft
 
@@ -633,11 +629,11 @@ Short effective lifetimes limit stale evidence but make attester availability im
 
 An access token cannot outlive the attestation accepted when it was issued ({{redemption}}), but it can outlive a review withdrawn or attester trust removed after issuance ({{revocation-practice}}).
 
-Metadata digest binding can require coordinated publication of a new document, review, and attestation ({{operations}}). During an incomplete transition a request fails: {{STATEMENT}} does not treat the changed document as reviewed, and this profile does not fall back ({{par}}).
+Metadata digest binding can require coordinated publication of a new document, review, and attestation ({{refresh}}). During an incomplete transition a request fails: {{STATEMENT}} does not treat the changed document as reviewed, and this profile does not fall back ({{par}}).
 
 ## Resource Exhaustion
 
-Attestations do not remove the need for bounded document retrieval, statement selection, proof replay caches, and PAR storage ({{STATEMENT}}, {{resource-bounds}}). An installation that can enroll unlimited keys evades per-key controls ({{attester-practice}}).
+Attestations do not remove the need for bounded document retrieval, statement selection, proof replay caches, and PAR storage ({{STATEMENT}}, {{resource-bounds}}, {{attester-practice}}).
 
 # Privacy Considerations {#privacy}
 
@@ -795,14 +791,6 @@ Evidence and renewal:
 
 Unsupported case:
 : A script run by a signed interpreter with unrestricted imports is not covered. The verified signature is the interpreter's, and library validation does not constrain the scripts and modules it reads. Such a client remains review-only under {{STATEMENT}}.
-
-# Operational Consequences {#operations}
-
-This appendix is non-normative. It assumes an evidence policy whose maximum evidence age is eight hours.
-
-* An attestation on evidence collected at 09:00 expires by 17:00, and so does every access token issued on it ({{redemption}}). Before then, a client holding a refresh token refreshes on new evidence. A client without one starts a new authorization request.
-* A metadata change, such as a new loopback redirect or scope, needs a statement and attestations over the new digest before each grant refreshes onto it ({{refresh}}). An authorization in progress during the change restarts at the PAR endpoint ({{redemption}}).
-* A new evidence-policy identifier ({{trust}}) or a new key requires a new grant ({{establishment}}).
 
 # Acknowledgments
 {:numbered="false"}
