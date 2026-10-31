@@ -526,7 +526,7 @@ Pragma: no-cache
 }
 ~~~
 
-The `access_token` member is a security-token container ({{RFC8693}}), not an OAuth access token. The software statement it carries is consumed only as {{STATEMENT}} and {{REGISTRATION}} provide, MUST NOT be attached to a request as an `Authorization: Bearer` credential, and is not subject to refresh. A protected resource MUST NOT accept a software statement returned in the `access_token` member as an access token.
+The `access_token` member is a security-token container ({{RFC8693}}), not an OAuth access token. The software statement it carries is consumed only as {{STATEMENT}} and {{REGISTRATION}} provide, and MUST NOT be attached to a request as an `Authorization: Bearer` credential. A protected resource MUST NOT accept a software statement returned in the `access_token` member as an access token.
 
 ## Terminal Denial {#terminal-denial}
 
@@ -571,7 +571,7 @@ An authorization server can rate-limit token exchanges, cache successful retriev
 
 ## Handling the Issued Statement {#issued-statement-handling}
 
-A client that caches issued tokens by type ought to key the issued software statement ({{software-statement-response}}) on the response's `issued_token_type` member, so that generic access-token handling does not apply to it, and ought to treat it as a sensitive credential in logs.
+A client ought to key the statement on `issued_token_type` and keep it out of logs.
 
 ## Approval Interface {#approval-interface}
 
@@ -625,8 +625,6 @@ An issuer ought to protect its signing keys according to the scope of its trust 
 The security considerations of Section 13 of {{STATEMENT}}, {{CIMD}}, and Section 5 of {{RFC8693}} apply.
 
 ## Software Statements and Access Grants
-
-A software statement grants no resource access or consent on behalf of the software's users, and a protected resource does not accept one as an access token ({{software-statement-response}}).
 
 An authorization server that shows an approval interface MUST NOT imply through that interface that the approver is granting the client access to resources. An erroneous approval affects every authorization server in the statement's audience until expiry ({{approval-interface}}, {{review-practice}}).
 
@@ -798,8 +796,6 @@ Specification Document(s):
 # Design Rationale {#design-rationale}
 
 **Why the software statement code is not an authorization code.** Redeeming an authorization code issues an access token under {{RFC6749}}. This flow issues an artifact that grants nothing. A distinct code keeps implementations that treat any code as redeemable from confusing the two.
-
-**Why the response uses `access_token`.** {{RFC8693}} defines the container, so existing token endpoint machinery carries the artifact. The `issued_token_type` identifies what it is.
 
 **Why not the device authorization grant.** {{RFC8628}} fits a human decision that outlives a request, and an issuer whose approval is always out of band can use it. It assumes a user co-present with a constrained device who enters a user code elsewhere. Issuance approval is made by an administrator or reviewer who does not operate the client and is often not present, and the client already has a browser. The redirect flow covers an approver reachable through that browser. The token exchange profile covers the case with no browser.
 
