@@ -314,7 +314,7 @@ Under the one-registration default ({{repeated-registration}}), whoever first re
 
 If the publisher's statement permits presentation and the server supports it, the publisher's software can still be admitted through runtime presentation (Section 5 of {{STATEMENT}}). Otherwise, recovery requires intervention by the server's operator or a registration policy other than the one-registration default. This specification defines no way to displace such a registration.
 
-A public-client registration ({{public-client-registration}}) has no credential to take and is answered idempotently, so its first registrant gains nothing over later ones. Any holder of a copy can use it. Authorization codes under it reach only the reviewed redirection URIs, and its grants are bound to keys that installations hold. A holder of a copy therefore gains what it would gain at runtime, including the exposure Section 13.4 of {{STATEMENT}} describes for a holder that controls the user agent.
+A public-client registration ({{public-client-registration}}) has no credential to take, and a repeated request is answered with it ({{repeated-registration}}), so its first registrant gains nothing over later ones. Any holder of a copy can use it. Authorization codes under it reach only the reviewed redirection URIs, and its grants are bound to keys that installations hold. A holder of a copy therefore gains what it would gain at runtime, including the exposure Section 13.4 of {{STATEMENT}} describes for a holder that controls the user agent.
 
 ## Credential Theft and Renewal {#renewal-credential}
 
