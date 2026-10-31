@@ -75,7 +75,7 @@ A software statement for a Client ID Metadata Document (CIMD) records a trusted 
 
 This specification adds withdrawal and refusal records ({{withdrawal}}), supersession of earlier statements through an `iat` floor ({{supersession}}), and refresh rules ({{refresh-lifecycle}}) under which a grant whose recorded statement is withdrawn, or by recommendation expired, continues only if a later statement replaces it.
 
-A trusting authorization server that implements this specification applies all of {{withdrawal}} through {{refresh-lifecycle}} and {{lifecycle-errors}}, whatever withdrawal mechanism it uses, if any. An issuer that uses a withdrawal mechanism withdraws statements through it, and {{withdrawal}} recommends that it withdraw an earlier statement when it issues a later, narrower one. Publishing status and sending events are optional for an issuer, and supersession and refresh replacement work without them. A client can offer a later statement on refresh ({{refresh-replacement}}).
+A trusting authorization server that implements this specification applies all of {{withdrawal}} through {{refresh-lifecycle}} and {{lifecycle-errors}}, whatever withdrawal mechanism it uses, if any. {{withdrawal}} recommends that an issuer withdraw an earlier statement when it issues a later, narrower one. Publishing status and sending events are optional for an issuer, and supersession and refresh replacement work without them. A client can offer a later statement on refresh ({{refresh-replacement}}).
 
 {{token-status-list}} profiles Token Status List {{STATUSLIST}} as the withdrawal mechanism of this specification: an issuer withdraws a statement by setting its status, and a trusting authorization server learns of it when it next resolves the list. {{shared-signals}} defines an optional Shared Signals Framework {{SSF}} event, not itself a withdrawal mechanism, that prompts the trusting authorization servers that have configured an issuer to resolve a changed status promptly.
 
@@ -119,9 +119,7 @@ A refusal derived from a withdrawal mechanism lasts until a later authoritative 
 
 A withdrawal constrains and never relaxes. A statement for which no withdrawal mechanism reports a withdrawal, or for which the server cannot consult the mechanism it uses ({{withdrawal-practice}}), is bounded by its effective expiry as it would be otherwise, and a server MUST NOT treat any withdrawal mechanism as grounds to accept a statement past its effective expiry.
 
-An issuer that uses a withdrawal mechanism and issues a later statement narrower than the one it replaces SHOULD withdraw the earlier statement. A later statement is narrower if the document it names no longer carries a key, redirection URI, or scope the earlier document carried, if its `aud`, `aud_tenant`, or `statement_uses` is narrower, or if its remaining lifetime is shorter.
-
-Without that withdrawal, a trusting authorization server that has not yet seen the later statement, or at which the later statement does not validate, accepts the earlier statement until it expires.
+An issuer that uses a withdrawal mechanism and issues a later statement narrower than the one it replaces SHOULD withdraw the earlier statement ({{replacement-security}}). A later statement is narrower if the document it names no longer carries a key, redirection URI, or scope the earlier document carried, if its `aud`, `aud_tenant`, or `statement_uses` is narrower, or if its remaining lifetime is shorter.
 
 Rejections under this section use the error responses of {{lifecycle-errors}}.
 
@@ -380,6 +378,8 @@ Refusal records ({{withdrawal}}) and `iat` floors ({{supersession}}) are durable
 
 # IANA Considerations
 
+The `software_statement_jti` payload claim of {{status-changed}} needs no registration, because SET payload claims need not be registered as JWT claims (Section 2 of {{RFC8417}}) and no IANA registry of SET payload claims exists.
+
 ## OAuth URI Registry {#iana-event-type}
 
 {{RFC8417}} establishes no registry of event types, so this specification takes its identifier from the `oauth` sub-namespace {{RFC6755}} and requests registration of the following value in the IANA "OAuth URI" registry:
@@ -396,13 +396,4 @@ Change Controller:
 Specification Document(s):
 : This specification, {{status-changed}}
 
-## SET Payload Claims
-
-Under Section 2 of {{RFC8417}}, the `software_statement_jti` payload claim of {{status-changed}} is defined by this specification and need not be registered as a JWT claim. No IANA registry of SET payload claims exists, so no registration is requested.
-
 --- back
-
-# Acknowledgments
-{:numbered="false"}
-
-This specification draws on the Shared Signals Framework and the Continuous Access Evaluation Profile for its transport and payload conventions. The lifecycle rules of {{withdrawal}} through {{refresh-lifecycle}} began in {{STATEMENT}} and were separated from it so that its admission baseline stands alone.
