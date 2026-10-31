@@ -141,18 +141,20 @@ An authorization server MAY register a client whose reviewed document declares `
 * MUST require PKCE {{RFC7636}} with the `S256` method on every authorization request under the registration.
 * MUST require every authorization request under the registration to bind a key the client holds, through the `dpop_jkt` parameter or, at the pushed authorization request endpoint, a DPoP proof (Section 10.1 of {{RFC9449}}), and MUST require code redemption and every refresh of the resulting grant to prove that key.
 * MUST NOT issue a registration access token {{RFC7592}} for the registration.
-* MUST NOT create another registration for a later registration request if all of the following hold:
-  * The request is in a tenant where the registration can be used.
-  * The request's statement has the same `iss` and `sub` claims as the governing statement.
-  * That statement validates, and its `iat` is no earlier than the governing statement's.
-
-Such a request is answered with the existing registration if its statement's `iat` equals the governing statement's. If the `iat` is later, the server evaluates the statement as {{revalidation}} provides for a delivery, including its tenant rules, and answers with the renewed registration or rejects the request ({{errors}}). A later registration request whose statement has the governing statement's `iss` and `sub` and an earlier `iat` is rejected. A public-client registration request that meets none of these cases is processed as a new registration.
 
 ## Repeated Registration {#repeated-registration}
 
-One unexpired statement can be consumed more than once, subject to the bounds Sections 11.2 and 11.3 of {{STATEMENT}} describe and the server's registration policy. On repeated consumption, except for a public-client registration, local policy can reject the request, treat it as idempotent, or create another registration. A repeated public-client registration is handled as {{public-client-registration}} provides. An idempotent response MUST NOT return the existing registration's credentials, such as its `registration_access_token` member.
+A registration request is repeated if its statement has the `iss` and `sub` claims of the governing statement of an existing statement-governed registration that can be used in the request's tenant ({{tenant-restriction}}). One current statement can be consumed more than once, subject to the bounds of Sections 11.2 and 11.3 of {{STATEMENT}} and the server's registration policy.
 
-The safe default for the registration policy of {{repeated-registration}} is one registration per (`iss`, `sub`) at one authorization server.
+For a repeated request for a confidential client, local policy can reject the request, treat it as idempotent, or create another registration. An idempotent response MUST NOT return the existing registration's credentials, such as its `registration_access_token` member. A common default is one registration per `iss` and `sub`, per tenant on a multi-tenant server, at the cost {{statement-bearer}} describes.
+
+For a repeated request for a public-client registration ({{public-client-registration}}), the authorization server MUST NOT create another registration and handles the request by its statement, once the statement validates:
+
+| Statement in the repeated request | Outcome |
+| --- | --- |
+| The governing statement, identified by its `iss` and `jti` | The existing registration is returned |
+| A later `iat` than the governing statement's | Evaluated as a delivery ({{revalidation}}); the renewed registration is returned or the request is rejected ({{errors}}) |
+| An earlier `iat` than the governing statement's | The request is rejected |
 
 # Registration Validity {#registration-validity}
 
@@ -236,7 +238,7 @@ A rejection this specification defines, at a client registration endpoint or at 
   * A replacement delivered at the client configuration endpoint, or a statement in a repeated public-client registration request that is earlier than the governing statement or is evaluated as a replacement ({{public-client-registration}}), fails a replacement-specific rule of {{revalidation}} that this section assigns no other code, such as a change in whether the document declares `token_endpoint_auth_method` of `none`.
 
 `unapproved_software_statement`:
-: The statement is valid but not acceptable here: its issuer is not configured, its `aud` excludes this server, its `sub` is outside the client identifier namespaces the issuer can attest, its `aud_tenant` is not this request's tenant or is absent when required, its issuer is confined to another tenant, or its `statement_uses` excludes this use. This code is also used if a statement this server requires is absent from a registration request.
+: The statement is valid but not acceptable here: its issuer is not configured, its `aud` excludes this server, its `sub` is outside the client identifier namespaces the issuer can attest, its `aud_tenant` is not this request's tenant or is absent when required, its issuer is confined to another tenant, or its `statement_uses` excludes this use. This code is also used if a statement this server requires is absent from a registration request, and for a repeated registration request that the server's policy refuses ({{repeated-registration}}).
 
 `invalid_client_metadata`:
 : Any of the following holds for the reviewed document:
