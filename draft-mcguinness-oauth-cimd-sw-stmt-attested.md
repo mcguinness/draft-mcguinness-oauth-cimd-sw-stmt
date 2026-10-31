@@ -334,11 +334,11 @@ Before returning a successful PAR response, the server MUST:
 2. Validate the selected statement under {{STATEMENT}}, including issuer and tenant policy, audience, effective expiry, and permission for runtime presentation, and apply the refusal records and the applicable `iat` floor of {{LIFECYCLE}}. If statements are pulled, step 3 resolves the document first, since the document names where statements are published, and the retrieval and selection rules of {{STATEMENT}} apply.
 3. Resolve the CIMD and perform the digest and metadata checks of {{STATEMENT}}. Parse the same bytes the server digested, enforce {{client-metadata}}, and complete the cross-artifact checks of {{attestation-validation}}.
 4. Validate the requested redirect under {{loopback}}, require PKCE `S256`, and evaluate the request against the reviewed metadata and authorization policy.
-5. Create or reuse an establishment under {{establishment}}, bind the accepted request to it, and return a PAR response under {{RFC9126}}.
+5. Create the establishment ({{establishment}}), bind the accepted request to it, and return a PAR response under {{RFC9126}}.
 
 For step 1, authentication establishes the attester, policy, client identifier, and attested key; it is not yet reviewed-software admission. An attestation whose digest has not been checked cannot establish the client. The ordering of statement checks before client-controlled retrieval in {{STATEMENT}} applies once a statement is available. The retrieval rules of {{STATEMENT}} and {{CIMD}}, including their protections against server-side request forgery, apply throughout, and {{STATEMENT}} describes how a server can bound the work these retrievals cause.
 
-If any required check fails, the server MUST NOT fall back to review-only or unreviewed admission for the same request. A request that carries no instance attestation for a document selecting this profile is an example: the server learns from the document (step 3) that this profile applies, then rejects the request with `invalid_client`. If the instance authenticates (step 1) but no statement is presented or remains after selection, it returns `statement_required`. A failed request MUST NOT advance the `iat` floor or alter an existing establishment.
+If any required check fails, the server MUST NOT fall back to review-only or unreviewed admission for the same request. A request that carries no instance attestation for a document selecting this profile is an example: the server learns from the document (step 3) that this profile applies, then rejects the request with `invalid_client`. If the instance authenticates (step 1) but no statement is presented or remains after selection, it returns `statement_required`. A failed request MUST NOT advance the `iat` floor.
 
 ## Establishment {#establishment}
 
@@ -348,7 +348,7 @@ An establishment records all state required by {{STATEMENT}} and, in addition:
 * The exact attester identifier and evidence-policy identifier.
 * The attester trust decision.
 
-The proven key is the attested key, which is also the DPoP key. Authorization transactions that share an establishment ({{grant-state}}) still retain separate PKCE challenges, redirects, `state`, resource-owner decisions, and continuation state.
+The proven key is the attested key, which is also the DPoP key.
 
 The client identifier, tenant, key, attester, policy, and binding profile MUST remain fixed for the lifetime of the grant. Changing any of them requires a new grant opened through PAR. A fresh attestation that keeps these values can renew the grant's evidence, and a software statement replacement can update the grant's reviewed metadata only as {{refresh}} permits. Neither operation changes these values.
 
@@ -590,10 +590,6 @@ This section gives guidance to implementers. It adds no requirement.
 ## Bounding Establishments and Pending Requests {#resource-bounds}
 
 A server can bound establishments as {{STATEMENT}} describes, and also per resource owner and tenant, so that one installation cannot exhaust the capacity available to other installations. It can limit pending pushed authorization requests separately from any bound on establishments, and its rate limits can account for client, instance key, tenant, and authenticated resource owner as available.
-
-## Grant State {#grant-state}
-
-An establishment can serve more than one presentation only where they resolve to the same establishment values, including the same profile, attester, and policy ({{establishment}}).
 
 ## Signing Brokers {#signing-brokers}
 
