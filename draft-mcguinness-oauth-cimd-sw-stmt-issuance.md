@@ -118,7 +118,7 @@ Approval workflow, approver identity, external approval integration, acceptance 
 
 {::boilerplate bcp14-tagged}
 
-This specification uses terminology defined in {{RFC6749}}, {{RFC7591}}, {{CIMD}}, and {{DTR}}, and the terms defined in Section 2 of {{STATEMENT}}.
+This specification uses terminology defined in {{RFC6749}}, {{RFC7591}}, {{CIMD}}, and {{DTR}}, and the terms defined in Section 2 of {{STATEMENT}}. The issuer is an authorization server, and "authorization server" alone means the issuer.
 
 This specification defines the following terms:
 
@@ -149,8 +149,7 @@ The issuer fetches and snapshots the client's CIMD ({{metadata-snapshot}}), deci
 |          |<-(2) software statement -----------|   (approval)  |
 +----------+      (signed JWT)                  +---------------+
      |
-     | (3) registration or runtime presentation
-     |     carrying the software statement
+     | (3) presentation, publication, or registration
      v
 +---------------+  +---------------+       +---------------+
 |   Trusting    |  |   Trusting    |  ...  |   Trusting    |
@@ -227,7 +226,7 @@ The authorization server MUST reject a document containing duplicate object memb
 
 An issuer can require `jwks` inline (Section 13.2 of {{STATEMENT}}).
 
-{{CIMD}} permits a document to carry a `software_statement` member. An issuer evaluates the document as served and MUST NOT refuse a document because it carries the member. Trusting authorization servers ignore a statement embedded there (Section 3 of {{STATEMENT}}), and refusing would leave a client that published its statement unable to renew it.
+{{CIMD}} permits a document to carry a `software_statement` member. An issuer evaluates the document as served and MUST NOT refuse a document because it carries the member. Trusting authorization servers ignore a statement embedded there (Section 3 of {{STATEMENT}}), and refusing would leave a client whose document embeds a statement unable to renew it.
 
 # Common Request Rules {#common-rules}
 
