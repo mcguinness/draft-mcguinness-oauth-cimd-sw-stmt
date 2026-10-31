@@ -67,6 +67,7 @@ normative:
       - fullname: Michael B. Jones
       - fullname: Brian Campbell
     date: 2015-04-27
+informative:
   REGISTRATION:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration
     title: "Client ID Metadata Document Software Statement Registration"
@@ -76,7 +77,6 @@ normative:
     seriesinfo:
       Internet-Draft: draft-mcguinness-oauth-cimd-sw-stmt-registration-00
 
-informative:
   LIFECYCLE:
     target: https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle.html
     title: "Client ID Metadata Document Software Statement Lifecycle"
@@ -98,7 +98,7 @@ RFC 7591 defines how a client presents a software statement and how a registrati
 
 A client holding an initial access token that authorizes issuance, or a statement it can renew, uses OAuth 2.0 Token Exchange (RFC 8693) without a redirect. A client can instead use a redirect flow: the authorization endpoint returns a short-lived `software_statement_code`, which the client redeems through a new token endpoint grant. In both flows, a completed decision returns a statement, and a pending decision uses Deferred Token Response and polling. The statement never appears in an authorization response URL.
 
-The client presents the statement at registration or at runtime, or publishes it for servers to pull. Companion specifications define the statement, its validation, and its consumption.
+The client presents the statement at registration or at runtime, or publishes it for servers to pull. A companion specification defines the statement, its validation, and its runtime consumption.
 
 --- middle
 
@@ -110,23 +110,9 @@ The client presents the statement at registration or at runtime, or publishes it
 
 A statement makes one issuer's decision portable to the authorization servers in its audience that trust the issuer ({{STATEMENT}}). If the trust decision is local to one authorization server, an {{RFC7591}} initial access token for registration, pre-registration {{CIMD}}, or approval-based registration {{APPROVAL-DCR}} can establish the client directly.
 
-Approval workflow, approver identity, external approval integration, acceptance of any particular issuer, issuer discovery, and issuance that a publisher's backend authorizes on a client's behalf are out of scope. This specification does not authenticate such a backend. {{STATEMENT}} does not depend on this specification.
+Approval workflow, approver identity, external approval integration, acceptance of any particular issuer, issuer discovery, and issuance that a publisher's backend authorizes on a client's behalf are out of scope. This specification does not authenticate such a backend. This specification extends {{STATEMENT}}, which does not depend on it.
 
-# Conventions and Definitions
-
-{::boilerplate bcp14-tagged}
-
-This specification uses terminology defined in {{RFC6749}}, {{RFC7591}}, {{CIMD}}, and {{DTR}}, and the terms defined in Section 2 of {{STATEMENT}}. The issuer is an authorization server, and "authorization server" alone means the issuer.
-
-This specification defines the following terms:
-
-Software Statement Code:
-: The short-lived, single-use artifact returned by the software statement code response ({{software-statement-code-response}}) and redeemed at the token endpoint ({{software-statement-code-redemption}}).
-
-Deferring Issuer:
-: An issuer that advertises `true` for `deferred_token_response_supported` ({{authorization-server-metadata}}) and so can defer a decision ({{deferred-processing}}).
-
-# Protocol Overview
+## Protocol Overview
 
 A client that holds an initial access token authorizing issuance, or a statement it can renew, uses token exchange at the token endpoint without a user agent ({{token-exchange-profile}}). A client can instead initiate the redirect flow at the authorization endpoint ({{authorization-request}}) and redeem the resulting software statement code at the token endpoint.
 
@@ -156,7 +142,7 @@ The issuer fetches and snapshots the client's CIMD ({{metadata-snapshot}}), deci
 +---------------+  +---------------+       +---------------+
 ~~~
 
-## Redirect Flow
+### Redirect Flow
 
 ~~~
 +--------+                                  +----------------------+
@@ -191,6 +177,20 @@ The issuer fetches and snapshots the client's CIMD ({{metadata-snapshot}}), deci
 At (A), the authorization server validates the request, performs any user-agent interaction or initiates an approval workflow, and returns a software statement code at (B).
 
 At (C), the client redeems the code with its Proof Key for Code Exchange (PKCE) verifier. The response at (D) carries the statement or a {{DTR}} `deferral_code`, with which the client polls at (E). Errors follow {{RFC6749}} and {{DTR}}.
+
+# Conventions and Definitions
+
+{::boilerplate bcp14-tagged}
+
+This specification uses terminology defined in {{RFC6749}}, {{RFC7591}}, {{CIMD}}, and {{DTR}}, and the terms defined in Section 2 of {{STATEMENT}}. The issuer is an authorization server, and "authorization server" alone means the issuer.
+
+This specification defines the following terms:
+
+Software Statement Code:
+: The short-lived, single-use artifact returned by the software statement code response ({{software-statement-code-response}}) and redeemed at the token endpoint ({{software-statement-code-redemption}}).
+
+Deferring Issuer:
+: An issuer that advertises `true` for `deferred_token_response_supported` ({{authorization-server-metadata}}) and so can defer a decision ({{deferred-processing}}).
 
 # Client Identification and Authentication {#client-identity}
 
@@ -625,11 +625,11 @@ An approved statement is accepted at every authorization server in its audience,
 
 # Privacy Considerations
 
-The privacy considerations of {{STATEMENT}} apply.
+The privacy considerations of Section 14 of {{STATEMENT}} apply.
 
 The authorization server learns the client identifier URL, the client's CIMD, and information about the party interacting with the authorization endpoint. It ought to collect and retain only the information required for issuance, security monitoring, and audit obligations.
 
-An `aud` claim reveals which authorization servers the client intends to use. Section 14 of {{STATEMENT}} weighs that disclosure against omitting the claim, and Section 12.2 of {{STATEMENT}} advises naming an audience, which an issuer does by requiring one in the request ({{authorization-request}}).
+An `aud` claim reveals which authorization servers the client intends to use. Section 14 of {{STATEMENT}} weighs that disclosure against omitting the claim, and Section 12.2 of {{STATEMENT}} advises naming an audience, which an issuer does by requiring one in the request ({{audience}}).
 
 If the client's relationship with the authorization servers its `audience` parameter names is sensitive, a redirect-flow client SHOULD use pushed authorization requests {{RFC9126}}.
 
