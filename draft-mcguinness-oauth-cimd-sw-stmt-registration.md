@@ -229,7 +229,7 @@ When a replacement satisfies these rules, the authorization server MUST, in a si
 
 Access issued under the registration after that update, including on refresh of a grant issued before it, MUST fall within the re-derived metadata.
 
-If every grant a confidential-client registration permits needs an authorization request or a refresh token, and the authorization server does not support {{RFC7592}} update requests for the registration, the server MUST publish the `pushed_authorization_request_endpoint` metadata value. Otherwise such a client could renew only while it holds a refresh token. A public-client registration also renews through a repeated registration request ({{repeated-registration}}).
+If every grant a confidential-client registration permits needs an authorization request or a refresh token, and the authorization server does not support {{RFC7592}} update requests for the registration, the server MUST support pushed authorization requests {{RFC9126}} for the registration. Otherwise such a client could not restore a registration that has ceased to be valid without a refresh token. A public-client registration also renews through a repeated registration request ({{repeated-registration}}).
 
 # Error Responses {#errors}
 
