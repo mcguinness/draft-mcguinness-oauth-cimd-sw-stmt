@@ -532,7 +532,7 @@ client-assertion-type%3Ajwt-bearer
 &software_statement=eyJ0eXAiOiJzb2Z0d2FyZS1zdGF0ZW1l...
 ~~~
 
-The authorization server validates the statement, retrieves the document its digest names, verifies the client assertion against a key from that document's `jwks_uri`, and checks that the requested `scope` falls within the document's `scope`. It keeps no registration.
+The authorization server validates the statement, retrieves the document at the statement's `sub`, checks its digest, verifies the client assertion against a key from that document's `jwks_uri`, and checks that the requested `scope` falls within the document's `scope`. It keeps no registration.
 
 ## Publishing a Statement for Servers to Pull
 
@@ -559,7 +559,7 @@ A request to that URL returns the statements, here one:
 }
 ~~~
 
-An authorization server receiving an ordinary authorization request with this `client_id` resolves the document, retrieves the statements, and keeps the one from a trusted issuer whose `cimd_digest` matches the document it retrieved. It completes the binding when the client authenticates with `private_key_jwt` at code redemption ({{pull-binding}}).
+An authorization server receiving an ordinary authorization request with this `client_id` resolves the document, retrieves the statements, and selects the one from a trusted issuer whose `cimd_digest` matches the document it retrieved. It completes the binding when the client authenticates with `private_key_jwt` at code redemption ({{pull-binding}}).
 
 ## Statement Header and Payload
 
@@ -586,7 +586,7 @@ The following is an example of the JOSE header and payload of a statement over t
 }
 ~~~
 
-The statement names one audience and permits only runtime presentation, as omitting `statement_uses` would. It carries no client metadata: the document its `cimd_digest` names supplies it.
+The statement names one audience and permits only runtime presentation, as omitting `statement_uses` would. It carries no client metadata: the reviewed document supplies it.
 
 # Authorization Server Metadata {#authorization-server-metadata}
 
