@@ -214,11 +214,11 @@ A trusting authorization server MUST NOT accept an event from an issuer it has n
 
 A receiver MUST NOT create or keep a stream whose transmitter configuration metadata gives as its `jwks_uri` the location of the issuer's statement key set or Status List key set ({{token-status-list}}).
 
-A SET carrying an event defined here MUST use the explicit `typ` JOSE header parameter value `secevent+jwt` (Section 2.3 of {{RFC8417}}). Its `aud` claim MUST contain the audience of the stream that delivers it, which {{SSF}} lets the transmitter and receiver agree on. A receiver MUST NOT create or keep a stream whose audience does not identify it.
+A SET carrying an event defined here MUST have an `aud` claim containing the audience of the stream that delivers it, which {{SSF}} lets the transmitter and receiver agree on. A receiver MUST NOT create or keep a stream whose audience does not identify it.
 
 ## Subject Identification {#subjects}
 
-The subject of every event defined here is client software. Events carry it in the `sub_id` claim of {{SSF}} using the `uri` subject identifier format of {{RFC9493}}. The `uri` member carries the client's CIMD URL exactly as it appears in the `sub` claim of the statements the event concerns.
+The subject of every event defined here is client software. Events carry it in the `sub_id` claim of {{SSF}} using the `uri` subject identifier format (Section 3.2.7 of {{RFC9493}}). The `uri` member carries the client's CIMD URL exactly as it appears in the `sub` claim of the statements the event concerns.
 
 A trusting authorization server MUST match the subject by exact comparison of the `uri` member against a statement's `sub` claim.
 
@@ -268,17 +268,17 @@ The following is a non-normative example of the payload of a SET carrying this e
 
 A trusting authorization server that receives an event defined here MUST process it as follows:
 
-1. Verify the SET as {{RFC8417}} requires, including its `typ` JOSE header parameter, and verify that the SET's issuer is configured and that the keys verifying the SET were obtained as {{relationship}} requires.
+1. Verify the SET as {{RFC8417}}, {{SSF}}, and {{relationship}} require.
 2. Reject an event whose `aud` claim does not contain the audience of the stream that delivered it ({{relationship}}).
 3. Resolve the subject ({{subjects}}).
 4. Retrieve the Status List Token each affected statement's `status` claim references, as {{STATUSLIST}} defines, using a copy that the status list URI served, or confirmed by revalidation, in response to a request begun after the event arrived, without waiting for the schedule that would otherwise apply.
 5. Apply the resolved status as {{status-resolution}} defines.
 
-If step 1 or 2 fails, the receiver reports a SET error as {{RFC8935}} or {{RFC8936}} provides. Otherwise, it acknowledges the SET, whatever steps 3 to 5 produce. A receiver ignores any other member of the SET's `events` claim.
+If step 1 or 2 fails, the receiver reports a SET error as {{RFC8935}} or {{RFC8936}} provides. Otherwise, it acknowledges the SET, whatever steps 3 to 5 produce.
 
 The affected statements are those the transmitting issuer made about the subject, never statements another issuer made about the same software. They are the statement the event's `software_statement_jti` claim names or, if the event names none, those the receiver holds or has cached a status for. An event about a subject for which the receiver holds no state requires nothing of it. A receiver ignores events for subjects outside the client identifier namespaces for which it accepts the transmitting issuer (Section 4 of {{STATEMENT}}).
 
-Revalidation suffices because a transmitter sends the event only once a token reflecting the change is retrievable ({{status-changed}}). One request begun after several events arrived serves every one of them that concerns the list it retrieves. An event is never grounds for refusal. Until the request succeeds, the copy the receiver holds remains in effect within its validity. If resolution does not complete, the receiver proceeds as it would had no event arrived.
+One request begun after several events arrived serves every one of them that concerns the list it retrieves. An event is never grounds for refusal. Until the request succeeds, the copy the receiver holds remains in effect within its validity. If resolution does not complete, the receiver proceeds as it would had no event arrived.
 
 A receiver MUST treat an event it has already applied as successfully delivered and acknowledge it as {{RFC8935}} or {{RFC8936}} requires, rather than reporting a delivery error. Rejecting a retry can stall or disable a stream carrying later events. Duplicate detection is per transmitting issuer.
 
@@ -315,7 +315,7 @@ For the `iat` floor ({{supersession}}), a server keeps one `iat` value for each 
 
 ## Resolution in Response to Events {#event-resolution}
 
-A receiver can bound the rate of the retrievals that events cause by deferring a retrieval briefly and coalescing events that concern the same status list URI, since one request begun after those events serves them all ({{processing}}). Its scheduled resolution continues regardless.
+A receiver can bound the rate of the retrievals that events cause by deferring a retrieval briefly and coalescing events that concern the same status list URI ({{processing}}). Its scheduled resolution continues regardless.
 
 ## Event Logs {#event-logs}
 
@@ -339,7 +339,7 @@ Retrieving the list on its own schedule ({{status-resolution}}) keeps each reque
 
 ## Stream Coverage and Monitoring {#stream-practice}
 
-A stream can cover every subject appropriate to it ({{configuration}}), or the receiver can add each subject through the subject management of {{SSF}} when it first admits that software. Admission checks and the receiver's own status resolution ({{status-resolution}}, {{processing}}) remain independent of the subjects a stream covers, so a withdrawal whose event was transmitted before the subject was added to the stream is found at a later resolution.
+A stream can cover every subject appropriate to it ({{configuration}}), or the receiver can add each subject through the subject management of {{SSF}} when it first admits that software. A withdrawal whose event was transmitted before the subject was added to the stream is found at a later resolution ({{processing}}).
 
 A receiver ought to alert on stream loss rather than assume quiescence.
 
@@ -363,17 +363,13 @@ A replacement validates only against the document currently served at its `sub` 
 
 An event names no status, so a forged, replayed, delayed, or reordered event cannot change whether any statement is acceptable. Its only effect is a resolution the receiver would otherwise have performed on its own schedule.
 
-The remaining exposure is resource cost: an attacker holding the issuer's SET signing key, or a misbehaving transmitter, can trigger resolutions ({{event-resolution}}).
+The remaining exposure is resource cost: an attacker holding the issuer's SET signing key, or a misbehaving transmitter, can trigger resolutions ({{event-resolution}}) and nothing more, because SET keys share no location or key with statement or Status List Token keys ({{token-status-list}}).
 
 ## Event Suppression
 
 Because a receiver resolves status independently ({{processing}}), an attacker who suppresses events delays a withdrawal at most until the receiver's next scheduled resolution and, for new admissions, never beyond the affected statements' effective expiry ({{schedule-practice}}).
 
 The absence of events looks the same on a healthy stream and a suppressed one. Periodic stream verification ({{configuration}}) makes the difference observable ({{stream-practice}}).
-
-## Key Separation and Compromise
-
-The distinct key sets of {{token-status-list}} and {{relationship}} separate SET keys from statement and Status List Token keys. With the keys separated, compromise of a SET key lets an attacker trigger resolutions and nothing more. Compromise of a statement signing key has wider effect, because statements grant standing and events do not.
 
 # Privacy Considerations
 
