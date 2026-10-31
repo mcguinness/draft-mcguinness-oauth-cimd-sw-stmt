@@ -287,7 +287,7 @@ The authorization server validates the replacement and re-derives the registrati
 
 This specification defines the following authorization server metadata {{RFC8414}} value:
 
-`software_statement_registration_validity_supported`:
+`software_statement_registration_supported`:
 : OPTIONAL. Boolean value indicating whether the authorization server supports this specification. If omitted, the default value is `false`. A value of `true` does not imply support for runtime presentation.
 
 # Deployment Considerations {#deployment-considerations}
@@ -328,7 +328,7 @@ Requiring a statement also means a removed client cannot register again under a 
 
 A retained registration that has ceased to be valid is distinguishable from an unknown client ({{registration-requests}}, {{errors}}). At the token and pushed authorization request endpoints, only a requester that authenticates as the registration's client can observe this, except for a public-client registration. At the authorization endpoint, anyone who sends an authorization request naming the client and one of its registered redirection URIs learns from the `statement_required` redirection that the registration has ceased to be valid. If an observer knows the governing statement's `exp`, a lapse before it shows that an extension such as {{LIFECYCLE}} ended the statement or that the server caps the lifetime it honors for the issuer.
 
-These disclosures are accepted because a client that cannot learn why it was refused cannot act. Beyond a lapse and its timing, they reveal nothing of the server's issuer trust configuration (Section 6.6 of {{STATEMENT}}). Publishing `software_statement_registration_validity_supported` discloses that statement-governed registrations expire there, which a client needs to know before registering.
+These disclosures are accepted because a client that cannot learn why it was refused cannot act. Beyond a lapse and its timing, they reveal nothing of the server's issuer trust configuration (Section 6.6 of {{STATEMENT}}). Publishing `software_statement_registration_supported` discloses that statement-governed registrations expire there, which a client needs to know before registering.
 
 # Privacy Considerations
 
@@ -373,7 +373,7 @@ Specification Document(s):
 This specification requests registration of the following value in the IANA "OAuth Authorization Server Metadata" registry established by {{RFC8414}}:
 
 Metadata Name:
-: `software_statement_registration_validity_supported`
+: `software_statement_registration_supported`
 
 Metadata Description:
 : Boolean value indicating whether the authorization server supports this specification, under which every registration it creates from a Client ID Metadata Document software statement is governed by this specification's validity and renewal rules.
