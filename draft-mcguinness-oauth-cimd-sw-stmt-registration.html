@@ -1417,7 +1417,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
             <p id="section-3.3-2.2.1">is restricted to the request's tenant, if that tenant requires a tenant-scoped decision (Section 3.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-3.3-2.2.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-3.3-3">One current statement can be consumed more than once, subject to the bounds of Sections 11.2 and 11.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> and the server's registration policy.<a href="#section-3.3-3" class="pilcrow">¶</a></p>
+<p id="section-3.3-3">One current statement can be consumed more than once, subject to the bounds of Sections 11.2 and 11.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> and the server's registration policy. A server can count registrations toward the bound on establishments of Section 11.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, but the bound stays effective only if a registration under which no access token has been issued, which anyone holding a copy of the statement can create, does not count toward it.<a href="#section-3.3-3" class="pilcrow">¶</a></p>
 <p id="section-3.3-4">If the registration a request repeats is a confidential-client registration, local policy can reject the request, treat it as idempotent, or create another registration. An idempotent response <span class="bcp14">MUST NOT</span> return the existing registration's credentials, such as its <code>registration_access_token</code> member. A common default is one registration per <code>iss</code> and <code>sub</code>, per tenant on a multi-tenant server, at the cost <a href="#statement-bearer" class="auto internal xref">Section 11.1</a> describes.<a href="#section-3.3-4" class="pilcrow">¶</a></p>
 <p id="section-3.3-5">If the registration a request repeats is a public-client registration (<a href="#public-client-registration" class="auto internal xref">Section 3.2</a>), the authorization server <span class="bcp14">MUST NOT</span> create another registration and handles the request by its statement, once the statement validates:<a href="#section-3.3-5" class="pilcrow">¶</a></p>
 <table class="center" id="table-2">
@@ -1469,6 +1469,9 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 </li>
         <li class="normal" id="section-4-2.5">
           <p id="section-4-2.5.1">Ceasing to be valid does not expire the registration's credentials, including its registration access token, and does not by itself revoke access tokens already issued under the registration.<a href="#section-4-2.5.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-4-2.6">
+          <p id="section-4-2.6.1">Removing the governing statement's issuer from trust configuration, or narrowing what it can attest, does not by itself end the registration. A server ends it by its own means, such as deleting it.<a href="#section-4-2.6.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 <p id="section-4-3">If a request that carries no replacement is rejected because the registration has ceased to be valid, the rejection <span class="bcp14">MUST NOT</span> by itself cause the authorization server to revoke refresh tokens as it does on detecting refresh-token replay (Section 4.14.2 of <span>[<a href="#RFC9700" class="cite xref">RFC9700</a>]</span>).<a href="#section-4-3" class="pilcrow">¶</a></p>
@@ -1606,7 +1609,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
           <p id="section-7-2.2.1">Any of the following:<a href="#section-7-2.2.1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-7-2.2.2.1">
-              <p id="section-7-2.2.2.1.1">The statement is malformed, fails signature or claim validation for a reason <code>unapproved_software_statement</code> does not cover, or is expired or otherwise not current (Section 2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), or is superseded under an extension the server implements, such as <span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span>.<a href="#section-7-2.2.2.1.1" class="pilcrow">¶</a></p>
+              <p id="section-7-2.2.2.1.1">The statement is malformed, fails signature or claim validation for a reason <code>unapproved_software_statement</code> does not cover, or is expired or otherwise not current (Section 2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), or is superseded under an extension the server implements.<a href="#section-7-2.2.2.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-7-2.2.2.2">
               <p id="section-7-2.2.2.2.1">The document's digest does not equal the statement's <code>cimd_digest</code> claim (<a href="#dcr-presentation" class="auto internal xref">Section 3</a>).<a href="#section-7-2.2.2.2.1" class="pilcrow">¶</a></p>
@@ -1754,7 +1757,7 @@ client-assertion-type%3Ajwt-bearer
 <a href="#section-11.2" class="section-number selfRef">11.2. </a><a href="#name-credential-theft-and-renewa" class="section-name selfRef">Credential Theft and Renewal</a>
         </h3>
 <p id="section-11.2-1">Renewal proves possession of the registration's credential and the currency of a statement sharing the governing statement's <code>iss</code> and <code>sub</code>, not that the renewing party is the reviewed software. An attacker holding a stolen client credential can renew indefinitely with the newer statements distributed to every deployment of the software. A public-client registration's renewal proves only that the replacement is current. No protection is lost, since any party can already use that registration.<a href="#section-11.2-1" class="pilcrow">¶</a></p>
-<p id="section-11.2-2">A narrower review takes effect at a registration when the client delivers it or when the governing statement ceases to be current. Withdrawal before then requires an extension such as <span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span>.<a href="#section-11.2-2" class="pilcrow">¶</a></p>
+<p id="section-11.2-2">A narrower review takes effect at a registration when the client delivers it or when the governing statement ceases to be current. Withdrawal before then requires an extension.<a href="#section-11.2-2" class="pilcrow">¶</a></p>
 <p id="section-11.2-3">Deployments ought to pair statement-governed registrations with credential rotation, sender-constrained client authentication, and the bounds that Sections 11.2 and 11.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> and <a href="#repeated-registration" class="auto internal xref">Section 3.3</a> describe, and ought to treat a credential compromise as requiring re-registration rather than renewal. Runtime presentation binds every presenter to the reviewed document (Sections 5.6 and 13.4 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>) and so does not have this limitation.<a href="#section-11.2-3" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1772,7 +1775,7 @@ client-assertion-type%3Ajwt-bearer
         <h3 id="name-observable-state">
 <a href="#section-11.4" class="section-number selfRef">11.4. </a><a href="#name-observable-state" class="section-name selfRef">Observable State</a>
         </h3>
-<p id="section-11.4-1">A retained registration that has ceased to be valid is distinguishable from an unknown client (<a href="#registration-requests" class="auto internal xref">Section 5</a>, <a href="#errors" class="auto internal xref">Section 7</a>). At the token and pushed authorization request endpoints, only a requester that authenticates as the registration's client can observe this, except for a public-client registration. At the authorization endpoint, anyone who sends an authorization request naming the client and one of its registered redirection URIs learns from the <code>statement_required</code> redirection that the registration has ceased to be valid. If an observer knows the governing statement's <code>exp</code>, a lapse before it shows that an extension such as <span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span> ended the statement or that the server caps the lifetime it honors for the issuer.<a href="#section-11.4-1" class="pilcrow">¶</a></p>
+<p id="section-11.4-1">A retained registration that has ceased to be valid is distinguishable from an unknown client (<a href="#registration-requests" class="auto internal xref">Section 5</a>, <a href="#errors" class="auto internal xref">Section 7</a>). At the token and pushed authorization request endpoints, only a requester that authenticates as the registration's client can observe this, except for a public-client registration. At the authorization endpoint, anyone who sends an authorization request naming the client and one of its registered redirection URIs learns from the <code>statement_required</code> redirection that the registration has ceased to be valid. If an observer knows the governing statement's <code>exp</code>, a lapse before it shows that an extension ended the statement or that the server caps the lifetime it honors for the issuer.<a href="#section-11.4-1" class="pilcrow">¶</a></p>
 <p id="section-11.4-2">As at runtime (Section 13.8 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), these disclosures are accepted, and they reveal nothing of the server's issuer trust configuration beyond the fact and time that the registration ceased to be valid (Section 6.6 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). Publishing <code>software_statement_registration_supported</code> discloses that statement-governed registrations expire there, which a client needs to know before registering.<a href="#section-11.4-2" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1978,10 +1981,6 @@ client-assertion-type%3Ajwt-bearer
 <a href="#section-14.2" class="section-number selfRef">14.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
         </h3>
 <dl class="references">
-<dt id="LIFECYCLE">[LIFECYCLE]</dt>
-        <dd>
-<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"Client ID Metadata Document Software Statement Lifecycle"</span>, <time datetime="2026-10" class="refDate">October 2026</time>, <span>&lt;<a href="https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle.html">https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle.html</a>&gt;</span>. </dd>
-<dd class="break"></dd>
 <dt id="RFC7592">[RFC7592]</dt>
       <dd>
 <span class="refAuthor">Richer, J., Ed.</span>, <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">M. Machulak</span>, <span class="refTitle">"OAuth 2.0 Dynamic Client Registration Management Protocol"</span>, <span class="seriesInfo">RFC 7592</span>, <span class="seriesInfo">DOI 10.17487/RFC7592</span>, <time datetime="2015-07" class="refDate">July 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7592">https://www.rfc-editor.org/rfc/rfc7592</a>&gt;</span>. </dd>

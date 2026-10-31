@@ -307,7 +307,11 @@ Table of Contents
 
    One current statement can be consumed more than once, subject to the
    bounds of Sections 11.2 and 11.3 of [STATEMENT] and the server's
-   registration policy.
+   registration policy.  A server can count registrations toward the
+   bound on establishments of Section 11.3 of [STATEMENT], but the bound
+   stays effective only if a registration under which no access token
+   has been issued, which anyone holding a copy of the statement can
+   create, does not count toward it.
 
    If the registration a request repeats is a confidential-client
    registration, local policy can reject the request, treat it as
@@ -367,6 +371,11 @@ Table of Contents
       credentials, including its registration access token, and does not
       by itself revoke access tokens already issued under the
       registration.
+
+   *  Removing the governing statement's issuer from trust
+      configuration, or narrowing what it can attest, does not by itself
+      end the registration.  A server ends it by its own means, such as
+      deleting it.
 
    If a request that carries no replacement is rejected because the
    registration has ceased to be valid, the rejection MUST NOT by itself
@@ -554,8 +563,7 @@ Table of Contents
       *  The statement is malformed, fails signature or claim validation
          for a reason unapproved_software_statement does not cover, or
          is expired or otherwise not current (Section 2 of [STATEMENT]),
-         or is superseded under an extension the server implements, such
-         as [LIFECYCLE].
+         or is superseded under an extension the server implements.
 
       *  The document's digest does not equal the statement's
          cimd_digest claim (Section 3).
@@ -741,7 +749,7 @@ Table of Contents
 
    A narrower review takes effect at a registration when the client
    delivers it or when the governing statement ceases to be current.
-   Withdrawal before then requires an extension such as [LIFECYCLE].
+   Withdrawal before then requires an extension.
 
    Deployments ought to pair statement-governed registrations with
    credential rotation, sender-constrained client authentication, and
@@ -778,9 +786,8 @@ Table of Contents
    and one of its registered redirection URIs learns from the
    statement_required redirection that the registration has ceased to be
    valid.  If an observer knows the governing statement's exp, a lapse
-   before it shows that an extension such as [LIFECYCLE] ended the
-   statement or that the server caps the lifetime it honors for the
-   issuer.
+   before it shows that an extension ended the statement or that the
+   server caps the lifetime it honors for the issuer.
 
    As at runtime (Section 13.8 of [STATEMENT]), these disclosures are
    accepted, and they reveal nothing of the server's issuer trust
@@ -920,13 +927,6 @@ Table of Contents
               cimd-sw-stmt>.
 
 14.2.  Informative References
-
-   [LIFECYCLE]
-              McGuinness, K., "Client ID Metadata Document Software
-              Statement Lifecycle", October 2026,
-              <https://mcguinness.github.io/draft-mcguinness-oauth-cimd-
-              sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-
-              lifecycle.html>.
 
    [RFC7592]  Richer, J., Ed., Jones, M., Bradley, J., and M. Machulak,
               "OAuth 2.0 Dynamic Client Registration Management

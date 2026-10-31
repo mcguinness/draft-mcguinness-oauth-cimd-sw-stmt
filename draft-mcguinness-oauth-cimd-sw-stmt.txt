@@ -174,13 +174,12 @@ Table of Contents
    admissions but ends no open grant, and an older statement that has
    not expired remains admissible after a newer one is issued
    (Section 13.7).  Withdrawal, supersession, and grants that follow
-   later reviews are left to [LIFECYCLE].
+   later reviews are left to extensions (Section 9).
 
    This specification does not define how a client obtains a statement.
-   [REGISTRATION] builds on this specification, which does not depend on
-   it, to define consumption of the same statement in an [RFC7591]
-   registration request.  Section 10 relates this specification to other
-   work.
+   Section 9 lists extensions left to separate specifications, including
+   consumption at registration, and Section 10 relates this
+   specification to other work.
 
 1.1.  Protocol Overview
 
@@ -218,8 +217,7 @@ Table of Contents
    This specification defines the following terms.
 
    Trusting Authorization Server:  An authorization server that consumes
-      a software statement, at runtime under this specification or at
-      registration under [REGISTRATION].
+      a software statement.
 
    Runtime Presentation:  The consumption of a validated software
       statement presented in a token request or pushed authorization
@@ -228,9 +226,9 @@ Table of Contents
 
    Admission:  A trusting authorization server's acceptance of a client
       for a request or a registration, either on a valid statement
-      (Section 5.1, [REGISTRATION]), after which the reviewed metadata
-      governs its requests, or under the server's policy for CIMD
-      clients it has not reviewed.
+      (Section 5.1), after which the reviewed metadata governs its
+      requests, or under the server's policy for CIMD clients it has not
+      reviewed.
 
    Establishment:  The state a successful runtime presentation creates
       for the grant it opens, enumerated in Section 5.7.
@@ -251,8 +249,7 @@ Table of Contents
       in configured client identifier namespaces (Section 4).
 
    Current Statement:  A statement whose effective expiry has not passed
-      and that no extension the server implements, such as [LIFECYCLE],
-      has ended.
+      and that no extension the server implements has ended.
 
    Review-Only:  Describes a presentation, or a pulled statement, that
       the authorization server evaluates but whose statement counts for
@@ -315,8 +312,7 @@ Table of Contents
       giving the time the statement was issued.  An issuer MUST ensure
       that the iat claim values of its statements for a given iss and
       sub increase strictly, which the selection of a pulled statement
-      (Section 5.5.1) and extensions such as [REGISTRATION] and
-      [LIFECYCLE] rely on.
+      (Section 5.5.1) and extensions rely on.
 
    exp:  REQUIRED.  A NumericDate value giving the expiration time.
 
@@ -326,8 +322,7 @@ Table of Contents
    cimd_digest:  REQUIRED.  The metadata digest (Section 3.1) of the
       CIMD the issuer evaluated.
 
-   Profiles and extensions can define further claims, such as status
-   ([LIFECYCLE]).
+   Profiles and extensions can define further claims.
 
    A statement issued under this specification MUST NOT contain a claim
    named in the IANA "OAuth Dynamic Client Registration Metadata"
@@ -347,8 +342,9 @@ Table of Contents
    An authorization server implementing this specification MUST reject a
    statement of this profile in an [RFC7591] registration request with
    the unapproved_software_statement error code (Section 3.2.2 of
-   [RFC7591]), unless it consumes the statement as [REGISTRATION]
-   specifies.  Section 13.3 explains why.
+   [RFC7591]), unless an extension it implements defines consumption of
+   the statement at registration (Section 9).  Section 13.3 explains
+   why.
 
 3.1.  Metadata Digest
 
@@ -589,11 +585,11 @@ Table of Contents
 
    software_statement:  REQUIRED for a presentation made in a request.
       The software statement (Section 3).  It is consumed as a runtime
-      presentation or, where implemented, as a refresh replacement under
-      [LIFECYCLE] or a delivery under [REGISTRATION].  On refresh-token
-      use under an establishment, a server that does not implement
-      [LIFECYCLE] ignores the parameter.  A request carrying the
-      parameter in any other role is rejected.
+      presentation or in a role defined by an extension the server
+      implements.  On refresh-token use under an establishment, a server
+      ignores the parameter unless an extension it implements defines
+      its role there.  A request carrying the parameter in any other
+      role is rejected.
 
    A request making a runtime presentation MUST include the client_id
    parameter, even if the client authenticates, and its value, the
@@ -897,8 +893,9 @@ Table of Contents
 
    Under this specification, refresh evaluates no statement
    (Section 13.7) and never changes the establishment's proven key or
-   reviewed metadata.  A client that needs a different key, or, without
-   [LIFECYCLE], a different review, opens a new grant by presentation.
+   reviewed metadata.  A client that needs a different key or review
+   opens a new grant by presentation.  An extension can instead provide
+   for replacing the review on refresh.
 
 6.  Error Responses
 
@@ -906,7 +903,6 @@ Table of Contents
    endpoint: Section 5.2 of [RFC6749] at the token endpoint, Section 2.3
    of [RFC9126] at the pushed authorization request endpoint, and
    Section 4.1.2.1 of [RFC6749] at the authorization endpoint.
-   [REGISTRATION] defines rejections at a registration endpoint.
 
    A rejection for a reason this specification defines uses the first of
    the following error codes that applies:
@@ -928,8 +924,7 @@ Table of Contents
    A rejection for another reason, such as an assertion grant whose
    assertion is invalid (Section 3.1 of [RFC7523]) or an expired or
    revoked refresh token, uses the error code its grant or endpoint
-   assigns.  An extension such as [LIFECYCLE] assigns codes to the
-   rejections it defines.
+   assigns.  An extension assigns codes to the rejections it defines.
 
 6.1.  Statement Required Error
 
@@ -937,9 +932,9 @@ Table of Contents
 
    statement_required:  A current software statement is required and
       none was presented or pulled, or the one presented or pulled is
-      expired and otherwise valid.  An extension such as [REGISTRATION]
-      or [LIFECYCLE] can assign it to further cases.  The client
-      recovers by obtaining a statement issued more recently.
+      expired and otherwise valid.  An extension can assign it to
+      further cases.  The client recovers by obtaining a statement
+      issued more recently.
 
 6.2.  Presentation Requests
 
@@ -1170,10 +1165,14 @@ Table of Contents
 
    The following extensions are left to separate specifications:
 
+   *  Consumption at registration ([REGISTRATION]): a statement in an
+      [RFC7591] registration request, with the registered metadata taken
+      from the reviewed document.
+
    *  Attested keys: a client attestation [ABCA] vouching for a key the
       reviewed document does not carry.  Without one, software whose
-      instances authenticate with keys of their own can neither prove
-      nor register those keys (Section 5.6, [REGISTRATION]).
+      instances authenticate with keys of their own cannot prove those
+      keys (Section 5.6).
 
    *  Statement conveyance within a client attestation, rather than as a
       request parameter.
@@ -1185,8 +1184,8 @@ Table of Contents
    *  Partial review, by which an issuer vouches for particular members
       rather than a whole document (Section 3.1).
 
-   *  Statement lifecycle ([LIFECYCLE]): withdrawal, supersession,
-      requiring a current statement on refresh, and refresh replacement.
+   *  Statement lifecycle: withdrawal, supersession, requiring a current
+      statement on refresh, and refresh replacement.
 
 10.  Relationship to Other Work
 
@@ -1267,16 +1266,15 @@ Table of Contents
    and more than one at each.
 
    A trusting authorization server can bound the number of
-   establishments, and any registrations ([REGISTRATION]), derived from
-   one issuer's statements about one piece of software, identified by
-   iss and sub claims.  How it counts toward a bound is local policy,
-   and a multi-tenant server keeps any bound per tenant.  A bound stays
-   effective only if what anyone holding a copy of a statement can
-   create does not count toward it: a pushed authorization request and
-   its unredeemed code, which anyone holding a copy of a public client's
-   statement can approve with their own account, or a registration under
-   which no access token has been issued.  Otherwise a holder of a copy
-   could exhaust the bound for the software's other instances.
+   establishments derived from one issuer's statements about one piece
+   of software, identified by iss and sub claims.  How it counts toward
+   a bound is local policy, and a multi-tenant server keeps any bound
+   per tenant.  A bound stays effective only if what anyone holding a
+   copy of a statement can create does not count toward it: a pushed
+   authorization request and its unredeemed code, which anyone holding a
+   copy of a public client's statement can approve with their own
+   account.  Otherwise a holder of a copy could exhaust the bound for
+   the software's other instances.
 
    For software admitted under Section 5.6.2, a server can also bound
    establishments per resource owner, so that one user cannot exhaust a
@@ -1355,8 +1353,8 @@ Table of Contents
    describes an OAuth client configuration.  It does not bind the
    software's code, dependencies, or behavior.  Software can change
    while its document stays the same, and the statement remains
-   acceptable until it expires (Section 13.7) or, under [LIFECYCLE], is
-   withdrawn.  Assurance about the software itself rests on the issuer's
+   acceptable until it expires (Section 13.7) or is withdrawn under an
+   extension.  Assurance about the software itself rests on the issuer's
    review process.  Any change to the document's octets, including one
    that changes no metadata value, makes statements over the earlier
    octets fail the digest comparison (Section 5.2).  The digest covers a
@@ -1496,12 +1494,11 @@ Table of Contents
    the proven key gone from the client's document (Section 5.7.1).  An
    older statement that has not expired remains admissible after a newer
    one narrows the review.  A deployment that needs withdrawal,
-   supersession, or grants that follow later reviews implements
-   [LIFECYCLE].  Removing an issuer from trust configuration, or
-   narrowing what it can attest, does not by itself end a grant or a
-   registration ([REGISTRATION]) already admitted on one of its
-   statements.  A server ends them by its own means, such as revoking
-   refresh tokens or deleting registrations.
+   supersession, or grants that follow later reviews implements an
+   extension providing them (Section 9).  Removing an issuer from trust
+   configuration, or narrowing what it can attest, does not by itself
+   end a grant already admitted on one of its statements.  A server ends
+   such grants by its own means, such as revoking refresh tokens.
 
 13.8.  Observable State
 
@@ -1813,13 +1810,6 @@ Table of Contents
               based-client-auth-12, 12 October 2026,
               <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
               attestation-based-client-auth-12>.
-
-   [LIFECYCLE]
-              McGuinness, K., "Client ID Metadata Document Software
-              Statement Lifecycle", October 2026,
-              <https://mcguinness.github.io/draft-mcguinness-oauth-cimd-
-              sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-
-              lifecycle.html>.
 
    [OPENID-FED]
               Hedberg, R., Ed., Jones, M. B., Solberg, A. Å., Bradley,
