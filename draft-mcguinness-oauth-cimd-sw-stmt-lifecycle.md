@@ -177,14 +177,14 @@ If the server bounds establishments (Section 11.3 of {{STATEMENT}}), a count per
 
 # Token Status List {#token-status-list}
 
-This section defines the withdrawal mechanism ({{withdrawal}}) of this specification, a profile of Token Status List {{STATUSLIST}} through which an issuer publishes the authoritative status of its statements. A trusting authorization server can resolve those statuses for any issuer it has configured. An issuer can also withdraw a statement through another withdrawal mechanism. The events of {{shared-signals}} are not a withdrawal mechanism: they only prompt a trusting authorization server to resolve a status promptly.
+This section defines the withdrawal mechanism ({{withdrawal}}) of this specification, a profile of Token Status List {{STATUSLIST}} through which an issuer publishes the authoritative status of its statements.
 {: #status-mechanisms}
 
 An issuer's Status List key set is the JWK Set at the `jwks_uri` of its authorization server metadata {{RFC8414}}, discovered from the configured `iss`. For an issuer that is not an authorization server (Section 4 of {{STATEMENT}}), it is the JWK Set at a Status List key set URL in the trust configuration, under the `https` and certificate rules that Section 4 of {{STATEMENT}} sets for a statement key set URL. An issuer MUST serve its statement key set, its Status List key set, and the key set at the `jwks_uri` of any transmitter configuration metadata it publishes ({{relationship}}) at three different locations, with no key in more than one of them.
 
 ## Status Publication {#status-publication}
 
-An issuer that uses Token Status List publishes the status of its statements as {{STATUSLIST}} defines. A statement locates its entry in the issuer's Status List Token through the `status` claim, whose `status_list` member gives the status list URI and index (Section 6.2 of {{STATUSLIST}}). The claim extends the statement as Section 3 of {{STATEMENT}} permits, and a server that does not implement this specification ignores it. An issuer that publishes status:
+An issuer that uses Token Status List publishes the status of its statements as {{STATUSLIST}} defines. A statement locates its entry in the issuer's Status List Token through the `status` claim, whose `status_list` member gives the status list URI and index (Section 6.2 of {{STATUSLIST}}). An issuer that publishes status:
 
 * MUST publish status, and carry the `status` claim, for every statement it issues under a given `iss` from the point it begins publishing. Once statements issued before that point have expired, a trusting authorization server can read an absent claim as meaning the issuer publishes no status.
 * MUST NOT assign the same combination of status list URI and index to more than one statement, including across successive Status List Tokens published at that URI. Withdrawing a statement then affects no other.
@@ -194,14 +194,9 @@ An issuer that uses Token Status List publishes the status of its statements as 
 
 ## Status Resolution {#status-resolution}
 
-If a statement carries the `status` claim and the trusting authorization server resolves statuses for the statement's issuer, the server MUST reject the statement if its status is `INVALID`, and MUST apply its configured policy for that issuer to the statement if its status is `SUSPENDED` or any other value except `VALID` and `INVALID`.
+If a statement carries the `status` claim and the server resolves statuses for its issuer, a status of `INVALID` is a withdrawal, as is any other status except `VALID` that the server's policy for that issuer refuses. On a withdrawal, the server holds a refusal record ({{withdrawal}}). Token Status List defines no expiry for a withdrawal, so the refusal ends only when a later resolution returns a status that no longer refuses the statement.
 
-A status of `INVALID` is a withdrawal, as is any other status except `VALID` when the policy configured for that issuer refuses the statement. On a withdrawal, the server holds a refusal record ({{withdrawal}}). Token Status List defines no expiry for a withdrawal, so the refusal ends only when a later resolution returns a status that no longer refuses the statement.
-
-Resolution follows {{STATUSLIST}}. In particular:
-
-* If the referenced index lies outside the list, the statement is rejected as {{STATUSLIST}} requires ({{lifecycle-errors}}).
-* A server SHOULD retrieve the list on the list's own schedule, within the expiration and caching bounds its `exp` and `ttl` claims set (Section 11.5 of {{STATUSLIST}}), rather than once per request ({{schedule-practice}}, {{resolution-schedule}}).
+Resolution follows {{STATUSLIST}}. A server SHOULD retrieve the list on the list's own schedule, within the expiration and caching bounds its `exp` and `ttl` claims set (Section 13.7 of {{STATUSLIST}}), rather than once per request ({{schedule-practice}}, {{resolution-schedule}}).
 
 A server MUST NOT replace a Status List Token it holds with one whose `iat` claim is earlier, and MUST treat one whose `iat` claim is equal but whose contents differ as a resolution failure. A host serving an older token then cannot restore a status the issuer has withdrawn. Section 8.3 of {{STATUSLIST}} recommends rejecting a statement whose status the server cannot resolve. A statement the server accepts without a resolved status remains bounded by its effective expiry (Section 2 of {{STATEMENT}}).
 
