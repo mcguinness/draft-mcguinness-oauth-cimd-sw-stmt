@@ -258,7 +258,7 @@ A rejection this specification defines, at a client registration endpoint or at 
   * It carries metadata this server's policy refuses.
   * It cannot be obtained, including over the server's size bound, for a reason other than a retrieval that did not complete (Section 5.3 of {{STATEMENT}}).
   * It omits `token_endpoint_auth_method` ({{dcr-presentation}}).
-  * It declares `token_endpoint_auth_method` of `none` and the server does not register it under {{public-client-registration}}.
+  * It declares `token_endpoint_auth_method` of `none` and the server registers no public clients under {{public-client-registration}}.
 
 `invalid_redirect_uri`:
 : The reviewed document carries a redirection URI another application could claim ({{dcr-presentation}}), or declares `token_endpoint_auth_method` of `none` and lists no redirection URI ({{public-client-registration}}).
