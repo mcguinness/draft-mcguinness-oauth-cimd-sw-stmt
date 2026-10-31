@@ -213,8 +213,7 @@ The replacement MUST satisfy the following:
 * The `iat` claim is later than that of the governing statement.
 * Its document declares `token_endpoint_auth_method` of `none` if and only if the governing statement's document does.
 * For a public-client registration that carries no tenant restriction, its decision is not confined to a tenant ({{tenant-restriction}}).
-
-For a replacement, the authorization server MUST derive the registration's metadata from the document the replacement reviews, under the rules of {{dcr-presentation}}. Renewing on the statement alone would leave in the registration a key, redirection URI, or scope that the new review removed.
+* Its document satisfies the rules of {{dcr-presentation}}, from which the registration's metadata is derived.
 
 A request whose replacement fails the rules above is rejected ({{errors}}) whether or not the registration has ceased to be valid. A rejected delivery leaves the governing statement unchanged.
 
