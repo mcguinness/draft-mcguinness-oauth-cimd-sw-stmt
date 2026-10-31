@@ -271,6 +271,8 @@ Rejections at other endpoints use the error responses of Section 6 of {{STATEMEN
 * its registration has ceased to be valid, or the required-issuer rule rejects it ({{registration-validity}}), or
 * its delivered statement is earlier than the governing statement or fails the replacement rules ({{revalidation}}).
 
+At the authorization endpoint, the `redirect_uri` is validated against the registration's redirection URIs before an error is redirected (Section 4.1.2.1 of {{RFC6749}}).
+
 Rejections of a registration management request for other reasons use the responses {{RFC7592}} specifies.
 
 # Example {#example}
