@@ -236,7 +236,7 @@ An issuer can require `jwks` inline (Section 13.2 of {{STATEMENT}}).
 
 The `audience` parameter of an authorization request ({{authorization-request}}) or token exchange ({{token-exchange-profile}}) names a target service at which the client intends to use the statement, with the semantics of Section 2.1 of {{RFC8693}}. The parameter can be repeated to request several. Each value MUST be an authorization server issuer identifier as defined by {{RFC8414}}. Values MUST NOT be duplicated, and order is insignificant.
 
-The authorization server selects the final audience according to policy. It MUST NOT place in the statement's `aud` claim any value the request did not carry, except as {{token-exchange-profile}} provides for a renewal request.
+The authorization server selects the final audience according to policy. It MUST NOT place in the statement's `aud` claim any value the request did not carry, except as {{renewal}} provides.
 
 If no requested audience is acceptable, the authorization server MUST reject the request with the `invalid_target` error code, as defined by {{RFC8707}} at the authorization endpoint and by Section 2.2.2 of {{RFC8693}} at the token endpoint. An authorization server whose policy requires a restricted audience rejects a request carrying none with the same error.
 
@@ -265,7 +265,7 @@ The client sends a token exchange request as defined in Section 2.1 of {{RFC8693
 : REQUIRED. The client identifier URL described in {{client-identity}}.
 
 `audience`:
-: OPTIONAL. The requested audience ({{audience}}). On renewal ({{renewal}}), the subject statement's `aud` stands in for the requested audience if the request carries none, and bounds it if the request carries one, so a renewed statement is never broader than the subject statement.
+: OPTIONAL. The requested audience ({{audience}}), bounded on renewal as {{renewal}} requires.
 
 `completion_mode`:
 : As defined for software statement code redemption ({{software-statement-code-redemption}}).
@@ -313,7 +313,7 @@ That authentication is the holder binding: without it, whoever held a copy of th
 
 A client rotating keys inline renews while its document carries both the old and the new key. For a document naming `jwks_uri`, the binding is to whatever that location serves. A public client holds no such key and obtains a new statement through the redirect flow ({{authorization-request}}).
 
-A renewed statement carries the subject statement's `aud_tenant` claim if the decision is confined to that tenant. It also carries the uses the subject statement permits, unless issuance policy narrows them. A renewed statement MUST NOT permit a use the subject statement does not. It is matched to the subject statement by `iss` and `sub` ({{LIFECYCLE}}, {{REGISTRATION}}).
+A renewed statement MUST NOT be broader than the subject statement: its `aud` is the requested audience narrowed to the subject statement's `aud`, or that `aud` if the request names none, it carries any `aud_tenant` claim of the subject statement, and its `statement_uses` permits no use the subject statement does not. It is matched to the subject statement by `iss` and `sub` ({{LIFECYCLE}}, {{REGISTRATION}}).
 
 An issuer MUST NOT accept as the subject token a statement it has withdrawn, or one whose status it publishes as other than `VALID` ({{LIFECYCLE}}). Renewing such a statement would reissue the decision that withdrawal ended.
 
@@ -644,7 +644,7 @@ A token exchange carries no in-band evidence of user participation. An authoriza
 
 ## Renewal by Prior Statement
 
-If both the reviewed document and the current document carry their keys inline, a party able to change the current document cannot supply a key that satisfies the holder binding of {{renewal}}. If they name a `jwks_uri`, whoever controls that location can supply such a key. For this reason, a changed document receives the decision a first issuance receives. Binding renewal to the client's key also spares automated renewal a long-lived reusable initial access token, a standing credential to mint statements.
+If the reviewed and current documents name a `jwks_uri`, whoever controls that location can supply a key that satisfies the holder binding of {{renewal}}. Binding renewal to the client's key spares automated renewal a long-lived reusable initial access token, a standing credential to mint statements.
 
 ## Signing Keys and Algorithms
 
