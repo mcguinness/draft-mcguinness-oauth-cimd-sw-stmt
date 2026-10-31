@@ -34,7 +34,6 @@ normative:
   RFC8414:
   RFC8417:
   RFC9493:
-  CIMD: I-D.ietf-oauth-client-id-metadata-document
   STATEMENT:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt
     title: "Client ID Metadata Document Software Statement"
@@ -52,6 +51,7 @@ normative:
     title: "OpenID Continuous Access Evaluation Profile 1.0"
 
 informative:
+  CIMD: I-D.ietf-oauth-client-id-metadata-document
   RFC6755:
   RFC7009:
   REGISTRATION:
@@ -112,7 +112,6 @@ Current Statement:
 # Withdrawal and Refusal Records {#withdrawal}
 
 An issuer can withdraw a statement before its `exp`. Unlike OAuth token revocation ({{RFC7009}}), a withdrawal revokes no issued token: a server holding a refusal record refuses new admissions and refresh under the statement ({{currency}}, {{open-grants}}).
-{: #lifecycle}
 
 How a trusting authorization server learns of a withdrawal is a withdrawal mechanism. This specification requires no withdrawal mechanism. It defines one, the Token Status List profile of {{token-status-list}}, and other specifications can define how another mechanism applies to these statements.
 
@@ -179,7 +178,6 @@ If the server bounds establishments (Section 11.3 of {{STATEMENT}}), a count per
 # Token Status List {#token-status-list}
 
 This section defines the withdrawal mechanism ({{withdrawal}}) of this specification, a profile of Token Status List {{STATUSLIST}} through which an issuer publishes the authoritative status of its statements.
-{: #status-mechanisms}
 
 An issuer's Status List key set is the JWK Set at the `jwks_uri` of its authorization server metadata {{RFC8414}}, discovered from the configured `iss`. For an issuer that is not an authorization server (Section 4 of {{STATEMENT}}), it is the JWK Set at a Status List key set URL in the trust configuration, under the `https` and certificate rules that Section 4 of {{STATEMENT}} sets for a statement key set URL. An issuer MUST serve its statement key set, its Status List key set, and the key set at the `jwks_uri` of any transmitter configuration metadata it publishes ({{relationship}}) at three different locations, with no key in more than one of them.
 
@@ -197,7 +195,7 @@ An issuer that uses Token Status List publishes the status of its statements as 
 
 If a statement carries the `status` claim and the server resolves statuses for its issuer, a status of `INVALID` is a withdrawal, as is any other status except `VALID` that the server's policy for that issuer refuses. On a withdrawal, the server holds a refusal record ({{withdrawal}}).
 
-Resolution follows {{STATUSLIST}}. A server SHOULD retrieve the list on the list's own schedule, within the expiration and caching bounds its `exp` and `ttl` claims set (Section 13.7 of {{STATUSLIST}}), rather than once per request ({{schedule-practice}}, {{resolution-schedule}}).
+Resolution follows {{STATUSLIST}}. A server SHOULD retrieve the list on the list's own schedule, within the expiration and caching bounds its `exp` and `ttl` claims set (Section 13.7 of {{STATUSLIST}}), rather than once per request ({{schedule-practice}}, {{privacy-considerations}}).
 
 A server MUST NOT replace a Status List Token it holds with one whose `iat` claim is earlier, and MUST treat one whose `iat` claim is equal but whose contents differ as a resolution failure. A host serving an older token then cannot restore a status the issuer has withdrawn.
 
@@ -232,7 +230,6 @@ The event reports that the issuer has changed the published status of one or mor
 The event does not say what the new status is, and a receiver MUST NOT infer one from it. Resolving a status of `VALID` after an event is not an error.
 
 The payload ({{RFC8417}}) of an event defined here has the following claims:
-{: #events}
 
 `event_timestamp`:
 : OPTIONAL. The claim defined by {{CAEP}}, a NumericDate value that here gives the time at which the issuer changed the status the event reports. It is informational: a receiver does not use it to order, bound, or scope anything.
@@ -368,12 +365,11 @@ Because a receiver resolves status independently ({{processing}}), an attacker w
 
 The absence of events looks the same on a healthy stream and a suppressed one. Periodic stream verification ({{configuration}}) makes the difference observable ({{stream-practice}}).
 
-# Privacy Considerations
+# Privacy Considerations {#privacy-considerations}
 
 The privacy considerations of {{STATEMENT}}, {{STATUSLIST}}, {{SSF}}, and {{RFC8417}} apply.
 
 Because {{STATUSLIST}} aggregates many statements into one list, a retrieval tells the issuer only that some trusting authorization server is checking. Retrieving the list on its own schedule ({{status-resolution}}) keeps the server's request timing from disclosing the client population it serves. A retrieval that an event prompts shows the issuer that the receiver holds a statement or a cached status for the event's subject.
-{: #resolution-schedule}
 
 Subject identifiers in these events name reviewed software and, in aggregate, describe an organization's approved software estate. For this reason, a stream is scoped as {{configuration}} provides. A receiver ought to treat event logs as sensitive at rest, as Section 11.4 of {{STATEMENT}} treats statements. A log of events is a record about client identifiers that can outlive the issuer's own published status, so a receiver ought to bound its retention.
 
