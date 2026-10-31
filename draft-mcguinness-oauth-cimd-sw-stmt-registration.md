@@ -88,10 +88,13 @@ Delivery:
 : Carrying a statement in a request under a statement-governed registration, in one of the locations {{revalidation}} lists, so that it can renew the registration. A delivery is not a runtime presentation.
 
 Governing Statement:
-: The statement that bounds a statement-governed registration: the one consumed at registration or, after a renewal, the replacement that renewed it most recently ({{revalidation}}).
+: The statement that bounds a statement-governed registration: the one consumed at registration or, after a renewal, the replacement that renewed it most recently ({{revalidation}}). The authorization server identifies it by its `iss` and `jti` claims.
+
+Replacement:
+: A delivered statement with the governing statement's `iss` and `sub` claims and a later `iat` ({{revalidation}}).
 
 Statement-Governed Registration:
-: An {{RFC7591}} client registration created from a statement under this specification ({{registration-validity}}).
+: An {{RFC7591}} client registration created from a statement under this specification ({{dcr-presentation}}).
 
 # Consumption at Registration {#dcr-presentation}
 
@@ -196,7 +199,7 @@ A client renews a statement-governed registration by delivering a replacement st
 
 A statement carried in one of these locations under a statement-governed registration is a delivery. A delivery is a `registration` use of the statement (Section 3 of {{STATEMENT}}). A registration request is not a delivery: it never renews an existing registration, except a public-client registration ({{public-client-registration}}). A registration created without a statement is not statement-governed: a statement neither renews nor alters it and is not a delivery. The server applies a reviewed change to such a registration, if at all, through its own registration policy, deriving metadata only from a reviewed document ({{dcr-presentation}}). Nor does runtime presentation (Section 5 of {{STATEMENT}}) alter any registration's metadata.
 
-A statement with the governing statement's `iss` and `sub` and an `iat` no later than the governing statement's `iat` is not a replacement. The authorization server treats a delivered statement as follows:
+The authorization server treats a delivered statement as the first matching row of the following table provides:
 
 | Statement delivered | Treatment |
 | --- | --- |
