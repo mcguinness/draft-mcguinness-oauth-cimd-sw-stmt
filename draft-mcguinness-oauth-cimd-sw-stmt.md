@@ -248,7 +248,7 @@ For a runtime presentation, the authorization server proceeds as follows, reject
 2. Validate the statement ({{validation}}), completing every check that needs no client-controlled retrieval before any such retrieval ({{retrieval}}).
 3. Verify the `client_id` rule of {{runtime-presentation}}.
 4. Resolve the reviewed document and compare its digest ({{effective-metadata}}). A server that proceeds without the statement on a mismatch ends admission on the statement here.
-5. Apply {{sender-constraint}} to that document, verifying the sender constraint unless the statement is review-only ({{review-only}}). Where {{sender-constraint}} or {{pull-binding}} defers the proof to code redemption, as for a key bound through `dpop_jkt` or a statement pulled at the authorization endpoint, it comes there.
+5. Apply {{sender-constraint}} to that document, verifying the sender constraint unless the statement is review-only ({{review-only}}). If {{sender-constraint}} or {{pull-binding}} defers the proof to code redemption, the server verifies it there.
 6. Evaluate the request against the reviewed metadata ({{effective-metadata}}).
 7. Create the establishment ({{grant-lifecycle}}), unless the statement is review-only ({{review-only}}).
 
@@ -400,7 +400,7 @@ A successful presentation creates an establishment: the state against which the 
 * The authorization server's own tenant the grant was opened for, if it hosts more than one.
 * The reviewed metadata and the digest it matched ({{effective-metadata}}).
 * The issuer trust decision.
-* The sender-constraint mechanism and proven key, which for a statement pulled at the authorization endpoint for a confidential client is set at code redemption ({{pull-binding}}).
+* The sender-constraint mechanism and proven key.
 
 The authorization server MUST bind the resulting `request_uri`, authorization code, refresh token, and other grant continuation state to the establishment, as applicable. An establishment ends once no continuation state bound to it remains usable.
 
@@ -708,7 +708,7 @@ The following table states what admission under this specification does and does
 | --- | --- |
 | A configured issuer signed the statement for this client identifier and, if the statement names an audience, one that includes this server | Yes |
 | The served document is the one the issuer reviewed, byte for byte | Yes |
-| The presenter controls a key the reviewed document carries | Yes, except under {{public-client-presentation}}. For a statement pulled at the authorization endpoint, possession is proved at code redemption, before any token is issued ({{pull-binding}}). Inline `jwks` attests the keys themselves; `jwks_uri` attests only their location ({{statement-validation}}) |
+| The presenter controls a key the reviewed document carries | Yes, before any token is issued, except under {{public-client-presentation}}. A `jwks_uri` attests only the keys' location ({{statement-validation}}) |
 | Authorization codes reach only a reviewed redirection URI | Yes, in a redirect flow. For a public client under {{public-client-presentation}} it is the only binding, and it does not hold against a party that controls the user agent ({{public-client-security}}) |
 | The running software is the software the issuer reviewed | No; an attested-key extension can add evidence for it ({{extensions}}) |
 | The client may access a particular resource | No; the authorization server's policy, and the resource owner's authorization where a grant involves one, decide |
