@@ -220,9 +220,9 @@ A public client binds its requests with Demonstrating Proof of Possession (DPoP)
 
 ## Metadata Snapshot {#metadata-snapshot}
 
-CIMDs can change while a request is pending. Before returning a software statement code or a deferral code, the authorization server MUST bind it to the exact octets of the document it retrieved and validated, and to their metadata digest ({{STATEMENT}}). The octets and metadata digest bound to a request, by this section or by {{token-exchange-profile}}, constitute its metadata snapshot.
+CIMDs can change while a request is pending. Before returning a software statement code or a deferral code, the authorization server MUST bind it to the exact octets of the document it retrieved and validated, and to their metadata digest, retrieved and computed as Section 3.1 of {{STATEMENT}} requires. The octets and metadata digest bound to a request, by this section or by {{token-exchange-profile}}, constitute its metadata snapshot.
 
-The authorization server MAY retrieve the document again before issuing the software statement. If it does so and the digest differs, it MUST either re-evaluate the request under the new document, binding the new document as the snapshot, or reject the request. This applies even if the change touches no member its policy examines. A statement over a superseded snapshot fails at registration ({{REGISTRATION}}).
+The authorization server MAY retrieve the document again before issuing the software statement. If it does so and the digest differs, it MUST either re-evaluate the request under the new document, binding the new document as the snapshot, or reject the request. This applies even if the change touches no member its policy examines. A statement over a superseded snapshot fails the digest comparison (Section 5.2 of {{STATEMENT}}).
 
 The authorization server MUST NOT combine values from different document versions. An approval recorded against a superseded snapshot does not carry forward without a fresh issuance-policy decision.
 
@@ -230,9 +230,9 @@ Replacing the snapshot does not alter the sender-constraint context fixed for a 
 
 The authorization server MUST reject a document containing duplicate object member names. Parsers can interpret duplicate members differently despite an identical digest.
 
-A document carries its keys inline through the `jwks` member, which the digest binds, or by reference through the `jwks_uri` member, which the digest binds only as a location. {{STATEMENT}} weighs the trade-off, and an issuer can require either.
+A document carries its keys inline through the `jwks` member, which the digest binds, or by reference through the `jwks_uri` member, which the digest binds only as a location. Section 13.2 of {{STATEMENT}} weighs the trade-off, and an issuer can require either.
 
-{{CIMD}} permits a document to carry a `software_statement` member. An issuer evaluates the document as served and MUST NOT refuse a document because it carries the member. Trusting authorization servers ignore a statement embedded there ({{STATEMENT}}), and refusing would leave a client that published its statement unable to renew it.
+{{CIMD}} permits a document to carry a `software_statement` member. An issuer evaluates the document as served and MUST NOT refuse a document because it carries the member. Trusting authorization servers ignore a statement embedded there (Section 3 of {{STATEMENT}}), and refusing would leave a client that published its statement unable to renew it.
 
 # Token Exchange Profile {#token-exchange-profile}
 
@@ -319,7 +319,7 @@ The client sends an authorization request as described in Section 4.1.1 of {{RFC
 : REQUIRED. The client identifier URL described in {{client-identity}}.
 
 `redirect_uri`:
-: REQUIRED. The value MUST exactly match one of the redirection URIs in the CIMD, subject to the redirection URI rules in Section 4.2 of {{CIMD}}. Whatever authentication method the document declares, the value MUST NOT be a redirection URI that another application on the same device could claim, as the review-only rules of {{STATEMENT}} define ({{authorization-response-security}}).
+: REQUIRED. The value MUST exactly match one of the redirection URIs in the CIMD, subject to the redirection URI rules in Section 4.2 of {{CIMD}}. Whatever authentication method the document declares, the value MUST NOT be a redirection URI that another application on the same device could claim, as Section 5.6.3 of {{STATEMENT}} defines ({{authorization-response-security}}).
 
 `state`:
 : OPTIONAL. An opaque value used by the client to bind the authorization response to its request. Because the authorization server requires PKCE, a client can rely on PKCE for cross-site request forgery (CSRF) protection instead, as Section 2.1 of {{RFC9700}} permits.
@@ -439,7 +439,7 @@ The client authenticates according to {{client-identity}}. When the `dpop_jkt` p
 
 The authorization server MUST validate the software statement code and all of its bindings before processing the request. An invalid, expired, previously used, or incorrectly bound code MUST result in an `invalid_grant` error. A PKCE or DPoP binding failure is handled according to {{RFC7636}} or {{RFC9449}}, respectively.
 
-A redemption attempt consumes the software statement code whenever the presented code value is one the authorization server issued that has neither expired nor been consumed, including when its PKCE, DPoP, or client-authentication bindings fail ({{authorization-response-security}}). A DPoP nonce challenge {{RFC9449}} is not a binding failure: an authorization server requiring a nonce issues the `use_dpop_nonce` challenge before evaluating the code, which remains unconsumed.
+A redemption attempt consumes the software statement code whenever the presented code value is one the authorization server issued that has neither expired nor been consumed, including when its PKCE, DPoP, or client-authentication bindings fail. A DPoP nonce challenge {{RFC9449}} is not a binding failure: an authorization server requiring a nonce issues the `use_dpop_nonce` challenge before evaluating the code, which remains unconsumed.
 
 When a previously consumed code is presented again, the authorization server SHOULD revoke any deferral derived from it ({{RFC9700}}). To keep anyone who observed the code in a URL from triggering that revocation, an authorization server MAY limit revocation to replays that pass the PKCE check.
 
@@ -549,13 +549,13 @@ An issuer that ends a decision before its expiry does so through a withdrawal me
 
 An authorization server that issued a statement already holds the decision that statement records. If it is also a trusting authorization server, it MAY admit the client on that record rather than require the statement to be presented back to it, at registration or at runtime.
 
-Because the record of a decision is not a fresh retrieval of the document, a server admitting a client on the record of a statement it issued MUST apply every check {{STATEMENT}} applies to a presented statement, and at registration every check {{REGISTRATION}} applies, taking the statement's claims from its record of the decision. The record replaces only the signature: the server still obtains the document at `sub` and compares its digest with the recorded one.
+Because the record of a decision is not a fresh retrieval of the document, a server admitting a client on the record of a statement it issued MUST apply every check Sections 3.2 and 5.1 of {{STATEMENT}} apply to a presented statement, and at registration every check {{REGISTRATION}} applies, taking the statement's claims from its record of the decision. The record replaces only the signature: the server still obtains the document at `sub` and compares its digest with the recorded one.
 
-At runtime, the recorded decision replaces the presented statement, not the proof of who is making the request. The request MUST meet the sender constraint of {{STATEMENT}} against the reviewed document, as a presentation would, and a successful admission creates an establishment.
+At runtime, the recorded decision replaces the presented statement, not the proof of who is making the request. The request MUST meet the sender constraint of Section 5.6 of {{STATEMENT}} against the reviewed document, as a presentation would, and a successful admission creates an establishment.
 
 # Authorization Server Metadata {#authorization-server-metadata}
 
-An authorization server that issues software statements under this specification advertises `true` for `client_id_metadata_document_supported` ({{CIMD}}) and publishes the authorization server metadata that {{STATEMENT}} requires of an authorization server that issues statements.
+An authorization server that issues software statements under this specification advertises `true` for `client_id_metadata_document_supported` ({{CIMD}}) and publishes the authorization server metadata that Section 8 of {{STATEMENT}} requires of an authorization server that issues statements.
 
 A deferring issuer publishes the metadata {{DTR}} requires, including `true` for `deferred_token_response_supported`. An issuer that does not defer advertises neither that value nor the deferral-code token type in the `revocation_endpoint_token_type_values_supported` metadata value, and need not implement {{DTR}}.
 
@@ -574,7 +574,7 @@ This section gives guidance to implementers. It adds no requirement.
 
 ## Retrieval and Approval-Queue Bounds {#processing-bounds}
 
-An authorization server can rate-limit token exchanges, cache successful retrievals and back off after failures as {{STATEMENT}} describes, and bound pending deferrals per client identifier and requester. Because the redirect flow reaches the approval queue before any client-authenticated step, the same rate limits and pending-approval bounds per client identifier can apply there.
+An authorization server can rate-limit token exchanges, cache successful retrievals and back off after failures as Section 11.1 of {{STATEMENT}} describes, and bound pending deferrals per client identifier and requester. Because the redirect flow reaches the approval queue before any client-authenticated step, the same rate limits and pending-approval bounds per client identifier can apply there.
 
 ## Handling the Issued Statement {#issued-statement-handling}
 
@@ -651,7 +651,7 @@ The software statement is a signed credential and can contain sensitive deployme
 
 A public client presents no client authentication, so its association with the software depends on delivery to a metadata-listed redirection endpoint. Another application can claim a private-use or loopback endpoint ({{RFC8252}}). PKCE and DPoP bind the code to the initiator but cannot stop an attacker from initiating under another party's `client_id`. Only an `https` endpoint no other application can claim demonstrates control of the publisher's origin, so {{authorization-request}} requires one. A native public client can host such an endpoint or use the token exchange profile ({{token-exchange-profile}}).
 
-A confidential client's authentication proves possession of a key, not that the key is absent from software distributed to end users, so the requirement applies to it as well. Presentations of a statement over a document listing an endpoint another application can claim are in any case review-only at a trusting authorization server ({{STATEMENT}}).
+A confidential client's authentication proves possession of a key, not that the key is absent from software distributed to end users, so the requirement applies to it as well. Presentations of a statement over a document listing an endpoint another application can claim are in any case review-only at a trusting authorization server (Section 5.6.3 of {{STATEMENT}}).
 
 Endpoint or key control informs issuance policy but does not determine issuance ({{review-practice}}).
 
@@ -689,7 +689,7 @@ The privacy considerations of {{STATEMENT}} apply.
 
 The authorization server learns the client identifier URL, the client's CIMD, and information about the party interacting with the authorization endpoint. It ought to collect and retain only the information required for issuance, security monitoring, and audit obligations.
 
-An `aud` claim reveals which authorization servers the client intends to use. {{STATEMENT}} weighs that disclosure against omitting the claim and advises naming an audience, which an issuer does by requiring one in the request ({{authorization-request}}).
+An `aud` claim reveals which authorization servers the client intends to use. Section 14 of {{STATEMENT}} weighs that disclosure against omitting the claim, and Section 12.2 of {{STATEMENT}} advises naming an audience, which an issuer does by requiring one in the request ({{authorization-request}}).
 
 If the client's relationship with the authorization servers its `audience` parameter names is sensitive, a redirect-flow client SHOULD use pushed authorization requests {{RFC9126}}.
 
