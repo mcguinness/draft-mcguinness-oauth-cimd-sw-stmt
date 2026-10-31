@@ -34,7 +34,6 @@ normative:
   RFC7519:
   RFC7591:
   RFC7636:
-  RFC7638:
   RFC7800:
   RFC8252:
   RFC8414:
@@ -213,7 +212,6 @@ This specification defines the following member of a CIMD:
 
 A document selecting this profile MUST meet all of the following requirements:
 
-* Its `client_id` is its HTTPS document URL, as required by {{CIMD}}.
 * Its `token_endpoint_auth_method` is the single string `attest_jwt_client_auth_dpop`. No alternative authentication method is offered under this profile.
 * Its `grant_types` member explicitly contains `authorization_code` and MAY also contain `refresh_token`. It contains no other grant type.
 * Its `response_types` explicitly contains only `code`.
@@ -228,7 +226,7 @@ Every reviewed redirection URI MUST use `http`, have the host exactly `127.0.0.1
 
 The server MUST compare a requested redirect with a reviewed entry using exact string matching, except for the port variation permitted by Section 7.3 of {{RFC8252}}. No other component can vary: the address form, path, and any query remain fixed. In particular, a wildcard path, a hostname resolving to loopback, an alternative numerical spelling of the address, and a different loopback address do not match.
 
-The client MUST bind its listener only to the selected loopback interface, open it before sending the pushed authorization request, and close it when the transaction completes or is abandoned. It can obtain an available ephemeral port from the operating system, as Section 7.3 of {{RFC8252}} anticipates. The authorization code is delivered to that listener; the authorization server MUST NOT fetch the redirection URI to test the listener.
+The client MUST bind its listener only to the selected loopback interface, open it before sending the pushed authorization request, and close it when the transaction completes or is abandoned. The authorization code is delivered to that listener; the authorization server MUST NOT fetch the redirection URI to test the listener.
 
 # Attester Trust and Evidence {#trust}
 
@@ -314,9 +312,9 @@ A server MUST NOT accept a software statement as an instance attestation, or an 
 
 The client sends the instance attestation in the `OAuth-Client-Attestation` HTTP header field and uses DPoP combined mode under Section 7.3 of {{ABCA}}. It MUST NOT also send the `OAuth-Client-Attestation-PoP` HTTP header field, and the server MUST reject a request under this profile that does. A `dpop_jkt` parameter alone is not a proof. The authentication method and its validation remain those defined by {{ABCA}}; this profile supplies the attestation's type and additional bindings.
 
-The authorization server MUST require a server-issued DPoP nonce at the PAR endpoint and on every token request under this profile. It MUST enforce endpoint and method binding and reject replay of a proof within its acceptance window under {{RFC9449}}. Nonce challenges and retries use the `use_dpop_nonce` error code and the `DPoP-Nonce` HTTP header field. They do not consume a code, rotate a refresh token, create an establishment, or advance the `iat` floor. A request rejected before the instance is authenticated, or rejected with `use_fresh_attestation` or `temporarily_unavailable`, has none of these effects either, so the client can retry with a fresh attestation.
+The authorization server MUST require a server-issued DPoP nonce at the PAR endpoint and on every token request under this profile. It MUST reject replay of a proof within its acceptance window. Nonce challenges do not consume a code, rotate a refresh token, create an establishment, or advance the `iat` floor. A request rejected before the instance is authenticated, or rejected with `use_fresh_attestation` or `temporarily_unavailable`, has none of these effects either, so the client can retry with a fresh attestation.
 
-If the pushed authorization request also carries the `dpop_jkt` parameter, Section 10.1 of {{RFC9449}} requires the server to reject the request unless the `dpop_jkt` value is the JWK thumbprint ({{RFC7638}}) of the DPoP proof's key, which {{attestation-validation}} makes the attested key. A client MUST generate a new proof for each request, including a retry. TLS protects request contents. DPoP does not sign the request body, and implementations MUST NOT treat a valid proof as a signature over the redirection URI, PKCE challenge, or statement.
+TLS protects request contents. DPoP does not sign the request body, and implementations MUST NOT treat a valid proof as a signature over the redirection URI, PKCE challenge, or statement.
 
 # Runtime Admission {#admission}
 
@@ -324,7 +322,7 @@ This section specifies processing at the pushed authorization request, authoriza
 
 ## Pushed Authorization Request {#par}
 
-The client MUST start every grant under this profile at the PAR endpoint. Its request MUST include `client_id`, `response_type=code`, `redirect_uri`, and a PKCE `code_challenge` with `code_challenge_method=S256`. It MAY include the `state` parameter: the server requires PKCE ({{server-metadata}}), so the client can rely on PKCE for CSRF protection, as Section 2.1 of {{RFC9700}} permits. It MUST authenticate under {{proof}}. A request using a Request Object MUST meet {{RFC9126}} and MUST NOT provide conflicting parameter values; the following checks apply to the effective authorization request.
+The client MUST start every grant under this profile at the PAR endpoint. Its request MUST include `client_id`, `response_type=code`, `redirect_uri`, and a PKCE `code_challenge` with `code_challenge_method=S256`. It MUST authenticate under {{proof}}. A request using a Request Object MUST meet {{RFC9126}} and MUST NOT provide conflicting parameter values; the following checks apply to the effective authorization request.
 
 The client presents its software statement using `software_statement` as defined by {{STATEMENT}}, or the server obtains a statement through that specification's pulled-statement mechanism.
 
@@ -430,8 +428,6 @@ Under this profile, a pushed authorization request, code redemption, or refresh 
 
   * At code redemption, the recorded statement is expired or refused.
   * At code redemption or refresh, the recorded statement's issuer is no longer trusted.
-
-A `use_dpop_nonce` response MUST include the `DPoP-Nonce` HTTP header field.
 
 ## Error Precedence and Disclosure {#error-precedence}
 
@@ -561,7 +557,7 @@ If the recorded statement has expired, a server that supports pulled statements 
 This specification defines the following authorization server metadata {{RFC8414}} value:
 
 `software_statement_instance_binding_supported`:
-: OPTIONAL. Boolean value indicating whether the authorization server supports this specification. If omitted, the default value is `false`. A server advertising `true` MUST implement the requirements of this specification. Support does not promise acceptance of any particular client, statement issuer, attester, evidence policy, or tenant.
+: OPTIONAL. Boolean value indicating whether the authorization server supports this specification. If omitted, the default value is `false`. Support does not promise acceptance of any particular client, statement issuer, attester, evidence policy, or tenant.
 
 A supporting server MUST publish its `pushed_authorization_request_endpoint` metadata value, include `attest_jwt_client_auth_dpop` in the `token_endpoint_auth_methods_supported` metadata value, advertise `S256` in the `code_challenge_methods_supported` metadata value, and publish the `dpop_signing_alg_values_supported` ({{RFC9449}}) and `client_attestation_signing_alg_values_supported` (Section 8 of {{ABCA}}) metadata values. It MUST support {{RFC9207}} and publish the `authorization_response_iss_parameter_supported` metadata value as `true`.
 
