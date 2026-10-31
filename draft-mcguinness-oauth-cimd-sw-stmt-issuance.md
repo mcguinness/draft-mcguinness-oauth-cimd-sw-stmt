@@ -265,7 +265,7 @@ The client sends a token exchange request as defined in Section 2.1 of {{RFC8693
 : REQUIRED. The client identifier URL described in {{client-identity}}.
 
 `audience`:
-: OPTIONAL. The requested audience ({{audience}}). On renewal ({{renewal}}), the subject statement's `aud` stands in for the requested audience if the request carries none, and bounds it if the request carries one, so a replacement is never broader than the statement it replaces.
+: OPTIONAL. The requested audience ({{audience}}). On renewal ({{renewal}}), the subject statement's `aud` stands in for the requested audience if the request carries none, and bounds it if the request carries one, so a renewed statement is never broader than the subject statement.
 
 `completion_mode`:
 : As defined for software statement code redemption ({{software-statement-code-redemption}}).
@@ -311,9 +311,9 @@ A client renews by presenting its current or most recent software statement as t
 
 That authentication is the holder binding: without it, whoever held a copy of the statement could renew. To check the reviewed document's keys, an issuer offering renewal needs the octets of each document it issues a statement over ({{audit-logging}}).
 
-A client rotating keys inline renews while its document carries both the old and the new key. For a document naming `jwks_uri`, the binding is to whatever that location serves. A public client holds no such key and obtains a replacement through the redirect flow ({{authorization-request}}).
+A client rotating keys inline renews while its document carries both the old and the new key. For a document naming `jwks_uri`, the binding is to whatever that location serves. A public client holds no such key and obtains a new statement through the redirect flow ({{authorization-request}}).
 
-A replacement carries the subject statement's `aud_tenant` claim if the decision is confined to that tenant. It also carries the uses the subject statement permits, unless issuance policy narrows them. A replacement MUST NOT permit a use the subject statement does not. It is matched to the statement it replaces by `iss` and `sub` ({{LIFECYCLE}}, {{REGISTRATION}}).
+A renewed statement carries the subject statement's `aud_tenant` claim if the decision is confined to that tenant. It also carries the uses the subject statement permits, unless issuance policy narrows them. A renewed statement MUST NOT permit a use the subject statement does not. It is matched to the subject statement by `iss` and `sub` ({{LIFECYCLE}}, {{REGISTRATION}}).
 
 An issuer MUST NOT accept as the subject token a statement it has withdrawn, or one whose status it publishes as other than `VALID` ({{LIFECYCLE}}). Renewing such a statement would reissue the decision that withdrawal ended.
 
@@ -538,10 +538,6 @@ The `access_token` member is a security-token container ({{RFC8693}}), not an OA
 When the authorization server decides not to issue the requested software statement, it returns a token error response as defined in Section 5.2 of {{RFC6749}} with the `access_denied` error code (Section 3.5 of {{RFC8628}}), and MUST include the `Cache-Control: no-store` response header field. This applies to code redemption and token exchange alike, including when the denial answers a polling request ({{deferred-processing}}).
 
 The denial is terminal for the request. A denied deferral behaves as {{DTR}} specifies for a request resolved with an error, and a client that receives the `access_denied` error code in response to a polling request MUST NOT send another polling request with that `deferral_code`. A denial does not preclude a later issuance request. Whether to accept one is issuance policy.
-
-# Withdrawal {#status-publication}
-
-An issuer that ends a decision before its expiry does so through a withdrawal mechanism, such as the Token Status List profile of {{LIFECYCLE}}. Withdrawing a statement does not withdraw a replacement obtained through {{renewal}}, and withdrawing a replacement does not restore its predecessor.
 
 # Issuer as Trusting Authorization Server {#same-server}
 
