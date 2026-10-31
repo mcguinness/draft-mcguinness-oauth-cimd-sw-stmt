@@ -610,7 +610,7 @@ This specification defines the following authorization server metadata {{RFC8414
 
 The following extensions are left to separate specifications:
 
-* Attested keys: a client attestation {{ABCA}}, including one from an attester the reviewed document names, vouching for a key that document does not carry. Without one, software whose instances authenticate with keys of their own can neither prove nor register those keys ({{sender-constraint}}, {{REGISTRATION}}).
+* Attested keys: a client attestation {{ABCA}} vouching for a key the reviewed document does not carry. Without one, software whose instances authenticate with keys of their own can neither prove nor register those keys ({{sender-constraint}}, {{REGISTRATION}}).
 * Statement conveyance within a client attestation, rather than as a request parameter.
 * Runtime presentation in the request that begins a grant at an endpoint this specification does not cover, such as the device authorization endpoint of {{RFC8628}}.
 * Partial review, by which an issuer vouches for particular members rather than a whole document ({{metadata-digest}}).
