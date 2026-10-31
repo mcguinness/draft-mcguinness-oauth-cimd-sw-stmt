@@ -150,7 +150,7 @@ A registration request is repeated if its statement has the `iss` and `sub` clai
 * is not restricted to another tenant ({{tenant-restriction}}), and
 * is restricted to the request's tenant, if that tenant requires a tenant-scoped decision (Section 3.2 of {{STATEMENT}}).
 
- One current statement can be consumed more than once, subject to the bounds of Sections 11.2 and 11.3 of {{STATEMENT}} and the server's registration policy.
+One current statement can be consumed more than once, subject to the bounds of Sections 11.2 and 11.3 of {{STATEMENT}} and the server's registration policy. A server can count registrations toward the bound on establishments of Section 11.3 of {{STATEMENT}}, but the bound stays effective only if a registration under which no access token has been issued, which anyone holding a copy of the statement can create, does not count toward it.
 
 If the registration a request repeats is a confidential-client registration, local policy can reject the request, treat it as idempotent, or create another registration. An idempotent response MUST NOT return the existing registration's credentials, such as its `registration_access_token` member. A common default is one registration per `iss` and `sub`, per tenant on a multi-tenant server, at the cost {{statement-bearer}} describes.
 
@@ -171,6 +171,7 @@ The following validity model applies to every statement-governed registration:
 * Once the registration has ceased to be valid, the authorization server MUST reject, at step 4 of {{registration-requests}}, authorization, token, and pushed authorization requests and {{RFC7592}} update requests under it, unless a replacement the request delivers has restored it at step 3.
 * The authorization server SHOULD retain a registration that has ceased to be valid, so that a replacement can restore it.
 * Ceasing to be valid does not expire the registration's credentials, including its registration access token, and does not by itself revoke access tokens already issued under the registration.
+* Removing the governing statement's issuer from trust configuration, or narrowing what it can attest, does not by itself end the registration. A server ends it by its own means, such as deleting it.
 
 If a request that carries no replacement is rejected because the registration has ceased to be valid, the rejection MUST NOT by itself cause the authorization server to revoke refresh tokens as it does on detecting refresh-token replay (Section 4.14.2 of {{RFC9700}}).
 
