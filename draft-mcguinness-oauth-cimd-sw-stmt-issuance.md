@@ -230,6 +230,22 @@ An issuer can require `jwks` inline (Section 13.2 of {{STATEMENT}}).
 
 {{CIMD}} permits a document to carry a `software_statement` member. An issuer evaluates the document as served and MUST NOT refuse a document because it carries the member. Trusting authorization servers ignore a statement embedded there (Section 3 of {{STATEMENT}}), and refusing would leave a client that published its statement unable to renew it.
 
+# Common Request Rules {#common-rules}
+
+## Audience {#audience}
+
+The `audience` parameter of an authorization request ({{authorization-request}}) or token exchange ({{token-exchange-profile}}) names a target service at which the client intends to use the statement, with the semantics of Section 2.1 of {{RFC8693}}. The parameter can be repeated to request several. Each value MUST be an authorization server issuer identifier as defined by {{RFC8414}}. Values MUST NOT be duplicated, and order is insignificant.
+
+The authorization server selects the final audience according to policy. It MUST NOT place in the statement's `aud` claim any value the request did not carry, except as {{token-exchange-profile}} provides for a renewal request.
+
+If no requested audience is acceptable, the authorization server MUST reject the request with the `invalid_target` error code, as defined by {{RFC8707}} at the authorization endpoint and by Section 2.2.2 of {{RFC8693}} at the token endpoint. An authorization server whose policy requires a restricted audience rejects a request carrying none with the same error.
+
+These `audience` semantics apply only to software statement requests and do not affect proprietary uses of the parameter for access-token targeting.
+
+## Prohibited Parameters {#prohibited-parameters}
+
+A software statement request does not grant access to a protected resource, and it asks for a statement rather than presenting one. An authorization request, software statement code redemption, or token exchange under this specification MUST NOT contain the `scope` parameter, the `resource` parameter ({{RFC8707}}), the `authorization_details` parameter ({{RFC9396}}), or the `software_statement` parameter (Section 5.4 of {{STATEMENT}}). The authorization server MUST reject a request containing any of them with the `invalid_request` error code. The `audience` parameter ({{audience}}) is not prohibited: it describes the requested artifact rather than requesting access.
+
 # Token Exchange Profile {#token-exchange-profile}
 
 A client that already holds a token carrying issuance authority MAY exchange that token for a statement using OAuth 2.0 Token Exchange {{RFC8693}} instead of the redirect flow ({{authorization-request}}).
@@ -249,12 +265,12 @@ The client sends a token exchange request as defined in Section 2.1 of {{RFC8693
 : REQUIRED. The client identifier URL described in {{client-identity}}.
 
 `audience`:
-: OPTIONAL. The requested audience, with the syntax, validation, and narrowing rules of the `audience` authorization request parameter ({{authorization-request}}). On renewal ({{renewal}}), the subject statement's `aud` stands in for the requested audience if the request carries none, and bounds it if the request carries one, so a replacement is never broader than the statement it replaces.
+: OPTIONAL. The requested audience ({{audience}}). On renewal ({{renewal}}), the subject statement's `aud` stands in for the requested audience if the request carries none, and bounds it if the request carries one, so a replacement is never broader than the statement it replaces.
 
 `completion_mode`:
 : As defined for software statement code redemption ({{software-statement-code-redemption}}).
 
-The request MUST NOT contain the `actor_token` or `actor_token_type` parameters, nor the `scope`, `resource`, or `authorization_details` parameters prohibited by {{prohibited-parameters}}.
+The request MUST NOT contain the `actor_token` or `actor_token_type` parameters, and the prohibitions of {{prohibited-parameters}} apply.
 
 The client authenticates, and a public client constrains the request, as described in {{client-identity}}. An assertion-based method such as `private_key_jwt` {{RFC7521}} {{RFC7523}} serves if the document specifies one.
 
@@ -275,8 +291,6 @@ The authorization server MUST validate the subject token before retrieving clien
 * It is invalid, revoked, or, for a statement, one that {{renewal}} forbids accepting.
 * It has expired, unless it is a prior software statement accepted under {{renewal}}.
 * It does not authorize issuance for the presented `client_id` parameter.
-
-If no requested audience is acceptable, the request is rejected with the `invalid_target` error code (Section 2.2.2 of {{RFC8693}}).
 
 An error response to a token exchange MUST NOT contain the subject token.
 
@@ -328,9 +342,7 @@ The client sends an authorization request as described in Section 4.1.1 of {{RFC
 : OPTIONAL. The response mode, as defined by {{OAUTH-MRT}}. The default for `response_type=software_statement_code` is `query`. {{software-statement-code-response}} gives response mode considerations.
 
 `audience`:
-: OPTIONAL. A target service at which the client intends to use the statement, with the semantics of Section 2.1 of {{RFC8693}}. The parameter can be repeated to request several.
-
-  Each value MUST be an authorization server issuer identifier as defined by {{RFC8414}}. Values MUST NOT be duplicated, and order is insignificant.
+: OPTIONAL. The requested audience ({{audience}}).
 
 `completion_mode`:
 : OPTIONAL. A value that includes `deferred`, sent as the advance hint of Section 4.2 of {{DTR}}.
@@ -338,13 +350,9 @@ The client sends an authorization request as described in Section 4.1.1 of {{RFC
 `dpop_jkt`:
 : REQUIRED for a public client and OPTIONAL otherwise. The parameter has the semantics of Section 10 of {{RFC9449}}.
 
-The authorization server selects the final audience according to policy. It MUST NOT place in the statement's `aud` claim any value the request did not carry, except as {{token-exchange-profile}} provides for a renewal request. An issuer narrows a requested audience and never widens it.
+The authorization server MUST reject with the `invalid_request` error code a request that omits a required PKCE parameter or a required `dpop_jkt` parameter. The prohibitions of {{prohibited-parameters}} apply.
 
-If no requested audience is acceptable, the authorization server MUST reject the request with the `invalid_target` error code {{RFC8707}}. An authorization server whose policy requires a restricted audience rejects a request carrying none with the same error.
-
-The `audience` semantics of this section apply only to software statement requests and do not affect proprietary uses of the parameter for access-token targeting.
-
-The authorization server MUST reject with the `invalid_request` error code a request that omits a required PKCE parameter or a required `dpop_jkt` parameter.
+Hybrid response types that combine `software_statement_code` with `code`, `token`, `id_token`, or any other response type are not defined. An authorization server MUST reject such a request with the `unsupported_response_type` error code.
 
 The following is a non-normative example of an authorization request from a confidential client (line breaks for display purposes only):
 
@@ -357,14 +365,6 @@ GET /authorize?response_type=software_statement_code
   &code_challenge_method=S256 HTTP/1.1
 Host: server.example.com
 ~~~
-
-## Prohibited Parameters {#prohibited-parameters}
-
-A software statement request does not grant access to a protected resource, and it asks for a statement rather than presenting one. The following authorization request parameters MUST NOT be present: `scope`, `resource` as defined by {{RFC8707}}, `authorization_details` as defined by {{RFC9396}}, and `software_statement` (Section 5.4 of {{STATEMENT}}).
-
-An authorization server MUST reject a request containing any of these parameters with the `invalid_request` error code. The same prohibition and error apply to a software statement code redemption ({{software-statement-code-redemption}}) and to a token exchange under {{token-exchange-profile}}. The `audience` parameter ({{authorization-request}}) is not prohibited: it describes the requested artifact rather than requesting access.
-
-Hybrid response types that combine `software_statement_code` with `code`, `token`, `id_token`, or any other response type are not defined. An authorization server MUST reject such a request with the `unsupported_response_type` error code.
 
 # Authorization Response {#authorization-response}
 
@@ -427,7 +427,7 @@ The client redeems a software statement code by sending an HTTP `POST` request t
 `completion_mode`:
 : REQUIRED at a deferring issuer ({{authorization-server-metadata}}), and not used otherwise. When present, the value MUST include `deferred`. A deferring issuer rejects a request that omits it with `invalid_request`.
 
-The request MUST NOT contain the `audience` parameter, which was bound at the authorization endpoint. A request containing it is rejected with `invalid_request`.
+The prohibitions of {{prohibited-parameters}} apply. The request MUST NOT contain the `audience` parameter, which was bound at the authorization endpoint. A request containing it is rejected with `invalid_request`.
 
 The client authenticates according to {{client-identity}}. When the `dpop_jkt` parameter was included in the authorization request, the client MUST send a DPoP proof for the token endpoint using the same key.
 
@@ -725,7 +725,7 @@ Specification Document(s):
 
 ## OAuth Parameters Registry
 
-This specification requests that IANA add this specification, {{authorization-request}} and {{token-exchange-profile}}, as an additional reference for the existing `audience` parameter registered by {{RFC8693}} and extend its usage location to include authorization requests. The parameter name and change controller are unchanged.
+This specification requests that IANA add this specification, {{audience}}, as an additional reference for the existing `audience` parameter registered by {{RFC8693}} and extend its usage location to include authorization requests. The parameter name and change controller are unchanged.
 
 This specification likewise requests that IANA add it as an additional reference for the `completion_mode` parameter ({{authorization-request}}). The parameter is defined by {{DTR}}, whose registration already includes authorization requests. The name, usage location, and change controller are unchanged.
 
