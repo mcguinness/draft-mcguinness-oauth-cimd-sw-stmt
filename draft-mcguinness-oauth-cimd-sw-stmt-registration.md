@@ -301,7 +301,7 @@ The authorization server validates the replacement and re-derives the registrati
 This specification defines the following authorization server metadata {{RFC8414}} value:
 
 `software_statement_registration_supported`:
-: OPTIONAL. Boolean value indicating whether the authorization server supports this specification. If omitted, the default value is `false`. A value of `true` does not imply support for runtime presentation.
+: OPTIONAL. Boolean value indicating whether the authorization server supports this specification. If omitted, the default value is `false`. A value of `true` means every registration the server creates from a statement under this specification is statement-governed, and does not imply support for runtime presentation.
 
 # Deployment Considerations {#deployment-considerations}
 
@@ -359,7 +359,7 @@ Client Metadata Name:
 : `registration_expires_at`
 
 Client Metadata Description:
-: Latest time at which a statement-governed registration remains valid, as a NumericDate. The registration can cease to be valid earlier ({{registration-validity}}). Returned in a client registration response and in the token or pushed authorization request response to a request that renews the registration or carries its governing statement, and recommended in a registration management response.
+: Latest time at which a statement-governed registration remains valid, as a NumericDate.
 
 Change Controller:
 : IETF
@@ -391,7 +391,7 @@ Metadata Name:
 : `software_statement_registration_supported`
 
 Metadata Description:
-: Boolean value indicating whether the authorization server supports this specification, under which every registration it creates from a Client ID Metadata Document software statement is governed by this specification's validity and renewal rules.
+: Boolean value indicating whether the authorization server supports Client ID Metadata Document software statement registration.
 
 Change Controller:
 : IETF
