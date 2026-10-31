@@ -81,7 +81,7 @@ informative:
 
 --- abstract
 
-A Client ID Metadata Document (CIMD) carries a client's own claims, which can change at any time. This specification defines a software statement in which a trusted party records its review of the exact bytes of such a document, and how an authorization server enforces that review when it admits the client at request time, without a registration. The client presents the statement in a token or pushed authorization request, or publishes it where the reviewed document points. Possession of the statement alone does not complete a grant: the presenter is also bound to the reviewed document. Because the document remains the metadata, one review is portable across the authorization servers that trust its issuer. A companion specification covers RFC 7591 registration. Withdrawal, supersession, and keeping grants in step with later reviews are left to a separate lifecycle extension.
+A Client ID Metadata Document (CIMD) carries a client's own claims, which can change at any time. This specification defines a software statement in which a trusted party records its review of the exact octets of such a document, and how an authorization server enforces that review when it admits the client at request time, without a registration. The client presents the statement in a token or pushed authorization request, or publishes it where the reviewed document points. Possession of the statement alone does not complete a grant: the presenter is also bound to the reviewed document. Because the document remains the metadata, one review is portable across the authorization servers that trust its issuer. A companion specification covers RFC 7591 registration. Withdrawal, supersession, and keeping grants in step with later reviews are left to a separate lifecycle extension.
 
 --- middle
 
@@ -388,7 +388,7 @@ A review-only presentation or pulled statement creates no establishment, and its
 
 ## Grant Binding {#grant-lifecycle}
 
-A successful presentation creates an establishment: the state against which the subsequent authorization request, code redemption and refresh under the grant it opens are checked. It comprises the following:
+A successful presentation creates an establishment: the state against which the subsequent authorization request, code redemption, and refresh under the grant it opens are checked. It comprises the following:
 
 * The validated `sub`.
 * The statement identity (its `iss` and `jti`), its `iat` and effective expiry, and any claim an extension uses to locate it, such as `status`.
@@ -420,7 +420,7 @@ Under this specification, refresh evaluates no statement ({{enforcement-bounds}}
 
 # Error Responses {#errors}
 
-A rejection uses the error response and HTTP status codes of its endpoint: Section 5.2 of {{RFC6749}} at the token endpoint, Section 2.3 of {{RFC9126}} at the pushed authorization request endpoint, and Section 4.1.2.1 of {{RFC6749}} at the authorization endpoint. {{REGISTRATION}} defines rejections at a registration endpoint and how registration validity is reported.
+A rejection uses the error response and HTTP status codes of its endpoint: Section 5.2 of {{RFC6749}} at the token endpoint, Section 2.3 of {{RFC9126}} at the pushed authorization request endpoint, and Section 4.1.2.1 of {{RFC6749}} at the authorization endpoint. {{REGISTRATION}} defines rejections at a registration endpoint.
 
 A rejection for a reason this specification defines uses the first of the following error codes that applies:
 
@@ -596,7 +596,7 @@ This specification defines the following authorization server metadata {{RFC8414
 : REQUIRED for an authorization server that issues statements under this specification. URL of its statement key set ({{issuer-trust}}), a JWK Set containing only the keys with which it signs them.
 
 `software_statement_signing_alg_values_supported`:
-: REQUIRED for an authorization server that issues statements under this specification. A JSON array containing the asymmetric JWS `alg` values that the authorization server can use to sign them. The array MUST NOT contain `none` or a symmetric algorithm. An authorization server that only accepts software statements does not publish it.
+: REQUIRED for an authorization server that issues statements under this specification. A JSON array containing the asymmetric JWS `alg` values that the authorization server can use to sign them. The array MUST NOT contain `none` or a symmetric algorithm.
 
 `software_statement_pull_supported`:
 : OPTIONAL. Boolean value indicating whether the authorization server retrieves statements from a client's `software_statements_uri` member when admitting a client that presented none ({{pulled-statements}}). If omitted, the default value is `false`.
@@ -700,7 +700,7 @@ The following table states what admission on a statement does and does not estab
 | Property | Established |
 | --- | --- |
 | A configured issuer signed the statement for this client identifier and, if the statement names an audience, one that includes this server | Yes |
-| The served document is the one the issuer reviewed, byte for byte | Yes |
+| The served document is the one the issuer reviewed, octet for octet | Yes |
 | The presenter controls a key the reviewed document carries | Yes, before any token is issued, except under {{public-client-presentation}}. A `jwks_uri` attests only the keys' location ({{statement-validation}}) |
 | Authorization codes reach only a reviewed redirection URI | Yes, in a redirect flow. For a public client under {{public-client-presentation}} it is the only binding, and it does not hold against a party that controls the user agent ({{public-client-security}}) |
 | The running software is the software the issuer reviewed | No; an attested-key extension can add evidence for it ({{extensions}}) |
