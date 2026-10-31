@@ -85,7 +85,6 @@ informative:
     author:
       - fullname: Karl McGuinness
     date: 2026-10
-  RFC9864:
   ATTESTERS: I-D.mcguinness-oauth-client-attesters
   APPROVAL-DCR: I-D.dellaert-oauth-approval-based-dcr
   AU-CDR:
@@ -531,7 +530,7 @@ Pragma: no-cache
 }
 ~~~
 
-The `access_token` member is a security-token container ({{RFC8693}}), not an OAuth access token. The software statement it carries is consumed only as {{STATEMENT}} and {{REGISTRATION}} provide, and MUST NOT be attached to a request as an `Authorization: Bearer` credential. A protected resource MUST NOT accept a software statement returned in the `access_token` member as an access token.
+The `access_token` member is a security-token container ({{RFC8693}}), not an OAuth access token. The software statement it carries is consumed only as {{STATEMENT}} and {{REGISTRATION}} provide, and MUST NOT be attached to a request as an `Authorization: Bearer` credential. A protected resource cannot validate one (Section 4 of {{STATEMENT}}).
 
 ## Terminal Denial {#terminal-denial}
 
@@ -576,7 +575,7 @@ A client ought to key the statement on `issued_token_type` and keep it out of lo
 
 ## Approval Interface {#approval-interface}
 
-An approval interface ought to state that the decision vouches for the client's CIMD, and ought to present the following:
+An approval interface ought to state that the decision vouches for the client's CIMD, ought not to imply that the approver is granting the client access to resources, and ought to present the following:
 
 * The client identifier URL, with its origin shown as the client's identity, and with display metadata such as the `client_name` and `logo_uri` members marked as asserted by the client (a look-alike document can carry another vendor's name).
 * The document content the statement will vouch for, identified by its metadata digest.
@@ -604,23 +603,17 @@ This section gives guidance to operators and issuers. It adds no requirement.
 
 Because the client authors the metadata document, an issuer ought to corroborate security-relevant metadata through evidence beyond the document itself. Issuance policy can relate the redirection URI's origin to the client identifier URL or the CIMD's `client_uri` member.
 
+The policy governing who can approve issuance ought to be at least as restrictive as the policy under which the issuer establishes a client manually. A token exchange carries no in-band evidence of user participation, so an authorization server ought not to treat one as implying prior user consent. An initial access token that authorizes issuance ({{initial-access-tokens}}) records a decision made, when the token was issued, under the policy that governs approval in the redirect flow.
+
 To keep a look-alike document from reaching approval, an issuer ought to limit what an approver can approve to client identifiers under publisher namespaces it has enrolled. A document naming attesters in `client_attesters` ({{ATTESTERS}}) endorses them for the software under review and deserves particular scrutiny.
 
 ## Deferral Lifetimes {#lifetime-practice}
 
 Issuers ought to set deferral code lifetimes that reflect their actual approval latency, which for a review involving human judgment can be hours or days ({{deferred-processing}}).
 
-## Signing Keys {#signing-key-practice}
-
-An issuer ought to protect its signing keys according to the scope of its trust relationships and support controlled key rotation.
-
 # Security Considerations {#security-considerations}
 
 The security considerations of Section 13 of {{STATEMENT}}, {{CIMD}}, and Section 5 of {{RFC8693}} apply.
-
-## Software Statements and Access Grants
-
-An authorization server that shows an approval interface MUST NOT imply through that interface that the approver is granting the client access to resources. An erroneous approval affects every authorization server in the statement's audience until expiry ({{approval-interface}}, {{review-practice}}).
 
 ## Authorization Response Security {#authorization-response-security}
 
@@ -640,23 +633,15 @@ A subject token is an authorization credential, not a client identifier. If the 
 
 A subject token appears in a form body, so any component recording request bodies can expose it. Clients and authorization servers MUST protect a subject token as a bearer credential unless its format provides proof of possession. An authorization server ought to keep subject tokens out of logs, traces, and audit records, and an initial access token ought to be integrity protected and kept confidential in transit and at rest.
 
-A token exchange carries no in-band evidence of user participation. An authorization server MUST NOT treat a token exchange as implying prior user consent. An initial access token that authorizes issuance ({{token-exchange-profile}}) records a decision made, when the token was issued, under the policy that governs approval in the redirect flow.
-
 ## Renewal by Prior Statement
 
 If the reviewed and current documents name a `jwks_uri`, whoever controls that location can supply a key that satisfies the holder binding of {{renewal}}. Binding renewal to the client's key spares automated renewal a long-lived reusable initial access token, a standing credential to mint statements.
-
-## Signing Keys and Algorithms
-
-A compromised software statement signing key lets an attacker mint statements for every audience that trusts it ({{signing-key-practice}}).
-
-Issuers SHOULD prefer signature algorithms with modern security properties, such as `PS256`, `ES256`, or `Ed25519` {{RFC9864}}, over RSASSA-PKCS1-v1_5 (`RS256`).
 
 ## Approver Authority
 
 A software statement does not identify the human or system that approved issuance ({{audit-logging}}). A look-alike document, or one naming attesters in `client_attesters` ({{ATTESTERS}}), can reach an approver ({{review-practice}}).
 
-An approved statement is accepted at every authorization server in its audience, not only within the approver's own scope. The policy governing who can approve issuance MUST be at least as restrictive as the policy under which the issuer establishes a client manually. Approval by a party authorized only for a personal or organizational scope MUST NOT produce a statement whose audience exceeds that scope, or whose `aud_tenant` claim names a tenant outside it.
+An approved statement is accepted at every authorization server in its audience, not only within the approver's own scope. Approval by a party authorized only for a personal or organizational scope MUST NOT produce a statement whose audience exceeds that scope, or whose `aud_tenant` claim names a tenant outside it.
 
 # Privacy Considerations
 
