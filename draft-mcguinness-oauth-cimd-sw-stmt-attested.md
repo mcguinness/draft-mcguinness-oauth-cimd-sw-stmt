@@ -222,7 +222,7 @@ Every reviewed redirection URI MUST use `http`, have the host exactly `127.0.0.1
 
 The server MUST compare a requested redirect with a reviewed entry using exact string matching, except for the port variation permitted by Section 7.3 of {{RFC8252}}. No other component can vary: the address form, path, and any query remain fixed. In particular, a wildcard path, a hostname resolving to loopback, an alternative numerical spelling of the address, and a different loopback address do not match.
 
-The client MUST bind its listener only to the selected loopback interface, open it before sending the pushed authorization request, and close it when the transaction completes or is abandoned. The authorization code is delivered to that listener. The authorization server MUST NOT fetch the redirection URI to test the listener.
+The authorization server MUST NOT fetch the redirection URI to test the client's listener.
 
 # Attester Trust and Evidence {#trust}
 
@@ -303,8 +303,6 @@ A server MUST NOT accept a software statement as an instance attestation, or an 
 Clients MUST use the `attest_jwt_client_auth_dpop` method of {{ABCA}} at the pushed authorization request endpoint and on every token request under this profile. The method sends the instance attestation in the `OAuth-Client-Attestation` HTTP header field and uses a DPoP proof as the proof of possession, in DPoP combined mode (Sections 5.2 and 7.3 of {{ABCA}}). This profile does not support the Client Attestation PoP JWT (Section 5.1 of {{ABCA}}): the client MUST NOT send the `OAuth-Client-Attestation-PoP` HTTP header field, and the server MUST reject a request under this profile that does. A `dpop_jkt` parameter alone is not a proof. The authentication method and its validation remain those defined by {{ABCA}}. This profile supplies the attestation's type and additional bindings.
 
 The authorization server MUST require a server-issued DPoP nonce at the pushed authorization request endpoint and on every token request under this profile. It MUST reject replay of a proof within its acceptance window. Nonce challenges do not consume a code, rotate a refresh token, create an establishment, or advance the `iat` floor. A request rejected before the instance is authenticated, or rejected with `use_fresh_attestation` or `temporarily_unavailable`, has none of these effects either, so the client can retry with a fresh attestation.
-
-TLS protects request contents. DPoP does not sign the request body, and implementations MUST NOT treat a valid proof as a signature over the redirection URI, PKCE challenge, or statement.
 
 # Runtime Admission {#admission}
 
@@ -551,7 +549,7 @@ This specification defines the following authorization server metadata {{RFC8414
 
 A supporting server MUST publish its `pushed_authorization_request_endpoint` metadata value, include `attest_jwt_client_auth_dpop` in the `token_endpoint_auth_methods_supported` metadata value, advertise `S256` in the `code_challenge_methods_supported` metadata value, and publish the `dpop_signing_alg_values_supported` ({{RFC9449}}) and `client_attestation_signing_alg_values_supported` (Section 8 of {{ABCA}}) metadata values. It MUST support {{RFC9207}} and publish the `authorization_response_iss_parameter_supported` metadata value as `true`.
 
-A client MUST confirm support for this specification before starting a grant under it. The generic attestation method advertisement alone is insufficient. This profile requires pushed authorization requests for its clients even when the server serves other clients without them. It does not require the server's global `require_pushed_authorization_requests` value to be `true`.
+A client determines support from `software_statement_instance_binding_supported`, not from the generic method advertisement. This profile requires pushed authorization requests for its clients even when the server serves other clients without them. It does not require the server's global `require_pushed_authorization_requests` value to be `true`.
 
 # Implementation Considerations {#implementation-considerations}
 
@@ -601,9 +599,9 @@ This profile cannot ensure benign user intent, prevent an approved application f
 
 ## Loopback and Transaction Theft
 
-An attacker can attempt to occupy a loopback port, intercept a response, or initiate its own authorization transaction using the published client identifier. PKCE and proof of the proven key protect redemption of an intercepted code. Admission of a new transaction additionally requires an acceptable instance attestation. PKCE or an unattested DPoP key alone supplies no software identity.
+An attacker can attempt to occupy a loopback port, intercept a response, or initiate its own authorization transaction using the published client identifier. PKCE and proof of the proven key protect redemption of an intercepted code. Admission of a new transaction additionally requires an acceptable instance attestation. PKCE or an unattested DPoP key alone supplies no software identity. A DPoP proof does not sign the request body: TLS, not the proof, protects the redirection URI, PKCE challenge, and statement a request carries.
 
-The client keeps its verifier and transaction state confidential and unpredictable, as their respective specifications provide. A launcher handling authorization for another process acts as the signing broker of {{signing-brokers}}.
+The client binds its listener only to the selected loopback interface, opens it before sending the pushed authorization request, and closes it when the transaction completes or is abandoned. It keeps its verifier and transaction state confidential and unpredictable, as their respective specifications provide. A launcher handling authorization for another process acts as the signing broker of {{signing-brokers}}.
 
 ## Downgrade Prevention {#downgrade}
 
