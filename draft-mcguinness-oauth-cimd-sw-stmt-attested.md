@@ -215,6 +215,8 @@ The server cannot observe how an attester reached its decision, so it relies on 
 * The policy defines what identifies the software, how evidence authenticates that identity and the attested key, how use of the key is restricted to the software instance the evidence covers, a finite maximum evidence age, and the treatment of updates, scripts, plugins, and other executable extensions.
 * The policy's identifier denotes immutable policy semantics: a material policy change requires a new identifier.
 
+A server can use weaker evidence for other purposes but MUST NOT report it as satisfying this profile.
+
 Attestation acquisition and platform evidence formats are out of scope. They require an interoperable agreement between the installation and its attester. The wire format below does not by itself supply a software-verification mechanism. {{launcher}} gives an implementation model and its prerequisites.
 
 # Instance Attestation {#attestation}
@@ -534,7 +536,7 @@ A signing broker ought to expose constrained operations rather than arbitrary si
 
 ## User Interface, Audit, and Logging {#ui-audit}
 
-A server ought not to present assurances stronger than the accepted evidence policy supports, or report weaker evidence it uses for other purposes as satisfying this profile.
+A server ought not to present assurances stronger than the accepted evidence policy supports ({{trust}}).
 
 Authorization servers ought to avoid logging complete attestations, verifiers, codes, and refresh tokens. Audit records can retain the trust decisions, policy identifier, digest, and appropriately protected key identifiers without retaining credentials.
 
