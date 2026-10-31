@@ -105,7 +105,7 @@ The retrieval requirements of Sections 3.1 and 5.3 of {{STATEMENT}} apply to ret
 
 The reviewed document takes the role that {{RFC7591}} gives a statement's own values. In deriving a registration's metadata, at registration or for a replacement ({{revalidation}}), the authorization server:
 
-* MUST obtain the CIMD at the statement's `sub` claim and compare its digest with the `cimd_digest` claim as Section 5.2 of {{STATEMENT}} requires, rejecting the request if retrieval does not complete or the digests differ, and MUST derive the registered metadata from the octets whose digest matched.
+* MUST obtain the CIMD at the statement's `sub` claim and compare its digest with the `cimd_digest` claim as Section 5.2 of {{STATEMENT}} requires, rejecting the request if the digests differ, and MUST derive the registered metadata from the octets whose digest matched.
 * MUST validate the document as {{CIMD}} requires, including that its `client_id` member matches the statement's `sub` claim.
 * MUST take every client metadata value from that document, except values the authorization server issues, such as `client_id` and `client_id_issued_at`.
 * MUST NOT take any client metadata value from the request, or from any {{RFC7592}} update request for the registration, whether or not the document carries the corresponding member.
@@ -162,7 +162,7 @@ If the registration a request repeats is a public-client registration ({{public-
 
 # Registration Validity {#registration-validity}
 
-An authorization server MUST apply the following validity model to every statement-governed registration:
+The following validity model applies to every statement-governed registration:
 
 * The registration's effective expiry (Section 2 of {{STATEMENT}}) is that of its governing statement.
 * The registration is valid until its governing statement ceases to be current (Section 2 of {{STATEMENT}}), and so at most until that effective expiry.
@@ -186,7 +186,7 @@ The `registration_expires_at` member is a NumericDate (Section 2 of {{RFC7519}})
 The authorization server MUST process an authorization, token, or pushed authorization request, or an {{RFC7592}} update request, under a statement-governed registration in the following order, stopping at the first step that rejects the request or treats it as from a client the server has not registered:
 
 1. If the registration is restricted to a tenant ({{tenant-restriction}}) and the request, including one that delivers a statement, is made in another tenant, it MUST treat the request as from a client it has not registered.
-2. It authenticates a token or pushed authorization request under the registration's own client authentication method, against the retained registration if the registration has ceased to be valid. It does not authenticate a token or pushed authorization request under a public-client registration, whether or not the request delivers a statement ({{public-client-registration}}). It authenticates an {{RFC7592}} update request with the registration access token (Section 2 of {{RFC7592}}).
+2. It authenticates the request as {{RFC6749}}, {{RFC9126}}, or {{RFC7592}} requires, against the retained registration even if the registration has ceased to be valid. A request under a public-client registration has no client credential to authenticate ({{public-client-registration}}).
 3. It classifies any statement the request delivers by its claims, before validating it, and evaluates a replacement ({{revalidation}}). A replacement applied at this step stands even if a later step, or the request's grant, rejects the request.
 4. It applies the rejections of {{registration-validity}} to the registration as step 3 leaves it. If the request is made in a tenant where the authorization server requires a tenant-scoped decision (Section 3.2 of {{STATEMENT}}) and the registration, as step 3 leaves it, carries no tenant restriction, it MUST treat the request as from a client it has not registered.
 5. It evaluates the request against the registration's metadata.
@@ -199,7 +199,7 @@ A client renews a statement-governed registration by delivering a replacement st
 * The `software_statement` parameter of a pushed authorization request {{RFC9126}} under the registration.
 * The `software_statement` member of an {{RFC7592}} update request, if the deployment offers registration management.
 
-A statement carried in one of these locations under a statement-governed registration is a delivery, and a `registration` use of the statement (Section 3 of {{STATEMENT}}). A registration request is not a delivery, and renews an existing registration only as {{repeated-registration}} provides for a public-client registration. A statement neither renews nor alters a registration that is not statement-governed, and runtime presentation (Section 5 of {{STATEMENT}}) alters no registration's metadata.
+A delivery is a `registration` use of the statement (Section 3 of {{STATEMENT}}). A registration request is not a delivery, and renews an existing registration only as {{repeated-registration}} provides for a public-client registration. A statement neither renews nor alters a registration that is not statement-governed, and runtime presentation (Section 5 of {{STATEMENT}}) alters no registration's metadata.
 
 The authorization server treats a delivered statement as the first matching row of the following table provides:
 
