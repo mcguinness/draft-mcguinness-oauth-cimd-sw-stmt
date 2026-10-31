@@ -372,9 +372,7 @@ Host: server.example.com
 
 # Authorization Response {#authorization-response}
 
-After validating the request and performing any immediate interaction, the authorization server returns the software statement code response or an error. The authorization server MUST NOT place the software statement or approval-sensitive information in any response from the authorization endpoint.
-
-A denial of issuance is never signaled in the authorization response: the authorization server returns a software statement code whether the issuance decision is approved, pending, or already denied, and delivers any denial at redemption ({{terminal-denial}}).
+The authorization endpoint returns a software statement code whether the issuance decision is approved, pending, or denied, and MUST NOT return the statement or the decision, which is delivered at redemption ({{software-statement-code-redemption}}).
 
 ## Software Statement Code Response {#software-statement-code-response}
 
