@@ -211,13 +211,13 @@ A public client binds its requests with Demonstrating Proof of Possession (DPoP)
 
 ## Metadata Snapshot {#metadata-snapshot}
 
-CIMDs can change while a request is pending. For each request, the authorization server retrieves and validates the document ({{client-identity}}) and computes the metadata digest of the exact octets it retrieved, as Section 3.1 of {{STATEMENT}} requires. These octets and their digest are the request's metadata snapshot. The authorization server MUST bind the snapshot and the requested audience to each software statement code and deferral it creates, and issues the statement over that snapshot.
+CIMDs can change while a request is pending. For each request, the authorization server retrieves and validates the document ({{client-identity}}) and computes the metadata digest of the exact octets it retrieved, as Section 3.1 of {{STATEMENT}} requires. These octets and their digest are the request's metadata snapshot. A deferral created at redemption is bound to the code's snapshot and audience. The authorization server MUST bind the snapshot and the requested audience to each software statement code and deferral it creates, and issues the statement over that snapshot.
 
 The authorization server MAY retrieve the document again before issuing the software statement. If it does so and the digest differs, it MUST either re-evaluate the request under the new document, binding the new document as the snapshot, or reject the request. This applies even if the change touches no member its policy examines. A statement over a superseded snapshot fails the digest comparison (Section 5.2 of {{STATEMENT}}).
 
 The authorization server MUST NOT combine values from different document versions.
 
-Replacing the snapshot does not alter the sender-constraint context fixed for a deferral at origination ({{deferred-processing}}). If a replacement snapshot no longer authorizes the key material behind that context, for example because the client-authentication key is absent from the new document, the authorization server MUST invalidate the deferral. The client then makes a new request under its current keys.
+Replacing the snapshot does not alter the sender-constraint context fixed for a deferral at origination ({{DTR}}). If a replacement snapshot no longer authorizes the key material behind that context, for example because the client-authentication key is absent from the new document, the authorization server MUST invalidate the deferral. The client then makes a new request under its current keys.
 
 The authorization server MUST reject a document containing duplicate object member names (Section 5.2 of {{STATEMENT}}).
 
@@ -421,7 +421,7 @@ The client redeems a software statement code by sending an HTTP `POST` request t
 : REQUIRED. The PKCE verifier corresponding to the `code_challenge` in the authorization request.
 
 `completion_mode`:
-: REQUIRED at a deferring issuer, with a value that MUST include `deferred`. A request without it is rejected with `invalid_request`.
+: REQUIRED at a deferring issuer, with a value that MUST include `deferred`. A deferring issuer rejects a request without it with `invalid_request`.
 
 The prohibitions of {{prohibited-parameters}} apply. The request MUST NOT contain the `audience` parameter, which was bound at the authorization endpoint. A request containing it is rejected with `invalid_request`.
 
