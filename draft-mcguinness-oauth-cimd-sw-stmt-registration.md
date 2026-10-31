@@ -129,6 +129,8 @@ If the statement's decision is confined to one of the authorization server's ten
 | --- | --- | --- |
 | Restricted to a tenant | Confined to that tenant, or not confined | Restricted to that tenant |
 | Restricted to a tenant | Confined to another tenant | Fails validation (Section 3.2 of {{STATEMENT}}) |
+
+The tenant rules of steps 1 and 4 of {{registration-requests}} also apply to any other request under the registration, including {{RFC7592}} read and delete requests.
 | No restriction, confidential client | Confined to a tenant | Restricted to that tenant |
 | No restriction, public client | Confined to a tenant | Not a valid replacement |
 | No restriction | Not confined to a tenant | No restriction |
