@@ -194,11 +194,11 @@ An issuer that uses Token Status List publishes the status of its statements as 
 
 ## Status Resolution {#status-resolution}
 
-If a statement carries the `status` claim and the server resolves statuses for its issuer, a status of `INVALID` is a withdrawal, as is any other status except `VALID` that the server's policy for that issuer refuses. On a withdrawal, the server holds a refusal record ({{withdrawal}}). Token Status List defines no expiry for a withdrawal, so the refusal ends only when a later resolution returns a status that no longer refuses the statement.
+If a statement carries the `status` claim and the server resolves statuses for its issuer, a status of `INVALID` is a withdrawal, as is any other status except `VALID` that the server's policy for that issuer refuses. On a withdrawal, the server holds a refusal record ({{withdrawal}}).
 
 Resolution follows {{STATUSLIST}}. A server SHOULD retrieve the list on the list's own schedule, within the expiration and caching bounds its `exp` and `ttl` claims set (Section 13.7 of {{STATUSLIST}}), rather than once per request ({{schedule-practice}}, {{resolution-schedule}}).
 
-A server MUST NOT replace a Status List Token it holds with one whose `iat` claim is earlier, and MUST treat one whose `iat` claim is equal but whose contents differ as a resolution failure. A host serving an older token then cannot restore a status the issuer has withdrawn. Section 8.3 of {{STATUSLIST}} recommends rejecting a statement whose status the server cannot resolve. A statement the server accepts without a resolved status remains bounded by its effective expiry (Section 2 of {{STATEMENT}}).
+A server MUST NOT replace a Status List Token it holds with one whose `iat` claim is earlier, and MUST treat one whose `iat` claim is equal but whose contents differ as a resolution failure. A host serving an older token then cannot restore a status the issuer has withdrawn.
 
 A server MUST verify a Status List Token only with keys from the issuer's Status List key set ({{token-status-list}}), never with keys from the token itself. It reuses a retrieved key set only as Section 5.3 of {{STATEMENT}} permits for a statement key set.
 
@@ -278,14 +278,14 @@ If step 1 or 2 fails, the receiver reports a SET error as {{RFC8935}} or {{RFC89
 
 The affected statements are those the transmitting issuer made about the subject, never statements another issuer made about the same software. They are the statement the event's `software_statement_jti` claim names or, if the event names none, those the receiver holds or has cached a status for. An event about a subject for which the receiver holds no state requires nothing of it. A receiver ignores events for subjects outside the client identifier namespaces for which it accepts the transmitting issuer (Section 4 of {{STATEMENT}}).
 
-Revalidation suffices because a transmitter sends the event only once a token reflecting the change is retrievable ({{status-changed}}). One request begun after several events arrived serves every one of them that concerns the list it retrieves. An event is never grounds for refusal. Until the request succeeds, the copy the receiver holds remains in effect within its validity. If resolution does not complete, the receiver proceeds as it would had no event arrived: a refusal record it holds still applies, and the statement remains bounded by its effective expiry (Section 2 of {{STATEMENT}}).
+Revalidation suffices because a transmitter sends the event only once a token reflecting the change is retrievable ({{status-changed}}). One request begun after several events arrived serves every one of them that concerns the list it retrieves. An event is never grounds for refusal. Until the request succeeds, the copy the receiver holds remains in effect within its validity. If resolution does not complete, the receiver proceeds as it would had no event arrived.
 
 A receiver MUST treat an event it has already applied as successfully delivered and acknowledge it as {{RFC8935}} or {{RFC8936}} requires, rather than reporting a delivery error. Rejecting a retry can stall or disable a stream carrying later events. Duplicate detection is per transmitting issuer.
 
 Two constraints bound every event:
 
 * A receiver MUST NOT let an event by itself create standing, extend a statement's lifetime, or otherwise increase what a client can do. A receiver MUST ignore any payload claim that would have such an effect.
-* A receiver MUST continue to resolve status as {{status-resolution}} provides, and to enforce statement expiry, independently of this mechanism. Stream loss, transmitter unavailability, or delivery failure then leaves both controls in force.
+* A receiver MUST continue to resolve status as {{status-resolution}} provides, independently of this mechanism. Stream loss, transmitter unavailability, or delivery failure then leaves resolution in force.
 
 ## Stream Configuration {#configuration}
 
@@ -327,7 +327,7 @@ This section gives guidance to operators and issuers. It adds no requirement.
 
 ## Withdrawal Practice {#withdrawal-practice}
 
-What a server does when it cannot consult a withdrawal mechanism it relies on is local policy ({{withdrawal}}). Refusing makes issuer availability a precondition for every request the statement governs. Proceeding leaves a withdrawn statement acceptable until it expires.
+What a server does when it cannot consult a withdrawal mechanism it relies on is local policy ({{withdrawal}}). For Token Status List, Section 8.3 of {{STATUSLIST}} recommends rejecting a statement whose status the server cannot resolve. Refusing makes issuer availability a precondition for every request the statement governs. Proceeding leaves a withdrawn statement acceptable until it expires.
 
 A refusal that the server's operator entered, rather than one derived from a withdrawal mechanism, persists on the operator's own terms.
 
@@ -367,7 +367,7 @@ The remaining exposure is resource cost: an attacker holding the issuer's SET si
 
 ## Event Suppression
 
-Because a receiver resolves status independently ({{processing}}), an attacker who suppresses events delays a withdrawal at most until the receiver's next scheduled resolution and, for new admissions, never beyond the affected statements' effective expiry ({{schedule-practice}}). Grants already open continue until a refresh at which the receiver holds a refusal record, which {{currency}} then rejects unless a replacement is accepted.
+Because a receiver resolves status independently ({{processing}}), an attacker who suppresses events delays a withdrawal at most until the receiver's next scheduled resolution and, for new admissions, never beyond the affected statements' effective expiry ({{schedule-practice}}).
 
 The absence of events looks the same on a healthy stream and a suppressed one. Periodic stream verification ({{configuration}}) makes the difference observable ({{stream-practice}}).
 
