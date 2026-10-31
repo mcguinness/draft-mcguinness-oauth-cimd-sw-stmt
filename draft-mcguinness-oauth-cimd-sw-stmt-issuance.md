@@ -429,7 +429,7 @@ The client redeems a software statement code by sending an HTTP `POST` request t
 : REQUIRED. The PKCE verifier corresponding to the `code_challenge` in the authorization request.
 
 `completion_mode`:
-: REQUIRED at a deferring issuer ({{authorization-server-metadata}}), and not used otherwise. When present, the value MUST include `deferred`. A deferring issuer rejects a request that omits it with `invalid_request`.
+: REQUIRED at a deferring issuer, with a value that MUST include `deferred`. A request without it is rejected with `invalid_request`.
 
 The prohibitions of {{prohibited-parameters}} apply. The request MUST NOT contain the `audience` parameter, which was bound at the authorization endpoint. A request containing it is rejected with `invalid_request`.
 
@@ -470,12 +470,7 @@ grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3A
 
 # Deferred Processing {#deferred-processing}
 
-An authorization server MAY answer a software statement code redemption ({{software-statement-code-redemption}}) or a token exchange ({{token-exchange-profile}}) with a deferred token response {{DTR}} instead of a statement.
-
-Deferral follows {{DTR}}, including the sender constraint it fixes at origination, with the following additions ({{lifetime-practice}} covers choosing a deferral code lifetime):
-
-* A deferral created under this specification MUST be delivered by polling. Callback delivery is omitted from this version.
-* A client MUST NOT send the `client_notification_token` parameter of {{DTR}}. An authorization server rejects a request carrying it with the `invalid_request` error code and MUST NOT deliver a callback, whatever the client's metadata says.
+A deferring issuer MAY answer a redemption ({{software-statement-code-redemption}}) or token exchange ({{token-exchange-profile}}) with a deferred token response, which follows {{DTR}} except that the final response MUST be delivered only by polling and the statement does not inherit the deferral's DPoP binding. A client MUST NOT send `client_notification_token`, which the authorization server rejects with `invalid_request`, and the server MUST NOT deliver a callback, even to a `deferred_client_notification_endpoint` in the document.
 
 The following is a non-normative example of a first polling request for a deferral created by a token exchange, from a confidential client authenticating with the same `private_key_jwt` method as the exchange (line breaks for display purposes only):
 
@@ -509,8 +504,6 @@ A successful response has HTTP status code 200, a media type of `application/jso
 : RECOMMENDED. The remaining lifetime of the software statement in seconds. If present, it MUST be consistent with the statement's `exp` claim.
 
 The response MUST NOT contain the `refresh_token` or `scope` members. The authorization server MUST include the `Cache-Control` HTTP header field with the value `no-store`.
-
-DPoP under this specification binds requests and deferral state, not the issued artifact. The requirement of {{DTR}} that a final access token inherit the originating DPoP binding does not apply.
 
 The following is an example of a software statement token response:
 
