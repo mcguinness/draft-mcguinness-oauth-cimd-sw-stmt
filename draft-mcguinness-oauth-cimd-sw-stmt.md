@@ -348,8 +348,8 @@ At code redemption, a confidential client whose statement was pulled at the auth
 
 A runtime presentation that is not review-only ({{review-only}}) MUST be sender-constrained under one of two models, set by the `token_endpoint_auth_method` its reviewed document declares:
 
-* Confidential client (a method other than `none`): by a key the statement attests ({{confidential-client-presentation}}).
-* Public client (`none`): by an installation key the presenter binds ({{public-client-presentation}}), while its reviewed redirection URIs, with PKCE `S256`, bind the presentation itself.
+* Confidential client (a method other than `none`): by a key the reviewed document carries ({{confidential-client-presentation}}).
+* Public client (`none`): by an installation key the presenter binds ({{public-client-presentation}}), while its reviewed redirection URIs, with PKCE `S256`, bind the presentation itself ({{public-client-security}}).
 
 The authorization server MUST reject a presentation made in a request ({{runtime-presentation}}) under a reviewed document that omits the `token_endpoint_auth_method` member, even if the presentation is review-only. {{pull-binding}} covers a pulled statement.
 
@@ -364,8 +364,6 @@ For a presentation that is not review-only, under either model:
 
 For a confidential client's presentation that is not review-only, the proven key MUST appear in the `jwks` or at the `jwks_uri` of the reviewed document ({{effective-metadata}}). Methods that prove possession of a key the document carries, such as `private_key_jwt` (Section 8.2 of {{CIMD}}) and `self_signed_tls_client_auth` (Section 2.2 of {{RFC8705}}), satisfy this directly.
 
-The key set at the document's `jwks_uri` is obtained when the presentation is processed, by retrieval or from a copy reused within the bounds of {{retrieval}}.
-
 ### Public Clients {#public-client-presentation}
 
 Software distributed to end users cannot hold a key its reviewed document carries: a key shipped in every copy identifies the software, not the installation. Such a document declares `token_endpoint_auth_method` of `none` and carries no key material.
@@ -377,8 +375,6 @@ For a public client's presentation that is not review-only, made or pulled at th
 * MUST require PKCE {{RFC7636}} with the `S256` method.
 * MUST require the presenter to bind a key it holds, through the `dpop_jkt` parameter or, at the pushed authorization request endpoint, a DPoP proof (Section 10.1 of {{RFC9449}}), and records that key as the proven key of the establishment ({{grant-lifecycle}}).
 * MUST NOT require that key to appear in the reviewed document.
-
-The reviewed redirection URIs, not the proven key, bind such a presentation ({{public-client-security}}). The proven key identifies the installation the grant belongs to.
 
 ### Review-Only Presentations {#review-only}
 
