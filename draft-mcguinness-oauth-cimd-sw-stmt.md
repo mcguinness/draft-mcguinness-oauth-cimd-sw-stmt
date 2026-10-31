@@ -214,7 +214,7 @@ Before accepting a statement, a trusting authorization server MUST ensure the fo
 * Any claim the server does not recognize, and any client metadata claim ({{profiles}}), is ignored.
 * The JWT validation guidance in {{RFC8725}} has been applied.
 
-A trusting authorization server that hosts more than one tenant MUST evaluate every tenant-specific check, such as the `aud_tenant` claim and a required issuer ({{issuer-trust}}), against the request's tenant: the tenant that scopes what it issues on the statement, which it determines before evaluating the statement, by its own means or from a signed assertion it has validated, and never from a value the client chooses.
+A trusting authorization server that hosts more than one tenant MUST evaluate every tenant-specific check, such as the `aud_tenant` claim and a required issuer ({{issuer-trust}}), against the request's tenant. The request's tenant is the tenant that scopes what the server issues on the statement. The server determines it before evaluating the statement, by its own means or from a signed assertion it has validated, and never from a value the client chooses.
 
 Rejections outside a registration endpoint use {{errors}}.
 
@@ -447,7 +447,8 @@ A presentation at the token or pushed authorization request endpoint is rejected
 : Any of the following:
 
   * The statement is malformed or fails validation ({{validation}}) for a reason other than expiry.
-  * The request's `client_id` differs from the statement's `sub` ({{runtime-presentation}}), or the request fails the sender constraint ({{sender-constraint}}), including a presentation made in a request under a document that omits `token_endpoint_auth_method` and one opening a new grant at the token endpoint for a public client ({{public-client-presentation}}).
+  * The request's `client_id` differs from the statement's `sub` ({{runtime-presentation}}).
+  * The request fails the sender constraint ({{sender-constraint}}), including a presentation made in a request under a document that omits `token_endpoint_auth_method`, and one opening a new grant at the token endpoint for a public client ({{public-client-presentation}}).
   * The reviewed document cannot be obtained, including over the size bound, fails validation as {{CIMD}} requires, contains duplicate member names ({{effective-metadata}}), or does not match and the server does not proceed without the statement ({{effective-metadata}}).
   * The bound on establishments is reached ({{establishment-bounds}}).
 
