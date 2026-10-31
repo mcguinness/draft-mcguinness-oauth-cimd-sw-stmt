@@ -330,7 +330,7 @@ Every refresh request MUST carry the original `client_id` and authenticate under
 
 On every refresh, the server MUST require a current software statement and re-evaluate its issuer trust decision. It MUST also verify that the currently served document matches the applicable statement and attestation digests and meets {{client-metadata}}. If the document fails {{client-metadata}}, for example by omitting the `software_statement_instance_binding` member or naming another authentication method, the refresh is rejected with `invalid_grant` without seeking a replacement.
 
-A replacement (Section 5.2 of {{LIFECYCLE}}) is needed when the recorded statement is expired, refused, or no longer matches the served document. In place of the key bullet of step 3 of Section 5.2 of {{LIFECYCLE}}, a current attestation of the proven key, from the recorded attester under the recorded policy, MUST name the replacement's metadata digest. A failed attempt MUST NOT replace the recorded binding or rotate a refresh token.
+A replacement (Section 5.2 of {{LIFECYCLE}}) is needed when the recorded statement is expired, refused, or no longer matches the served document. In place of the key bullet of step 3 of Section 5.2 of {{LIFECYCLE}}, a current attestation of the proven key, from the recorded attester under the recorded policy, MUST name the replacement's metadata digest. A rejected refresh MUST NOT replace the recorded binding or rotate a refresh token.
 
 # Exceptions to Software Statement Processing {#core-exceptions}
 
@@ -350,7 +350,7 @@ The following table summarizes where this profile departs from {{STATEMENT}} and
 | 6.3 | Code redemption is rejected with `invalid_grant` or, at the establishment bound, `invalid_client`. | Redemption can also return `statement_required` ({{error-codes}}). |
 | 6.4 | A client not admitted on a statement receives `statement_required`. | A missing or invalid required pushed authorization request is rejected with `invalid_request` ({{authorization-errors}}). |
 | 5.1 of {{LIFECYCLE}} | A current statement on refresh is recommended once the recorded statement expires. | Every refresh requires a current statement ({{refresh}}). |
-| 5.2 of {{LIFECYCLE}} | A replacement is needed only when the recorded statement is refused or expired, the document's digest is checked only for a replacement, and the replacement's document carries the proven key. | Every refresh re-checks the document against the recorded digests, a replacement is also needed when the recorded statement no longer matches the document, and a current attestation of the proven key takes the place of the key check ({{refresh}}). |
+| 5.1, 5.2 of {{LIFECYCLE}} | A replacement is needed only when the recorded statement is refused or expired, the document's digest is checked only for a replacement, and the replacement's document carries the proven key. | Every refresh re-checks the document against the recorded digests, a replacement is also needed when the recorded statement no longer matches the document, and a current attestation of the proven key takes the place of the key check ({{refresh}}). |
 
 All other requirements of {{STATEMENT}} and {{LIFECYCLE}} continue to apply.
 
