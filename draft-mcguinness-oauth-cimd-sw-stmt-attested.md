@@ -741,13 +741,13 @@ Key isolation:
 : The launcher creates a P-256 key in the Secure Enclave, from which key material cannot be transferred {{APPLE-ENCLAVE}}. It keeps the key in a keychain access group that only its own provisioning profile authorizes, so the client cannot use the key directly.
 
 Caller identification:
-: The client connects to the launcher over XPC, and the launcher sets a code-signing requirement naming the publisher's Team ID and the client's signing identifier, which the system enforces on the connection {{APPLE-XPC}}. The launcher never relies on a process ID or a reported path.
+: The client connects to the launcher over XPC, and the launcher sets a code-signing requirement naming an Apple-issued certificate chain, the publisher's Team ID, and the client's signing identifier, which the system enforces on the connection {{APPLE-XPC}}. The launcher never relies on a process ID or a reported path.
 
 Code injection:
 : The client runs under the hardened runtime {{APPLE-RUNTIME}}, and the evidence policy requires that its signature carry no entitlement that disables library validation, allows `DYLD_` environment variables, or permits debugging. The client then loads only libraries signed by Apple or by its own team.
 
 Launcher authentication:
-: The launcher registers an App Attest key, which Apple certifies as belonging to the launcher {{APPLE-APPATTEST}}, and ties it to the managed device with a single-use secret delivered through managed app configuration. Each later report, carrying the installation's public key and the client's signing identity, bears an App Attest assertion.
+: The launcher registers an App Attest key, which Apple certifies as belonging to the launcher {{APPLE-APPATTEST}}, and ties it to the managed device with a single-use secret delivered through managed app configuration, which macOS delivers only to an app with a matching code signature. Each later report, carrying the installation's public key and the client's signing identity, bears an App Attest assertion.
 
 Evidence and renewal:
 : No Apple attestation covers the installation's key, so the enterprise service relies on the authenticated launcher's report that the key is in the Secure Enclave and usable only by the launcher. Before the maximum evidence age expires, the launcher re-checks the device's management state and the client's signature and obtains an attestation on that new evidence.
