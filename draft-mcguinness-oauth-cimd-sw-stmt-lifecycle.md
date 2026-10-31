@@ -147,9 +147,9 @@ When the establishment's recorded statement has expired, the authorization serve
 
 ## Refresh Replacement {#refresh-replacement}
 
-A refresh replacement is a later statement from the recorded statement's issuer about the same software, offered or pulled on refresh to take the recorded statement's place ({{replacement-security}}). It is a `presentation` use of the statement (Section 3 of {{STATEMENT}}). A server that does not implement this specification ignores an offered later statement (Section 5.4 of {{STATEMENT}}).
+A refresh replacement is a later statement from the recorded statement's issuer about the same software, offered or pulled on refresh to take the recorded statement's place ({{replacement-security}}). It is a `presentation` use of the statement (Section 3 of {{STATEMENT}}).
 
-A request carrying a refresh replacement in the `software_statement` parameter (Section 5.4 of {{STATEMENT}}) MUST include the `client_id` parameter, even if the client authenticates, and its value, the client's CIMD URL, MUST exactly equal the statement's `sub` claim. If the `client_id` parameter is absent, the request is rejected. A refresh replacement whose `sub` differs is rejected as step 3 below provides.
+A request carrying a refresh replacement MUST meet the `client_id` rule that Section 5.4 of {{STATEMENT}} sets for a request making a runtime presentation.
 
 On refresh-token use under an establishment, the authorization server first completes the checks of Section 5.7.1 of {{STATEMENT}} on the establishment's proven key, unchanged, before it considers any replacement. A server that implements this specification then proceeds as follows. A refresh rejected at any step leaves the grant's state unchanged.
 
@@ -157,21 +157,19 @@ On refresh-token use under an establishment, the authorization server first comp
 
 2. Obtain a replacement. A client can offer one on any refresh in the `software_statement` parameter. A statement with the recorded `iss` and `jti` is not a replacement and is treated as the recorded statement. When a replacement is needed and the request carries none, a server that supports pulled statements pulls, however the establishment was created, and takes as the replacement the newest statement with the recorded `iss` and `sub` among those it considers under Section 5.5.1 of {{STATEMENT}}, {{withdrawal}}, and {{supersession}}. A refresh that needs a replacement and obtains none is rejected: a reviewed grant never continues under the policy for clients the server has not reviewed.
 
-   The pull follows the retrieval rules of Sections 5.3 and 5.5 of {{STATEMENT}}. Only a request opening a new grant proceeds after a pull that does not complete, so a refresh whose pull does not complete is rejected.
+   The pull follows Sections 5.3 and 5.5 of {{STATEMENT}}, and a refresh whose pull does not complete is rejected.
 
 3. Validate the replacement. A refresh whose replacement fails any of the following requirements is rejected, even when no replacement was needed. The replacement:
 
-   * MUST validate under Section 3.2 of {{STATEMENT}} and {{withdrawal}}, including its audience if it carries one.
+   * MUST validate under Section 3.2 of {{STATEMENT}}, {{withdrawal}}, and {{supersession}}.
    * MUST have the recorded statement's `iss` and `sub`.
    * MUST have an `iat` later than the recorded statement's.
    * MUST name in `cimd_digest` the document currently served at that `sub`, which the server confirms by retrieval or by revalidating octets it holds.
    * MUST name a document that carries the establishment's proven key, in its `jwks` or at its `jwks_uri` (Section 5.6.1 of {{STATEMENT}}), or, for an establishment created under Section 5.6.2 of {{STATEMENT}}, a document that still satisfies that section.
 
-   A refresh whose replacement the `iat` floor ({{supersession}}) supersedes is also rejected. A replacement that meets these requirements and that the floor does not supersede is accepted.
+   A replacement that meets these requirements is accepted.
 
-4. Bound access and update. The refreshed access MUST fall within the metadata of the document an accepted replacement names or, without one, the establishment's reviewed metadata. If a replacement is accepted, the refreshed grant's statement identity (`iss` and `jti`), `iat`, effective expiry, any claim an extension uses to locate the statement, reviewed metadata and the digest it matched, and issuer trust decision become the replacement's, in one atomic update. Without one, the grant's state is unchanged. Concurrent replacements resolve to the most recently issued statement.
-
-An accepted replacement is the only way refresh changes the refreshed grant's recorded statement and reviewed metadata, which refresh under {{STATEMENT}} alone never changes. The bound that Section 5.7.1 of {{STATEMENT}} sets on refreshed access applies to the reviewed metadata as step 4 leaves it. A replacement never changes the proven key: a client that needs a different key opens a new grant by presentation.
+4. Bound access and update. The refreshed access MUST fall within the metadata of the document an accepted replacement names or, without one, the establishment's reviewed metadata. If a replacement is accepted, the refreshed grant's statement identity (`iss` and `jti`), `iat`, effective expiry, any claim an extension uses to locate the statement, reviewed metadata and the digest it matched, and issuer trust decision become the replacement's, in one atomic update. Concurrent replacements resolve to the most recently issued statement.
 
 A replacement accepted on refresh MUST apply only to the grant refreshed.
 
