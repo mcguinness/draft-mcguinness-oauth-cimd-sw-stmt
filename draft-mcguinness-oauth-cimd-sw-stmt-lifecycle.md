@@ -127,15 +127,15 @@ Rejections under this section use the error responses of {{lifecycle-errors}}.
 
 # Supersession {#supersession}
 
-Under {{STATEMENT}}, one unexpired statement is consumable more than once, and an older statement that has not expired remains admissible after a newer one is issued (Sections 11.3 and 13.7 of {{STATEMENT}}). Because the `iat` claim values of an issuer's statements for a given `iss` and `sub` increase strictly (Section 3 of {{STATEMENT}}), a later `iat` marks a later review. Supersession ends the admissibility of earlier statements once a server accepts a later one: a statement whose `iat` claim is earlier than the server's `iat` floor is superseded.
+Because an issuer's `iat` values for a given `iss` and `sub` increase strictly (Section 3 of {{STATEMENT}}), a later `iat` marks a later review, and a statement whose `iat` is earlier than the server's `iat` floor is superseded.
 
-A trusting authorization server MUST retain, per `iss` and `sub` claims and, on a multi-tenant server, per tenant, the greatest `iat` claim value among the statements it has accepted, as its `iat` floor, for at least the maximum statement lifetime it honors for the issuer after that `iat`. A statement is accepted for the floor once the server admits a client on it, applies it as a replacement ({{refresh-replacement}}), or registers a client or renews a registration with it ({{REGISTRATION}}). The server MUST reject a statement whose `iat` claim is earlier than the retained `iat`, whether it arrives as a replacement on refresh, a new registration or a replacement delivered under {{REGISTRATION}}, or a new presentation. A repeated registration request carrying the governing statement of an existing registration (Section 3.3 of {{REGISTRATION}}) is not a new registration. A client holding a superseded, broader statement therefore cannot defer a narrowing by opening a fresh registration or establishment with it.
+A trusting authorization server MUST retain each `iat` floor for at least the maximum statement lifetime it honors for the issuer after the floor's value. A statement is accepted for the floor once the server admits a client on it, applies it as a replacement ({{refresh-replacement}}), or registers a client or renews a registration with it ({{REGISTRATION}}). The server MUST reject a statement whose `iat` claim is earlier than the retained `iat`, whether it arrives as a replacement on refresh, a new registration or a replacement delivered under {{REGISTRATION}}, or a new presentation. A repeated registration request carrying the governing statement of an existing registration (Section 3.3 of {{REGISTRATION}}) is not a new registration. A client holding a superseded, broader statement therefore cannot defer a narrowing by opening a fresh registration or establishment with it.
 
 At admission, the server verifies the `iat` floor in step 3 of Section 5.1 of {{STATEMENT}}, along with the `client_id` rule, before it resolves the reviewed document.
 
 In selecting a pulled statement (Section 5.5.1 of {{STATEMENT}}), the server also ignores any statement that a refusal record covers ({{withdrawal}}) or that the `iat` floor supersedes. A pulled statement the server does not apply does not advance the `iat` floor. Nor does a review-only presentation or pulled statement (Section 5.6.3 of {{STATEMENT}}).
 
-The first presentation of a later statement that establishes the client supersedes its predecessor for new admissions by every instance of the software at that server ({{instance-practice}}). Grants the predecessor already opened continue under {{refresh-lifecycle}}.
+An instance holding only a superseded statement can open no new grant at the server (Section 12.3 of {{STATEMENT}}). Grants it already opened continue under {{refresh-lifecycle}}.
 
 # Refresh {#refresh-lifecycle}
 
@@ -339,10 +339,6 @@ What a server does when it cannot consult a withdrawal mechanism it relies on is
 A refusal that the server's operator entered, rather than one derived from a withdrawal mechanism, persists on the operator's own terms.
 
 Withdrawal does not replace lifetime: an issuer chooses `exp` assuming no trusting authorization server uses a withdrawal mechanism.
-
-## Instances and Supersession {#instance-practice}
-
-Once a later statement supersedes its predecessor at a server ({{supersession}}), an instance holding only the predecessor can open no new grant there. Section 12.3 of {{STATEMENT}} says instances need the most recently issued statement from a shared source.
 
 ## Resolution Schedule and Lifetimes {#schedule-practice}
 
