@@ -396,7 +396,7 @@ Details of configured issuers, attesters, evidence policies, and tenant restrict
 
 ## Authorization Endpoint {#authorization-errors}
 
-At the authorization endpoint, when {{authorization}} requires a `request_uri` from a pushed authorization request, a request without a valid one is rejected with `invalid_request`.
+At the authorization endpoint, when {{authorization}} requires a `request_uri` from a pushed authorization request, a request without a valid one is rejected with `invalid_request`. An authorization request carrying an instance attestation or an instance proof is rejected with `invalid_request`.
 
 # Examples {#examples}
 
