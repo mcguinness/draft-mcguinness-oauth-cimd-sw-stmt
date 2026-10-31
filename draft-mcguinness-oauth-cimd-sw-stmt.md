@@ -415,7 +415,7 @@ On refresh-token use under an establishment, the authorization server:
 * MUST verify possession of the establishment's proven key under the same sender-constraint mechanism.
 * MUST, except for an establishment created under {{public-client-presentation}}, verify that the document currently served at the establishment's `sub` still carries that key, in its `jwks` or at its `jwks_uri`, within the reuse bounds of {{retrieval}}.
 
-If either check fails, including when the document does not carry the key, cannot be obtained, or exceeds the size bound ({{retrieval}}), the server rejects the refresh. The refreshed access MUST fall within the establishment's reviewed metadata.
+If either check fails, the server rejects the refresh. The refreshed access MUST fall within the establishment's reviewed metadata.
 
 Under this specification, refresh evaluates no statement: a statement's expiry does not end a grant it opened ({{enforcement-bounds}}), and refresh never changes the establishment's proven key or reviewed metadata. A client that needs a different key opens a new grant by presentation, as does, without {{LIFECYCLE}}, a client that needs a different review. {{LIFECYCLE}} defines replacements that keep a grant in step with later reviews and withdrawals.
 
@@ -499,7 +499,7 @@ If the authorization server's policy or a required issuer ({{issuer-trust}}) req
 `statement_required`:
 : In any other case, subject to the order of {{errors}}, the authorization server MUST return this code.
 
-The authorization server redirects with an error only after validating the request's `redirect_uri`: against the client's CIMD, which it resolves first, or, for a registered client, against its registered redirection URIs (Section 4.1.2.1 of {{RFC6749}}). If the authorization server cannot resolve a CIMD client's document, it MUST NOT redirect, and it reports the error to the resource owner instead.
+Before redirecting with an error, the authorization server validates the `redirect_uri` against the client's CIMD, which it resolves first (Section 4.1.2.1 of {{RFC6749}}). If it cannot resolve the document, it MUST NOT redirect.
 
 ## Proof Mechanism Errors {#proof-errors}
 
@@ -620,7 +620,7 @@ This section is non-normative.
 
 A software statement and a client attestation {{ABCA}} are both signed third-party assertions. A statement attests client software and the metadata its issuer evaluated. A client attestation attests a running instance and the key it holds, and is presented with a proof bound to the request.
 
-Neither assertion grants access nor substitutes for the other. A runtime presentation that is not review-only therefore requires a sender constraint ({{sender-constraint}}). Binding a presenter attestation defined elsewhere is an extension ({{extensions}}).
+Neither assertion grants access nor substitutes for the other.
 
 ## Identity Assertions {#identity-assertions}
 
@@ -636,9 +636,7 @@ This section gives guidance to implementers. It adds no requirement.
 
 ## Caching and Reuse of Retrieved Content {#caching}
 
-A server can revalidate octets it holds with a conditional request rather than retrieving them again ({{metadata-digest}}).
-
-{{CIMD}} forbids caching an error response (Section 5.2 of {{CIMD}}), so a failed retrieval ({{retrieval}}) is followed by back-off. A response from a `software_statements_uri` ought to be cached no longer than the document is, and can be revalidated with a conditional request, as the document can ({{pulled-statements}}).
+A response from a `software_statements_uri` ought to be cached no longer than the document is. Because {{CIMD}} forbids caching an error response (Section 5.2 of {{CIMD}}), a failed retrieval ({{retrieval}}) is followed by back-off.
 
 ## Retrieval and Processing Bounds {#processing-bounds}
 
@@ -735,9 +733,7 @@ The `aud_tenant` claim names a tenant at the trusting authorization server, not 
 
 ## External Retrieval and Resource Exhaustion {#external-retrieval}
 
-Runtime presentation can cause the authorization server to retrieve the CIMD, a `jwks_uri` it names, or the statements its `software_statements_uri` names ({{retrieval}}).
-
-These retrievals happen before any client is registered or any user has interacted, so an unauthenticated requester can cause them with one acceptable statement or, at a server that pulls statements, with none. The bounds of {{processing-bounds}} limit this work but do not prevent it.
+The retrievals of {{retrieval}} happen before any client is registered or any user has interacted, so an unauthenticated requester can cause them with one acceptable statement or, at a server that pulls statements, with none. The bounds of {{processing-bounds}} limit this work but do not prevent it.
 
 ## Expiry and Open Grants {#enforcement-bounds}
 
