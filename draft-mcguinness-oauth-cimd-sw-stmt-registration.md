@@ -165,7 +165,7 @@ An authorization server MUST apply the following validity model to every stateme
 
 * The registration's effective expiry (Section 2 of {{STATEMENT}}) is that of its governing statement.
 * The registration is valid until its governing statement ceases to be current (Section 2 of {{STATEMENT}}), and so at most until that effective expiry.
-* Once the registration has ceased to be valid, the authorization server MUST reject authorization, token, and pushed authorization requests and {{RFC7592}} update requests under it, unless the request delivers a replacement that restores it (step 4 of {{registration-requests}}).
+* Once the registration has ceased to be valid, the authorization server MUST reject, at step 4 of {{registration-requests}}, authorization, token, and pushed authorization requests and {{RFC7592}} update requests under it, unless a replacement the request delivers has restored it at step 3.
 * The authorization server SHOULD retain a registration that has ceased to be valid, so that a replacement can restore it.
 * Ceasing to be valid does not expire the registration's credentials, including its registration access token, and does not by itself revoke access tokens already issued under the registration.
 
@@ -220,6 +220,8 @@ The replacement MUST satisfy the following:
 * Its document declares `token_endpoint_auth_method` of `none` if and only if the governing statement's document does.
 * For a public-client registration that carries no tenant restriction, its decision is not confined to a tenant ({{tenant-restriction}}).
 * Its document satisfies the rules of {{dcr-presentation}}, from which the registration's metadata is derived.
+
+Renewing on the statement alone would leave in the registration a key, redirection URI, or scope that the new review removed.
 
 A request whose replacement fails the rules above is rejected ({{errors}}) whether or not the registration has ceased to be valid. A rejected delivery leaves the governing statement unchanged.
 
@@ -294,6 +296,8 @@ This specification defines the following authorization server metadata {{RFC8414
 
 # Deployment Considerations {#deployment-considerations}
 
+This section gives guidance to operators. It adds no requirement.
+
 An issuer outage longer than a statement-governed registration's remaining lifetime makes the registration cease to be valid ({{registration-validity}}) until the client delivers a replacement ({{revalidation}}). The lifetimes an issuer chooses set the renewal cadence (Section 12.3 of {{STATEMENT}}). A deployment ought to have clients renew well before effective expiry, and ought to weigh that cadence against how quickly a narrowed or withdrawn review needs to take effect.
 
 # Security Considerations {#security-considerations}
@@ -306,7 +310,7 @@ A statement consumed at registration is a reusable bearer artifact until it expi
 
 Taking every value from the document prevents metadata substitution. A request-supplied value for a member the document omits, such as a `jwks` member beside a document naming only `jwks_uri`, would give any holder of a copy a registration with reviewed branding and the holder's own key. Registering a document that omits `token_endpoint_auth_method` under the {{RFC7591}} default would register an authentication method the issuer never reviewed. An issuer ought to omit the `aud` claim from a statement whose `statement_uses` claim permits registration only if it accepts that any server trusting the issuer can register the software on the strength of a copy.
 
-Under the one-registration default ({{repeated-registration}}), whoever first registers with a copy of a statement holds that registration and its registration access token, and can keep the software's publisher from registering at that server. Such a holder cannot authenticate as the client if the reviewed document's authentication method requires a key the document carries. If the document declares a shared-secret method, the holder receives the secret and authenticates as the client.
+Under the one-registration default ({{repeated-registration}}), whoever first registers with a copy of a statement holds that registration and its registration access token, and can keep the software's publisher from registering there. Such a holder cannot authenticate as the client if the reviewed document's authentication method requires a key the document carries. If the document declares a shared-secret method, the holder receives the secret and authenticates as the client.
 
 If the publisher's statement permits presentation and the server supports it, the publisher's software can still be admitted through runtime presentation (Section 5 of {{STATEMENT}}). Otherwise, recovery requires intervention by the server's operator or a registration policy other than the one-registration default. This specification defines no way to displace such a registration.
 
