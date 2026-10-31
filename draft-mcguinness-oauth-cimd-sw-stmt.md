@@ -116,7 +116,7 @@ Runtime Presentation:
 : The consumption of a validated software statement presented in a token request or pushed authorization request, or pulled from where the client's document points ({{pulled-statements}}), without creating a client registration.
 
 Admission:
-: A trusting authorization server's acceptance of a client for a request or a registration, either on a valid statement ({{processing}}), after which the reviewed metadata governs its requests, or under the server's policy for CIMD clients it has not reviewed.
+: A trusting authorization server's acceptance of a client for a request, either on a valid statement ({{processing}}), after which the reviewed metadata governs its requests, or under the server's policy for CIMD clients it has not reviewed.
 
 Establishment:
 : The state a successful runtime presentation creates for the grant it opens, enumerated in {{grant-lifecycle}}.

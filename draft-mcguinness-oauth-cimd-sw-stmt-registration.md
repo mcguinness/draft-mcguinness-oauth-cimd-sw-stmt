@@ -110,7 +110,7 @@ The authorization server MUST reject the registration, or a replacement ({{reval
 * The document declares `token_endpoint_auth_method` of `none`, unless the authorization server registers the client under {{public-client-registration}}.
 * Any of the document's redirection URIs could be claimed by another application on the same device (Section 5.6.3 of {{STATEMENT}}), whatever authentication method the document declares.
 
-Unlike runtime presentation (Section 5 of {{STATEMENT}}), registration has no review-only form: the registration is the admission.
+Unlike runtime presentation (Section 5 of {{STATEMENT}}), registration has no review-only form, so a condition that would make a presentation review-only rejects the registration.
 
 Software whose document declares `token_endpoint_auth_method` of `none` and that the server does not register under {{public-client-registration}} can instead use runtime presentation if it meets the public-client binding requirements of Section 5.6.2 of {{STATEMENT}}.
 
