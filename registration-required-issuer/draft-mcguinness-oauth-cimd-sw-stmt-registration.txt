@@ -590,11 +590,12 @@ Table of Contents
       this server, its sub is outside the client identifier namespaces
       the issuer can attest, its aud_tenant is not this request's tenant
       or is absent when required, its issuer is confined to another
-      tenant, a required issuer covers its sub in this request's tenant
-      and it is from another issuer (Section 3), or its statement_uses
-      excludes this use.  This code is also used if a statement this
-      server requires is absent from a registration request, and for a
-      repeated registration request that the server's policy refuses
+      tenant, or its statement_uses excludes this use.  This code is
+      also used if a statement this server requires is absent from a
+      registration request, if Section 3 forbids creating the
+      registration because a required issuer covers the statement's sub
+      and the statement is from another issuer, and for a repeated
+      registration request that the server's policy refuses
       (Section 3.3).
 
    invalid_client_metadata:  Any of the following holds for the reviewed
