@@ -239,7 +239,7 @@ A rejection this specification defines, at a client registration endpoint or at 
   * The statement is malformed, fails signature or claim validation for a reason `unapproved_software_statement` does not cover, or is expired or otherwise not current (Section 2 of {{STATEMENT}}), or is superseded under an extension the server implements, such as {{LIFECYCLE}}.
   * The document's digest does not equal the statement's `cimd_digest` claim ({{dcr-presentation}}).
   * An {{RFC7592}} update request is rejected under {{registration-validity}}.
-  * A replacement delivered at the client configuration endpoint, or the statement of a repeated public-client registration request evaluated as a replacement ({{repeated-registration}}), fails a rule of {{revalidation}} that this section assigns no other code, such as a change in whether the document declares `token_endpoint_auth_method` of `none`.
+  * A statement delivered at the client configuration endpoint, or the statement of a repeated public-client registration request evaluated as a replacement ({{repeated-registration}}), fails the replacement rules of {{revalidation}} where this section assigns no other code, such as a change in whether the document declares `token_endpoint_auth_method` of `none`.
   * The statement of a repeated public-client registration request is earlier than the governing statement ({{repeated-registration}}).
 
 `unapproved_software_statement`:
