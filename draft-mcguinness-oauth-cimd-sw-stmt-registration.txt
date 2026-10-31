@@ -176,7 +176,10 @@ Table of Contents
    The statement is consumed in the software_statement member of an
    [RFC7591] registration request.  The authorization server validates
    it under Section 3.2 of [STATEMENT] and registers the client under
-   its ordinary registration policy.
+   its ordinary registration policy.  If a required issuer covers the
+   statement's sub in the request's tenant (Section 4 of [STATEMENT]),
+   the authorization server MUST NOT create a registration on a
+   statement from another issuer.
 
    The retrieval requirements of Sections 3.1 and 5.3 of [STATEMENT]
    apply to retrieving the document as they apply to a runtime
@@ -228,7 +231,8 @@ Table of Contents
       whatever authentication method the document declares.
 
    Unlike runtime presentation (Section 5 of [STATEMENT]), registration
-   has no review-only form: the registration is the admission.
+   has no review-only form, so a condition that would make a
+   presentation review-only rejects the registration.
 
    Software whose document declares token_endpoint_auth_method of none
    and that the server does not register under Section 3.2 can instead
@@ -588,8 +592,11 @@ Table of Contents
       or is absent when required, its issuer is confined to another
       tenant, or its statement_uses excludes this use.  This code is
       also used if a statement this server requires is absent from a
-      registration request, and for a repeated registration request that
-      the server's policy refuses (Section 3.3).
+      registration request, if Section 3 forbids creating the
+      registration because a required issuer covers the statement's sub
+      and the statement is from another issuer, and for a repeated
+      registration request that the server's policy refuses
+      (Section 3.3).
 
    invalid_client_metadata:  Any of the following holds for the reviewed
       document:
