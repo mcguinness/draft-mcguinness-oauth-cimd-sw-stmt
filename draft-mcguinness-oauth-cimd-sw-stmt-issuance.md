@@ -527,9 +527,9 @@ The denial is terminal for the request. A denied deferral behaves as {{DTR}} spe
 
 An authorization server that issued a statement already holds the decision that statement records. If it is also a trusting authorization server, it MAY rely on that record, at registration or at runtime, rather than require the statement to be presented back to it.
 
-Because the record of a decision is not a fresh retrieval of the document, a server relying on the record of a statement it issued MUST apply every check Sections 3.2 and 5.1 of {{STATEMENT}} apply to a presented statement, and at registration every check {{REGISTRATION}} applies, taking the statement's claims from its record of the decision.
+Because the record of a decision is not a fresh retrieval of the document, a server relying on the record of a statement it issued MUST apply every check Sections 3.2 and 5.1 of {{STATEMENT}} apply to a presented statement, except the checks of its JOSE header and signature, and at registration every check {{REGISTRATION}} applies, taking the statement's claims from its record of the decision.
 
-At runtime, the record takes the place of the statement in step 1 of Section 5.1 of {{STATEMENT}} and replaces only its signature check: the server still performs steps 2 through 7 of Section 5.1 of {{STATEMENT}}, taking the claims from the record.
+At runtime, the record takes the place of the statement in step 1 of Section 5.1 of {{STATEMENT}}, and the server performs steps 2 through 7 on the claims the record holds.
 
 # Authorization Server Metadata {#authorization-server-metadata}
 
