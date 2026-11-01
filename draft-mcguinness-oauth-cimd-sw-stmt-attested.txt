@@ -1054,7 +1054,9 @@ Table of Contents
    client_attestation_signing_alg_values_supported (Section 8 of [ABCA])
    metadata values.  It MUST support [RFC9207] and publish the
    authorization_response_iss_parameter_supported metadata value as
-   true.
+   true.  As a server implementing [LIFECYCLE], it also publishes
+   software_statement_replacement_supported as true (Section 9 of
+   [LIFECYCLE]).
 
    A client determines support from
    software_statement_instance_binding_supported, not from the generic

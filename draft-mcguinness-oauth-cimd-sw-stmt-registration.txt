@@ -165,8 +165,10 @@ Table of Contents
       (Section 6).  The authorization server identifies it by its iss
       and jti claims.
 
-   Replacement:  A delivered statement with the governing statement's
-      iss and sub claims and a later iat (Section 6).
+   Replacement:  A statement with the governing statement's iss and sub
+      claims and a later iat, delivered under the registration
+      (Section 6) or carried in a repeated public-client registration
+      request (Section 3.3).
 
    Statement-Governed Registration:  An [RFC7591] client registration
       created from a statement under this specification (Section 3).

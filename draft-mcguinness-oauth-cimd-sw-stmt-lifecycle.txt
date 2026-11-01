@@ -619,12 +619,14 @@ Table of Contents
    replacement is rejected (Section 5.2), uses statement_required,
    subject to the order of Section 6 of [STATEMENT].  A request that
    carries a replacement but omits client_id (Section 5.2) is rejected
-   with invalid_request, and one whose client_id differs from the
-   replacement's sub is rejected with statement_required.  A refresh
-   whose access exceeds the metadata of the document an accepted
-   replacement names is rejected with unauthorized_client or
-   invalid_scope, as Section 6.3 of [STATEMENT] provides for the
-   reviewed metadata.
+   with invalid_request.  One whose client_id is not the client the
+   refresh token was issued to fails the grant binding and is rejected
+   with invalid_grant (Section 5.2 of [RFC6749]), and one whose
+   replacement names a sub other than that client_id is rejected with
+   statement_required.  A refresh whose access exceeds the metadata of
+   the document an accepted replacement names is rejected with
+   unauthorized_client or invalid_scope, as Section 6.3 of [STATEMENT]
+   provides for the reviewed metadata.
 
 9.  Authorization Server Metadata
 
@@ -635,6 +637,9 @@ Table of Contents
       indicating whether the authorization server applies refresh
       replacements (Section 5.2).  If omitted, the default value is
       false.
+
+   An authorization server implementing this specification MUST publish
+   software_statement_replacement_supported with the value true.
 
    On refresh-token use under an establishment, a server that does not
    apply refresh replacements ignores an offered statement (Section 5.4
@@ -847,6 +852,10 @@ Table of Contents
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/rfc/rfc2119>.
+
+   [RFC6749]  Hardt, D., Ed., "The OAuth 2.0 Authorization Framework",
+              RFC 6749, DOI 10.17487/RFC6749, October 2012,
+              <https://www.rfc-editor.org/rfc/rfc6749>.
 
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
