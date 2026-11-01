@@ -558,7 +558,7 @@ Because an access token expires no later than the attestation accepted for it ({
 
 # Security Considerations {#security-considerations}
 
-The security considerations of Section 13 of {{STATEMENT}}, Section 11 of {{LIFECYCLE}}, Section 12 of {{ABCA}}, {{CIMD}}, {{RFC8252}}, and {{RFC9700}} apply.
+The security considerations of Section 13 of {{STATEMENT}}, Section 12 of {{LIFECYCLE}}, Section 12 of {{ABCA}}, {{CIMD}}, {{RFC8252}}, and {{RFC9700}} apply.
 
 ## Software Evidence and Key Use {#software-evidence}
 
@@ -600,7 +600,7 @@ Attestations do not remove the need for bounded document retrieval, statement se
 
 # Privacy Considerations {#privacy}
 
-The privacy considerations of Section 14 of {{STATEMENT}}, Section 12 of {{LIFECYCLE}}, and Section 11 of {{ABCA}} apply.
+The privacy considerations of Section 14 of {{STATEMENT}}, Section 13 of {{LIFECYCLE}}, and Section 11 of {{ABCA}} apply.
 
 An attested key reused at multiple authorization servers can correlate installations across them. Clients SHOULD use separate attested keys for separate authorization servers where the evidence mechanism permits, and SHOULD avoid adding stable installation identifiers unless needed by the deployment. This profile does not require a globally stable instance identifier or an attestation audience.
 

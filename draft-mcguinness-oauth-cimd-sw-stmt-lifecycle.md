@@ -303,6 +303,15 @@ A presentation is rejected with `statement_required`, in place of the `invalid_c
 
 A refresh-token request that {{currency}} rejects, or whose replacement is rejected ({{refresh-replacement}}), uses `statement_required`, subject to the order of Section 6 of {{STATEMENT}}. A request that carries a replacement but omits `client_id` ({{refresh-replacement}}) is rejected with `invalid_request`, and one whose `client_id` differs from the replacement's `sub` is rejected with `statement_required`. A refresh whose access exceeds the metadata of the document an accepted replacement names is rejected with `unauthorized_client` or `invalid_scope`, as Section 6.3 of {{STATEMENT}} provides for the reviewed metadata.
 
+# Authorization Server Metadata {#authorization-server-metadata}
+
+This specification defines the following authorization server metadata {{RFC8414}} value:
+
+`software_statement_replacement_supported`:
+: OPTIONAL. Boolean value indicating whether the authorization server applies refresh replacements ({{refresh-replacement}}). If omitted, the default value is `false`.
+
+A server that does not apply refresh replacements ignores a statement offered on refresh (Section 5.4 of {{STATEMENT}}), so a successful refresh does not show that an offered replacement was applied. A client that needs a later review to govern its access at a server that does not advertise `true` opens a new grant by runtime presentation.
+
 # Implementation Considerations {#implementation-considerations}
 
 This section gives guidance to implementers. It adds no requirement.
@@ -394,5 +403,21 @@ Change Controller:
 
 Specification Document(s):
 : This specification, {{status-changed}}
+
+## OAuth Authorization Server Metadata Registry
+
+This specification requests registration of the following value in the IANA "OAuth Authorization Server Metadata" registry established by {{RFC8414}}:
+
+Metadata Name:
+: `software_statement_replacement_supported`
+
+Metadata Description:
+: Boolean value indicating whether the authorization server applies Client ID Metadata Document software statement refresh replacements.
+
+Change Controller:
+: IETF
+
+Specification Document(s):
+: This specification, {{authorization-server-metadata}}
 
 --- back
