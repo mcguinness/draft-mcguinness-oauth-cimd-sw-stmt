@@ -188,7 +188,7 @@ The response from `software_statements_uri`:
 }
 ```
 
-The decoded payload of that statement. It names no `aud` because it is a catalog listing, honored wherever the catalog is trusted, and it carries no `statement_uses`, so it is usable only by presentation and a copy cannot register the software elsewhere:
+The decoded payload of that statement. It names no `aud`, so any server that trusts the catalog for this client can accept it. A catalog that knows which servers its listing is for names them, as Audience and Tenant Claims in CIMD Software Statement recommends. The statement carries no `statement_uses`, so it is usable only by presentation and a copy cannot register the software elsewhere:
 
 ```json
 {
