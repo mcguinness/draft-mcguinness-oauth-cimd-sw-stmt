@@ -299,7 +299,7 @@ The affected statements are those the transmitting issuer made about the subject
 
 One request begun after several events arrived serves every one of them that concerns the list it retrieves. An event is never grounds for refusal. Until the request succeeds, the copy the receiver holds remains in effect within its validity. If resolution does not complete, the receiver proceeds as it would had no event arrived.
 
-A receiver MUST treat an event it has already applied as successfully delivered and acknowledge it as {{RFC8935}} or {{RFC8936}} requires, rather than reporting a delivery error. Rejecting a retry can stall or disable a stream carrying later events. Duplicate detection is per transmitting issuer.
+A receiver MUST treat an event it has already applied as successfully delivered and acknowledge it as {{RFC8935}} or {{RFC8936}} requires, rather than reporting a delivery error. Rejecting a retry can stall or disable a stream carrying later events. A receiver recognizes a repeated delivery by the SET's `jti` claim, which is unique within an event feed (Section 2.2 of {{RFC8417}}), so it detects duplicates per stream.
 
 Two constraints bound every event:
 
