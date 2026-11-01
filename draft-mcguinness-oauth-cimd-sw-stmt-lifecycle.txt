@@ -570,8 +570,10 @@ Table of Contents
    A receiver MUST treat an event it has already applied as successfully
    delivered and acknowledge it as [RFC8935] or [RFC8936] requires,
    rather than reporting a delivery error.  Rejecting a retry can stall
-   or disable a stream carrying later events.  Duplicate detection is
-   per transmitting issuer.
+   or disable a stream carrying later events.  A receiver recognizes a
+   repeated delivery by the SET's jti claim, which is unique within an
+   event feed (Section 2.2 of [RFC8417]), so it detects duplicates per
+   stream.
 
    Two constraints bound every event:
 
@@ -845,7 +847,8 @@ Table of Contents
 
 15.1.  Normative References
 
-   [CAEP]     "OpenID Continuous Access Evaluation Profile 1.0", n.d.,
+   [CAEP]     Cappalli, T. and A. Tulshibagwale, "OpenID Continuous
+              Access Evaluation Profile 1.0", 29 August 2025,
               <https://openid.net/specs/openid-caep-1_0.html>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
@@ -886,7 +889,9 @@ Table of Contents
               DOI 10.17487/RFC9493, December 2023,
               <https://www.rfc-editor.org/rfc/rfc9493>.
 
-   [SSF]      "OpenID Shared Signals Framework Specification 1.0", n.d.,
+   [SSF]      Tulshibagwale, A., Cappalli, T., Scurtescu, M., Backman,
+              A., Bradley, J., and S. Miel, "OpenID Shared Signals
+              Framework Specification 1.0", 29 August 2025,
               <https://openid.net/specs/openid-sharedsignals-framework-
               1_0.html>.
 

@@ -365,9 +365,10 @@ Table of Contents
    authorization_details parameter ([RFC9396]), or the
    software_statement parameter (Section 5.4 of [STATEMENT]).  The
    authorization server MUST reject a request containing any of them
-   with the invalid_request error code.  The audience parameter
-   (Section 4.1) is not prohibited: it describes the requested artifact
-   rather than requesting access.
+   with the invalid_request error code.  In an authorization request or
+   token exchange, the audience parameter (Section 4.1) is not
+   prohibited: it describes the requested artifact rather than
+   requesting access.  Code redemption prohibits it (Section 8).
 
 5.  Token Exchange Profile
 

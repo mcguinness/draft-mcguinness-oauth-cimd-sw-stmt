@@ -1567,7 +1567,7 @@ A replacement that meets these requirements is accepted.<a href="#section-5.2-4.
 <p id="section-7.4-3">If step 1 or 2 fails, the receiver reports a SET error as <span>[<a href="#RFC8935" class="cite xref">RFC8935</a>]</span> or <span>[<a href="#RFC8936" class="cite xref">RFC8936</a>]</span> provides. Otherwise, it acknowledges the SET, whatever steps 3 to 5 produce.<a href="#section-7.4-3" class="pilcrow">¶</a></p>
 <p id="section-7.4-4">The affected statements are those the transmitting issuer made about the subject, never statements another issuer made about the same software. They are the statement the event's <code>software_statement_jti</code> claim names or, if the event names none, those the receiver holds or has cached a status for. An event about a subject for which the receiver holds no state requires nothing of it. A receiver ignores events for subjects outside the client identifier namespaces for which it accepts the transmitting issuer (Section 4 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-7.4-4" class="pilcrow">¶</a></p>
 <p id="section-7.4-5">One request begun after several events arrived serves every one of them that concerns the list it retrieves. An event is never grounds for refusal. Until the request succeeds, the copy the receiver holds remains in effect within its validity. If resolution does not complete, the receiver proceeds as it would had no event arrived.<a href="#section-7.4-5" class="pilcrow">¶</a></p>
-<p id="section-7.4-6">A receiver <span class="bcp14">MUST</span> treat an event it has already applied as successfully delivered and acknowledge it as <span>[<a href="#RFC8935" class="cite xref">RFC8935</a>]</span> or <span>[<a href="#RFC8936" class="cite xref">RFC8936</a>]</span> requires, rather than reporting a delivery error. Rejecting a retry can stall or disable a stream carrying later events. Duplicate detection is per transmitting issuer.<a href="#section-7.4-6" class="pilcrow">¶</a></p>
+<p id="section-7.4-6">A receiver <span class="bcp14">MUST</span> treat an event it has already applied as successfully delivered and acknowledge it as <span>[<a href="#RFC8935" class="cite xref">RFC8935</a>]</span> or <span>[<a href="#RFC8936" class="cite xref">RFC8936</a>]</span> requires, rather than reporting a delivery error. Rejecting a retry can stall or disable a stream carrying later events. A receiver recognizes a repeated delivery by the SET's <code>jti</code> claim, which is unique within an event feed (Section 2.2 of <span>[<a href="#RFC8417" class="cite xref">RFC8417</a>]</span>), so it detects duplicates per stream.<a href="#section-7.4-6" class="pilcrow">¶</a></p>
 <p id="section-7.4-7">Two constraints bound every event:<a href="#section-7.4-7" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-7.4-8.1">
@@ -1815,7 +1815,7 @@ A replacement that meets these requirements is accepted.<a href="#section-5.2-4.
 <dl class="references">
 <dt id="CAEP">[CAEP]</dt>
         <dd>
-<span class="refTitle">"OpenID Continuous Access Evaluation Profile 1.0"</span>, <span>n.d.</span>, <span>&lt;<a href="https://openid.net/specs/openid-caep-1_0.html">https://openid.net/specs/openid-caep-1_0.html</a>&gt;</span>. </dd>
+<span class="refAuthor">Cappalli, T.</span> and <span class="refAuthor">A. Tulshibagwale</span>, <span class="refTitle">"OpenID Continuous Access Evaluation Profile 1.0"</span>, <time datetime="2025-08-29" class="refDate">29 August 2025</time>, <span>&lt;<a href="https://openid.net/specs/openid-caep-1_0.html">https://openid.net/specs/openid-caep-1_0.html</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC2119">[RFC2119]</dt>
         <dd>
@@ -1851,7 +1851,7 @@ A replacement that meets these requirements is accepted.<a href="#section-5.2-4.
 <dd class="break"></dd>
 <dt id="SSF">[SSF]</dt>
         <dd>
-<span class="refTitle">"OpenID Shared Signals Framework Specification 1.0"</span>, <span>n.d.</span>, <span>&lt;<a href="https://openid.net/specs/openid-sharedsignals-framework-1_0.html">https://openid.net/specs/openid-sharedsignals-framework-1_0.html</a>&gt;</span>. </dd>
+<span class="refAuthor">Tulshibagwale, A.</span>, <span class="refAuthor">Cappalli, T.</span>, <span class="refAuthor">Scurtescu, M.</span>, <span class="refAuthor">Backman, A.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">S. Miel</span>, <span class="refTitle">"OpenID Shared Signals Framework Specification 1.0"</span>, <time datetime="2025-08-29" class="refDate">29 August 2025</time>, <span>&lt;<a href="https://openid.net/specs/openid-sharedsignals-framework-1_0.html">https://openid.net/specs/openid-sharedsignals-framework-1_0.html</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="STATEMENT">[STATEMENT]</dt>
         <dd>
