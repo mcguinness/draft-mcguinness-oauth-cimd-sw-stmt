@@ -196,33 +196,49 @@ A replacement is a `presentation` use of its statement (Section 3 of {{STATEMENT
 
 On refresh-token use under an establishment, the authorization server first completes the checks of Section 5.7.1 of {{STATEMENT}} on the establishment's proven key, unchanged, before it considers any replacement. A server that implements this specification then proceeds as follows. A refresh rejected at any step leaves the grant's state unchanged.
 
-{{fig-refresh}} summarizes these steps and the error each exit returns, and {{lifecycle-errors}} lists every code. Two rules of {{STATEMENT}} take precedence over the figure's exits. At any step, a request that needs a retrieval that did not complete is rejected with `temporarily_unavailable` (Section 6 of {{STATEMENT}}). A proof that its mechanism does not accept is rejected with that mechanism's own error, such as `invalid_dpop_proof`, or answered with its challenge, such as `use_dpop_nonce` (Section 6.5 of {{STATEMENT}}). The exits labeled "otherwise" apply when neither rule does.
+{{fig-refresh}} shows the order of these steps, and {{tab-refresh-errors}} the error each rejection returns. {{lifecycle-errors}} lists every code. Two rules of {{STATEMENT}} take precedence over the table. At any step, a request that needs a retrieval that did not complete is rejected with `temporarily_unavailable` (Section 6 of {{STATEMENT}}). A proof that its mechanism does not accept is rejected with that mechanism's own error, such as `invalid_dpop_proof`, or answered with its challenge, such as `use_dpop_nonce` (Section 6.5 of {{STATEMENT}}).
 
 ~~~ ascii-art
-refresh-token request
-  |
-proven key checks (Section 5.7.1 of [STATEMENT])
-  |     proof its mechanism rejects ...... that mechanism's error
-  |     retrieval did not complete ....... temporarily_unavailable
-  |     a check otherwise fails .......... invalid_grant
-step 1: is a replacement needed (Section 5.1)?
-  |     recorded statement is not from
-  |     the required issuer .............. statement_required
-  |     no, but one offered .............. go to step 2
-  |     no, and none offered ............. go to step 4
-step 2: obtain it, offered or pulled
-  |     offered without client_id ........ invalid_request
-  |     pull did not complete ............ temporarily_unavailable
-  |     none obtained .................... statement_required
-step 3: validate it
-  |     retrieval did not complete ....... temporarily_unavailable
-  |     otherwise fails .................. statement_required
-step 4: bound the access, apply an accepted replacement
-  |     exceeds the metadata ............. unauthorized_client
-  |                                        or invalid_scope
-tokens issued
+        refresh-token request
+                  |
+                  v
+          proven key checks
+                  |
+                  v
+     1. is a replacement needed?
+                  |
+       +----------+------------------+
+       |                             |
+       | needed, or one offered      | not needed,
+       v                             | none offered
+     2. obtain it, offered or pulled |
+       |                             |
+       v                             |
+     3. validate it                  |
+       |                             |
+       +----------+------------------+
+                  |
+                  v
+     4. bound the access, apply any
+        accepted replacement
+                  |
+                  v
+            tokens issued
 ~~~
-{: #fig-refresh title="Refresh Processing and Its Errors"}
+{: #fig-refresh title="Refresh Processing"}
+
+| Step | Rejected when | Error |
+| --- | --- | --- |
+| Key checks | A check of Section 5.7.1 of {{STATEMENT}} fails | `invalid_grant` |
+| 1 | A required issuer covers the `sub` and tenant, and the recorded statement is from another issuer | `statement_required` |
+| 2 | A replacement is offered without `client_id` | `invalid_request` |
+| 2 | The `client_id` is not the client the refresh token was issued to | `invalid_grant` |
+| 2 | The replacement names a `sub` other than the `client_id` | `statement_required` |
+| 2 | The pull did not complete | `temporarily_unavailable` |
+| 2 | A replacement is needed and none is obtained | `statement_required` |
+| 3 | The replacement fails a requirement of step 3 | `statement_required` |
+| 4 | The refreshed access exceeds the metadata | `unauthorized_client` or `invalid_scope` |
+{: #tab-refresh-errors title="Refresh Rejections"}
 
 1. Decide whether {{currency}} requires a replacement or rejects the refresh, having consulted any withdrawal mechanism as {{withdrawal}} recommends.
 
