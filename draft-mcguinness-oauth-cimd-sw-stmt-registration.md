@@ -311,7 +311,7 @@ The security considerations of Section 13 of {{STATEMENT}} and Section 5 of {{RF
 
 ## Statements at Registration {#statement-bearer}
 
-A statement consumed at registration is a reusable bearer artifact until it expires. Its audience, lifetime, and `statement_uses` claim (Section 3 of {{STATEMENT}}) and the registration policy of {{repeated-registration}} limit what a copied statement can create.
+A statement consumed at registration is a reusable bearer artifact until it expires. Its audience, lifetime, and `statement_uses` claim (Section 3 of {{STATEMENT}}) and the registration policy of {{repeated-registration}} limit what a copied statement can create. A statement a client publishes at its `software_statements_uri` (Section 5.5 of {{STATEMENT}}) can be read by anyone, so an issuer ought not to permit registration in such a statement.
 
 Taking every value from the document prevents metadata substitution. A request-supplied value for a member the document omits, such as a `jwks` member beside a document naming only `jwks_uri`, would give any holder of a copy a registration with reviewed branding and the holder's own key. Registering a document that omits `token_endpoint_auth_method` under the {{RFC7591}} default would register a shared-secret method, which {{CIMD}} forbids (Section 4.1 of {{CIMD}}) and the issuer never reviewed. An issuer that omits `aud` from a statement permitting registration accepts that any server trusting the issuer can register the software on the strength of a copy.
 
