@@ -194,13 +194,35 @@ When the establishment's recorded statement has expired, the authorization serve
 
 A replacement is a `presentation` use of its statement (Section 3 of {{STATEMENT}}).
 
-A request carrying a replacement MUST meet the `client_id` rule that Section 5.4 of {{STATEMENT}} sets for a request making a runtime presentation.
-
 On refresh-token use under an establishment, the authorization server first completes the checks of Section 5.7.1 of {{STATEMENT}} on the establishment's proven key, unchanged, before it considers any replacement. A server that implements this specification then proceeds as follows. A refresh rejected at any step leaves the grant's state unchanged.
 
-1. Decide whether {{currency}} requires a replacement or rejects the refresh.
+{{fig-refresh}} summarizes these steps and the error each exit returns. {{lifecycle-errors}} lists every code.
 
-2. Obtain a replacement. A client can offer one on any refresh in the `software_statement` parameter. A statement with the recorded `iss` and `jti` is not a replacement and is treated as the recorded statement. When a replacement is needed and the request carries none, a server that supports pulled statements pulls, however the establishment was created, and takes as the replacement the most recently issued statement with the recorded `iss` and `sub` among those it considers under Section 5.5.1 of {{STATEMENT}}, {{withdrawal}}, and {{supersession}}. A refresh that needs a replacement and obtains none is rejected: a reviewed grant never continues under the policy for clients the server has not reviewed.
+~~~ ascii-art
+refresh-token request
+  |
+proven key checks (Section 5.7.1 of [STATEMENT])
+  |     fail ............................. invalid_grant
+step 1: is a replacement needed (Section 5.1)?
+  |     recorded statement is not from
+  |     the required issuer .............. statement_required
+  |     no, and none offered ............. go to step 4
+step 2: obtain it, offered or pulled
+  |     offered without client_id ........ invalid_request
+  |     pull did not complete ............ temporarily_unavailable
+  |     none obtained .................... statement_required
+step 3: validate it
+  |     fails ............................ statement_required
+step 4: bound the access, apply an accepted replacement
+  |     exceeds the metadata ............. unauthorized_client
+  |                                        or invalid_scope
+tokens issued
+~~~
+{: #fig-refresh title="Refresh Processing and Its Errors"}
+
+1. Decide whether {{currency}} requires a replacement or rejects the refresh, having consulted any withdrawal mechanism as {{withdrawal}} recommends.
+
+2. Obtain a replacement. A client can offer one on any refresh in the `software_statement` parameter. A request carrying a replacement MUST meet the `client_id` rule that Section 5.4 of {{STATEMENT}} sets for a request making a runtime presentation. A statement with the recorded `iss` and `jti` is not a replacement and is treated as the recorded statement. When a replacement is needed and the request carries none, a server that supports pulled statements pulls, however the establishment was created, and takes as the replacement the most recently issued statement with the recorded `iss` and `sub` among those it considers under Section 5.5.1 of {{STATEMENT}}, {{withdrawal}}, and {{supersession}}. A refresh that needs a replacement and obtains none is rejected: a reviewed grant never continues under the policy for clients the server has not reviewed.
 
    The pull follows Sections 5.3 and 5.5 of {{STATEMENT}}, and a refresh whose pull does not complete is rejected.
 
