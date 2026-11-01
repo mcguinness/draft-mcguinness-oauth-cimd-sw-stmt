@@ -104,7 +104,7 @@ Registrations under {{REGISTRATION}} advance the `iat` floor, and a refusal reco
 
 ## Overview {#overview}
 
-The rules of this specification act at two points: when a statement is accepted to open something new, such as an admission, a registration, or a refresh replacement, and when a grant or registration it governs continues. The `iat` floor ({{supersession}}) limits only the first. A refusal record ({{withdrawal}}), and expiry where the server requires a current statement ({{currency}}), also limit the second. {{tab-standing}} shows what a statement's standing at one authorization server allows.
+The rules of this specification act at two points: when a statement is accepted to open something new, such as an admission, a registration, or a refresh replacement, and when a grant or registration it governs continues. The `iat` floor ({{supersession}}) limits only the first. A refusal record ({{withdrawal}}), and expiry where the server requires a current statement ({{currency}}), also limit the second. {{tab-standing}} shows what a statement's standing at one authorization server allows. Each row describes one condition on its own. A statement can meet more than one, such as being both superseded and covered by a refusal record, and then the limits of every row it meets apply.
 
 | Standing at the server | New admission or registration | Pulled statement selection | Refresh of a grant that records it | Use as a refresh replacement |
 | --- | --- | --- | --- | --- |
