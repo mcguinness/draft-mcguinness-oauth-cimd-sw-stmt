@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         31 October 2026
-Expires: 4 May 2027
+Intended status: Standards Track                         1 November 2026
+Expires: 5 May 2027
 
 
         Client ID Metadata Document Software Statement Lifecycle
@@ -42,7 +42,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 4 May 2027.
+   This Internet-Draft will expire on 5 May 2027.
 
 Copyright Notice
 
@@ -77,24 +77,26 @@ Table of Contents
      7.4.  Receiver Processing
      7.5.  Stream Configuration
    8.  Error Responses
-   9.  Implementation Considerations
-     9.1.  Supersession State
-     9.2.  Resolution in Response to Events
-   10. Deployment Considerations
-     10.1.  Withdrawal Practice
-     10.2.  Resolution Schedule and Lifetimes
-     10.3.  Stream Coverage and Monitoring
-   11. Security Considerations
-     11.1.  Withdrawal and Open Grants
-     11.2.  Supersession and Refresh Replacement
-     11.3.  Forged and Replayed Events
-     11.4.  Event Suppression
-   12. Privacy Considerations
-   13. IANA Considerations
-     13.1.  OAuth URI Registry
-   14. References
-     14.1.  Normative References
-     14.2.  Informative References
+   9.  Authorization Server Metadata
+   10. Implementation Considerations
+     10.1.  Supersession State
+     10.2.  Resolution in Response to Events
+   11. Deployment Considerations
+     11.1.  Withdrawal Practice
+     11.2.  Resolution Schedule and Lifetimes
+     11.3.  Stream Coverage and Monitoring
+   12. Security Considerations
+     12.1.  Withdrawal and Open Grants
+     12.2.  Supersession and Refresh Replacement
+     12.3.  Forged and Replayed Events
+     12.4.  Event Suppression
+   13. Privacy Considerations
+   14. IANA Considerations
+     14.1.  OAuth URI Registry
+     14.2.  OAuth Authorization Server Metadata Registry
+   15. References
+     15.1.  Normative References
+     15.2.  Informative References
    Author's Address
 
 1.  Introduction
@@ -186,7 +188,7 @@ Table of Contents
    An issuer can withdraw a statement before its exp.  Unlike OAuth
    token revocation ([RFC7009]), a withdrawal revokes no issued token: a
    server holding a refusal record refuses new admissions and refresh
-   under the statement (Section 5.1, Section 11.1).
+   under the statement (Section 5.1, Section 12.1).
 
    How a trusting authorization server learns of a withdrawal is a
    withdrawal mechanism.  This specification requires no withdrawal
@@ -212,14 +214,14 @@ Table of Contents
 
    A withdrawal constrains and never relaxes.  A statement for which no
    withdrawal mechanism reports a withdrawal, or for which the server
-   cannot consult the mechanism it uses (Section 10.1), is bounded by
+   cannot consult the mechanism it uses (Section 11.1), is bounded by
    its effective expiry as it would be otherwise, and a server MUST NOT
    treat any withdrawal mechanism as grounds to accept a statement past
    its effective expiry.
 
    An issuer that uses a withdrawal mechanism and issues a later
    statement narrower than the one it replaces SHOULD withdraw the
-   earlier statement (Section 11.2).  A later statement is narrower if
+   earlier statement (Section 12.2).  A later statement is narrower if
    the document it names no longer carries a key, redirection URI, or
    scope the earlier document carried, if its aud, aud_tenant, or
    statement_uses is narrower, or if its remaining lifetime is shorter.
@@ -273,7 +275,7 @@ Table of Contents
 
    When the establishment's recorded statement has expired, the
    authorization server SHOULD require a current statement on refresh-
-   token use (Section 11.1).  A refresh under an establishment needs a
+   token use (Section 12.1).  A refresh under an establishment needs a
    replacement (Section 5.2) if a refusal record covers the recorded
    statement, or if the recorded statement has expired and either the
    server requires a current statement or a required issuer (Section 4
@@ -420,7 +422,7 @@ Table of Contents
    SHOULD retrieve the list on the list's own schedule, within the
    expiration and caching bounds its exp and ttl claims set
    (Section 13.7 of [STATUSLIST]), rather than once per request
-   (Section 10.2, Section 12).
+   (Section 11.2, Section 13).
 
    A server MUST NOT replace a Status List Token it holds with one whose
    iat claim is earlier, and MUST treat one whose iat claim is equal but
@@ -476,7 +478,7 @@ Table of Contents
 7.3.  Status Changed Event
 
    The event type identifier is urn:ietf:params:oauth:event-
-   type:software-statement-status-changed (Section 13.1).
+   type:software-statement-status-changed (Section 14.1).
 
    The event reports that the issuer has changed the published status of
    one or more statements for the subject.  A transmitter MUST NOT
@@ -590,7 +592,7 @@ Table of Contents
 
    A trusting authorization server that supports these events SHOULD
    create one stream per configured issuer that offers them
-   (Section 10.3).
+   (Section 11.3).
 
    The subjects appropriate to a stream are those of the issuer's
    statements whose aud claim is absent or names the receiving
@@ -622,11 +624,31 @@ Table of Contents
    invalid_scope, as Section 6.3 of [STATEMENT] provides for the
    reviewed metadata.
 
-9.  Implementation Considerations
+9.  Authorization Server Metadata
+
+   This specification defines the following authorization server
+   metadata [RFC8414] value:
+
+   software_statement_replacement_supported:  OPTIONAL.  Boolean value
+      indicating whether the authorization server applies refresh
+      replacements (Section 5.2).  If omitted, the default value is
+      false.
+
+   On refresh-token use under an establishment, a server that does not
+   apply refresh replacements ignores an offered statement (Section 5.4
+   of [STATEMENT]), so a successful refresh does not show that the
+   replacement was applied.  A client that needs a later review to
+   govern such a grant at a server that does not advertise true opens a
+   new grant by runtime presentation.  This value does not describe the
+   renewal of a registration ([REGISTRATION]), which a statement
+   delivered on a refresh-token request can perform at a server that
+   implements it.
+
+10.  Implementation Considerations
 
    This section gives guidance to implementers.  It adds no requirement.
 
-9.1.  Supersession State
+10.1.  Supersession State
 
    For the iat floor (Section 4), a server keeps one iat value for each
    iss and sub and, on a multi-tenant server, each tenant, not the
@@ -639,19 +661,19 @@ Table of Contents
    period for the floors it already holds.  A floor lost before then
    readmits the statements it superseded until they expire.
 
-9.2.  Resolution in Response to Events
+10.2.  Resolution in Response to Events
 
    A receiver can bound the rate of the retrievals that events cause by
    deferring a retrieval briefly and coalescing events that concern the
    same status list URI (Section 7.4).  Its scheduled resolution
    continues regardless.
 
-10.  Deployment Considerations
+11.  Deployment Considerations
 
    This section gives guidance to operators and issuers.  It adds no
    requirement.
 
-10.1.  Withdrawal Practice
+11.1.  Withdrawal Practice
 
    What a server does when it cannot consult a withdrawal mechanism it
    relies on is local policy (Section 3).  For Token Status List,
@@ -666,7 +688,7 @@ Table of Contents
    Withdrawal does not replace lifetime: an issuer chooses exp assuming
    no trusting authorization server uses a withdrawal mechanism.
 
-10.2.  Resolution Schedule and Lifetimes
+11.2.  Resolution Schedule and Lifetimes
 
    Retrieving the list on its own schedule (Section 6.2) keeps each
    request a statement governs independent of issuer availability.
@@ -674,7 +696,7 @@ Table of Contents
    resolution schedule and statement lifetimes it would accept with no
    event stream (Section 7.4).
 
-10.3.  Stream Coverage and Monitoring
+11.3.  Stream Coverage and Monitoring
 
    A stream can cover every subject appropriate to it (Section 7.5), or
    the receiver can add each subject through the subject management of
@@ -685,12 +707,12 @@ Table of Contents
    A receiver ought to alert on stream loss rather than assume
    quiescence.
 
-11.  Security Considerations
+12.  Security Considerations
 
    The security considerations of Section 13 of [STATEMENT],
    [STATUSLIST], [SSF], and [RFC8417] apply.
 
-11.1.  Withdrawal and Open Grants
+12.1.  Withdrawal and Open Grants
 
    A withdrawal revokes no issued token (Section 3).  Beyond the cases
    of Section 13.7 of [STATEMENT], Section 5.1 can prevent further
@@ -699,7 +721,7 @@ Table of Contents
    an issuer it removes from trust by entering refusal records for its
    statements.
 
-11.2.  Supersession and Refresh Replacement
+12.2.  Supersession and Refresh Replacement
 
    The iat floor (Section 4) exists because one statement is consumable
    more than once (Section 11.3 of [STATEMENT]).  Without it, a client
@@ -720,7 +742,7 @@ Table of Contents
    of Section 5.2), a client cannot move a grant to a reviewed document
    it no longer serves.
 
-11.3.  Forged and Replayed Events
+12.3.  Forged and Replayed Events
 
    An event names no status, so a forged, replayed, delayed, or
    reordered event cannot change whether any statement is acceptable.
@@ -729,21 +751,22 @@ Table of Contents
 
    The remaining exposure is resource cost: an attacker holding the
    issuer's SET signing key, or a misbehaving transmitter, can trigger
-   resolutions (Section 9.2) and nothing more, because SET keys share no
-   location or key with statement or Status List Token keys (Section 6).
+   resolutions (Section 10.2) and nothing more, because SET keys share
+   no location or key with statement or Status List Token keys
+   (Section 6).
 
-11.4.  Event Suppression
+12.4.  Event Suppression
 
    Because a receiver resolves status independently (Section 7.4), an
    attacker who suppresses events delays a withdrawal at most until the
    receiver's next scheduled resolution and, for new admissions, never
-   beyond the affected statements' effective expiry (Section 10.2).
+   beyond the affected statements' effective expiry (Section 11.2).
 
    The absence of events looks the same on a healthy stream and a
    suppressed one.  Periodic stream verification (Section 7.5) makes the
-   difference observable (Section 10.3).
+   difference observable (Section 11.3).
 
-12.  Privacy Considerations
+13.  Privacy Considerations
 
    The privacy considerations of Section 14 of [STATEMENT],
    [STATUSLIST], [SSF], and [RFC8417] apply.
@@ -769,16 +792,16 @@ Table of Contents
    show which software an issuer has withdrawn or reviewed again, so a
    server ought to protect them as it protects statements (Section 11.4
    of [STATEMENT]) and ought not to keep an iat floor longer than its
-   purpose requires (Section 9.1).
+   purpose requires (Section 10.1).
 
-13.  IANA Considerations
+14.  IANA Considerations
 
    The software_statement_jti payload claim of Section 7.3 needs no
    registration, because SET payload claims need not be registered as
    JWT claims (Section 2 of [RFC8417]) and no IANA registry of SET
    payload claims exists.
 
-13.1.  OAuth URI Registry
+14.1.  OAuth URI Registry
 
    [RFC8417] establishes no registry of event types, so this
    specification takes its identifier from the oauth sub-namespace
@@ -795,9 +818,25 @@ Table of Contents
 
    Specification Document(s):  This specification, Section 7.3
 
-14.  References
+14.2.  OAuth Authorization Server Metadata Registry
 
-14.1.  Normative References
+   This specification requests registration of the following value in
+   the IANA "OAuth Authorization Server Metadata" registry established
+   by [RFC8414]:
+
+   Metadata Name:  software_statement_replacement_supported
+
+   Metadata Description:  Boolean value indicating whether the
+      authorization server applies Client ID Metadata Document software
+      statement refresh replacements.
+
+   Change Controller:  IETF
+
+   Specification Document(s):  This specification, Section 9
+
+15.  References
+
+15.1.  Normative References
 
    [CAEP]     "OpenID Continuous Access Evaluation Profile 1.0", n.d.,
               <https://openid.net/specs/openid-caep-1_0.html>.
@@ -854,7 +893,7 @@ Table of Contents
               <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
               status-list-21>.
 
-14.2.  Informative References
+15.2.  Informative References
 
    [CIMD]     Parecki, A. and E. Smith, "OAuth Client ID Metadata
               Document", Work in Progress, Internet-Draft, draft-ietf-

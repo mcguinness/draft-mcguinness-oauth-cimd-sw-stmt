@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         31 October 2026
-Expires: 4 May 2027
+Intended status: Standards Track                         1 November 2026
+Expires: 5 May 2027
 
 
       Client ID Metadata Document Software Statement Registration
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 4 May 2027.
+   This Internet-Draft will expire on 5 May 2027.
 
 Copyright Notice
 
@@ -180,6 +180,13 @@ Table of Contents
    statement's sub in the request's tenant (Section 4 of [STATEMENT]),
    the authorization server MUST NOT create a registration on a
    statement from another issuer.
+
+   A required issuer governs only registrations made on statements,
+   because a registration made without a statement names no client
+   identifier URL for a required issuer to cover.  A deployment that
+   needs every registration in a tenant reviewed requires a statement
+   for every registration there, rejecting a request without one with
+   unapproved_software_statement (Section 7).
 
    The retrieval requirements of Sections 3.1 and 5.3 of [STATEMENT]
    apply to retrieving the document as they apply to a runtime
