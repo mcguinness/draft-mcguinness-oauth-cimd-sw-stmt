@@ -196,13 +196,15 @@ A replacement is a `presentation` use of its statement (Section 3 of {{STATEMENT
 
 On refresh-token use under an establishment, the authorization server first completes the checks of Section 5.7.1 of {{STATEMENT}} on the establishment's proven key, unchanged, before it considers any replacement. A server that implements this specification then proceeds as follows. A refresh rejected at any step leaves the grant's state unchanged.
 
-{{fig-refresh}} summarizes these steps and the error each exit returns. {{lifecycle-errors}} lists every code.
+{{fig-refresh}} summarizes these steps and the error each exit returns, and {{lifecycle-errors}} lists every code. Two rules of {{STATEMENT}} take precedence over the figure's exits. At any step, a request that needs a retrieval that did not complete is rejected with `temporarily_unavailable` (Section 6 of {{STATEMENT}}). A proof that its mechanism does not accept is rejected with that mechanism's own error, such as `invalid_dpop_proof`, or answered with its challenge, such as `use_dpop_nonce` (Section 6.5 of {{STATEMENT}}). The exits labeled "otherwise" apply when neither rule does.
 
 ~~~ ascii-art
 refresh-token request
   |
 proven key checks (Section 5.7.1 of [STATEMENT])
-  |     fail ............................. invalid_grant
+  |     proof its mechanism rejects ...... that mechanism's error
+  |     retrieval did not complete ....... temporarily_unavailable
+  |     a check otherwise fails .......... invalid_grant
 step 1: is a replacement needed (Section 5.1)?
   |     recorded statement is not from
   |     the required issuer .............. statement_required
@@ -213,7 +215,8 @@ step 2: obtain it, offered or pulled
   |     pull did not complete ............ temporarily_unavailable
   |     none obtained .................... statement_required
 step 3: validate it
-  |     fails ............................ statement_required
+  |     retrieval did not complete ....... temporarily_unavailable
+  |     otherwise fails .................. statement_required
 step 4: bound the access, apply an accepted replacement
   |     exceeds the metadata ............. unauthorized_client
   |                                        or invalid_scope
