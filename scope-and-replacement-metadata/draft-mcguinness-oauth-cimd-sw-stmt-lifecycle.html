@@ -1616,7 +1616,7 @@ A replacement that meets these requirements is accepted.<a href="#section-5.2-4.
 </dd>
       <dd class="break"></dd>
 </dl>
-<p id="section-9-3">A server that does not apply refresh replacements ignores a statement offered on refresh (Section 5.4 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), so a successful refresh does not show that an offered replacement was applied. A client that needs a later review to govern its access at a server that does not advertise <code>true</code> opens a new grant by runtime presentation.<a href="#section-9-3" class="pilcrow">¶</a></p>
+<p id="section-9-3">On refresh-token use under an establishment, a server that does not apply refresh replacements ignores an offered statement (Section 5.4 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), so a successful refresh does not show that the replacement was applied. A client that needs a later review to govern such a grant at a server that does not advertise <code>true</code> opens a new grant by runtime presentation. This value does not describe the renewal of a registration (<span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>), which a statement delivered on a refresh-token request can perform at a server that implements it.<a href="#section-9-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="implementation-considerations">
