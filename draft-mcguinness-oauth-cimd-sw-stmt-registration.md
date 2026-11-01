@@ -104,7 +104,7 @@ The reviewed document takes the role that {{RFC7591}} gives a statement's own va
 * MUST take every client metadata value from that document, except values the authorization server issues, such as `client_id` and `client_id_issued_at`.
 * MUST NOT take any client metadata value from the request, or from any {{RFC7592}} update request for the registration, whether or not the document carries the corresponding member.
 
-Client metadata in a registration or update request does not contribute to the registration. The registered `client_id` is assigned as {{RFC7591}} provides, and the document's own `client_id` member is the URL recorded as the governing statement's `sub`. A member the document omits, other than `token_endpoint_auth_method` (rejected below), takes its {{RFC7591}} default. The registration's metadata changes only when a replacement is applied ({{revalidation}}).
+Client metadata in a registration or update request does not contribute to the registration. The registered `client_id` is assigned as {{RFC7591}} provides, and the document's own `client_id` member is the URL recorded as the governing statement's `sub`. The authorization server MUST NOT assign that URL as the registered `client_id`, which would make a request carrying it ambiguous between the registration and the CIMD client the URL identifies ({{CIMD}}). A member the document omits, other than `token_endpoint_auth_method` (rejected below), takes its {{RFC7591}} default. The registration's metadata changes only when a replacement is applied ({{revalidation}}).
 
 The authorization server MUST reject the registration, or a replacement ({{revalidation}}), if any of the following holds:
 
