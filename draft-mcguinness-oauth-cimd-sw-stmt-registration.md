@@ -93,7 +93,7 @@ Statement-Governed Registration:
 
 The statement is consumed in the `software_statement` member of an {{RFC7591}} registration request. The authorization server validates it under Section 3.2 of {{STATEMENT}} and registers the client under its ordinary registration policy. If a required issuer covers the statement's `sub` in the request's tenant (Section 4 of {{STATEMENT}}), the authorization server MUST NOT create a registration on a statement from another issuer.
 
-A required issuer governs only registrations made on statements, because a registration made without a statement names no client identifier URL for a required issuer to cover. A deployment that needs every registration in a tenant reviewed requires a statement for every registration there, rejecting a request without one with `unapproved_software_statement` ({{errors}}).
+A required issuer constrains only registrations made on statements, because a registration made without a statement names no client identifier URL for a required issuer to cover. A deployment that needs every registration in a tenant reviewed requires a statement for every registration there and rejects a request that carries none with `unapproved_software_statement` ({{errors}}).
 
 The retrieval requirements of Sections 3.1 and 5.3 of {{STATEMENT}} apply to retrieving the document as they apply to a runtime presentation, and a server can apply the bounds of Section 11.2 of {{STATEMENT}}. Following the order of Section 5.1 of {{STATEMENT}}, the authorization server completes every check that needs no client-controlled retrieval before resolving the document.
 
@@ -112,7 +112,7 @@ The authorization server MUST reject the registration, or a replacement ({{reval
 * The document declares `token_endpoint_auth_method` of `none`, unless the authorization server registers the client under {{public-client-registration}}.
 * Any of the document's redirection URIs could be claimed by another application on the same device (Section 5.6.3 of {{STATEMENT}}), whatever authentication method the document declares.
 
-Unlike runtime presentation (Section 5 of {{STATEMENT}}), registration has no review-only form, so a condition that would make a presentation review-only rejects the registration.
+Unlike runtime presentation (Section 5 of {{STATEMENT}}), registration has no review-only form: the rejections above cover the document conditions that make a presentation review-only.
 
 Software whose document declares `token_endpoint_auth_method` of `none` and that the server does not register under {{public-client-registration}} can instead use runtime presentation if it meets the public-client binding requirements of Section 5.6.2 of {{STATEMENT}}.
 
@@ -146,7 +146,7 @@ A registration request is repeated if its statement has the `iss` and `sub` clai
 * is not restricted to another tenant ({{tenant-restriction}}), and
 * is restricted to the request's tenant, if that tenant requires a tenant-scoped decision (Section 3.2 of {{STATEMENT}}).
 
-One current statement can be consumed more than once, subject to the bounds of Sections 11.2 and 11.3 of {{STATEMENT}} and the server's registration policy. A server can count registrations toward the bound on establishments of Section 11.3 of {{STATEMENT}}, but the bound stays effective only if a registration under which no access token has been issued, which anyone holding a copy of the statement can create, does not count toward it.
+One current statement can be consumed more than once, subject to the bounds of Sections 11.2 and 11.3 of {{STATEMENT}} and the server's registration policy. A server can count registrations toward the bound on establishments of Section 11.3 of {{STATEMENT}}, but the bound stays effective only if a registration under which no access token has been issued does not count toward it, since a holder of a copy of the statement can create one.
 
 If the registration a request repeats is a confidential-client registration, local policy can reject the request, treat it as idempotent, or create another registration. An idempotent response MUST NOT return the existing registration's credentials, such as its `registration_access_token` member. A common default is one registration per `iss` and `sub`, per tenant on a multi-tenant server, at the cost {{statement-bearer}} describes.
 
@@ -238,14 +238,14 @@ A rejection this specification defines, at a client registration endpoint or at 
 `invalid_software_statement`:
 : Any of the following:
 
-  * The statement is malformed, fails signature or claim validation for a reason `unapproved_software_statement` does not cover, or is expired or otherwise not current (Section 2 of {{STATEMENT}}), or is superseded under an extension the server implements.
+  * The statement is malformed, fails signature or claim validation for a reason `unapproved_software_statement` does not cover, is expired or otherwise not current (Section 2 of {{STATEMENT}}), or is superseded under an extension the server implements.
   * The document's digest does not equal the statement's `cimd_digest` claim ({{dcr-presentation}}).
   * An {{RFC7592}} update request is rejected under {{registration-validity}}.
   * A statement delivered at the client configuration endpoint, or the statement of a repeated public-client registration request evaluated as a replacement ({{repeated-registration}}), fails the replacement rules of {{revalidation}} where this section assigns no other code, such as a change in whether the document declares `token_endpoint_auth_method` of `none`.
   * The statement of a repeated public-client registration request is not the governing statement and has an `iat` no later than the governing statement's ({{repeated-registration}}).
 
 `unapproved_software_statement`:
-: The statement is well formed but not acceptable here: its issuer is not configured, its `aud` excludes this server, its `sub` is outside the client identifier namespaces the issuer can attest, its `aud_tenant` is not this request's tenant or is absent when required, its issuer is confined to another tenant, or its `statement_uses` excludes this use. This code is also used if a statement this server requires is absent from a registration request, if {{dcr-presentation}} forbids creating the registration because a required issuer covers the statement's `sub` and the statement is from another issuer, and for a repeated registration request that the server's policy refuses ({{repeated-registration}}).
+: The statement is well formed but not acceptable here: its issuer is not configured, its `aud` excludes this server, its `sub` is outside the client identifier namespaces the issuer can attest, its `aud_tenant` is not this request's tenant or is absent when required, its issuer is confined to another tenant, or its `statement_uses` excludes this use. This code is also used if a statement this server requires is absent from a registration request, if {{dcr-presentation}} forbids creating the registration because a required issuer covers the statement's `sub` and the statement is from another issuer, or if the server's policy refuses a repeated registration request ({{repeated-registration}}).
 
 `invalid_client_metadata`:
 : Any of the following holds for the reviewed document:
@@ -325,7 +325,7 @@ A public-client registration ({{public-client-registration}}) has no credential 
 
 Renewal proves possession of the registration's credential and the currency of a statement sharing the governing statement's `iss` and `sub`, not that the renewing party is the reviewed software. An attacker holding a stolen client credential can renew indefinitely with the newer statements distributed to every deployment of the software. A public-client registration's renewal proves only that the replacement is current. No protection is lost, since any party can already use that registration.
 
-A narrower review takes effect at a registration when the client delivers it or when the governing statement ceases to be current. Withdrawal before then requires an extension.
+A narrower review takes effect at a registration when the client delivers it or when the governing statement ceases to be current. Withdrawal before then requires an extension (Section 9 of {{STATEMENT}}).
 
 Deployments ought to pair statement-governed registrations with credential rotation, sender-constrained client authentication, and the bounds that Sections 11.2 and 11.3 of {{STATEMENT}} and {{repeated-registration}} describe, and ought to treat a credential compromise as requiring re-registration rather than renewal. Runtime presentation binds every presenter to the reviewed document (Sections 5.6 and 13.4 of {{STATEMENT}}) and so does not have this limitation.
 
@@ -337,7 +337,7 @@ Requiring a statement also means a removed client cannot register again under a 
 
 ## Observable State {#oracle-considerations}
 
-A retained registration that has ceased to be valid is distinguishable from an unknown client ({{registration-requests}}, {{errors}}). At the token and pushed authorization request endpoints, only a requester that authenticates as the registration's client can observe this, except for a public-client registration. At the authorization endpoint, anyone who sends an authorization request naming the client and one of its registered redirection URIs learns from the `statement_required` redirection that the registration has ceased to be valid. If an observer knows the governing statement's `exp`, a lapse before it shows that an extension ended the statement or that the server caps the lifetime it honors for the issuer.
+A retained registration that has ceased to be valid is distinguishable from an unknown client ({{registration-requests}}, {{errors}}). At the token and pushed authorization request endpoints, only a requester that authenticates as the registration's client can observe this, except for a public-client registration. At the authorization endpoint, anyone who sends an authorization request naming the client and one of its registered redirection URIs learns from the `statement_required` redirection that the registration has ceased to be valid. If an observer knows the governing statement's `exp`, a lapse before that time shows that an extension ended the statement or that the server caps the lifetime it honors for the issuer.
 
 As at runtime (Section 13.8 of {{STATEMENT}}), these disclosures are accepted, and they reveal nothing of the server's issuer trust configuration beyond the fact and time that the registration ceased to be valid (Section 6.6 of {{STATEMENT}}). Publishing `software_statement_registration_supported` discloses that statement-governed registrations expire there, which a client needs to know before registering.
 
