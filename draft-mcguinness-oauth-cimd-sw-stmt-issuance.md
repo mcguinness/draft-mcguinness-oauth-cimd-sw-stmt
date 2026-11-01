@@ -109,7 +109,7 @@ The client presents the statement at registration or at runtime, or publishes it
 
 {{STATEMENT}} profiles that statement to carry no client metadata and instead vouch for the exact octets of a Client ID Metadata Document (CIMD), and defines its validation and consumption. This specification defines how a client obtains one, through OAuth token exchange ({{token-exchange-profile}}) or a redirect flow ({{authorization-request}}). An issuer whose review cannot complete within a request can defer its response under {{DTR}}.
 
-A statement makes one issuer's decision portable to the authorization servers in its audience that trust the issuer ({{STATEMENT}}). If the trust decision is local to one authorization server, an {{RFC7591}} initial access token for registration, pre-registration {{CIMD}}, or approval-based registration {{APPROVAL-DCR}} can establish the client directly.
+A statement makes one issuer's decision portable to the authorization servers in its audience that trust the issuer ({{STATEMENT}}). If the trust decision is local to one authorization server, an {{RFC7591}} initial access token for registration, pre-registration {{CIMD}}, or approval-based registration {{APPROVAL-DCR}} can register the client directly.
 
 Approval workflow, approver identity, external approval integration, acceptance of any particular issuer, issuer discovery, and issuance that a publisher's backend authorizes on a client's behalf are out of scope. This specification does not authenticate such a backend. This specification extends {{STATEMENT}}, which does not depend on it.
 
@@ -525,9 +525,9 @@ The denial is terminal for the request. A denied deferral behaves as {{DTR}} spe
 
 # Issuer as Trusting Authorization Server {#same-server}
 
-An authorization server that issued a statement already holds the decision that statement records. If it is also a trusting authorization server, it MAY admit the client on that record rather than require the statement to be presented back to it, at registration or at runtime.
+An authorization server that issued a statement already holds the decision that statement records. If it is also a trusting authorization server, it MAY rely on that record, at registration or at runtime, rather than require the statement to be presented back to it.
 
-Because the record of a decision is not a fresh retrieval of the document, a server admitting a client on the record of a statement it issued MUST apply every check Sections 3.2 and 5.1 of {{STATEMENT}} apply to a presented statement, and at registration every check {{REGISTRATION}} applies, taking the statement's claims from its record of the decision.
+Because the record of a decision is not a fresh retrieval of the document, a server relying on the record of a statement it issued MUST apply every check Sections 3.2 and 5.1 of {{STATEMENT}} apply to a presented statement, and at registration every check {{REGISTRATION}} applies, taking the statement's claims from its record of the decision.
 
 At runtime, the record takes the place of the statement in step 1 of Section 5.1 of {{STATEMENT}} and replaces only its signature check: the server still performs steps 2 through 7 of Section 5.1 of {{STATEMENT}}, taking the claims from the record.
 
@@ -589,7 +589,7 @@ This section gives guidance to operators and issuers. It adds no requirement.
 
 Because the client authors the metadata document, an issuer ought to corroborate security-relevant metadata through evidence beyond the document itself. Issuance policy can relate the redirection URI's origin to the client identifier URL or the CIMD's `client_uri` member.
 
-The policy governing who can approve issuance ought to be at least as restrictive as the policy under which the issuer establishes a client manually. A token exchange carries no in-band evidence of user participation, so an authorization server ought not to treat one as implying prior user consent. An initial access token that authorizes issuance ({{initial-access-tokens}}) records a decision made, when the token was issued, under the policy that governs approval in the redirect flow.
+The policy governing who can approve issuance ought to be at least as restrictive as the policy under which the issuer registers a client manually. A token exchange carries no in-band evidence of user participation, so an authorization server ought not to treat one as implying prior user consent. An initial access token that authorizes issuance ({{initial-access-tokens}}) records a decision made, when the token was issued, under the policy that governs approval in the redirect flow.
 
 To keep a look-alike document from reaching approval, an issuer ought to limit what an approver can approve to client identifiers under publisher namespaces it has enrolled. A document naming attesters in `client_attesters` ({{ATTESTERS}}) endorses them for the software under review and deserves particular scrutiny.
 
