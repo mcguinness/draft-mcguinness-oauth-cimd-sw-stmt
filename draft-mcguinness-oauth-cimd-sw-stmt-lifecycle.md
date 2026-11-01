@@ -310,6 +310,8 @@ This specification defines the following authorization server metadata {{RFC8414
 `software_statement_replacement_supported`:
 : OPTIONAL. Boolean value indicating whether the authorization server applies refresh replacements ({{refresh-replacement}}). If omitted, the default value is `false`.
 
+An authorization server implementing this specification MUST publish `software_statement_replacement_supported` with the value `true`.
+
 On refresh-token use under an establishment, a server that does not apply refresh replacements ignores an offered statement (Section 5.4 of {{STATEMENT}}), so a successful refresh does not show that the server applied the statement. At a server that does not advertise `true`, a client that needs a later review to govern a grant under an establishment opens a new grant by runtime presentation. This value does not describe the renewal of a registration, which a statement delivered on a refresh-token request can perform at a server that implements {{REGISTRATION}}.
 
 # Implementation Considerations {#implementation-considerations}
