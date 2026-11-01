@@ -29,6 +29,7 @@ author:
     email: public@karlmcguinness.com
 
 normative:
+  RFC6749:
   RFC8935:
   RFC8936:
   RFC8414:
@@ -301,7 +302,7 @@ This section extends Section 6 of {{STATEMENT}}, whose error responses and HTTP 
 
 A presentation is rejected with `statement_required`, in place of the `invalid_client` that Section 6.2 of {{STATEMENT}} assigns, if a refusal record covers its statement ({{withdrawal}}), the statement's status index lies outside the list ({{status-resolution}}), or the `iat` floor supersedes the statement ({{supersession}}).
 
-A refresh-token request that {{currency}} rejects, or whose replacement is rejected ({{refresh-replacement}}), uses `statement_required`, subject to the order of Section 6 of {{STATEMENT}}. A request that carries a replacement but omits `client_id` ({{refresh-replacement}}) is rejected with `invalid_request`, and one whose `client_id` differs from the replacement's `sub` is rejected with `statement_required`. A refresh whose access exceeds the metadata of the document an accepted replacement names is rejected with `unauthorized_client` or `invalid_scope`, as Section 6.3 of {{STATEMENT}} provides for the reviewed metadata.
+A refresh-token request that {{currency}} rejects, or whose replacement is rejected ({{refresh-replacement}}), uses `statement_required`, subject to the order of Section 6 of {{STATEMENT}}. A request that carries a replacement but omits `client_id` ({{refresh-replacement}}) is rejected with `invalid_request`. One whose `client_id` is not the client the refresh token was issued to fails the grant binding and is rejected with `invalid_grant` (Section 5.2 of {{RFC6749}}), and one whose replacement names a `sub` other than that `client_id` is rejected with `statement_required`. A refresh whose access exceeds the metadata of the document an accepted replacement names is rejected with `unauthorized_client` or `invalid_scope`, as Section 6.3 of {{STATEMENT}} provides for the reviewed metadata.
 
 # Authorization Server Metadata {#authorization-server-metadata}
 
