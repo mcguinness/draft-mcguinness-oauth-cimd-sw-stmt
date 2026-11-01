@@ -1556,7 +1556,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         <h3 id="name-metadata-digest">
 <a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-metadata-digest" class="section-name selfRef">Metadata Digest</a>
         </h3>
-<p id="section-3.1-1">The metadata digest is the unpadded base64url-encoded SHA-256 hash <span>[<a href="#RFC6234" class="cite xref">RFC6234</a>]</span> of the retrieved representation body after removal of content coding. The body is not transcoded, normalized, or re-serialized. Any byte order mark or trailing newline is included.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.1-1">The metadata digest is the SHA-256 hash <span>[<a href="#RFC6234" class="cite xref">RFC6234</a>]</span> of the retrieved representation body after removal of content coding, base64url-encoded without padding (Section 2 of <span>[<a href="#RFC7515" class="cite xref">RFC7515</a>]</span>). The body is not transcoded, normalized, or re-serialized. Any byte order mark or trailing newline is included.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
 <p id="section-3.1-2">Retrieval for digest purposes follows <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> and <span class="bcp14">MUST NOT</span> use content negotiation: the retrieving party sends the <code>Accept</code> header field that <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> specifies for retrieving the document, or <code>Accept: application/json</code> if it specifies none, and no other variant selection. Equal digests show that the issuer and the trusting authorization server obtained the same octets, so any condition that makes retrieval depend on who is asking defeats the comparison.<a href="#section-3.1-2" class="pilcrow">¶</a></p>
 <p id="section-3.1-3">A <code>304 Not Modified</code> response shows that stored octets, and their digest, are still current only if it carries a strong entity tag that matches the one stored with them under strong comparison (Section 8.8.3.2 of <span>[<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>). Otherwise, the server retrieves the body again.<a href="#section-3.1-3" class="pilcrow">¶</a></p>
 </section>
@@ -1693,7 +1693,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         </h3>
 <p id="section-5.2-1">Having validated the statement, and before verifying the proof (<a href="#processing" class="auto internal xref">Section 5.1</a>), the authorization server <span class="bcp14">MUST</span> obtain the CIMD at the statement's <code>sub</code>, only by retrieval or from octets it has already digested for that identifier (<a href="#retrieval" class="auto internal xref">Section 5.3</a>), and compare its digest with the <code>cimd_digest</code> claim. If octets it already holds do not match, it retrieves the document once more before treating the mismatch as a change.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
 <p id="section-5.2-2">A match means the served document is the reviewed one, and its members are the client's metadata for the request. The server takes those members from the octets whose digest matched, not from another retrieval or a copy it has not digested. A mismatch means the document changed after review, and the authorization server <span class="bcp14">MUST NOT</span> treat the changed document as reviewed. It rejects the presentation or, by local policy, proceeds without the statement. If it proceeds, it applies its policy for CIMD clients it has not reviewed to the current document and creates no establishment for the statement.<a href="#section-5.2-2" class="pilcrow">¶</a></p>
-<p id="section-5.2-3">A trusting authorization server <span class="bcp14">MUST</span> reject a reviewed document containing duplicate object member names, wherever it resolves one. Parsers interpret such names differently despite an identical digest.<a href="#section-5.2-3" class="pilcrow">¶</a></p>
+<p id="section-5.2-3">A trusting authorization server <span class="bcp14">MUST</span> reject a reviewed document containing duplicate object member names (Section 4 of <span>[<a href="#RFC8259" class="cite xref">RFC8259</a>]</span>), wherever it resolves one. Parsers interpret such names differently despite an identical digest.<a href="#section-5.2-3" class="pilcrow">¶</a></p>
 <p id="section-5.2-4">The request is evaluated against the reviewed metadata as against any client's registered metadata (<span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>): any requested grant type, response type, or scope <span class="bcp14">MUST</span> fall within it. A document that omits <code>scope</code> sets no ceiling on scope beyond the server's own policy. Omitted <code>grant_types</code> and <code>response_types</code> members take their <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> defaults.<a href="#section-5.2-4" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -2392,6 +2392,7 @@ client-assertion-type%3Ajwt-bearer
             <p id="section-11.2-2.5.1">Discard pulled statements from unconfigured issuers before verifying any signature.<a href="#section-11.2-2.5.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
+<p id="section-11.2-3">A response size bound also decides which reviewed documents a server can admit. Section 8.7 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> recommends that a server read at most 5 kilobytes, so an issuer ought not to issue a statement over a larger document.<a href="#section-11.2-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="establishment-bounds">
@@ -2977,6 +2978,10 @@ client-assertion-type%3Ajwt-bearer
 <dt id="RFC8252">[RFC8252]</dt>
         <dd>
 <span class="refAuthor">Denniss, W.</span> and <span class="refAuthor">J. Bradley</span>, <span class="refTitle">"OAuth 2.0 for Native Apps"</span>, <span class="seriesInfo">BCP 212</span>, <span class="seriesInfo">RFC 8252</span>, <span class="seriesInfo">DOI 10.17487/RFC8252</span>, <time datetime="2017-10" class="refDate">October 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8252">https://www.rfc-editor.org/rfc/rfc8252</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8259">[RFC8259]</dt>
+        <dd>
+<span class="refAuthor">Bray, T., Ed.</span>, <span class="refTitle">"The JavaScript Object Notation (JSON) Data Interchange Format"</span>, <span class="seriesInfo">STD 90</span>, <span class="seriesInfo">RFC 8259</span>, <span class="seriesInfo">DOI 10.17487/RFC8259</span>, <time datetime="2017-12" class="refDate">December 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8259">https://www.rfc-editor.org/rfc/rfc8259</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC8414">[RFC8414]</dt>
         <dd>

@@ -347,10 +347,11 @@ Table of Contents
 
 3.1.  Metadata Digest
 
-   The metadata digest is the unpadded base64url-encoded SHA-256 hash
-   [RFC6234] of the retrieved representation body after removal of
-   content coding.  The body is not transcoded, normalized, or re-
-   serialized.  Any byte order mark or trailing newline is included.
+   The metadata digest is the SHA-256 hash [RFC6234] of the retrieved
+   representation body after removal of content coding, base64url-
+   encoded without padding (Section 2 of [RFC7515]).  The body is not
+   transcoded, normalized, or re-serialized.  Any byte order mark or
+   trailing newline is included.
 
    Retrieval for digest purposes follows [CIMD] and MUST NOT use content
    negotiation: the retrieving party sends the Accept header field that
@@ -529,8 +530,9 @@ Table of Contents
    current document and creates no establishment for the statement.
 
    A trusting authorization server MUST reject a reviewed document
-   containing duplicate object member names, wherever it resolves one.
-   Parsers interpret such names differently despite an identical digest.
+   containing duplicate object member names (Section 4 of [RFC8259]),
+   wherever it resolves one.  Parsers interpret such names differently
+   despite an identical digest.
 
    The request is evaluated against the reviewed metadata as against any
    client's registered metadata ([RFC6749], [CIMD]): any requested grant
@@ -1259,6 +1261,11 @@ Table of Contents
    *  Discard pulled statements from unconfigured issuers before
       verifying any signature.
 
+   A response size bound also decides which reviewed documents a server
+   can admit.  Section 8.7 of [CIMD] recommends that a server read at
+   most 5 kilobytes, so an issuer ought not to issue a statement over a
+   larger document.
+
 11.3.  Bounding Establishments
 
    A statement attests client software, identified by sub, not its
@@ -1780,6 +1787,11 @@ Table of Contents
    [RFC8252]  Denniss, W. and J. Bradley, "OAuth 2.0 for Native Apps",
               BCP 212, RFC 8252, DOI 10.17487/RFC8252, October 2017,
               <https://www.rfc-editor.org/rfc/rfc8252>.
+
+   [RFC8259]  Bray, T., Ed., "The JavaScript Object Notation (JSON) Data
+              Interchange Format", STD 90, RFC 8259,
+              DOI 10.17487/RFC8259, December 2017,
+              <https://www.rfc-editor.org/rfc/rfc8259>.
 
    [RFC8414]  Jones, M., Sakimura, N., and J. Bradley, "OAuth 2.0
               Authorization Server Metadata", RFC 8414,

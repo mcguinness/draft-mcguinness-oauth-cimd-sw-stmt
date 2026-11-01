@@ -222,10 +222,13 @@ Table of Contents
    Client metadata in a registration or update request does not
    contribute to the registration.  The registered client_id is assigned
    as [RFC7591] provides, and the document's own client_id member is the
-   URL recorded as the governing statement's sub.  A member the document
-   omits, other than token_endpoint_auth_method (rejected below), takes
-   its [RFC7591] default.  The registration's metadata changes only when
-   a replacement is applied (Section 6).
+   URL recorded as the governing statement's sub.  The authorization
+   server MUST NOT assign that URL as the registered client_id, which
+   would make a request carrying it ambiguous between the registration
+   and the CIMD client the URL identifies ([CIMD]).  A member the
+   document omits, other than token_endpoint_auth_method (rejected
+   below), takes its [RFC7591] default.  The registration's metadata
+   changes only when a replacement is applied (Section 6).
 
    The authorization server MUST reject the registration, or a
    replacement (Section 6), if any of the following holds:
@@ -715,7 +718,10 @@ Table of Contents
    A statement consumed at registration is a reusable bearer artifact
    until it expires.  Its audience, lifetime, and statement_uses claim
    (Section 3 of [STATEMENT]) and the registration policy of Section 3.3
-   limit what a copied statement can create.
+   limit what a copied statement can create.  A statement a client
+   publishes at its software_statements_uri (Section 5.5 of [STATEMENT])
+   can be read by anyone, so an issuer ought not to permit registration
+   in such a statement.
 
    Taking every value from the document prevents metadata substitution.
    A request-supplied value for a member the document omits, such as a
