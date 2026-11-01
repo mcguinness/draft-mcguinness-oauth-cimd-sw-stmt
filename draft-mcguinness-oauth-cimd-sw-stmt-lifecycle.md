@@ -108,7 +108,7 @@ The rules of this specification act at two points: when a statement is accepted 
 
 | Standing at the server | New admission or registration | Pulled statement selection | Refresh of a grant that records it | Use as a refresh replacement |
 | --- | --- | --- | --- | --- |
-| Current, not superseded | Accepted | Considered | Continues | Accepted if later than the recorded statement |
+| Current, not superseded | Can be accepted | Considered | Continues | Can be accepted ({{refresh-replacement}}) |
 | Superseded by the `iat` floor | Rejected | Ignored | Continues | Rejected |
 | Covered by a refusal record | Rejected | Ignored | Needs a replacement | Rejected |
 | Expired | Rejected | Ignored | Continues unless {{currency}} requires a replacement | Rejected |
