@@ -84,7 +84,7 @@ Governing Statement:
 : The statement that bounds a statement-governed registration: the one consumed at registration or, after a renewal, the replacement that renewed it most recently ({{revalidation}}). The authorization server identifies it by its `iss` and `jti` claims.
 
 Replacement:
-: A delivered statement with the governing statement's `iss` and `sub` claims and a later `iat` ({{revalidation}}).
+: A statement with the governing statement's `iss` and `sub` claims and a later `iat`, delivered under the registration ({{revalidation}}) or carried in a repeated public-client registration request ({{repeated-registration}}).
 
 Statement-Governed Registration:
 : An {{RFC7591}} client registration created from a statement under this specification ({{dcr-presentation}}).
