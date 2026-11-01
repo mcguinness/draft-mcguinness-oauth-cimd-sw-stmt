@@ -76,7 +76,7 @@ informative:
 
 --- abstract
 
-A Client ID Metadata Document (CIMD) carries a client's own claims, which can change at any time. This specification defines a software statement in which a trusted party records its review of the exact octets of such a document, and how an authorization server enforces that review when it admits the client at request time, without a registration. The client presents the statement in a token or pushed authorization request, or publishes it where the reviewed document points. Possession of the statement alone does not complete a grant: the presenter is also bound to the reviewed document. Because the document remains the metadata, one review is portable across the authorization servers that trust its issuer. A companion specification covers RFC 7591 registration. Withdrawal, supersession, and keeping grants in step with later reviews are left to a separate lifecycle extension.
+A Client ID Metadata Document (CIMD) carries a client's own claims, which can change at any time. This specification defines a software statement in which a trusted party records its review of the exact octets of such a document, and how an authorization server enforces that review when it admits the client at request time, without a registration. The client presents the statement in a token or pushed authorization request, or publishes it where the reviewed document points. Possession of the statement alone does not complete a grant: the presenter is also bound to the reviewed document. Because the document remains the metadata, one review is portable across the authorization servers that trust its issuer. A companion specification covers RFC 7591 registration. Withdrawal, supersession, and keeping grants in step with later reviews are left to extensions.
 
 --- middle
 
@@ -90,7 +90,7 @@ This specification serves deployments in which a party other than the client dec
 
 A statement records approval of a client configuration, not of the software's code or behavior ({{what-statement-attests}}). Possession of a statement alone admits nothing: the presenter is bound to the reviewed document ({{sender-constraint}}), though for a public client that binding does not hold against a party that controls the user agent ({{public-client-security}}). Presentations by a native application whose redirection URIs another application on the device could claim are review-only ({{review-only}}). A statement's expiry limits new admissions but ends no open grant, and an older statement that has not expired remains admissible after a newer one is issued ({{enforcement-bounds}}). Withdrawal, supersession, and grants that follow later reviews are left to extensions ({{extensions}}).
 
-This specification does not define how a client obtains a statement. {{extensions}} lists extensions left to separate specifications, including consumption at registration, and {{relationship}} relates this specification to other work.
+This specification does not define how a client obtains a statement, or how an authorization server consumes one in an {{RFC7591}} registration request. {{relationship}} relates this specification to other work.
 
 ## Protocol Overview
 
@@ -110,7 +110,7 @@ This specification uses terminology from {{RFC6749}} (OAuth), {{RFC7591}} (clien
 This specification defines the following terms.
 
 Trusting Authorization Server:
-: An authorization server that consumes a software statement.
+: An authorization server that consumes a software statement of this profile.
 
 Runtime Presentation:
 : The consumption of a validated software statement presented in a token request or pushed authorization request, or pulled from where the client's document points ({{pulled-statements}}), without creating a client registration.
@@ -386,7 +386,7 @@ A review-only presentation or pulled statement creates no establishment, and its
 A successful presentation creates an establishment: the state against which the subsequent authorization request, code redemption, and refresh under the grant it opens are checked. It comprises the following:
 
 * The validated `sub`.
-* The statement identity (its `iss` and `jti`), its `iat` and effective expiry, and any claim an extension uses to locate it, such as `status`.
+* The statement identity (its `iss` and `jti`), its `iat` and effective expiry, and any claim an extension uses to locate the statement.
 * The authorization server's own tenant the grant was opened for, if it hosts more than one.
 * The reviewed metadata and the digest it matched ({{effective-metadata}}).
 * The issuer trust decision.
@@ -648,7 +648,7 @@ An authorization server can bound the retrieval and processing work of {{externa
 
 A statement attests client software, identified by `sub`, not its runtime instances, and this specification defines no instance identifier. One unexpired statement can therefore open establishments at each trusting authorization server in its audience, and more than one at each.
 
-A trusting authorization server can bound the number of establishments derived from one issuer's statements about one piece of software, identified by `iss` and `sub` claims. How it counts toward a bound is local policy, and a multi-tenant server keeps any bound per tenant. A bound stays effective only if what anyone holding a copy of a statement can create does not count toward it: a pushed authorization request and its unredeemed code, which anyone holding a copy of a public client's statement can approve with their own account. Otherwise a holder of a copy could exhaust the bound for the software's other instances.
+A trusting authorization server can bound the number of establishments derived from one issuer's statements about one piece of software, identified by `iss` and `sub` claims. How it counts toward a bound is local policy, and a multi-tenant server keeps any bound per tenant. A bound stays effective only if what anyone holding a copy of a statement can create does not count toward it: a pushed authorization request and its unredeemed code, which a holder of a copy of a public client's statement can approve with its own account. Otherwise a holder of a copy could exhaust the bound for the software's other instances.
 
 For software admitted under {{public-client-presentation}}, a server can also bound establishments per resource owner, so that one user cannot exhaust a bound the software's other users share.
 
