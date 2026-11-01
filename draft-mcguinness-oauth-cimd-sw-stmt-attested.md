@@ -107,7 +107,7 @@ A companion specification defines a software statement that binds a review of cl
 
 A native application's installations cannot safely authenticate by a private key distributed in every copy of the software. Each installation can generate its own key, but possession of that key establishes continuity, not the identity of the software using it. A copied Client ID Metadata Document (CIMD) URL {{CIMD}} and software statement can be presented with an attacker's own key.
 
-Section 5.6.3 of {{STATEMENT}} therefore treats a presentation under a document containing a redirection URI that another application on the same device could claim as review-only: the server evaluates the statement but admits nothing on it, and such a presentation cannot satisfy a policy requiring reviewed software. This excludes loopback redirects, even though they are an established response-delivery mechanism for native applications under {{RFC8252}}.
+Section 5.6.3 of {{STATEMENT}} therefore treats as review-only a presentation under a document containing a redirection URI that another application on the same device could claim: the server evaluates the statement but admits nothing on it, and such a presentation cannot satisfy a policy requiring reviewed software. This excludes loopback redirects, even though they are an established response-delivery mechanism for native applications under {{RFC8252}}.
 
 Existing mechanisms do not provide reviewed-software admission for loopback clients. Loopback redirects with Proof Key for Code Exchange (PKCE) {{RFC7636}} protect an authorization code from interception, but any application can start a transaction with a native client's identifier, the client impersonation that Section 8.6 of {{RFC8252}} describes. Attestation-based client authentication {{ABCA}} alone shows that an installation holds a key an attester vouches for, not that the installation runs the software a statement issuer approved for a particular document.
 
@@ -221,7 +221,7 @@ Attestation acquisition and platform evidence formats are out of scope. They req
 
 # Instance Attestation {#attestation}
 
-An instance attestation is a Client Attestation JWT (Section 4 of {{ABCA}}) with the following additional requirements. Its `typ` JOSE header parameter MUST have the value `cimd-instance-attestation+jwt` (Section 13 of {{ABCA}}), which is the media type of {{media-type}} without its `application/` prefix. Together with the document's selection of this profile ({{selection}}), its type tells an authorization server that this profile applies. It MUST be digitally signed using an accepted asymmetric algorithm. A MAC or `none` MUST NOT be accepted. Its header and claims MUST contain no duplicate member names. Validation MUST apply {{RFC8725}}.
+An instance attestation is a Client Attestation JWT (Section 4 of {{ABCA}}) with the following additional requirements. Its `typ` JOSE header parameter MUST have the value `cimd-instance-attestation+jwt` (Section 13 of {{ABCA}}), which is the media type of {{media-type}} without its `application/` prefix. Together with the document's selection of this profile ({{selection}}), its type tells an authorization server that this profile applies. The attestation MUST be digitally signed using an accepted asymmetric algorithm. A MAC or `none` MUST NOT be accepted. Its header and claims MUST contain no duplicate member names. Validation MUST apply {{RFC8725}}.
 
 The attestation contains the following claims. The `sub`, `iat`, `exp`, and `cnf` claims also retain the requirements of Section 4 of {{ABCA}}.
 
@@ -318,7 +318,7 @@ The server authenticates the resource owner and applies authorization policy ind
 
 The client sends `grant_type=authorization_code`, the code, the same `client_id` and `redirect_uri`, and the PKCE `code_verifier`. It MUST authenticate with a current instance attestation and a fresh proof under the proven key. It does not send the `software_statement` parameter, which Section 5.7 of {{STATEMENT}} prohibits on code redemption.
 
-Before issuing tokens, the server MUST verify the code and PKCE binding and every fixed establishment value in {{establishment}}. It MUST re-evaluate both trust decisions, require the recorded statement to be unexpired and not refused, and confirm that the current CIMD still matches its recorded digest and meets {{client-metadata}}. Retrieval and cache reuse use the reuse bounds of Section 5.3 of {{STATEMENT}}. The attestation MUST match that digest and not be past its `exp`. A server using a statement withdrawal mechanism SHOULD consult it at code redemption, within that mechanism's freshness rules, as Section 3 of {{LIFECYCLE}} provides for refresh.
+Before issuing tokens, the server MUST verify the code and PKCE binding and every fixed establishment value in {{establishment}}. It MUST re-evaluate both trust decisions, require the recorded statement to be unexpired and not refused, and confirm that the current CIMD still matches the recorded digest and meets {{client-metadata}}. The server confirms the current document by retrieval or from octets it holds within the reuse bounds of Section 5.3 of {{STATEMENT}}. The attestation MUST match that digest and not be past its `exp`. A server using a statement withdrawal mechanism SHOULD consult it at code redemption, within that mechanism's freshness rules, as Section 3 of {{LIFECYCLE}} provides for refresh.
 
 If the metadata changed or the recorded statement needs replacement, the client MUST start again with a new pushed authorization request. Code redemption cannot replace the governing review. A raised `iat` floor alone does not invalidate a code already bound to an acceptable recorded statement.
 
@@ -348,7 +348,7 @@ The following table summarizes where this profile departs from {{STATEMENT}} and
 | 5.7, 5.7.1, 13.7 | Redemption and refresh do not re-evaluate issuer trust, so removing an issuer ends no open grant. | Redemption and refresh re-evaluate issuer trust ({{redemption}}, {{refresh}}). |
 | 5.7.1 | Refresh checks possession of the proven key and that the currently served document still carries that key. | Refresh verifies a current attestation of the proven key instead of its presence in the document ({{refresh}}). |
 | 6.3 | Code redemption is rejected with `invalid_grant` or, at the establishment bound, `invalid_client`. | Redemption can also return `statement_required` ({{error-codes}}). |
-| 6.4 | A client not admitted on a statement receives `statement_required`. | A missing or invalid required pushed authorization request is rejected with `invalid_request` ({{authorization-errors}}). |
+| 6.4 | A client not admitted on a statement receives `statement_required`. | An authorization request without the valid `request_uri` this profile requires is rejected with `invalid_request` ({{authorization-errors}}). |
 | 5.1 of {{LIFECYCLE}} | A current statement on refresh is recommended once the recorded statement expires. | Every refresh requires a current statement ({{refresh}}). |
 | 5.1, 5.2 of {{LIFECYCLE}} | A replacement is needed only when the recorded statement is refused or expired, the document's digest is checked only for a replacement, and the replacement's document carries the proven key. | Every refresh re-checks the document against the statement and attestation digests, a replacement is also needed when the recorded statement no longer matches the document, and a current attestation of the proven key takes the place of the key check ({{refresh}}). |
 
@@ -509,7 +509,7 @@ grant_type=refresh_token
 &refresh_token=<refresh-token>
 ~~~
 
-If the recorded statement has expired, a server that supports pulled statements pulls a current replacement, as Section 5.2 of {{LIFECYCLE}} provides for any establishment. If the replacement names changed metadata, the attestation needs to name that same new digest while retaining the proven key and the recorded attester and policy. Otherwise the refresh fails without changing the binding.
+If the recorded statement has expired, a server that supports pulled statements pulls a current replacement, as Section 5.2 of {{LIFECYCLE}} provides for any establishment. If the replacement names changed metadata, the attestation needs to name that same new digest while retaining the proven key and the recorded attester and policy. If the attestation does not, the refresh fails without changing the binding.
 
 # Authorization Server Metadata {#server-metadata}
 
@@ -588,7 +588,7 @@ Attester authorization is scoped independently to client namespaces and tenants.
 
 ## Freshness and Availability
 
-Short effective lifetimes limit stale evidence but make attester availability important. The maximum evidence age ({{attestation}}) and the trust-data reuse bound ({{trust}}) limit how long stale evidence or trust data is accepted. A fresh proof demonstrates current access to a key, not that software was re-evaluated at proof time.
+Short attestation lifetimes limit stale evidence but make attester availability important. The maximum evidence age ({{attestation}}) and the trust-data reuse bound ({{trust}}) limit how long stale evidence or trust data is accepted. A fresh proof demonstrates current access to a key, not that software was re-evaluated at proof time.
 
 An access token cannot outlive the attestation accepted when it was issued ({{redemption}}), but it can outlive a review withdrawn or attester trust removed after issuance ({{revocation-practice}}).
 
@@ -750,7 +750,7 @@ Launcher authentication:
 : The launcher registers an App Attest key, which Apple certifies as belonging to the launcher {{APPLE-APPATTEST}}, and ties it to the managed device with a single-use secret delivered through managed app configuration, which macOS delivers only to an app with a matching code signature. Each later report, carrying the installation's public key and the client's signing identity, bears an App Attest assertion.
 
 Evidence and renewal:
-: No Apple attestation covers the installation's key, so the enterprise service relies on the authenticated launcher's report that the key is in the Secure Enclave and usable only by the launcher. Before the maximum evidence age expires, the launcher re-checks the device's management state and the client's signature and obtains an attestation on that new evidence.
+: No Apple attestation covers the installation's key, so the enterprise service relies on the authenticated launcher's report that the key is in the Secure Enclave and usable only by the launcher. Before the evidence reaches the maximum evidence age, the launcher re-checks the device's management state and the client's signature and obtains an attestation on that new evidence.
 
 Unsupported case:
 : A script run by a signed interpreter with unrestricted imports is not covered, because the verified signature is the interpreter's. Such a client remains review-only under Section 5.6.3 of {{STATEMENT}}.
