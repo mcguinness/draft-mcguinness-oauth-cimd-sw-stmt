@@ -304,7 +304,7 @@ An establishment records all state required by Section 5.7 of {{STATEMENT}} and,
 
 The proven key is the attested key, which is also the DPoP key.
 
-The client identifier, tenant, key, attester, policy, and binding profile MUST remain fixed for the lifetime of the grant. Changing any of them requires a new grant opened through a pushed authorization request. A fresh attestation that keeps these values can renew the grant's evidence, and a software statement replacement can update the grant's reviewed metadata only as {{refresh}} permits. Neither operation changes these values.
+The client identifier, tenant, key, attester, policy, and binding profile MUST remain fixed for the lifetime of the grant. Changing any of them requires a new grant opened through a pushed authorization request. A fresh attestation that keeps these values can renew the grant's evidence, and a refresh replacement (Section 5.2 of {{LIFECYCLE}}) can update the grant's reviewed metadata only as {{refresh}} permits. Neither operation changes these values.
 
 ## Browser Authorization {#authorization}
 
@@ -342,9 +342,9 @@ The following table summarizes where this profile departs from {{STATEMENT}} and
 | 5.1, 5.2 | The statement and the document are checked before the proof. | The instance is authenticated first ({{par}}, step 1). Statement and document checks follow, and checks needing no client-controlled retrieval still precede such retrieval. |
 | 5.2, 5.5, 5.6.3 | A request without an acceptable statement can proceed under the policy for unreviewed clients, a review-only presentation proceeds as a client presenting no statement, and a digest mismatch can proceed without the statement. | No fallback: any failed check rejects the request ({{par}}). |
 | 5.4.2, 5.5.2 | A pulled statement needs no PAR, and one pulled at the authorization endpoint binds the presenter at code redemption. | The binding is set at the PAR endpoint. An authorization request without a PAR `request_uri` governed by this profile is rejected ({{authorization}}). |
-| 5.6, 5.6.1 | The proven key appears in the reviewed document's `jwks` or at its `jwks_uri`. | The proven key is the attested key ({{attestation-validation}}), and the document carries no key material ({{client-metadata}}). |
+| 5.6, 5.6.1 | The proven key appears in the reviewed document's `jwks` or at its `jwks_uri`. | The proven key is the attested key ({{establishment}}), and the document carries no key material ({{client-metadata}}). |
 | 5.6.3 | A redirection URI another application could claim makes a presentation review-only. | Loopback redirects under {{par}} do not make a presentation review-only ({{selection}}). |
-| 5.7 | Redemption checks the client identifier and key, not the statement's expiry. | Redemption also requires the recorded statement to be unexpired and unrefused, and the current document to match the recorded digest ({{redemption}}). |
+| 5.7 | Redemption checks the client identifier and key, not the statement's expiry. | Redemption also requires the recorded statement to be unexpired and not refused, and the current document to match the recorded digest ({{redemption}}). |
 | 5.7, 5.7.1, 13.7 | Redemption and refresh do not re-evaluate issuer trust, so removing an issuer ends no open grant. | Redemption and refresh re-evaluate issuer trust ({{redemption}}, {{refresh}}). |
 | 5.7.1 | Refresh checks possession of the proven key and that the currently served document still carries that key. | Refresh verifies a current attestation of the proven key instead of its presence in the document ({{refresh}}). |
 | 6.3 | Code redemption is rejected with `invalid_grant` or, at the establishment bound, `invalid_client`. | Redemption can also return `statement_required` ({{error-codes}}). |
@@ -554,7 +554,7 @@ An attester ought to limit enrollment and renewal so that one approved installat
 
 ## Evidence Age and Token Lifetime {#lifetime-practice}
 
-Because an access token expires no later than the attestation accepted for it ({{redemption}}), a client holding a refresh token refreshes, with a fresh attestation, at least as often as its attester's evidence age allows, and a client without one starts a new authorization request at the pushed authorization request endpoint.
+Because an access token expires no later than the attestation accepted for it ({{redemption}}), a client holding a refresh token refreshes, with a fresh attestation, at least as often as its attester's maximum evidence age allows, and a client without one starts a new authorization request at the pushed authorization request endpoint.
 
 # Security Considerations {#security-considerations}
 
@@ -584,7 +584,7 @@ Existing grants retain their recorded binding ({{establishment}}). A server impl
 
 The distinct attestation type, digest binding, subject equality, and fixed establishment values prevent a generic attestation or one for another reviewed document from being substituted, and key separation keeps a statement signing key from also signing an attestation ({{attestation-validation}}).
 
-Attester authorization is scoped independently to client namespaces and tenants. An over-broad attester can undermine the binding for every namespace for which it can issue instance attestations. A statement issuer and an attester that collude, or that are both compromised, can make false assertions within the authority the server has assigned them.
+Attester authorization is scoped independently to client identifier namespaces and tenants. An over-broad attester can undermine the binding for every namespace for which it can issue instance attestations. A statement issuer and an attester that collude, or that are both compromised, can make false assertions within the authority the server has assigned them.
 
 ## Freshness and Availability
 
@@ -634,7 +634,7 @@ Metadata Name:
 : `software_statement_instance_binding_supported`
 
 Metadata Description:
-: Boolean value indicating support for attested instance-key binding of software statements for Client ID Metadata Documents.
+: Boolean value indicating whether the authorization server supports attested instance-key binding for Client ID Metadata Document software statements.
 
 Change Controller:
 : IETF
@@ -726,7 +726,7 @@ The enterprise enrolls the launcher through an authenticated management channel.
 
 The launcher creates or provisions the installation's key in protected storage and obtains an attestation through an authenticated exchange with the enterprise service. That service verifies the evidence, the binding to the key, and the document digest before issuing the attestation. The service's signing key is distinct from the attested key and is accepted through the authorization server's attester trust configuration.
 
-For each authorization transaction, the launcher performs the OAuth exchange on behalf of the verified caller, as the signing broker of {{signing-brokers}}. It rechecks caller authorization when the key is used, including refresh, and protects returned tokens from other processes.
+For each authorization transaction, the launcher performs the OAuth exchange on behalf of the verified caller, as the signing broker of {{signing-brokers}}. It re-checks caller authorization when the key is used, including refresh, and protects returned tokens from other processes.
 
 An implementation needs to address changes between checking software and using the key, dynamic code loading, and the ability of an executable the evidence policy covers to proxy requests for others. Platforms without reliable process identity and key-use isolation cannot obtain this profile's assurance by running the launcher with more privileges. A script-based command-line client might require an execution environment whose policy covers its interpreter, script, and dependencies, or a narrower assurance than verified executable identity.
 
