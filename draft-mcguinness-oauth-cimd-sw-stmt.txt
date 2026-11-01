@@ -26,7 +26,7 @@ Abstract
    authorization servers that trust its issuer.  A companion
    specification covers RFC 7591 registration.  Withdrawal,
    supersession, and keeping grants in step with later reviews are left
-   to a separate lifecycle extension.
+   to extensions.
 
 Status of This Memo
 
@@ -176,10 +176,10 @@ Table of Contents
    (Section 13.7).  Withdrawal, supersession, and grants that follow
    later reviews are left to extensions (Section 9).
 
-   This specification does not define how a client obtains a statement.
-   Section 9 lists extensions left to separate specifications, including
-   consumption at registration, and Section 10 relates this
-   specification to other work.
+   This specification does not define how a client obtains a statement,
+   or how an authorization server consumes one in an [RFC7591]
+   registration request.  Section 10 relates this specification to other
+   work.
 
 1.1.  Protocol Overview
 
@@ -217,7 +217,7 @@ Table of Contents
    This specification defines the following terms.
 
    Trusting Authorization Server:  An authorization server that consumes
-      a software statement.
+      a software statement of this profile.
 
    Runtime Presentation:  The consumption of a validated software
       statement presented in a token request or pushed authorization
@@ -697,9 +697,10 @@ Table of Contents
 
 5.5.2.  Binding
 
-   Unless Section 5.6.3 makes it review-only for its redirection URIs, a
-   pulled statement is bound to the presenter as a presented statement
-   is (Section 5.6), at the point the following table shows:
+   Unless the reviewed document's redirection URIs make it review-only
+   (Section 5.6.3), a pulled statement is bound to the presenter as a
+   presented statement is (Section 5.6), at the point the following
+   table shows:
 
    +===============+===================+===============================+
    | Where the     | Confidential      | Public client                 |
@@ -840,8 +841,7 @@ Table of Contents
    *  The validated sub.
 
    *  The statement identity (its iss and jti), its iat and effective
-      expiry, and any claim an extension uses to locate it, such as
-      status.
+      expiry, and any claim an extension uses to locate the statement.
 
    *  The authorization server's own tenant the grant was opened for, if
       it hosts more than one.
@@ -1270,18 +1270,19 @@ Table of Contents
    a bound is local policy, and a multi-tenant server keeps any bound
    per tenant.  A bound stays effective only if what anyone holding a
    copy of a statement can create does not count toward it: a pushed
-   authorization request and its unredeemed code, which anyone holding a
-   copy of a public client's statement can approve with their own
-   account.  Otherwise a holder of a copy could exhaust the bound for
-   the software's other instances.
+   authorization request and its unredeemed code, which a holder of a
+   copy of a public client's statement can approve with its own account.
+   Otherwise a holder of a copy could exhaust the bound for the
+   software's other instances.
 
    For software admitted under Section 5.6.2, a server can also bound
    establishments per resource owner, so that one user cannot exhaust a
    bound the software's other users share.
 
-   When a request is refused at a bound (Section 6.2), the authorization
-   server ought to state that reason in error_description, and the
-   client can retry once earlier establishments end (Section 5.7).
+   When a request is refused at a bound (Section 6.2, Section 6.3), the
+   authorization server ought to state that reason in error_description,
+   and the client can retry once earlier establishments end
+   (Section 5.7).
 
 11.4.  User Interface, Audit, and Logging
 
@@ -1333,9 +1334,10 @@ Table of Contents
 
    A changed document is always served before a statement over it
    exists, so presentations under an earlier statement fail the digest
-   comparison (Section 5.2) until a statement over the changed document
-   exists.  A statement's lifetime bounds how long a review stands
-   without being renewed.
+   comparison (Section 5.2), and the client cannot be admitted on a
+   statement until one over the changed document is issued.  A
+   statement's lifetime bounds how long a review stands without being
+   renewed.
 
    Instances need the most recently issued statement from a shared
    source rather than a copy fixed at build or install time, because the

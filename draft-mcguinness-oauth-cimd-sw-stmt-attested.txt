@@ -126,13 +126,13 @@ Table of Contents
    copied Client ID Metadata Document (CIMD) URL [CIMD] and software
    statement can be presented with an attacker's own key.
 
-   Section 5.6.3 of [STATEMENT] therefore treats a presentation under a
-   document containing a redirection URI that another application on the
-   same device could claim as review-only: the server evaluates the
-   statement but admits nothing on it, and such a presentation cannot
-   satisfy a policy requiring reviewed software.  This excludes loopback
-   redirects, even though they are an established response-delivery
-   mechanism for native applications under [RFC8252].
+   Section 5.6.3 of [STATEMENT] therefore treats as review-only a
+   presentation under a document containing a redirection URI that
+   another application on the same device could claim: the server
+   evaluates the statement but admits nothing on it, and such a
+   presentation cannot satisfy a policy requiring reviewed software.
+   This excludes loopback redirects, even though they are an established
+   response-delivery mechanism for native applications under [RFC8252].
 
    Existing mechanisms do not provide reviewed-software admission for
    loopback clients.  Loopback redirects with Proof Key for Code
@@ -435,10 +435,10 @@ Table of Contents
    (Section 13 of [ABCA]), which is the media type of Section 17.4
    without its application/ prefix.  Together with the document's
    selection of this profile (Section 3), its type tells an
-   authorization server that this profile applies.  It MUST be digitally
-   signed using an accepted asymmetric algorithm.  A MAC or none MUST
-   NOT be accepted.  Its header and claims MUST contain no duplicate
-   member names.  Validation MUST apply [RFC8725].
+   authorization server that this profile applies.  The attestation MUST
+   be digitally signed using an accepted asymmetric algorithm.  A MAC or
+   none MUST NOT be accepted.  Its header and claims MUST contain no
+   duplicate member names.  Validation MUST apply [RFC8725].
 
    The attestation contains the following claims.  The sub, iat, exp,
    and cnf claims also retain the requirements of Section 4 of [ABCA].
@@ -613,9 +613,9 @@ Table of Contents
    profile MUST remain fixed for the lifetime of the grant.  Changing
    any of them requires a new grant opened through a pushed
    authorization request.  A fresh attestation that keeps these values
-   can renew the grant's evidence, and a software statement replacement
-   can update the grant's reviewed metadata only as Section 8 permits.
-   Neither operation changes these values.
+   can renew the grant's evidence, and a refresh replacement
+   (Section 5.2 of [LIFECYCLE]) can update the grant's reviewed metadata
+   only as Section 8 permits.  Neither operation changes these values.
 
 7.3.  Browser Authorization
 
@@ -655,12 +655,13 @@ Table of Contents
    binding and every fixed establishment value in Section 7.2.  It MUST
    re-evaluate both trust decisions, require the recorded statement to
    be unexpired and not refused, and confirm that the current CIMD still
-   matches its recorded digest and meets Section 4.  Retrieval and cache
-   reuse use the reuse bounds of Section 5.3 of [STATEMENT].  The
-   attestation MUST match that digest and not be past its exp.  A server
-   using a statement withdrawal mechanism SHOULD consult it at code
-   redemption, within that mechanism's freshness rules, as Section 3 of
-   [LIFECYCLE] provides for refresh.
+   matches the recorded digest and meets Section 4.  The server confirms
+   the current document by retrieval or from octets it holds within the
+   reuse bounds of Section 5.3 of [STATEMENT].  The attestation MUST
+   match that digest and not be past its exp.  A server using a
+   statement withdrawal mechanism SHOULD consult it at code redemption,
+   within that mechanism's freshness rules, as Section 3 of [LIFECYCLE]
+   provides for refresh.
 
    If the metadata changed or the recorded statement needs replacement,
    the client MUST start again with a new pushed authorization request.
@@ -752,7 +753,7 @@ Table of Contents
    +-------------+------------------------+----------------------------+
    | 5.6, 5.6.1  | The proven key appears | The proven key is the      |
    |             | in the reviewed        | attested key               |
-   |             | document's jwks or at  | (Section 6.1), and the     |
+   |             | document's jwks or at  | (Section 7.2), and the     |
    |             | its jwks_uri.          | document carries no key    |
    |             |                        | material (Section 4).      |
    +-------------+------------------------+----------------------------+
@@ -764,10 +765,10 @@ Table of Contents
    +-------------+------------------------+----------------------------+
    | 5.7         | Redemption checks the  | Redemption also requires   |
    |             | client identifier and  | the recorded statement to  |
-   |             | key, not the           | be unexpired and           |
-   |             | statement's expiry.    | unrefused, and the         |
-   |             |                        | current document to match  |
-   |             |                        | the recorded digest        |
+   |             | key, not the           | be unexpired and not       |
+   |             | statement's expiry.    | refused, and the current   |
+   |             |                        | document to match the      |
+   |             |                        | recorded digest            |
    |             |                        | (Section 7.4).             |
    +-------------+------------------------+----------------------------+
    | 5.7, 5.7.1, | Redemption and refresh | Redemption and refresh     |
@@ -789,10 +790,10 @@ Table of Contents
    |             | the establishment      |                            |
    |             | bound, invalid_client. |                            |
    +-------------+------------------------+----------------------------+
-   | 6.4         | A client not admitted  | A missing or invalid       |
-   |             | on a statement         | required pushed            |
-   |             | receives               | authorization request is   |
-   |             | statement_required.    | rejected with              |
+   | 6.4         | A client not admitted  | An authorization request   |
+   |             | on a statement         | without the valid          |
+   |             | receives               | request_uri this profile   |
+   |             | statement_required.    | requires is rejected with  |
    |             |                        | invalid_request            |
    |             |                        | (Section 10.3).            |
    +-------------+------------------------+----------------------------+
@@ -1029,8 +1030,9 @@ Table of Contents
    statements pulls a current replacement, as Section 5.2 of [LIFECYCLE]
    provides for any establishment.  If the replacement names changed
    metadata, the attestation needs to name that same new digest while
-   retaining the proven key and the recorded attester and policy.
-   Otherwise the refresh fails without changing the binding.
+   retaining the proven key and the recorded attester and policy.  If
+   the attestation does not, the refresh fails without changing the
+   binding.
 
 12.  Authorization Server Metadata
 
@@ -1125,8 +1127,9 @@ Table of Contents
    Because an access token expires no later than the attestation
    accepted for it (Section 7.4), a client holding a refresh token
    refreshes, with a fresh attestation, at least as often as its
-   attester's evidence age allows, and a client without one starts a new
-   authorization request at the pushed authorization request endpoint.
+   attester's maximum evidence age allows, and a client without one
+   starts a new authorization request at the pushed authorization
+   request endpoint.
 
 15.  Security Considerations
 
@@ -1200,16 +1203,16 @@ Table of Contents
    keeps a statement signing key from also signing an attestation
    (Section 6.1).
 
-   Attester authorization is scoped independently to client namespaces
-   and tenants.  An over-broad attester can undermine the binding for
-   every namespace for which it can issue instance attestations.  A
-   statement issuer and an attester that collude, or that are both
-   compromised, can make false assertions within the authority the
-   server has assigned them.
+   Attester authorization is scoped independently to client identifier
+   namespaces and tenants.  An over-broad attester can undermine the
+   binding for every namespace for which it can issue instance
+   attestations.  A statement issuer and an attester that collude, or
+   that are both compromised, can make false assertions within the
+   authority the server has assigned them.
 
 15.5.  Freshness and Availability
 
-   Short effective lifetimes limit stale evidence but make attester
+   Short attestation lifetimes limit stale evidence but make attester
    availability important.  The maximum evidence age (Section 6) and the
    trust-data reuse bound (Section 5) limit how long stale evidence or
    trust data is accepted.  A fresh proof demonstrates current access to
@@ -1284,9 +1287,9 @@ Table of Contents
 
    Metadata Name:  software_statement_instance_binding_supported
 
-   Metadata Description:  Boolean value indicating support for attested
-      instance-key binding of software statements for Client ID Metadata
-      Documents.
+   Metadata Description:  Boolean value indicating whether the
+      authorization server supports attested instance-key binding for
+      Client ID Metadata Document software statements.
 
    Change Controller:  IETF
 
@@ -1532,8 +1535,9 @@ Appendix A.  Managed Command-Line Client Deployment
 
    For each authorization transaction, the launcher performs the OAuth
    exchange on behalf of the verified caller, as the signing broker of
-   Section 13.2.  It rechecks caller authorization when the key is used,
-   including refresh, and protects returned tokens from other processes.
+   Section 13.2.  It re-checks caller authorization when the key is
+   used, including refresh, and protects returned tokens from other
+   processes.
 
    An implementation needs to address changes between checking software
    and using the key, dynamic code loading, and the ability of an
@@ -1588,9 +1592,9 @@ A.1.  macOS Example
    Evidence and renewal:  No Apple attestation covers the installation's
       key, so the enterprise service relies on the authenticated
       launcher's report that the key is in the Secure Enclave and usable
-      only by the launcher.  Before the maximum evidence age expires,
-      the launcher re-checks the device's management state and the
-      client's signature and obtains an attestation on that new
+      only by the launcher.  Before the evidence reaches the maximum
+      evidence age, the launcher re-checks the device's management state
+      and the client's signature and obtains an attestation on that new
       evidence.
 
    Unsupported case:  A script run by a signed interpreter with

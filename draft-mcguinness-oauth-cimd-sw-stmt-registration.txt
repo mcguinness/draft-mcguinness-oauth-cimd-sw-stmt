@@ -113,8 +113,8 @@ Table of Contents
    or to manage registrations under [RFC7592].  It defines consumption
    of the statement at registration (Section 3), the registration's
    validity (Section 4), and its renewal by a replacement statement
-   (Section 6).  This specification depends on [STATEMENT], which does
-   not depend on it.
+   (Section 6).  This specification extends [STATEMENT], which does not
+   depend on it.
 
 1.1.  Protocol Overview
 
@@ -181,12 +181,12 @@ Table of Contents
    the authorization server MUST NOT create a registration on a
    statement from another issuer.
 
-   A required issuer governs only registrations made on statements,
+   A required issuer constrains only registrations made on statements,
    because a registration made without a statement names no client
    identifier URL for a required issuer to cover.  A deployment that
    needs every registration in a tenant reviewed requires a statement
-   for every registration there, rejecting a request without one with
-   unapproved_software_statement (Section 7).
+   for every registration there and rejects a request that carries none
+   with unapproved_software_statement (Section 7).
 
    The retrieval requirements of Sections 3.1 and 5.3 of [STATEMENT]
    apply to retrieving the document as they apply to a runtime
@@ -238,8 +238,8 @@ Table of Contents
       whatever authentication method the document declares.
 
    Unlike runtime presentation (Section 5 of [STATEMENT]), registration
-   has no review-only form, so a condition that would make a
-   presentation review-only rejects the registration.
+   has no review-only form: the rejections above cover the document
+   conditions that make a presentation review-only.
 
    Software whose document declares token_endpoint_auth_method of none
    and that the server does not register under Section 3.2 can instead
@@ -321,8 +321,8 @@ Table of Contents
    registration policy.  A server can count registrations toward the
    bound on establishments of Section 11.3 of [STATEMENT], but the bound
    stays effective only if a registration under which no access token
-   has been issued, which anyone holding a copy of the statement can
-   create, does not count toward it.
+   has been issued does not count toward it, since a holder of a copy of
+   the statement can create one.
 
    If the registration a request repeats is a confidential-client
    registration, local policy can reject the request, treat it as
@@ -345,9 +345,9 @@ Table of Contents
     | statement, identified |                                         |
     | by its iss and jti    |                                         |
     +-----------------------+-----------------------------------------+
-    | A later iat than the  | Evaluated as a replacement (Section 6); |
-    | governing statement's | the renewed registration is returned or |
-    |                       | the request is rejected (Section 7)     |
+    | A statement with a    | Evaluated as a replacement (Section 6); |
+    | later iat than the    | the renewed registration is returned or |
+    | governing statement's | the request is rejected (Section 7)     |
     +-----------------------+-----------------------------------------+
     | Any other statement   | The request is rejected                 |
     | with an iat no later  |                                         |
@@ -528,8 +528,8 @@ Table of Contents
       restriction, its decision is not confined to a tenant
       (Section 3.1).
 
-   *  Its document satisfies the rules of Section 3, from which the
-      registration's metadata is derived.
+   *  Its document, from which the registration's metadata is derived,
+      satisfies the rules of Section 3.
 
    Renewing on the statement alone would leave in the registration a
    key, redirection URI, or scope that the new review removed.
@@ -554,10 +554,10 @@ Table of Contents
    authorization request or a refresh token, and the authorization
    server does not support [RFC7592] update requests for the
    registration, the server MUST support pushed authorization requests
-   [RFC9126] for the registration.  Otherwise such a client could not
-   restore a registration that has ceased to be valid without a refresh
-   token.  A public-client registration also renews through a repeated
-   registration request (Section 3.3).
+   [RFC9126] for the registration.  Otherwise such a client, if it holds
+   no refresh token, could not restore a registration that has ceased to
+   be valid.  A public-client registration also renews through a
+   repeated registration request (Section 3.3).
 
 7.  Error Responses
 
@@ -572,9 +572,9 @@ Table of Contents
    invalid_software_statement:  Any of the following:
 
       *  The statement is malformed, fails signature or claim validation
-         for a reason unapproved_software_statement does not cover, or
-         is expired or otherwise not current (Section 2 of [STATEMENT]),
-         or is superseded under an extension the server implements.
+         for a reason unapproved_software_statement does not cover, is
+         expired or otherwise not current (Section 2 of [STATEMENT]), or
+         is superseded under an extension the server implements.
 
       *  The document's digest does not equal the statement's
          cimd_digest claim (Section 3).
@@ -601,9 +601,8 @@ Table of Contents
       also used if a statement this server requires is absent from a
       registration request, if Section 3 forbids creating the
       registration because a required issuer covers the statement's sub
-      and the statement is from another issuer, and for a repeated
-      registration request that the server's policy refuses
-      (Section 3.3).
+      and the statement is from another issuer, or if the server's
+      policy refuses a repeated registration request (Section 3.3).
 
    invalid_client_metadata:  Any of the following holds for the reviewed
       document:
@@ -763,7 +762,8 @@ Table of Contents
 
    A narrower review takes effect at a registration when the client
    delivers it or when the governing statement ceases to be current.
-   Withdrawal before then requires an extension.
+   Withdrawal before then requires an extension (Section 9 of
+   [STATEMENT]).
 
    Deployments ought to pair statement-governed registrations with
    credential rotation, sender-constrained client authentication, and
@@ -800,8 +800,8 @@ Table of Contents
    and one of its registered redirection URIs learns from the
    statement_required redirection that the registration has ceased to be
    valid.  If an observer knows the governing statement's exp, a lapse
-   before it shows that an extension ended the statement or that the
-   server caps the lifetime it honors for the issuer.
+   before that time shows that an extension ended the statement or that
+   the server caps the lifetime it honors for the issuer.
 
    As at runtime (Section 13.8 of [STATEMENT]), these disclosures are
    accepted, and they reveal nothing of the server's issuer trust

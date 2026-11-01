@@ -137,7 +137,7 @@ Table of Contents
    servers in its audience that trust the issuer ([STATEMENT]).  If the
    trust decision is local to one authorization server, an [RFC7591]
    initial access token for registration, pre-registration [CIMD], or
-   approval-based registration [APPROVAL-DCR] can establish the client
+   approval-based registration [APPROVAL-DCR] can register the client
    directly.
 
    Approval workflow, approver identity, external approval integration,
@@ -252,8 +252,8 @@ Table of Contents
    that URL according to [CIMD].
 
    In the redirect flow, a client identifier whose CIMD cannot be
-   retrieved or validated, including a document rejected for duplicate
-   member names (Section 3.1), is invalid for the purposes of
+   retrieved or validated, including one whose CIMD is rejected for
+   duplicate member names (Section 3.1), is invalid for the purposes of
    Section 4.1.2.1 of [RFC6749].
 
    The client authenticates to the token endpoint using the
@@ -386,8 +386,8 @@ Table of Contents
 
       *  *First issuance.* An initial access token, presented with a
          subject_token_type of urn:ietf:params:oauth:token-
-         type:access_token: an authorization credential issued out of
-         band by this authorization server that pre-authorizes software
+         type:access_token: an authorization credential, issued out of
+         band by this authorization server, that pre-authorizes software
          statement issuance, analogous to the initial access token of
          [RFC7591] (Section 5.1).  The credential itself is deployment-
          defined.
@@ -497,7 +497,7 @@ Table of Contents
 
    A renewed statement MUST NOT be broader than the subject statement:
    its aud is within the requested audience narrowed to the subject
-   statement's aud, or within that aud if the request names none, it
+   statement's aud (or within that aud if the request names none), it
    carries any aud_tenant claim of the subject statement, and its
    statement_uses permits no use the subject statement does not.  It is
    matched to the subject statement by iss and sub ([LIFECYCLE],
@@ -512,10 +512,10 @@ Table of Contents
    SHOULD bound how long after expiry it will do so.
 
    If the current document's digest equals the subject statement's
-   cimd_digest, whether renewal requires fresh review is issuer policy.
-   If the digests differ, the issuer MUST apply the decision it would
-   apply to a first issuance for that document, and MUST NOT renew on
-   the strength of the prior statement alone.  Without this rule,
+   cimd_digest, whether renewal requires fresh review is issuance
+   policy.  If the digests differ, the issuer MUST apply the decision it
+   would apply to a first issuance for that document, and MUST NOT renew
+   on the strength of the prior statement alone.  Without this rule,
    whoever can change the document could obtain the issuer's signature
    over an unreviewed change.
 
@@ -785,7 +785,8 @@ Table of Contents
    not an OAuth access token.  The software statement it carries is
    consumed only as [STATEMENT] and [REGISTRATION] provide, and MUST NOT
    be attached to a request as an Authorization: Bearer credential.  A
-   protected resource cannot validate one (Section 4 of [STATEMENT]).
+   protected resource cannot validate a statement (Section 4 of
+   [STATEMENT]).
 
 10.1.  Terminal Denial
 
@@ -808,16 +809,16 @@ Table of Contents
 
    An authorization server that issued a statement already holds the
    decision that statement records.  If it is also a trusting
-   authorization server, it MAY admit the client on that record rather
-   than require the statement to be presented back to it, at
-   registration or at runtime.
+   authorization server, it MAY rely on that record, at registration or
+   at runtime, rather than require the statement to be presented back to
+   it.
 
    Because the record of a decision is not a fresh retrieval of the
-   document, a server admitting a client on the record of a statement it
-   issued MUST apply every check Sections 3.2 and 5.1 of [STATEMENT]
-   apply to a presented statement, and at registration every check
-   [REGISTRATION] applies, taking the statement's claims from its record
-   of the decision.
+   document, a server relying on the record of a statement it issued
+   MUST apply every check Sections 3.2 and 5.1 of [STATEMENT] apply to a
+   presented statement, and at registration every check [REGISTRATION]
+   applies, taking the statement's claims from its record of the
+   decision.
 
    At runtime, the record takes the place of the statement in step 1 of
    Section 5.1 of [STATEMENT] and replaces only its signature check: the
@@ -933,13 +934,13 @@ Table of Contents
 
 14.1.  Review and Approval Practice
 
-   Because the client authors the metadata document, an issuer ought to
-   corroborate security-relevant metadata through evidence beyond the
-   document itself.  Issuance policy can relate the redirection URI's
-   origin to the client identifier URL or the CIMD's client_uri member.
+   Because the client authors its CIMD, an issuer ought to corroborate
+   security-relevant metadata through evidence beyond the document
+   itself.  Issuance policy can relate the redirection URI's origin to
+   the client identifier URL or the CIMD's client_uri member.
 
    The policy governing who can approve issuance ought to be at least as
-   restrictive as the policy under which the issuer establishes a client
+   restrictive as the policy under which the issuer registers a client
    manually.  A token exchange carries no in-band evidence of user
    participation, so an authorization server ought not to treat one as
    implying prior user consent.  An initial access token that authorizes
@@ -975,10 +976,10 @@ Table of Contents
    authorization response (Section 7).  The client's iss check
    (Section 7.1) counters mix-up.
 
-   Section 6 refuses a redirection URI another application can claim for
-   the reason Section 5.6.3 of [STATEMENT] gives.  A native public
-   client can host an https endpoint or use the token exchange profile
-   (Section 5).
+   For the reason Section 5.6.3 of [STATEMENT] gives, Section 6 refuses
+   a redirection URI that another application on the same device could
+   claim.  A native public client can host an https endpoint or use the
+   token exchange profile (Section 5).
 
    A software statement code in a URL is visible to browser history,
    referrer fields, logs, and other observers.  It is short lived,
@@ -1128,11 +1129,12 @@ Table of Contents
 
    Change Controller:  IESG
 
-   Specification Document(s):  [RFC8707], this specification (Section 6)
+   Specification Document(s):  [RFC8707], this specification
+      (Section 4.1)
 
 17.5.  OAuth Authorization Server Metadata Registry
 
-   This specification requests registration of the following values in
+   This specification requests registration of the following value in
    the IANA "OAuth Authorization Server Metadata" registry established
    by [RFC8414]:
 
