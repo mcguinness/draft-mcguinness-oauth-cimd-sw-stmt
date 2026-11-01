@@ -79,11 +79,11 @@ The URL is part of the metadata document, and so part of what a statement's dige
 
 ### 3.3 Client Authentication and Binding
 
-How the MCP Authorization Server binds a request to the reviewed software depends on the client:
+How the MCP Authorization Server binds a request to the reviewed document depends on the client:
 
 - A **confidential client** **MUST** authenticate at the token endpoint with `private_key_jwt` ([RFC7523](https://datatracker.ietf.org/doc/html/rfc7523)), using a key its metadata document carries in `jwks` or at `jwks_uri`, and its redirection URIs **MUST** all use `https` with a host that is not a loopback address or `localhost`. A document declaring `private_key_jwt` beside a loopback redirect ships its key in every copy, and its statements are review-only (Section 4.4).
 - A **public client whose redirection URIs all use `https` with a non-loopback host** **MUST** use PKCE with `S256`, **MUST** send `dpop_jkt` in its authorization request, and **MUST** prove that key with DPoP ([RFC9449](https://datatracker.ietf.org/doc/html/rfc9449)) when redeeming the code.
-- A **client with any loopback redirection URI**, as desktop MCP clients commonly have, whatever authentication method its document declares, cannot be bound to the reviewed software, because another application on the same device can claim the redirect. Such a client needs nothing beyond MCP's existing requirements. Its statements are treated as review-only (Section 4.4).
+- A **client with any loopback redirection URI**, as desktop MCP clients commonly have, whatever authentication method its document declares, cannot be bound to the reviewed document, because another application on the same device can claim the redirect. Such a client needs nothing beyond MCP's existing requirements. Its statements are treated as review-only (Section 4.4).
 
 ### 3.4 Presenting Statements in a Request
 
@@ -129,7 +129,7 @@ A statement says nothing about which of a client's own customers a request is fo
 
 Where the server's policy requires reviewed software, it responds in the authorization error response, after validating the redirection URI against the client's metadata document, with:
 
-- `statement_required` where no statement is established for a client that could be reviewed;
+- `statement_required` where a client that could be reviewed is not admitted on a statement;
 - `unauthorized_client` where the client is review-only (Section 4.4), since no statement can make it reviewed; and
 - `temporarily_unavailable` where retrieving the client's statements did not complete.
 
@@ -241,7 +241,7 @@ Location: http://127.0.0.1:33418/callback?error=unauthorized_client
 
 ### 8.1 What a Review Does Not Say
 
-A statement vouches for software and the metadata a reviewer evaluated. It does not prove that the party making a request is running that software. The binding in Section 3.3 connects the request to the reviewed configuration, but it does not establish which executable is running either. Where no binding is possible, the statement is review-only. It does not say that a user or organization permits the client, which Enterprise-Managed Authorization or the server's own policy decides.
+A statement vouches for software and the metadata a reviewer evaluated. It does not prove that the party making a request is running that software. The binding in Section 3.3 ties the presenter to the reviewed document, but it does not establish which executable is running either. Where no binding is possible, the statement is review-only. A statement also does not say that a user or organization permits the client, which Enterprise-Managed Authorization or the server's own policy decides.
 
 ### 8.2 Loopback Clients
 
