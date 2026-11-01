@@ -1284,7 +1284,7 @@ svg {
         <h3 id="name-overview">
 <a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-overview" class="section-name selfRef">Overview</a>
         </h3>
-<p id="section-1.1-1">The rules of this specification act at two points: when a statement is accepted to open something new, such as an admission, a registration, or a refresh replacement, and when a grant or registration it governs continues. The <code>iat</code> floor (<a href="#supersession" class="auto internal xref">Section 4</a>) limits only the first. A refusal record (<a href="#withdrawal" class="auto internal xref">Section 3</a>), and expiry where the server requires a current statement (<a href="#currency" class="auto internal xref">Section 5.1</a>), also limit the second. <a href="#tab-standing" class="auto internal xref">Table 1</a> shows what a statement's standing at one authorization server allows.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
+<p id="section-1.1-1">The rules of this specification act at two points: when a statement is accepted to open something new, such as an admission, a registration, or a refresh replacement, and when a grant or registration it governs continues. The <code>iat</code> floor (<a href="#supersession" class="auto internal xref">Section 4</a>) limits only the first. A refusal record (<a href="#withdrawal" class="auto internal xref">Section 3</a>), and expiry where the server requires a current statement (<a href="#currency" class="auto internal xref">Section 5.1</a>), also limit the second. <a href="#tab-standing" class="auto internal xref">Table 1</a> shows what a statement's standing at one authorization server allows. Each row describes one condition on its own. A statement can meet more than one, such as being both superseded and covered by a refusal record, and then the limits of every row it meets apply.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
 <span id="name-what-a-statements-standing-"></span><div id="tab-standing">
 <table class="center" id="table-1">
           <caption>
@@ -1452,7 +1452,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         </h3>
 <p id="section-5.2-1">A replacement is a <code>presentation</code> use of its statement (Section 3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-5.2-1" class="pilcrow">¶</a></p>
 <p id="section-5.2-2">On refresh-token use under an establishment, the authorization server first completes the checks of Section 5.7.1 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> on the establishment's proven key, unchanged, before it considers any replacement. A server that implements this specification then proceeds as follows. A refresh rejected at any step leaves the grant's state unchanged.<a href="#section-5.2-2" class="pilcrow">¶</a></p>
-<p id="section-5.2-3"><a href="#fig-refresh" class="auto internal xref">Figure 1</a> summarizes these steps and the error each exit returns. <a href="#lifecycle-errors" class="auto internal xref">Section 8</a> lists every code.<a href="#section-5.2-3" class="pilcrow">¶</a></p>
+<p id="section-5.2-3"><a href="#fig-refresh" class="auto internal xref">Figure 1</a> summarizes these steps and the error each exit returns, and <a href="#lifecycle-errors" class="auto internal xref">Section 8</a> lists every code. Two rules of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> take precedence over the figure's exits. At any step, a request that needs a retrieval that did not complete is rejected with <code>temporarily_unavailable</code> (Section 6 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). A proof that its mechanism does not accept is rejected with that mechanism's own error, such as <code>invalid_dpop_proof</code>, or answered with its challenge, such as <code>use_dpop_nonce</code> (Section 6.5 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). The exits labeled "otherwise" apply when neither rule does.<a href="#section-5.2-3" class="pilcrow">¶</a></p>
 <span id="name-refresh-processing-and-its-"></span><div id="fig-refresh">
 <figure id="figure-1">
           <div class="alignLeft art-ascii-art art-text artwork" id="section-5.2-4.1">
@@ -1460,7 +1460,9 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 refresh-token request
   |
 proven key checks (Section 5.7.1 of [STATEMENT])
-  |     fail ............................. invalid_grant
+  |     proof its mechanism rejects ...... that mechanism's error
+  |     retrieval did not complete ....... temporarily_unavailable
+  |     a check otherwise fails .......... invalid_grant
 step 1: is a replacement needed (Section 5.1)?
   |     recorded statement is not from
   |     the required issuer .............. statement_required
@@ -1471,7 +1473,8 @@ step 2: obtain it, offered or pulled
   |     pull did not complete ............ temporarily_unavailable
   |     none obtained .................... statement_required
 step 3: validate it
-  |     fails ............................ statement_required
+  |     retrieval did not complete ....... temporarily_unavailable
+  |     otherwise fails .................. statement_required
 step 4: bound the access, apply an accepted replacement
   |     exceeds the metadata ............. unauthorized_client
   |                                        or invalid_scope
