@@ -239,7 +239,7 @@ These `audience` semantics apply only to software statement requests and do not 
 
 ## Prohibited Parameters {#prohibited-parameters}
 
-A software statement request does not grant access to a protected resource, and it asks for a statement rather than presenting one. An authorization request, software statement code redemption, or token exchange under this specification MUST NOT contain the `scope` parameter, the `resource` parameter ({{RFC8707}}), the `authorization_details` parameter ({{RFC9396}}), or the `software_statement` parameter (Section 5.4 of {{STATEMENT}}). The authorization server MUST reject a request containing any of them with the `invalid_request` error code. The `audience` parameter ({{audience}}) is not prohibited: it describes the requested artifact rather than requesting access.
+A software statement request does not grant access to a protected resource, and it asks for a statement rather than presenting one. An authorization request, software statement code redemption, or token exchange under this specification MUST NOT contain the `scope` parameter, the `resource` parameter ({{RFC8707}}), the `authorization_details` parameter ({{RFC9396}}), or the `software_statement` parameter (Section 5.4 of {{STATEMENT}}). The authorization server MUST reject a request containing any of them with the `invalid_request` error code. In an authorization request or token exchange, the `audience` parameter ({{audience}}) is not prohibited: it describes the requested artifact rather than requesting access. Code redemption prohibits it ({{software-statement-code-redemption}}).
 
 # Token Exchange Profile {#token-exchange-profile}
 
