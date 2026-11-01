@@ -94,13 +94,9 @@ A companion specification defines a software statement by which a trusted issuer
 
 {{STATEMENT}} defines a software statement by which a configured issuer records its review of the exact octets of a Client ID Metadata Document (CIMD) {{CIMD}}, and how an authorization server admits a client and binds a grant on that review. It leaves out what follows admission: expiry ends no grant already opened, an issuer cannot withdraw a statement before it expires, an older unexpired statement remains admissible after a newer one is issued, and refresh evaluates no statement.
 
-This specification adds withdrawal and refusal records ({{withdrawal}}), supersession of earlier statements through an `iat` floor ({{supersession}}), and refresh rules ({{refresh-lifecycle}}) under which a grant whose recorded statement is withdrawn, or by recommendation expired, continues only if a later statement replaces it.
+This specification defines withdrawal of a statement and the refusal records that follow from it ({{withdrawal}}), supersession of earlier statements through an `iat` floor ({{supersession}}), and refresh rules ({{refresh-lifecycle}}) under which a grant whose recorded statement is withdrawn, or by recommendation expired, continues only if a later statement replaces it. It profiles Token Status List {{STATUSLIST}} as its withdrawal mechanism ({{token-status-list}}) and defines an optional Shared Signals Framework {{SSF}} event that prompts a server to check status ({{shared-signals}}).
 
-A trusting authorization server that implements this specification applies all of {{withdrawal}} through {{refresh-lifecycle}} and {{lifecycle-errors}}, whatever withdrawal mechanism it uses, if any. {{withdrawal}} recommends that an issuer withdraw an earlier statement when it issues a later, narrower one. Publishing status and sending events are optional for an issuer, and supersession and refresh replacement work without them. A client can offer a later statement on refresh ({{refresh-replacement}}).
-
-{{token-status-list}} profiles Token Status List {{STATUSLIST}} as the withdrawal mechanism of this specification: an issuer withdraws a statement by setting its status, and a trusting authorization server learns of it when it next resolves the list. {{shared-signals}} defines an optional Shared Signals Framework {{SSF}} event, not itself a withdrawal mechanism, that prompts the trusting authorization servers that have configured an issuer to resolve a changed status promptly.
-
-Registrations under {{REGISTRATION}} advance the `iat` floor, and a refusal record ends a registration's validity at the server that holds it. This specification defines no new endpoint. It extends {{STATEMENT}}, which does not depend on it.
+This specification extends {{STATEMENT}}, which does not depend on it, and also applies to registrations under {{REGISTRATION}}. It defines no new endpoint.
 
 ## Protocol Overview {#overview}
 
