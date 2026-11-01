@@ -328,7 +328,7 @@ If retrieving the statements does not complete or no statement remains, the serv
 
 ### Binding {#pull-binding}
 
-Unless {{review-only}} makes it review-only for its redirection URIs, a pulled statement is bound to the presenter as a presented statement is ({{sender-constraint}}), at the point the following table shows:
+Unless the reviewed document's redirection URIs make it review-only ({{review-only}}), a pulled statement is bound to the presenter as a presented statement is ({{sender-constraint}}), at the point the following table shows:
 
 | Where the statement is pulled | Confidential client | Public client |
 | --- | --- | --- |
@@ -652,7 +652,7 @@ A trusting authorization server can bound the number of establishments derived f
 
 For software admitted under {{public-client-presentation}}, a server can also bound establishments per resource owner, so that one user cannot exhaust a bound the software's other users share.
 
-When a request is refused at a bound ({{presentation-errors}}), the authorization server ought to state that reason in `error_description`, and the client can retry once earlier establishments end ({{grant-lifecycle}}).
+When a request is refused at a bound ({{presentation-errors}}, {{continuation-errors}}), the authorization server ought to state that reason in `error_description`, and the client can retry once earlier establishments end ({{grant-lifecycle}}).
 
 ## User Interface, Audit, and Logging {#ui-audit}
 
@@ -680,7 +680,7 @@ An issuer ought to omit the `aud_tenant` claim from a statement whose review app
 
 Short lifetimes tighten an issuer's control and increase renewal traffic. A fleet of statements issued together expires together, so issuers ought to stagger expiries or renew ahead of the boundary.
 
-A changed document is always served before a statement over it exists, so presentations under an earlier statement fail the digest comparison ({{effective-metadata}}) until a statement over the changed document exists. A statement's lifetime bounds how long a review stands without being renewed.
+A changed document is always served before a statement over it exists, so presentations under an earlier statement fail the digest comparison ({{effective-metadata}}), and the client cannot be admitted on a statement until one over the changed document is issued. A statement's lifetime bounds how long a review stands without being renewed.
 
 Instances need the most recently issued statement from a shared source rather than a copy fixed at build or install time, because the document can change ({{effective-metadata}}).
 
