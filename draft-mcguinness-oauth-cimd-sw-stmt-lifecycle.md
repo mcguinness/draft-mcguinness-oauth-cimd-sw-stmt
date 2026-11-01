@@ -323,15 +323,15 @@ A receiver SHOULD request the event this specification defines, and SHOULD use t
 
 ## Status Changed Event {#status-changed}
 
-The subject of every event defined here is client software. Events carry it in the `sub_id` claim of {{SSF}} using the `uri` subject identifier format (Section 3.2.7 of {{RFC9493}}). The `uri` member carries the client's CIMD URL exactly as it appears in the `sub` claim of the statements the event concerns.
-
-A trusting authorization server MUST match the subject by exact comparison of the `uri` member against a statement's `sub` claim.
-
 The event type identifier is `urn:ietf:params:oauth:event-type:software-statement-status-changed` ({{iana-event-type}}).
 
 The event reports that the issuer has changed the published status of one or more statements for the subject. A transmitter MUST NOT transmit the event until a Status List Token reflecting the change is retrievable at the status list URI, including through any caching layer it operates. A receiver resolving before then would fetch the status from before the change.
 
 The event does not say what the new status is, and a receiver MUST NOT infer one from it. Resolving a status of `VALID` after an event is not an error.
+
+The subject of every event defined here is client software. Events carry it in the `sub_id` claim of {{SSF}} using the `uri` subject identifier format (Section 3.2.7 of {{RFC9493}}). The `uri` member carries the client's CIMD URL exactly as it appears in the `sub` claim of the statements the event concerns.
+
+A trusting authorization server MUST match the subject by exact comparison of the `uri` member against a statement's `sub` claim.
 
 The payload ({{RFC8417}}) of an event defined here has the following claims:
 
