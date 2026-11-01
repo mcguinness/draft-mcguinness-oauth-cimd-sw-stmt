@@ -197,7 +197,7 @@ Deferring Issuer:
 
 The `client_id` parameter in every request defined by this specification MUST be a client identifier URL conforming to {{CIMD}}. The authorization server MUST obtain and validate the document at that URL according to {{CIMD}}.
 
-In the redirect flow, a client identifier whose CIMD cannot be retrieved or validated, including a document rejected for duplicate member names ({{metadata-snapshot}}), is invalid for the purposes of Section 4.1.2.1 of {{RFC6749}}.
+In the redirect flow, a client identifier whose CIMD cannot be retrieved or validated, including one whose CIMD is rejected for duplicate member names ({{metadata-snapshot}}), is invalid for the purposes of Section 4.1.2.1 of {{RFC6749}}.
 
 The client authenticates to the token endpoint using the `token_endpoint_auth_method` and related key metadata in its CIMD. The authorization server classifies the client from that member:
 
@@ -253,7 +253,7 @@ The client sends a token exchange request as defined in Section 2.1 of {{RFC8693
 `subject_token` and `subject_token_type`:
 : REQUIRED. One of the following:
 
-  * **First issuance.** An initial access token, presented with a `subject_token_type` of `urn:ietf:params:oauth:token-type:access_token`: an authorization credential issued out of band by this authorization server that pre-authorizes software statement issuance, analogous to the initial access token of {{RFC7591}} ({{initial-access-tokens}}). The credential itself is deployment-defined.
+  * **First issuance.** An initial access token, presented with a `subject_token_type` of `urn:ietf:params:oauth:token-type:access_token`: an authorization credential, issued out of band by this authorization server, that pre-authorizes software statement issuance, analogous to the initial access token of {{RFC7591}} ({{initial-access-tokens}}). The credential itself is deployment-defined.
   * **Renewal.** A software statement this authorization server previously issued with a `sub` claim equal to the request's `client_id`, presented with a `subject_token_type` of `urn:ietf:params:oauth:token-type:software-statement` ({{renewal}}).
 
 `client_id`:
@@ -308,13 +308,13 @@ That authentication is the holder binding: without it, whoever held a copy of th
 
 A client rotating keys inline renews while its document carries both the old and the new key. For a document naming `jwks_uri`, the binding is to whatever that location serves. A public client holds no such key and obtains a new statement through the redirect flow ({{authorization-request}}).
 
-A renewed statement MUST NOT be broader than the subject statement: its `aud` is within the requested audience narrowed to the subject statement's `aud`, or within that `aud` if the request names none, it carries any `aud_tenant` claim of the subject statement, and its `statement_uses` permits no use the subject statement does not. It is matched to the subject statement by `iss` and `sub` ({{LIFECYCLE}}, {{REGISTRATION}}).
+A renewed statement MUST NOT be broader than the subject statement: its `aud` is within the requested audience narrowed to the subject statement's `aud` (or within that `aud` if the request names none), it carries any `aud_tenant` claim of the subject statement, and its `statement_uses` permits no use the subject statement does not. It is matched to the subject statement by `iss` and `sub` ({{LIFECYCLE}}, {{REGISTRATION}}).
 
 An issuer MUST NOT accept as the subject token a statement it has withdrawn, or one whose status it publishes as other than `VALID` ({{LIFECYCLE}}). Renewing such a statement would reissue the decision that withdrawal ended.
 
 The authorization server MAY accept a statement that has expired, and SHOULD bound how long after expiry it will do so.
 
-If the current document's digest equals the subject statement's `cimd_digest`, whether renewal requires fresh review is issuer policy. If the digests differ, the issuer MUST apply the decision it would apply to a first issuance for that document, and MUST NOT renew on the strength of the prior statement alone. Without this rule, whoever can change the document could obtain the issuer's signature over an unreviewed change.
+If the current document's digest equals the subject statement's `cimd_digest`, whether renewal requires fresh review is issuance policy. If the digests differ, the issuer MUST apply the decision it would apply to a first issuance for that document, and MUST NOT renew on the strength of the prior statement alone. Without this rule, whoever can change the document could obtain the issuer's signature over an unreviewed change.
 
 # Software Statement Authorization Request {#authorization-request}
 
@@ -515,7 +515,7 @@ Pragma: no-cache
 }
 ~~~
 
-The `access_token` member is a security-token container ({{RFC8693}}), not an OAuth access token. The software statement it carries is consumed only as {{STATEMENT}} and {{REGISTRATION}} provide, and MUST NOT be attached to a request as an `Authorization: Bearer` credential. A protected resource cannot validate one (Section 4 of {{STATEMENT}}).
+The `access_token` member is a security-token container ({{RFC8693}}), not an OAuth access token. The software statement it carries is consumed only as {{STATEMENT}} and {{REGISTRATION}} provide, and MUST NOT be attached to a request as an `Authorization: Bearer` credential. A protected resource cannot validate a statement (Section 4 of {{STATEMENT}}).
 
 ## Terminal Denial {#terminal-denial}
 
@@ -587,7 +587,7 @@ This section gives guidance to operators and issuers. It adds no requirement.
 
 ## Review and Approval Practice {#review-practice}
 
-Because the client authors the metadata document, an issuer ought to corroborate security-relevant metadata through evidence beyond the document itself. Issuance policy can relate the redirection URI's origin to the client identifier URL or the CIMD's `client_uri` member.
+Because the client authors its CIMD, an issuer ought to corroborate security-relevant metadata through evidence beyond the document itself. Issuance policy can relate the redirection URI's origin to the client identifier URL or the CIMD's `client_uri` member.
 
 The policy governing who can approve issuance ought to be at least as restrictive as the policy under which the issuer registers a client manually. A token exchange carries no in-band evidence of user participation, so an authorization server ought not to treat one as implying prior user consent. An initial access token that authorizes issuance ({{initial-access-tokens}}) records a decision made, when the token was issued, under the policy that governs approval in the redirect flow.
 
@@ -609,7 +609,7 @@ The security considerations of Section 13 of {{STATEMENT}}, {{CIMD}}, and Sectio
 
 The software statement is a signed credential and can contain sensitive deployment information, so it is never returned in an authorization response ({{authorization-response}}). The client's `iss` check ({{software-statement-code-response}}) counters mix-up.
 
-{{authorization-request}} refuses a redirection URI another application can claim for the reason Section 5.6.3 of {{STATEMENT}} gives. A native public client can host an `https` endpoint or use the token exchange profile ({{token-exchange-profile}}).
+For the reason Section 5.6.3 of {{STATEMENT}} gives, {{authorization-request}} refuses a redirection URI that another application on the same device could claim. A native public client can host an `https` endpoint or use the token exchange profile ({{token-exchange-profile}}).
 
 A software statement code in a URL is visible to browser history, referrer fields, logs, and other observers. It is short lived, single use, and unredeemable without the PKCE verifier and any bound `dpop_jkt` key. The `form_post` response mode ({{software-statement-code-response}}) keeps the code out of URLs.
 
@@ -727,11 +727,11 @@ Change Controller:
 : IESG
 
 Specification Document(s):
-: {{RFC8707}}, this specification ({{authorization-request}})
+: {{RFC8707}}, this specification ({{audience}})
 
 ## OAuth Authorization Server Metadata Registry
 
-This specification requests registration of the following values in the IANA "OAuth Authorization Server Metadata" registry established by {{RFC8414}}:
+This specification requests registration of the following value in the IANA "OAuth Authorization Server Metadata" registry established by {{RFC8414}}:
 
 Metadata Name:
 : `software_statement_subject_token_types_supported`
