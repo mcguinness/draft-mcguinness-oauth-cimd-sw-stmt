@@ -174,6 +174,8 @@ Because an issuer's `iat` values for a given `iss` and `sub` increase strictly (
 
 A trusting authorization server MUST retain each `iat` floor for at least the maximum statement lifetime it honors for the issuer after the floor's value. A statement is accepted for the floor once the server admits a client on it, applies it as a replacement ({{refresh-replacement}}), or registers a client or renews a registration with it ({{REGISTRATION}}). The server MUST reject a statement whose `iat` claim is earlier than the retained `iat` floor, whether it arrives as a replacement on refresh, a new registration or a replacement delivered under {{REGISTRATION}}, or a runtime presentation. A repeated registration request that Section 3.3 of {{REGISTRATION}} answers with the existing registration is not a new registration. A client holding a superseded, broader statement therefore cannot defer a narrowing by opening a fresh registration or establishment with it.
 
+The floor needs one `iat` value for each `iss` and `sub` and, on a multi-tenant server, each tenant, not the statements themselves. Every statement the floor refuses has an earlier `iat`, so its effective expiry passes within the maximum statement lifetime the server honors for the issuer, counted from the floor's value. Once that period and any clock-skew allowance have passed, the floor refuses nothing that expiry would not refuse. A server that raises the lifetime it honors for an issuer extends that period for the floors it already holds. A floor lost before then leaves the statements it superseded acceptable until they expire.
+
 At admission, the server verifies the `iat` floor in step 3 of Section 5.1 of {{STATEMENT}}, along with the `client_id` rule, before it resolves the reviewed document.
 
 In selecting a pulled statement (Section 5.5.1 of {{STATEMENT}}), the server also ignores any statement that a refusal record covers ({{withdrawal}}) or that the `iat` floor supersedes. A pulled statement the server does not apply does not advance the `iat` floor. Nor does a review-only presentation or pulled statement (Section 5.6.3 of {{STATEMENT}}).
@@ -361,10 +363,6 @@ On refresh-token use under an establishment, a server that does not apply refres
 
 This section gives guidance to implementers. It adds no requirement.
 
-## Supersession State {#supersession-state}
-
-For the `iat` floor ({{supersession}}), a server keeps one `iat` value for each `iss` and `sub` and, on a multi-tenant server, each tenant, not the statements themselves. Every statement the floor refuses has an earlier `iat`, so its effective expiry passes within the maximum statement lifetime the server honors for the issuer, counted from the floor's value. Once that period and any clock-skew allowance have passed, the floor refuses nothing that expiry would not refuse. A server that raises the lifetime it honors for an issuer extends that period for the floors it already holds. A floor lost before then leaves the statements it superseded acceptable until they expire.
-
 ## Resolution in Response to Events {#event-resolution}
 
 A receiver can bound the rate of the retrievals that events cause by deferring a retrieval briefly and coalescing events that concern the same status list URI ({{processing}}). Its scheduled resolution continues regardless.
@@ -427,7 +425,7 @@ Because {{STATUSLIST}} aggregates many statements into one list, a retrieval tel
 
 Subject identifiers in these events name reviewed software and, in aggregate, describe an organization's approved software estate. For this reason, a stream is scoped as {{configuration}} provides. A receiver ought to treat event logs as sensitive at rest, as Section 11.4 of {{STATEMENT}} treats statements. A log of events is a record about client identifiers that can outlive the issuer's own published status, so a receiver ought to bound its retention.
 
-Refusal records ({{withdrawal}}) and `iat` floors ({{supersession}}) are durable state that an authorization server keeps per client identifier. They show which software an issuer has withdrawn or reviewed again, so a server ought to protect them as it protects statements (Section 11.4 of {{STATEMENT}}) and ought not to keep an `iat` floor longer than its purpose requires ({{supersession-state}}).
+Refusal records ({{withdrawal}}) and `iat` floors ({{supersession}}) are durable state that an authorization server keeps per client identifier. They show which software an issuer has withdrawn or reviewed again, so a server ought to protect them as it protects statements (Section 11.4 of {{STATEMENT}}) and ought not to keep an `iat` floor longer than its purpose requires ({{supersession}}).
 
 # IANA Considerations
 
