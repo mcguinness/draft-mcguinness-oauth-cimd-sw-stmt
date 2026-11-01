@@ -62,7 +62,7 @@ Copyright Notice
 Table of Contents
 
    1.  Introduction
-     1.1.  Overview
+     1.1.  Protocol Overview
    2.  Conventions and Definitions
    3.  Withdrawal and Refusal Records
    4.  Supersession
@@ -111,34 +111,38 @@ Table of Contents
    remains admissible after a newer one is issued, and refresh evaluates
    no statement.
 
-   This specification adds withdrawal and refusal records (Section 3),
-   supersession of earlier statements through an iat floor (Section 4),
-   and refresh rules (Section 5) under which a grant whose recorded
-   statement is withdrawn, or by recommendation expired, continues only
-   if a later statement replaces it.
+   This specification defines withdrawal of a statement and the refusal
+   records that follow from it (Section 3), supersession of earlier
+   statements through an iat floor (Section 4), and refresh rules
+   (Section 5) under which a grant whose recorded statement is
+   withdrawn, or by recommendation expired, continues only if a later
+   statement replaces it.  It profiles Token Status List [STATUSLIST] as
+   its withdrawal mechanism (Section 6) and defines an optional Shared
+   Signals Framework [SSF] event that prompts a server to check status
+   (Section 7).
+
+   This specification extends [STATEMENT], which does not depend on it,
+   and also applies to registrations under [REGISTRATION].  It defines
+   no new endpoint.
+
+1.1.  Protocol Overview
+
+   An issuer withdraws a statement through a withdrawal mechanism, and
+   Section 3 recommends that it withdraw an earlier statement when it
+   issues a later, narrower one.  Under the profile of Token Status List
+   in Section 6, the issuer withdraws a statement by setting its status,
+   and a trusting authorization server learns of the withdrawal when it
+   next resolves the list.  Section 7 defines an optional event that an
+   issuer can send to prompt the trusting authorization servers that
+   have configured it to resolve a changed status promptly.  The event
+   is not itself a withdrawal mechanism.  Publishing status and sending
+   events are optional for an issuer, and supersession and refresh
+   replacement work without them.
 
    A trusting authorization server that implements this specification
    applies all of Section 3 through Section 5 and Section 8, whatever
-   withdrawal mechanism it uses, if any.  Section 3 recommends that an
-   issuer withdraw an earlier statement when it issues a later, narrower
-   one.  Publishing status and sending events are optional for an
-   issuer, and supersession and refresh replacement work without them.
-   A client can offer a later statement on refresh (Section 5.2).
-
-   Section 6 profiles Token Status List [STATUSLIST] as the withdrawal
-   mechanism of this specification: an issuer withdraws a statement by
-   setting its status, and a trusting authorization server learns of it
-   when it next resolves the list.  Section 7 defines an optional Shared
-   Signals Framework [SSF] event, not itself a withdrawal mechanism,
-   that prompts the trusting authorization servers that have configured
-   an issuer to resolve a changed status promptly.
-
-   Registrations under [REGISTRATION] advance the iat floor, and a
-   refusal record ends a registration's validity at the server that
-   holds it.  This specification defines no new endpoint.  It extends
-   [STATEMENT], which does not depend on it.
-
-1.1.  Overview
+   withdrawal mechanism it uses, if any.  A client can offer a later
+   statement on refresh (Section 5.2).
 
    The rules of this specification act at two points: when a statement
    is accepted to open something new, such as an admission, a
@@ -180,10 +184,10 @@ Table of Contents
 
                Table 1: What a Statement's Standing Allows
 
-   A registration ([REGISTRATION]) follows the same pattern: a refusal
-   record covering its governing statement ends its validity, and a
-   superseded governing statement leaves it valid until that statement
-   expires.
+   A registration ([REGISTRATION]) advances the iat floor and follows
+   the same pattern: a refusal record covering its governing statement
+   ends its validity at the server holding the record, and a superseded
+   governing statement leaves it valid until that statement expires.
 
    A server implementing this specification keeps the following state:
 
