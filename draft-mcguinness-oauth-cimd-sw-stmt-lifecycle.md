@@ -102,7 +102,11 @@ A trusting authorization server that implements this specification applies all o
 
 Registrations under {{REGISTRATION}} advance the `iat` floor, and a refusal record ends a registration's validity at the server that holds it. This specification defines no new endpoint. It extends {{STATEMENT}}, which does not depend on it.
 
-## Overview {#overview}
+## Protocol Overview {#overview}
+
+An issuer withdraws a statement through a withdrawal mechanism, and {{withdrawal}} recommends that it withdraw an earlier statement when it issues a later, narrower one. Under the profile of Token Status List in {{token-status-list}}, the issuer withdraws a statement by setting its status, and a trusting authorization server learns of the withdrawal when it next resolves the list. {{shared-signals}} defines an optional event that an issuer can send to prompt the trusting authorization servers that have configured it to resolve a changed status promptly. The event is not itself a withdrawal mechanism. Publishing status and sending events are optional for an issuer, and supersession and refresh replacement work without them.
+
+A trusting authorization server that implements this specification applies all of {{withdrawal}} through {{refresh-lifecycle}} and {{lifecycle-errors}}, whatever withdrawal mechanism it uses, if any. A client can offer a later statement on refresh ({{refresh-replacement}}).
 
 The rules of this specification act at two points: when a statement is accepted to open something new, such as an admission, a registration, or a refresh replacement, and when a grant or registration it governs continues. The `iat` floor ({{supersession}}) limits only the first. A refusal record ({{withdrawal}}), and expiry where the server requires a current statement ({{currency}}), also limit the second. {{tab-standing}} shows what a statement's standing at one authorization server allows. Each row describes one condition on its own. A statement can meet more than one, such as being both superseded and covered by a refusal record, and then the limits of every row it meets apply.
 
@@ -114,7 +118,7 @@ The rules of this specification act at two points: when a statement is accepted 
 | Expired | Rejected | Ignored | Continues unless {{currency}} requires a replacement | Rejected |
 {: #tab-standing title="What a Statement's Standing Allows"}
 
-A registration ({{REGISTRATION}}) follows the same pattern: a refusal record covering its governing statement ends its validity, and a superseded governing statement leaves it valid until that statement expires.
+A registration ({{REGISTRATION}}) advances the `iat` floor and follows the same pattern: a refusal record covering its governing statement ends its validity at the server holding the record, and a superseded governing statement leaves it valid until that statement expires.
 
 A server implementing this specification keeps the following state:
 
