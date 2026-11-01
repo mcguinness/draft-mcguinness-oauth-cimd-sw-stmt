@@ -1,0 +1,2469 @@
+<!DOCTYPE html>
+<html lang="en" class="Internet-Draft">
+<head>
+<meta charset="utf-8">
+<meta content="Common,Latin" name="scripts">
+<meta content="initial-scale=1.0" name="viewport">
+<title>Client ID Metadata Document Software Statement Issuance</title>
+<meta content="Karl McGuinness" name="author">
+<meta content="
+       RFC 7591 defines how a client presents a software statement and how a registration endpoint consumes it, but not how the client obtains one. This specification defines OAuth 2.0 flows for issuing a software statement to a client identified by a Client ID Metadata Document (CIMD) and not registered with the authorization server. 
+       A client holding an initial access token that authorizes issuance, or a statement it can renew, uses OAuth 2.0 Token Exchange (RFC 8693) without a redirect. A client can instead use a redirect flow: the authorization endpoint returns a short-lived  software_statement_code , which the client redeems through a new token endpoint grant. In both flows, a completed decision returns a statement, and a pending decision uses Deferred Token Response and polling. The statement never appears in an authorization response URL. 
+       The client presents the statement at registration or at runtime, or publishes it for servers to pull. A companion specification defines the statement, its validation, and its runtime consumption. 
+    " name="description">
+<meta content="xml2rfc 3.34.1" name="generator">
+<meta content="OAuth" name="keyword">
+<meta content="Software Statement" name="keyword">
+<meta content="Dynamic Client Registration" name="keyword">
+<meta content="Deferred Processing" name="keyword">
+<meta content="Client ID Metadata Document" name="keyword">
+<meta content="Approval" name="keyword">
+<meta content="draft-mcguinness-oauth-cimd-sw-stmt-issuance-latest" name="ietf.draft">
+<!-- Generator version information:
+  xml2rfc 3.34.1
+    Python 3.14.8
+    ConfigArgParse 1.8.0
+    google-i18n-address 3.1.1
+    intervaltree 3.2.1
+    Jinja2 3.1.6
+    lxml 6.1.1
+    natsort 8.4.0
+    platformdirs 4.13.4
+    pycountry 24.6.1
+    PyYAML 6.0.3
+    requests 2.33.1
+    wcwidth 0.9.2
+-->
+<link href="draft-mcguinness-oauth-cimd-sw-stmt-issuance.xml" rel="alternate" type="application/rfc+xml">
+<link href="#copyright" rel="license">
+<style type="text/css">@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Lora SemiBold'), local('Lora-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-semibold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  color-scheme: light dark;
+  --background-color: #fff;
+  --text-color: #222;
+  --title-color: #191919;
+  --link-color: #2a6496;
+  --highlight-color: #f9f9f9;
+  --line-color: #eee;
+  --pilcrow-weak: #ddd;
+  --pilcrow-strong: #bbb;
+  --small-font-size: 14.5px;
+  --font-mono: 'Oxygen Mono', monospace;
+  --font-title: "Sofia Sans Semi Condensed", sans-serif;
+  scrollbar-color: #bbb #eee;
+}
+body {
+  max-width: 600px;
+  margin: 75px auto;
+  padding: 0 5px;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  font: 16px/22px "Lora", serif;
+  scroll-behavior: smooth;
+}
+
+.ears {
+  display: none;
+}
+
+/* headings */
+section {
+  clear: both;
+}
+.section-number {
+  padding-right: 0.5em;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-title);
+  font-weight: 680;
+  margin: 0.8em 0 0.3em;
+  font-size-adjust: 0.5;
+  color: var(--title-color);
+}
+h1 {
+  &#title {
+    font-size: 32px;
+    line-height: 40px;
+    clear: both;
+    margin: 1.5em 0 0.2em;
+  }
+  &#rfcnum {
+    margin: 1.5em 0 0.2em;
+    & + h1#title {
+      margin: 0.2em 0;
+    }
+  }
+}
+
+h1, h2, h3 {
+  font-size: 22px;
+  line-height: 27px;
+}
+h4, h5, h6 {
+  font-size: 20px;
+  line-height: 24px;
+}
+
+/* general structure */
+.author {
+  padding-bottom: 0.3em;
+  vertical-align: top;
+}
+#abstract+p {
+  font-size: 18px;
+  line-height: 24px;
+  & code, & samp, & tt {
+    font-size: 16px;
+    line-height: 0;
+  }
+}
+
+p {
+  padding: 0;
+  margin: 0.5em 0;
+  text-align: left;
+}
+div {
+  margin: 0;
+}
+.alignRight {
+  margin: 1em 0;
+  &.art-text {
+    background-color: var(--highlight-color);
+    border: 1px solid var(--line-color);
+    border-radius: 3px;
+    padding: 0.5em 1em 0;
+    margin-bottom: 0.5em;
+    & pre {
+      padding: 0;
+      width: auto;
+    }
+  }
+  & > *:first-child {
+    border: none;
+    margin: 0;
+    float: right;
+    clear: both;
+  }
+  & > *:nth-child(2) {
+    clear: both;
+    display: block;
+    border: none;
+  }
+}
+svg {
+  display: block;
+  /* font-family isn't space-separated, but =~ will have to do */
+  &[font-family~="monospace" i], & [font-family~="monospace" i] {
+    font-family: var(--font-mono);
+  }
+}
+.alignCenter {
+  margin: 1em 0;
+  &.art-text {
+    background-color: var(--highlight-color);
+    border: 1px solid var(--line-color);
+    border-radius: 3px;
+    padding: 0.5em 1em 0;
+    margin-bottom: 0.5em;
+    & pre {
+      padding: 0;
+      width: auto;
+    }
+  }
+  & > *:first-child {
+    border: none;
+    /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
+       support flexbox yet.
+    */
+    display: table;
+    margin: 0 auto;
+  }
+}
+
+/* lists */
+ol, ul {
+  padding: 0;
+  margin: 0 0 0.5em 2em;
+  & :is(ol, ul) {
+    margin-left: 1em;
+  }
+}
+li {
+  margin: 0 0 0.25em 0;
+}
+ul.empty, .ulEmpty {
+  list-style-type: none;
+  & li {
+    margin-top: 0.5em;
+  }
+}
+:is(ul, ol).compact, .ulCompact, .olCompact {
+  margin: 0 0 0 2em;
+  & li {
+    margin: 0;
+    & :first-child { margin-top: 0; }
+    & :last-child { margin-bottom: 0; }
+  }
+}
+
+/* definition lists */
+dl {
+  clear: left;
+  --indent: 3ch;
+  /* --indent: attr(indent ch); not supported in any browser, but we can dream */
+  &.olPercent {
+    --indent: 5ch;
+    & > dt {
+      min-width: calc(var(--indent) - 2ch);
+      float: none;
+    }
+  }
+
+  dl > dd > & {
+    margin-top: 0.5em;
+    margin-bottom: 0;
+  }
+
+  &:not(.dlNewline) > dt {
+    float: left;
+    margin-right: 2ch;
+    min-width: 8ch;
+  }
+  & > dd {
+    margin-bottom: .8em;
+    margin-left: var(--indent) !important; /* stupid element overrides */
+    min-height: 2ex;
+  }
+}
+:is(dl.compact, .dlCompact) > dd {
+  margin-bottom: 0;
+  & > :is(:first-child, .break:first-child + *) {
+    margin-top: 0;
+  }
+  & > :is(:last-child) {
+    margin-bottom: 0;
+  }
+}
+:is(dd, span).break {
+  display: none;
+}
+
+/* links */
+a {
+  text-decoration: none;
+  &[href] {
+    color: var(--link-color);
+    &:hover { text-decoration: underline; }
+    &.selfRef {
+      color: var(--text-color);
+      &:hover {
+        text-decoration: none;
+        background-color: var(--highlight-color);
+      }
+    }
+  }
+}
+.iref + a[href].internal {
+  color: var(--text-color);
+}
+a.xref:is(.cite, .auto), :is(#status-of-memo, #copyright) a {
+  white-space: nowrap;
+}
+
+/* Figures */
+tt, code, pre {
+  background-color: var(--highlight-color);
+  font: 14px/22px var(--font-mono);
+}
+tt, code {
+  /* changing the font for inline elements leads to different ascender
+     and descender heights; as we want to retain baseline alignment,
+     remove leading to avoid altering the final height of lines
+     note: this fails if these blocks take an entire line,
+     a different solution would be great */
+  line-height: 0;
+}
+:is(h1, h2, h3, h4, h5, h6) :is(tt, code) {
+  font-size: 84%;
+}
+pre {
+  border: 1px solid var(--line-color);
+  font-size: 13.5px;
+  line-height: 16px;
+  letter-spacing: -0.2px;
+  margin: 5px;
+  padding: 5px;
+}
+img {
+  max-width: 100%;
+}
+figure {
+  margin: 0.5em 0;
+  padding: 0;
+  & blockquote {
+    margin: 0.8em 0.4em 0.4em;
+  }
+}
+figcaption, caption {
+  font-style: italic;
+  margin: 0.5em 1.5em;
+  text-align: left;
+  caption-side: bottom;
+}
+@media screen {
+  /* Auto-collapse boilerplate. */
+  :is(#status-of-memo, #copyright) {
+    & p {
+      margin: -2px 0;
+      max-height: 0;
+      transition: max-height 2s ease, margin 0.5s ease 0.5s;
+      overflow: hidden;
+    }
+    &:hover p,
+    & h2:target ~ p {
+      margin: 0.5em 0;
+      max-height: 500px;
+      overflow: auto;
+    }
+  }
+  pre, svg {
+    display: inline-block;
+    /* In the horizontal direction, sometimes people make over-sized figures.
+       Scrollbars for those is therefore necessary: auto adds them as necessary..
+       In the vertical direction, the line-height can combine with the font
+       asender/descender height to produce scrollbars: hidden avoids that. */
+    overflow: auto hidden;
+  }
+  pre {
+    max-width: 100%;
+    width: calc(100% - 22px - 1em);
+  }
+  svg {
+    max-width: calc(100% - 22px - 1em);
+  }
+  figure pre {
+    display: block;
+    width: calc(100% - 25px);
+  }
+  :is(pre, svg) + .pilcrow {
+    display: inline-block;
+    vertical-align: text-bottom;
+    padding-bottom: 8px;
+  }
+}
+
+/* aside, blockquote */
+aside, blockquote {
+  margin-left: 0;
+  padding: 0 2em;
+  font-style: italic;
+}
+blockquote {
+  margin: 1em 0;
+  border-left: 2px var(--pilcrow-strong) solid;
+}
+cite {
+  display: block;
+  text-align: right;
+  font-style: italic;
+}
+
+/* tables */
+table {
+  width: auto;
+  max-width: 100%;
+  margin: 0 0 1em;
+  border-collapse: collapse;
+  &.right { margin-left: auto; }
+  &.center { margin-left: auto; margin-right: auto; }
+  &.left { margin-right: auto; }
+  & .text-left { text-align: left; }
+  & .text-center { text-align: center; }
+  & .text-right { text-align: right; }
+  & caption {
+    margin: 0;
+    padding: 3px 0 3px 1em;
+  }
+  & p { margin: 0; }
+}
+
+thead, tbody {
+  border: 1px solid var(--line-color);
+}
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 5px 10px;
+}
+th {
+  background-color: var(--line-color);
+}
+:is(tr:nth-child(2n), thead+tbody > tr:nth-child(2n+1)) > td {
+  background-color: var(--background-color);
+}
+:is(tr:nth-child(2n+1), thead+tbody > tr:nth-child(2n)) > td {
+  background-color: var(--highlight-color);
+}
+
+/* pilcrow */
+a.pilcrow {
+  margin-left: 3px;
+  opacity: 0.2;
+  user-select: none;
+  &[href] {
+    color: var(--pilcrow-weak);
+    &:hover { text-decoration: none; }
+  }
+  @media not print {
+    :hover > &, &:focus {
+      opacity: 1;
+    }
+    &[href]:hover {
+      color: var(--pilcrow-strong);
+      background-color: transparent;
+    }
+  }
+  @media print {
+    display: none;
+  }
+}
+
+/* misc */
+hr {
+  border: 0;
+  border-top: 1px solid var(--line-color);
+}
+.bcp14 {
+  font-variant: small-caps;
+  font-weight: 600;
+  font-size: var(--small-font-size);
+}
+.role {
+  font-variant: all-small-caps;
+}
+sub, sup {
+  line-height: 1;
+  font-size: 80%;
+}
+
+/* info block */
+#identifiers {
+  margin: 0;
+  font-size: var(--small-font-size);
+  line-height: 18px;
+  --identifier-width: 15ch;
+  & dt {
+    width: var(--identifier-width);
+    min-width: var(--identifier-width);
+    clear: left;
+    float: left;
+    text-align: right;
+    margin-right: 1ch;
+  }
+  & dd {
+    margin: 0;
+    margin-left: calc(1em + var(--identifier-width)) !important;
+    min-width: 5em;
+  }
+  & .authors {
+    & .author {
+      display: inline-block;
+      margin-right: 1.5em;
+    }
+    & .org {
+      font-style: italic;
+    }
+  }
+}
+
+/* The prepared/rendered info at the very bottom of the page */
+.docInfo {
+  color: #999;
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: 2em;
+  & .prepared {
+    float: right;
+  }
+}
+
+/* table of contents */
+#toc {
+  padding: 0.75em 0 2em 0;
+  margin-bottom: 1em;
+
+  & nav {
+    & ul {
+      margin: 0 0.5em 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    & li {
+      line-height: 1.3em;
+      margin: 2px 0;
+      padding-left: 1.2em;
+      text-indent: -1.2em;
+    }
+  }
+  & a.xref {
+    white-space: normal;
+  }
+}
+
+.references {
+  & > dt {
+    text-align: right;
+    font-weight: bold;
+    min-width: 10ch;
+    margin-right: 1.5ch;
+    &:target::before {
+      content: "⇒";
+      margin: 0 10px 0 -25px;
+    }
+  }
+  & > dd {
+    margin-left: 12ch !important;
+    overflow: visible;
+    & .refInstance {
+      margin-bottom: 0.8em;
+    }
+    & .ascii {
+      margin-bottom: 0.25em;
+    }
+  }
+}
+
+#rfc\.index\.index + ul {
+  margin-left: 0;
+}
+
+/* authors */
+address.vcard {
+  font-style: normal;
+  max-width: 20em;
+  margin: 1em auto 1em 0;
+
+  & .nameRole {
+    font-weight: 700;
+    margin-left: 0;
+  }
+  & .label {
+    margin: 0.5em 0;
+  }
+  & .type {
+    display: none;
+  }
+  & .alternative-contact {
+    margin: 0.5em 0 0.25em 0;
+  }
+  & .non-ascii {
+    margin: 0 0 0 2em;
+  }
+  & div.left {
+    text-align: left;
+  }
+  & div.right {
+    text-align: right;
+  }
+}
+
+hr.addr {
+  border-top: 1px dashed;
+  margin: 0;
+  color: #ddd;
+  max-width: calc(100% - 16px);
+}
+@media (min-width: 500px) {
+  #authors-addresses {
+    & > section {
+      column-count: 2;
+      column-gap: 20px;
+    }
+    & > section > h2 {
+      column-span: all;
+    }
+    /* hack for break-inside: avoid-column */
+    & address {
+      display: inline-block;
+      break-inside: avoid-column;
+    }
+  }
+}
+
+/* Comments */
+.rfcEditorRemove {
+  & p:first-of-type {
+    font-style: italic;
+  }
+}
+.cref {
+  background-color: rgba(249, 232, 105, 0.3);
+  padding: 2px 4px;
+}
+.crefSource {
+  font-style: italic;
+}
+
+@media screen {
+  #toc {
+    & nav {
+      font-family: var(--font-title);
+      font-weight: 360;
+      & > ul { margin-bottom: 2em; }
+      & ul {
+        margin: 0 0 0 4px;
+        & :is(p, li) {
+          margin: 2px 0;
+        }
+      }
+    }
+    & a.toplink {
+      float: right;
+    }
+  }
+}
+@media not screen {
+  #toc a.toplink {
+    display: none;
+  }
+}
+
+
+/* TOC layout for smaller screens */
+@media screen and (max-width: 929px) {
+  #toc {
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    padding: 1px 0 0 0;
+    margin: 0;
+    border-bottom: 1px solid #ccc;
+    opacity: 0.6;
+    & h2 {
+      margin: 0;
+      padding: 2px 0 2px 6px;
+      padding-right: 1em;
+      font-size: 18px;
+      line-height: 24px;
+      min-width: 190px;
+      text-align: right;
+      background-color: #444;
+      color: white;
+      cursor: pointer;
+      &::before { /* css hamburger */
+        float: right;
+        position: relative;
+        width: 1em;
+        height: 1px;
+        left: -164px;
+        margin: 8px 0 0 0;
+        background: white none repeat scroll 0 0;
+        box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+        content: "";
+      }
+    }
+    & nav {
+      display: none;
+      background-color: var(--background-color);
+      padding: 0.5em 1em 1em;
+      overflow: auto;
+      overscroll-behavior: contain;
+      height: calc(100vh - 48px);
+      border-left: 1px solid #ddd;
+    }
+    &.active {
+      opacity: 1;
+      & nav { display: block; }
+    }
+    /* Make the collapsed ToC header render white on gray also when it's a link */
+    & h2 a,
+    & h2 a:is(:link, :focus, :hover),
+    & a.toplink,
+    & a.toplink:hover {
+      color: white;
+      background-color: #444;
+      text-decoration: none;
+    }
+    & a.toplink {
+      margin: 2px 0.5em 0;
+    }
+  }
+}
+
+/* TOC layout for wide screens */
+@media screen and (min-width: 930px) {
+  body {
+    padding-right: 360px;
+    padding-right: calc(min(180px + 20%, 500px));
+  }
+  #toc {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    right: calc(50vw - 480px);
+    width: 312px;
+    margin: 0;
+    padding: 0;
+    z-index: 1;
+    & h2 {
+      margin: 0;
+      padding: 0.25em 1em 1em 0;
+    }
+    & nav {
+      display: block;
+      height: calc(90vh - 84px);
+      bottom: 0;
+      padding: 0.5em 0 2em;
+      overflow: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+    }
+    & a.toplink {
+      margin: 8px 0.5em 0;
+    }
+  }
+  img { /* future proofing */
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* pagination */
+@media print {
+  body {
+    width: 100%;
+  }
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+  #n-copyright-notice {
+    border-bottom: none;
+  }
+  #toc {
+    page-break-before: always;
+    border-top: none;
+    padding-top: 0;
+  }
+  #n-introduction {
+    page-break-before: always;
+  }
+  figure, pre, .vcard {
+    page-break-inside: avoid;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+  :is(h2, h3, h4, h5, h6)+*, dd {
+    page-break-before: avoid;
+  }
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 10pt;
+  }
+  table {
+    border: 1px solid #ddd;
+  }
+  td {
+    border-top: 1px solid #ddd;
+  }
+}
+
+@page :first {
+  padding-top: 0;
+  @top-left {
+    content: normal;
+    border: none;
+  }
+  @top-center {
+    content: normal;
+    border: none;
+  }
+  @top-right {
+    content: normal;
+    border: none;
+  }
+}
+
+@page {
+  size: A4;
+  margin-bottom: 45mm;
+  padding-top: 20px;
+}
+
+/* Dark mode. */
+@media (prefers-color-scheme: dark) {
+:root {
+  --background-color: #121212;
+  --text-color: #f0f0f0;
+  --title-color: #fff;
+  --link-color: #4da4f0;
+  --highlight-color: #282828;
+  --line-color: #444;
+  --pilcrow-weak: #444;
+  --pilcrow-strong: #666;
+  scrollbar-color: #777 #333;
+}
+}
+
+/* SVG Trick: a prefix match works because only black and white are allowed */
+svg {
+  & :is([stroke="black"], [stroke^="#000"]) {
+    stroke: var(--text-color);
+  }
+  & :is([stroke="white"], [stroke^="#fff"]) {
+    stroke: var(--background-color);
+  }
+  & :is([fill="black"], [fill^="#000"], :not([fill])) {
+    fill: var(--text-color);
+  }
+  & :is([fill="white"], [fill^="#fff"]) {
+    fill: var(--background-color);
+  }
+}
+</style>
+
+</head>
+<body class="xml2rfc">
+<table class="ears">
+<thead><tr>
+<td class="left">Internet-Draft</td>
+<td class="center">oauth-cimd-sw-stmt-issuance</td>
+<td class="right">November 2026</td>
+</tr></thead>
+<tfoot><tr>
+<td class="left">McGuinness</td>
+<td class="center">Expires 5 May 2027</td>
+<td class="right">[Page]</td>
+</tr></tfoot>
+</table>
+<div id="external-metadata" class="document-information"></div>
+<div id="internal-metadata" class="document-information">
+<dl id="identifiers">
+<dt class="label-workgroup">Workgroup:</dt>
+<dd class="workgroup">Web Authorization Protocol</dd>
+<dt class="label-internet-draft">Internet-Draft:</dt>
+<dd class="internet-draft">draft-mcguinness-oauth-cimd-sw-stmt-issuance-latest</dd>
+<dt class="label-published">Published:</dt>
+<dd class="published">
+<time datetime="2026-11-01" class="published">1 November 2026</time>
+    </dd>
+<dt class="label-intended-status">Intended Status:</dt>
+<dd class="intended-status">Standards Track</dd>
+<dt class="label-expires">Expires:</dt>
+<dd class="expires"><time datetime="2027-05-05">5 May 2027</time></dd>
+<dt class="label-authors">Author:</dt>
+<dd class="authors">
+<div class="author">
+      <div class="author-name">K. McGuinness</div>
+<div class="org">Independent</div>
+</div>
+</dd>
+</dl>
+</div>
+<h1 id="title">Client ID Metadata Document Software Statement Issuance</h1>
+<section id="section-abstract">
+      <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
+<p id="section-abstract-1">RFC 7591 defines how a client presents a software statement and how a registration endpoint consumes it, but not how the client obtains one. This specification defines OAuth 2.0 flows for issuing a software statement to a client identified by a Client ID Metadata Document (CIMD) and not registered with the authorization server.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+<p id="section-abstract-2">A client holding an initial access token that authorizes issuance, or a statement it can renew, uses OAuth 2.0 Token Exchange (RFC 8693) without a redirect. A client can instead use a redirect flow: the authorization endpoint returns a short-lived <code>software_statement_code</code>, which the client redeems through a new token endpoint grant. In both flows, a completed decision returns a statement, and a pending decision uses Deferred Token Response and polling. The statement never appears in an authorization response URL.<a href="#section-abstract-2" class="pilcrow">¶</a></p>
+<p id="section-abstract-3">The client presents the statement at registration or at runtime, or publishes it for servers to pull. A companion specification defines the statement, its validation, and its runtime consumption.<a href="#section-abstract-3" class="pilcrow">¶</a></p>
+</section>
+<div id="status-of-memo">
+<section id="section-boilerplate.1">
+        <h2 id="name-status-of-this-memo">
+<a href="#name-status-of-this-memo" class="section-name selfRef">Status of This Memo</a>
+        </h2>
+<p id="section-boilerplate.1-1">
+        This Internet-Draft is submitted in full conformance with the
+        provisions of BCP 78 and BCP 79.<a href="#section-boilerplate.1-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-2">
+        Internet-Drafts are working documents of the Internet Engineering Task
+        Force (IETF). Note that other groups may also distribute working
+        documents as Internet-Drafts. The list of current Internet-Drafts is
+        at <span><a href="https://datatracker.ietf.org/drafts/current/">https://datatracker.ietf.org/drafts/current/</a></span>.<a href="#section-boilerplate.1-2" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-3">
+        Internet-Drafts are draft documents valid for a maximum of six months
+        and may be updated, replaced, or obsoleted by other documents at any
+        time. It is inappropriate to use Internet-Drafts as reference
+        material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-4">
+        This Internet-Draft will expire on 5 May 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="copyright">
+<section id="section-boilerplate.2">
+        <h2 id="name-copyright-notice">
+<a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
+        </h2>
+<p id="section-boilerplate.2-1">
+            Copyright (c) 2026 IETF Trust and the persons identified as the
+            document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.2-2">
+            This document is subject to BCP 78 and the IETF Trust's Legal
+            Provisions Relating to IETF Documents
+            (<span><a href="https://trustee.ietf.org/license-info">https://trustee.ietf.org/license-info</a></span>) in effect on the date of
+            publication of this document. Please review these documents
+            carefully, as they describe your rights and restrictions with
+            respect to this document. Code Components extracted from this
+            document must include Revised BSD License text as described in
+            Section 4.e of the Trust Legal Provisions and are provided without
+            warranty as described in the Revised BSD License.<a href="#section-boilerplate.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="toc">
+<section id="section-toc.1">
+        <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents">
+<a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
+        </h2>
+<nav class="toc"><ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1">
+            <p id="section-toc.1-1.1.1" class="keepWithNext"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1">
+                <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="auto internal xref">1.1</a>.  <a href="#name-protocol-overview" class="internal xref">Protocol Overview</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1.2.1">
+                    <p id="section-toc.1-1.1.2.1.2.1.1" class="keepWithNext"><a href="#section-1.1.1" class="auto internal xref">1.1.1</a>.  <a href="#name-redirect-flow" class="internal xref">Redirect Flow</a></p>
+</li>
+                </ul>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
+            <p id="section-toc.1-1.2.1"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-conventions-and-definitions" class="internal xref">Conventions and Definitions</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-client-identification-and-a" class="internal xref">Client Identification and Authentication</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1">
+                <p id="section-toc.1-1.3.2.1.1"><a href="#section-3.1" class="auto internal xref">3.1</a>.  <a href="#name-metadata-snapshot" class="internal xref">Metadata Snapshot</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-common-request-rules" class="internal xref">Common Request Rules</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1">
+                <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-audience" class="internal xref">Audience</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2">
+                <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="auto internal xref">4.2</a>.  <a href="#name-prohibited-parameters" class="internal xref">Prohibited Parameters</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-token-exchange-profile" class="internal xref">Token Exchange Profile</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.1">
+                <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="auto internal xref">5.1</a>.  <a href="#name-initial-access-tokens" class="internal xref">Initial Access Tokens</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.2">
+                <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="auto internal xref">5.2</a>.  <a href="#name-renewal" class="internal xref">Renewal</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-software-statement-authoriz" class="internal xref">Software Statement Authorization Request</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-authorization-response" class="internal xref">Authorization Response</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.1">
+                <p id="section-toc.1-1.7.2.1.1"><a href="#section-7.1" class="auto internal xref">7.1</a>.  <a href="#name-software-statement-code-res" class="internal xref">Software Statement Code Response</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-software-statement-code-red" class="internal xref">Software Statement Code Redemption</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
+            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-deferred-processing" class="internal xref">Deferred Processing</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
+            <p id="section-toc.1-1.10.1"><a href="#section-10" class="auto internal xref">10</a>. <a href="#name-software-statement-token-re" class="internal xref">Software Statement Token Response</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.1">
+                <p id="section-toc.1-1.10.2.1.1"><a href="#section-10.1" class="auto internal xref">10.1</a>.  <a href="#name-terminal-denial" class="internal xref">Terminal Denial</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
+            <p id="section-toc.1-1.11.1"><a href="#section-11" class="auto internal xref">11</a>. <a href="#name-issuer-as-trusting-authoriz" class="internal xref">Issuer as Trusting Authorization Server</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
+            <p id="section-toc.1-1.12.1"><a href="#section-12" class="auto internal xref">12</a>. <a href="#name-authorization-server-metada" class="internal xref">Authorization Server Metadata</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13">
+            <p id="section-toc.1-1.13.1"><a href="#section-13" class="auto internal xref">13</a>. <a href="#name-implementation-consideratio" class="internal xref">Implementation Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13.2.1">
+                <p id="section-toc.1-1.13.2.1.1"><a href="#section-13.1" class="auto internal xref">13.1</a>.  <a href="#name-retrieval-and-approval-queu" class="internal xref">Retrieval and Approval-Queue Bounds</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13.2.2">
+                <p id="section-toc.1-1.13.2.2.1"><a href="#section-13.2" class="auto internal xref">13.2</a>.  <a href="#name-handling-the-issued-stateme" class="internal xref">Handling the Issued Statement</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13.2.3">
+                <p id="section-toc.1-1.13.2.3.1"><a href="#section-13.3" class="auto internal xref">13.3</a>.  <a href="#name-approval-interface" class="internal xref">Approval Interface</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13.2.4">
+                <p id="section-toc.1-1.13.2.4.1"><a href="#section-13.4" class="auto internal xref">13.4</a>.  <a href="#name-audit-and-logging" class="internal xref">Audit and Logging</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14">
+            <p id="section-toc.1-1.14.1"><a href="#section-14" class="auto internal xref">14</a>. <a href="#name-deployment-considerations" class="internal xref">Deployment Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14.2.1">
+                <p id="section-toc.1-1.14.2.1.1"><a href="#section-14.1" class="auto internal xref">14.1</a>.  <a href="#name-review-and-approval-practic" class="internal xref">Review and Approval Practice</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14.2.2">
+                <p id="section-toc.1-1.14.2.2.1"><a href="#section-14.2" class="auto internal xref">14.2</a>.  <a href="#name-deferral-lifetimes" class="internal xref">Deferral Lifetimes</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14.2.3">
+                <p id="section-toc.1-1.14.2.3.1"><a href="#section-14.3" class="auto internal xref">14.3</a>.  <a href="#name-signing-keys" class="internal xref">Signing Keys</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15">
+            <p id="section-toc.1-1.15.1"><a href="#section-15" class="auto internal xref">15</a>. <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15.2.1">
+                <p id="section-toc.1-1.15.2.1.1"><a href="#section-15.1" class="auto internal xref">15.1</a>.  <a href="#name-authorization-response-secu" class="internal xref">Authorization Response Security</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15.2.2">
+                <p id="section-toc.1-1.15.2.2.1"><a href="#section-15.2" class="auto internal xref">15.2</a>.  <a href="#name-token-exchange-consideratio" class="internal xref">Token Exchange Considerations</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15.2.3">
+                <p id="section-toc.1-1.15.2.3.1"><a href="#section-15.3" class="auto internal xref">15.3</a>.  <a href="#name-renewal-by-prior-statement" class="internal xref">Renewal by Prior Statement</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15.2.4">
+                <p id="section-toc.1-1.15.2.4.1"><a href="#section-15.4" class="auto internal xref">15.4</a>.  <a href="#name-signing-keys-and-algorithms" class="internal xref">Signing Keys and Algorithms</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15.2.5">
+                <p id="section-toc.1-1.15.2.5.1"><a href="#section-15.5" class="auto internal xref">15.5</a>.  <a href="#name-approver-authority" class="internal xref">Approver Authority</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.16">
+            <p id="section-toc.1-1.16.1"><a href="#section-16" class="auto internal xref">16</a>. <a href="#name-privacy-considerations" class="internal xref">Privacy Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.17">
+            <p id="section-toc.1-1.17.1"><a href="#section-17" class="auto internal xref">17</a>. <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.17.2.1">
+                <p id="section-toc.1-1.17.2.1.1"><a href="#section-17.1" class="auto internal xref">17.1</a>.  <a href="#name-oauth-authorization-endpoin" class="internal xref">OAuth Authorization Endpoint Response Types Registry</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.17.2.2">
+                <p id="section-toc.1-1.17.2.2.1"><a href="#section-17.2" class="auto internal xref">17.2</a>.  <a href="#name-oauth-uri-registry" class="internal xref">OAuth URI Registry</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.17.2.3">
+                <p id="section-toc.1-1.17.2.3.1"><a href="#section-17.3" class="auto internal xref">17.3</a>.  <a href="#name-oauth-parameters-registry" class="internal xref">OAuth Parameters Registry</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.17.2.4">
+                <p id="section-toc.1-1.17.2.4.1"><a href="#section-17.4" class="auto internal xref">17.4</a>.  <a href="#name-oauth-extensions-error-regi" class="internal xref">OAuth Extensions Error Registry</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.17.2.5">
+                <p id="section-toc.1-1.17.2.5.1"><a href="#section-17.5" class="auto internal xref">17.5</a>.  <a href="#name-oauth-authorization-server-" class="internal xref">OAuth Authorization Server Metadata Registry</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.18">
+            <p id="section-toc.1-1.18.1"><a href="#section-18" class="auto internal xref">18</a>. <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.18.2.1">
+                <p id="section-toc.1-1.18.2.1.1"><a href="#section-18.1" class="auto internal xref">18.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.18.2.2">
+                <p id="section-toc.1-1.18.2.2.1"><a href="#section-18.2" class="auto internal xref">18.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.19">
+            <p id="section-toc.1-1.19.1"><a href="#appendix-A" class="auto internal xref">Appendix A</a>.  <a href="#name-design-rationale" class="internal xref">Design Rationale</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.20">
+            <p id="section-toc.1-1.20.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.21">
+            <p id="section-toc.1-1.21.1"><a href="#appendix-C" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
+</li>
+        </ul>
+</nav>
+</section>
+</div>
+<div id="introduction">
+<section id="section-1">
+      <h2 id="name-introduction">
+<a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
+      </h2>
+<p id="section-1-1"><span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> standardizes the consumption of a software statement, a signed JWT asserting client metadata (Section 2.3 of <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>), but not its issuance. Issuance today relies on manual provisioning or proprietary processes. The UK Open Banking Directory <span>[<a href="#UK-OPEN-BANKING" class="cite xref">UK-OPEN-BANKING</a>]</span> and the Australian Consumer Data Right Register <span>[<a href="#AU-CDR" class="cite xref">AU-CDR</a>]</span> each built a central issuer, yet a client needs a separate integration for each.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2"><span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> profiles that statement to carry no client metadata and instead vouch for the exact octets of a Client ID Metadata Document (CIMD), and defines its validation and consumption. This specification defines how a client obtains one, through OAuth token exchange (<a href="#token-exchange-profile" class="auto internal xref">Section 5</a>) or a redirect flow (<a href="#authorization-request" class="auto internal xref">Section 6</a>). An issuer whose review cannot complete within a request can defer its response under <span>[<a href="#DTR" class="cite xref">DTR</a>]</span>.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">A statement makes one issuer's decision portable to the authorization servers in its audience that trust the issuer (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). If the trust decision is local to one authorization server, an <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> initial access token for registration, pre-registration <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>, or approval-based registration <span>[<a href="#APPROVAL-DCR" class="cite xref">APPROVAL-DCR</a>]</span> can establish the client directly.<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-4">Approval workflow, approver identity, external approval integration, acceptance of any particular issuer, issuer discovery, and issuance that a publisher's backend authorizes on a client's behalf are out of scope. This specification does not authenticate such a backend. This specification extends <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, which does not depend on it.<a href="#section-1-4" class="pilcrow">¶</a></p>
+<div id="protocol-overview">
+<section id="section-1.1">
+        <h3 id="name-protocol-overview">
+<a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-protocol-overview" class="section-name selfRef">Protocol Overview</a>
+        </h3>
+<p id="section-1.1-1">A client that holds an initial access token authorizing issuance, or a statement it can renew, uses token exchange at the token endpoint without a user agent (<a href="#token-exchange-profile" class="auto internal xref">Section 5</a>). A client can instead initiate the redirect flow at the authorization endpoint (<a href="#authorization-request" class="auto internal xref">Section 6</a>) and redeem the resulting software statement code at the token endpoint.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
+<p id="section-1.1-2">The issuer fetches and snapshots the client's CIMD (<a href="#metadata-snapshot" class="auto internal xref">Section 3.1</a>), decides whether to issue, and signs the statement. The client carries the statement to trusting authorization servers in its audience, at registration (<span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>) or at runtime (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-1.1-2" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-1.1-3">
+<pre>
+                +--------------------------+
+                | Client ID Metadata       |
+                | Document (client_id URL) |
+                +--------------------------+
+                  ^                      ^
+            hosts |                      | fetches and
+                  |                      |   snapshots
++----------+      |                      |      +---------------+
+|          +------+                      +------+    Issuing    |
+|  Client  |                                    | Authorization |
+|          |--(1) software statement request --&gt;|    Server     |
+|          |&lt;-(2) software statement -----------|   (approval)  |
++----------+      (signed JWT)                  +---------------+
+     |
+     | (3) presentation, publication, or registration
+     v
++---------------+  +---------------+       +---------------+
+|   Trusting    |  |   Trusting    |  ...  |   Trusting    |
+| Authorization |  | Authorization |       | Authorization |
+|   Server 1    |  |   Server 2    |       |   Server M    |
++---------------+  +---------------+       +---------------+
+</pre><a href="#section-1.1-3" class="pilcrow">¶</a>
+</div>
+<div id="redirect-flow">
+<section id="section-1.1.1">
+          <h4 id="name-redirect-flow">
+<a href="#section-1.1.1" class="section-number selfRef">1.1.1. </a><a href="#name-redirect-flow" class="section-name selfRef">Redirect Flow</a>
+          </h4>
+<div class="alignLeft art-text artwork" id="section-1.1.1-1">
+<pre>
++--------+                                  +----------------------+
+| Client |                                  | Authorization Server |
++--------+                                  +----------------------+
+    |                                                 |
+    | (A) Authorization request                       |
+    |     response_type=software_statement_code       |
+    |     client_id=&lt;metadata document URL&gt;           |
+    |     code_challenge, [audience], [dpop_jkt]      |
+    |------------------------------------------------&gt;|
+    |                                                 |
+    | (B) Software statement code response            |
+    |     (software_statement_code, state, iss)       |
+    |&lt;------------------------------------------------|
+    |                                                 |
+    | (C) Redemption                                  |
+    |     (software_statement_code, code_verifier,    |
+    |      completion_mode=deferred)                  |
+    |------------------------------------------------&gt;|
+    |                                                 |
+    | (D) Software statement response or              |
+    |     deferred response (deferral_code)           |
+    |&lt;------------------------------------------------|
+    |                                                 |
+    | (E) Poll(s) (deferral_code), if deferred        |
+    |------------------------------------------------&gt;|
+    |     authorization_pending or final response     |
+    |&lt;------------------------------------------------|
+</pre><a href="#section-1.1.1-1" class="pilcrow">¶</a>
+</div>
+<p id="section-1.1.1-2">At (A), the authorization server validates the request, performs any user-agent interaction or initiates an approval workflow, and returns a software statement code at (B).<a href="#section-1.1.1-2" class="pilcrow">¶</a></p>
+<p id="section-1.1.1-3">At (C), the client redeems the code with its Proof Key for Code Exchange (PKCE) verifier. The response at (D) carries the statement or a <span>[<a href="#DTR" class="cite xref">DTR</a>]</span> <code>deferral_code</code>, with which the client polls at (E). Errors follow <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> and <span>[<a href="#DTR" class="cite xref">DTR</a>]</span>.<a href="#section-1.1.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+</section>
+</div>
+<div id="conventions-and-definitions">
+<section id="section-2">
+      <h2 id="name-conventions-and-definitions">
+<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-conventions-and-definitions" class="section-name selfRef">Conventions and Definitions</a>
+      </h2>
+<p id="section-2-1">The key words "<span class="bcp14">MUST</span>", "<span class="bcp14">MUST NOT</span>", "<span class="bcp14">REQUIRED</span>", "<span class="bcp14">SHALL</span>", "<span class="bcp14">SHALL NOT</span>", "<span class="bcp14">SHOULD</span>", "<span class="bcp14">SHOULD NOT</span>", "<span class="bcp14">RECOMMENDED</span>", "<span class="bcp14">NOT RECOMMENDED</span>",
+"<span class="bcp14">MAY</span>", and "<span class="bcp14">OPTIONAL</span>" in this document are to be interpreted as
+described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="cite xref">RFC8174</a>]</span> when, and only when, they
+appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶</a></p>
+<p id="section-2-2">This specification uses terminology defined in <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>, <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>, and <span>[<a href="#DTR" class="cite xref">DTR</a>]</span>, and the terms defined in Section 2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>. The issuer is an authorization server, and "authorization server" alone means the issuer.<a href="#section-2-2" class="pilcrow">¶</a></p>
+<p id="section-2-3">This specification defines the following terms:<a href="#section-2-3" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-2-4">
+        <dt id="section-2-4.1">Software Statement Code:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-4.2">
+          <p id="section-2-4.2.1">The short-lived, single-use artifact returned by the software statement code response (<a href="#software-statement-code-response" class="auto internal xref">Section 7.1</a>) and redeemed at the token endpoint (<a href="#software-statement-code-redemption" class="auto internal xref">Section 8</a>).<a href="#section-2-4.2.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-2-4.3">Deferring Issuer:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-4.4">
+          <p id="section-2-4.4.1">An issuer that advertises <code>true</code> for <code>deferred_token_response_supported</code> (<a href="#authorization-server-metadata" class="auto internal xref">Section 12</a>) and so can defer a decision (<a href="#deferred-processing" class="auto internal xref">Section 9</a>).<a href="#section-2-4.4.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="client-identity">
+<section id="section-3">
+      <h2 id="name-client-identification-and-a">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-client-identification-and-a" class="section-name selfRef">Client Identification and Authentication</a>
+      </h2>
+<p id="section-3-1">The <code>client_id</code> parameter in every request defined by this specification <span class="bcp14">MUST</span> be a client identifier URL conforming to <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>. The authorization server <span class="bcp14">MUST</span> obtain and validate the document at that URL according to <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>.<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-3-2">In the redirect flow, a client identifier whose CIMD cannot be retrieved or validated, including a document rejected for duplicate member names (<a href="#metadata-snapshot" class="auto internal xref">Section 3.1</a>), is invalid for the purposes of Section 4.1.2.1 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>.<a href="#section-3-2" class="pilcrow">¶</a></p>
+<p id="section-3-3">The client authenticates to the token endpoint using the <code>token_endpoint_auth_method</code> and related key metadata in its CIMD. The authorization server classifies the client from that member:<a href="#section-3-3" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3-4.1">
+          <p id="section-3-4.1.1"><code>none</code> (explicit) establishes a public client.<a href="#section-3-4.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-3-4.2">
+          <p id="section-3-4.2.1">Any other value establishes a confidential client:<a href="#section-3-4.2.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3-4.2.2.1">
+              <p id="section-3-4.2.2.1.1">The authorization server <span class="bcp14">MUST</span> require exactly that method.<a href="#section-3-4.2.2.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-3-4.2.2.2">
+              <p id="section-3-4.2.2.2.1">If the authorization server does not support the declared method, it <span class="bcp14">MUST</span> reject the request rather than treat the client as public, with the <code>unauthorized_client</code> error code at the authorization endpoint and with the <code>invalid_client</code> error code (Section 5.2 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>) at the token endpoint.<a href="#section-3-4.2.2.2.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+</li>
+        <li class="normal" id="section-3-4.3">
+          <p id="section-3-4.3.1">An omitted value establishes neither, and any request identifying such a client <span class="bcp14">MUST</span> be rejected, with the <code>invalid_request</code> error code at the authorization endpoint, returned to the redirection URI validated against the document, and with the <code>invalid_client</code> error code (Section 5.2 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>) at the token endpoint.<a href="#section-3-4.3.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-3-5">A public client binds its requests with Demonstrating Proof of Possession (DPoP) <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>: in the redirect flow through the <code>dpop_jkt</code> parameter (<a href="#authorization-request" class="auto internal xref">Section 6</a>), and in the token exchange profile (<a href="#token-exchange-profile" class="auto internal xref">Section 5</a>) by a DPoP proof, which a public client <span class="bcp14">MUST</span> include on the exchange request. A confidential client <span class="bcp14">MAY</span> use DPoP in addition to its client authentication method.<a href="#section-3-5" class="pilcrow">¶</a></p>
+<div id="metadata-snapshot">
+<section id="section-3.1">
+        <h3 id="name-metadata-snapshot">
+<a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-metadata-snapshot" class="section-name selfRef">Metadata Snapshot</a>
+        </h3>
+<p id="section-3.1-1">CIMDs can change while a request is pending. For each request, the authorization server retrieves and validates the document (<a href="#client-identity" class="auto internal xref">Section 3</a>) and computes the metadata digest of the exact octets it retrieved, as Section 3.1 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> requires. These octets and their digest are the request's metadata snapshot. A deferral created at redemption is bound to the code's snapshot and audience. The authorization server <span class="bcp14">MUST</span> bind the snapshot and the requested audience to each software statement code and deferral it creates, and issues the statement over that snapshot.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.1-2">The authorization server <span class="bcp14">MAY</span> retrieve the document again before issuing the software statement. If it does so and the digest differs, it <span class="bcp14">MUST</span> either re-evaluate the request under the new document, binding the new document as the snapshot, or reject the request. This applies even if the change touches no member its policy examines. A statement over a superseded snapshot fails the digest comparison (Section 5.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-3.1-2" class="pilcrow">¶</a></p>
+<p id="section-3.1-3">The authorization server <span class="bcp14">MUST NOT</span> combine values from different document versions.<a href="#section-3.1-3" class="pilcrow">¶</a></p>
+<p id="section-3.1-4">Replacing the snapshot does not alter the sender-constraint context fixed for a deferral at origination (<span>[<a href="#DTR" class="cite xref">DTR</a>]</span>). If a replacement snapshot no longer authorizes the key material behind that context, for example because the client-authentication key is absent from the new document, the authorization server <span class="bcp14">MUST</span> invalidate the deferral. The client then makes a new request under its current keys.<a href="#section-3.1-4" class="pilcrow">¶</a></p>
+<p id="section-3.1-5">The authorization server <span class="bcp14">MUST</span> reject a document containing duplicate object member names (Section 5.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-3.1-5" class="pilcrow">¶</a></p>
+<p id="section-3.1-6">An issuer can require <code>jwks</code> inline (Section 13.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-3.1-6" class="pilcrow">¶</a></p>
+<p id="section-3.1-7"><span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> permits a document to carry a <code>software_statement</code> member. An issuer evaluates the document as served and <span class="bcp14">MUST NOT</span> refuse a document because it carries the member. Trusting authorization servers ignore a statement embedded there (Section 3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), and refusing would leave a client whose document embeds a statement unable to renew it.<a href="#section-3.1-7" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="common-rules">
+<section id="section-4">
+      <h2 id="name-common-request-rules">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-common-request-rules" class="section-name selfRef">Common Request Rules</a>
+      </h2>
+<div id="audience">
+<section id="section-4.1">
+        <h3 id="name-audience">
+<a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-audience" class="section-name selfRef">Audience</a>
+        </h3>
+<p id="section-4.1-1">The <code>audience</code> parameter of an authorization request (<a href="#authorization-request" class="auto internal xref">Section 6</a>) or token exchange (<a href="#token-exchange-profile" class="auto internal xref">Section 5</a>) names a target service at which the client intends to use the statement, with the semantics of Section 2.1 of <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>. The parameter can be repeated to request several. Each value <span class="bcp14">MUST</span> be an authorization server issuer identifier as defined by <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span>. Values <span class="bcp14">MUST NOT</span> be duplicated, and order is insignificant.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+<p id="section-4.1-2">The authorization server selects the final audience according to policy. It <span class="bcp14">MUST NOT</span> place in the statement's <code>aud</code> claim any value the request did not carry, except as <a href="#renewal" class="auto internal xref">Section 5.2</a> provides.<a href="#section-4.1-2" class="pilcrow">¶</a></p>
+<p id="section-4.1-3">If no requested audience is acceptable, the authorization server <span class="bcp14">MUST</span> reject the request with the <code>invalid_target</code> error code, as defined by <span>[<a href="#RFC8707" class="cite xref">RFC8707</a>]</span> at the authorization endpoint and by Section 2.2.2 of <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span> at the token endpoint. An authorization server whose policy requires a restricted audience rejects a request carrying none, other than a renewal whose subject statement names an audience, with the same error.<a href="#section-4.1-3" class="pilcrow">¶</a></p>
+<p id="section-4.1-4">These <code>audience</code> semantics apply only to software statement requests and do not affect proprietary uses of the parameter for access-token targeting.<a href="#section-4.1-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="prohibited-parameters">
+<section id="section-4.2">
+        <h3 id="name-prohibited-parameters">
+<a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-prohibited-parameters" class="section-name selfRef">Prohibited Parameters</a>
+        </h3>
+<p id="section-4.2-1">A software statement request does not grant access to a protected resource, and it asks for a statement rather than presenting one. An authorization request, software statement code redemption, or token exchange under this specification <span class="bcp14">MUST NOT</span> contain the <code>scope</code> parameter, the <code>resource</code> parameter (<span>[<a href="#RFC8707" class="cite xref">RFC8707</a>]</span>), the <code>authorization_details</code> parameter (<span>[<a href="#RFC9396" class="cite xref">RFC9396</a>]</span>), or the <code>software_statement</code> parameter (Section 5.4 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). The authorization server <span class="bcp14">MUST</span> reject a request containing any of them with the <code>invalid_request</code> error code. The <code>audience</code> parameter (<a href="#audience" class="auto internal xref">Section 4.1</a>) is not prohibited: it describes the requested artifact rather than requesting access.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="token-exchange-profile">
+<section id="section-5">
+      <h2 id="name-token-exchange-profile">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-token-exchange-profile" class="section-name selfRef">Token Exchange Profile</a>
+      </h2>
+<p id="section-5-1">A client that already holds a token carrying issuance authority <span class="bcp14">MAY</span> exchange that token for a statement using OAuth 2.0 Token Exchange <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span> instead of the redirect flow (<a href="#authorization-request" class="auto internal xref">Section 6</a>).<a href="#section-5-1" class="pilcrow">¶</a></p>
+<p id="section-5-2">The client sends a token exchange request as defined in Section 2.1 of <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>, with the following parameters:<a href="#section-5-2" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-5-3">
+        <dt id="section-5-3.1">
+<code>requested_token_type</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-5-3.2">
+          <p id="section-5-3.2.1"><span class="bcp14">REQUIRED</span>. The value <span class="bcp14">MUST</span> be <code>urn:ietf:params:oauth:token-type:software-statement</code>.<a href="#section-5-3.2.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-5-3.3">
+<code>subject_token</code> and <code>subject_token_type</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-5-3.4">
+          <p id="section-5-3.4.1"><span class="bcp14">REQUIRED</span>. One of the following:<a href="#section-5-3.4.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-5-3.4.2.1">
+              <p id="section-5-3.4.2.1.1"><strong>First issuance.</strong> An initial access token, presented with a <code>subject_token_type</code> of <code>urn:ietf:params:oauth:token-type:access_token</code>: an authorization credential issued out of band by this authorization server that pre-authorizes software statement issuance, analogous to the initial access token of <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> (<a href="#initial-access-tokens" class="auto internal xref">Section 5.1</a>). The credential itself is deployment-defined.<a href="#section-5-3.4.2.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-5-3.4.2.2">
+              <p id="section-5-3.4.2.2.1"><strong>Renewal.</strong> A software statement this authorization server previously issued with a <code>sub</code> claim equal to the request's <code>client_id</code>, presented with a <code>subject_token_type</code> of <code>urn:ietf:params:oauth:token-type:software-statement</code> (<a href="#renewal" class="auto internal xref">Section 5.2</a>).<a href="#section-5-3.4.2.2.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-5-3.5">
+<code>client_id</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-5-3.6">
+          <p id="section-5-3.6.1"><span class="bcp14">REQUIRED</span>. The client identifier URL described in <a href="#client-identity" class="auto internal xref">Section 3</a>.<a href="#section-5-3.6.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-5-3.7">
+<code>audience</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-5-3.8">
+          <p id="section-5-3.8.1"><span class="bcp14">OPTIONAL</span>. The requested audience (<a href="#audience" class="auto internal xref">Section 4.1</a>), bounded on renewal as <a href="#renewal" class="auto internal xref">Section 5.2</a> requires.<a href="#section-5-3.8.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-5-3.9">
+<code>completion_mode</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-5-3.10">
+          <p id="section-5-3.10.1">As defined for software statement code redemption (<a href="#software-statement-code-redemption" class="auto internal xref">Section 8</a>).<a href="#section-5-3.10.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
+<p id="section-5-4">The request <span class="bcp14">MUST NOT</span> contain the <code>actor_token</code> or <code>actor_token_type</code> parameters, and the prohibitions of <a href="#prohibited-parameters" class="auto internal xref">Section 4.2</a> apply.<a href="#section-5-4" class="pilcrow">¶</a></p>
+<p id="section-5-5">The client authenticates, and a public client constrains the request, as described in <a href="#client-identity" class="auto internal xref">Section 3</a>.<a href="#section-5-5" class="pilcrow">¶</a></p>
+<p id="section-5-6">A DPoP proof on the exchange constrains any resulting deferral, and it protects the subject token only if that token is bound to the proof's key (<a href="#te-considerations" class="auto internal xref">Section 15.2</a>).<a href="#section-5-6" class="pilcrow">¶</a></p>
+<p id="section-5-7">The authorization server <span class="bcp14">MUST</span> validate the subject token before retrieving client-controlled metadata or enqueueing any processing. A subject token <span class="bcp14">MUST</span> result in the <code>invalid_request</code> error code (Section 2.2.2 of <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>) if any of the following holds:<a href="#section-5-7" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-5-8.1">
+          <p id="section-5-8.1.1">It is invalid, revoked, or, for a statement, one that <a href="#renewal" class="auto internal xref">Section 5.2</a> forbids accepting.<a href="#section-5-8.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-5-8.2">
+          <p id="section-5-8.2.1">It has expired, unless it is a prior software statement accepted under <a href="#renewal" class="auto internal xref">Section 5.2</a>.<a href="#section-5-8.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-5-8.3">
+          <p id="section-5-8.3.1">It does not authorize issuance for the presented <code>client_id</code> parameter.<a href="#section-5-8.3.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-5-9">An error response to a token exchange <span class="bcp14">MUST NOT</span> contain the subject token.<a href="#section-5-9" class="pilcrow">¶</a></p>
+<p id="section-5-10">The exchange results in a software statement token response (<a href="#software-statement-response" class="auto internal xref">Section 10</a>), a deferral at a deferring issuer (<a href="#deferred-processing" class="auto internal xref">Section 9</a>), or the terminal denial of <a href="#terminal-denial" class="auto internal xref">Section 10.1</a>.<a href="#section-5-10" class="pilcrow">¶</a></p>
+<div id="initial-access-tokens">
+<section id="section-5.1">
+        <h3 id="name-initial-access-tokens">
+<a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-initial-access-tokens" class="section-name selfRef">Initial Access Tokens</a>
+        </h3>
+<p id="section-5.1-1">An initial access token presented under this profile:<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-5.1-2.1">
+            <p id="section-5.1-2.1.1"><span class="bcp14">MUST</span> be time limited.<a href="#section-5.1-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-5.1-2.2">
+            <p id="section-5.1-2.2.1"><span class="bcp14">MUST</span> be limited to the issuer.<a href="#section-5.1-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-5.1-2.3">
+            <p id="section-5.1-2.3.1"><span class="bcp14">MUST</span> be bound to an exact client identifier URL or an explicitly authorized client identifier namespace.<a href="#section-5.1-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-5.1-2.4">
+            <p id="section-5.1-2.4.1"><span class="bcp14">MUST</span> have at least 128 bits of entropy if it is opaque.<a href="#section-5.1-2.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-5.1-2.5">
+            <p id="section-5.1-2.5.1"><span class="bcp14">MUST</span> be sender-constrained to a client key if it is reusable, for example through DPoP or mutual TLS, and the authorization server <span class="bcp14">MUST</span> verify that binding against the key the exchange request proves.<a href="#section-5.1-2.5.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-5.1-2.6">
+            <p id="section-5.1-2.6.1"><span class="bcp14">MUST</span> be single-use if it is a bearer token.<a href="#section-5.1-2.6.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-5.1-3">The authorization server <span class="bcp14">MUST</span> enforce every restriction the token carries, such as on audiences or metadata, and <span class="bcp14">MUST</span> prevent replay beyond its permitted number of uses. A use is consumed when the authorization server commits to an outcome: issuing a statement, creating a deferral, or denying issuance. Concurrent presentations of a single-use token <span class="bcp14">MUST NOT</span> both be committed.<a href="#section-5.1-3" class="pilcrow">¶</a></p>
+<p id="section-5.1-4">Issuance policy determines whether an initial access token authorizes the client only to request a statement or also authorizes its issuance.<a href="#section-5.1-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="renewal">
+<section id="section-5.2">
+        <h3 id="name-renewal">
+<a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-renewal" class="section-name selfRef">Renewal</a>
+        </h3>
+<p id="section-5.2-1">A client renews by presenting its current or most recent software statement as the subject token. The authorization server <span class="bcp14">MUST</span> verify the following:<a href="#section-5.2-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-5.2-2.1">
+            <p id="section-5.2-2.1.1">The authorization server issued the statement.<a href="#section-5.2-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-5.2-2.2">
+            <p id="section-5.2-2.2.1">The statement's <code>sub</code> claim equals the request's <code>client_id</code> parameter.<a href="#section-5.2-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-5.2-2.3">
+            <p id="section-5.2-2.3.1">The client authenticated with a key carried both by the document the statement's <code>cimd_digest</code> claim names and by the current document.<a href="#section-5.2-2.3.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-5.2-3">That authentication is the holder binding: without it, whoever held a copy of the statement could renew. To check the reviewed document's keys, an issuer offering renewal needs the octets of each document it issues a statement over (<a href="#audit-logging" class="auto internal xref">Section 13.4</a>).<a href="#section-5.2-3" class="pilcrow">¶</a></p>
+<p id="section-5.2-4">A client rotating keys inline renews while its document carries both the old and the new key. For a document naming <code>jwks_uri</code>, the binding is to whatever that location serves. A public client holds no such key and obtains a new statement through the redirect flow (<a href="#authorization-request" class="auto internal xref">Section 6</a>).<a href="#section-5.2-4" class="pilcrow">¶</a></p>
+<p id="section-5.2-5">A renewed statement <span class="bcp14">MUST NOT</span> be broader than the subject statement: its <code>aud</code> is within the requested audience narrowed to the subject statement's <code>aud</code>, or within that <code>aud</code> if the request names none, it carries any <code>aud_tenant</code> claim of the subject statement, and its <code>statement_uses</code> permits no use the subject statement does not. It is matched to the subject statement by <code>iss</code> and <code>sub</code> (<span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span>, <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>).<a href="#section-5.2-5" class="pilcrow">¶</a></p>
+<p id="section-5.2-6">An issuer <span class="bcp14">MUST NOT</span> accept as the subject token a statement it has withdrawn, or one whose status it publishes as other than <code>VALID</code> (<span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span>). Renewing such a statement would reissue the decision that withdrawal ended.<a href="#section-5.2-6" class="pilcrow">¶</a></p>
+<p id="section-5.2-7">The authorization server <span class="bcp14">MAY</span> accept a statement that has expired, and <span class="bcp14">SHOULD</span> bound how long after expiry it will do so.<a href="#section-5.2-7" class="pilcrow">¶</a></p>
+<p id="section-5.2-8">If the current document's digest equals the subject statement's <code>cimd_digest</code>, whether renewal requires fresh review is issuer policy. If the digests differ, the issuer <span class="bcp14">MUST</span> apply the decision it would apply to a first issuance for that document, and <span class="bcp14">MUST NOT</span> renew on the strength of the prior statement alone. Without this rule, whoever can change the document could obtain the issuer's signature over an unreviewed change.<a href="#section-5.2-8" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="authorization-request">
+<section id="section-6">
+      <h2 id="name-software-statement-authoriz">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-software-statement-authoriz" class="section-name selfRef">Software Statement Authorization Request</a>
+      </h2>
+<p id="section-6-1">The client sends an authorization request as described in Section 4.1.1 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, with the following parameters:<a href="#section-6-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-6-2">
+        <dt id="section-6-2.1">
+<code>response_type</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-6-2.2">
+          <p id="section-6-2.2.1"><span class="bcp14">REQUIRED</span>. The value <span class="bcp14">MUST</span> be <code>software_statement_code</code>.<a href="#section-6-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-6-2.3">
+<code>client_id</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-6-2.4">
+          <p id="section-6-2.4.1"><span class="bcp14">REQUIRED</span>. The client identifier URL described in <a href="#client-identity" class="auto internal xref">Section 3</a>.<a href="#section-6-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-6-2.5">
+<code>redirect_uri</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-6-2.6">
+          <p id="section-6-2.6.1"><span class="bcp14">REQUIRED</span>. The value <span class="bcp14">MUST</span> exactly match one of the redirection URIs in the CIMD, subject to the redirection URI rules in Section 4.2 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>. Whatever authentication method the document declares, the value <span class="bcp14">MUST NOT</span> be a redirection URI that another application on the same device could claim, as Section 5.6.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> defines (<a href="#authorization-response-security" class="auto internal xref">Section 15.1</a>).<a href="#section-6-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-6-2.7">
+<code>state</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-6-2.8">
+          <p id="section-6-2.8.1"><span class="bcp14">OPTIONAL</span>. Because the authorization server requires PKCE, a client can rely on PKCE for CSRF protection (Section 2.1 of <span>[<a href="#RFC9700" class="cite xref">RFC9700</a>]</span>).<a href="#section-6-2.8.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-6-2.9">
+<code>code_challenge</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-6-2.10">
+          <p id="section-6-2.10.1"><span class="bcp14">REQUIRED</span>. A PKCE challenge as defined by <span>[<a href="#RFC7636" class="cite xref">RFC7636</a>]</span>.<a href="#section-6-2.10.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-6-2.11">
+<code>code_challenge_method</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-6-2.12">
+          <p id="section-6-2.12.1"><span class="bcp14">REQUIRED</span>. The value <span class="bcp14">MUST</span> be <code>S256</code>.<a href="#section-6-2.12.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-6-2.13">
+<code>response_mode</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-6-2.14">
+          <p id="section-6-2.14.1"><span class="bcp14">OPTIONAL</span>. The response mode, as defined by <span>[<a href="#OAUTH-MRT" class="cite xref">OAUTH-MRT</a>]</span>. The default for <code>response_type=software_statement_code</code> is <code>query</code>. <a href="#software-statement-code-response" class="auto internal xref">Section 7.1</a> gives response mode considerations.<a href="#section-6-2.14.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-6-2.15">
+<code>audience</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-6-2.16">
+          <p id="section-6-2.16.1"><span class="bcp14">OPTIONAL</span>. The requested audience (<a href="#audience" class="auto internal xref">Section 4.1</a>).<a href="#section-6-2.16.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-6-2.17">
+<code>completion_mode</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-6-2.18">
+          <p id="section-6-2.18.1"><span class="bcp14">OPTIONAL</span>. A value that includes <code>deferred</code>, sent as the advance hint of Section 5.2 of <span>[<a href="#DTR" class="cite xref">DTR</a>]</span>.<a href="#section-6-2.18.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-6-2.19">
+<code>dpop_jkt</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-6-2.20">
+          <p id="section-6-2.20.1"><span class="bcp14">REQUIRED</span> for a public client and <span class="bcp14">OPTIONAL</span> otherwise. The parameter has the semantics of Section 10 of <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>.<a href="#section-6-2.20.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
+<p id="section-6-3">The authorization server <span class="bcp14">MUST</span> reject with the <code>invalid_request</code> error code a request that omits a required PKCE parameter or a required <code>dpop_jkt</code> parameter. The prohibitions of <a href="#prohibited-parameters" class="auto internal xref">Section 4.2</a> apply.<a href="#section-6-3" class="pilcrow">¶</a></p>
+<p id="section-6-4">Hybrid response types that combine <code>software_statement_code</code> with <code>code</code>, <code>token</code>, <code>id_token</code>, or any other response type are not defined. An authorization server <span class="bcp14">MUST</span> reject such a request with the <code>unsupported_response_type</code> error code.<a href="#section-6-4" class="pilcrow">¶</a></p>
+<p id="section-6-5">The following is a non-normative example of an authorization request from a confidential client (line breaks for display purposes only):<a href="#section-6-5" class="pilcrow">¶</a></p>
+<div class="lang-http sourcecode" id="section-6-6">
+<pre>
+GET /authorize?response_type=software_statement_code
+  &amp;client_id=https%3A%2F%2Fclient.example.org%2Fmetadata.json
+  &amp;redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb
+  &amp;state=4L7xQ2mN9pR6sT1vW8yZ3aB5cD0fG2hJ
+  &amp;code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM
+  &amp;code_challenge_method=S256 HTTP/1.1
+Host: server.example.com
+</pre><a href="#section-6-6" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="authorization-response">
+<section id="section-7">
+      <h2 id="name-authorization-response">
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-authorization-response" class="section-name selfRef">Authorization Response</a>
+      </h2>
+<p id="section-7-1">The authorization endpoint returns a software statement code whether the issuance decision is approved, pending, or denied, and <span class="bcp14">MUST NOT</span> return the statement or the decision, which is delivered at redemption (<a href="#software-statement-code-redemption" class="auto internal xref">Section 8</a>).<a href="#section-7-1" class="pilcrow">¶</a></p>
+<div id="software-statement-code-response">
+<section id="section-7.1">
+        <h3 id="name-software-statement-code-res">
+<a href="#section-7.1" class="section-number selfRef">7.1. </a><a href="#name-software-statement-code-res" class="section-name selfRef">Software Statement Code Response</a>
+        </h3>
+<p id="section-7.1-1">The software statement code response applies the authorization response protections of <span>[<a href="#RFC9700" class="cite xref">RFC9700</a>]</span>. The authorization server returns the following parameters to the client's redirection endpoint, using the selected response mode:<a href="#section-7.1-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-7.1-2">
+          <dt id="section-7.1-2.1">
+<code>software_statement_code</code>:</dt>
+          <dd style="margin-left: 1.5em" id="section-7.1-2.2">
+            <p id="section-7.1-2.2.1"><span class="bcp14">REQUIRED</span>. A short-lived, single-use artifact redeemed at the token endpoint (<a href="#software-statement-code-redemption" class="auto internal xref">Section 8</a>). It <span class="bcp14">MUST</span> be bound to the client identifier, redirection URI, PKCE challenge, metadata snapshot, requested audience, and, when the <code>dpop_jkt</code> parameter was present, that JWK thumbprint.<a href="#section-7.1-2.2.1" class="pilcrow">¶</a></p>
+<p id="section-7.1-2.2.2">The value <span class="bcp14">MUST</span> contain at least 128 bits of entropy from a cryptographically secure random source, be opaque to the client, expire shortly after issuance, and not be accepted more than once.<a href="#section-7.1-2.2.2" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-7.1-2.3">
+<code>state</code>:</dt>
+          <dd style="margin-left: 1.5em" id="section-7.1-2.4">
+            <p id="section-7.1-2.4.1"><span class="bcp14">REQUIRED</span> if the authorization request contained the <code>state</code> parameter. The exact value received in the authorization request.<a href="#section-7.1-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-7.1-2.5">
+<code>iss</code>:</dt>
+          <dd style="margin-left: 1.5em" id="section-7.1-2.6">
+            <p id="section-7.1-2.6.1"><span class="bcp14">REQUIRED</span>. The authorization server issuer identification parameter defined by <span>[<a href="#RFC9207" class="cite xref">RFC9207</a>]</span>.<a href="#section-7.1-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
+<p id="section-7.1-3">A software statement code is not an authorization code and <span class="bcp14">MUST NOT</span> be redeemable as one.<a href="#section-7.1-3" class="pilcrow">¶</a></p>
+<p id="section-7.1-4">Before redeeming a software statement code, the client <span class="bcp14">MUST</span> verify the <code>state</code> parameter, if it sent one, and <span class="bcp14">MUST</span> validate the authorization response <code>iss</code> parameter according to <span>[<a href="#RFC9207" class="cite xref">RFC9207</a>]</span>.<a href="#section-7.1-4" class="pilcrow">¶</a></p>
+<p id="section-7.1-5">Because scripts at the redirection endpoint can access the fragment, the <code>fragment</code> response mode <span class="bcp14">SHOULD NOT</span> be used. A client <span class="bcp14">MAY</span> request the <code>form_post</code> response mode <span>[<a href="#FORM-POST" class="cite xref">FORM-POST</a>]</span>.<a href="#section-7.1-5" class="pilcrow">¶</a></p>
+<p id="section-7.1-6">The following is an example of a software statement code response using the default <code>query</code> response mode (line breaks for display purposes only):<a href="#section-7.1-6" class="pilcrow">¶</a></p>
+<div class="lang-http sourcecode" id="section-7.1-7">
+<pre>
+HTTP/1.1 302 Found
+Location: https://client.example.org/cb?
+  software_statement_code=V7e1gP8zT2mN4qR6sW9xY3aB5cD7fH0jK2pL4uQ6vX&amp;
+  state=4L7xQ2mN9pR6sT1vW8yZ3aB5cD0fG2hJ&amp;
+  iss=https%3A%2F%2Fserver.example.com
+</pre><a href="#section-7.1-7" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+</section>
+</div>
+<div id="software-statement-code-redemption">
+<section id="section-8">
+      <h2 id="name-software-statement-code-red">
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-software-statement-code-red" class="section-name selfRef">Software Statement Code Redemption</a>
+      </h2>
+<p id="section-8-1">The client redeems a software statement code by sending an HTTP <code>POST</code> request to the token endpoint using the <code>application/x-www-form-urlencoded</code> format with the following parameters:<a href="#section-8-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-8-2">
+        <dt id="section-8-2.1">
+<code>grant_type</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-8-2.2">
+          <p id="section-8-2.2.1"><span class="bcp14">REQUIRED</span>. The value <span class="bcp14">MUST</span> be <code>urn:ietf:params:oauth:grant-type:software-statement</code>.<a href="#section-8-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-8-2.3">
+<code>software_statement_code</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-8-2.4">
+          <p id="section-8-2.4.1"><span class="bcp14">REQUIRED</span>. The software statement code returned by the authorization endpoint.<a href="#section-8-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-8-2.5">
+<code>redirect_uri</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-8-2.6">
+          <p id="section-8-2.6.1"><span class="bcp14">REQUIRED</span>. The same redirection URI used in the authorization request.<a href="#section-8-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-8-2.7">
+<code>client_id</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-8-2.8">
+          <p id="section-8-2.8.1"><span class="bcp14">REQUIRED</span>. The same client identifier URL used in the authorization request.<a href="#section-8-2.8.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-8-2.9">
+<code>code_verifier</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-8-2.10">
+          <p id="section-8-2.10.1"><span class="bcp14">REQUIRED</span>. The PKCE verifier corresponding to the <code>code_challenge</code> in the authorization request.<a href="#section-8-2.10.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-8-2.11">
+<code>completion_mode</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-8-2.12">
+          <p id="section-8-2.12.1"><span class="bcp14">REQUIRED</span> at a deferring issuer, with a value that <span class="bcp14">MUST</span> include <code>deferred</code>. A deferring issuer rejects a request without it with <code>invalid_request</code>.<a href="#section-8-2.12.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
+<p id="section-8-3">The prohibitions of <a href="#prohibited-parameters" class="auto internal xref">Section 4.2</a> apply. The request <span class="bcp14">MUST NOT</span> contain the <code>audience</code> parameter, which was bound at the authorization endpoint. A request containing it is rejected with <code>invalid_request</code>.<a href="#section-8-3" class="pilcrow">¶</a></p>
+<p id="section-8-4">The client authenticates according to <a href="#client-identity" class="auto internal xref">Section 3</a>. When the <code>dpop_jkt</code> parameter was included in the authorization request, the client <span class="bcp14">MUST</span> send a DPoP proof for the token endpoint using the same key.<a href="#section-8-4" class="pilcrow">¶</a></p>
+<p id="section-8-5">The authorization server <span class="bcp14">MUST</span> validate the software statement code and all of its bindings before processing the request. An invalid, expired, previously used, or incorrectly bound code <span class="bcp14">MUST</span> result in an <code>invalid_grant</code> error. A PKCE or DPoP binding failure is handled according to <span>[<a href="#RFC7636" class="cite xref">RFC7636</a>]</span> or <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>, respectively.<a href="#section-8-5" class="pilcrow">¶</a></p>
+<p id="section-8-6">A redemption attempt consumes the software statement code whenever the presented code value is one the authorization server issued that has neither expired nor been consumed, including when its PKCE, DPoP, or client-authentication bindings fail. A DPoP nonce challenge <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span> is not a binding failure: an authorization server requiring a nonce issues the <code>use_dpop_nonce</code> challenge before evaluating the code, which remains unconsumed.<a href="#section-8-6" class="pilcrow">¶</a></p>
+<p id="section-8-7">When a previously consumed code is presented again, the authorization server <span class="bcp14">SHOULD</span> revoke any deferral derived from it (<span>[<a href="#RFC9700" class="cite xref">RFC9700</a>]</span>). To keep anyone who observed the code in a URL from triggering that revocation, an authorization server <span class="bcp14">MAY</span> limit revocation to replays that pass the PKCE check.<a href="#section-8-7" class="pilcrow">¶</a></p>
+<p id="section-8-8">For a valid, unconsumed code, the authorization server returns the following, according to the issuance decision:<a href="#section-8-8" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-8-9.1">
+          <p id="section-8-9.1.1"><strong>Approved.</strong> The software statement token response (<a href="#software-statement-response" class="auto internal xref">Section 10</a>).<a href="#section-8-9.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-8-9.2">
+          <p id="section-8-9.2.1"><strong>Denied.</strong> The terminal denial of <a href="#terminal-denial" class="auto internal xref">Section 10.1</a>.<a href="#section-8-9.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-8-9.3">
+          <p id="section-8-9.3.1"><strong>Pending.</strong> A deferred token response (<a href="#deferred-processing" class="auto internal xref">Section 9</a>).<a href="#section-8-9.3.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-8-10">An issuer that does not defer completes the decision before responding.<a href="#section-8-10" class="pilcrow">¶</a></p>
+<p id="section-8-11">The following is a non-normative example of a redemption request from a confidential client at a deferring issuer (line breaks for display purposes only):<a href="#section-8-11" class="pilcrow">¶</a></p>
+<div class="lang-http sourcecode" id="section-8-12">
+<pre>
+POST /token HTTP/1.1
+Host: server.example.com
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3A
+  software-statement
+  &amp;software_statement_code=V7e1gP8zT2mN4qR6sW9xY3aB5cD7fH0jK2pL4uQ6vX
+  &amp;redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb
+  &amp;client_id=https%3A%2F%2Fclient.example.org%2Fmetadata.json
+  &amp;code_verifier=dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk
+  &amp;completion_mode=deferred
+  &amp;client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3A
+  client-assertion-type%3Ajwt-bearer
+  &amp;client_assertion=eyJhbGciOiJFUzI1NiIsImtpZCI6ImNsaWVudC0xIn0...
+</pre><a href="#section-8-12" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="deferred-processing">
+<section id="section-9">
+      <h2 id="name-deferred-processing">
+<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-deferred-processing" class="section-name selfRef">Deferred Processing</a>
+      </h2>
+<p id="section-9-1">A deferring issuer <span class="bcp14">MAY</span> answer a redemption (<a href="#software-statement-code-redemption" class="auto internal xref">Section 8</a>) or token exchange (<a href="#token-exchange-profile" class="auto internal xref">Section 5</a>) with a deferred token response, which follows <span>[<a href="#DTR" class="cite xref">DTR</a>]</span> except that the final response <span class="bcp14">MUST</span> be delivered only by polling and the statement does not inherit the deferral's DPoP binding. A client <span class="bcp14">MUST NOT</span> send <code>client_notification_token</code>, which the authorization server rejects with <code>invalid_request</code>, and the server <span class="bcp14">MUST NOT</span> deliver a callback, even to a <code>deferred_client_notification_endpoint</code> in the document.<a href="#section-9-1" class="pilcrow">¶</a></p>
+<p id="section-9-2">The following is a non-normative example of a first polling request for a deferral created by a token exchange, from a confidential client authenticating with the same <code>private_key_jwt</code> method as the exchange (line breaks for display purposes only):<a href="#section-9-2" class="pilcrow">¶</a></p>
+<div class="lang-http sourcecode" id="section-9-3">
+<pre>
+POST /token HTTP/1.1
+Host: server.example.com
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Adeferred
+&amp;deferral_code=8xLOxBtZp8
+&amp;client_id=https%3A%2F%2Fclient.example.org%2Fmetadata.json
+&amp;client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3A
+client-assertion-type%3Ajwt-bearer
+&amp;client_assertion=eyJhbGciOiJFUzI1NiIsImtpZCI6ImNsaWVudC0xIn0...
+</pre><a href="#section-9-3" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="software-statement-response">
+<section id="section-10">
+      <h2 id="name-software-statement-token-re">
+<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-software-statement-token-re" class="section-name selfRef">Software Statement Token Response</a>
+      </h2>
+<p id="section-10-1">A successful response has HTTP status code 200, a media type of <code>application/json</code>, and the following members:<a href="#section-10-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-10-2">
+        <dt id="section-10-2.1">
+<code>access_token</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-10-2.2">
+          <p id="section-10-2.2.1"><span class="bcp14">REQUIRED</span>. The software statement issued by the authorization server. It <span class="bcp14">MUST</span> conform to <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, with the <code>cimd_digest</code> claim set to the digest of the bound metadata snapshot, the <code>aud</code> claim set to the selected audience if one is restricted, and the <code>statement_uses</code> claim set to the uses issuance policy permits.<a href="#section-10-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-10-2.3">
+<code>issued_token_type</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-10-2.4">
+          <p id="section-10-2.4.1"><span class="bcp14">REQUIRED</span>. The value <span class="bcp14">MUST</span> be <code>urn:ietf:params:oauth:token-type:software-statement</code>.<a href="#section-10-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-10-2.5">
+<code>token_type</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-10-2.6">
+          <p id="section-10-2.6.1"><span class="bcp14">REQUIRED</span>. The value <span class="bcp14">MUST</span> be <code>N_A</code> (Section 2.2.1 of <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>).<a href="#section-10-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-10-2.7">
+<code>expires_in</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-10-2.8">
+          <p id="section-10-2.8.1"><span class="bcp14">RECOMMENDED</span>. The remaining lifetime of the software statement in seconds. If present, it <span class="bcp14">MUST</span> be consistent with the statement's <code>exp</code> claim.<a href="#section-10-2.8.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
+<p id="section-10-3">The response <span class="bcp14">MUST NOT</span> contain the <code>refresh_token</code> or <code>scope</code> members. The authorization server <span class="bcp14">MUST</span> include the <code>Cache-Control</code> HTTP header field with the value <code>no-store</code>.<a href="#section-10-3" class="pilcrow">¶</a></p>
+<p id="section-10-4">The following is an example of a software statement token response:<a href="#section-10-4" class="pilcrow">¶</a></p>
+<div class="lang-http sourcecode" id="section-10-5">
+<pre>
+HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: no-store
+Pragma: no-cache
+
+{
+  "access_token":
+    "eyJ0eXAiOiJzb2Z0d2FyZS1zdGF0ZW1lbnQrand0...",
+  "issued_token_type":
+    "urn:ietf:params:oauth:token-type:software-statement",
+  "token_type": "N_A",
+  "expires_in": 3600
+}
+</pre><a href="#section-10-5" class="pilcrow">¶</a>
+</div>
+<p id="section-10-6">The <code>access_token</code> member is a security-token container (<span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>), not an OAuth access token. The software statement it carries is consumed only as <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> and <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span> provide, and <span class="bcp14">MUST NOT</span> be attached to a request as an <code>Authorization: Bearer</code> credential. A protected resource cannot validate one (Section 4 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-10-6" class="pilcrow">¶</a></p>
+<div id="terminal-denial">
+<section id="section-10.1">
+        <h3 id="name-terminal-denial">
+<a href="#section-10.1" class="section-number selfRef">10.1. </a><a href="#name-terminal-denial" class="section-name selfRef">Terminal Denial</a>
+        </h3>
+<p id="section-10.1-1">When the authorization server decides not to issue the requested software statement, it returns a token error response as defined in Section 5.2 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> with the <code>access_denied</code> error code (Section 3.5 of <span>[<a href="#RFC8628" class="cite xref">RFC8628</a>]</span>), and <span class="bcp14">MUST</span> include the <code>Cache-Control: no-store</code> response header field. This applies to code redemption and token exchange alike, including when the denial answers a polling request (<a href="#deferred-processing" class="auto internal xref">Section 9</a>).<a href="#section-10.1-1" class="pilcrow">¶</a></p>
+<p id="section-10.1-2">The denial is terminal for the request. A denied deferral behaves as <span>[<a href="#DTR" class="cite xref">DTR</a>]</span> specifies for a request resolved with an error, and a client that receives the <code>access_denied</code> error code in response to a polling request <span class="bcp14">MUST NOT</span> send another polling request with that <code>deferral_code</code>. A denial does not preclude a later issuance request. Whether to accept one is issuance policy.<a href="#section-10.1-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="same-server">
+<section id="section-11">
+      <h2 id="name-issuer-as-trusting-authoriz">
+<a href="#section-11" class="section-number selfRef">11. </a><a href="#name-issuer-as-trusting-authoriz" class="section-name selfRef">Issuer as Trusting Authorization Server</a>
+      </h2>
+<p id="section-11-1">An authorization server that issued a statement already holds the decision that statement records. If it is also a trusting authorization server, it <span class="bcp14">MAY</span> admit the client on that record rather than require the statement to be presented back to it, at registration or at runtime.<a href="#section-11-1" class="pilcrow">¶</a></p>
+<p id="section-11-2">Because the record of a decision is not a fresh retrieval of the document, a server admitting a client on the record of a statement it issued <span class="bcp14">MUST</span> apply every check Sections 3.2 and 5.1 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> apply to a presented statement, and at registration every check <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span> applies, taking the statement's claims from its record of the decision.<a href="#section-11-2" class="pilcrow">¶</a></p>
+<p id="section-11-3">At runtime, the record takes the place of the statement in step 1 of Section 5.1 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> and replaces only its signature check: the server still performs steps 2 through 7 of Section 5.1 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, taking the claims from the record.<a href="#section-11-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="authorization-server-metadata">
+<section id="section-12">
+      <h2 id="name-authorization-server-metada">
+<a href="#section-12" class="section-number selfRef">12. </a><a href="#name-authorization-server-metada" class="section-name selfRef">Authorization Server Metadata</a>
+      </h2>
+<p id="section-12-1">An authorization server that issues software statements under this specification advertises <code>true</code> for <code>client_id_metadata_document_supported</code> (<span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>) and publishes the authorization server metadata that Section 8 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> requires of an authorization server that issues statements.<a href="#section-12-1" class="pilcrow">¶</a></p>
+<p id="section-12-2">A deferring issuer publishes the metadata <span>[<a href="#DTR" class="cite xref">DTR</a>]</span> requires, including <code>true</code> for <code>deferred_token_response_supported</code>. An issuer that does not defer advertises neither that value nor the deferral-code token type in the <code>revocation_endpoint_token_type_values_supported</code> metadata value, and need not implement <span>[<a href="#DTR" class="cite xref">DTR</a>]</span>.<a href="#section-12-2" class="pilcrow">¶</a></p>
+<p id="section-12-3">An authorization server supporting the redirect flow advertises <code>urn:ietf:params:oauth:grant-type:software-statement</code> in <code>grant_types_supported</code>, <code>software_statement_code</code> in <code>response_types_supported</code>, and <code>true</code> for <code>authorization_response_iss_parameter_supported</code> as defined by <span>[<a href="#RFC9207" class="cite xref">RFC9207</a>]</span>.<a href="#section-12-3" class="pilcrow">¶</a></p>
+<p id="section-12-4">An authorization server supporting the token exchange profile (<a href="#token-exchange-profile" class="auto internal xref">Section 5</a>) advertises <code>urn:ietf:params:oauth:grant-type:token-exchange</code> in <code>grant_types_supported</code> and publishes the <code>software_statement_subject_token_types_supported</code> metadata value defined in this section.<a href="#section-12-4" class="pilcrow">¶</a></p>
+<p id="section-12-5">This specification defines the following additional authorization server metadata <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span> value:<a href="#section-12-5" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-12-6">
+        <dt id="section-12-6.1">
+<code>software_statement_subject_token_types_supported</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-12-6.2">
+          <p id="section-12-6.2.1"><span class="bcp14">REQUIRED</span> for an authorization server that supports the token exchange profile (<a href="#token-exchange-profile" class="auto internal xref">Section 5</a>), and absent otherwise. A JSON array of the <code>subject_token_type</code> values the authorization server accepts when <code>requested_token_type</code> is <code>urn:ietf:params:oauth:token-type:software-statement</code>. Listing <code>urn:ietf:params:oauth:token-type:software-statement</code> among its values advertises renewal by prior statement (<a href="#renewal" class="auto internal xref">Section 5.2</a>).<a href="#section-12-6.2.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="implementation-considerations">
+<section id="section-13">
+      <h2 id="name-implementation-consideratio">
+<a href="#section-13" class="section-number selfRef">13. </a><a href="#name-implementation-consideratio" class="section-name selfRef">Implementation Considerations</a>
+      </h2>
+<p id="section-13-1">This section gives guidance to implementers. It adds no requirement.<a href="#section-13-1" class="pilcrow">¶</a></p>
+<div id="processing-bounds">
+<section id="section-13.1">
+        <h3 id="name-retrieval-and-approval-queu">
+<a href="#section-13.1" class="section-number selfRef">13.1. </a><a href="#name-retrieval-and-approval-queu" class="section-name selfRef">Retrieval and Approval-Queue Bounds</a>
+        </h3>
+<p id="section-13.1-1">An authorization server can rate-limit token exchanges, cache successful retrievals and back off after failures as Section 11.1 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> describes, and bound pending deferrals per client identifier and requester. Because the redirect flow reaches the approval queue before any client-authenticated step, the same rate limits and pending-approval bounds per client identifier can apply there.<a href="#section-13.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="issued-statement-handling">
+<section id="section-13.2">
+        <h3 id="name-handling-the-issued-stateme">
+<a href="#section-13.2" class="section-number selfRef">13.2. </a><a href="#name-handling-the-issued-stateme" class="section-name selfRef">Handling the Issued Statement</a>
+        </h3>
+<p id="section-13.2-1">A client ought to key the statement on <code>issued_token_type</code> and keep it out of logs.<a href="#section-13.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="approval-interface">
+<section id="section-13.3">
+        <h3 id="name-approval-interface">
+<a href="#section-13.3" class="section-number selfRef">13.3. </a><a href="#name-approval-interface" class="section-name selfRef">Approval Interface</a>
+        </h3>
+<p id="section-13.3-1">An approval interface ought to state that the decision vouches for the client's CIMD, ought not to imply that the approver is granting the client access to resources, and ought to present the following:<a href="#section-13.3-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-13.3-2.1">
+            <p id="section-13.3-2.1.1">The client identifier URL, with its origin shown as the client's identity, and with display metadata such as the <code>client_name</code> and <code>logo_uri</code> members marked as asserted by the client (a look-alike document can carry another vendor's name).<a href="#section-13.3-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-13.3-2.2">
+            <p id="section-13.3-2.2.1">The document content the statement will vouch for, identified by its metadata digest.<a href="#section-13.3-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-13.3-2.3">
+            <p id="section-13.3-2.3.1">The audience the issuer intends to place in the statement.<a href="#section-13.3-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-13.3-2.4">
+            <p id="section-13.3-2.4.1">The tenant the decision is confined to, if the statement will carry the <code>aud_tenant</code> claim (<span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-13.3-2.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-13.3-2.5">
+            <p id="section-13.3-2.5.1">The intended lifetime.<a href="#section-13.3-2.5.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-13.3-3">If the client requested a different or broader audience, the interface ought to make narrowing visible.<a href="#section-13.3-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="audit-logging">
+<section id="section-13.4">
+        <h3 id="name-audit-and-logging">
+<a href="#section-13.4" class="section-number selfRef">13.4. </a><a href="#name-audit-and-logging" class="section-name selfRef">Audit and Logging</a>
+        </h3>
+<p id="section-13.4-1">An authorization server ought to keep an audit record that binds each decision, whether approval or denial, to the following:<a href="#section-13.4-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-13.4-2.1">
+            <p id="section-13.4-2.1.1">The metadata digest (<a href="#metadata-snapshot" class="auto internal xref">Section 3.1</a>) of the document the deciding party evaluated.<a href="#section-13.4-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-13.4-2.2">
+            <p id="section-13.4-2.2.1">The policy under which the decision was made.<a href="#section-13.4-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-13.4-2.3">
+            <p id="section-13.4-2.3.1">The identity of the deciding party.<a href="#section-13.4-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-13.4-2.4">
+            <p id="section-13.4-2.4.1">The time of decision.<a href="#section-13.4-2.4.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-13.4-3">An authorization server ought to retain the exact retrieved octets of the approved document for audit, because a re-serialized copy cannot reproduce the digest. A deployment that requires approver attribution can retain it in an audit record or define a statement claim and its privacy semantics.<a href="#section-13.4-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="deployment-considerations">
+<section id="section-14">
+      <h2 id="name-deployment-considerations">
+<a href="#section-14" class="section-number selfRef">14. </a><a href="#name-deployment-considerations" class="section-name selfRef">Deployment Considerations</a>
+      </h2>
+<p id="section-14-1">This section gives guidance to operators and issuers. It adds no requirement.<a href="#section-14-1" class="pilcrow">¶</a></p>
+<div id="review-practice">
+<section id="section-14.1">
+        <h3 id="name-review-and-approval-practic">
+<a href="#section-14.1" class="section-number selfRef">14.1. </a><a href="#name-review-and-approval-practic" class="section-name selfRef">Review and Approval Practice</a>
+        </h3>
+<p id="section-14.1-1">Because the client authors the metadata document, an issuer ought to corroborate security-relevant metadata through evidence beyond the document itself. Issuance policy can relate the redirection URI's origin to the client identifier URL or the CIMD's <code>client_uri</code> member.<a href="#section-14.1-1" class="pilcrow">¶</a></p>
+<p id="section-14.1-2">The policy governing who can approve issuance ought to be at least as restrictive as the policy under which the issuer establishes a client manually. A token exchange carries no in-band evidence of user participation, so an authorization server ought not to treat one as implying prior user consent. An initial access token that authorizes issuance (<a href="#initial-access-tokens" class="auto internal xref">Section 5.1</a>) records a decision made, when the token was issued, under the policy that governs approval in the redirect flow.<a href="#section-14.1-2" class="pilcrow">¶</a></p>
+<p id="section-14.1-3">To keep a look-alike document from reaching approval, an issuer ought to limit what an approver can approve to client identifiers under publisher namespaces it has enrolled. A document naming attesters in <code>client_attesters</code> (<span>[<a href="#ATTESTERS" class="cite xref">ATTESTERS</a>]</span>) endorses them for the software under review and deserves particular scrutiny.<a href="#section-14.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="lifetime-practice">
+<section id="section-14.2">
+        <h3 id="name-deferral-lifetimes">
+<a href="#section-14.2" class="section-number selfRef">14.2. </a><a href="#name-deferral-lifetimes" class="section-name selfRef">Deferral Lifetimes</a>
+        </h3>
+<p id="section-14.2-1">Issuers ought to set deferral code lifetimes that reflect their actual approval latency, which for a review involving human judgment can be hours or days (<a href="#deferred-processing" class="auto internal xref">Section 9</a>).<a href="#section-14.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="signing-key-practice">
+<section id="section-14.3">
+        <h3 id="name-signing-keys">
+<a href="#section-14.3" class="section-number selfRef">14.3. </a><a href="#name-signing-keys" class="section-name selfRef">Signing Keys</a>
+        </h3>
+<p id="section-14.3-1">An issuer ought to protect its signing keys according to the scope of its trust relationships and support controlled key rotation.<a href="#section-14.3-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="security-considerations">
+<section id="section-15">
+      <h2 id="name-security-considerations">
+<a href="#section-15" class="section-number selfRef">15. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      </h2>
+<p id="section-15-1">The security considerations of Section 13 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>, and Section 5 of <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span> apply.<a href="#section-15-1" class="pilcrow">¶</a></p>
+<div id="authorization-response-security">
+<section id="section-15.1">
+        <h3 id="name-authorization-response-secu">
+<a href="#section-15.1" class="section-number selfRef">15.1. </a><a href="#name-authorization-response-secu" class="section-name selfRef">Authorization Response Security</a>
+        </h3>
+<p id="section-15.1-1">The software statement is a signed credential and can contain sensitive deployment information, so it is never returned in an authorization response (<a href="#authorization-response" class="auto internal xref">Section 7</a>). The client's <code>iss</code> check (<a href="#software-statement-code-response" class="auto internal xref">Section 7.1</a>) counters mix-up.<a href="#section-15.1-1" class="pilcrow">¶</a></p>
+<p id="section-15.1-2"><a href="#authorization-request" class="auto internal xref">Section 6</a> refuses a redirection URI another application can claim for the reason Section 5.6.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> gives. A native public client can host an <code>https</code> endpoint or use the token exchange profile (<a href="#token-exchange-profile" class="auto internal xref">Section 5</a>).<a href="#section-15.1-2" class="pilcrow">¶</a></p>
+<p id="section-15.1-3">A software statement code in a URL is visible to browser history, referrer fields, logs, and other observers. It is short lived, single use, and unredeemable without the PKCE verifier and any bound <code>dpop_jkt</code> key. The <code>form_post</code> response mode (<a href="#software-statement-code-response" class="auto internal xref">Section 7.1</a>) keeps the code out of URLs.<a href="#section-15.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="te-considerations">
+<section id="section-15.2">
+        <h3 id="name-token-exchange-consideratio">
+<a href="#section-15.2" class="section-number selfRef">15.2. </a><a href="#name-token-exchange-consideratio" class="section-name selfRef">Token Exchange Considerations</a>
+        </h3>
+<p id="section-15.2-1">Validating the subject token before metadata retrieval or enqueueing (<a href="#token-exchange-profile" class="auto internal xref">Section 5</a>) limits resource consumption by unauthorized requesters. Other bounds are local policy (<a href="#processing-bounds" class="auto internal xref">Section 13.1</a>).<a href="#section-15.2-1" class="pilcrow">¶</a></p>
+<p id="section-15.2-2">A subject token appears in a form body, so any component recording request bodies can expose it. Clients and authorization servers <span class="bcp14">MUST</span> protect a subject token as a bearer credential unless its format provides proof of possession. An authorization server ought to keep subject tokens out of logs, traces, and audit records, and an initial access token ought to be integrity protected and kept confidential in transit and at rest.<a href="#section-15.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="renewal-by-prior-statement">
+<section id="section-15.3">
+        <h3 id="name-renewal-by-prior-statement">
+<a href="#section-15.3" class="section-number selfRef">15.3. </a><a href="#name-renewal-by-prior-statement" class="section-name selfRef">Renewal by Prior Statement</a>
+        </h3>
+<p id="section-15.3-1">If the reviewed and current documents name a <code>jwks_uri</code>, whoever controls that location can supply a key that satisfies the holder binding of <a href="#renewal" class="auto internal xref">Section 5.2</a>. Binding renewal to the client's key spares automated renewal a long-lived reusable initial access token, a standing credential to mint statements.<a href="#section-15.3-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="signing-keys-and-algorithms">
+<section id="section-15.4">
+        <h3 id="name-signing-keys-and-algorithms">
+<a href="#section-15.4" class="section-number selfRef">15.4. </a><a href="#name-signing-keys-and-algorithms" class="section-name selfRef">Signing Keys and Algorithms</a>
+        </h3>
+<p id="section-15.4-1">A compromised software statement signing key lets an attacker mint statements for every audience that trusts it (<a href="#signing-key-practice" class="auto internal xref">Section 14.3</a>).<a href="#section-15.4-1" class="pilcrow">¶</a></p>
+<p id="section-15.4-2">Issuers <span class="bcp14">SHOULD</span> prefer signature algorithms with modern security properties, such as <code>PS256</code>, <code>ES256</code>, or <code>Ed25519</code> <span>[<a href="#RFC9864" class="cite xref">RFC9864</a>]</span>, over RSASSA-PKCS1-v1_5 (<code>RS256</code>).<a href="#section-15.4-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="approver-authority">
+<section id="section-15.5">
+        <h3 id="name-approver-authority">
+<a href="#section-15.5" class="section-number selfRef">15.5. </a><a href="#name-approver-authority" class="section-name selfRef">Approver Authority</a>
+        </h3>
+<p id="section-15.5-1">A software statement does not identify the human or system that approved issuance (<a href="#audit-logging" class="auto internal xref">Section 13.4</a>).<a href="#section-15.5-1" class="pilcrow">¶</a></p>
+<p id="section-15.5-2">An approved statement is accepted at every authorization server in its audience, not only within the approver's own scope. Approval by a party authorized only for a personal or organizational scope <span class="bcp14">MUST NOT</span> produce a statement whose audience exceeds that scope, or whose <code>aud_tenant</code> claim names a tenant outside it.<a href="#section-15.5-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="privacy-considerations">
+<section id="section-16">
+      <h2 id="name-privacy-considerations">
+<a href="#section-16" class="section-number selfRef">16. </a><a href="#name-privacy-considerations" class="section-name selfRef">Privacy Considerations</a>
+      </h2>
+<p id="section-16-1">The privacy considerations of Section 14 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> apply.<a href="#section-16-1" class="pilcrow">¶</a></p>
+<p id="section-16-2">The authorization server learns the client identifier URL, the client's CIMD, and information about the party interacting with the authorization endpoint. It ought to collect and retain only the information required for issuance, security monitoring, and audit obligations.<a href="#section-16-2" class="pilcrow">¶</a></p>
+<p id="section-16-3">An <code>aud</code> claim reveals which authorization servers the client intends to use. Section 14 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> weighs that disclosure against omitting the claim, and Section 12.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> advises naming an audience, which an issuer does by requiring one in the request (<a href="#audience" class="auto internal xref">Section 4.1</a>).<a href="#section-16-3" class="pilcrow">¶</a></p>
+<p id="section-16-4">If the client's relationship with the authorization servers its <code>audience</code> parameter names is sensitive, a redirect-flow client <span class="bcp14">SHOULD</span> use pushed authorization requests <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span>.<a href="#section-16-4" class="pilcrow">¶</a></p>
+<p id="section-16-5">Approval records can link a person to a client and deployment. Such records ought to be access-controlled and retained only as long as required.<a href="#section-16-5" class="pilcrow">¶</a></p>
+<p id="section-16-6">A central issuer also learns from renewals which of its statements are in active use, so issuance and renewal logs deserve the same care as the statements.<a href="#section-16-6" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="iana">
+<section id="section-17">
+      <h2 id="name-iana-considerations">
+<a href="#section-17" class="section-number selfRef">17. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+      </h2>
+<div id="oauth-authorization-endpoint-response-types-registry">
+<section id="section-17.1">
+        <h3 id="name-oauth-authorization-endpoin">
+<a href="#section-17.1" class="section-number selfRef">17.1. </a><a href="#name-oauth-authorization-endpoin" class="section-name selfRef">OAuth Authorization Endpoint Response Types Registry</a>
+        </h3>
+<p id="section-17.1-1">This specification requests registration of the following value in the IANA "OAuth Authorization Endpoint Response Types" registry established by <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>:<a href="#section-17.1-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-17.1-2">
+          <dt id="section-17.1-2.1">Response Type Name:</dt>
+          <dd style="margin-left: 1.5em" id="section-17.1-2.2">
+            <p id="section-17.1-2.2.1"><code>software_statement_code</code><a href="#section-17.1-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-17.1-2.3">Change Controller:</dt>
+          <dd style="margin-left: 1.5em" id="section-17.1-2.4">
+            <p id="section-17.1-2.4.1">IETF<a href="#section-17.1-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-17.1-2.5">Specification Document(s):</dt>
+          <dd style="margin-left: 1.5em" id="section-17.1-2.6">
+            <p id="section-17.1-2.6.1">This specification, <a href="#authorization-request" class="auto internal xref">Section 6</a> and <a href="#authorization-response" class="auto internal xref">Section 7</a><a href="#section-17.1-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="oauth-uri-registry">
+<section id="section-17.2">
+        <h3 id="name-oauth-uri-registry">
+<a href="#section-17.2" class="section-number selfRef">17.2. </a><a href="#name-oauth-uri-registry" class="section-name selfRef">OAuth URI Registry</a>
+        </h3>
+<p id="section-17.2-1">This specification requests registration of the following values in the IANA "OAuth URI" registry:<a href="#section-17.2-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-17.2-2">
+          <dt id="section-17.2-2.1">URN:</dt>
+          <dd style="margin-left: 1.5em" id="section-17.2-2.2">
+            <p id="section-17.2-2.2.1"><code>urn:ietf:params:oauth:grant-type:software-statement</code><a href="#section-17.2-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-17.2-2.3">Common Name:</dt>
+          <dd style="margin-left: 1.5em" id="section-17.2-2.4">
+            <p id="section-17.2-2.4.1">OAuth Software Statement Grant Type<a href="#section-17.2-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-17.2-2.5">Change Controller:</dt>
+          <dd style="margin-left: 1.5em" id="section-17.2-2.6">
+            <p id="section-17.2-2.6.1">IETF<a href="#section-17.2-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-17.2-2.7">Specification Document(s):</dt>
+          <dd style="margin-left: 1.5em" id="section-17.2-2.8">
+            <p id="section-17.2-2.8.1">This specification, <a href="#software-statement-code-redemption" class="auto internal xref">Section 8</a><a href="#section-17.2-2.8.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-17.2-2.9">URN:</dt>
+          <dd style="margin-left: 1.5em" id="section-17.2-2.10">
+            <p id="section-17.2-2.10.1"><code>urn:ietf:params:oauth:token-type:software-statement</code><a href="#section-17.2-2.10.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-17.2-2.11">Common Name:</dt>
+          <dd style="margin-left: 1.5em" id="section-17.2-2.12">
+            <p id="section-17.2-2.12.1">OAuth Software Statement Token Type<a href="#section-17.2-2.12.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-17.2-2.13">Change Controller:</dt>
+          <dd style="margin-left: 1.5em" id="section-17.2-2.14">
+            <p id="section-17.2-2.14.1">IETF<a href="#section-17.2-2.14.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-17.2-2.15">Specification Document(s):</dt>
+          <dd style="margin-left: 1.5em" id="section-17.2-2.16">
+            <p id="section-17.2-2.16.1">This specification, <a href="#software-statement-response" class="auto internal xref">Section 10</a> and <a href="#token-exchange-profile" class="auto internal xref">Section 5</a><a href="#section-17.2-2.16.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="oauth-parameters-registry">
+<section id="section-17.3">
+        <h3 id="name-oauth-parameters-registry">
+<a href="#section-17.3" class="section-number selfRef">17.3. </a><a href="#name-oauth-parameters-registry" class="section-name selfRef">OAuth Parameters Registry</a>
+        </h3>
+<p id="section-17.3-1">This specification requests that IANA add this specification, <a href="#audience" class="auto internal xref">Section 4.1</a>, as an additional reference for the existing <code>audience</code> parameter registered by <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span> and extend its usage location to include authorization requests. The parameter name and change controller are unchanged.<a href="#section-17.3-1" class="pilcrow">¶</a></p>
+<p id="section-17.3-2">This specification also requests registration of the following value in the IANA "OAuth Parameters" registry established by <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>:<a href="#section-17.3-2" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-17.3-3">
+          <dt id="section-17.3-3.1">Parameter Name:</dt>
+          <dd style="margin-left: 1.5em" id="section-17.3-3.2">
+            <p id="section-17.3-3.2.1"><code>software_statement_code</code><a href="#section-17.3-3.2.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-17.3-3.3">Parameter Usage Location:</dt>
+          <dd style="margin-left: 1.5em" id="section-17.3-3.4">
+            <p id="section-17.3-3.4.1">authorization response, token request<a href="#section-17.3-3.4.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-17.3-3.5">Change Controller:</dt>
+          <dd style="margin-left: 1.5em" id="section-17.3-3.6">
+            <p id="section-17.3-3.6.1">IETF<a href="#section-17.3-3.6.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-17.3-3.7">Specification Document(s):</dt>
+          <dd style="margin-left: 1.5em" id="section-17.3-3.8">
+            <p id="section-17.3-3.8.1">This specification, <a href="#software-statement-code-response" class="auto internal xref">Section 7.1</a> and <a href="#software-statement-code-redemption" class="auto internal xref">Section 8</a><a href="#section-17.3-3.8.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="oauth-extensions-error-registry">
+<section id="section-17.4">
+        <h3 id="name-oauth-extensions-error-regi">
+<a href="#section-17.4" class="section-number selfRef">17.4. </a><a href="#name-oauth-extensions-error-regi" class="section-name selfRef">OAuth Extensions Error Registry</a>
+        </h3>
+<p id="section-17.4-1">This specification requests that IANA update the existing <code>invalid_target</code> entry, adding authorization error responses to its usage locations and this specification as a reference:<a href="#section-17.4-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-17.4-2">
+          <dt id="section-17.4-2.1">Error Name:</dt>
+          <dd style="margin-left: 1.5em" id="section-17.4-2.2">
+            <p id="section-17.4-2.2.1"><code>invalid_target</code><a href="#section-17.4-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-17.4-2.3">Error Usage Location:</dt>
+          <dd style="margin-left: 1.5em" id="section-17.4-2.4">
+            <p id="section-17.4-2.4.1">authorization error response, in addition to the locations already registered<a href="#section-17.4-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-17.4-2.5">Related Protocol Extension:</dt>
+          <dd style="margin-left: 1.5em" id="section-17.4-2.6">
+            <p id="section-17.4-2.6.1">resource parameter<a href="#section-17.4-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-17.4-2.7">Change Controller:</dt>
+          <dd style="margin-left: 1.5em" id="section-17.4-2.8">
+            <p id="section-17.4-2.8.1">IESG<a href="#section-17.4-2.8.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-17.4-2.9">Specification Document(s):</dt>
+          <dd style="margin-left: 1.5em" id="section-17.4-2.10">
+            <p id="section-17.4-2.10.1"><span>[<a href="#RFC8707" class="cite xref">RFC8707</a>]</span>, this specification (<a href="#authorization-request" class="auto internal xref">Section 6</a>)<a href="#section-17.4-2.10.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="oauth-authorization-server-metadata-registry">
+<section id="section-17.5">
+        <h3 id="name-oauth-authorization-server-">
+<a href="#section-17.5" class="section-number selfRef">17.5. </a><a href="#name-oauth-authorization-server-" class="section-name selfRef">OAuth Authorization Server Metadata Registry</a>
+        </h3>
+<p id="section-17.5-1">This specification requests registration of the following values in the IANA "OAuth Authorization Server Metadata" registry established by <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span>:<a href="#section-17.5-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-17.5-2">
+          <dt id="section-17.5-2.1">Metadata Name:</dt>
+          <dd style="margin-left: 1.5em" id="section-17.5-2.2">
+            <p id="section-17.5-2.2.1"><code>software_statement_subject_token_types_supported</code><a href="#section-17.5-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-17.5-2.3">Metadata Description:</dt>
+          <dd style="margin-left: 1.5em" id="section-17.5-2.4">
+            <p id="section-17.5-2.4.1">JSON array of subject token types accepted for exchange into a software statement.<a href="#section-17.5-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-17.5-2.5">Change Controller:</dt>
+          <dd style="margin-left: 1.5em" id="section-17.5-2.6">
+            <p id="section-17.5-2.6.1">IETF<a href="#section-17.5-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-17.5-2.7">Specification Document(s):</dt>
+          <dd style="margin-left: 1.5em" id="section-17.5-2.8">
+            <p id="section-17.5-2.8.1">This specification, <a href="#authorization-server-metadata" class="auto internal xref">Section 12</a> and <a href="#token-exchange-profile" class="auto internal xref">Section 5</a><a href="#section-17.5-2.8.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
+</section>
+</div>
+</section>
+</div>
+<div id="sec-combined-references">
+<section id="section-18">
+      <h2 id="name-references">
+<a href="#section-18" class="section-number selfRef">18. </a><a href="#name-references" class="section-name selfRef">References</a>
+      </h2>
+<div id="sec-normative-references">
+<section id="section-18.1">
+        <h3 id="name-normative-references">
+<a href="#section-18.1" class="section-number selfRef">18.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+        </h3>
+<dl class="references">
+<dt id="CIMD">[CIMD]</dt>
+        <dd>
+<span class="refAuthor">Parecki, A.</span> and <span class="refAuthor">E. Smith</span>, <span class="refTitle">"OAuth Client ID Metadata Document"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-client-id-metadata-document-02</span>, <time datetime="2026-07-06" class="refDate">6 July 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-02">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-02</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="DTR">[DTR]</dt>
+        <dd>
+<span class="refAuthor">de Oliveira Niero, G.</span> and <span class="refAuthor">D. Liu</span>, <span class="refTitle">"Deferred Token Response"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-deferred-token-response-01</span>, <time datetime="2026-10-31" class="refDate">31 October 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-deferred-token-response-01">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-deferred-token-response-01</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="FORM-POST">[FORM-POST]</dt>
+        <dd>
+<span class="refAuthor">Jones, M. B.</span> and <span class="refAuthor">B. Campbell</span>, <span class="refTitle">"OAuth 2.0 Form Post Response Mode"</span>, <time datetime="2015-04-27" class="refDate">27 April 2015</time>, <span>&lt;<a href="https://openid.net/specs/oauth-v2-form-post-response-mode-1_0.html">https://openid.net/specs/oauth-v2-form-post-response-mode-1_0.html</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="OAUTH-MRT">[OAUTH-MRT]</dt>
+        <dd>
+<span class="refAuthor">de Medeiros, B., Ed.</span>, <span class="refAuthor">Scurtescu, M.</span>, <span class="refAuthor">Tarjan, P.</span>, and <span class="refAuthor">M. B. Jones</span>, <span class="refTitle">"OAuth 2.0 Multiple Response Type Encoding Practices"</span>, <time datetime="2014-02-25" class="refDate">25 February 2014</time>, <span>&lt;<a href="https://openid.net/specs/oauth-v2-multiple-response-types-1_0.html">https://openid.net/specs/oauth-v2-multiple-response-types-1_0.html</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC2119">[RFC2119]</dt>
+        <dd>
+<span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2119">https://www.rfc-editor.org/rfc/rfc2119</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC6749">[RFC6749]</dt>
+        <dd>
+<span class="refAuthor">Hardt, D., Ed.</span>, <span class="refTitle">"The OAuth 2.0 Authorization Framework"</span>, <span class="seriesInfo">RFC 6749</span>, <span class="seriesInfo">DOI 10.17487/RFC6749</span>, <time datetime="2012-10" class="refDate">October 2012</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6749">https://www.rfc-editor.org/rfc/rfc6749</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7591">[RFC7591]</dt>
+        <dd>
+<span class="refAuthor">Richer, J., Ed.</span>, <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Machulak, M.</span>, and <span class="refAuthor">P. Hunt</span>, <span class="refTitle">"OAuth 2.0 Dynamic Client Registration Protocol"</span>, <span class="seriesInfo">RFC 7591</span>, <span class="seriesInfo">DOI 10.17487/RFC7591</span>, <time datetime="2015-07" class="refDate">July 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7591">https://www.rfc-editor.org/rfc/rfc7591</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7636">[RFC7636]</dt>
+        <dd>
+<span class="refAuthor">Sakimura, N., Ed.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">N. Agarwal</span>, <span class="refTitle">"Proof Key for Code Exchange by OAuth Public Clients"</span>, <span class="seriesInfo">RFC 7636</span>, <span class="seriesInfo">DOI 10.17487/RFC7636</span>, <time datetime="2015-09" class="refDate">September 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7636">https://www.rfc-editor.org/rfc/rfc7636</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8174">[RFC8174]</dt>
+        <dd>
+<span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8174">https://www.rfc-editor.org/rfc/rfc8174</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8414">[RFC8414]</dt>
+        <dd>
+<span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Sakimura, N.</span>, and <span class="refAuthor">J. Bradley</span>, <span class="refTitle">"OAuth 2.0 Authorization Server Metadata"</span>, <span class="seriesInfo">RFC 8414</span>, <span class="seriesInfo">DOI 10.17487/RFC8414</span>, <time datetime="2018-06" class="refDate">June 2018</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8414">https://www.rfc-editor.org/rfc/rfc8414</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8628">[RFC8628]</dt>
+        <dd>
+<span class="refAuthor">Denniss, W.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Jones, M.</span>, and <span class="refAuthor">H. Tschofenig</span>, <span class="refTitle">"OAuth 2.0 Device Authorization Grant"</span>, <span class="seriesInfo">RFC 8628</span>, <span class="seriesInfo">DOI 10.17487/RFC8628</span>, <time datetime="2019-08" class="refDate">August 2019</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8628">https://www.rfc-editor.org/rfc/rfc8628</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8693">[RFC8693]</dt>
+        <dd>
+<span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Nadalin, A.</span>, <span class="refAuthor">Campbell, B., Ed.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">C. Mortimore</span>, <span class="refTitle">"OAuth 2.0 Token Exchange"</span>, <span class="seriesInfo">RFC 8693</span>, <span class="seriesInfo">DOI 10.17487/RFC8693</span>, <time datetime="2020-01" class="refDate">January 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8693">https://www.rfc-editor.org/rfc/rfc8693</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8707">[RFC8707]</dt>
+        <dd>
+<span class="refAuthor">Campbell, B.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">H. Tschofenig</span>, <span class="refTitle">"Resource Indicators for OAuth 2.0"</span>, <span class="seriesInfo">RFC 8707</span>, <span class="seriesInfo">DOI 10.17487/RFC8707</span>, <time datetime="2020-02" class="refDate">February 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8707">https://www.rfc-editor.org/rfc/rfc8707</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9126">[RFC9126]</dt>
+        <dd>
+<span class="refAuthor">Lodderstedt, T.</span>, <span class="refAuthor">Campbell, B.</span>, <span class="refAuthor">Sakimura, N.</span>, <span class="refAuthor">Tonge, D.</span>, and <span class="refAuthor">F. Skokan</span>, <span class="refTitle">"OAuth 2.0 Pushed Authorization Requests"</span>, <span class="seriesInfo">RFC 9126</span>, <span class="seriesInfo">DOI 10.17487/RFC9126</span>, <time datetime="2021-09" class="refDate">September 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9126">https://www.rfc-editor.org/rfc/rfc9126</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9207">[RFC9207]</dt>
+        <dd>
+<span class="refAuthor">Meyer zu Selhausen, K.</span> and <span class="refAuthor">D. Fett</span>, <span class="refTitle">"OAuth 2.0 Authorization Server Issuer Identification"</span>, <span class="seriesInfo">RFC 9207</span>, <span class="seriesInfo">DOI 10.17487/RFC9207</span>, <time datetime="2022-03" class="refDate">March 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9207">https://www.rfc-editor.org/rfc/rfc9207</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9396">[RFC9396]</dt>
+        <dd>
+<span class="refAuthor">Lodderstedt, T.</span>, <span class="refAuthor">Richer, J.</span>, and <span class="refAuthor">B. Campbell</span>, <span class="refTitle">"OAuth 2.0 Rich Authorization Requests"</span>, <span class="seriesInfo">RFC 9396</span>, <span class="seriesInfo">DOI 10.17487/RFC9396</span>, <time datetime="2023-05" class="refDate">May 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9396">https://www.rfc-editor.org/rfc/rfc9396</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9449">[RFC9449]</dt>
+        <dd>
+<span class="refAuthor">Fett, D.</span>, <span class="refAuthor">Campbell, B.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Lodderstedt, T.</span>, <span class="refAuthor">Jones, M.</span>, and <span class="refAuthor">D. Waite</span>, <span class="refTitle">"OAuth 2.0 Demonstrating Proof of Possession (DPoP)"</span>, <span class="seriesInfo">RFC 9449</span>, <span class="seriesInfo">DOI 10.17487/RFC9449</span>, <time datetime="2023-09" class="refDate">September 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9449">https://www.rfc-editor.org/rfc/rfc9449</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9700">[RFC9700]</dt>
+        <dd>
+<span class="refAuthor">Lodderstedt, T.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Labunets, A.</span>, and <span class="refAuthor">D. Fett</span>, <span class="refTitle">"Best Current Practice for OAuth 2.0 Security"</span>, <span class="seriesInfo">BCP 240</span>, <span class="seriesInfo">RFC 9700</span>, <span class="seriesInfo">DOI 10.17487/RFC9700</span>, <time datetime="2025-01" class="refDate">January 2025</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9700">https://www.rfc-editor.org/rfc/rfc9700</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="STATEMENT">[STATEMENT]</dt>
+      <dd>
+<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"Client ID Metadata Document Software Statement"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-mcguinness-oauth-cimd-sw-stmt-00</span>, <time datetime="2026-10" class="refDate">October 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt">https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="sec-informative-references">
+<section id="section-18.2">
+        <h3 id="name-informative-references">
+<a href="#section-18.2" class="section-number selfRef">18.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+        </h3>
+<dl class="references">
+<dt id="APPROVAL-DCR">[APPROVAL-DCR]</dt>
+        <dd>
+<span class="refAuthor">Dellaert, P.</span>, <span class="refTitle">"OAuth 2.0 Approval-Based Dynamic Client Registration"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-dellaert-oauth-approval-based-dcr-00</span>, <time datetime="2026-07-19" class="refDate">19 July 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-dellaert-oauth-approval-based-dcr-00">https://datatracker.ietf.org/doc/html/draft-dellaert-oauth-approval-based-dcr-00</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="ATTESTERS">[ATTESTERS]</dt>
+        <dd>
+<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"OAuth 2.0 Client Attester Endorsement"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-mcguinness-oauth-client-attesters-00</span>, <time datetime="2026-09-28" class="refDate">28 September 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-mcguinness-oauth-client-attesters-00">https://datatracker.ietf.org/doc/html/draft-mcguinness-oauth-client-attesters-00</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="AU-CDR">[AU-CDR]</dt>
+        <dd>
+<span class="refTitle">"Consumer Data Standards (Australia)"</span>, <span>n.d.</span>, <span>&lt;<a href="https://consumerdatastandardsaustralia.github.io/standards/">https://consumerdatastandardsaustralia.github.io/standards/</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="LIFECYCLE">[LIFECYCLE]</dt>
+        <dd>
+<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"Client ID Metadata Document Software Statement Lifecycle"</span>, <time datetime="2026-10" class="refDate">October 2026</time>, <span>&lt;<a href="https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle.html">https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle.html</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="REGISTRATION">[REGISTRATION]</dt>
+        <dd>
+<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"Client ID Metadata Document Software Statement Registration"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-mcguinness-oauth-cimd-sw-stmt-registration-00</span>, <time datetime="2026-10" class="refDate">October 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration">https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9864">[RFC9864]</dt>
+        <dd>
+<span class="refAuthor">Jones, M.B.</span> and <span class="refAuthor">O. Steele</span>, <span class="refTitle">"Fully-Specified Algorithms for JSON Object Signing and Encryption (JOSE) and CBOR Object Signing and Encryption (COSE)"</span>, <span class="seriesInfo">RFC 9864</span>, <span class="seriesInfo">DOI 10.17487/RFC9864</span>, <time datetime="2025-10" class="refDate">October 2025</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9864">https://www.rfc-editor.org/rfc/rfc9864</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="UK-OPEN-BANKING">[UK-OPEN-BANKING]</dt>
+      <dd>
+<span class="refTitle">"Open Banking UK Dynamic Client Registration Specification v3.3"</span>, <span>n.d.</span>, <span>&lt;<a href="https://openbankinguk.github.io/dcr-docs-pub/v3.3/dynamic-client-registration.html">https://openbankinguk.github.io/dcr-docs-pub/v3.3/dynamic-client-registration.html</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+</section>
+</div>
+<div id="design-rationale">
+<section id="appendix-A">
+      <h2 id="name-design-rationale">
+<a href="#appendix-A" class="section-number selfRef">Appendix A. </a><a href="#name-design-rationale" class="section-name selfRef">Design Rationale</a>
+      </h2>
+<p id="appendix-A-1"><strong>Why the software statement code is not an authorization code.</strong> Redeeming an authorization code issues an access token under <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>. This flow issues an artifact that grants nothing. A distinct code keeps implementations that treat any code as redeemable from confusing the two.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+<p id="appendix-A-2"><strong>Why not the device authorization grant.</strong> <span>[<a href="#RFC8628" class="cite xref">RFC8628</a>]</span> fits a human decision that outlives a request, and an issuer whose approval is always out of band can use it. It assumes a user co-present with a constrained device who enters a user code elsewhere. Issuance approval is made by an administrator or reviewer who does not operate the client and is often not present, and the client already has a browser. The redirect flow covers an approver reachable through that browser. The token exchange profile covers the case with no browser.<a href="#appendix-A-2" class="pilcrow">¶</a></p>
+<p id="appendix-A-3"><strong>Why not client attestation or OpenID Federation.</strong> Section 10 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> relates statements to client attestation and OpenID Federation. Federation standardizes trust resolution, not enrollment, approval, or deferred completion.<a href="#appendix-A-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="acknowledgments">
+<section id="appendix-B">
+      <h2 id="name-acknowledgments">
+<a href="#name-acknowledgments" class="section-name selfRef">Acknowledgments</a>
+      </h2>
+<p id="appendix-B-1">This specification builds on <span>[<a href="#DTR" class="cite xref">DTR</a>]</span>, <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>, and <span>[<a href="#APPROVAL-DCR" class="cite xref">APPROVAL-DCR</a>]</span>. The author thanks the authors and contributors to those specifications and the OAuth working group participants whose discussions informed this work.<a href="#appendix-B-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="authors-addresses">
+<section id="appendix-C">
+      <h2 id="name-authors-address">
+<a href="#name-authors-address" class="section-name selfRef">Author's Address</a>
+      </h2>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Karl McGuinness</span></div>
+<div dir="auto" class="left"><span class="org">Independent</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:public@karlmcguinness.com" class="email">public@karlmcguinness.com</a>
+</div>
+</address>
+</section>
+</div>
+<script>const toc = document.getElementById("toc");
+toc.querySelector("h2").addEventListener("click", e => {
+  toc.classList.toggle("active");
+});
+toc.querySelector("nav").addEventListener("click", e => {
+  toc.classList.remove("active");
+});
+</script>
+</body>
+</html>

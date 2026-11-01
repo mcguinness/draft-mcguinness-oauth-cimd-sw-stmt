@@ -1,0 +1,2018 @@
+<!DOCTYPE html>
+<html lang="en" class="Internet-Draft">
+<head>
+<meta charset="utf-8">
+<meta content="Common,Latin" name="scripts">
+<meta content="initial-scale=1.0" name="viewport">
+<title>Client ID Metadata Document Software Statement Registration</title>
+<meta content="Karl McGuinness" name="author">
+<meta content="
+       A companion specification defines a software statement for a Client ID Metadata Document (CIMD). The statement carries no client metadata: it binds an issuer's review to the exact octets of the client's own document. This specification defines how an authorization server consumes such a statement in an RFC 7591 registration request, taking every metadata value from the reviewed document rather than from the request. It also defines how the statement's expiry bounds the resulting registration, which RFC 7591 leaves unbounded, and how a client renews the registration by delivering a replacement statement, which also updates the registration's metadata. 
+    " name="description">
+<meta content="xml2rfc 3.34.1" name="generator">
+<meta content="OAuth" name="keyword">
+<meta content="Software Statement" name="keyword">
+<meta content="Dynamic Client Registration" name="keyword">
+<meta content="Client ID Metadata Document" name="keyword">
+<meta content="Registration Validity" name="keyword">
+<meta content="draft-mcguinness-oauth-cimd-sw-stmt-registration-latest" name="ietf.draft">
+<!-- Generator version information:
+  xml2rfc 3.34.1
+    Python 3.14.8
+    ConfigArgParse 1.8.0
+    google-i18n-address 3.1.1
+    intervaltree 3.2.1
+    Jinja2 3.1.6
+    lxml 6.1.1
+    natsort 8.4.0
+    platformdirs 4.13.4
+    pycountry 24.6.1
+    PyYAML 6.0.3
+    requests 2.33.1
+    wcwidth 0.9.2
+-->
+<link href="draft-mcguinness-oauth-cimd-sw-stmt-registration.xml" rel="alternate" type="application/rfc+xml">
+<link href="#copyright" rel="license">
+<style type="text/css">@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Lora SemiBold'), local('Lora-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-semibold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  color-scheme: light dark;
+  --background-color: #fff;
+  --text-color: #222;
+  --title-color: #191919;
+  --link-color: #2a6496;
+  --highlight-color: #f9f9f9;
+  --line-color: #eee;
+  --pilcrow-weak: #ddd;
+  --pilcrow-strong: #bbb;
+  --small-font-size: 14.5px;
+  --font-mono: 'Oxygen Mono', monospace;
+  --font-title: "Sofia Sans Semi Condensed", sans-serif;
+  scrollbar-color: #bbb #eee;
+}
+body {
+  max-width: 600px;
+  margin: 75px auto;
+  padding: 0 5px;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  font: 16px/22px "Lora", serif;
+  scroll-behavior: smooth;
+}
+
+.ears {
+  display: none;
+}
+
+/* headings */
+section {
+  clear: both;
+}
+.section-number {
+  padding-right: 0.5em;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-title);
+  font-weight: 680;
+  margin: 0.8em 0 0.3em;
+  font-size-adjust: 0.5;
+  color: var(--title-color);
+}
+h1 {
+  &#title {
+    font-size: 32px;
+    line-height: 40px;
+    clear: both;
+    margin: 1.5em 0 0.2em;
+  }
+  &#rfcnum {
+    margin: 1.5em 0 0.2em;
+    & + h1#title {
+      margin: 0.2em 0;
+    }
+  }
+}
+
+h1, h2, h3 {
+  font-size: 22px;
+  line-height: 27px;
+}
+h4, h5, h6 {
+  font-size: 20px;
+  line-height: 24px;
+}
+
+/* general structure */
+.author {
+  padding-bottom: 0.3em;
+  vertical-align: top;
+}
+#abstract+p {
+  font-size: 18px;
+  line-height: 24px;
+  & code, & samp, & tt {
+    font-size: 16px;
+    line-height: 0;
+  }
+}
+
+p {
+  padding: 0;
+  margin: 0.5em 0;
+  text-align: left;
+}
+div {
+  margin: 0;
+}
+.alignRight {
+  margin: 1em 0;
+  &.art-text {
+    background-color: var(--highlight-color);
+    border: 1px solid var(--line-color);
+    border-radius: 3px;
+    padding: 0.5em 1em 0;
+    margin-bottom: 0.5em;
+    & pre {
+      padding: 0;
+      width: auto;
+    }
+  }
+  & > *:first-child {
+    border: none;
+    margin: 0;
+    float: right;
+    clear: both;
+  }
+  & > *:nth-child(2) {
+    clear: both;
+    display: block;
+    border: none;
+  }
+}
+svg {
+  display: block;
+  /* font-family isn't space-separated, but =~ will have to do */
+  &[font-family~="monospace" i], & [font-family~="monospace" i] {
+    font-family: var(--font-mono);
+  }
+}
+.alignCenter {
+  margin: 1em 0;
+  &.art-text {
+    background-color: var(--highlight-color);
+    border: 1px solid var(--line-color);
+    border-radius: 3px;
+    padding: 0.5em 1em 0;
+    margin-bottom: 0.5em;
+    & pre {
+      padding: 0;
+      width: auto;
+    }
+  }
+  & > *:first-child {
+    border: none;
+    /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
+       support flexbox yet.
+    */
+    display: table;
+    margin: 0 auto;
+  }
+}
+
+/* lists */
+ol, ul {
+  padding: 0;
+  margin: 0 0 0.5em 2em;
+  & :is(ol, ul) {
+    margin-left: 1em;
+  }
+}
+li {
+  margin: 0 0 0.25em 0;
+}
+ul.empty, .ulEmpty {
+  list-style-type: none;
+  & li {
+    margin-top: 0.5em;
+  }
+}
+:is(ul, ol).compact, .ulCompact, .olCompact {
+  margin: 0 0 0 2em;
+  & li {
+    margin: 0;
+    & :first-child { margin-top: 0; }
+    & :last-child { margin-bottom: 0; }
+  }
+}
+
+/* definition lists */
+dl {
+  clear: left;
+  --indent: 3ch;
+  /* --indent: attr(indent ch); not supported in any browser, but we can dream */
+  &.olPercent {
+    --indent: 5ch;
+    & > dt {
+      min-width: calc(var(--indent) - 2ch);
+      float: none;
+    }
+  }
+
+  dl > dd > & {
+    margin-top: 0.5em;
+    margin-bottom: 0;
+  }
+
+  &:not(.dlNewline) > dt {
+    float: left;
+    margin-right: 2ch;
+    min-width: 8ch;
+  }
+  & > dd {
+    margin-bottom: .8em;
+    margin-left: var(--indent) !important; /* stupid element overrides */
+    min-height: 2ex;
+  }
+}
+:is(dl.compact, .dlCompact) > dd {
+  margin-bottom: 0;
+  & > :is(:first-child, .break:first-child + *) {
+    margin-top: 0;
+  }
+  & > :is(:last-child) {
+    margin-bottom: 0;
+  }
+}
+:is(dd, span).break {
+  display: none;
+}
+
+/* links */
+a {
+  text-decoration: none;
+  &[href] {
+    color: var(--link-color);
+    &:hover { text-decoration: underline; }
+    &.selfRef {
+      color: var(--text-color);
+      &:hover {
+        text-decoration: none;
+        background-color: var(--highlight-color);
+      }
+    }
+  }
+}
+.iref + a[href].internal {
+  color: var(--text-color);
+}
+a.xref:is(.cite, .auto), :is(#status-of-memo, #copyright) a {
+  white-space: nowrap;
+}
+
+/* Figures */
+tt, code, pre {
+  background-color: var(--highlight-color);
+  font: 14px/22px var(--font-mono);
+}
+tt, code {
+  /* changing the font for inline elements leads to different ascender
+     and descender heights; as we want to retain baseline alignment,
+     remove leading to avoid altering the final height of lines
+     note: this fails if these blocks take an entire line,
+     a different solution would be great */
+  line-height: 0;
+}
+:is(h1, h2, h3, h4, h5, h6) :is(tt, code) {
+  font-size: 84%;
+}
+pre {
+  border: 1px solid var(--line-color);
+  font-size: 13.5px;
+  line-height: 16px;
+  letter-spacing: -0.2px;
+  margin: 5px;
+  padding: 5px;
+}
+img {
+  max-width: 100%;
+}
+figure {
+  margin: 0.5em 0;
+  padding: 0;
+  & blockquote {
+    margin: 0.8em 0.4em 0.4em;
+  }
+}
+figcaption, caption {
+  font-style: italic;
+  margin: 0.5em 1.5em;
+  text-align: left;
+  caption-side: bottom;
+}
+@media screen {
+  /* Auto-collapse boilerplate. */
+  :is(#status-of-memo, #copyright) {
+    & p {
+      margin: -2px 0;
+      max-height: 0;
+      transition: max-height 2s ease, margin 0.5s ease 0.5s;
+      overflow: hidden;
+    }
+    &:hover p,
+    & h2:target ~ p {
+      margin: 0.5em 0;
+      max-height: 500px;
+      overflow: auto;
+    }
+  }
+  pre, svg {
+    display: inline-block;
+    /* In the horizontal direction, sometimes people make over-sized figures.
+       Scrollbars for those is therefore necessary: auto adds them as necessary..
+       In the vertical direction, the line-height can combine with the font
+       asender/descender height to produce scrollbars: hidden avoids that. */
+    overflow: auto hidden;
+  }
+  pre {
+    max-width: 100%;
+    width: calc(100% - 22px - 1em);
+  }
+  svg {
+    max-width: calc(100% - 22px - 1em);
+  }
+  figure pre {
+    display: block;
+    width: calc(100% - 25px);
+  }
+  :is(pre, svg) + .pilcrow {
+    display: inline-block;
+    vertical-align: text-bottom;
+    padding-bottom: 8px;
+  }
+}
+
+/* aside, blockquote */
+aside, blockquote {
+  margin-left: 0;
+  padding: 0 2em;
+  font-style: italic;
+}
+blockquote {
+  margin: 1em 0;
+  border-left: 2px var(--pilcrow-strong) solid;
+}
+cite {
+  display: block;
+  text-align: right;
+  font-style: italic;
+}
+
+/* tables */
+table {
+  width: auto;
+  max-width: 100%;
+  margin: 0 0 1em;
+  border-collapse: collapse;
+  &.right { margin-left: auto; }
+  &.center { margin-left: auto; margin-right: auto; }
+  &.left { margin-right: auto; }
+  & .text-left { text-align: left; }
+  & .text-center { text-align: center; }
+  & .text-right { text-align: right; }
+  & caption {
+    margin: 0;
+    padding: 3px 0 3px 1em;
+  }
+  & p { margin: 0; }
+}
+
+thead, tbody {
+  border: 1px solid var(--line-color);
+}
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 5px 10px;
+}
+th {
+  background-color: var(--line-color);
+}
+:is(tr:nth-child(2n), thead+tbody > tr:nth-child(2n+1)) > td {
+  background-color: var(--background-color);
+}
+:is(tr:nth-child(2n+1), thead+tbody > tr:nth-child(2n)) > td {
+  background-color: var(--highlight-color);
+}
+
+/* pilcrow */
+a.pilcrow {
+  margin-left: 3px;
+  opacity: 0.2;
+  user-select: none;
+  &[href] {
+    color: var(--pilcrow-weak);
+    &:hover { text-decoration: none; }
+  }
+  @media not print {
+    :hover > &, &:focus {
+      opacity: 1;
+    }
+    &[href]:hover {
+      color: var(--pilcrow-strong);
+      background-color: transparent;
+    }
+  }
+  @media print {
+    display: none;
+  }
+}
+
+/* misc */
+hr {
+  border: 0;
+  border-top: 1px solid var(--line-color);
+}
+.bcp14 {
+  font-variant: small-caps;
+  font-weight: 600;
+  font-size: var(--small-font-size);
+}
+.role {
+  font-variant: all-small-caps;
+}
+sub, sup {
+  line-height: 1;
+  font-size: 80%;
+}
+
+/* info block */
+#identifiers {
+  margin: 0;
+  font-size: var(--small-font-size);
+  line-height: 18px;
+  --identifier-width: 15ch;
+  & dt {
+    width: var(--identifier-width);
+    min-width: var(--identifier-width);
+    clear: left;
+    float: left;
+    text-align: right;
+    margin-right: 1ch;
+  }
+  & dd {
+    margin: 0;
+    margin-left: calc(1em + var(--identifier-width)) !important;
+    min-width: 5em;
+  }
+  & .authors {
+    & .author {
+      display: inline-block;
+      margin-right: 1.5em;
+    }
+    & .org {
+      font-style: italic;
+    }
+  }
+}
+
+/* The prepared/rendered info at the very bottom of the page */
+.docInfo {
+  color: #999;
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: 2em;
+  & .prepared {
+    float: right;
+  }
+}
+
+/* table of contents */
+#toc {
+  padding: 0.75em 0 2em 0;
+  margin-bottom: 1em;
+
+  & nav {
+    & ul {
+      margin: 0 0.5em 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    & li {
+      line-height: 1.3em;
+      margin: 2px 0;
+      padding-left: 1.2em;
+      text-indent: -1.2em;
+    }
+  }
+  & a.xref {
+    white-space: normal;
+  }
+}
+
+.references {
+  & > dt {
+    text-align: right;
+    font-weight: bold;
+    min-width: 10ch;
+    margin-right: 1.5ch;
+    &:target::before {
+      content: "⇒";
+      margin: 0 10px 0 -25px;
+    }
+  }
+  & > dd {
+    margin-left: 12ch !important;
+    overflow: visible;
+    & .refInstance {
+      margin-bottom: 0.8em;
+    }
+    & .ascii {
+      margin-bottom: 0.25em;
+    }
+  }
+}
+
+#rfc\.index\.index + ul {
+  margin-left: 0;
+}
+
+/* authors */
+address.vcard {
+  font-style: normal;
+  max-width: 20em;
+  margin: 1em auto 1em 0;
+
+  & .nameRole {
+    font-weight: 700;
+    margin-left: 0;
+  }
+  & .label {
+    margin: 0.5em 0;
+  }
+  & .type {
+    display: none;
+  }
+  & .alternative-contact {
+    margin: 0.5em 0 0.25em 0;
+  }
+  & .non-ascii {
+    margin: 0 0 0 2em;
+  }
+  & div.left {
+    text-align: left;
+  }
+  & div.right {
+    text-align: right;
+  }
+}
+
+hr.addr {
+  border-top: 1px dashed;
+  margin: 0;
+  color: #ddd;
+  max-width: calc(100% - 16px);
+}
+@media (min-width: 500px) {
+  #authors-addresses {
+    & > section {
+      column-count: 2;
+      column-gap: 20px;
+    }
+    & > section > h2 {
+      column-span: all;
+    }
+    /* hack for break-inside: avoid-column */
+    & address {
+      display: inline-block;
+      break-inside: avoid-column;
+    }
+  }
+}
+
+/* Comments */
+.rfcEditorRemove {
+  & p:first-of-type {
+    font-style: italic;
+  }
+}
+.cref {
+  background-color: rgba(249, 232, 105, 0.3);
+  padding: 2px 4px;
+}
+.crefSource {
+  font-style: italic;
+}
+
+@media screen {
+  #toc {
+    & nav {
+      font-family: var(--font-title);
+      font-weight: 360;
+      & > ul { margin-bottom: 2em; }
+      & ul {
+        margin: 0 0 0 4px;
+        & :is(p, li) {
+          margin: 2px 0;
+        }
+      }
+    }
+    & a.toplink {
+      float: right;
+    }
+  }
+}
+@media not screen {
+  #toc a.toplink {
+    display: none;
+  }
+}
+
+
+/* TOC layout for smaller screens */
+@media screen and (max-width: 929px) {
+  #toc {
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    padding: 1px 0 0 0;
+    margin: 0;
+    border-bottom: 1px solid #ccc;
+    opacity: 0.6;
+    & h2 {
+      margin: 0;
+      padding: 2px 0 2px 6px;
+      padding-right: 1em;
+      font-size: 18px;
+      line-height: 24px;
+      min-width: 190px;
+      text-align: right;
+      background-color: #444;
+      color: white;
+      cursor: pointer;
+      &::before { /* css hamburger */
+        float: right;
+        position: relative;
+        width: 1em;
+        height: 1px;
+        left: -164px;
+        margin: 8px 0 0 0;
+        background: white none repeat scroll 0 0;
+        box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+        content: "";
+      }
+    }
+    & nav {
+      display: none;
+      background-color: var(--background-color);
+      padding: 0.5em 1em 1em;
+      overflow: auto;
+      overscroll-behavior: contain;
+      height: calc(100vh - 48px);
+      border-left: 1px solid #ddd;
+    }
+    &.active {
+      opacity: 1;
+      & nav { display: block; }
+    }
+    /* Make the collapsed ToC header render white on gray also when it's a link */
+    & h2 a,
+    & h2 a:is(:link, :focus, :hover),
+    & a.toplink,
+    & a.toplink:hover {
+      color: white;
+      background-color: #444;
+      text-decoration: none;
+    }
+    & a.toplink {
+      margin: 2px 0.5em 0;
+    }
+  }
+}
+
+/* TOC layout for wide screens */
+@media screen and (min-width: 930px) {
+  body {
+    padding-right: 360px;
+    padding-right: calc(min(180px + 20%, 500px));
+  }
+  #toc {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    right: calc(50vw - 480px);
+    width: 312px;
+    margin: 0;
+    padding: 0;
+    z-index: 1;
+    & h2 {
+      margin: 0;
+      padding: 0.25em 1em 1em 0;
+    }
+    & nav {
+      display: block;
+      height: calc(90vh - 84px);
+      bottom: 0;
+      padding: 0.5em 0 2em;
+      overflow: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+    }
+    & a.toplink {
+      margin: 8px 0.5em 0;
+    }
+  }
+  img { /* future proofing */
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* pagination */
+@media print {
+  body {
+    width: 100%;
+  }
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+  #n-copyright-notice {
+    border-bottom: none;
+  }
+  #toc {
+    page-break-before: always;
+    border-top: none;
+    padding-top: 0;
+  }
+  #n-introduction {
+    page-break-before: always;
+  }
+  figure, pre, .vcard {
+    page-break-inside: avoid;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+  :is(h2, h3, h4, h5, h6)+*, dd {
+    page-break-before: avoid;
+  }
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 10pt;
+  }
+  table {
+    border: 1px solid #ddd;
+  }
+  td {
+    border-top: 1px solid #ddd;
+  }
+}
+
+@page :first {
+  padding-top: 0;
+  @top-left {
+    content: normal;
+    border: none;
+  }
+  @top-center {
+    content: normal;
+    border: none;
+  }
+  @top-right {
+    content: normal;
+    border: none;
+  }
+}
+
+@page {
+  size: A4;
+  margin-bottom: 45mm;
+  padding-top: 20px;
+}
+
+/* Dark mode. */
+@media (prefers-color-scheme: dark) {
+:root {
+  --background-color: #121212;
+  --text-color: #f0f0f0;
+  --title-color: #fff;
+  --link-color: #4da4f0;
+  --highlight-color: #282828;
+  --line-color: #444;
+  --pilcrow-weak: #444;
+  --pilcrow-strong: #666;
+  scrollbar-color: #777 #333;
+}
+}
+
+/* SVG Trick: a prefix match works because only black and white are allowed */
+svg {
+  & :is([stroke="black"], [stroke^="#000"]) {
+    stroke: var(--text-color);
+  }
+  & :is([stroke="white"], [stroke^="#fff"]) {
+    stroke: var(--background-color);
+  }
+  & :is([fill="black"], [fill^="#000"], :not([fill])) {
+    fill: var(--text-color);
+  }
+  & :is([fill="white"], [fill^="#fff"]) {
+    fill: var(--background-color);
+  }
+}
+</style>
+
+</head>
+<body class="xml2rfc">
+<table class="ears">
+<thead><tr>
+<td class="left">Internet-Draft</td>
+<td class="center">oauth-cimd-sw-stmt-registration</td>
+<td class="right">November 2026</td>
+</tr></thead>
+<tfoot><tr>
+<td class="left">McGuinness</td>
+<td class="center">Expires 5 May 2027</td>
+<td class="right">[Page]</td>
+</tr></tfoot>
+</table>
+<div id="external-metadata" class="document-information"></div>
+<div id="internal-metadata" class="document-information">
+<dl id="identifiers">
+<dt class="label-workgroup">Workgroup:</dt>
+<dd class="workgroup">Web Authorization Protocol</dd>
+<dt class="label-internet-draft">Internet-Draft:</dt>
+<dd class="internet-draft">draft-mcguinness-oauth-cimd-sw-stmt-registration-latest</dd>
+<dt class="label-published">Published:</dt>
+<dd class="published">
+<time datetime="2026-11-01" class="published">1 November 2026</time>
+    </dd>
+<dt class="label-intended-status">Intended Status:</dt>
+<dd class="intended-status">Standards Track</dd>
+<dt class="label-expires">Expires:</dt>
+<dd class="expires"><time datetime="2027-05-05">5 May 2027</time></dd>
+<dt class="label-authors">Author:</dt>
+<dd class="authors">
+<div class="author">
+      <div class="author-name">K. McGuinness</div>
+<div class="org">Independent</div>
+</div>
+</dd>
+</dl>
+</div>
+<h1 id="title">Client ID Metadata Document Software Statement Registration</h1>
+<section id="section-abstract">
+      <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
+<p id="section-abstract-1">A companion specification defines a software statement for a Client ID Metadata Document (CIMD). The statement carries no client metadata: it binds an issuer's review to the exact octets of the client's own document. This specification defines how an authorization server consumes such a statement in an RFC 7591 registration request, taking every metadata value from the reviewed document rather than from the request. It also defines how the statement's expiry bounds the resulting registration, which RFC 7591 leaves unbounded, and how a client renews the registration by delivering a replacement statement, which also updates the registration's metadata.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+</section>
+<div id="status-of-memo">
+<section id="section-boilerplate.1">
+        <h2 id="name-status-of-this-memo">
+<a href="#name-status-of-this-memo" class="section-name selfRef">Status of This Memo</a>
+        </h2>
+<p id="section-boilerplate.1-1">
+        This Internet-Draft is submitted in full conformance with the
+        provisions of BCP 78 and BCP 79.<a href="#section-boilerplate.1-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-2">
+        Internet-Drafts are working documents of the Internet Engineering Task
+        Force (IETF). Note that other groups may also distribute working
+        documents as Internet-Drafts. The list of current Internet-Drafts is
+        at <span><a href="https://datatracker.ietf.org/drafts/current/">https://datatracker.ietf.org/drafts/current/</a></span>.<a href="#section-boilerplate.1-2" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-3">
+        Internet-Drafts are draft documents valid for a maximum of six months
+        and may be updated, replaced, or obsoleted by other documents at any
+        time. It is inappropriate to use Internet-Drafts as reference
+        material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-4">
+        This Internet-Draft will expire on 5 May 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="copyright">
+<section id="section-boilerplate.2">
+        <h2 id="name-copyright-notice">
+<a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
+        </h2>
+<p id="section-boilerplate.2-1">
+            Copyright (c) 2026 IETF Trust and the persons identified as the
+            document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.2-2">
+            This document is subject to BCP 78 and the IETF Trust's Legal
+            Provisions Relating to IETF Documents
+            (<span><a href="https://trustee.ietf.org/license-info">https://trustee.ietf.org/license-info</a></span>) in effect on the date of
+            publication of this document. Please review these documents
+            carefully, as they describe your rights and restrictions with
+            respect to this document. Code Components extracted from this
+            document must include Revised BSD License text as described in
+            Section 4.e of the Trust Legal Provisions and are provided without
+            warranty as described in the Revised BSD License.<a href="#section-boilerplate.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="toc">
+<section id="section-toc.1">
+        <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents">
+<a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
+        </h2>
+<nav class="toc"><ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1">
+            <p id="section-toc.1-1.1.1" class="keepWithNext"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1">
+                <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="auto internal xref">1.1</a>.  <a href="#name-protocol-overview" class="internal xref">Protocol Overview</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
+            <p id="section-toc.1-1.2.1" class="keepWithNext"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-conventions-and-definitions" class="internal xref">Conventions and Definitions</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-consumption-at-registration" class="internal xref">Consumption at Registration</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1">
+                <p id="section-toc.1-1.3.2.1.1"><a href="#section-3.1" class="auto internal xref">3.1</a>.  <a href="#name-tenant-restriction" class="internal xref">Tenant Restriction</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2">
+                <p id="section-toc.1-1.3.2.2.1"><a href="#section-3.2" class="auto internal xref">3.2</a>.  <a href="#name-public-clients" class="internal xref">Public Clients</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3">
+                <p id="section-toc.1-1.3.2.3.1"><a href="#section-3.3" class="auto internal xref">3.3</a>.  <a href="#name-repeated-registration" class="internal xref">Repeated Registration</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-registration-validity" class="internal xref">Registration Validity</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-requests-under-a-registrati" class="internal xref">Requests Under a Registration</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-renewal" class="internal xref">Renewal</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-error-responses" class="internal xref">Error Responses</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-example" class="internal xref">Example</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
+            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-authorization-server-metada" class="internal xref">Authorization Server Metadata</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
+            <p id="section-toc.1-1.10.1"><a href="#section-10" class="auto internal xref">10</a>. <a href="#name-deployment-considerations" class="internal xref">Deployment Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
+            <p id="section-toc.1-1.11.1"><a href="#section-11" class="auto internal xref">11</a>. <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.1">
+                <p id="section-toc.1-1.11.2.1.1"><a href="#section-11.1" class="auto internal xref">11.1</a>.  <a href="#name-statements-at-registration" class="internal xref">Statements at Registration</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.2">
+                <p id="section-toc.1-1.11.2.2.1"><a href="#section-11.2" class="auto internal xref">11.2</a>.  <a href="#name-credential-theft-and-renewa" class="internal xref">Credential Theft and Renewal</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.3">
+                <p id="section-toc.1-1.11.2.3.1"><a href="#section-11.3" class="auto internal xref">11.3</a>.  <a href="#name-registration-fraud-and-impe" class="internal xref">Registration Fraud and Impersonation</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.4">
+                <p id="section-toc.1-1.11.2.4.1"><a href="#section-11.4" class="auto internal xref">11.4</a>.  <a href="#name-observable-state" class="internal xref">Observable State</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
+            <p id="section-toc.1-1.12.1"><a href="#section-12" class="auto internal xref">12</a>. <a href="#name-privacy-considerations" class="internal xref">Privacy Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13">
+            <p id="section-toc.1-1.13.1"><a href="#section-13" class="auto internal xref">13</a>. <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13.2.1">
+                <p id="section-toc.1-1.13.2.1.1"><a href="#section-13.1" class="auto internal xref">13.1</a>.  <a href="#name-oauth-dynamic-client-regist" class="internal xref">OAuth Dynamic Client Registration Metadata Registry</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13.2.2">
+                <p id="section-toc.1-1.13.2.2.1"><a href="#section-13.2" class="auto internal xref">13.2</a>.  <a href="#name-oauth-parameters-registry" class="internal xref">OAuth Parameters Registry</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13.2.3">
+                <p id="section-toc.1-1.13.2.3.1"><a href="#section-13.3" class="auto internal xref">13.3</a>.  <a href="#name-oauth-authorization-server-" class="internal xref">OAuth Authorization Server Metadata Registry</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13.2.4">
+                <p id="section-toc.1-1.13.2.4.1"><a href="#section-13.4" class="auto internal xref">13.4</a>.  <a href="#name-oauth-extensions-error-regi" class="internal xref">OAuth Extensions Error Registry</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14">
+            <p id="section-toc.1-1.14.1"><a href="#section-14" class="auto internal xref">14</a>. <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14.2.1">
+                <p id="section-toc.1-1.14.2.1.1"><a href="#section-14.1" class="auto internal xref">14.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14.2.2">
+                <p id="section-toc.1-1.14.2.2.1"><a href="#section-14.2" class="auto internal xref">14.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15">
+            <p id="section-toc.1-1.15.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
+</li>
+        </ul>
+</nav>
+</section>
+</div>
+<div id="introduction">
+<section id="section-1">
+      <h2 id="name-introduction">
+<a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
+      </h2>
+<p id="section-1-1">A software statement (Section 2.3 of <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>) carries a third party's approval of client software into a dynamic client registration request. In <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>, values in the statement take precedence over those in the request. A statement under Section 3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> carries no client metadata: it names a Client ID Metadata Document (CIMD) by its URL and binds the review to that document's exact octets. An <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> server that verified such a statement without implementing this specification would take every metadata value from the request, attaching the issuer's approval to redirection URIs and keys nobody reviewed.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2"><span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> also defines no expiry or renewal for a registration. A registration based on a statement can outlive the statement, and nothing keeps the registration's validity or metadata in line with the issuer's decision once the issuer narrows or withdraws its review or stops renewing the statement.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3"><span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> admits a client at request time without registering it. This specification is for deployments that register clients through <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> instead, for example to assign their own client identifiers or to manage registrations under <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span>. It defines consumption of the statement at registration (<a href="#dcr-presentation" class="auto internal xref">Section 3</a>), the registration's validity (<a href="#registration-validity" class="auto internal xref">Section 4</a>), and its renewal by a replacement statement (<a href="#revalidation" class="auto internal xref">Section 6</a>). This specification depends on <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, which does not depend on it.<a href="#section-1-3" class="pilcrow">¶</a></p>
+<div id="protocol-overview">
+<section id="section-1.1">
+        <h3 id="name-protocol-overview">
+<a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-protocol-overview" class="section-name selfRef">Protocol Overview</a>
+        </h3>
+<p id="section-1.1-1">The following non-normative sequence summarizes a statement-governed registration:<a href="#section-1.1-1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-1.1-2">
+<li id="section-1.1-2.1">
+            <p id="section-1.1-2.1.1">The client registers through <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>, carrying a statement in the <code>software_statement</code> member.<a href="#section-1.1-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-1.1-2.2">
+            <p id="section-1.1-2.2.1">The authorization server derives the registration's metadata from the reviewed document and records the statement's identity. The registration is valid until the statement ceases to be current, at the latest its effective expiry (<a href="#registration-validity" class="auto internal xref">Section 4</a>).<a href="#section-1.1-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-1.1-2.3">
+            <p id="section-1.1-2.3.1">The client delivers a replacement statement in a token or pushed authorization request under the registration or, if supported, an <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> update request. A valid replacement replaces the registration's metadata with metadata derived from the document it reviews, and sets the registration's validity to its effective expiry.<a href="#section-1.1-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-1.1-2.4">
+            <p id="section-1.1-2.4.1">If no replacement arrives, the registration ceases to be valid and requests under it are rejected.<a href="#section-1.1-2.4.1" class="pilcrow">¶</a></p>
+</li>
+        </ol>
+</section>
+</div>
+</section>
+</div>
+<div id="conventions-and-definitions">
+<section id="section-2">
+      <h2 id="name-conventions-and-definitions">
+<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-conventions-and-definitions" class="section-name selfRef">Conventions and Definitions</a>
+      </h2>
+<p id="section-2-1">The key words "<span class="bcp14">MUST</span>", "<span class="bcp14">MUST NOT</span>", "<span class="bcp14">REQUIRED</span>", "<span class="bcp14">SHALL</span>", "<span class="bcp14">SHALL NOT</span>", "<span class="bcp14">SHOULD</span>", "<span class="bcp14">SHOULD NOT</span>", "<span class="bcp14">RECOMMENDED</span>", "<span class="bcp14">NOT RECOMMENDED</span>",
+"<span class="bcp14">MAY</span>", and "<span class="bcp14">OPTIONAL</span>" in this document are to be interpreted as
+described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="cite xref">RFC8174</a>]</span> when, and only when, they
+appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶</a></p>
+<p id="section-2-2">This specification uses terminology from <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> (OAuth), <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> (client metadata and software statements), and <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> (Client ID Metadata Documents), and the terms defined in Section 2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>.<a href="#section-2-2" class="pilcrow">¶</a></p>
+<p id="section-2-3">This specification defines the following terms.<a href="#section-2-3" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-2-4">
+        <dt id="section-2-4.1">Delivery:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-4.2">
+          <p id="section-2-4.2.1">Carrying a statement in a request under a statement-governed registration, in one of the locations <a href="#revalidation" class="auto internal xref">Section 6</a> lists, so that it can renew the registration. A delivery is not a runtime presentation.<a href="#section-2-4.2.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-2-4.3">Governing Statement:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-4.4">
+          <p id="section-2-4.4.1">The statement that bounds a statement-governed registration: the one consumed at registration or, after a renewal, the replacement that renewed it most recently (<a href="#revalidation" class="auto internal xref">Section 6</a>). The authorization server identifies it by its <code>iss</code> and <code>jti</code> claims.<a href="#section-2-4.4.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-2-4.5">Replacement:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-4.6">
+          <p id="section-2-4.6.1">A delivered statement with the governing statement's <code>iss</code> and <code>sub</code> claims and a later <code>iat</code> (<a href="#revalidation" class="auto internal xref">Section 6</a>).<a href="#section-2-4.6.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-2-4.7">Statement-Governed Registration:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-4.8">
+          <p id="section-2-4.8.1">An <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> client registration created from a statement under this specification (<a href="#dcr-presentation" class="auto internal xref">Section 3</a>).<a href="#section-2-4.8.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="dcr-presentation">
+<section id="section-3">
+      <h2 id="name-consumption-at-registration">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-consumption-at-registration" class="section-name selfRef">Consumption at Registration</a>
+      </h2>
+<p id="section-3-1">The statement is consumed in the <code>software_statement</code> member of an <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> registration request. The authorization server validates it under Section 3.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> and registers the client under its ordinary registration policy. If a required issuer covers the statement's <code>sub</code> in the request's tenant (Section 4 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), the authorization server <span class="bcp14">MUST NOT</span> create a registration on a statement from another issuer.<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-3-2">A required issuer governs only registrations made on statements, because a registration made without a statement names no client identifier URL for a required issuer to cover. A deployment that needs every registration in a tenant reviewed requires a statement for every registration there, rejecting a request without one with <code>unapproved_software_statement</code> (<a href="#errors" class="auto internal xref">Section 7</a>).<a href="#section-3-2" class="pilcrow">¶</a></p>
+<p id="section-3-3">The retrieval requirements of Sections 3.1 and 5.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> apply to retrieving the document as they apply to a runtime presentation, and a server can apply the bounds of Section 11.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>. Following the order of Section 5.1 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, the authorization server completes every check that needs no client-controlled retrieval before resolving the document.<a href="#section-3-3" class="pilcrow">¶</a></p>
+<p id="section-3-4">The reviewed document takes the role that <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> gives a statement's own values. In deriving a registration's metadata, at registration or for a replacement (<a href="#revalidation" class="auto internal xref">Section 6</a>), the authorization server:<a href="#section-3-4" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3-5.1">
+          <p id="section-3-5.1.1"><span class="bcp14">MUST</span> obtain the CIMD at the statement's <code>sub</code> claim and compare its digest with the <code>cimd_digest</code> claim as Section 5.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> requires, rejecting the request if the digests differ, and <span class="bcp14">MUST</span> derive the registered metadata from the octets whose digest matched.<a href="#section-3-5.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-3-5.2">
+          <p id="section-3-5.2.1"><span class="bcp14">MUST</span> validate the document as <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> requires, including that its <code>client_id</code> member matches the statement's <code>sub</code> claim.<a href="#section-3-5.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-3-5.3">
+          <p id="section-3-5.3.1"><span class="bcp14">MUST</span> take every client metadata value from that document, except values the authorization server issues, such as <code>client_id</code> and <code>client_id_issued_at</code>.<a href="#section-3-5.3.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-3-5.4">
+          <p id="section-3-5.4.1"><span class="bcp14">MUST NOT</span> take any client metadata value from the request, or from any <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> update request for the registration, whether or not the document carries the corresponding member.<a href="#section-3-5.4.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-3-6">Client metadata in a registration or update request does not contribute to the registration. The registered <code>client_id</code> is assigned as <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> provides, and the document's own <code>client_id</code> member is the URL recorded as the governing statement's <code>sub</code>. A member the document omits, other than <code>token_endpoint_auth_method</code> (rejected below), takes its <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> default. The registration's metadata changes only when a replacement is applied (<a href="#revalidation" class="auto internal xref">Section 6</a>).<a href="#section-3-6" class="pilcrow">¶</a></p>
+<p id="section-3-7">The authorization server <span class="bcp14">MUST</span> reject the registration, or a replacement (<a href="#revalidation" class="auto internal xref">Section 6</a>), if any of the following holds:<a href="#section-3-7" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3-8.1">
+          <p id="section-3-8.1.1">The document omits the <code>token_endpoint_auth_method</code> member.<a href="#section-3-8.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-3-8.2">
+          <p id="section-3-8.2.1">The document declares <code>token_endpoint_auth_method</code> of <code>none</code>, unless the authorization server registers the client under <a href="#public-client-registration" class="auto internal xref">Section 3.2</a>.<a href="#section-3-8.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-3-8.3">
+          <p id="section-3-8.3.1">Any of the document's redirection URIs could be claimed by another application on the same device (Section 5.6.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), whatever authentication method the document declares.<a href="#section-3-8.3.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-3-9">Unlike runtime presentation (Section 5 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), registration has no review-only form, so a condition that would make a presentation review-only rejects the registration.<a href="#section-3-9" class="pilcrow">¶</a></p>
+<p id="section-3-10">Software whose document declares <code>token_endpoint_auth_method</code> of <code>none</code> and that the server does not register under <a href="#public-client-registration" class="auto internal xref">Section 3.2</a> can instead use runtime presentation if it meets the public-client binding requirements of Section 5.6.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>.<a href="#section-3-10" class="pilcrow">¶</a></p>
+<div id="tenant-restriction">
+<section id="section-3.1">
+        <h3 id="name-tenant-restriction">
+<a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-tenant-restriction" class="section-name selfRef">Tenant Restriction</a>
+        </h3>
+<p id="section-3.1-1">If the statement's decision is confined to one of the authorization server's tenants, by its <code>aud_tenant</code> claim or by the server's trust configuration for its issuer (Section 4 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), the registration is restricted to that tenant. Otherwise it carries no tenant restriction under this specification. A replacement (<a href="#revalidation" class="auto internal xref">Section 6</a>) determines the restriction as follows:<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+<table class="center" id="table-1">
+          <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Registration before</th>
+              <th class="text-left" rowspan="1" colspan="1">Replacement's decision</th>
+              <th class="text-left" rowspan="1" colspan="1">After</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Restricted to a tenant</td>
+              <td class="text-left" rowspan="1" colspan="1">Confined to that tenant, or not confined</td>
+              <td class="text-left" rowspan="1" colspan="1">Restricted to that tenant</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Restricted to a tenant</td>
+              <td class="text-left" rowspan="1" colspan="1">Confined to another tenant</td>
+              <td class="text-left" rowspan="1" colspan="1">Fails validation (Section 3.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>)</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">No restriction, confidential client</td>
+              <td class="text-left" rowspan="1" colspan="1">Confined to a tenant</td>
+              <td class="text-left" rowspan="1" colspan="1">Restricted to that tenant</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">No restriction, public client</td>
+              <td class="text-left" rowspan="1" colspan="1">Confined to a tenant</td>
+              <td class="text-left" rowspan="1" colspan="1">Not a valid replacement</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">No restriction</td>
+              <td class="text-left" rowspan="1" colspan="1">Not confined to a tenant</td>
+              <td class="text-left" rowspan="1" colspan="1">No restriction</td>
+            </tr>
+          </tbody>
+        </table>
+<p id="section-3.1-3">The tenant rules of steps 1 and 4 of <a href="#registration-requests" class="auto internal xref">Section 5</a> also apply to any other request under the registration, including <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> read and delete requests.<a href="#section-3.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="public-client-registration">
+<section id="section-3.2">
+        <h3 id="name-public-clients">
+<a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-public-clients" class="section-name selfRef">Public Clients</a>
+        </h3>
+<p id="section-3.2-1">An authorization server <span class="bcp14">MAY</span> register a client whose reviewed document declares <code>token_endpoint_auth_method</code> of <code>none</code>, creating a public-client registration. Such a registration has no client credential and is shared among installations of the software. A server that registers such a client:<a href="#section-3.2-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.2-2.1">
+            <p id="section-3.2-2.1.1"><span class="bcp14">MUST</span> reject the registration if the document lists no redirection URI.<a href="#section-3.2-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-3.2-2.2">
+            <p id="section-3.2-2.2.1"><span class="bcp14">MUST</span> issue tokens under the registration only through the authorization code grant and the refresh of grants it opens.<a href="#section-3.2-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-3.2-2.3">
+            <p id="section-3.2-2.3.1"><span class="bcp14">MUST</span> apply Section 5.6.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> to every authorization request under the registration, and <span class="bcp14">MUST</span> require code redemption and every refresh of the resulting grant to prove the key bound there.<a href="#section-3.2-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-3.2-2.4">
+            <p id="section-3.2-2.4.1"><span class="bcp14">MUST NOT</span> issue a registration access token <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> for the registration.<a href="#section-3.2-2.4.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+</section>
+</div>
+<div id="repeated-registration">
+<section id="section-3.3">
+        <h3 id="name-repeated-registration">
+<a href="#section-3.3" class="section-number selfRef">3.3. </a><a href="#name-repeated-registration" class="section-name selfRef">Repeated Registration</a>
+        </h3>
+<p id="section-3.3-1">A registration request is repeated if its statement has the <code>iss</code> and <code>sub</code> claims of the governing statement of an existing statement-governed registration, valid or not, that:<a href="#section-3.3-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.3-2.1">
+            <p id="section-3.3-2.1.1">is not restricted to another tenant (<a href="#tenant-restriction" class="auto internal xref">Section 3.1</a>), and<a href="#section-3.3-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-3.3-2.2">
+            <p id="section-3.3-2.2.1">is restricted to the request's tenant, if that tenant requires a tenant-scoped decision (Section 3.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-3.3-2.2.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-3.3-3">One current statement can be consumed more than once, subject to the bounds of Sections 11.2 and 11.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> and the server's registration policy. A server can count registrations toward the bound on establishments of Section 11.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, but the bound stays effective only if a registration under which no access token has been issued, which anyone holding a copy of the statement can create, does not count toward it.<a href="#section-3.3-3" class="pilcrow">¶</a></p>
+<p id="section-3.3-4">If the registration a request repeats is a confidential-client registration, local policy can reject the request, treat it as idempotent, or create another registration. An idempotent response <span class="bcp14">MUST NOT</span> return the existing registration's credentials, such as its <code>registration_access_token</code> member. A common default is one registration per <code>iss</code> and <code>sub</code>, per tenant on a multi-tenant server, at the cost <a href="#statement-bearer" class="auto internal xref">Section 11.1</a> describes.<a href="#section-3.3-4" class="pilcrow">¶</a></p>
+<p id="section-3.3-5">If the registration a request repeats is a public-client registration (<a href="#public-client-registration" class="auto internal xref">Section 3.2</a>), the authorization server <span class="bcp14">MUST NOT</span> create another registration and handles the request by its statement, once the statement validates:<a href="#section-3.3-5" class="pilcrow">¶</a></p>
+<table class="center" id="table-2">
+          <caption><a href="#table-2" class="selfRef">Table 2</a></caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Statement in the repeated request</th>
+              <th class="text-left" rowspan="1" colspan="1">Outcome</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">The governing statement, identified by its <code>iss</code> and <code>jti</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">The existing registration is returned</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">A later <code>iat</code> than the governing statement's</td>
+              <td class="text-left" rowspan="1" colspan="1">Evaluated as a replacement (<a href="#revalidation" class="auto internal xref">Section 6</a>); the renewed registration is returned or the request is rejected (<a href="#errors" class="auto internal xref">Section 7</a>)</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Any other statement with an <code>iat</code> no later than the governing statement's</td>
+              <td class="text-left" rowspan="1" colspan="1">The request is rejected</td>
+            </tr>
+          </tbody>
+        </table>
+</section>
+</div>
+</section>
+</div>
+<div id="registration-validity">
+<section id="section-4">
+      <h2 id="name-registration-validity">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-registration-validity" class="section-name selfRef">Registration Validity</a>
+      </h2>
+<p id="section-4-1">The following validity model applies to every statement-governed registration:<a href="#section-4-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4-2.1">
+          <p id="section-4-2.1.1">The registration's effective expiry (Section 2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>) is that of its governing statement.<a href="#section-4-2.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-4-2.2">
+          <p id="section-4-2.2.1">The registration is valid until its governing statement ceases to be current (Section 2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), and so at most until that effective expiry.<a href="#section-4-2.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-4-2.3">
+          <p id="section-4-2.3.1">Once the registration has ceased to be valid, the authorization server <span class="bcp14">MUST</span> reject, at step 4 of <a href="#registration-requests" class="auto internal xref">Section 5</a>, authorization, token, and pushed authorization requests and <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> update requests under it, unless a replacement the request delivers has restored it at step 3.<a href="#section-4-2.3.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-4-2.4">
+          <p id="section-4-2.4.1">The authorization server <span class="bcp14">SHOULD</span> retain a registration that has ceased to be valid, so that a replacement can restore it.<a href="#section-4-2.4.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-4-2.5">
+          <p id="section-4-2.5.1">Ceasing to be valid does not expire the registration's credentials, including its registration access token, and does not by itself revoke access tokens already issued under the registration.<a href="#section-4-2.5.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-4-2.6">
+          <p id="section-4-2.6.1">Removing the governing statement's issuer from trust configuration, or narrowing what it can attest, does not by itself end the registration. A server ends it by its own means, such as deleting it.<a href="#section-4-2.6.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-4-3">If a request that carries no replacement is rejected because the registration has ceased to be valid, the rejection <span class="bcp14">MUST NOT</span> by itself cause the authorization server to revoke refresh tokens as it does on detecting refresh-token replay (Section 4.14.2 of <span>[<a href="#RFC9700" class="cite xref">RFC9700</a>]</span>).<a href="#section-4-3" class="pilcrow">¶</a></p>
+<p id="section-4-4">If the authorization server records a required issuer for a tenant (Section 4 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), it <span class="bcp14">MUST</span> reject an authorization, token, or pushed authorization request, or an <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> update request, in that tenant under any statement-governed registration whose governing statement's <code>sub</code> falls within a covered namespace, unless a current statement from the required issuer governs the registration as step 3 of <a href="#registration-requests" class="auto internal xref">Section 5</a> leaves it. This rule applies whatever tenant the registration was created in and whenever the requirement was configured. Without this rule, withholding the required issuer's statement would keep such a registration in use after the issuer withdrew or stopped renewing its decision.<a href="#section-4-4" class="pilcrow">¶</a></p>
+<p id="section-4-5">Neither the validity model nor the required-issuer rule rejects <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> read and delete requests.<a href="#section-4-5" class="pilcrow">¶</a></p>
+<p id="section-4-6">The <code>registration_expires_at</code> member is a NumericDate (Section 2 of <span>[<a href="#RFC7519" class="cite xref">RFC7519</a>]</span>) giving the latest time the registration remains valid or, for a registration that has ceased to be valid, the time it ceased. The authorization server:<a href="#section-4-6" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4-7.1">
+          <p id="section-4-7.1.1"><span class="bcp14">MUST</span> return <code>registration_expires_at</code> in the <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> registration response and in the successful response to any request that renews the registration or carries its governing statement (<a href="#revalidation" class="auto internal xref">Section 6</a>).<a href="#section-4-7.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-4-7.2">
+          <p id="section-4-7.2.1"><span class="bcp14">SHOULD</span> return it in any other <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> read or update response it supports.<a href="#section-4-7.2.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+</section>
+</div>
+<div id="registration-requests">
+<section id="section-5">
+      <h2 id="name-requests-under-a-registrati">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-requests-under-a-registrati" class="section-name selfRef">Requests Under a Registration</a>
+      </h2>
+<p id="section-5-1">The authorization server <span class="bcp14">MUST</span> process an authorization, token, or pushed authorization request, or an <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> update request, under a statement-governed registration in the following order, stopping at the first step that rejects the request or treats it as from a client the server has not registered:<a href="#section-5-1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-5-2">
+<li id="section-5-2.1">
+          <p id="section-5-2.1.1">If the registration is restricted to a tenant (<a href="#tenant-restriction" class="auto internal xref">Section 3.1</a>) and the request, including one that delivers a statement, is made in another tenant, it <span class="bcp14">MUST</span> treat the request as from a client it has not registered.<a href="#section-5-2.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li id="section-5-2.2">
+          <p id="section-5-2.2.1">It authenticates a token or pushed authorization request under the registration's own client authentication method, and an <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> update request as <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> requires, against the retained registration even if the registration has ceased to be valid. A token or pushed authorization request under a public-client registration has no client credential to authenticate (<a href="#public-client-registration" class="auto internal xref">Section 3.2</a>).<a href="#section-5-2.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li id="section-5-2.3">
+          <p id="section-5-2.3.1">It classifies any statement the request delivers by its claims, before validating it, and evaluates a replacement (<a href="#revalidation" class="auto internal xref">Section 6</a>). A replacement applied at this step stands even if a later step, or the request's grant, rejects the request.<a href="#section-5-2.3.1" class="pilcrow">¶</a></p>
+</li>
+        <li id="section-5-2.4">
+          <p id="section-5-2.4.1">It applies the rejections of <a href="#registration-validity" class="auto internal xref">Section 4</a> to the registration as step 3 leaves it. If the request is made in a tenant where the authorization server requires a tenant-scoped decision (Section 3.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>) and the registration, as step 3 leaves it, carries no tenant restriction, it <span class="bcp14">MUST</span> treat the request as from a client it has not registered.<a href="#section-5-2.4.1" class="pilcrow">¶</a></p>
+</li>
+        <li id="section-5-2.5">
+          <p id="section-5-2.5.1">It evaluates the request against the registration's metadata.<a href="#section-5-2.5.1" class="pilcrow">¶</a></p>
+</li>
+      </ol>
+</section>
+</div>
+<div id="revalidation">
+<section id="section-6">
+      <h2 id="name-renewal">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-renewal" class="section-name selfRef">Renewal</a>
+      </h2>
+<p id="section-6-1">A client renews a statement-governed registration by delivering a replacement statement in one of the following, authenticated as step 2 of <a href="#registration-requests" class="auto internal xref">Section 5</a> provides:<a href="#section-6-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-6-2.1">
+          <p id="section-6-2.1.1">The <code>software_statement</code> parameter of a token request under the registration.<a href="#section-6-2.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-6-2.2">
+          <p id="section-6-2.2.1">The <code>software_statement</code> parameter of a pushed authorization request <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span> under the registration.<a href="#section-6-2.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-6-2.3">
+          <p id="section-6-2.3.1">The <code>software_statement</code> member of an <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> update request, if the deployment offers registration management.<a href="#section-6-2.3.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-6-3">A delivery is a <code>registration</code> use of the statement (Section 3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). A registration request is not a delivery, and renews an existing registration only as <a href="#repeated-registration" class="auto internal xref">Section 3.3</a> provides for a public-client registration. A statement neither renews nor alters a registration that is not statement-governed, and runtime presentation (Section 5 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>) alters no registration's metadata.<a href="#section-6-3" class="pilcrow">¶</a></p>
+<p id="section-6-4">The authorization server treats a delivered statement as the first matching row of the following table provides:<a href="#section-6-4" class="pilcrow">¶</a></p>
+<table class="center" id="table-3">
+        <caption><a href="#table-3" class="selfRef">Table 3</a></caption>
+<thead>
+          <tr>
+            <th class="text-left" rowspan="1" colspan="1">Statement delivered</th>
+            <th class="text-left" rowspan="1" colspan="1">Treatment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">The governing statement itself, identified by its <code>iss</code> and <code>jti</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">No replacement</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">In an <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> update request, any statement with the governing statement's <code>iss</code> and <code>sub</code> and an <code>iat</code> no later than the governing statement's</td>
+            <td class="text-left" rowspan="1" colspan="1">No replacement</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">At the token or pushed authorization request endpoint, any other statement with the governing statement's <code>iss</code> and <code>sub</code> and an earlier <code>iat</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">Earlier than the governing statement. The request is rejected</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">A statement with the governing statement's <code>iss</code> and <code>sub</code> and a later <code>iat</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">A replacement, evaluated below</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Any other statement, such as one with another <code>iss</code> or <code>sub</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">Fails the replacement rules below</td>
+          </tr>
+        </tbody>
+      </table>
+<p id="section-6-6">An <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> update request repeats the statement a previous response returned (Section 3.2.1 of <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>; Section 2.2 of <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span>), which can be older than the governing statement. An <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> read or update response returns the governing statement as its <code>software_statement</code> member.<a href="#section-6-6" class="pilcrow">¶</a></p>
+<p id="section-6-7">The replacement <span class="bcp14">MUST</span> satisfy the following:<a href="#section-6-7" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-6-8.1">
+          <p id="section-6-8.1.1">It validates under Section 3.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>.<a href="#section-6-8.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-6-8.2">
+          <p id="section-6-8.2.1">The <code>iss</code> and <code>sub</code> claims equal those of the governing statement.<a href="#section-6-8.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-6-8.3">
+          <p id="section-6-8.3.1">The <code>iat</code> claim is later than that of the governing statement.<a href="#section-6-8.3.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-6-8.4">
+          <p id="section-6-8.4.1">Its document declares <code>token_endpoint_auth_method</code> of <code>none</code> if and only if the governing statement's document does.<a href="#section-6-8.4.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-6-8.5">
+          <p id="section-6-8.5.1">For a public-client registration that carries no tenant restriction, its decision is not confined to a tenant (<a href="#tenant-restriction" class="auto internal xref">Section 3.1</a>).<a href="#section-6-8.5.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-6-8.6">
+          <p id="section-6-8.6.1">Its document satisfies the rules of <a href="#dcr-presentation" class="auto internal xref">Section 3</a>, from which the registration's metadata is derived.<a href="#section-6-8.6.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-6-9">Renewing on the statement alone would leave in the registration a key, redirection URI, or scope that the new review removed.<a href="#section-6-9" class="pilcrow">¶</a></p>
+<p id="section-6-10">A request whose replacement fails the rules above is rejected (<a href="#errors" class="auto internal xref">Section 7</a>) whether or not the registration has ceased to be valid. A rejected delivery leaves the governing statement unchanged.<a href="#section-6-10" class="pilcrow">¶</a></p>
+<p id="section-6-11">When a replacement satisfies these rules, the authorization server <span class="bcp14">MUST</span>, in a single atomic update, make it the governing statement and give the registration the replacement's effective expiry, the metadata derived from its document (<a href="#dcr-presentation" class="auto internal xref">Section 3</a>), and any tenant restriction it adds (<a href="#tenant-restriction" class="auto internal xref">Section 3.1</a>). Concurrent deliveries resolve to the most recently issued statement. A valid replacement restores a registration that has ceased to be valid.<a href="#section-6-11" class="pilcrow">¶</a></p>
+<p id="section-6-12">Access issued under the registration after that update, including on refresh of a grant issued before it, <span class="bcp14">MUST</span> fall within the re-derived metadata.<a href="#section-6-12" class="pilcrow">¶</a></p>
+<p id="section-6-13">If every grant a confidential-client registration permits needs an authorization request or a refresh token, and the authorization server does not support <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> update requests for the registration, the server <span class="bcp14">MUST</span> support pushed authorization requests <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span> for the registration. Otherwise such a client could not restore a registration that has ceased to be valid without a refresh token. A public-client registration also renews through a repeated registration request (<a href="#repeated-registration" class="auto internal xref">Section 3.3</a>).<a href="#section-6-13" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="errors">
+<section id="section-7">
+      <h2 id="name-error-responses">
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-error-responses" class="section-name selfRef">Error Responses</a>
+      </h2>
+<p id="section-7-1">A rejection this specification defines, at a client registration endpoint or at the client configuration endpoint of <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span>, uses the error response of Section 3.2.2 of <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>, with the HTTP status code that section specifies, except that an authorization server <span class="bcp14">SHOULD</span> respond with HTTP status code 503 to a request it rejects with the <code>temporarily_unavailable</code> error code. Such a rejection uses the following error codes:<a href="#section-7-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-7-2">
+        <dt id="section-7-2.1">
+<code>invalid_software_statement</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-7-2.2">
+          <p id="section-7-2.2.1">Any of the following:<a href="#section-7-2.2.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-7-2.2.2.1">
+              <p id="section-7-2.2.2.1.1">The statement is malformed, fails signature or claim validation for a reason <code>unapproved_software_statement</code> does not cover, or is expired or otherwise not current (Section 2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), or is superseded under an extension the server implements.<a href="#section-7-2.2.2.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-7-2.2.2.2">
+              <p id="section-7-2.2.2.2.1">The document's digest does not equal the statement's <code>cimd_digest</code> claim (<a href="#dcr-presentation" class="auto internal xref">Section 3</a>).<a href="#section-7-2.2.2.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-7-2.2.2.3">
+              <p id="section-7-2.2.2.3.1">An <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> update request is rejected under <a href="#registration-validity" class="auto internal xref">Section 4</a>.<a href="#section-7-2.2.2.3.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-7-2.2.2.4">
+              <p id="section-7-2.2.2.4.1">A statement delivered at the client configuration endpoint, or the statement of a repeated public-client registration request evaluated as a replacement (<a href="#repeated-registration" class="auto internal xref">Section 3.3</a>), fails the replacement rules of <a href="#revalidation" class="auto internal xref">Section 6</a> where this section assigns no other code, such as a change in whether the document declares <code>token_endpoint_auth_method</code> of <code>none</code>.<a href="#section-7-2.2.2.4.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-7-2.2.2.5">
+              <p id="section-7-2.2.2.5.1">The statement of a repeated public-client registration request is not the governing statement and has an <code>iat</code> no later than the governing statement's (<a href="#repeated-registration" class="auto internal xref">Section 3.3</a>).<a href="#section-7-2.2.2.5.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-7-2.3">
+<code>unapproved_software_statement</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-7-2.4">
+          <p id="section-7-2.4.1">The statement is well formed but not acceptable here: its issuer is not configured, its <code>aud</code> excludes this server, its <code>sub</code> is outside the client identifier namespaces the issuer can attest, its <code>aud_tenant</code> is not this request's tenant or is absent when required, its issuer is confined to another tenant, or its <code>statement_uses</code> excludes this use. This code is also used if a statement this server requires is absent from a registration request, if <a href="#dcr-presentation" class="auto internal xref">Section 3</a> forbids creating the registration because a required issuer covers the statement's <code>sub</code> and the statement is from another issuer, and for a repeated registration request that the server's policy refuses (<a href="#repeated-registration" class="auto internal xref">Section 3.3</a>).<a href="#section-7-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-7-2.5">
+<code>invalid_client_metadata</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-7-2.6">
+          <p id="section-7-2.6.1">Any of the following holds for the reviewed document:<a href="#section-7-2.6.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-7-2.6.2.1">
+              <p id="section-7-2.6.2.1.1">It contains duplicate member names (Section 5.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-7-2.6.2.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-7-2.6.2.2">
+              <p id="section-7-2.6.2.2.1">It fails validation as <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> requires (<a href="#dcr-presentation" class="auto internal xref">Section 3</a>).<a href="#section-7-2.6.2.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-7-2.6.2.3">
+              <p id="section-7-2.6.2.3.1">It carries metadata this server's policy refuses.<a href="#section-7-2.6.2.3.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-7-2.6.2.4">
+              <p id="section-7-2.6.2.4.1">It cannot be obtained, including over the server's size bound, for a reason other than a retrieval that did not complete (Section 5.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-7-2.6.2.4.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-7-2.6.2.5">
+              <p id="section-7-2.6.2.5.1">It omits <code>token_endpoint_auth_method</code> (<a href="#dcr-presentation" class="auto internal xref">Section 3</a>).<a href="#section-7-2.6.2.5.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-7-2.6.2.6">
+              <p id="section-7-2.6.2.6.1">It declares <code>token_endpoint_auth_method</code> of <code>none</code> and the server registers no public clients under <a href="#public-client-registration" class="auto internal xref">Section 3.2</a>.<a href="#section-7-2.6.2.6.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-7-2.7">
+<code>invalid_redirect_uri</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-7-2.8">
+          <p id="section-7-2.8.1">The reviewed document carries a redirection URI another application could claim (<a href="#dcr-presentation" class="auto internal xref">Section 3</a>), or declares <code>token_endpoint_auth_method</code> of <code>none</code> and lists no redirection URI (<a href="#public-client-registration" class="auto internal xref">Section 3.2</a>).<a href="#section-7-2.8.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-7-2.9">
+<code>temporarily_unavailable</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-7-2.10">
+          <p id="section-7-2.10.1">A retrieval the request needs did not complete (Section 5.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-7-2.10.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
+<p id="section-7-3">Rejections at other endpoints use the error responses of Section 6 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>. At the token and pushed authorization request endpoints, a request that fails the authentication of step 2 of <a href="#registration-requests" class="auto internal xref">Section 5</a> is rejected with <code>invalid_client</code>. Subject to the order of Section 6 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, a token, pushed authorization, or authorization request is rejected with <code>statement_required</code> (Section 6.1 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>) if:<a href="#section-7-3" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-7-4.1">
+          <p id="section-7-4.1.1">its registration has ceased to be valid, or the required-issuer rule rejects it (<a href="#registration-validity" class="auto internal xref">Section 4</a>), or<a href="#section-7-4.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-7-4.2">
+          <p id="section-7-4.2.1">its delivered statement is earlier than the governing statement or fails the replacement rules (<a href="#revalidation" class="auto internal xref">Section 6</a>).<a href="#section-7-4.2.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-7-5">At the authorization endpoint, the <code>redirect_uri</code> is validated against the registration's redirection URIs before an error is redirected (Section 4.1.2.1 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>).<a href="#section-7-5" class="pilcrow">¶</a></p>
+<p id="section-7-6">Rejections of a registration management request for other reasons use the responses <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> specifies.<a href="#section-7-6" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="example">
+<section id="section-8">
+      <h2 id="name-example">
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-example" class="section-name selfRef">Example</a>
+      </h2>
+<p id="section-8-1">The following is a non-normative example of a registered client, whose <code>client_id</code> is <code>s6BhdRkqt3</code>, renewing its registration by delivering a replacement statement on an ordinary refresh, authenticated under its registered <code>private_key_jwt</code> method (line breaks for display purposes only):<a href="#section-8-1" class="pilcrow">¶</a></p>
+<div class="lang-http sourcecode" id="section-8-2">
+<pre>
+POST /token HTTP/1.1
+Host: as.example
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=refresh_token
+&amp;refresh_token=tGzv3JOkF0XG5Qx2TlKWIA
+&amp;client_id=s6BhdRkqt3
+&amp;client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3A
+client-assertion-type%3Ajwt-bearer
+&amp;client_assertion=eyJhbGciOiJFUzI1NiIsImtpZCI6IjIwMjYtMDgifQ...
+&amp;software_statement=eyJ0eXAiOiJzb2Z0d2FyZS1zdGF0ZW1l...
+</pre><a href="#section-8-2" class="pilcrow">¶</a>
+</div>
+<p id="section-8-3">The authorization server validates the replacement and re-derives the registration's metadata (<a href="#revalidation" class="auto internal xref">Section 6</a>), returning the registration's new expiry in the <code>registration_expires_at</code> member of the token response. Once the registration has ceased to be valid, the same request without a replacement is rejected with <code>statement_required</code> (<a href="#errors" class="auto internal xref">Section 7</a>).<a href="#section-8-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="authorization-server-metadata">
+<section id="section-9">
+      <h2 id="name-authorization-server-metada">
+<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-authorization-server-metada" class="section-name selfRef">Authorization Server Metadata</a>
+      </h2>
+<p id="section-9-1">This specification defines the following authorization server metadata <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span> value:<a href="#section-9-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-9-2">
+        <dt id="section-9-2.1">
+<code>software_statement_registration_supported</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-9-2.2">
+          <p id="section-9-2.2.1"><span class="bcp14">OPTIONAL</span>. Boolean value indicating whether the authorization server supports this specification. If omitted, the default value is <code>false</code>. A value of <code>true</code> means every registration the server creates from a statement of the profile in Section 3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> is statement-governed, and does not imply support for runtime presentation.<a href="#section-9-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="deployment-considerations">
+<section id="section-10">
+      <h2 id="name-deployment-considerations">
+<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-deployment-considerations" class="section-name selfRef">Deployment Considerations</a>
+      </h2>
+<p id="section-10-1">This section gives guidance to operators. It adds no requirement.<a href="#section-10-1" class="pilcrow">¶</a></p>
+<p id="section-10-2">An issuer outage longer than a statement-governed registration's remaining lifetime makes the registration cease to be valid (<a href="#registration-validity" class="auto internal xref">Section 4</a>) until the client delivers a replacement (<a href="#revalidation" class="auto internal xref">Section 6</a>). The lifetimes an issuer chooses set the renewal cadence (Section 12.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). A deployment ought to have clients renew well before effective expiry, and ought to weigh that cadence against how quickly a narrowed or withdrawn review needs to take effect.<a href="#section-10-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="security-considerations">
+<section id="section-11">
+      <h2 id="name-security-considerations">
+<a href="#section-11" class="section-number selfRef">11. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      </h2>
+<p id="section-11-1">The security considerations of Section 13 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> and Section 5 of <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> apply.<a href="#section-11-1" class="pilcrow">¶</a></p>
+<div id="statement-bearer">
+<section id="section-11.1">
+        <h3 id="name-statements-at-registration">
+<a href="#section-11.1" class="section-number selfRef">11.1. </a><a href="#name-statements-at-registration" class="section-name selfRef">Statements at Registration</a>
+        </h3>
+<p id="section-11.1-1">A statement consumed at registration is a reusable bearer artifact until it expires. Its audience, lifetime, and <code>statement_uses</code> claim (Section 3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>) and the registration policy of <a href="#repeated-registration" class="auto internal xref">Section 3.3</a> limit what a copied statement can create.<a href="#section-11.1-1" class="pilcrow">¶</a></p>
+<p id="section-11.1-2">Taking every value from the document prevents metadata substitution. A request-supplied value for a member the document omits, such as a <code>jwks</code> member beside a document naming only <code>jwks_uri</code>, would give any holder of a copy a registration with reviewed branding and the holder's own key. Registering a document that omits <code>token_endpoint_auth_method</code> under the <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> default would register a shared-secret method, which <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> forbids (Section 4.1 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>) and the issuer never reviewed. An issuer that omits <code>aud</code> from a statement permitting registration accepts that any server trusting the issuer can register the software on the strength of a copy.<a href="#section-11.1-2" class="pilcrow">¶</a></p>
+<p id="section-11.1-3">Under the one-registration default (<a href="#repeated-registration" class="auto internal xref">Section 3.3</a>), whoever first registers with a copy of a statement holds that registration and its registration access token, and can keep the software's publisher from registering there. Such a holder cannot authenticate as the client if the reviewed document's authentication method requires a key the document carries.<a href="#section-11.1-3" class="pilcrow">¶</a></p>
+<p id="section-11.1-4">If the publisher's statement permits presentation and the server supports it, the publisher's software can still be admitted through runtime presentation (Section 5 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). Otherwise, recovery requires intervention by the server's operator or a registration policy other than the one-registration default. This specification defines no way to displace such a registration.<a href="#section-11.1-4" class="pilcrow">¶</a></p>
+<p id="section-11.1-5">A public-client registration (<a href="#public-client-registration" class="auto internal xref">Section 3.2</a>) has no credential to take, and a repeated request is answered with it (<a href="#repeated-registration" class="auto internal xref">Section 3.3</a>), so its first registrant gains nothing over later ones. Any holder of a copy can use it. Authorization codes under it reach only the reviewed redirection URIs, and its grants are bound to keys that installations hold. A holder of a copy therefore gains what it would gain at runtime, including the exposure Section 13.4 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> describes for a holder that controls the user agent.<a href="#section-11.1-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="renewal-credential">
+<section id="section-11.2">
+        <h3 id="name-credential-theft-and-renewa">
+<a href="#section-11.2" class="section-number selfRef">11.2. </a><a href="#name-credential-theft-and-renewa" class="section-name selfRef">Credential Theft and Renewal</a>
+        </h3>
+<p id="section-11.2-1">Renewal proves possession of the registration's credential and the currency of a statement sharing the governing statement's <code>iss</code> and <code>sub</code>, not that the renewing party is the reviewed software. An attacker holding a stolen client credential can renew indefinitely with the newer statements distributed to every deployment of the software. A public-client registration's renewal proves only that the replacement is current. No protection is lost, since any party can already use that registration.<a href="#section-11.2-1" class="pilcrow">¶</a></p>
+<p id="section-11.2-2">A narrower review takes effect at a registration when the client delivers it or when the governing statement ceases to be current. Withdrawal before then requires an extension.<a href="#section-11.2-2" class="pilcrow">¶</a></p>
+<p id="section-11.2-3">Deployments ought to pair statement-governed registrations with credential rotation, sender-constrained client authentication, and the bounds that Sections 11.2 and 11.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> and <a href="#repeated-registration" class="auto internal xref">Section 3.3</a> describe, and ought to treat a credential compromise as requiring re-registration rather than renewal. Runtime presentation binds every presenter to the reviewed document (Sections 5.6 and 13.4 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>) and so does not have this limitation.<a href="#section-11.2-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="registration-fraud">
+<section id="section-11.3">
+        <h3 id="name-registration-fraud-and-impe">
+<a href="#section-11.3" class="section-number selfRef">11.3. </a><a href="#name-registration-fraud-and-impe" class="section-name selfRef">Registration Fraud and Impersonation</a>
+        </h3>
+<p id="section-11.3-1">Open registration permits <code>client_name</code>, <code>logo_uri</code>, and <code>client_uri</code> values that imitate trusted software on consent screens (Section 5 of <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>). Requiring a statement replaces self-asserted branding with issuer-reviewed values, though content served at a URL the document carries, such as a logo, can change after review (Section 13.1 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). Servers that render such values on consent screens ought to prefer those from a reviewed document and to apply heightened scrutiny to registrations that claim user-visible branding without a statement.<a href="#section-11.3-1" class="pilcrow">¶</a></p>
+<p id="section-11.3-2">Requiring a statement also means a removed client cannot register again under a new client identifier URL without another issuer decision.<a href="#section-11.3-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="oracle-considerations">
+<section id="section-11.4">
+        <h3 id="name-observable-state">
+<a href="#section-11.4" class="section-number selfRef">11.4. </a><a href="#name-observable-state" class="section-name selfRef">Observable State</a>
+        </h3>
+<p id="section-11.4-1">A retained registration that has ceased to be valid is distinguishable from an unknown client (<a href="#registration-requests" class="auto internal xref">Section 5</a>, <a href="#errors" class="auto internal xref">Section 7</a>). At the token and pushed authorization request endpoints, only a requester that authenticates as the registration's client can observe this, except for a public-client registration. At the authorization endpoint, anyone who sends an authorization request naming the client and one of its registered redirection URIs learns from the <code>statement_required</code> redirection that the registration has ceased to be valid. If an observer knows the governing statement's <code>exp</code>, a lapse before it shows that an extension ended the statement or that the server caps the lifetime it honors for the issuer.<a href="#section-11.4-1" class="pilcrow">¶</a></p>
+<p id="section-11.4-2">As at runtime (Section 13.8 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), these disclosures are accepted, and they reveal nothing of the server's issuer trust configuration beyond the fact and time that the registration ceased to be valid (Section 6.6 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). Publishing <code>software_statement_registration_supported</code> discloses that statement-governed registrations expire there, which a client needs to know before registering.<a href="#section-11.4-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="privacy-considerations">
+<section id="section-12">
+      <h2 id="name-privacy-considerations">
+<a href="#section-12" class="section-number selfRef">12. </a><a href="#name-privacy-considerations" class="section-name selfRef">Privacy Considerations</a>
+      </h2>
+<p id="section-12-1">The privacy considerations of Section 14 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> and Section 6 of <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> apply. A registration request reveals to the authorization server the same information as a runtime presentation.<a href="#section-12-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="iana">
+<section id="section-13">
+      <h2 id="name-iana-considerations">
+<a href="#section-13" class="section-number selfRef">13. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+      </h2>
+<div id="oauth-dynamic-client-registration-metadata-registry">
+<section id="section-13.1">
+        <h3 id="name-oauth-dynamic-client-regist">
+<a href="#section-13.1" class="section-number selfRef">13.1. </a><a href="#name-oauth-dynamic-client-regist" class="section-name selfRef">OAuth Dynamic Client Registration Metadata Registry</a>
+        </h3>
+<p id="section-13.1-1">This specification requests registration of the following value in the IANA "OAuth Dynamic Client Registration Metadata" registry established by <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>. An authorization server returns this member in a registration response:<a href="#section-13.1-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-13.1-2">
+          <dt id="section-13.1-2.1">Client Metadata Name:</dt>
+          <dd style="margin-left: 1.5em" id="section-13.1-2.2">
+            <p id="section-13.1-2.2.1"><code>registration_expires_at</code><a href="#section-13.1-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-13.1-2.3">Client Metadata Description:</dt>
+          <dd style="margin-left: 1.5em" id="section-13.1-2.4">
+            <p id="section-13.1-2.4.1">Latest time at which a statement-governed registration remains valid, as a NumericDate.<a href="#section-13.1-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-13.1-2.5">Change Controller:</dt>
+          <dd style="margin-left: 1.5em" id="section-13.1-2.6">
+            <p id="section-13.1-2.6.1">IETF<a href="#section-13.1-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-13.1-2.7">Specification Document(s):</dt>
+          <dd style="margin-left: 1.5em" id="section-13.1-2.8">
+            <p id="section-13.1-2.8.1">This specification, <a href="#registration-validity" class="auto internal xref">Section 4</a><a href="#section-13.1-2.8.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="oauth-parameters-registry">
+<section id="section-13.2">
+        <h3 id="name-oauth-parameters-registry">
+<a href="#section-13.2" class="section-number selfRef">13.2. </a><a href="#name-oauth-parameters-registry" class="section-name selfRef">OAuth Parameters Registry</a>
+        </h3>
+<p id="section-13.2-1">This specification requests registration of the following parameter in the IANA "OAuth Parameters" registry established by <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, for the responses to requests that renew a statement-governed registration or carry its governing statement:<a href="#section-13.2-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-13.2-2">
+          <dt id="section-13.2-2.1">Parameter Name:</dt>
+          <dd style="margin-left: 1.5em" id="section-13.2-2.2">
+            <p id="section-13.2-2.2.1"><code>registration_expires_at</code><a href="#section-13.2-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-13.2-2.3">Parameter Usage Location:</dt>
+          <dd style="margin-left: 1.5em" id="section-13.2-2.4">
+            <p id="section-13.2-2.4.1">token response, pushed authorization request response<a href="#section-13.2-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-13.2-2.5">Change Controller:</dt>
+          <dd style="margin-left: 1.5em" id="section-13.2-2.6">
+            <p id="section-13.2-2.6.1">IETF<a href="#section-13.2-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-13.2-2.7">Specification Document(s):</dt>
+          <dd style="margin-left: 1.5em" id="section-13.2-2.8">
+            <p id="section-13.2-2.8.1">This specification, <a href="#registration-validity" class="auto internal xref">Section 4</a><a href="#section-13.2-2.8.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="oauth-authorization-server-metadata-registry">
+<section id="section-13.3">
+        <h3 id="name-oauth-authorization-server-">
+<a href="#section-13.3" class="section-number selfRef">13.3. </a><a href="#name-oauth-authorization-server-" class="section-name selfRef">OAuth Authorization Server Metadata Registry</a>
+        </h3>
+<p id="section-13.3-1">This specification requests registration of the following value in the IANA "OAuth Authorization Server Metadata" registry established by <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span>:<a href="#section-13.3-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-13.3-2">
+          <dt id="section-13.3-2.1">Metadata Name:</dt>
+          <dd style="margin-left: 1.5em" id="section-13.3-2.2">
+            <p id="section-13.3-2.2.1"><code>software_statement_registration_supported</code><a href="#section-13.3-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-13.3-2.3">Metadata Description:</dt>
+          <dd style="margin-left: 1.5em" id="section-13.3-2.4">
+            <p id="section-13.3-2.4.1">Boolean value indicating whether the authorization server supports Client ID Metadata Document software statement registration.<a href="#section-13.3-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-13.3-2.5">Change Controller:</dt>
+          <dd style="margin-left: 1.5em" id="section-13.3-2.6">
+            <p id="section-13.3-2.6.1">IETF<a href="#section-13.3-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-13.3-2.7">Specification Document(s):</dt>
+          <dd style="margin-left: 1.5em" id="section-13.3-2.8">
+            <p id="section-13.3-2.8.1">This specification, <a href="#authorization-server-metadata" class="auto internal xref">Section 9</a><a href="#section-13.3-2.8.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="oauth-extensions-error-registry">
+<section id="section-13.4">
+        <h3 id="name-oauth-extensions-error-regi">
+<a href="#section-13.4" class="section-number selfRef">13.4. </a><a href="#name-oauth-extensions-error-regi" class="section-name selfRef">OAuth Extensions Error Registry</a>
+        </h3>
+<p id="section-13.4-1">This specification requests that IANA update the existing <code>temporarily_unavailable</code> entry, adding the client registration and client configuration endpoint error responses to its usage locations and this specification as a reference:<a href="#section-13.4-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-13.4-2">
+          <dt id="section-13.4-2.1">Error Name:</dt>
+          <dd style="margin-left: 1.5em" id="section-13.4-2.2">
+            <p id="section-13.4-2.2.1"><code>temporarily_unavailable</code><a href="#section-13.4-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-13.4-2.3">Error Usage Location:</dt>
+          <dd style="margin-left: 1.5em" id="section-13.4-2.4">
+            <p id="section-13.4-2.4.1">client registration error response and client configuration endpoint error response, in addition to the locations already registered<a href="#section-13.4-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-13.4-2.5">Related Protocol Extension:</dt>
+          <dd style="margin-left: 1.5em" id="section-13.4-2.6">
+            <p id="section-13.4-2.6.1">OAuth 2.0 Authorization Framework<a href="#section-13.4-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-13.4-2.7">Change Controller:</dt>
+          <dd style="margin-left: 1.5em" id="section-13.4-2.8">
+            <p id="section-13.4-2.8.1">IETF<a href="#section-13.4-2.8.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-13.4-2.9">Specification Document(s):</dt>
+          <dd style="margin-left: 1.5em" id="section-13.4-2.10">
+            <p id="section-13.4-2.10.1"><span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, this specification (<a href="#errors" class="auto internal xref">Section 7</a>)<a href="#section-13.4-2.10.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
+</section>
+</div>
+</section>
+</div>
+<div id="sec-combined-references">
+<section id="section-14">
+      <h2 id="name-references">
+<a href="#section-14" class="section-number selfRef">14. </a><a href="#name-references" class="section-name selfRef">References</a>
+      </h2>
+<div id="sec-normative-references">
+<section id="section-14.1">
+        <h3 id="name-normative-references">
+<a href="#section-14.1" class="section-number selfRef">14.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+        </h3>
+<dl class="references">
+<dt id="CIMD">[CIMD]</dt>
+        <dd>
+<span class="refAuthor">Parecki, A.</span> and <span class="refAuthor">E. Smith</span>, <span class="refTitle">"OAuth Client ID Metadata Document"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-client-id-metadata-document-02</span>, <time datetime="2026-07-06" class="refDate">6 July 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-02">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-02</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC2119">[RFC2119]</dt>
+        <dd>
+<span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2119">https://www.rfc-editor.org/rfc/rfc2119</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC6749">[RFC6749]</dt>
+        <dd>
+<span class="refAuthor">Hardt, D., Ed.</span>, <span class="refTitle">"The OAuth 2.0 Authorization Framework"</span>, <span class="seriesInfo">RFC 6749</span>, <span class="seriesInfo">DOI 10.17487/RFC6749</span>, <time datetime="2012-10" class="refDate">October 2012</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6749">https://www.rfc-editor.org/rfc/rfc6749</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7519">[RFC7519]</dt>
+        <dd>
+<span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">N. Sakimura</span>, <span class="refTitle">"JSON Web Token (JWT)"</span>, <span class="seriesInfo">RFC 7519</span>, <span class="seriesInfo">DOI 10.17487/RFC7519</span>, <time datetime="2015-05" class="refDate">May 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7519">https://www.rfc-editor.org/rfc/rfc7519</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7591">[RFC7591]</dt>
+        <dd>
+<span class="refAuthor">Richer, J., Ed.</span>, <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Machulak, M.</span>, and <span class="refAuthor">P. Hunt</span>, <span class="refTitle">"OAuth 2.0 Dynamic Client Registration Protocol"</span>, <span class="seriesInfo">RFC 7591</span>, <span class="seriesInfo">DOI 10.17487/RFC7591</span>, <time datetime="2015-07" class="refDate">July 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7591">https://www.rfc-editor.org/rfc/rfc7591</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8174">[RFC8174]</dt>
+        <dd>
+<span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8174">https://www.rfc-editor.org/rfc/rfc8174</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8414">[RFC8414]</dt>
+        <dd>
+<span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Sakimura, N.</span>, and <span class="refAuthor">J. Bradley</span>, <span class="refTitle">"OAuth 2.0 Authorization Server Metadata"</span>, <span class="seriesInfo">RFC 8414</span>, <span class="seriesInfo">DOI 10.17487/RFC8414</span>, <time datetime="2018-06" class="refDate">June 2018</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8414">https://www.rfc-editor.org/rfc/rfc8414</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9126">[RFC9126]</dt>
+        <dd>
+<span class="refAuthor">Lodderstedt, T.</span>, <span class="refAuthor">Campbell, B.</span>, <span class="refAuthor">Sakimura, N.</span>, <span class="refAuthor">Tonge, D.</span>, and <span class="refAuthor">F. Skokan</span>, <span class="refTitle">"OAuth 2.0 Pushed Authorization Requests"</span>, <span class="seriesInfo">RFC 9126</span>, <span class="seriesInfo">DOI 10.17487/RFC9126</span>, <time datetime="2021-09" class="refDate">September 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9126">https://www.rfc-editor.org/rfc/rfc9126</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9700">[RFC9700]</dt>
+        <dd>
+<span class="refAuthor">Lodderstedt, T.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Labunets, A.</span>, and <span class="refAuthor">D. Fett</span>, <span class="refTitle">"Best Current Practice for OAuth 2.0 Security"</span>, <span class="seriesInfo">BCP 240</span>, <span class="seriesInfo">RFC 9700</span>, <span class="seriesInfo">DOI 10.17487/RFC9700</span>, <time datetime="2025-01" class="refDate">January 2025</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9700">https://www.rfc-editor.org/rfc/rfc9700</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="STATEMENT">[STATEMENT]</dt>
+      <dd>
+<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"Client ID Metadata Document Software Statement"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-mcguinness-oauth-cimd-sw-stmt-00</span>, <time datetime="2026-10" class="refDate">October 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt">https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="sec-informative-references">
+<section id="section-14.2">
+        <h3 id="name-informative-references">
+<a href="#section-14.2" class="section-number selfRef">14.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+        </h3>
+<dl class="references">
+<dt id="RFC7592">[RFC7592]</dt>
+      <dd>
+<span class="refAuthor">Richer, J., Ed.</span>, <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">M. Machulak</span>, <span class="refTitle">"OAuth 2.0 Dynamic Client Registration Management Protocol"</span>, <span class="seriesInfo">RFC 7592</span>, <span class="seriesInfo">DOI 10.17487/RFC7592</span>, <time datetime="2015-07" class="refDate">July 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7592">https://www.rfc-editor.org/rfc/rfc7592</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+</section>
+</div>
+<div id="authors-addresses">
+<section id="appendix-A">
+      <h2 id="name-authors-address">
+<a href="#name-authors-address" class="section-name selfRef">Author's Address</a>
+      </h2>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Karl McGuinness</span></div>
+<div dir="auto" class="left"><span class="org">Independent</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:public@karlmcguinness.com" class="email">public@karlmcguinness.com</a>
+</div>
+</address>
+</section>
+</div>
+<script>const toc = document.getElementById("toc");
+toc.querySelector("h2").addEventListener("click", e => {
+  toc.classList.toggle("active");
+});
+toc.querySelector("nav").addEventListener("click", e => {
+  toc.classList.remove("active");
+});
+</script>
+</body>
+</html>
