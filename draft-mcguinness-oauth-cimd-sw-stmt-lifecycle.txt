@@ -378,40 +378,79 @@ Table of Contents
    proceeds as follows.  A refresh rejected at any step leaves the
    grant's state unchanged.
 
-   Figure 1 summarizes these steps and the error each exit returns, and
-   Section 8 lists every code.  Two rules of [STATEMENT] take precedence
-   over the figure's exits.  At any step, a request that needs a
-   retrieval that did not complete is rejected with
+   Figure 1 shows the order of these steps, and Table 2 the error each
+   rejection returns.  Section 8 lists every code.  Two rules of
+   [STATEMENT] take precedence over the table.  At any step, a request
+   that needs a retrieval that did not complete is rejected with
    temporarily_unavailable (Section 6 of [STATEMENT]).  A proof that its
    mechanism does not accept is rejected with that mechanism's own
    error, such as invalid_dpop_proof, or answered with its challenge,
-   such as use_dpop_nonce (Section 6.5 of [STATEMENT]).  The exits
-   labeled "otherwise" apply when neither rule does.
+   such as use_dpop_nonce (Section 6.5 of [STATEMENT]).
 
-   refresh-token request
-     |
-   proven key checks (Section 5.7.1 of [STATEMENT])
-     |     proof its mechanism rejects ...... that mechanism's error
-     |     retrieval did not complete ....... temporarily_unavailable
-     |     a check otherwise fails .......... invalid_grant
-   step 1: is a replacement needed (Section 5.1)?
-     |     recorded statement is not from
-     |     the required issuer .............. statement_required
-     |     no, but one offered .............. go to step 2
-     |     no, and none offered ............. go to step 4
-   step 2: obtain it, offered or pulled
-     |     offered without client_id ........ invalid_request
-     |     pull did not complete ............ temporarily_unavailable
-     |     none obtained .................... statement_required
-   step 3: validate it
-     |     retrieval did not complete ....... temporarily_unavailable
-     |     otherwise fails .................. statement_required
-   step 4: bound the access, apply an accepted replacement
-     |     exceeds the metadata ............. unauthorized_client
-     |                                        or invalid_scope
-   tokens issued
+           refresh-token request
+                     |
+                     v
+             proven key checks
+                     |
+                     v
+        1. is a replacement needed?
+                     |
+          +----------+------------------+
+          |                             |
+          | needed, or one offered      | not needed,
+          v                             | none offered
+        2. obtain it, offered or pulled |
+          |                             |
+          v                             |
+        3. validate it                  |
+          |                             |
+          +----------+------------------+
+                     |
+                     v
+        4. bound the access, apply any
+           accepted replacement
+                     |
+                     v
+               tokens issued
 
-                Figure 1: Refresh Processing and Its Errors
+                        Figure 1: Refresh Processing
+
+      +========+==========================+=========================+
+      | Step   | Rejected when            | Error                   |
+      +========+==========================+=========================+
+      | Key    | A check of Section 5.7.1 | invalid_grant           |
+      | checks | of [STATEMENT] fails     |                         |
+      +--------+--------------------------+-------------------------+
+      | 1      | A required issuer covers | statement_required      |
+      |        | the sub and tenant, and  |                         |
+      |        | the recorded statement   |                         |
+      |        | is from another issuer   |                         |
+      +--------+--------------------------+-------------------------+
+      | 2      | A replacement is offered | invalid_request         |
+      |        | without client_id        |                         |
+      +--------+--------------------------+-------------------------+
+      | 2      | The client_id is not the | invalid_grant           |
+      |        | client the refresh token |                         |
+      |        | was issued to            |                         |
+      +--------+--------------------------+-------------------------+
+      | 2      | The replacement names a  | statement_required      |
+      |        | sub other than the       |                         |
+      |        | client_id                |                         |
+      +--------+--------------------------+-------------------------+
+      | 2      | The pull did not         | temporarily_unavailable |
+      |        | complete                 |                         |
+      +--------+--------------------------+-------------------------+
+      | 2      | A replacement is needed  | statement_required      |
+      |        | and none is obtained     |                         |
+      +--------+--------------------------+-------------------------+
+      | 3      | The replacement fails a  | statement_required      |
+      |        | requirement of step 3    |                         |
+      +--------+--------------------------+-------------------------+
+      | 4      | The refreshed access     | unauthorized_client or  |
+      |        | exceeds the metadata     | invalid_scope           |
+      +--------+--------------------------+-------------------------+
+
+                        Table 2: Refresh Rejections
 
    1.  Decide whether Section 5.1 requires a replacement or rejects the
        refresh, having consulted any withdrawal mechanism as Section 3
@@ -513,7 +552,7 @@ Table of Contents
    |             |                                        | 7)         |
    +-------------+----------------------------------------+------------+
 
-                          Table 2: Issuer Key Sets
+                          Table 3: Issuer Key Sets
 
 6.2.  Status Publication
 
