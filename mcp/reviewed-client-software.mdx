@@ -247,6 +247,8 @@ A statement vouches for software and the metadata a reviewer evaluated. It does 
 
 MCP's own example metadata document is a public client redirecting to loopback addresses. Any application on the same device can listen there, or register the same private-use URI scheme, so a review of such a client's metadata cannot be attributed to the application presenting it. Treating these statements as review-only keeps desktop clients able to participate without letting a review stand in for an impersonator.
 
+A native client can add evidence beyond its redirect. [CIMD Software Statement Attested Instance Keys](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-attested.html) binds a grant to an installation key that a platform attester vouches for, but it issues only DPoP-bound access tokens. An attested native MCP Client therefore gets that binding end to end only where the MCP Server accepts DPoP-bound access tokens, and elsewhere MCP's Bearer access tokens apply (Section 4.3). As for hosted clients bound through a document key or a DPoP key (Section 3.3), the binding does not establish which executable is running.
+
 ### 8.3 Changing the Document
 
 A statement binds the exact bytes of the metadata document. Any change, including one that touches no security-relevant member, leaves published statements naming a document no longer served, and the client is unreviewed until its Statement Issuer reviews the new document. Client Publishers should plan document changes with their Statement Issuers. A change that alters keys, redirection URIs, or scope warrants fresh review in any case.
