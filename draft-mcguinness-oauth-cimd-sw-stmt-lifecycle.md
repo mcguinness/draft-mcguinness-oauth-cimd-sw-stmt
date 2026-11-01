@@ -206,6 +206,7 @@ proven key checks (Section 5.7.1 of [STATEMENT])
 step 1: is a replacement needed (Section 5.1)?
   |     recorded statement is not from
   |     the required issuer .............. statement_required
+  |     no, but one offered .............. go to step 2
   |     no, and none offered ............. go to step 4
 step 2: obtain it, offered or pulled
   |     offered without client_id ........ invalid_request
