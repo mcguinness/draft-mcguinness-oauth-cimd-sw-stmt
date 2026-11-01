@@ -379,7 +379,7 @@ The following are review-only:
 1. Every presentation and pulled statement for a reviewed document that carries any redirection URI another application on the same device could claim, whatever authentication method the document declares. Such a URI is a non-`https` URI, such as a private-use scheme or an `http` loopback redirection URI (Sections 7.1 and 7.3 of {{RFC8252}}), or an `https` URI whose host is a loopback address or `localhost`. The application that claims such a URI receives the code, so neither the reviewed redirection URIs nor a key shipped in every copy of the software can bind the presenter.
 2. A pulled statement that {{pull-binding}} makes review-only.
 
-A review-only presentation or pulled statement creates no establishment, and its statement MUST NOT satisfy a policy requiring reviewed software: the authorization server proceeds as it would for the same CIMD client presenting no statement ({{ui-audit}}).
+A review-only presentation or pulled statement creates no establishment, and its statement MUST NOT satisfy a policy requiring reviewed software: the authorization server proceeds as it would for the same CIMD client presenting no statement, though it can record the statement's issuer for audit ({{ui-audit}}).
 
 ## Grant Binding {#grant-lifecycle}
 
