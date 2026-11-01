@@ -58,7 +58,7 @@ A software statement (Section 2.3 of {{RFC7591}}) carries a third party's approv
 
 {{RFC7591}} also defines no expiry or renewal for a registration. A registration based on a statement can outlive the statement, and nothing keeps the registration's validity or metadata in line with the issuer's decision once the issuer narrows or withdraws its review or stops renewing the statement.
 
-{{STATEMENT}} admits a client at request time without registering it. This specification is for deployments that register clients through {{RFC7591}} instead, for example to assign their own client identifiers or to manage registrations under {{RFC7592}}. It defines consumption of the statement at registration ({{dcr-presentation}}), the registration's validity ({{registration-validity}}), and its renewal by a replacement statement ({{revalidation}}). This specification depends on {{STATEMENT}}, which does not depend on it.
+{{STATEMENT}} admits a client at request time without registering it. This specification is for deployments that register clients through {{RFC7591}} instead, for example to assign their own client identifiers or to manage registrations under {{RFC7592}}. It defines consumption of the statement at registration ({{dcr-presentation}}), the registration's validity ({{registration-validity}}), and its renewal by a replacement statement ({{revalidation}}). This specification extends {{STATEMENT}}, which does not depend on it.
 
 ## Protocol Overview
 
@@ -155,7 +155,7 @@ If the registration a request repeats is a public-client registration ({{public-
 | Statement in the repeated request | Outcome |
 | --- | --- |
 | The governing statement, identified by its `iss` and `jti` | The existing registration is returned |
-| A later `iat` than the governing statement's | Evaluated as a replacement ({{revalidation}}); the renewed registration is returned or the request is rejected ({{errors}}) |
+| A statement with a later `iat` than the governing statement's | Evaluated as a replacement ({{revalidation}}); the renewed registration is returned or the request is rejected ({{errors}}) |
 | Any other statement with an `iat` no later than the governing statement's | The request is rejected |
 
 # Registration Validity {#registration-validity}
@@ -219,7 +219,7 @@ The replacement MUST satisfy the following:
 * The `iat` claim is later than that of the governing statement.
 * Its document declares `token_endpoint_auth_method` of `none` if and only if the governing statement's document does.
 * For a public-client registration that carries no tenant restriction, its decision is not confined to a tenant ({{tenant-restriction}}).
-* Its document satisfies the rules of {{dcr-presentation}}, from which the registration's metadata is derived.
+* Its document, from which the registration's metadata is derived, satisfies the rules of {{dcr-presentation}}.
 
 Renewing on the statement alone would leave in the registration a key, redirection URI, or scope that the new review removed.
 
@@ -229,7 +229,7 @@ When a replacement satisfies these rules, the authorization server MUST, in a si
 
 Access issued under the registration after that update, including on refresh of a grant issued before it, MUST fall within the re-derived metadata.
 
-If every grant a confidential-client registration permits needs an authorization request or a refresh token, and the authorization server does not support {{RFC7592}} update requests for the registration, the server MUST support pushed authorization requests {{RFC9126}} for the registration. Otherwise such a client could not restore a registration that has ceased to be valid without a refresh token. A public-client registration also renews through a repeated registration request ({{repeated-registration}}).
+If every grant a confidential-client registration permits needs an authorization request or a refresh token, and the authorization server does not support {{RFC7592}} update requests for the registration, the server MUST support pushed authorization requests {{RFC9126}} for the registration. Otherwise such a client, if it holds no refresh token, could not restore a registration that has ceased to be valid. A public-client registration also renews through a repeated registration request ({{repeated-registration}}).
 
 # Error Responses {#errors}
 
