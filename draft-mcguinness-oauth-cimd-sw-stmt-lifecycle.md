@@ -279,25 +279,53 @@ A server MUST verify a Status List Token only with keys from the issuer's Status
 
 # Status Change Events {#shared-signals}
 
-This section defines an optional Shared Signals Framework {{SSF}} event that tells a trusting authorization server that a status published under {{token-status-list}} has changed. The requirements of {{relationship}} through {{configuration}} apply only to implementations that support the events.
+This section defines an optional Shared Signals Framework {{SSF}} event that tells a trusting authorization server that a status published under {{token-status-list}} has changed. The requirements of {{configuration}} through {{processing}} apply only to implementations that support the events.
 
 For the events defined here, the issuer acts as a transmitter, and a trusting authorization server that has configured it acts as a receiver.
 
-## Event Issuer Trust and Keys {#relationship}
+{{fig-withdrawal}} shows a withdrawal that an event signals.
 
-A trusting authorization server MUST NOT accept an event from an issuer it has not configured. It MUST verify the SET using keys from the `jwks_uri` member of the issuer's transmitter configuration metadata {{SSF}}, discovered from the issuer identifier it has configured, and never from a key-location value carried in the event. The SET's `iss` claim is that issuer identifier, which is also the `iss` claim value of the statements the event concerns.
+~~~ ascii-art
+  Issuer        Status list host    Authorization server    Client
+    |                  |                     |                 |
+    | (1) token with   |                     |                 |
+    |  changed status  |                     |                 |
+    |----------------->|                     |                 |
+    | (2) status changed event (SET)         |                 |
+    |--------------------------------------->|                 |
+    |               (3) acknowledgement      |                 |
+    |<---------------------------------------|                 |
+    |                  | (4) fetch the list  |                 |
+    |                  |<--------------------|                 |
+    |                  | (5) Status List     |                 |
+    |                  |     Token           |                 |
+    |                  |-------------------->|                 |
+    |                  |     (6) refusal record                |
+    |                  |                     | (7) refresh     |
+    |                  |                     |<----------------|
+    |                  |                     | (8) replacement |
+    |                  |                     |     needed      |
+    |                  |                     |---------------->|
+~~~
+{: #fig-withdrawal title="Withdrawal Signaled by an Event"}
 
-A receiver MUST NOT create or keep a stream whose transmitter configuration metadata gives as its `jwks_uri` the location of the issuer's statement key set or Status List key set ({{key-sets}}).
+The issuer publishes a Status List Token reflecting the change (1) before it sends the event (2), which the receiver acknowledges (3). The receiver then retrieves the list (4, 5) and, if the status is `INVALID`, holds a refusal record (6). The next refresh of a grant that records the statement (7) needs a replacement (8), or is rejected with `statement_required`. Without the event, steps 4 to 6 happen on the server's own schedule ({{status-resolution}}), so a suppressed event delays the refusal but does not prevent it.
 
-A SET carrying an event defined here MUST have an `aud` claim containing the audience of the stream that delivers it, which {{SSF}} lets the transmitter and receiver agree on. A receiver MUST NOT create or keep a stream whose audience does not identify it.
+## Stream Configuration {#configuration}
 
-## Subject Identification {#subjects}
+An issuer that supports the events defined here publishes transmitter configuration metadata as {{SSF}} defines, discoverable from its issuer identifier. Stream creation, subject management, verification, and delivery follow {{SSF}}.
+
+A trusting authorization server that supports these events SHOULD create one stream per configured issuer that offers them ({{stream-practice}}).
+
+The subjects appropriate to a stream are those of the issuer's statements whose `aud` claim is absent or names the receiving authorization server. A transmitter SHOULD scope each stream to those subjects.
+
+A receiver SHOULD request the event this specification defines, and SHOULD use the stream verification facility of {{SSF}} periodically.
+
+## Status Changed Event {#status-changed}
 
 The subject of every event defined here is client software. Events carry it in the `sub_id` claim of {{SSF}} using the `uri` subject identifier format (Section 3.2.7 of {{RFC9493}}). The `uri` member carries the client's CIMD URL exactly as it appears in the `sub` claim of the statements the event concerns.
 
 A trusting authorization server MUST match the subject by exact comparison of the `uri` member against a statement's `sub` claim.
-
-## Status Changed Event {#status-changed}
 
 The event type identifier is `urn:ietf:params:oauth:event-type:software-statement-status-changed` ({{iana-event-type}}).
 
@@ -338,19 +366,27 @@ The following is a non-normative example of the payload of a SET carrying this e
 }
 ~~~
 
+## Event Issuer Trust and Keys {#relationship}
+
+A trusting authorization server MUST NOT accept an event from an issuer it has not configured. It MUST verify the SET using keys from the `jwks_uri` member of the issuer's transmitter configuration metadata {{SSF}}, discovered from the issuer identifier it has configured, and never from a key-location value carried in the event. The SET's `iss` claim is that issuer identifier, which is also the `iss` claim value of the statements the event concerns.
+
+A receiver MUST NOT create or keep a stream whose transmitter configuration metadata gives as its `jwks_uri` the location of the issuer's statement key set or Status List key set ({{key-sets}}).
+
+A SET carrying an event defined here MUST have an `aud` claim containing the audience of the stream that delivers it, which {{SSF}} lets the transmitter and receiver agree on. A receiver MUST NOT create or keep a stream whose audience does not identify it.
+
 ## Receiver Processing {#processing}
+
+The affected statements are those the transmitting issuer made about the subject, never statements another issuer made about the same software. They are the statement the event's `software_statement_jti` claim names or, if the event names none, those the receiver holds or has cached a status for. An event about a subject for which the receiver holds no state requires nothing of it. A receiver ignores events for subjects outside the client identifier namespaces for which it accepts the transmitting issuer (Section 4 of {{STATEMENT}}).
 
 A trusting authorization server that receives an event defined here MUST process it as follows:
 
 1. Verify the SET as {{RFC8417}}, {{SSF}}, and {{relationship}} require.
 2. Reject an event whose `aud` claim does not contain the audience of the stream that delivered it ({{relationship}}).
-3. Resolve the subject ({{subjects}}).
+3. Resolve the subject ({{status-changed}}).
 4. Retrieve the Status List Token each affected statement's `status` claim references, as {{STATUSLIST}} defines, using a copy that the status list URI served, or confirmed by revalidation, in response to a request begun after the event arrived, without waiting for the schedule that would otherwise apply.
 5. Apply the resolved status as {{status-resolution}} defines.
 
 If step 1 or 2 fails, the receiver reports a SET error as {{RFC8935}} or {{RFC8936}} provides. Otherwise, it acknowledges the SET, whatever steps 3 to 5 produce.
-
-The affected statements are those the transmitting issuer made about the subject, never statements another issuer made about the same software. They are the statement the event's `software_statement_jti` claim names or, if the event names none, those the receiver holds or has cached a status for. An event about a subject for which the receiver holds no state requires nothing of it. A receiver ignores events for subjects outside the client identifier namespaces for which it accepts the transmitting issuer (Section 4 of {{STATEMENT}}).
 
 One request begun after several events arrived serves every one of them that concerns the list it retrieves. An event is never grounds for refusal. Until the request succeeds, the copy the receiver holds remains in effect within its validity. If resolution does not complete, the receiver proceeds as it would had no event arrived.
 
@@ -360,16 +396,6 @@ Two constraints bound every event:
 
 * A receiver MUST NOT let an event by itself create standing, extend a statement's lifetime, or otherwise increase what a client can do. A receiver MUST ignore any payload claim that would have such an effect.
 * A receiver MUST continue to resolve status as {{status-resolution}} provides, independently of this mechanism. Stream loss, transmitter unavailability, or delivery failure then leaves resolution in force.
-
-## Stream Configuration {#configuration}
-
-An issuer that supports the events defined here publishes transmitter configuration metadata as {{SSF}} defines, discoverable from its issuer identifier. Stream creation, subject management, verification, and delivery follow {{SSF}}.
-
-A trusting authorization server that supports these events SHOULD create one stream per configured issuer that offers them ({{stream-practice}}).
-
-The subjects appropriate to a stream are those of the issuer's statements whose `aud` claim is absent or names the receiving authorization server. A transmitter SHOULD scope each stream to those subjects.
-
-A receiver SHOULD request the event this specification defines, and SHOULD use the stream verification facility of {{SSF}} periodically.
 
 # Error Responses {#lifecycle-errors}
 
