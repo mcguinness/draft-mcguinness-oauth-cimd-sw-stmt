@@ -47,9 +47,29 @@ normative:
   SSF:
     target: https://openid.net/specs/openid-sharedsignals-framework-1_0.html
     title: "OpenID Shared Signals Framework Specification 1.0"
+    author:
+      - ins: A. Tulshibagwale
+        org: SGNL
+      - ins: T. Cappalli
+        org: Okta
+      - ins: M. Scurtescu
+        org: Coinbase
+      - ins: A. Backman
+        org: Amazon
+      - ins: J. Bradley
+        org: Yubico
+      - ins: S. Miel
+        org: Cisco
+    date: 2025-08-29
   CAEP:
     target: https://openid.net/specs/openid-caep-1_0.html
     title: "OpenID Continuous Access Evaluation Profile 1.0"
+    author:
+      - ins: T. Cappalli
+        org: Okta
+      - ins: A. Tulshibagwale
+        org: SGNL
+    date: 2025-08-29
 
 informative:
   CIMD: I-D.ietf-oauth-client-id-metadata-document
