@@ -269,7 +269,7 @@ An issuer that uses Token Status List publishes the status of its statements as 
 
 ## Status Resolution {#status-resolution}
 
-If a statement carries the `status` claim and the server resolves statuses for its issuer, a status of `INVALID` is a withdrawal, as is any other status except `VALID` that the server's policy for that issuer refuses. On a withdrawal, the server holds a refusal record ({{withdrawal}}).
+If a statement carries the `status` claim and the server resolves statuses for its issuer, a status of `INVALID` is a withdrawal, as is any other status except `VALID` that the server's policy for that issuer refuses. On a withdrawal, the server holds a refusal record ({{withdrawal}}). Token Status List defines no expiry for a withdrawal. A Status List Token's `exp` bounds its use as evidence, not a refusal derived from it, which lasts until a later Status List Token reports a status the server does not refuse.
 
 Resolution follows {{STATUSLIST}}. A statement whose status index lies outside the list is rejected, as {{STATUSLIST}} requires. A server SHOULD retrieve the list on the list's own schedule, within the expiration and caching bounds its `exp` and `ttl` claims set (Section 13.7 of {{STATUSLIST}}), rather than once per request ({{schedule-practice}}, {{privacy-considerations}}).
 
