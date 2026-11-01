@@ -93,6 +93,8 @@ Statement-Governed Registration:
 
 The statement is consumed in the `software_statement` member of an {{RFC7591}} registration request. The authorization server validates it under Section 3.2 of {{STATEMENT}} and registers the client under its ordinary registration policy. If a required issuer covers the statement's `sub` in the request's tenant (Section 4 of {{STATEMENT}}), the authorization server MUST NOT create a registration on a statement from another issuer.
 
+A required issuer governs only registrations made on statements, because a registration made without a statement names no client identifier URL for a required issuer to cover. A deployment that needs every registration in a tenant reviewed requires a statement for every registration there, rejecting a request without one with `unapproved_software_statement` ({{errors}}).
+
 The retrieval requirements of Sections 3.1 and 5.3 of {{STATEMENT}} apply to retrieving the document as they apply to a runtime presentation, and a server can apply the bounds of Section 11.2 of {{STATEMENT}}. Following the order of Section 5.1 of {{STATEMENT}}, the authorization server completes every check that needs no client-controlled retrieval before resolving the document.
 
 The reviewed document takes the role that {{RFC7591}} gives a statement's own values. In deriving a registration's metadata, at registration or for a replacement ({{revalidation}}), the authorization server:
