@@ -65,7 +65,7 @@ informative:
 
 --- abstract
 
-A companion specification defines a software statement for a Client ID Metadata Document (CIMD), which records a trusted issuer's review of a client's metadata. That specification ends no grant at a statement's expiry, keeps an older unexpired statement admissible after a newer one is issued, and evaluates no statement on refresh. This specification lets an issuer withdraw a statement, and an authorization server that learns of it keeps a refusal record. An `iat` floor supersedes an issuer's earlier statements about the same software once a server accepts a later one. Refresh is refused for a grant whose statement is withdrawn or, by recommendation, expired, unless a later statement replaces it. A profile of Token Status List is the withdrawal mechanism defined here, and an optional Shared Signals event prompts servers to check status promptly.
+A companion specification defines a software statement by which a trusted issuer records its review of the exact octets of a Client ID Metadata Document (CIMD). That specification ends no grant at a statement's expiry, keeps an older unexpired statement admissible after a newer one is issued, and evaluates no statement on refresh. This specification lets an issuer withdraw a statement, and an authorization server that learns of the withdrawal keeps a refusal record. An `iat` floor supersedes an issuer's earlier statements about the same software once a server accepts a later one. Refresh is refused for a grant whose statement is withdrawn or, by recommendation, expired, unless a later statement replaces it. A profile of Token Status List is the withdrawal mechanism defined here, and an optional Shared Signals event prompts servers to check status promptly.
 
 --- middle
 
@@ -115,7 +115,7 @@ An issuer can withdraw a statement before its `exp`. Unlike OAuth token revocati
 
 How a trusting authorization server learns of a withdrawal is a withdrawal mechanism. This specification requires no withdrawal mechanism. It defines one, the Token Status List profile of {{token-status-list}}, and other specifications can define how another mechanism applies to these statements.
 
-In addition to the checks of Section 3.2 of {{STATEMENT}}, a trusting authorization server MUST reject a statement for which it holds a refusal record. A server that uses a withdrawal mechanism for a statement's issuer SHOULD consult it, within the caching and freshness rules that mechanism defines, before accepting the statement for a new admission, at each refresh of a grant that records it, and at each token request under a registration it governs ({{REGISTRATION}}).
+In addition to the checks of Section 3.2 of {{STATEMENT}}, a trusting authorization server MUST reject a statement for which it holds a refusal record. A server that uses a withdrawal mechanism for a statement's issuer SHOULD consult it, within the caching and freshness rules that mechanism defines, before accepting the statement for a new admission, at each refresh of a grant that records it, and at each token request under a registration the statement governs ({{REGISTRATION}}).
 
 A refusal derived from a withdrawal mechanism lasts until a later authoritative result from that mechanism replaces it, or until an expiry the mechanism itself defines for the withdrawal. A server MUST NOT retain such a refusal once it is replaced or expired in that way. A failure to consult the mechanism, or cached evidence that has lapsed, neither replaces nor expires a refusal.
 
@@ -129,13 +129,13 @@ Rejections under this section use the error responses of {{lifecycle-errors}}.
 
 Because an issuer's `iat` values for a given `iss` and `sub` increase strictly (Section 3 of {{STATEMENT}}), a later `iat` marks a later review, and a statement whose `iat` is earlier than the server's `iat` floor is superseded.
 
-A trusting authorization server MUST retain each `iat` floor for at least the maximum statement lifetime it honors for the issuer after the floor's value. A statement is accepted for the floor once the server admits a client on it, applies it as a replacement ({{refresh-replacement}}), or registers a client or renews a registration with it ({{REGISTRATION}}). The server MUST reject a statement whose `iat` claim is earlier than the retained `iat`, whether it arrives as a replacement on refresh, a new registration or a replacement delivered under {{REGISTRATION}}, or a runtime presentation. A repeated registration request that Section 3.3 of {{REGISTRATION}} answers with the existing registration is not a new registration. A client holding a superseded, broader statement therefore cannot defer a narrowing by opening a fresh registration or establishment with it.
+A trusting authorization server MUST retain each `iat` floor for at least the maximum statement lifetime it honors for the issuer after the floor's value. A statement is accepted for the floor once the server admits a client on it, applies it as a replacement ({{refresh-replacement}}), or registers a client or renews a registration with it ({{REGISTRATION}}). The server MUST reject a statement whose `iat` claim is earlier than the retained `iat` floor, whether it arrives as a replacement on refresh, a new registration or a replacement delivered under {{REGISTRATION}}, or a runtime presentation. A repeated registration request that Section 3.3 of {{REGISTRATION}} answers with the existing registration is not a new registration. A client holding a superseded, broader statement therefore cannot defer a narrowing by opening a fresh registration or establishment with it.
 
 At admission, the server verifies the `iat` floor in step 3 of Section 5.1 of {{STATEMENT}}, along with the `client_id` rule, before it resolves the reviewed document.
 
 In selecting a pulled statement (Section 5.5.1 of {{STATEMENT}}), the server also ignores any statement that a refusal record covers ({{withdrawal}}) or that the `iat` floor supersedes. A pulled statement the server does not apply does not advance the `iat` floor. Nor does a review-only presentation or pulled statement (Section 5.6.3 of {{STATEMENT}}).
 
-An instance holding only a superseded statement can open no new grant at the server (Section 12.3 of {{STATEMENT}}). Grants it already opened continue under {{refresh-lifecycle}}.
+An instance holding only a superseded statement can open no new grant at the server, which is why instances need the most recently issued statement (Section 12.3 of {{STATEMENT}}). Grants it already opened continue under {{refresh-lifecycle}}.
 
 # Refresh {#refresh-lifecycle}
 
@@ -143,7 +143,7 @@ Under {{STATEMENT}}, refresh evaluates no statement: it checks the establishment
 
 ## Requiring a Current Statement {#currency}
 
-When the establishment's recorded statement has expired, the authorization server SHOULD require a current statement on refresh-token use ({{open-grants}}). A refresh under an establishment needs a replacement ({{refresh-replacement}}) if a refusal record covers the recorded statement, or if the recorded statement has expired and either the server requires a current statement or a required issuer (Section 4 of {{STATEMENT}}) covers the establishment's `sub` in the establishment's tenant. The server MUST reject a refresh that needs a replacement unless it accepts one, even if it does not otherwise require a current statement. If a required issuer covers that `sub` and tenant and the recorded statement is from another issuer, the server MUST reject the refresh, and the client opens a new grant by presentation. A raised `iat` floor ({{supersession}}) does not by itself require a replacement.
+When the establishment's recorded statement has expired, the authorization server SHOULD require a current statement on refresh-token use ({{open-grants}}). A refresh under an establishment needs a replacement ({{refresh-replacement}}) if a refusal record covers the recorded statement, or if the recorded statement has expired and either the server requires a current statement or a required issuer (Section 4 of {{STATEMENT}}) covers the establishment's `sub` in the establishment's tenant. The server MUST reject a refresh that needs a replacement unless it accepts one, even if it does not otherwise require a current statement. If a required issuer covers that `sub` and tenant and the recorded statement is from another issuer, the server MUST reject the refresh, and the client opens a new grant by runtime presentation. A raised `iat` floor ({{supersession}}) does not by itself require a replacement.
 
 ## Refresh Replacement {#refresh-replacement}
 
@@ -155,7 +155,7 @@ On refresh-token use under an establishment, the authorization server first comp
 
 1. Decide whether {{currency}} requires a replacement or rejects the refresh.
 
-2. Obtain a replacement. A client can offer one on any refresh in the `software_statement` parameter. A statement with the recorded `iss` and `jti` is not a replacement and is treated as the recorded statement. When a replacement is needed and the request carries none, a server that supports pulled statements pulls, however the establishment was created, and takes as the replacement the newest statement with the recorded `iss` and `sub` among those it considers under Section 5.5.1 of {{STATEMENT}}, {{withdrawal}}, and {{supersession}}. A refresh that needs a replacement and obtains none is rejected: a reviewed grant never continues under the policy for clients the server has not reviewed.
+2. Obtain a replacement. A client can offer one on any refresh in the `software_statement` parameter. A statement with the recorded `iss` and `jti` is not a replacement and is treated as the recorded statement. When a replacement is needed and the request carries none, a server that supports pulled statements pulls, however the establishment was created, and takes as the replacement the most recently issued statement with the recorded `iss` and `sub` among those it considers under Section 5.5.1 of {{STATEMENT}}, {{withdrawal}}, and {{supersession}}. A refresh that needs a replacement and obtains none is rejected: a reviewed grant never continues under the policy for clients the server has not reviewed.
 
    The pull follows Sections 5.3 and 5.5 of {{STATEMENT}}, and a refresh whose pull does not complete is rejected.
 
@@ -318,7 +318,7 @@ This section gives guidance to implementers. It adds no requirement.
 
 ## Supersession State {#supersession-state}
 
-For the `iat` floor ({{supersession}}), a server keeps one `iat` value for each `iss` and `sub` and, on a multi-tenant server, each tenant, not the statements themselves. Every statement the floor refuses has an earlier `iat`, so its effective expiry passes within the maximum statement lifetime the server honors for the issuer, counted from the floor's value. Once that period and any clock-skew allowance have passed, the floor refuses nothing that expiry would not refuse. A server that raises the lifetime it honors for an issuer extends that period for the floors it already holds. A floor lost before then readmits the statements it superseded until they expire.
+For the `iat` floor ({{supersession}}), a server keeps one `iat` value for each `iss` and `sub` and, on a multi-tenant server, each tenant, not the statements themselves. Every statement the floor refuses has an earlier `iat`, so its effective expiry passes within the maximum statement lifetime the server honors for the issuer, counted from the floor's value. Once that period and any clock-skew allowance have passed, the floor refuses nothing that expiry would not refuse. A server that raises the lifetime it honors for an issuer extends that period for the floors it already holds. A floor lost before then leaves the statements it superseded acceptable until they expire.
 
 ## Resolution in Response to Events {#event-resolution}
 
@@ -342,7 +342,7 @@ Retrieving the list on its own schedule ({{status-resolution}}) keeps each reque
 
 ## Stream Coverage and Monitoring {#stream-practice}
 
-A stream can cover every subject appropriate to it ({{configuration}}), or the receiver can add each subject through the subject management of {{SSF}} when it first admits that software. A withdrawal whose event was transmitted before the subject was added to the stream is found at a later resolution ({{processing}}).
+A stream can cover every subject appropriate to it ({{configuration}}), or the receiver can add each subject through the subject management of {{SSF}} when it first accepts a statement about that software. A withdrawal whose event was transmitted before the subject was added to the stream is found at a later resolution ({{processing}}).
 
 A receiver ought to alert on stream loss rather than assume quiescence.
 
@@ -352,7 +352,7 @@ The security considerations of Section 13 of {{STATEMENT}}, {{STATUSLIST}}, {{SS
 
 ## Withdrawal and Open Grants {#open-grants}
 
-A withdrawal revokes no issued token ({{withdrawal}}). Beyond the cases of Section 13.7 of {{STATEMENT}}, {{currency}} can prevent further refresh of a grant until the server accepts a replacement ({{refresh-replacement}}), and a server can end the grants and registrations of an issuer it removes from trust by entering refusal records for its statements.
+A withdrawal revokes no issued token ({{withdrawal}}). Beyond the cases of Section 13.7 of {{STATEMENT}}, {{currency}} can prevent further refresh of a grant until the server accepts a replacement ({{refresh-replacement}}), and a server that removes an issuer from trust can end the grants opened and registrations created on that issuer's statements by entering refusal records for them.
 
 ## Supersession and Refresh Replacement {#replacement-security}
 
@@ -366,7 +366,7 @@ Because a replacement must name the document currently served (step 3 of {{refre
 
 An event names no status, so a forged, replayed, delayed, or reordered event cannot change whether any statement is acceptable. Its only effect is a resolution the receiver would otherwise have performed on its own schedule.
 
-The remaining exposure is resource cost: an attacker holding the issuer's SET signing key, or a misbehaving transmitter, can trigger resolutions ({{event-resolution}}) and nothing more, because SET keys share no location or key with statement or Status List Token keys ({{token-status-list}}).
+The remaining exposure is resource cost: an attacker holding the issuer's SET signing key, or a misbehaving transmitter, can trigger resolutions ({{event-resolution}}) and nothing more, because the key set that verifies SETs shares no location or key with the statement key set or the Status List key set ({{token-status-list}}).
 
 ## Event Suppression
 
