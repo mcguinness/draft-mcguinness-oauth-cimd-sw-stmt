@@ -644,6 +644,8 @@ An authorization server can bound the retrieval and processing work of {{externa
 * Bound the size of a `software_statements_uri` response and the number of statements examined separately from the document's. Several issuers' statements outgrow a document-sized bound, and a host can pad the array.
 * Discard pulled statements from unconfigured issuers before verifying any signature.
 
+A response size bound also decides which reviewed documents a server can admit. Section 8.7 of {{CIMD}} recommends that a server read at most 5 kilobytes, so an issuer ought not to issue a statement over a larger document.
+
 ## Bounding Establishments {#establishment-bounds}
 
 A statement attests client software, identified by `sub`, not its runtime instances, and this specification defines no instance identifier. One unexpired statement can therefore open establishments at each trusting authorization server in its audience, and more than one at each.
