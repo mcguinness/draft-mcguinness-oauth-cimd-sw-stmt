@@ -136,7 +136,7 @@ Withdrawal Mechanism:
 : The means by which a trusting authorization server learns that an issuer has withdrawn a statement before its expiry ({{withdrawal}}), such as the Token Status List profile of {{token-status-list}}.
 
 Refusal Record:
-: State an authorization server holds when it has learned that a statement ceased to be acceptable before its expiry, whether from a withdrawal mechanism it uses for the issuer ({{withdrawal}}) or from its own operator.
+: State an authorization server holds for a statement, identified by its `iss` and `jti`, once it has learned that the statement ceased to be acceptable before its expiry, whether from a withdrawal mechanism it uses for the issuer ({{withdrawal}}) or from its own operator.
 
 Recorded Statement:
 : The statement an establishment records: the one presented or pulled to create it or, after a refresh accepts a replacement, the replacement most recently accepted for it ({{refresh-replacement}}).
