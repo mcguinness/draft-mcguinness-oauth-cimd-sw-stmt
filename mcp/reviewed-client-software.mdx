@@ -83,7 +83,7 @@ How the MCP Authorization Server binds a request to the reviewed document depend
 
 - A **confidential client** **MUST** authenticate at the token endpoint with `private_key_jwt` ([RFC7523](https://datatracker.ietf.org/doc/html/rfc7523)), using a key its metadata document carries in `jwks` or at `jwks_uri`, and its redirection URIs **MUST** all use `https` with a host that is not a loopback address or `localhost`. A document declaring `private_key_jwt` beside a loopback redirect ships its key in every copy, and its statements are review-only (Section 4.4).
 - A **public client whose redirection URIs all use `https` with a host that is not a loopback address or `localhost`** **MUST** use PKCE with `S256`, **MUST** send `dpop_jkt` in its authorization request, and **MUST** prove that key with DPoP ([RFC9449](https://datatracker.ietf.org/doc/html/rfc9449)) when redeeming the code.
-- A **client with any loopback redirection URI**, as desktop MCP clients commonly have, whatever authentication method its document declares, cannot be bound to the reviewed document, because another application on the same device can claim the redirect. Such a client needs nothing beyond MCP's existing requirements. Its statements are treated as review-only (Section 4.4).
+- A **client with any redirection URI another application on the same device could claim**, such as the loopback redirects desktop MCP clients commonly have or a private-use URI scheme, whatever authentication method its document declares, cannot be bound to the reviewed document, because another application can claim the redirect. Such a client needs nothing beyond MCP's existing requirements. Its statements are treated as review-only (Section 4.4).
 
 ### 3.4 Presenting Statements in a Request
 
@@ -113,7 +113,7 @@ MCP requires access tokens in the `Authorization: Bearer` header. Where a public
 
 ### 4.4 Review-Only Clients
 
-For a client whose document carries any loopback redirection URI, whatever authentication method it declares, and for a public client's statement pulled at the token endpoint for a request opening a new grant, a statement is review-only. A public client's statement presented at the token endpoint for such a request is rejected (Public Clients in CIMD Software Statement). Code redemption and refresh continue a grant whose binding was established at the authorization endpoint, and keep it. The MCP Authorization Server:
+For a client whose document carries any redirection URI another application on the same device could claim, such as a loopback or private-use-scheme URI, whatever authentication method it declares, and for a public client's statement pulled at the token endpoint for a request opening a new grant, a statement is review-only. A public client's statement presented at the token endpoint for such a request is rejected (Public Clients in CIMD Software Statement). Code redemption and refresh continue a grant whose binding was established at the authorization endpoint, and keep it. The MCP Authorization Server:
 
 - **MUST** treat the client exactly as an unreviewed Client ID Metadata Document client, and **MUST NOT** let the statement satisfy a policy that requires reviewed software;
 - **MUST NOT** present the review to the user as an assurance about the application requesting access;
@@ -245,7 +245,7 @@ A statement vouches for software and the metadata a reviewer evaluated. It does 
 
 ### 8.2 Loopback Clients
 
-MCP's own example metadata document is a public client redirecting to loopback addresses. Any application on the same device can listen there, so a review of such a client's metadata cannot be attributed to the application presenting it. Treating these statements as review-only keeps desktop clients able to participate without letting a review stand in for an impersonator.
+MCP's own example metadata document is a public client redirecting to loopback addresses. Any application on the same device can listen there, or register the same private-use URI scheme, so a review of such a client's metadata cannot be attributed to the application presenting it. Treating these statements as review-only keeps desktop clients able to participate without letting a review stand in for an impersonator.
 
 ### 8.3 Changing the Document
 
