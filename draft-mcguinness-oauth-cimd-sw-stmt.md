@@ -260,7 +260,7 @@ The request is evaluated against the reviewed metadata as against any client's r
 
 ## Retrieval {#retrieval}
 
-Every retrieval this specification causes, of the CIMD, a `jwks_uri` it names, or the statements its `software_statements_uri` names, inherits the server-side request forgery protections in Section 8.6 of {{CIMD}}. A trusted signature does not make a URL safe: the authorization server MUST apply its URL, redirect, address-range, transport, and content-type policy independently to every referenced location.
+Every retrieval this specification causes inherits the server-side request forgery protections in Section 8.6 of {{CIMD}}, whether of the CIMD, a `jwks_uri` it names, the statements its `software_statements_uri` names, or a statement key set or the issuer metadata that locates one ({{issuer-trust}}). A trusted signature does not make a URL safe: the authorization server MUST apply its URL, redirect, address-range, transport, and content-type policy independently to every referenced location.
 
 If a retrieval fails, the authorization server MUST reject the request and MUST NOT fall back to a weaker proof. The exception is a failed pull of statements, or a failed retrieval of a statement key set ({{issuer-trust}}) needed to verify a pulled statement, for a request opening a new grant: that failure does not by itself reject the request, which proceeds as {{pull-selection}} describes.
 
