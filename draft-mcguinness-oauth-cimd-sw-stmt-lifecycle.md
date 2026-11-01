@@ -102,6 +102,28 @@ A trusting authorization server that implements this specification applies all o
 
 Registrations under {{REGISTRATION}} advance the `iat` floor, and a refusal record ends a registration's validity at the server that holds it. This specification defines no new endpoint. It extends {{STATEMENT}}, which does not depend on it.
 
+## Overview {#overview}
+
+The rules of this specification act at two points: when a statement is accepted to open something new, such as an admission, a registration, or a refresh replacement, and when a grant or registration it governs continues. The `iat` floor ({{supersession}}) limits only the first. A refusal record ({{withdrawal}}), and expiry where the server requires a current statement ({{currency}}), also limit the second. {{tab-standing}} shows what a statement's standing at one authorization server allows.
+
+| Standing at the server | New admission or registration | Pulled statement selection | Refresh of a grant that records it | Use as a refresh replacement |
+| --- | --- | --- | --- | --- |
+| Current, not superseded | Accepted | Considered | Continues | Accepted if later than the recorded statement |
+| Superseded by the `iat` floor | Rejected | Ignored | Continues | Rejected |
+| Covered by a refusal record | Rejected | Ignored | Needs a replacement | Rejected |
+| Expired | Rejected | Ignored | Continues unless {{currency}} requires a replacement | Rejected |
+{: #tab-standing title="What a Statement's Standing Allows"}
+
+A registration ({{REGISTRATION}}) follows the same pattern: a refusal record covering its governing statement ends its validity, and a superseded governing statement leaves it valid until that statement expires.
+
+A server implementing this specification keeps the following state:
+
+* a refusal record for each statement it has learned is withdrawn, or that its operator refused ({{withdrawal}});
+* an `iat` floor for each `iss` and `sub`, per tenant on a multi-tenant server ({{supersession}});
+* for each establishment, its recorded statement and what step 4 of {{refresh-replacement}} records with it;
+* with Token Status List, the Status List Tokens it holds ({{status-resolution}}); and
+* with status change events, its streams and the SET `jti` values it has applied on each ({{processing}}).
+
 # Conventions and Definitions
 
 {::boilerplate bcp14-tagged}
