@@ -246,7 +246,16 @@ If the server bounds establishments (Section 11.3 of {{STATEMENT}}), a count per
 
 This section defines the withdrawal mechanism ({{withdrawal}}) of this specification, a profile of Token Status List {{STATUSLIST}} through which an issuer publishes the authoritative status of its statements.
 
+## Issuer Key Sets {#key-sets}
+
 An issuer's Status List key set is the JWK Set at the `jwks_uri` of its authorization server metadata {{RFC8414}}, discovered from the configured `iss`. For an issuer that is not an authorization server (Section 4 of {{STATEMENT}}), it is the JWK Set at a Status List key set URL in the trust configuration. The `https` and certificate requirements of Section 4 of {{STATEMENT}} for a statement key set URL apply to that URL. An issuer MUST serve its statement key set, its Status List key set, and the key set at the `jwks_uri` of any transmitter configuration metadata it publishes ({{relationship}}) at three different locations, with no key in more than one of them.
+
+| Key set | Location | Verifies |
+| --- | --- | --- |
+| Statement key set | Section 4 of {{STATEMENT}} | Software statements |
+| Status List key set | The `jwks_uri` of the issuer's authorization server metadata or, for an issuer that is not an authorization server, a configured URL | Status List Tokens ({{status-publication}}) |
+| Transmitter key set | The `jwks_uri` of the issuer's transmitter configuration metadata | Status change events ({{shared-signals}}) |
+{: #tab-key-sets title="Issuer Key Sets"}
 
 ## Status Publication {#status-publication}
 
@@ -254,7 +263,7 @@ An issuer that uses Token Status List publishes the status of its statements as 
 
 * MUST publish status, and carry the `status` claim, for every statement it issues under a given `iss` from the point it begins publishing. Once statements issued before that point have expired, a trusting authorization server can read an absent claim as meaning the issuer publishes no status.
 * MUST NOT assign the same combination of status list URI and index to more than one statement, including across successive Status List Tokens published at that URI. Withdrawing a statement then affects no other.
-* MUST sign each Status List Token with a key in its Status List key set ({{token-status-list}}).
+* MUST sign each Status List Token with a key in its Status List key set ({{key-sets}}).
 * MUST include the `exp` claim in every Status List Token it publishes. An older token then cannot stand in for a newer one indefinitely.
 * MUST give each Status List Token it publishes at a given list URI an `iat` claim value later than that of any token it published there before ({{status-resolution}}).
 
@@ -266,7 +275,7 @@ Resolution follows {{STATUSLIST}}. A statement whose status index lies outside t
 
 A server MUST NOT replace a Status List Token it holds with one whose `iat` claim is earlier, and MUST treat one whose `iat` claim is equal but whose contents differ as a resolution failure. A host serving an older token then cannot restore a status the issuer has withdrawn.
 
-A server MUST verify a Status List Token only with keys from the issuer's Status List key set ({{token-status-list}}), never with keys from the token itself. It reuses a retrieved key set only as Section 5.3 of {{STATEMENT}} permits for a statement key set.
+A server MUST verify a Status List Token only with keys from the issuer's Status List key set ({{key-sets}}), never with keys from the token itself. It reuses a retrieved key set only as Section 5.3 of {{STATEMENT}} permits for a statement key set.
 
 # Status Change Events {#shared-signals}
 
@@ -278,7 +287,7 @@ For the events defined here, the issuer acts as a transmitter, and a trusting au
 
 A trusting authorization server MUST NOT accept an event from an issuer it has not configured. It MUST verify the SET using keys from the `jwks_uri` member of the issuer's transmitter configuration metadata {{SSF}}, discovered from the issuer identifier it has configured, and never from a key-location value carried in the event. The SET's `iss` claim is that issuer identifier, which is also the `iss` claim value of the statements the event concerns.
 
-A receiver MUST NOT create or keep a stream whose transmitter configuration metadata gives as its `jwks_uri` the location of the issuer's statement key set or Status List key set ({{token-status-list}}).
+A receiver MUST NOT create or keep a stream whose transmitter configuration metadata gives as its `jwks_uri` the location of the issuer's statement key set or Status List key set ({{key-sets}}).
 
 A SET carrying an event defined here MUST have an `aud` claim containing the audience of the stream that delivers it, which {{SSF}} lets the transmitter and receiver agree on. A receiver MUST NOT create or keep a stream whose audience does not identify it.
 
