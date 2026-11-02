@@ -121,16 +121,16 @@ For a client whose document carries any redirection URI another application on t
 
 ### 4.5 Tenants
 
-A multi-tenant MCP Authorization Server **MUST** resolve which tenant a request belongs to by its own means, such as a per-tenant endpoint or issuer identifier, or from a signed assertion it has validated, before evaluating any statement, and **MUST NOT** take the tenant from a value the client chooses. It rejects a statement whose `aud_tenant` names a different tenant. Where it configures a customer's own Statement Issuer for a tenant, it records the client identifier namespaces for which that issuer's decision is required there; for those clients, only that issuer's statement admits such a client as reviewed in the tenant, so a client that withholds it cannot fall back on a broader listing. A published statement carrying `aud_tenant` would disclose which customer approved the client, so such a statement is presented rather than published.
+A multi-tenant MCP Authorization Server **MUST** resolve which tenant a request belongs to by its own means, such as a per-tenant endpoint or issuer identifier, or from a signed assertion it has validated, before evaluating any statement, and **MUST NOT** take the tenant from a value the client chooses. It rejects a statement whose `aud_tenant` names a different tenant. Where it configures a customer's own Statement Issuer for a tenant, it records the client identifier namespaces for which that issuer's decision is required there. It then admits no client in those namespaces in that tenant without a current statement from that issuer, whatever its policy for clients it has not reviewed (Issuer Trust in CIMD Software Statement), so a client that withholds that statement can fall back neither on a broader listing nor on unreviewed access. A published statement carrying `aud_tenant` would disclose which customer approved the client, so such a statement is presented rather than published.
 
 A statement says nothing about which of a client's own customers a request is for. An MCP Client that acts for many organizations under one metadata document presents the same review for all of them.
 
 ### 4.6 Errors
 
-Where the server's policy requires reviewed software, it responds in the authorization error response, after validating the redirection URI against the client's metadata document, with:
+Where the server's policy or a required issuer requires reviewed software, it responds in the authorization error response, after validating the redirection URI against the client's metadata document, with:
 
 - `statement_required` where a client that could be reviewed is not admitted on a statement;
-- `unauthorized_client` where the client is review-only (Section 4.4), since no statement can make it reviewed; and
+- `unauthorized_client` where the client is review-only (Section 4.4), since no statement can make it reviewed, or where a required issuer excludes the software from the tenant; and
 - `temporarily_unavailable` where retrieving the client's statements did not complete.
 
 Many MCP clients will not recognize `statement_required`, so the server **SHOULD** include an `error_description` a person can act on. It **MUST NOT** name the reviewers it accepts, since the request is unauthenticated and CIMD Software Statement keeps issuer trust from unauthenticated requesters.
