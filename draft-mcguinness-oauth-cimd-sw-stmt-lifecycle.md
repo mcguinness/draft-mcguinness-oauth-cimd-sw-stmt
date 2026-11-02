@@ -205,7 +205,7 @@ On refresh-token use under an establishment, the authorization server first comp
    * MUST have an `iat` later than the recorded statement's.
    * MUST name in `cimd_digest` the document currently served at that `sub`, which the server confirms by retrieval or by revalidating octets it holds.
    * MUST name a document that carries the establishment's proven key, in its `jwks` or at its `jwks_uri` (Section 5.6.1 of {{STATEMENT}}), or, for an establishment created under Section 5.6.2 of {{STATEMENT}}, a document that still satisfies that section.
-   * MUST name a document that declares the same `token_endpoint_auth_method` as the establishment's reviewed document and that does not make the statement review-only (Section 5.6.3 of {{STATEMENT}}). Refresh keeps the sender-constraint mechanism (Section 5.7.1 of {{STATEMENT}}), so a replacement cannot change it.
+   * MUST name a document that permits the establishment's Selected Method (Section 2 of {{STATEMENT}}) and that does not make the statement review-only (Section 5.6.3 of {{STATEMENT}}). Refresh keeps the sender-constraint mechanism (Section 5.7.1 of {{STATEMENT}}), so a replacement cannot change it.
 
    A replacement that meets these requirements is accepted.
 
