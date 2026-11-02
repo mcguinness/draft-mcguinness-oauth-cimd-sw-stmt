@@ -270,7 +270,7 @@ Rejections at other endpoints use the error responses of Section 6 of {{STATEMEN
 
 At the authorization endpoint, the `redirect_uri` is validated against the registration's redirection URIs before an error is redirected (Section 4.1.2.1 of {{RFC6749}}).
 
-Rejections of a registration management request for other reasons use the responses {{RFC7592}} specifies.
+Rejections of a registration management request for other reasons use the responses {{RFC7592}} specifies, such as the HTTP 403 Forbidden response that {{tenant-restriction}} requires.
 
 # Example {#example}
 
