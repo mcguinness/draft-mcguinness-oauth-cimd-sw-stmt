@@ -432,10 +432,11 @@ Table of Contents
    *  The JWT validation guidance in [RFC8725] has been applied.
 
    A trusting authorization server that hosts more than one tenant MUST
-   evaluate every tenant-specific check, such as the aud_tenant claim
-   and a required issuer (Section 4), against the request's tenant.  The
-   request's tenant is the tenant that scopes what the server issues on
-   the statement.  The server MUST determine it before evaluating the
+   evaluate every tenant-specific check, such as an aud value that
+   identifies one of its tenants, the aud_tenant claim, and a required
+   issuer (Section 4), against the request's tenant.  The request's
+   tenant is the tenant that scopes what the server issues on the
+   statement.  The server MUST determine it before evaluating the
    statement, by its own means or from a signed assertion it has
    validated, and never from a value the client chooses.
 
@@ -487,10 +488,10 @@ Table of Contents
    reviewed.  Without this rule, a holder could evade the required
    issuer's decision by withholding that issuer's statement or by
    presenting or publishing only a broader one, such as a marketplace
-   listing.  A required issuer configured for software whose
-   presentations are review-only (Section 5.6.3) excludes that software
-   from the tenant, and the server rejects a request for such software
-   there.
+   listing.  A required issuer configured for software whose document
+   makes every presentation review-only (item 1 of Section 5.6.3)
+   excludes that software from the tenant, and the server rejects a
+   request for such software there.
 
 4.1.  Multi-Tenant Issuers
 
@@ -993,7 +994,8 @@ Table of Contents
       including one from an issuer required for the tenant (Section 4).
 
    unauthorized_client:  Any of the following, in place of
-      statement_required if both apply:
+      statement_required if both apply at the step of Section 5.1 where
+      the server rejects the request:
 
       *  The request exceeds the reviewed document's grant types or
          response types (Section 5.2).
@@ -1534,8 +1536,10 @@ Table of Contents
    supersession, or grants that follow later reviews implements an
    extension providing them (Section 9).  Removing an issuer from trust
    configuration, or narrowing what it can attest, does not by itself
-   end a grant already admitted on one of its statements.  A server ends
-   such grants by its own means, such as revoking refresh tokens.
+   end a grant already admitted on one of its statements.  Nor does
+   configuring a required issuer (Section 4) end a grant already
+   admitted.  A server ends such grants by its own means, such as
+   revoking refresh tokens.
 
 13.8.  Observable State
 
