@@ -301,7 +301,7 @@ A client can publish its statements at a URL its document names instead of prese
 This specification defines the following client metadata member:
 
 `software_statements_uri`:
-: OPTIONAL. URL, in a CIMD, at which the client publishes software statements about itself. The member has no meaning in a registration request. The URL MUST use the `https` scheme. A request to it returns a JSON object whose `software_statements` member is an array of statements ({{profiles}}), each a string in JWS compact serialization. The metadata digest covers this member ({{metadata-digest}}).
+: OPTIONAL. URL, in a CIMD, at which the client publishes software statements about itself. The member has no meaning in a registration request. The URL MUST use the `https` scheme. A request to it returns, with a JSON media type such as `application/json`, a JSON object whose `software_statements` member is an array of statements ({{profiles}}), each a string in JWS compact serialization. The metadata digest covers this member ({{metadata-digest}}).
 
 An authorization server advertises support through `software_statement_pull_supported` ({{authorization-server-metadata}}).
 
