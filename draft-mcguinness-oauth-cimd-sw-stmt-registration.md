@@ -215,6 +215,7 @@ The authorization server treats a delivered statement as the first matching row 
 | Any other statement, such as one with another `iss` or `sub` | Fails the replacement rules below |
 
 An {{RFC7592}} update request repeats the statement a previous response returned (Section 3.2.1 of {{RFC7591}}; Section 2.2 of {{RFC7592}}), which can be older than the governing statement. An {{RFC7592}} read or update response returns the governing statement as its `software_statement` member.
+
 The replacement MUST satisfy the following:
 
 * It validates under Section 3.2 of {{STATEMENT}}.
