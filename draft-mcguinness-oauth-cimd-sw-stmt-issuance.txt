@@ -209,7 +209,7 @@ Table of Contents
        |                                                 |
        | (E) Poll(s) (deferral_code), if deferred        |
        |------------------------------------------------>|
-       |     authorization_pending or final response     |
+       |     pending state or final response             |
        |<------------------------------------------------|
 
    At (A), the authorization server validates the request, performs any
@@ -303,7 +303,9 @@ Table of Contents
    document, binding the new document as the snapshot, or reject the
    request.  This applies even if the change touches no member its
    policy examines.  A statement over a superseded snapshot fails the
-   digest comparison (Section 5.2 of [STATEMENT]).
+   digest comparison (Section 5.2 of [STATEMENT]).  Replacing the
+   snapshot is the authorization server's own action and changes no
+   parameter of the request, such as the requested audience.
 
    The authorization server MUST NOT combine values from different
    document versions.
@@ -651,8 +653,8 @@ Table of Contents
       code_challenge in the authorization request.
 
    completion_mode:  REQUIRED at a deferring issuer, with a value that
-      MUST include deferred.  A deferring issuer rejects a request
-      without it with invalid_request.
+      MUST include deferred.  A deferring issuer rejects a request whose
+      completion_mode is absent or omits deferred with invalid_request.
 
    The prohibitions of Section 4.2 apply.  The request MUST NOT contain
    the audience parameter, which was bound at the authorization
@@ -718,11 +720,18 @@ Table of Contents
    A deferring issuer MAY answer a redemption (Section 8) or token
    exchange (Section 5) with a deferred token response, which follows
    [DTR] except that the final response MUST be delivered only by
-   polling and the statement does not inherit the deferral's DPoP
-   binding.  A client MUST NOT send client_notification_token, which the
-   authorization server rejects with invalid_request, and the server
-   MUST NOT deliver a callback, even to a
-   deferred_client_notification_endpoint in the document.
+   polling.  The deferral's DPoP binding constrains every polling
+   request (Section 11.1 of [DTR]).  That section binds an issued access
+   token, and the software statement is not one (Section 10), so the
+   statement carries no key binding.  A client MUST NOT send
+   client_notification_token, which the authorization server rejects
+   with invalid_request, and the server MUST NOT deliver a callback,
+   even to a deferred_client_notification_endpoint in the document.
+
+   The pending states of Section 6.6 of [DTR] apply.  To a client whose
+   completion_mode includes deferred_interactive, a deferring issuer can
+   respond with interaction_required and an interaction_uri, for example
+   where the review needs input from the software's publisher.
 
    The following is a non-normative example of a first polling request
    for a deferral created by a token exchange, from a confidential
@@ -734,7 +743,7 @@ Table of Contents
    Content-Type: application/x-www-form-urlencoded
 
    grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Adeferred
-   &deferral_code=8xLOxBtZp8
+   &deferral_code=AHqLTuZEcmNEj5X9F72rfwgfE1kcGf0lA8Abf4gFTTo
    &client_id=https%3A%2F%2Fclient.example.org%2Fmetadata.json
    &client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3A
    client-assertion-type%3Ajwt-bearer

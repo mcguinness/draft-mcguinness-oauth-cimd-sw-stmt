@@ -1383,7 +1383,7 @@ svg {
     |                                                 |
     | (E) Poll(s) (deferral_code), if deferred        |
     |------------------------------------------------&gt;|
-    |     authorization_pending or final response     |
+    |     pending state or final response             |
     |&lt;------------------------------------------------|
 </pre><a href="#section-1.1.1-1" class="pilcrow">¶</a>
 </div>
@@ -1454,7 +1454,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-metadata-snapshot" class="section-name selfRef">Metadata Snapshot</a>
         </h3>
 <p id="section-3.1-1">CIMDs can change while a request is pending. For each request, the authorization server retrieves and validates the document (<a href="#client-identity" class="auto internal xref">Section 3</a>) and computes the metadata digest of the exact octets it retrieved, as Section 3.1 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> requires. These octets and their digest are the request's metadata snapshot. A deferral created at redemption is bound to the code's snapshot and audience. The authorization server <span class="bcp14">MUST</span> bind the snapshot and the requested audience to each software statement code and deferral it creates, and issues the statement over that snapshot.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
-<p id="section-3.1-2">The authorization server <span class="bcp14">MAY</span> retrieve the document again before issuing the software statement. If it does so and the digest differs, it <span class="bcp14">MUST</span> either re-evaluate the request under the new document, binding the new document as the snapshot, or reject the request. This applies even if the change touches no member its policy examines. A statement over a superseded snapshot fails the digest comparison (Section 5.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-3.1-2" class="pilcrow">¶</a></p>
+<p id="section-3.1-2">The authorization server <span class="bcp14">MAY</span> retrieve the document again before issuing the software statement. If it does so and the digest differs, it <span class="bcp14">MUST</span> either re-evaluate the request under the new document, binding the new document as the snapshot, or reject the request. This applies even if the change touches no member its policy examines. A statement over a superseded snapshot fails the digest comparison (Section 5.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). Replacing the snapshot is the authorization server's own action and changes no parameter of the request, such as the requested audience.<a href="#section-3.1-2" class="pilcrow">¶</a></p>
 <p id="section-3.1-3">The authorization server <span class="bcp14">MUST NOT</span> combine values from different document versions.<a href="#section-3.1-3" class="pilcrow">¶</a></p>
 <p id="section-3.1-4">Replacing the snapshot does not alter the sender-constraint context fixed for a deferral at origination (<span>[<a href="#DTR" class="cite xref">DTR</a>]</span>). If a replacement snapshot no longer authorizes the key material behind that context, for example because the client-authentication key is absent from the new document, the authorization server <span class="bcp14">MUST</span> invalidate the deferral. The client then makes a new request under its current keys.<a href="#section-3.1-4" class="pilcrow">¶</a></p>
 <p id="section-3.1-5">The authorization server <span class="bcp14">MUST</span> reject a document containing duplicate object member names (Section 5.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-3.1-5" class="pilcrow">¶</a></p>
@@ -1785,7 +1785,7 @@ Location: https://client.example.org/cb?
 <dt id="section-8-2.11">
 <code>completion_mode</code>:</dt>
         <dd style="margin-left: 1.5em" id="section-8-2.12">
-          <p id="section-8-2.12.1"><span class="bcp14">REQUIRED</span> at a deferring issuer, with a value that <span class="bcp14">MUST</span> include <code>deferred</code>. A deferring issuer rejects a request without it with <code>invalid_request</code>.<a href="#section-8-2.12.1" class="pilcrow">¶</a></p>
+          <p id="section-8-2.12.1"><span class="bcp14">REQUIRED</span> at a deferring issuer, with a value that <span class="bcp14">MUST</span> include <code>deferred</code>. A deferring issuer rejects a request whose <code>completion_mode</code> is absent or omits <code>deferred</code> with <code>invalid_request</code>.<a href="#section-8-2.12.1" class="pilcrow">¶</a></p>
 </dd>
       <dd class="break"></dd>
 </dl>
@@ -1833,21 +1833,22 @@ grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3A
       <h2 id="name-deferred-processing">
 <a href="#section-9" class="section-number selfRef">9. </a><a href="#name-deferred-processing" class="section-name selfRef">Deferred Processing</a>
       </h2>
-<p id="section-9-1">A deferring issuer <span class="bcp14">MAY</span> answer a redemption (<a href="#software-statement-code-redemption" class="auto internal xref">Section 8</a>) or token exchange (<a href="#token-exchange-profile" class="auto internal xref">Section 5</a>) with a deferred token response, which follows <span>[<a href="#DTR" class="cite xref">DTR</a>]</span> except that the final response <span class="bcp14">MUST</span> be delivered only by polling and the statement does not inherit the deferral's DPoP binding. A client <span class="bcp14">MUST NOT</span> send <code>client_notification_token</code>, which the authorization server rejects with <code>invalid_request</code>, and the server <span class="bcp14">MUST NOT</span> deliver a callback, even to a <code>deferred_client_notification_endpoint</code> in the document.<a href="#section-9-1" class="pilcrow">¶</a></p>
-<p id="section-9-2">The following is a non-normative example of a first polling request for a deferral created by a token exchange, from a confidential client authenticating with the same <code>private_key_jwt</code> method as the exchange (line breaks for display purposes only):<a href="#section-9-2" class="pilcrow">¶</a></p>
-<div class="lang-http sourcecode" id="section-9-3">
+<p id="section-9-1">A deferring issuer <span class="bcp14">MAY</span> answer a redemption (<a href="#software-statement-code-redemption" class="auto internal xref">Section 8</a>) or token exchange (<a href="#token-exchange-profile" class="auto internal xref">Section 5</a>) with a deferred token response, which follows <span>[<a href="#DTR" class="cite xref">DTR</a>]</span> except that the final response <span class="bcp14">MUST</span> be delivered only by polling. The deferral's DPoP binding constrains every polling request (Section 11.1 of <span>[<a href="#DTR" class="cite xref">DTR</a>]</span>). That section binds an issued access token, and the software statement is not one (<a href="#software-statement-response" class="auto internal xref">Section 10</a>), so the statement carries no key binding. A client <span class="bcp14">MUST NOT</span> send <code>client_notification_token</code>, which the authorization server rejects with <code>invalid_request</code>, and the server <span class="bcp14">MUST NOT</span> deliver a callback, even to a <code>deferred_client_notification_endpoint</code> in the document.<a href="#section-9-1" class="pilcrow">¶</a></p>
+<p id="section-9-2">The pending states of Section 6.6 of <span>[<a href="#DTR" class="cite xref">DTR</a>]</span> apply. To a client whose <code>completion_mode</code> includes <code>deferred_interactive</code>, a deferring issuer can respond with <code>interaction_required</code> and an <code>interaction_uri</code>, for example where the review needs input from the software's publisher.<a href="#section-9-2" class="pilcrow">¶</a></p>
+<p id="section-9-3">The following is a non-normative example of a first polling request for a deferral created by a token exchange, from a confidential client authenticating with the same <code>private_key_jwt</code> method as the exchange (line breaks for display purposes only):<a href="#section-9-3" class="pilcrow">¶</a></p>
+<div class="lang-http sourcecode" id="section-9-4">
 <pre>
 POST /token HTTP/1.1
 Host: server.example.com
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Adeferred
-&amp;deferral_code=8xLOxBtZp8
+&amp;deferral_code=AHqLTuZEcmNEj5X9F72rfwgfE1kcGf0lA8Abf4gFTTo
 &amp;client_id=https%3A%2F%2Fclient.example.org%2Fmetadata.json
 &amp;client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3A
 client-assertion-type%3Ajwt-bearer
 &amp;client_assertion=eyJhbGciOiJFUzI1NiIsImtpZCI6ImNsaWVudC0xIn0...
-</pre><a href="#section-9-3" class="pilcrow">¶</a>
+</pre><a href="#section-9-4" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
