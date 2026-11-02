@@ -141,9 +141,10 @@ Table of Contents
    4.  To renew the registration, the client delivers a later statement
        from the same issuer in a token or pushed authorization request
        under the registration or, if supported, in an [RFC7592] update
-       request.  The authorization server takes the registration's
-       metadata from the document that statement reviews, and that
-       statement becomes the governing statement (Section 6).
+       request.  If that statement is a valid replacement, the
+       authorization server takes the registration's metadata from the
+       document the statement reviews, and the statement becomes the
+       governing statement (Section 6).
 
    5.  If the governing statement ceases to be current without a
        replacement, the registration ceases to be valid.  The

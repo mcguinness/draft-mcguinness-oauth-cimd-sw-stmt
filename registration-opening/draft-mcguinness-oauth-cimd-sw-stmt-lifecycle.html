@@ -7,7 +7,7 @@
 <title>Client ID Metadata Document Software Statement Lifecycle</title>
 <meta content="Karl McGuinness" name="author">
 <meta content="
-       A companion specification defines a software statement by which a trusted issuer records its review of the exact octets of a Client ID Metadata Document (CIMD). That specification ends no grant at a statement's expiry, keeps an older unexpired statement admissible after a newer one is issued, and evaluates no statement on refresh. This specification lets an issuer withdraw a statement, and an authorization server that learns of the withdrawal keeps a refusal record. An  iat  floor supersedes an issuer's earlier statements about the same software once a server accepts a later one. Refresh is refused for a grant whose statement is withdrawn or, by recommendation, expired, unless a later statement replaces it. A profile of Token Status List is the withdrawal mechanism defined here, and an optional Shared Signals event prompts servers to check status promptly. 
+       This specification defines how a software statement for a Client ID Metadata Document (CIMD), as defined in a companion specification, is withdrawn, superseded, and replaced after an authorization server has admitted or registered a client on it. That specification evaluates a statement when a grant is opened, not when it is refreshed. Under this specification, an issuer can withdraw a statement before it expires. Once an authorization server accepts a later statement, the issuer's earlier statements about the same software are superseded there for new grants and registrations, within the applicable tenant. When a grant is refreshed, the authorization server requires a later statement in place of one that has been withdrawn, and this specification recommends the same for one that has expired. A profile of Token Status List provides withdrawal, and an optional Shared Signals Framework event prompts authorization servers to check a statement's status. 
     " name="description">
 <meta content="xml2rfc 3.34.1" name="generator">
 <meta content="OAuth" name="keyword">
@@ -1083,7 +1083,7 @@ svg {
 <h1 id="title">Client ID Metadata Document Software Statement Lifecycle</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
-<p id="section-abstract-1">A companion specification defines a software statement by which a trusted issuer records its review of the exact octets of a Client ID Metadata Document (CIMD). That specification ends no grant at a statement's expiry, keeps an older unexpired statement admissible after a newer one is issued, and evaluates no statement on refresh. This specification lets an issuer withdraw a statement, and an authorization server that learns of the withdrawal keeps a refusal record. An <code>iat</code> floor supersedes an issuer's earlier statements about the same software once a server accepts a later one. Refresh is refused for a grant whose statement is withdrawn or, by recommendation, expired, unless a later statement replaces it. A profile of Token Status List is the withdrawal mechanism defined here, and an optional Shared Signals event prompts servers to check status promptly.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+<p id="section-abstract-1">This specification defines how a software statement for a Client ID Metadata Document (CIMD), as defined in a companion specification, is withdrawn, superseded, and replaced after an authorization server has admitted or registered a client on it. That specification evaluates a statement when a grant is opened, not when it is refreshed. Under this specification, an issuer can withdraw a statement before it expires. Once an authorization server accepts a later statement, the issuer's earlier statements about the same software are superseded there for new grants and registrations, within the applicable tenant. When a grant is refreshed, the authorization server requires a later statement in place of one that has been withdrawn, and this specification recommends the same for one that has expired. A profile of Token Status List provides withdrawal, and an optional Shared Signals Framework event prompts authorization servers to check a statement's status.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <div id="status-of-memo">
 <section id="section-boilerplate.1">
@@ -1202,7 +1202,10 @@ svg {
             <p id="section-toc.1-1.10.1"><a href="#section-10" class="auto internal xref">10</a>. <a href="#name-implementation-consideratio" class="internal xref">Implementation Considerations</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.1">
-                <p id="section-toc.1-1.10.2.1.1"><a href="#section-10.1" class="auto internal xref">10.1</a>.  <a href="#name-resolution-in-response-to-e" class="internal xref">Resolution in Response to Events</a></p>
+                <p id="section-toc.1-1.10.2.1.1"><a href="#section-10.1" class="auto internal xref">10.1</a>.  <a href="#name-server-state" class="internal xref">Server State</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.2">
+                <p id="section-toc.1-1.10.2.2.1"><a href="#section-10.2" class="auto internal xref">10.2</a>.  <a href="#name-resolution-in-response-to-e" class="internal xref">Resolution in Response to Events</a></p>
 </li>
             </ul>
 </li>
@@ -1274,17 +1277,35 @@ svg {
       <h2 id="name-introduction">
 <a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
       </h2>
-<p id="section-1-1"><span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> defines a software statement by which a configured issuer records its review of the exact octets of a Client ID Metadata Document (CIMD) <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>, and how an authorization server admits a client and binds a grant on that review. It leaves out what follows admission: expiry ends no grant already opened, an issuer cannot withdraw a statement before it expires, an older unexpired statement remains admissible after a newer one is issued, and refresh evaluates no statement.<a href="#section-1-1" class="pilcrow">¶</a></p>
-<p id="section-1-2">This specification defines withdrawal of a statement and the refusal records that follow from it (<a href="#withdrawal" class="auto internal xref">Section 3</a>), supersession of earlier statements through an <code>iat</code> floor (<a href="#supersession" class="auto internal xref">Section 4</a>), and refresh rules (<a href="#refresh-lifecycle" class="auto internal xref">Section 5</a>) under which a grant whose recorded statement is withdrawn, or by recommendation expired, continues only if a later statement replaces it. It profiles Token Status List <span>[<a href="#STATUSLIST" class="cite xref">STATUSLIST</a>]</span> as its withdrawal mechanism (<a href="#token-status-list" class="auto internal xref">Section 6</a>) and defines an optional Shared Signals Framework <span>[<a href="#SSF" class="cite xref">SSF</a>]</span> event that prompts a server to check status (<a href="#shared-signals" class="auto internal xref">Section 7</a>).<a href="#section-1-2" class="pilcrow">¶</a></p>
-<p id="section-1-3">This specification extends <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, which does not depend on it, and also applies to registrations under <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>. It defines no new endpoint.<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-1"><span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> defines a software statement in which a configured issuer records its review of the exact octets of a Client ID Metadata Document (CIMD) <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>. An authorization server checks the statement when a client opens a grant and binds the grant to the reviewed document. On refresh, it verifies the grant's key but evaluates no statement (Section 5.7.1 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">A review can change after a grant is opened. An issuer can find a defect in reviewed software, or review a changed document and approve less than before. Under <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> alone, an issuer cannot withdraw a statement before it expires, an earlier unexpired statement remains acceptable after a later one is issued, and a grant opened on a statement continues on refresh after that statement expires.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">This specification defines withdrawal of a statement and the refusal records that follow from it (<a href="#withdrawal" class="auto internal xref">Section 3</a>), supersession of earlier statements through an <code>iat</code> floor (<a href="#supersession" class="auto internal xref">Section 4</a>), and refresh rules (<a href="#refresh-lifecycle" class="auto internal xref">Section 5</a>) under which a grant whose recorded statement has been withdrawn, or has expired where the authorization server requires a current statement, continues only if a later statement replaces it. It profiles Token Status List <span>[<a href="#STATUSLIST" class="cite xref">STATUSLIST</a>]</span> as its withdrawal mechanism (<a href="#token-status-list" class="auto internal xref">Section 6</a>) and defines an optional Shared Signals Framework <span>[<a href="#SSF" class="cite xref">SSF</a>]</span> event that prompts a server to check status (<a href="#shared-signals" class="auto internal xref">Section 7</a>).<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-4">This specification extends <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, which does not depend on it, and also applies to registrations under <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>. It defines no new endpoint.<a href="#section-1-4" class="pilcrow">¶</a></p>
 <div id="overview">
 <section id="section-1.1">
         <h3 id="name-protocol-overview">
 <a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-protocol-overview" class="section-name selfRef">Protocol Overview</a>
         </h3>
-<p id="section-1.1-1">An issuer withdraws a statement through a withdrawal mechanism, and <a href="#withdrawal" class="auto internal xref">Section 3</a> recommends that it withdraw an earlier statement when it issues a later, narrower one. Under the profile of Token Status List in <a href="#token-status-list" class="auto internal xref">Section 6</a>, the issuer withdraws a statement by setting its status, and a trusting authorization server learns of the withdrawal when it next resolves the list. <a href="#shared-signals" class="auto internal xref">Section 7</a> defines an optional event that an issuer can send to prompt the trusting authorization servers that have configured it to resolve a changed status promptly. The event is not itself a withdrawal mechanism. Publishing status and sending events are optional for an issuer, and supersession and refresh replacement work without them.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
-<p id="section-1.1-2">A trusting authorization server that implements this specification applies all of <a href="#withdrawal" class="auto internal xref">Section 3</a> through <a href="#refresh-lifecycle" class="auto internal xref">Section 5</a> and <a href="#lifecycle-errors" class="auto internal xref">Section 8</a>, whatever withdrawal mechanism it uses, if any. A client can offer a later statement on refresh (<a href="#refresh-replacement" class="auto internal xref">Section 5.2</a>).<a href="#section-1.1-2" class="pilcrow">¶</a></p>
-<p id="section-1.1-3">The rules of this specification act at two points: when a statement is accepted to open something new, such as an admission, a registration, or a refresh replacement, and when a grant or registration it governs continues. The <code>iat</code> floor (<a href="#supersession" class="auto internal xref">Section 4</a>) limits only the first. A refusal record (<a href="#withdrawal" class="auto internal xref">Section 3</a>), and expiry where the server requires a current statement (<a href="#currency" class="auto internal xref">Section 5.1</a>), also limit the second. <a href="#tab-standing" class="auto internal xref">Table 1</a> shows what a statement's standing at one authorization server allows. Each row describes one condition on its own. A statement can meet more than one, such as being both superseded and covered by a refusal record, and then the limits of every row it meets apply.<a href="#section-1.1-3" class="pilcrow">¶</a></p>
+<p id="section-1.1-1">The following non-normative sequence summarizes a statement's lifecycle at one authorization server:<a href="#section-1.1-1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-1.1-2">
+<li id="section-1.1-2.1">
+            <p id="section-1.1-2.1.1">An issuer issues a statement as <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> defines, optionally with a reference to its entry in a Token Status List (<a href="#status-publication" class="auto internal xref">Section 6.2</a>).<a href="#section-1.1-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-1.1-2.2">
+            <p id="section-1.1-2.2.1">The authorization server admits a client on the statement, or registers one under <span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>, and records the statement. If the statement's <code>iat</code> is later than the server's <code>iat</code> floor for its <code>iss</code> and <code>sub</code>, kept per tenant on a multi-tenant server, the floor advances to it (<a href="#supersession" class="auto internal xref">Section 4</a>).<a href="#section-1.1-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-1.1-2.3">
+            <p id="section-1.1-2.3.1">The issuer issues a later statement about the same software, for example over a changed document. Once the authorization server accepts it, the earlier statement is superseded for new grants and registrations, and grants already opened on the earlier statement continue. An issuer that uses a withdrawal mechanism and narrows its review also withdraws the earlier statement, as <a href="#withdrawal" class="auto internal xref">Section 3</a> recommends.<a href="#section-1.1-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-1.1-2.4">
+            <p id="section-1.1-2.4.1">To withdraw a statement, the issuer changes its status (<a href="#status-publication" class="auto internal xref">Section 6.2</a>) and can send a status change event (<a href="#shared-signals" class="auto internal xref">Section 7</a>) that prompts servers to check it. The authorization server learns of the withdrawal when it next resolves the status, and keeps a refusal record for the statement (<a href="#withdrawal" class="auto internal xref">Section 3</a>).<a href="#section-1.1-2.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-1.1-2.5">
+            <p id="section-1.1-2.5.1">When the client refreshes a grant that needs a replacement, such as one whose recorded statement is covered by a refusal record or has expired where the server requires a current statement (<a href="#currency" class="auto internal xref">Section 5.1</a>), the client can offer a later statement, and a server that supports pulled statements can pull one (<a href="#refresh-replacement" class="auto internal xref">Section 5.2</a>). The grant continues under that statement if the server accepts it. Otherwise the refresh is rejected (<a href="#lifecycle-errors" class="auto internal xref">Section 8</a>).<a href="#section-1.1-2.5.1" class="pilcrow">¶</a></p>
+</li>
+        </ol>
+<p id="section-1.1-3">A trusting authorization server that implements this specification applies all of <a href="#withdrawal" class="auto internal xref">Section 3</a> through <a href="#refresh-lifecycle" class="auto internal xref">Section 5</a> and <a href="#lifecycle-errors" class="auto internal xref">Section 8</a>, whatever withdrawal mechanism it uses, if any. For an issuer, publishing status and sending events are optional, and supersession and refresh replacement work without them.<a href="#section-1.1-3" class="pilcrow">¶</a></p>
+<p id="section-1.1-4">The <code>iat</code> floor (<a href="#supersession" class="auto internal xref">Section 4</a>) limits only the acceptance of a statement to open something new, such as an admission, a registration, or a refresh replacement. A refusal record (<a href="#withdrawal" class="auto internal xref">Section 3</a>), and expiry where the server requires a current statement (<a href="#currency" class="auto internal xref">Section 5.1</a>), also limit the continuation of a grant or registration the statement governs. <a href="#tab-standing" class="auto internal xref">Table 1</a> shows what a statement's standing at one authorization server allows. Each row describes one condition on its own. A statement can meet more than one, such as being both superseded and covered by a refusal record, and then the limits of every row it meets apply.<a href="#section-1.1-4" class="pilcrow">¶</a></p>
 <span id="name-what-a-statements-standing-"></span><div id="tab-standing">
 <table class="center" id="table-1">
           <caption>
@@ -1332,25 +1353,7 @@ svg {
           </tbody>
         </table>
 </div>
-<p id="section-1.1-5">A registration (<span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>) advances the <code>iat</code> floor and follows the same pattern: a refusal record covering its governing statement ends its validity at the server holding the record, and a superseded governing statement leaves it valid until that statement expires.<a href="#section-1.1-5" class="pilcrow">¶</a></p>
-<p id="section-1.1-6">A server implementing this specification keeps the following state:<a href="#section-1.1-6" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-1.1-7.1">
-            <p id="section-1.1-7.1.1">a refusal record for each statement it has learned is withdrawn, or that its operator refused (<a href="#withdrawal" class="auto internal xref">Section 3</a>);<a href="#section-1.1-7.1.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-7.2">
-            <p id="section-1.1-7.2.1">an <code>iat</code> floor for each <code>iss</code> and <code>sub</code>, per tenant on a multi-tenant server (<a href="#supersession" class="auto internal xref">Section 4</a>);<a href="#section-1.1-7.2.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-7.3">
-            <p id="section-1.1-7.3.1">for each establishment, its recorded statement and what step 4 of <a href="#refresh-replacement" class="auto internal xref">Section 5.2</a> records with it;<a href="#section-1.1-7.3.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-7.4">
-            <p id="section-1.1-7.4.1">with Token Status List, the Status List Tokens it holds (<a href="#status-resolution" class="auto internal xref">Section 6.3</a>); and<a href="#section-1.1-7.4.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-7.5">
-            <p id="section-1.1-7.5.1">with status change events, its streams and the SET <code>jti</code> values it has applied on each (<a href="#processing" class="auto internal xref">Section 7.4</a>).<a href="#section-1.1-7.5.1" class="pilcrow">¶</a></p>
-</li>
-        </ul>
+<p id="section-1.1-6">A registration (<span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>) advances the <code>iat</code> floor and follows the same pattern: a refusal record covering its governing statement ends its validity at the server holding the record, and a superseded governing statement leaves it valid until that statement expires.<a href="#section-1.1-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1886,12 +1889,37 @@ A replacement that meets these requirements is accepted.<a href="#section-5.2-6.
 <a href="#section-10" class="section-number selfRef">10. </a><a href="#name-implementation-consideratio" class="section-name selfRef">Implementation Considerations</a>
       </h2>
 <p id="section-10-1">This section gives guidance to implementers. It adds no requirement.<a href="#section-10-1" class="pilcrow">¶</a></p>
-<div id="event-resolution">
+<div id="server-state">
 <section id="section-10.1">
-        <h3 id="name-resolution-in-response-to-e">
-<a href="#section-10.1" class="section-number selfRef">10.1. </a><a href="#name-resolution-in-response-to-e" class="section-name selfRef">Resolution in Response to Events</a>
+        <h3 id="name-server-state">
+<a href="#section-10.1" class="section-number selfRef">10.1. </a><a href="#name-server-state" class="section-name selfRef">Server State</a>
         </h3>
-<p id="section-10.1-1">A receiver can bound the rate of the retrievals that events cause by deferring a retrieval briefly and coalescing events that concern the same status list URI (<a href="#processing" class="auto internal xref">Section 7.4</a>). Its scheduled resolution continues regardless.<a href="#section-10.1-1" class="pilcrow">¶</a></p>
+<p id="section-10.1-1">A server implementing this specification keeps the following state:<a href="#section-10.1-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-10.1-2.1">
+            <p id="section-10.1-2.1.1">a refusal record for each statement it has learned is withdrawn, or that its operator refused (<a href="#withdrawal" class="auto internal xref">Section 3</a>);<a href="#section-10.1-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-10.1-2.2">
+            <p id="section-10.1-2.2.1">an <code>iat</code> floor for each <code>iss</code> and <code>sub</code>, per tenant on a multi-tenant server (<a href="#supersession" class="auto internal xref">Section 4</a>);<a href="#section-10.1-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-10.1-2.3">
+            <p id="section-10.1-2.3.1">for each establishment, its recorded statement and what step 4 of <a href="#refresh-replacement" class="auto internal xref">Section 5.2</a> records with it;<a href="#section-10.1-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-10.1-2.4">
+            <p id="section-10.1-2.4.1">with Token Status List, the Status List Tokens it holds (<a href="#status-resolution" class="auto internal xref">Section 6.3</a>); and<a href="#section-10.1-2.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-10.1-2.5">
+            <p id="section-10.1-2.5.1">with status change events, its streams and the SET <code>jti</code> values it has applied on each (<a href="#processing" class="auto internal xref">Section 7.4</a>).<a href="#section-10.1-2.5.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+</section>
+</div>
+<div id="event-resolution">
+<section id="section-10.2">
+        <h3 id="name-resolution-in-response-to-e">
+<a href="#section-10.2" class="section-number selfRef">10.2. </a><a href="#name-resolution-in-response-to-e" class="section-name selfRef">Resolution in Response to Events</a>
+        </h3>
+<p id="section-10.2-1">A receiver can bound the rate of the retrievals that events cause by deferring a retrieval briefly and coalescing events that concern the same status list URI (<a href="#processing" class="auto internal xref">Section 7.4</a>). Its scheduled resolution continues regardless.<a href="#section-10.2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1961,7 +1989,7 @@ A replacement that meets these requirements is accepted.<a href="#section-5.2-6.
 <a href="#section-12.3" class="section-number selfRef">12.3. </a><a href="#name-forged-and-replayed-events" class="section-name selfRef">Forged and Replayed Events</a>
         </h3>
 <p id="section-12.3-1">An event names no status, so a forged, replayed, delayed, or reordered event cannot change whether any statement is acceptable. Its only effect is a resolution the receiver would otherwise have performed on its own schedule.<a href="#section-12.3-1" class="pilcrow">¶</a></p>
-<p id="section-12.3-2">The remaining exposure is resource cost: an attacker holding the issuer's SET signing key, or a misbehaving transmitter, can trigger resolutions (<a href="#event-resolution" class="auto internal xref">Section 10.1</a>) and nothing more, because the key set that verifies SETs shares no location or key with the statement key set or the Status List key set (<a href="#token-status-list" class="auto internal xref">Section 6</a>).<a href="#section-12.3-2" class="pilcrow">¶</a></p>
+<p id="section-12.3-2">The remaining exposure is resource cost: an attacker holding the issuer's SET signing key, or a misbehaving transmitter, can trigger resolutions (<a href="#event-resolution" class="auto internal xref">Section 10.2</a>) and nothing more, because the key set that verifies SETs shares no location or key with the statement key set or the Status List key set (<a href="#token-status-list" class="auto internal xref">Section 6</a>).<a href="#section-12.3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="event-suppression">

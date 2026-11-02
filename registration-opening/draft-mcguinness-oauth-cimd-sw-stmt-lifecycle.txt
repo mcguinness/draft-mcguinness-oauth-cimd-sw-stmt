@@ -13,20 +13,21 @@ Expires: 6 May 2027
 
 Abstract
 
-   A companion specification defines a software statement by which a
-   trusted issuer records its review of the exact octets of a Client ID
-   Metadata Document (CIMD).  That specification ends no grant at a
-   statement's expiry, keeps an older unexpired statement admissible
-   after a newer one is issued, and evaluates no statement on refresh.
-   This specification lets an issuer withdraw a statement, and an
-   authorization server that learns of the withdrawal keeps a refusal
-   record.  An iat floor supersedes an issuer's earlier statements about
-   the same software once a server accepts a later one.  Refresh is
-   refused for a grant whose statement is withdrawn or, by
-   recommendation, expired, unless a later statement replaces it.  A
-   profile of Token Status List is the withdrawal mechanism defined
-   here, and an optional Shared Signals event prompts servers to check
-   status promptly.
+   This specification defines how a software statement for a Client ID
+   Metadata Document (CIMD), as defined in a companion specification, is
+   withdrawn, superseded, and replaced after an authorization server has
+   admitted or registered a client on it.  That specification evaluates
+   a statement when a grant is opened, not when it is refreshed.  Under
+   this specification, an issuer can withdraw a statement before it
+   expires.  Once an authorization server accepts a later statement, the
+   issuer's earlier statements about the same software are superseded
+   there for new grants and registrations, within the applicable tenant.
+   When a grant is refreshed, the authorization server requires a later
+   statement in place of one that has been withdrawn, and this
+   specification recommends the same for one that has expired.  A
+   profile of Token Status List provides withdrawal, and an optional
+   Shared Signals Framework event prompts authorization servers to check
+   a statement's status.
 
 Status of This Memo
 
@@ -81,7 +82,8 @@ Table of Contents
    8.  Error Responses
    9.  Authorization Server Metadata
    10. Implementation Considerations
-     10.1.  Resolution in Response to Events
+     10.1.  Server State
+     10.2.  Resolution in Response to Events
    11. Deployment Considerations
      11.1.  Withdrawal Practice
      11.2.  Resolution Schedule and Lifetimes
@@ -102,23 +104,29 @@ Table of Contents
 
 1.  Introduction
 
-   [STATEMENT] defines a software statement by which a configured issuer
+   [STATEMENT] defines a software statement in which a configured issuer
    records its review of the exact octets of a Client ID Metadata
-   Document (CIMD) [CIMD], and how an authorization server admits a
-   client and binds a grant on that review.  It leaves out what follows
-   admission: expiry ends no grant already opened, an issuer cannot
-   withdraw a statement before it expires, an older unexpired statement
-   remains admissible after a newer one is issued, and refresh evaluates
-   no statement.
+   Document (CIMD) [CIMD].  An authorization server checks the statement
+   when a client opens a grant and binds the grant to the reviewed
+   document.  On refresh, it verifies the grant's key but evaluates no
+   statement (Section 5.7.1 of [STATEMENT]).
+
+   A review can change after a grant is opened.  An issuer can find a
+   defect in reviewed software, or review a changed document and approve
+   less than before.  Under [STATEMENT] alone, an issuer cannot withdraw
+   a statement before it expires, an earlier unexpired statement remains
+   acceptable after a later one is issued, and a grant opened on a
+   statement continues on refresh after that statement expires.
 
    This specification defines withdrawal of a statement and the refusal
    records that follow from it (Section 3), supersession of earlier
    statements through an iat floor (Section 4), and refresh rules
-   (Section 5) under which a grant whose recorded statement is
-   withdrawn, or by recommendation expired, continues only if a later
-   statement replaces it.  It profiles Token Status List [STATUSLIST] as
-   its withdrawal mechanism (Section 6) and defines an optional Shared
-   Signals Framework [SSF] event that prompts a server to check status
+   (Section 5) under which a grant whose recorded statement has been
+   withdrawn, or has expired where the authorization server requires a
+   current statement, continues only if a later statement replaces it.
+   It profiles Token Status List [STATUSLIST] as its withdrawal
+   mechanism (Section 6) and defines an optional Shared Signals
+   Framework [SSF] event that prompts a server to check status
    (Section 7).
 
    This specification extends [STATEMENT], which does not depend on it,
@@ -127,34 +135,57 @@ Table of Contents
 
 1.1.  Protocol Overview
 
-   An issuer withdraws a statement through a withdrawal mechanism, and
-   Section 3 recommends that it withdraw an earlier statement when it
-   issues a later, narrower one.  Under the profile of Token Status List
-   in Section 6, the issuer withdraws a statement by setting its status,
-   and a trusting authorization server learns of the withdrawal when it
-   next resolves the list.  Section 7 defines an optional event that an
-   issuer can send to prompt the trusting authorization servers that
-   have configured it to resolve a changed status promptly.  The event
-   is not itself a withdrawal mechanism.  Publishing status and sending
-   events are optional for an issuer, and supersession and refresh
-   replacement work without them.
+   The following non-normative sequence summarizes a statement's
+   lifecycle at one authorization server:
+
+   1.  An issuer issues a statement as [STATEMENT] defines, optionally
+       with a reference to its entry in a Token Status List
+       (Section 6.2).
+
+   2.  The authorization server admits a client on the statement, or
+       registers one under [REGISTRATION], and records the statement.
+       If the statement's iat is later than the server's iat floor for
+       its iss and sub, kept per tenant on a multi-tenant server, the
+       floor advances to it (Section 4).
+
+   3.  The issuer issues a later statement about the same software, for
+       example over a changed document.  Once the authorization server
+       accepts it, the earlier statement is superseded for new grants
+       and registrations, and grants already opened on the earlier
+       statement continue.  An issuer that uses a withdrawal mechanism
+       and narrows its review also withdraws the earlier statement, as
+       Section 3 recommends.
+
+   4.  To withdraw a statement, the issuer changes its status
+       (Section 6.2) and can send a status change event (Section 7) that
+       prompts servers to check it.  The authorization server learns of
+       the withdrawal when it next resolves the status, and keeps a
+       refusal record for the statement (Section 3).
+
+   5.  When the client refreshes a grant that needs a replacement, such
+       as one whose recorded statement is covered by a refusal record or
+       has expired where the server requires a current statement
+       (Section 5.1), the client can offer a later statement, and a
+       server that supports pulled statements can pull one
+       (Section 5.2).  The grant continues under that statement if the
+       server accepts it.  Otherwise the refresh is rejected
+       (Section 8).
 
    A trusting authorization server that implements this specification
    applies all of Section 3 through Section 5 and Section 8, whatever
-   withdrawal mechanism it uses, if any.  A client can offer a later
-   statement on refresh (Section 5.2).
+   withdrawal mechanism it uses, if any.  For an issuer, publishing
+   status and sending events are optional, and supersession and refresh
+   replacement work without them.
 
-   The rules of this specification act at two points: when a statement
-   is accepted to open something new, such as an admission, a
-   registration, or a refresh replacement, and when a grant or
-   registration it governs continues.  The iat floor (Section 4) limits
-   only the first.  A refusal record (Section 3), and expiry where the
-   server requires a current statement (Section 5.1), also limit the
-   second.  Table 1 shows what a statement's standing at one
-   authorization server allows.  Each row describes one condition on its
-   own.  A statement can meet more than one, such as being both
-   superseded and covered by a refusal record, and then the limits of
-   every row it meets apply.
+   The iat floor (Section 4) limits only the acceptance of a statement
+   to open something new, such as an admission, a registration, or a
+   refresh replacement.  A refusal record (Section 3), and expiry where
+   the server requires a current statement (Section 5.1), also limit the
+   continuation of a grant or registration the statement governs.
+   Table 1 shows what a statement's standing at one authorization server
+   allows.  Each row describes one condition on its own.  A statement
+   can meet more than one, such as being both superseded and covered by
+   a refusal record, and then the limits of every row it meets apply.
 
    +==========+==============+============+=============+=============+
    |Standing  | New          | Pulled     | Refresh of  | Use as a    |
@@ -188,23 +219,6 @@ Table of Contents
    the same pattern: a refusal record covering its governing statement
    ends its validity at the server holding the record, and a superseded
    governing statement leaves it valid until that statement expires.
-
-   A server implementing this specification keeps the following state:
-
-   *  a refusal record for each statement it has learned is withdrawn,
-      or that its operator refused (Section 3);
-
-   *  an iat floor for each iss and sub, per tenant on a multi-tenant
-      server (Section 4);
-
-   *  for each establishment, its recorded statement and what step 4 of
-      Section 5.2 records with it;
-
-   *  with Token Status List, the Status List Tokens it holds
-      (Section 6.3); and
-
-   *  with status change events, its streams and the SET jti values it
-      has applied on each (Section 7.4).
 
 2.  Conventions and Definitions
 
@@ -888,7 +902,26 @@ Table of Contents
 
    This section gives guidance to implementers.  It adds no requirement.
 
-10.1.  Resolution in Response to Events
+10.1.  Server State
+
+   A server implementing this specification keeps the following state:
+
+   *  a refusal record for each statement it has learned is withdrawn,
+      or that its operator refused (Section 3);
+
+   *  an iat floor for each iss and sub, per tenant on a multi-tenant
+      server (Section 4);
+
+   *  for each establishment, its recorded statement and what step 4 of
+      Section 5.2 records with it;
+
+   *  with Token Status List, the Status List Tokens it holds
+      (Section 6.3); and
+
+   *  with status change events, its streams and the SET jti values it
+      has applied on each (Section 7.4).
+
+10.2.  Resolution in Response to Events
 
    A receiver can bound the rate of the retrievals that events cause by
    deferring a retrieval briefly and coalescing events that concern the
@@ -978,7 +1011,7 @@ Table of Contents
 
    The remaining exposure is resource cost: an attacker holding the
    issuer's SET signing key, or a misbehaving transmitter, can trigger
-   resolutions (Section 10.1) and nothing more, because the key set that
+   resolutions (Section 10.2) and nothing more, because the key set that
    verifies SETs shares no location or key with the statement key set or
    the Status List key set (Section 6).
 
