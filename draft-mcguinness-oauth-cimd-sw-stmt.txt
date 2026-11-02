@@ -212,9 +212,9 @@ Table of Contents
        (Section 5.6).  A request whose presenter cannot be bound is
        rejected, except in the cases Section 5.6.3 defines, such as a
        document with a redirection URI another application on the same
-       device could claim.  A review-only statement admits nothing: the
-       request proceeds as one presenting no statement, and no
-       establishment is created.
+       device could claim.  A review-only statement admits nothing on
+       the strength of the review: the request proceeds as one
+       presenting no statement, and no establishment is created.
 
    5.  When the binding succeeds, the request proceeds under the
        reviewed document's metadata, without a registration.  The
@@ -268,7 +268,10 @@ Table of Contents
       in configured client identifier namespaces (Section 4).
 
    Current Statement:  A statement whose effective expiry has not passed
-      and that no extension the server implements has ended.
+      and that no extension the server implements has ended.  A current
+      statement need not be the most recently issued one: an earlier
+      statement for the same software remains current after a later one
+      is issued (Section 13.7).
 
    Review-Only:  Describes a presentation, or a pulled statement, that
       the authorization server evaluates but whose statement counts for
@@ -324,8 +327,9 @@ Table of Contents
    statement_uses:  OPTIONAL.  A JSON array identifying the permitted
       uses of the statement: registration ([REGISTRATION]) and
       presentation (Section 5).  If the claim is absent, only
-      presentation is permitted.  A pulled statement (Section 5.5) is a
-      presentation use.
+      presentation is permitted.  A server ignores a value it does not
+      recognize, and an empty array permits no use.  A pulled statement
+      (Section 5.5) is a presentation use.
 
    iat:  REQUIRED.  A NumericDate value, which MUST be an integer,
       giving the time the statement was issued.  An issuer MUST ensure
@@ -333,7 +337,8 @@ Table of Contents
       sub increase strictly, which the selection of a pulled statement
       (Section 5.5.1) and extensions rely on.
 
-   exp:  REQUIRED.  A NumericDate value giving the expiration time.
+   exp:  REQUIRED.  A NumericDate value, which MUST be an integer,
+      giving the expiration time.
 
    jti:  REQUIRED.  A unique identifier for the statement within the
       issuer's namespace.
@@ -404,8 +409,12 @@ Table of Contents
    *  The statement is not expired, and its iat is not unreasonably far
       in the future according to the server's clock-skew policy.
 
+   *  If the statement carries nbf, the current time is not before it,
+      according to the same clock-skew policy (Section 4.1.5 of
+      [RFC7519]).
+
    *  If the statement carries aud, a value in it exactly matches one of
-      the server's audience identifiers that its trust configuration
+      the server's issuer identifiers that its trust configuration
       permits the statement's issuer to name (Section 4).
 
    *  If the statement carries aud_tenant, aud carries exactly one value
@@ -439,7 +448,8 @@ Table of Contents
    tenant is the tenant that scopes what the server issues on the
    statement.  The server MUST determine it before evaluating the
    statement, by its own means or from a signed assertion it has
-   validated, and never from a value the client chooses.
+   validated, and otherwise never from a request parameter, statement
+   claim, or document member the client supplies.
 
    Rejections outside a registration endpoint use Section 6.
 
@@ -461,12 +471,19 @@ Table of Contents
    *  The client identifier namespaces the issuer can attest through
       sub.
 
-   *  The audience identifiers the issuer can name.
+   *  The authorization server issuer identifiers the issuer can name in
+      aud.
 
    *  Any tenant to which the server confines the issuer's decisions.
 
    *  The maximum statement lifetime the server honors, which sets each
       statement's effective expiry.
+
+   A client identifier namespace is an https URL with no query or
+   fragment whose path ends in /, such as https://client.example/ or
+   https://client.example/apps/. A client identifier URL falls within a
+   namespace if the namespace is a prefix of it under simple string
+   comparison (Section 6.2.1 of [RFC3986]).
 
    The issuer's statement key set is the JWK Set at the
    software_statement_jwks_uri in its authorization server metadata
@@ -814,8 +831,14 @@ Table of Contents
 
    For a confidential client's presentation that is not review-only, the
    proven key MUST appear in the jwks or at the jwks_uri of the reviewed
-   document (Section 5.2).  Methods that prove possession of a key the
-   document carries, such as private_key_jwt (Section 8.2 of [CIMD]) and
+   document (Section 5.2).  A key appears there if the document's jwks,
+   or the JWK Set at its jwks_uri, contains a key with the same JWK
+   Thumbprint ([RFC7638]), computed with SHA-256.  The comparison covers
+   key material only: the key's algorithm and intended use are checked
+   as the client authentication method requires.  The same comparison
+   applies wherever this specification asks whether a document carries a
+   key.  Methods that prove possession of a key the document carries,
+   such as private_key_jwt (Section 8.2 of [CIMD]) and
    self_signed_tls_client_auth (Section 2.2 of [RFC8705]), satisfy this
    directly.
 
@@ -1068,6 +1091,12 @@ Table of Contents
 
    statement_required:  In any other case, subject to the order of
       Section 6, the authorization server MUST return this code.
+
+   An authorization request evaluated against a statement pulled at the
+   authorization endpoint that exceeds the reviewed document's response
+   types or scope (step 6 of Section 5.1) is rejected with
+   unauthorized_client or invalid_scope, as for a presentation
+   (Section 6.2).
 
    Before redirecting with an error, the authorization server validates
    the redirect_uri against the client's CIMD, which it resolves first,
@@ -1518,8 +1547,8 @@ Table of Contents
    A multi-tenant server that derives the tenant one way to check a
    decision and another way to scope a token lets a client reach one
    tenant's resources on another tenant's decision.  Section 3.2
-   requires one tenant for both, selected by no value the client
-   chooses.
+   requires one tenant for both, which the client cannot select through
+   a request parameter, statement claim, or document member.
 
    This specification defines no tenant parameter, and a CIMD URL is the
    same client_id in every tenant, so neither a client nor an issuer can
@@ -1565,9 +1594,13 @@ Table of Contents
    (Section 6.4) travels through the user agent, so anyone who can see
    the redirection learns that this client has no established standing
    at this server.  The disclosure is accepted because a client that
-   cannot learn why it was refused cannot act.  The disclosure carries
-   no detail of the server's issuer trust configuration, which
-   Section 6.6 keeps from unauthenticated requesters.
+   cannot learn why it was refused cannot act.  Outcomes still reveal
+   some policy.  By probing with public client identifier URLs, anyone
+   can learn whether a request is admitted and, from statement_required
+   versus unauthorized_client, whether a required issuer covers a client
+   identifier in a tenant.  Section 6.6 keeps further detail of the
+   issuer trust configuration out of error_description for
+   unauthenticated requesters.
 
 14.  Privacy Considerations
 
@@ -1703,13 +1736,15 @@ Table of Contents
    Specification Document(s):  This specification, Section 6
 
    This specification also requests that IANA update the existing
-   temporarily_unavailable entry, adding the token error response to its
-   usage locations and this specification as a reference:
+   temporarily_unavailable entry, adding the token error response and
+   the pushed authorization request error response to its usage
+   locations and this specification as a reference:
 
    Error Name:  temporarily_unavailable
 
-   Error Usage Location:  token error response, in addition to the
-      locations already registered
+   Error Usage Location:  token error response, pushed authorization
+      request error response, in addition to the locations already
+      registered
 
    Related Protocol Extension:  OAuth 2.0 Authorization Framework
 
@@ -1792,6 +1827,11 @@ Table of Contents
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/rfc/rfc2119>.
 
+   [RFC3986]  Berners-Lee, T., Fielding, R., and L. Masinter, "Uniform
+              Resource Identifier (URI): Generic Syntax", STD 66,
+              RFC 3986, DOI 10.17487/RFC3986, January 2005,
+              <https://www.rfc-editor.org/rfc/rfc3986>.
+
    [RFC6234]  Eastlake 3rd, D. and T. Hansen, "US Secure Hash Algorithms
               (SHA and SHA-based HMAC and HKDF)", RFC 6234,
               DOI 10.17487/RFC6234, May 2011,
@@ -1831,6 +1871,10 @@ Table of Contents
               for Code Exchange by OAuth Public Clients", RFC 7636,
               DOI 10.17487/RFC7636, September 2015,
               <https://www.rfc-editor.org/rfc/rfc7636>.
+
+   [RFC7638]  Jones, M. and N. Sakimura, "JSON Web Key (JWK)
+              Thumbprint", RFC 7638, DOI 10.17487/RFC7638, September
+              2015, <https://www.rfc-editor.org/rfc/rfc7638>.
 
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,

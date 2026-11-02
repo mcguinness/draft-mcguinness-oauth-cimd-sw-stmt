@@ -84,9 +84,7 @@ Table of Contents
      13.2.  OAuth Parameters Registry
      13.3.  OAuth Authorization Server Metadata Registry
      13.4.  OAuth Extensions Error Registry
-   14. References
-     14.1.  Normative References
-     14.2.  Informative References
+   14. Normative References
    Author's Address
 
 1.  Introduction
@@ -230,22 +228,26 @@ Table of Contents
 
    *  MUST take every client metadata value from that document, except
       values the authorization server issues, such as client_id and
-      client_id_issued_at.
+      client_id_issued_at, and the document's software_statements_uri
+      member, which is not meaningful in a registration (Section 15.5 of
+      [STATEMENT]).
 
    *  MUST NOT take any client metadata value from the request, or from
       any [RFC7592] update request for the registration, whether or not
       the document carries the corresponding member.
 
    Client metadata in a registration or update request does not
-   contribute to the registration.  The registered client_id is assigned
-   as [RFC7591] provides, and the document's own client_id member is the
-   URL recorded as the governing statement's sub.  The authorization
-   server MUST NOT assign that URL as the registered client_id, which
-   would make a request carrying it ambiguous between the registration
-   and the CIMD client the URL identifies ([CIMD]).  A member the
-   document omits, other than token_endpoint_auth_method (rejected
-   below), takes its [RFC7591] default.  The registration's metadata
-   changes only when a replacement is applied (Section 6).
+   contribute to the registration.  The registration's
+   software_statement is its governing statement (Section 6).  The
+   registered client_id is assigned as [RFC7591] provides, and the
+   document's own client_id member is the URL recorded as the governing
+   statement's sub.  The authorization server MUST NOT assign that URL
+   as the registered client_id, which would make a request carrying it
+   ambiguous between the registration and the CIMD client the URL
+   identifies ([CIMD]).  A member the document omits, other than
+   token_endpoint_auth_method (rejected below), takes its [RFC7591]
+   default.  The registration's metadata changes only when a replacement
+   is applied (Section 6).
 
    The authorization server MUST reject the registration, or a
    replacement (Section 6), if any of the following holds:
@@ -930,15 +932,14 @@ Table of Contents
 13.4.  OAuth Extensions Error Registry
 
    This specification requests that IANA update the existing
-   temporarily_unavailable entry, adding the client registration and
-   client configuration endpoint error responses to its usage locations
-   and this specification as a reference:
+   temporarily_unavailable entry, adding the registration endpoint and
+   the client configuration endpoint to its usage locations and this
+   specification as a reference:
 
    Error Name:  temporarily_unavailable
 
-   Error Usage Location:  client registration error response and client
-      configuration endpoint error response, in addition to the
-      locations already registered
+   Error Usage Location:  registration endpoint, client configuration
+      endpoint, in addition to the locations already registered
 
    Related Protocol Extension:  OAuth 2.0 Authorization Framework
 
@@ -946,9 +947,7 @@ Table of Contents
 
    Specification Document(s):  [RFC6749], this specification (Section 7)
 
-14.  References
-
-14.1.  Normative References
+14.  Normative References
 
    [CIMD]     Parecki, A. and E. Smith, "OAuth Client ID Metadata
               Document", Work in Progress, Internet-Draft, draft-ietf-
@@ -973,6 +972,11 @@ Table of Contents
               P. Hunt, "OAuth 2.0 Dynamic Client Registration Protocol",
               RFC 7591, DOI 10.17487/RFC7591, July 2015,
               <https://www.rfc-editor.org/rfc/rfc7591>.
+
+   [RFC7592]  Richer, J., Ed., Jones, M., Bradley, J., and M. Machulak,
+              "OAuth 2.0 Dynamic Client Registration Management
+              Protocol", RFC 7592, DOI 10.17487/RFC7592, July 2015,
+              <https://www.rfc-editor.org/rfc/rfc7592>.
 
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
@@ -999,13 +1003,6 @@ Table of Contents
               mcguinness-oauth-cimd-sw-stmt-00, October 2026,
               <https://datatracker.ietf.org/doc/draft-mcguinness-oauth-
               cimd-sw-stmt>.
-
-14.2.  Informative References
-
-   [RFC7592]  Richer, J., Ed., Jones, M., Bradley, J., and M. Machulak,
-              "OAuth 2.0 Dynamic Client Registration Management
-              Protocol", RFC 7592, DOI 10.17487/RFC7592, July 2015,
-              <https://www.rfc-editor.org/rfc/rfc7592>.
 
 Author's Address
 
