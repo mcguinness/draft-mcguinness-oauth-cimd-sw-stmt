@@ -273,6 +273,8 @@ If the server bounds establishments (Section 11.3 of {{STATEMENT}}), a count per
 
 This section defines the withdrawal mechanism ({{withdrawal}}) of this specification, a profile of Token Status List {{STATUSLIST}} through which an issuer publishes the authoritative status of its statements.
 
+Every retrieval this specification causes, of a status list, of transmitter configuration metadata ({{shared-signals}}), or of a key set either names, has the server-side request forgery protections that Section 5.3 of {{STATEMENT}} requires for the retrievals that specification causes.
+
 ## Issuer Key Sets {#key-sets}
 
 An issuer's Status List key set is the JWK Set at the `jwks_uri` of its authorization server metadata {{RFC8414}}, discovered from the configured `iss`. For an issuer that is not an authorization server (Section 4 of {{STATEMENT}}), it is the JWK Set at a Status List key set URL in the trust configuration. The `https` and certificate requirements of Section 4 of {{STATEMENT}} for a statement key set URL apply to that URL. An issuer MUST serve its statement key set, its Status List key set, and the key set at the `jwks_uri` of any transmitter configuration metadata it publishes ({{relationship}}) at three different locations, with no key in more than one of them.
