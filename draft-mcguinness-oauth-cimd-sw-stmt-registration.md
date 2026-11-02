@@ -128,7 +128,7 @@ If the statement's decision is confined to one of the authorization server's ten
 | No restriction, public client | Confined to a tenant | Not a valid replacement |
 | No restriction | Not confined to a tenant | No restriction |
 
-The tenant rules of steps 1 and 4 of {{registration-requests}} also apply to any other request under the registration, including {{RFC7592}} read and delete requests.
+The tenant rules of steps 1 and 4 of {{registration-requests}} also apply to any other request under the registration, including {{RFC7592}} read and delete requests. To an {{RFC7592}} read, update, or delete request that these rules treat as from a client it has not registered, the authorization server MUST respond with HTTP 403 Forbidden (Sections 2.1 through 2.3 of {{RFC7592}}) and MUST NOT revoke the registration access token, since the registration remains valid where these rules do not apply.
 
 ## Public Clients {#public-client-registration}
 

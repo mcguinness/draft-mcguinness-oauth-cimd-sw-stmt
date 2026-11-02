@@ -77,7 +77,7 @@ informative:
 
 --- abstract
 
-A Client ID Metadata Document (CIMD) carries a client's own claims, which can change at any time. This specification defines a software statement in which a trusted party records its review of the exact octets of such a document, and how an authorization server enforces that review when it admits the client at request time, without a registration. The client presents the statement in a token or pushed authorization request, or publishes it where the reviewed document points. Possession of the statement alone does not complete a grant: the presenter is also bound to the reviewed document. Because the document remains the metadata, one review is portable across the authorization servers that trust its issuer. A companion specification covers RFC 7591 registration. Withdrawal, supersession, and keeping grants in step with later reviews are left to extensions.
+A Client ID Metadata Document (CIMD) carries a client's own claims, which can change at any time. This specification defines a software statement in which a trusted party records its review of the exact octets of such a document, and how an authorization server enforces that review when it admits the client at request time, without a registration. The client presents the statement in a token or pushed authorization request, or publishes it where the reviewed document points. Possession of the statement alone does not complete a grant: the presenter is also bound to the reviewed document, though for a public client not against a party that controls the user agent. Because the document remains the metadata, one review is portable across the authorization servers that trust its issuer. A companion specification covers RFC 7591 registration. Withdrawal, supersession, and keeping grants in step with later reviews are left to extensions.
 
 --- middle
 
@@ -301,7 +301,7 @@ A client can publish its statements at a URL its document names instead of prese
 This specification defines the following client metadata member:
 
 `software_statements_uri`:
-: OPTIONAL. URL, in a CIMD, at which the client publishes software statements about itself. The member has no meaning in a registration request. The URL MUST use the `https` scheme. A request to it returns a JSON object whose `software_statements` member is an array of statements ({{profiles}}), each a string in JWS compact serialization. The metadata digest covers this member ({{metadata-digest}}).
+: OPTIONAL. URL, in a CIMD, at which the client publishes software statements about itself. The member has no meaning in a registration request. The URL MUST use the `https` scheme. A request to it returns, with a JSON media type such as `application/json`, a JSON object whose `software_statements` member is an array of statements ({{profiles}}), each a string in JWS compact serialization. The metadata digest covers this member ({{metadata-digest}}).
 
 An authorization server advertises support through `software_statement_pull_supported` ({{authorization-server-metadata}}).
 
@@ -433,7 +433,7 @@ A rejection for another reason, such as an assertion grant whose assertion is in
 This specification defines the following error code:
 
 `statement_required`:
-: A current software statement is required and none was presented or pulled, or the one presented or pulled is expired and otherwise valid. An extension can assign it to further cases. The client recovers by obtaining a statement issued more recently.
+: A current software statement is required and none was presented or pulled, or the one presented or pulled is expired and otherwise valid. An extension can assign it to further cases. The client recovers by obtaining a current statement, from the required issuer if the tenant has one ({{issuer-trust}}).
 
 ## Presentation Requests {#presentation-errors}
 
@@ -560,7 +560,7 @@ An authorization server receiving an ordinary authorization request with this `c
 
 ## Statement Header and Payload
 
-The following is an example of the JOSE header and payload of a statement over the document in the previous example, served exactly as shown there and ending in a single newline:
+The following is an example of the JOSE header and payload of a statement over the document in the previous example, served exactly as shown there, with two-space indentation, LF line endings, and a single final newline, and without any indentation added for display (274 octets):
 
 ~~~ json
 {
@@ -708,7 +708,7 @@ The following table states what admission on a statement does and does not estab
 
 ## Statement Theft and Replay {#statement-validation}
 
-A copied statement admits nothing without the sender constraint ({{sender-constraint}}). Except under {{public-client-presentation}} ({{public-client-security}}), admitting only keys the reviewed document carries also prevents a downgrade to a key the issuer did not review. An extension admitting attested keys ({{extensions}}) has to address downgrade itself.
+A copied statement admits nothing without the sender constraint ({{sender-constraint}}), which for a public client does not hold against a party that controls the user agent ({{public-client-security}}). Except under {{public-client-presentation}} ({{public-client-security}}), admitting only keys the reviewed document carries also prevents a downgrade to a key the issuer did not review. An extension admitting attested keys ({{extensions}}) has to address downgrade itself.
 
 Attesting a `jwks_uri` attests the location, not its contents: a compromised key host can add keys that satisfy the proof without a digest change. If that matters, an issuer attests `jwks` inline and accepts that rotation changes the digest. A server reusing a cached key set ({{retrieval}}) also accepts that a just-removed key can briefly continue to verify.
 
