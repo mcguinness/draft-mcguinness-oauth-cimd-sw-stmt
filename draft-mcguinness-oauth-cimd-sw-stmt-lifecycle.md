@@ -517,7 +517,7 @@ The absence of events looks the same on a healthy stream and a suppressed one. P
 
 The privacy considerations of Section 14 of {{STATEMENT}}, {{STATUSLIST}}, {{SSF}}, and {{RFC8417}} apply.
 
-Because {{STATUSLIST}} aggregates many statements into one list, a retrieval tells the issuer only that some trusting authorization server is checking. Retrieving the list on its own schedule ({{status-resolution}}) keeps the server's request timing from disclosing the client population it serves. A retrieval that an event prompts shows the issuer that the receiver holds a statement or a cached status for the event's subject.
+When a list aggregates many statements, a retrieval tells the issuer only that some trusting authorization server is checking, and retrieving the list on its own schedule ({{status-resolution}}) keeps the server's request timing from disclosing the client population it serves. An issuer that gives a statement its own list, or a list few statements share, learns from each retrieval which server checks that software and when, so an issuer ought to place many statements in each list. A retrieval that an event prompts shows the issuer that the receiver holds a statement or a cached status for the event's subject.
 
 Subject identifiers in these events name reviewed software and, in aggregate, describe an organization's approved software estate. For this reason, a stream is scoped as {{configuration}} provides. A receiver ought to treat event logs as sensitive at rest, as Section 11.4 of {{STATEMENT}} treats statements. A log of events is a record about client identifiers that can outlive the issuer's own published status, so a receiver ought to bound its retention.
 
