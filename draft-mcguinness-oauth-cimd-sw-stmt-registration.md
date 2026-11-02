@@ -64,10 +64,13 @@ This specification defines how an authorization server consumes the statement in
 
 The following non-normative sequence summarizes a statement-governed registration:
 
-1. The client registers through {{RFC7591}}, carrying a statement in the `software_statement` member.
-2. The authorization server derives the registration's metadata from the reviewed document and records the statement's identity. The registration is valid until the statement ceases to be current, at the latest its effective expiry ({{registration-validity}}).
-3. The client delivers a replacement statement in a token or pushed authorization request under the registration or, if supported, an {{RFC7592}} update request. A valid replacement replaces the registration's metadata with metadata derived from the document it reviews, and sets the registration's validity to its effective expiry.
-4. If no replacement arrives, the registration ceases to be valid and requests under it are rejected.
+1. The client sends an {{RFC7591}} registration request that carries a statement in the `software_statement` member.
+2. The authorization server validates the statement, obtains the document at the statement's `sub`, and compares its digest with the statement's `cimd_digest` claim. It registers the client under a client identifier it assigns, with metadata taken from that document, records the statement as the registration's governing statement, and returns the registration's expiry in the `registration_expires_at` member ({{dcr-presentation}}, {{registration-validity}}).
+3. The registration is valid until the governing statement ceases to be current, at the latest at its effective expiry ({{registration-validity}}).
+4. To renew the registration, the client delivers a later statement from the same issuer in a token or pushed authorization request under the registration or, if supported, in an {{RFC7592}} update request. The authorization server takes the registration's metadata from the document that statement reviews, and that statement becomes the governing statement ({{revalidation}}).
+5. If the governing statement ceases to be current without a replacement, the registration ceases to be valid. The authorization server rejects authorization, token, and pushed authorization requests and {{RFC7592}} update requests under it, unless the request delivers a replacement that restores it ({{registration-validity}}).
+
+A public-client registration can also be renewed by a repeated registration request ({{repeated-registration}}).
 
 # Conventions and Definitions
 
