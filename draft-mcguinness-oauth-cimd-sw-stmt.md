@@ -428,7 +428,7 @@ A rejection for a reason this specification defines uses the first of the follow
 2. `temporarily_unavailable`, if a retrieval the request needs did not complete ({{retrieval}}), including a pull of statements ({{pulled-statements}}) or the retrieval of a statement key set needed to verify a pulled statement.
 3. The code that {{presentation-errors}}, {{continuation-errors}}, or {{authorization-errors}} assigns.
 
-At the token and pushed authorization request endpoints, an authorization server SHOULD respond with HTTP status code 503 to a request it rejects with the `temporarily_unavailable` error code.
+At the token and pushed authorization request endpoints, an authorization server MUST respond with HTTP status code 503 to a request it rejects with the `temporarily_unavailable` error code, as Section 6.1 of {{CIMD}} requires for a transient failure to retrieve the document.
 
 A rejection for another reason, such as an assertion grant whose assertion is invalid (Section 3.1 of {{RFC7523}}) or an expired or revoked refresh token, uses the error code its grant or endpoint assigns. An extension assigns codes to the rejections it defines.
 
