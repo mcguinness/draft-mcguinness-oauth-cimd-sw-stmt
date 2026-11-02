@@ -1993,10 +1993,10 @@ client-assertion-type%3Ajwt-bearer
 <p id="appendix-A-2">-01<a href="#appendix-A-2" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="appendix-A-3.1">
-          <p id="appendix-A-3.1.1">Updated for draft -03 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>. The registered <code>token_endpoint_auth_method</code> is a method the reviewed document permits (Section 2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>) that the server supports and its policy allows, and is not <code>none</code> when the document permits another such method. A replacement's document must permit the registered method, and the replacement does not change it (<a href="#revalidation" class="auto internal xref">Section 6</a>).<a href="#appendix-A-3.1.1" class="pilcrow">¶</a></p>
+          <p id="appendix-A-3.1.1">Aligned authentication methods with draft -03 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>. The registered <code>token_endpoint_auth_method</code> is a method the reviewed document permits, and a replacement keeps it (<a href="#revalidation" class="auto internal xref">Section 6</a>).<a href="#appendix-A-3.1.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-A-3.2">
-          <p id="appendix-A-3.2.1">A document that declares no authentication method permits only <code>none</code>, so it is no longer rejected for omitting <code>token_endpoint_auth_method</code>. A document that permits no method the server supports and its policy allows is rejected with <code>invalid_client_metadata</code>.<a href="#appendix-A-3.2.1" class="pilcrow">¶</a></p>
+          <p id="appendix-A-3.2.1">A document that declares no authentication method permits only <code>none</code> and is no longer rejected.<a href="#appendix-A-3.2.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 <p id="appendix-A-4">-00<a href="#appendix-A-4" class="pilcrow">¶</a></p>

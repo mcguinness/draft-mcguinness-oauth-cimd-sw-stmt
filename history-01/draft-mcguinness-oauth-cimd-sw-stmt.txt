@@ -2014,39 +2014,22 @@ Document History
 
    -01
 
-   *  Updated for draft -03 of [CIMD].  Section citations follow its
-      renumbering, and retrieval for digest purposes sends the Accept:
-      application/json header field that its Section 6 specifies.
+   *  Updated references for draft -03 of [CIMD], including its section
+      numbers and the Accept header field it specifies.
 
-   *  Defined Permitted Method and Selected Method.  The public or
-      confidential client model now follows the authentication methods
-      the reviewed document permits, including through
-      token_endpoint_auth_methods_supported, instead of the single
-      token_endpoint_auth_method member.  A server applies the
-      confidential-client model whenever the document permits a method
-      other than none that it supports and its policy allows, and an
-      establishment records the method used.  Components of one piece of
-      software that differ in client type use separate documents
-      (Section 5.6, Section 13.4).
+   *  Defined Permitted Method and Selected Method.  The client model
+      follows the methods the reviewed document permits, and components
+      that differ in client type use separate documents (Section 5.6).
 
    *  A document that declares no authentication method permits only
-      none, as [CIMD] provides.  A presentation under such a document is
-      no longer rejected, and a statement pulled for it is no longer
-      review-only.
+      none and is no longer rejected.
 
-   *  Aligned retrieval failures with Section 6.1 of [CIMD].  A
-      rejection with temporarily_unavailable at the token and pushed
-      authorization request endpoints uses HTTP status code 503.  A
-      retrieval that does not complete is a transient failure, and a
-      final failure is a terminal one.  The server does not redirect
-      when the client's document fails validation, and a refresh whose
-      currently served document cannot be obtained or fails validation
-      is rejected with invalid_client.
+   *  Aligned retrieval failures with Section 6.1 of [CIMD], including
+      HTTP status code 503 for temporarily_unavailable and
+      invalid_client on refresh when the document cannot be used.
 
-   *  The example document uses token_endpoint_auth_methods_supported,
-      and the example statement's digest is recomputed.
-
-   *  The reference to the registration draft cites its submitted -00.
+   *  Updated the pull example for
+      token_endpoint_auth_methods_supported.
 
    -00
 

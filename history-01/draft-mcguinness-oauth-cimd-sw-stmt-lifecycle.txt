@@ -1279,16 +1279,12 @@ Document History
 
    -01
 
-   *  Updated for draft -03 of [CIMD].  A refresh replacement's document
-      must permit the establishment's Selected Method (Section 2 of
-      [STATEMENT]) instead of declaring the same
-      token_endpoint_auth_method (Section 5.2).
+   *  Aligned with draft -03 of [CIMD].  A refresh replacement's
+      document must permit the establishment's Selected Method
+      (Section 5.2).
 
-   *  A refresh for which the currently served document cannot be
-      obtained or fails validation is rejected with invalid_client, as
-      Section 6.1 of [CIMD] requires.  A retrieval that does not
-      complete still gets temporarily_unavailable (Section 5.2,
-      Section 8).
+   *  A refresh whose currently served document cannot be obtained or
+      fails validation is rejected with invalid_client (Section 8).
 
    -00
 

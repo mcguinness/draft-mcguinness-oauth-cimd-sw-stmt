@@ -1013,19 +1013,12 @@ Document History
 
    -01
 
-   *  Updated for draft -03 of [CIMD].  The registered
-      token_endpoint_auth_method is a method the reviewed document
-      permits (Section 2 of [STATEMENT]) that the server supports and
-      its policy allows, and is not none when the document permits
-      another such method.  A replacement's document must permit the
-      registered method, and the replacement does not change it
-      (Section 6).
+   *  Aligned authentication methods with draft -03 of [CIMD].  The
+      registered token_endpoint_auth_method is a method the reviewed
+      document permits, and a replacement keeps it (Section 6).
 
    *  A document that declares no authentication method permits only
-      none, so it is no longer rejected for omitting
-      token_endpoint_auth_method.  A document that permits no method the
-      server supports and its policy allows is rejected with
-      invalid_client_metadata.
+      none and is no longer rejected.
 
    -00
 

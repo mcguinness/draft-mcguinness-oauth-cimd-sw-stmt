@@ -3116,22 +3116,19 @@ client-assertion-type%3Ajwt-bearer
 <p id="appendix-B-2">-01<a href="#appendix-B-2" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="appendix-B-3.1">
-          <p id="appendix-B-3.1.1">Updated for draft -03 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>. Section citations follow its renumbering, and retrieval for digest purposes sends the <code>Accept: application/json</code> header field that its Section 6 specifies.<a href="#appendix-B-3.1.1" class="pilcrow">¶</a></p>
+          <p id="appendix-B-3.1.1">Updated references for draft -03 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>, including its section numbers and the <code>Accept</code> header field it specifies.<a href="#appendix-B-3.1.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-B-3.2">
-          <p id="appendix-B-3.2.1">Defined Permitted Method and Selected Method. The public or confidential client model now follows the authentication methods the reviewed document permits, including through <code>token_endpoint_auth_methods_supported</code>, instead of the single <code>token_endpoint_auth_method</code> member. A server applies the confidential-client model whenever the document permits a method other than <code>none</code> that it supports and its policy allows, and an establishment records the method used. Components of one piece of software that differ in client type use separate documents (<a href="#sender-constraint" class="auto internal xref">Section 5.6</a>, <a href="#public-client-security" class="auto internal xref">Section 13.4</a>).<a href="#appendix-B-3.2.1" class="pilcrow">¶</a></p>
+          <p id="appendix-B-3.2.1">Defined Permitted Method and Selected Method. The client model follows the methods the reviewed document permits, and components that differ in client type use separate documents (<a href="#sender-constraint" class="auto internal xref">Section 5.6</a>).<a href="#appendix-B-3.2.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-B-3.3">
-          <p id="appendix-B-3.3.1">A document that declares no authentication method permits only <code>none</code>, as <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> provides. A presentation under such a document is no longer rejected, and a statement pulled for it is no longer review-only.<a href="#appendix-B-3.3.1" class="pilcrow">¶</a></p>
+          <p id="appendix-B-3.3.1">A document that declares no authentication method permits only <code>none</code> and is no longer rejected.<a href="#appendix-B-3.3.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-B-3.4">
-          <p id="appendix-B-3.4.1">Aligned retrieval failures with Section 6.1 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>. A rejection with <code>temporarily_unavailable</code> at the token and pushed authorization request endpoints uses HTTP status code 503. A retrieval that does not complete is a transient failure, and a final failure is a terminal one. The server does not redirect when the client's document fails validation, and a refresh whose currently served document cannot be obtained or fails validation is rejected with <code>invalid_client</code>.<a href="#appendix-B-3.4.1" class="pilcrow">¶</a></p>
+          <p id="appendix-B-3.4.1">Aligned retrieval failures with Section 6.1 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>, including HTTP status code 503 for <code>temporarily_unavailable</code> and <code>invalid_client</code> on refresh when the document cannot be used.<a href="#appendix-B-3.4.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-B-3.5">
-          <p id="appendix-B-3.5.1">The example document uses <code>token_endpoint_auth_methods_supported</code>, and the example statement's digest is recomputed.<a href="#appendix-B-3.5.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-B-3.6">
-          <p id="appendix-B-3.6.1">The reference to the registration draft cites its submitted -00.<a href="#appendix-B-3.6.1" class="pilcrow">¶</a></p>
+          <p id="appendix-B-3.5.1">Updated the pull example for <code>token_endpoint_auth_methods_supported</code>.<a href="#appendix-B-3.5.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 <p id="appendix-B-4">-00<a href="#appendix-B-4" class="pilcrow">¶</a></p>
