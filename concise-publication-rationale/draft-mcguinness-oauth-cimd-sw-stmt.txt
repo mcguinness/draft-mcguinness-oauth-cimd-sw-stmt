@@ -149,18 +149,19 @@ Table of Contents
    digest (Section 3.1).  Independently operated authorization servers
    can enforce the same review at request time without creating
    registrations (Section 5).  Each server chooses which issuers to
-   trust and for which clients and tenants (Section 4); a portable
+   trust and for which clients and tenants (Section 4).  A portable
    review does not imply universal acceptance.
 
-   For example, an enterprise can approve a hosted client for use at
-   services run by other operators.  Allowlisting its CIMD URL
-   identifies the client but does not record which metadata was
-   reviewed; the document can change while the URL stays the same.  The
-   statement carries that review across operators.  This also serves
-   server-hosted software, such as an agent using client_credentials.
-   Admission grants no access to resources: the authorization server's
-   policy, and the resource owner's authorization where a grant involves
-   one, still govern what it issues.
+   For example, a marketplace or registry can vouch for software at
+   authorization servers it does not operate, and an enterprise can
+   approve a hosted client for use at services run by other operators.
+   Allowlisting its CIMD URL identifies the client but does not record
+   which metadata was reviewed.  The document can change while the URL
+   stays the same.  The statement carries that review across operators.
+   This also serves server-hosted software, such as an agent using
+   client_credentials.  Admission grants no access to resources: the
+   authorization server's policy, and the resource owner's authorization
+   where a grant involves one, still govern what it issues.
 
    A statement records approval of a client configuration, not of the
    software's code or behavior (Section 13.1).  Possession of a

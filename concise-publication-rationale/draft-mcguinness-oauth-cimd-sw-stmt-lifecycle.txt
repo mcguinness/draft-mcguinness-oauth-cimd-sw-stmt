@@ -121,13 +121,13 @@ Table of Contents
    grants.  This specification defines withdrawal and refusal records
    (Section 3), supersession through an iat floor (Section 4), and
    replacement on refresh (Section 5).  It profiles Token Status List
-   for withdrawal (Section 6) and an optional Shared Signals Framework
-   [SSF] event to prompt a status check (Section 7).
+   for withdrawal (Section 6) and defines an optional Shared Signals
+   Framework [SSF] event that prompts a status check (Section 7).
 
    This specification extends [STATEMENT], which does not depend on it,
    and also applies to registrations under [REGISTRATION].  It defines
    no new endpoint.  Enforcement timing depends on status checks,
-   caching, and outage policy (Section 11.1, Section 11.2); withdrawal
+   caching, and outage policy (Section 11.1, Section 11.2).  Withdrawal
    revokes no issued access token (Section 12.1).
 
 1.1.  Protocol Overview

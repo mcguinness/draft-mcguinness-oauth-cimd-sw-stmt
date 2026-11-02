@@ -97,12 +97,12 @@ Table of Contents
    registrations under [RFC7592].
 
    [RFC7591] already supports software statements whose metadata takes
-   precedence over the registration request (Sections 2.3 and 3.1.1).  A
-   statement under [STATEMENT], however, carries a document digest
-   instead of metadata.  Verifying it under [RFC7591] alone would leave
-   the request's unreviewed redirection URIs and keys as the registered
-   metadata.  [RFC7591] also defines no registration expiry or renewal
-   tied to the statement.
+   precedence over the registration request (Sections 2.3 and 3.1.1 of
+   [RFC7591]).  A statement under [STATEMENT], however, carries a
+   document digest instead of metadata.  Verifying it under [RFC7591]
+   alone would leave the request's unreviewed redirection URIs and keys
+   as the registered metadata.  [RFC7591] also defines no registration
+   expiry or renewal tied to the statement.
 
    This specification defines how servers derive registrations from the
    reviewed document (Section 3), bound their validity by the statement
