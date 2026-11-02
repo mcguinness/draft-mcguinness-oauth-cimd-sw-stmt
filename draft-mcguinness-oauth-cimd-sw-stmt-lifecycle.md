@@ -96,7 +96,7 @@ This specification defines how a software statement for a Client ID Metadata Doc
 
 A review can change after admission: an issuer can find a defect or approve less than before. Under {{STATEMENT}} alone, earlier unexpired statements remain acceptable and expiry ends no grant. Short statement lifetimes therefore do not make existing grants follow later reviews.
 
-Token Status List {{STATUSLIST}} supplies status information, but does not define its consequences for client admission, registrations, or grants. This specification defines withdrawal and refusal records ({{withdrawal}}), supersession through an `iat` floor ({{supersession}}), and replacement on refresh ({{refresh-lifecycle}}). It profiles Token Status List for withdrawal ({{token-status-list}}) and an optional Shared Signals Framework {{SSF}} event to prompt a status check ({{shared-signals}}).
+Token Status List {{STATUSLIST}} supplies status information, but does not define its consequences for client admission, registrations, or grants. This specification defines withdrawal and refusal records ({{withdrawal}}), supersession through an `iat` floor ({{supersession}}), and replacement on refresh ({{refresh-lifecycle}}). It profiles Token Status List for withdrawal ({{token-status-list}}) and defines an optional Shared Signals Framework {{SSF}} event that prompts a status check ({{shared-signals}}).
 
 This specification extends {{STATEMENT}}, which does not depend on it, and also applies to registrations under {{REGISTRATION}}. It defines no new endpoint. Enforcement timing depends on status checks, caching, and outage policy ({{withdrawal-practice}}, {{schedule-practice}}). Withdrawal revokes no issued access token ({{open-grants}}).
 
