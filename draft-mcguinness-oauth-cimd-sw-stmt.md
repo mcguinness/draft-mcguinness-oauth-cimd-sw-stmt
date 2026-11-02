@@ -77,7 +77,7 @@ informative:
 
 --- abstract
 
-A Client ID Metadata Document (CIMD) carries a client's own claims, which can change at any time. This specification defines a software statement in which a trusted party records its review of the exact octets of such a document, and how an authorization server enforces that review when it admits the client at request time, without a registration. The client presents the statement in a token or pushed authorization request, or publishes it where the reviewed document points. Possession of the statement alone does not complete a grant: the presenter is also bound to the reviewed document. Because the document remains the metadata, one review is portable across the authorization servers that trust its issuer. A companion specification covers RFC 7591 registration. Withdrawal, supersession, and keeping grants in step with later reviews are left to extensions.
+A Client ID Metadata Document (CIMD) carries a client's own claims, which can change at any time. This specification defines a software statement in which a trusted party records its review of the exact octets of such a document, and how an authorization server enforces that review when it admits the client at request time, without a registration. The client presents the statement in a token or pushed authorization request, or publishes it where the reviewed document points. Possession of the statement alone does not complete a grant: the presenter is also bound to the reviewed document, though for a public client not against a party that controls the user agent. Because the document remains the metadata, one review is portable across the authorization servers that trust its issuer. A companion specification covers RFC 7591 registration. Withdrawal, supersession, and keeping grants in step with later reviews are left to extensions.
 
 --- middle
 
@@ -708,7 +708,7 @@ The following table states what admission on a statement does and does not estab
 
 ## Statement Theft and Replay {#statement-validation}
 
-A copied statement admits nothing without the sender constraint ({{sender-constraint}}). Except under {{public-client-presentation}} ({{public-client-security}}), admitting only keys the reviewed document carries also prevents a downgrade to a key the issuer did not review. An extension admitting attested keys ({{extensions}}) has to address downgrade itself.
+A copied statement admits nothing without the sender constraint ({{sender-constraint}}), which for a public client does not hold against a party that controls the user agent ({{public-client-security}}). Except under {{public-client-presentation}} ({{public-client-security}}), admitting only keys the reviewed document carries also prevents a downgrade to a key the issuer did not review. An extension admitting attested keys ({{extensions}}) has to address downgrade itself.
 
 Attesting a `jwks_uri` attests the location, not its contents: a compromised key host can add keys that satisfy the proof without a digest change. If that matters, an issuer attests `jwks` inline and accepts that rotation changes the digest. A server reusing a cached key set ({{retrieval}}) also accepts that a just-removed key can briefly continue to verify.
 
