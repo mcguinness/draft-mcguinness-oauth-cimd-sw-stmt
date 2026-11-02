@@ -462,7 +462,7 @@ grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3A
 
 # Deferred Processing {#deferred-processing}
 
-A deferring issuer MAY answer a redemption ({{software-statement-code-redemption}}) or token exchange ({{token-exchange-profile}}) with a deferred token response, which follows {{DTR}} except that the final response MUST be delivered only by polling and the statement does not inherit the deferral's DPoP binding. A client MUST NOT send `client_notification_token`, which the authorization server rejects with `invalid_request`, and the server MUST NOT deliver a callback, even to a `deferred_client_notification_endpoint` in the document.
+A deferring issuer MAY answer a redemption ({{software-statement-code-redemption}}) or token exchange ({{token-exchange-profile}}) with a deferred token response, which follows {{DTR}} except that the final response MUST be delivered only by polling. The deferral's DPoP binding constrains every polling request (Section 11.1 of {{DTR}}). That section binds an issued access token, and the software statement is not one ({{software-statement-response}}), so the statement carries no key binding. A client MUST NOT send `client_notification_token`, which the authorization server rejects with `invalid_request`, and the server MUST NOT deliver a callback, even to a `deferred_client_notification_endpoint` in the document.
 
 The following is a non-normative example of a first polling request for a deferral created by a token exchange, from a confidential client authenticating with the same `private_key_jwt` method as the exchange (line breaks for display purposes only):
 
