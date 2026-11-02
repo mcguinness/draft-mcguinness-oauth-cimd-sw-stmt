@@ -128,7 +128,7 @@ A registration ({{REGISTRATION}}) advances the `iat` floor and follows the same 
 
 {::boilerplate bcp14-tagged}
 
-This specification uses the terms transmitter, receiver, stream, and transmitter configuration metadata from {{SSF}}, Security Event Token (SET) from {{RFC8417}}, Status List Token from {{STATUSLIST}}, and the terms defined in Section 2 of {{STATEMENT}}.
+This specification uses the terms transmitter, receiver, stream, and transmitter configuration metadata from {{SSF}}, Security Event Token (SET) from {{RFC8417}}, Status List Token from {{STATUSLIST}}, Governing Statement from Section 2 of {{REGISTRATION}}, and the terms defined in Section 2 of {{STATEMENT}}.
 
 This specification defines the following terms.
 
@@ -180,7 +180,7 @@ A trusting authorization server MUST retain each `iat` floor until at least the 
 
 On a multi-tenant server, a statement whose decision is confined to a tenant (Section 3 of {{STATEMENT}}) advances that tenant's floors, and one confined to no tenant advances the server-wide floors. A statement is checked against the greater of the server-wide floor and the request tenant's floor for the use being made. A statement confined to no tenant that creates or renews a registration with no tenant restriction (Section 3.1 of {{REGISTRATION}}) is instead checked against the greatest `registration` floor of the server and of every tenant, since that registration can be used in every tenant.
 
-A repeated registration request that Section 3.3 of {{REGISTRATION}} answers with the existing registration is not a new registration. The server classifies a repeated registration request under that section before it applies the floor, so a request that resends the governing statement receives the existing registration even if that statement has since been superseded, as {{overview}} provides for a superseded governing statement.
+A repeated registration request that Section 3.3 of {{REGISTRATION}} answers with the existing registration is not a new registration. The server classifies a repeated registration request under that section before it applies the floor, so a request that resends the governing statement receives the existing registration even if that statement has since been superseded. Supersession does not end a statement's currency, so the registration stays valid (Section 4 of {{REGISTRATION}}).
 
 The floor needs one `iat` value for each `iss`, `sub`, and use and, on a multi-tenant server, each tenant to which statements are confined plus one server-wide, not the statements themselves. Every statement the floor refuses has an earlier `iat`, so its effective expiry passes within the maximum statement lifetime the server honors for the issuer, counted from the floor's value. Once that period and any clock-skew allowance have passed, the floor refuses nothing that expiry would not refuse. A server that raises the lifetime it honors for an issuer extends that period for the floors it already holds. A floor lost before then leaves the statements it superseded acceptable until they expire.
 
