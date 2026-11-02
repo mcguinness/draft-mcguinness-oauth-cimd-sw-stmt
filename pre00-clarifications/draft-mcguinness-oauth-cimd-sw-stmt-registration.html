@@ -1575,33 +1575,33 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
           </tr>
         </tbody>
       </table>
-<p id="section-6-6">An <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> update request repeats the statement a previous response returned (Section 3.2.1 of <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>; Section 2.2 of <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span>), which can be older than the governing statement. An <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> read or update response returns the governing statement as its <code>software_statement</code> member.
-The replacement <span class="bcp14">MUST</span> satisfy the following:<a href="#section-6-6" class="pilcrow">¶</a></p>
+<p id="section-6-6">An <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> update request repeats the statement a previous response returned (Section 3.2.1 of <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>; Section 2.2 of <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span>), which can be older than the governing statement. An <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> read or update response returns the governing statement as its <code>software_statement</code> member.<a href="#section-6-6" class="pilcrow">¶</a></p>
+<p id="section-6-7">The replacement <span class="bcp14">MUST</span> satisfy the following:<a href="#section-6-7" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-6-7.1">
-          <p id="section-6-7.1.1">It validates under Section 3.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>.<a href="#section-6-7.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-6-8.1">
+          <p id="section-6-8.1.1">It validates under Section 3.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>.<a href="#section-6-8.1.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-6-7.2">
-          <p id="section-6-7.2.1">The <code>iss</code> and <code>sub</code> claims equal those of the governing statement.<a href="#section-6-7.2.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="section-6-8.2">
+          <p id="section-6-8.2.1">The <code>iss</code> and <code>sub</code> claims equal those of the governing statement.<a href="#section-6-8.2.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-6-7.3">
-          <p id="section-6-7.3.1">The <code>iat</code> claim is later than that of the governing statement.<a href="#section-6-7.3.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="section-6-8.3">
+          <p id="section-6-8.3.1">The <code>iat</code> claim is later than that of the governing statement.<a href="#section-6-8.3.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-6-7.4">
-          <p id="section-6-7.4.1">Its document declares <code>token_endpoint_auth_method</code> of <code>none</code> if and only if the governing statement's document does.<a href="#section-6-7.4.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="section-6-8.4">
+          <p id="section-6-8.4.1">Its document declares <code>token_endpoint_auth_method</code> of <code>none</code> if and only if the governing statement's document does.<a href="#section-6-8.4.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-6-7.5">
-          <p id="section-6-7.5.1">For a public-client registration that carries no tenant restriction, its decision is not confined to a tenant (<a href="#tenant-restriction" class="auto internal xref">Section 3.1</a>).<a href="#section-6-7.5.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="section-6-8.5">
+          <p id="section-6-8.5.1">For a public-client registration that carries no tenant restriction, its decision is not confined to a tenant (<a href="#tenant-restriction" class="auto internal xref">Section 3.1</a>).<a href="#section-6-8.5.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-6-7.6">
-          <p id="section-6-7.6.1">Its document, from which the registration's metadata is derived, satisfies the rules of <a href="#dcr-presentation" class="auto internal xref">Section 3</a>.<a href="#section-6-7.6.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="section-6-8.6">
+          <p id="section-6-8.6.1">Its document, from which the registration's metadata is derived, satisfies the rules of <a href="#dcr-presentation" class="auto internal xref">Section 3</a>.<a href="#section-6-8.6.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
-<p id="section-6-8">Renewing on the statement alone would leave in the registration a key, redirection URI, or scope that the new review removed.<a href="#section-6-8" class="pilcrow">¶</a></p>
-<p id="section-6-9">A request whose replacement fails the rules above is rejected (<a href="#errors" class="auto internal xref">Section 7</a>) whether or not the registration has ceased to be valid. A rejected delivery leaves the governing statement unchanged.<a href="#section-6-9" class="pilcrow">¶</a></p>
-<p id="section-6-10">When a replacement satisfies these rules, the authorization server <span class="bcp14">MUST</span>, in a single atomic update, make it the governing statement and give the registration the replacement's effective expiry, the metadata derived from its document (<a href="#dcr-presentation" class="auto internal xref">Section 3</a>), and any tenant restriction it adds (<a href="#tenant-restriction" class="auto internal xref">Section 3.1</a>). Concurrent deliveries resolve to the most recently issued statement. A valid replacement restores a registration that has ceased to be valid.<a href="#section-6-10" class="pilcrow">¶</a></p>
-<p id="section-6-11">Access issued under the registration after that update, including on refresh of a grant issued before it, <span class="bcp14">MUST</span> fall within the re-derived metadata.<a href="#section-6-11" class="pilcrow">¶</a></p>
-<p id="section-6-12">If every grant a confidential-client registration permits needs an authorization request or a refresh token, and the authorization server does not support <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> update requests for the registration, the server <span class="bcp14">MUST</span> support pushed authorization requests <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span> for the registration. Otherwise such a client, if it holds no refresh token, could not restore a registration that has ceased to be valid. A public-client registration also renews through a repeated registration request (<a href="#repeated-registration" class="auto internal xref">Section 3.3</a>).<a href="#section-6-12" class="pilcrow">¶</a></p>
+<p id="section-6-9">Renewing on the statement alone would leave in the registration a key, redirection URI, or scope that the new review removed.<a href="#section-6-9" class="pilcrow">¶</a></p>
+<p id="section-6-10">A request whose replacement fails the rules above is rejected (<a href="#errors" class="auto internal xref">Section 7</a>) whether or not the registration has ceased to be valid. A rejected delivery leaves the governing statement unchanged.<a href="#section-6-10" class="pilcrow">¶</a></p>
+<p id="section-6-11">When a replacement satisfies these rules, the authorization server <span class="bcp14">MUST</span>, in a single atomic update, make it the governing statement and give the registration the replacement's effective expiry, the metadata derived from its document (<a href="#dcr-presentation" class="auto internal xref">Section 3</a>), and any tenant restriction it adds (<a href="#tenant-restriction" class="auto internal xref">Section 3.1</a>). Concurrent deliveries resolve to the most recently issued statement. A valid replacement restores a registration that has ceased to be valid.<a href="#section-6-11" class="pilcrow">¶</a></p>
+<p id="section-6-12">Access issued under the registration after that update, including on refresh of a grant issued before it, <span class="bcp14">MUST</span> fall within the re-derived metadata.<a href="#section-6-12" class="pilcrow">¶</a></p>
+<p id="section-6-13">If every grant a confidential-client registration permits needs an authorization request or a refresh token, and the authorization server does not support <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> update requests for the registration, the server <span class="bcp14">MUST</span> support pushed authorization requests <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span> for the registration. Otherwise such a client, if it holds no refresh token, could not restore a registration that has ceased to be valid. A public-client registration also renews through a repeated registration request (<a href="#repeated-registration" class="auto internal xref">Section 3.3</a>).<a href="#section-6-13" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="errors">
