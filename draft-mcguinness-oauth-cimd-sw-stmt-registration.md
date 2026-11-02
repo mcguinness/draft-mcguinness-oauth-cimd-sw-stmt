@@ -126,7 +126,7 @@ If the statement's decision is confined to one of the authorization server's ten
 
 | Registration before | Replacement's decision | After |
 | --- | --- | --- |
-| Restricted to a tenant | Confined to that tenant, or not confined | Restricted to that tenant |
+| Restricted to a tenant | Confined to that tenant, or not confined and valid in that tenant (Section 3.2 of {{STATEMENT}}) | Restricted to that tenant |
 | Restricted to a tenant | Confined to another tenant | Fails validation (Section 3.2 of {{STATEMENT}}) |
 | No restriction, confidential client | Confined to a tenant | Restricted to that tenant |
 | No restriction, public client | Confined to a tenant | Not a valid replacement |
