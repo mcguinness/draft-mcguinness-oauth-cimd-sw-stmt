@@ -92,9 +92,11 @@ This specification defines how a software statement for a Client ID Metadata Doc
 
 # Introduction
 
-{{STATEMENT}} defines a software statement by which a configured issuer records its review of the exact octets of a Client ID Metadata Document (CIMD) {{CIMD}}, and how an authorization server admits a client and binds a grant on that review. It leaves out what follows admission: expiry ends no grant already opened, an issuer cannot withdraw a statement before it expires, an older unexpired statement remains admissible after a newer one is issued, and refresh evaluates no statement.
+{{STATEMENT}} defines a software statement in which a configured issuer records its review of the exact octets of a Client ID Metadata Document (CIMD) {{CIMD}}. An authorization server checks the statement when a client opens a grant and binds the grant to the reviewed document. On refresh, it verifies the grant's key but evaluates no statement (Section 5.7.1 of {{STATEMENT}}).
 
-This specification defines withdrawal of a statement and the refusal records that follow from it ({{withdrawal}}), supersession of earlier statements through an `iat` floor ({{supersession}}), and refresh rules ({{refresh-lifecycle}}) under which a grant whose recorded statement is withdrawn, or by recommendation expired, continues only if a later statement replaces it. It profiles Token Status List {{STATUSLIST}} as its withdrawal mechanism ({{token-status-list}}) and defines an optional Shared Signals Framework {{SSF}} event that prompts a server to check status ({{shared-signals}}).
+A review can change after a grant is opened. An issuer can find a defect in reviewed software, or review a changed document and approve less than before. Under {{STATEMENT}} alone, an issuer cannot withdraw a statement before it expires, an earlier unexpired statement remains acceptable after a later one is issued, and a grant opened on a statement continues on refresh after that statement expires.
+
+This specification defines withdrawal of a statement and the refusal records that follow from it ({{withdrawal}}), supersession of earlier statements through an `iat` floor ({{supersession}}), and refresh rules ({{refresh-lifecycle}}) under which a grant whose recorded statement has been withdrawn, or has expired where the authorization server requires a current statement, continues only if a later statement replaces it. It profiles Token Status List {{STATUSLIST}} as its withdrawal mechanism ({{token-status-list}}) and defines an optional Shared Signals Framework {{SSF}} event that prompts a server to check status ({{shared-signals}}).
 
 This specification extends {{STATEMENT}}, which does not depend on it, and also applies to registrations under {{REGISTRATION}}. It defines no new endpoint.
 
