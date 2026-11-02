@@ -628,7 +628,9 @@ Table of Contents
    authorization server MUST treat as a failure rather than digesting
    what it read.  After a final failure, a document is treated as
    failing validation, a key set as carrying no acceptable key, and a
-   statements location as publishing no statement.
+   statements location as publishing no statement.  For the document, a
+   retrieval that does not complete is a transient failure and a final
+   failure is a terminal failure (Section 6.1 of [CIMD]).
 
    A trusting authorization server MAY reuse document octets it holds
    for digest comparison (Section 5.2), a key set retrieved from a
@@ -1003,8 +1005,10 @@ Table of Contents
    3.  The code that Section 6.2, Section 6.3, or Section 6.4 assigns.
 
    At the token and pushed authorization request endpoints, an
-   authorization server SHOULD respond with HTTP status code 503 to a
-   request it rejects with the temporarily_unavailable error code.
+   authorization server MUST respond with HTTP status code 503 to a
+   request it rejects with the temporarily_unavailable error code, as
+   Section 6.1 of [CIMD] requires for a transient failure to retrieve
+   the document.
 
    A rejection for another reason, such as an assertion grant whose
    assertion is invalid (Section 3.1 of [RFC7523]) or an expired or
@@ -1085,7 +1089,11 @@ Table of Contents
    Under an establishment, a refresh-token request is rejected with the
    following error codes:
 
-   invalid_grant:  A check of Section 5.7.1 fails.
+   invalid_client:  The document currently served at the establishment's
+      sub cannot be obtained or fails validation (Section 5.3), as
+      Section 6.1 of [CIMD] requires.
+
+   invalid_grant:  Any other check of Section 5.7.1 fails.
 
    unauthorized_client or invalid_scope:  The refreshed access exceeds
       the reviewed metadata or this server's policy, as for a
@@ -1118,8 +1126,9 @@ Table of Contents
    Before redirecting with an error, the authorization server validates
    the redirect_uri against the client's CIMD, which it resolves first,
    or, for a registered client, against its registered redirection URIs
-   (Section 4.1.2.1 of [RFC6749]).  If it cannot resolve a CIMD client's
-   document, it MUST NOT redirect.
+   (Section 4.1.2.1 of [RFC6749]).  If it cannot obtain a CIMD client's
+   document, or the document fails validation, it MUST NOT redirect
+   (Section 6.1 of [CIMD]).
 
 6.5.  Proof Mechanism Errors
 

@@ -534,14 +534,18 @@ Table of Contents
    does not add to it.
 
    Figure 1 shows the order of these steps, and Table 2 the error each
-   rejection returns.  Section 8 lists every code.  Two rules of
-   [STATEMENT] take precedence over the table.  At any step, a request
-   that needs a retrieval that did not complete is rejected with
+   rejection returns.  Section 8 lists every code.  Three rules take
+   precedence over the table.  At any step, a request that needs a
+   retrieval that did not complete is rejected with
    temporarily_unavailable (Section 6 of [STATEMENT]), except a
-   retrieval needed only to evaluate a statement that step 2 ignores.  A
-   proof that its mechanism does not accept is rejected with that
-   mechanism's own error, such as invalid_dpop_proof, or answered with
-   its challenge, such as use_dpop_nonce (Section 6.5 of [STATEMENT]).
+   retrieval needed only to evaluate a statement that step 2 ignores.
+   Otherwise, a request for which the document currently served at the
+   establishment's sub cannot be obtained or fails validation is
+   rejected with invalid_client (Section 6.3 of [STATEMENT]; Section 6.1
+   of [CIMD]).  A proof that its mechanism does not accept is rejected
+   with that mechanism's own error, such as invalid_dpop_proof, or
+   answered with its challenge, such as use_dpop_nonce (Section 6.5 of
+   [STATEMENT]).
 
            refresh-token request
                      |
@@ -941,8 +945,11 @@ Table of Contents
 
    A refresh-token request that Section 5.1 rejects, or whose
    replacement is rejected (Section 5.2), uses statement_required,
-   subject to the order of Section 6 of [STATEMENT].  When a replacement
-   is needed, a request that carries one but omits client_id
+   subject to the order of Section 6 of [STATEMENT].  Subject to the
+   same order, a request for which the document currently served at the
+   establishment's sub cannot be obtained or fails validation is instead
+   rejected with invalid_client (Section 6.1 of [CIMD]).  When a
+   replacement is needed, a request that carries one but omits client_id
    (Section 5.2) is rejected with invalid_request, and one whose
    replacement names a sub other than the client_id is rejected with
    statement_required.  A request whose client_id is not the client the
