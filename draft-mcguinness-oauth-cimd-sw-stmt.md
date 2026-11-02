@@ -206,7 +206,7 @@ Before accepting a statement, a trusting authorization server MUST ensure the fo
 * Every required claim of {{profiles}} is present and of the correct type.
 * The statement is not expired, and its `iat` is not unreasonably far in the future according to the server's clock-skew policy.
 * If the statement carries `nbf`, the current time is not before it, according to the same clock-skew policy (Section 4.1.5 of {{RFC7519}}).
-* If the statement carries `aud`, a value in it exactly matches one of the server's audience identifiers that its trust configuration permits the statement's issuer to name ({{issuer-trust}}).
+* If the statement carries `aud`, a value in it exactly matches one of the server's issuer identifiers that its trust configuration permits the statement's issuer to name ({{issuer-trust}}).
 * If the statement carries `aud_tenant`, `aud` carries exactly one value and `aud_tenant` identifies the request's tenant.
 * If the server requires a tenant-scoped decision for the request, the statement carries `aud_tenant`, or the server's trust configuration confines the statement's issuer to the request's tenant ({{issuer-trust}}).
 * If the server's trust configuration confines the statement's issuer to a tenant, the statement carries an `aud` claim with exactly one value, and the request belongs to that tenant.
@@ -228,7 +228,7 @@ For each trusted issuer, the configuration records at least the following:
 * The exact `iss` value the server accepts.
 * The signing algorithms it accepts from the issuer.
 * The client identifier namespaces the issuer can attest through `sub`.
-* The audience identifiers the issuer can name.
+* The authorization server issuer identifiers the issuer can name in `aud`.
 * Any tenant to which the server confines the issuer's decisions.
 * The maximum statement lifetime the server honors, which sets each statement's effective expiry.
 
