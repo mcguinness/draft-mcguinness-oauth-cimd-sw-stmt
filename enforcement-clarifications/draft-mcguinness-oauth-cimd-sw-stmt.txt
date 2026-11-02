@@ -508,7 +508,7 @@ Table of Contents
    (Section 5.4).  Support for pulled statements (Section 5.5) is
    optional, and a server advertises it with the
    software_statement_pull_supported metadata value (Section 8).  A
-   server that consumes statements only in registration requests
+   server that consumes statements only to create or renew registrations
    ([REGISTRATION]) need not support runtime presentation.
 
 5.1.  Admission

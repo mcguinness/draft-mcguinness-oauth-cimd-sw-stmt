@@ -747,12 +747,15 @@ Table of Contents
    effective expiry, and ought to weigh that cadence against how quickly
    a narrowed or withdrawn review needs to take effect.
 
-   The authorization server authenticates a delivery against the
-   retained registration (step 2 of Section 5).  A client that rotates a
-   key carried inline in its document's jwks therefore authenticates
-   with the outgoing key until a replacement over the new document has
-   been applied, and with the new key afterward.  It retires the
-   outgoing key only after that renewal succeeds.
+   A client that delivers a replacement at the token or pushed
+   authorization request endpoint authenticates against the retained
+   registration (step 2 of Section 5).  If it rotates a key carried
+   inline in its document's jwks, it authenticates such a request with
+   the outgoing key until a replacement over the new document has been
+   applied, and with the new key afterward.  It retires the outgoing key
+   only after that renewal succeeds.  An [RFC7592] update request
+   authenticates with the registration access token instead (Section 2
+   of [RFC7592]).
 
 11.  Security Considerations
 
