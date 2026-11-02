@@ -453,7 +453,7 @@ A presentation at the token or pushed authorization request endpoint is rejected
 : Expiry is the statement's only validation failure ({{statement-required}}), or a required statement is absent, including one from an issuer required for the tenant ({{issuer-trust}}).
 
 `unauthorized_client`:
-: Any of the following, in place of `statement_required` if both apply:
+: Any of the following, in place of `statement_required` if both apply at the step of {{processing}} where the server rejects the request:
 
   * The request exceeds the reviewed document's grant types or response types ({{effective-metadata}}).
   * The document carries metadata this server's policy refuses.
