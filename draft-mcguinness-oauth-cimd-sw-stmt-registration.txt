@@ -89,32 +89,26 @@ Table of Contents
 
 1.  Introduction
 
-   [STATEMENT] defines a software statement in which a configured issuer
-   records its review of the exact octets of a Client ID Metadata
-   Document (CIMD) [CIMD], and how an authorization server admits a
-   client on it at request time, without a registration.  Some
-   deployments register clients through [RFC7591] instead, for example
-   to assign their own client identifiers or to manage registrations
-   under [RFC7592].  An [RFC7591] registration request can carry a
-   software statement (Section 2.3 of [RFC7591]), whose client metadata
-   values take precedence over those in the request (Section 3.1.1 of
-   [RFC7591]).
+   [STATEMENT] defines a software statement binding an issuer's review
+   to the exact octets of a Client ID Metadata Document (CIMD) [CIMD],
+   and admission on that review without registration.  This
+   specification serves deployments retaining [RFC7591] registration,
+   for example to assign their own client identifiers or manage
+   registrations under [RFC7592].
 
-   A statement under Section 3 of [STATEMENT] carries no client
-   metadata.  It names the document by its URL and binds the review to
-   the document's exact octets.  A server that verified such a statement
-   under [RFC7591] alone would take every metadata value from the
-   request, and so would register redirection URIs and keys the issuer
-   did not review.  [RFC7591] also defines no expiry or renewal for a
-   registration.  A registration created on a statement can therefore
-   remain in use, with unchanged metadata, after the statement expires
-   or the issuer narrows its review.
+   [RFC7591] already supports software statements whose metadata takes
+   precedence over the registration request (Sections 2.3 and 3.1.1 of
+   [RFC7591]).  A statement under [STATEMENT], however, carries a
+   document digest instead of metadata.  Verifying it under [RFC7591]
+   alone would leave the request's unreviewed redirection URIs and keys
+   as the registered metadata.  [RFC7591] also defines no registration
+   expiry or renewal tied to the statement.
 
-   This specification defines how an authorization server consumes the
-   statement in a registration request, taking every metadata value from
-   the reviewed document (Section 3), how the statement bounds the
-   registration's validity (Section 4), and how a client renews the
-   registration with a later statement (Section 6).  It extends
+   This specification defines how servers derive registrations from the
+   reviewed document (Section 3), bound their validity by the statement
+   (Section 4), and renew them with later statements that also update
+   their metadata (Section 6).  The same review can therefore govern
+   both registered clients and runtime admission.  It extends
    [STATEMENT], which does not depend on it.
 
 1.1.  Protocol Overview
