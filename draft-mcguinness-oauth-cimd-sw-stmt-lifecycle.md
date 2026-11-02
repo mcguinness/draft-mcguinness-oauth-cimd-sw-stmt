@@ -98,7 +98,7 @@ A review can change after admission: an issuer can find a defect or approve less
 
 Token Status List {{STATUSLIST}} supplies status information, but does not define its consequences for client admission, registrations, or grants. This specification defines withdrawal and refusal records ({{withdrawal}}), supersession through an `iat` floor ({{supersession}}), and replacement on refresh ({{refresh-lifecycle}}). It profiles Token Status List for withdrawal ({{token-status-list}}) and an optional Shared Signals Framework {{SSF}} event to prompt a status check ({{shared-signals}}).
 
-This specification extends {{STATEMENT}}, which does not depend on it, and also applies to registrations under {{REGISTRATION}}. It defines no new endpoint. Enforcement timing depends on status checks, caching, and outage policy ({{withdrawal-practice}}, {{schedule-practice}}); withdrawal revokes no issued access token ({{open-grants}}).
+This specification extends {{STATEMENT}}, which does not depend on it, and also applies to registrations under {{REGISTRATION}}. It defines no new endpoint. Enforcement timing depends on status checks, caching, and outage policy ({{withdrawal-practice}}, {{schedule-practice}}). Withdrawal revokes no issued access token ({{open-grants}}).
 
 ## Protocol Overview {#overview}
 
