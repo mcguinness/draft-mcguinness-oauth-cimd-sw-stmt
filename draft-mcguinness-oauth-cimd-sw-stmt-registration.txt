@@ -281,27 +281,33 @@ Table of Contents
    tenant restriction under this specification.  A replacement
    (Section 6) determines the restriction as follows:
 
-     +=================+=========================+==================+
-     | Registration    | Replacement's decision  | After            |
-     | before          |                         |                  |
-     +=================+=========================+==================+
-     | Restricted to a | Confined to that        | Restricted to    |
-     | tenant          | tenant, or not confined | that tenant      |
-     +-----------------+-------------------------+------------------+
-     | Restricted to a | Confined to another     | Fails validation |
-     | tenant          | tenant                  | (Section 3.2 of  |
-     |                 |                         | [STATEMENT])     |
-     +-----------------+-------------------------+------------------+
-     | No restriction, | Confined to a tenant    | Restricted to    |
-     | confidential    |                         | that tenant      |
-     | client          |                         |                  |
-     +-----------------+-------------------------+------------------+
-     | No restriction, | Confined to a tenant    | Not a valid      |
-     | public client   |                         | replacement      |
-     +-----------------+-------------------------+------------------+
-     | No restriction  | Not confined to a       | No restriction   |
-     |                 | tenant                  |                  |
-     +-----------------+-------------------------+------------------+
+     +==============+=============================+=================+
+     | Registration | Replacement's decision      | After           |
+     | before       |                             |                 |
+     +==============+=============================+=================+
+     | Restricted   | Confined to that tenant, or | Restricted to   |
+     | to a tenant  | not confined and valid in   | that tenant     |
+     |              | that tenant (Section 3.2 of |                 |
+     |              | [STATEMENT])                |                 |
+     +--------------+-----------------------------+-----------------+
+     | Restricted   | Confined to another tenant  | Fails           |
+     | to a tenant  |                             | validation      |
+     |              |                             | (Section 3.2 of |
+     |              |                             | [STATEMENT])    |
+     +--------------+-----------------------------+-----------------+
+     | No           | Confined to a tenant        | Restricted to   |
+     | restriction, |                             | that tenant     |
+     | confidential |                             |                 |
+     | client       |                             |                 |
+     +--------------+-----------------------------+-----------------+
+     | No           | Confined to a tenant        | Not a valid     |
+     | restriction, |                             | replacement     |
+     | public       |                             |                 |
+     | client       |                             |                 |
+     +--------------+-----------------------------+-----------------+
+     | No           | Not confined to a tenant    | No restriction  |
+     | restriction  |                             |                 |
+     +--------------+-----------------------------+-----------------+
 
                                  Table 1
 
@@ -740,6 +746,16 @@ Table of Contents
    [STATEMENT]).  A deployment ought to have clients renew well before
    effective expiry, and ought to weigh that cadence against how quickly
    a narrowed or withdrawn review needs to take effect.
+
+   A client that delivers a replacement at the token or pushed
+   authorization request endpoint authenticates against the retained
+   registration (step 2 of Section 5).  If it rotates a key carried
+   inline in its document's jwks, it authenticates such a request with
+   the outgoing key until a replacement over the new document has been
+   applied, and with the new key afterward.  It retires the outgoing key
+   only after that renewal succeeds.  An [RFC7592] update request
+   authenticates with the registration access token instead (Section 2
+   of [RFC7592]).
 
 11.  Security Considerations
 

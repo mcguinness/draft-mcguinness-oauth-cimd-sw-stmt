@@ -1593,7 +1593,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
             <p id="section-3.2-2.7.1">If the server requires a tenant-scoped decision for the request, the statement carries <code>aud_tenant</code>, or the server's trust configuration confines the statement's issuer to the request's tenant (<a href="#issuer-trust" class="auto internal xref">Section 4</a>).<a href="#section-3.2-2.7.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-3.2-2.8">
-            <p id="section-3.2-2.8.1">If the server's trust configuration confines the statement's issuer to a tenant, the request belongs to that tenant.<a href="#section-3.2-2.8.1" class="pilcrow">¶</a></p>
+            <p id="section-3.2-2.8.1">If the server's trust configuration confines the statement's issuer to a tenant, the statement carries an <code>aud</code> claim with exactly one value, and the request belongs to that tenant.<a href="#section-3.2-2.8.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-3.2-2.9">
             <p id="section-3.2-2.9.1">The use being made of the statement is one its <code>statement_uses</code> claim permits (<a href="#profiles" class="auto internal xref">Section 3</a>).<a href="#section-3.2-2.9.1" class="pilcrow">¶</a></p>
@@ -1658,6 +1658,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
       <h2 id="name-runtime-presentation">
 <a href="#section-5" class="section-number selfRef">5. </a><a href="#name-runtime-presentation" class="section-name selfRef">Runtime Presentation</a>
       </h2>
+<p id="section-5-1">An authorization server that admits clients at request time under this specification <span class="bcp14">MUST</span> support statements presented in requests (<a href="#runtime-presentation" class="auto internal xref">Section 5.4</a>). Support for pulled statements (<a href="#pulled-statements" class="auto internal xref">Section 5.5</a>) is optional, and a server advertises it with the <code>software_statement_pull_supported</code> metadata value (<a href="#authorization-server-metadata" class="auto internal xref">Section 8</a>). A server that consumes statements only to create or renew registrations (<span>[<a href="#REGISTRATION" class="cite xref">REGISTRATION</a>]</span>) need not support runtime presentation.<a href="#section-5-1" class="pilcrow">¶</a></p>
 <div id="processing">
 <section id="section-5.1">
         <h3 id="name-admission">
@@ -1914,7 +1915,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <p id="section-5.6.3-1">The following are review-only:<a href="#section-5.6.3-1" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-5.6.3-2">
 <li id="section-5.6.3-2.1">
-              <p id="section-5.6.3-2.1.1">Every presentation and pulled statement for a reviewed document that carries any redirection URI another application on the same device could claim, whatever authentication method the document declares. Such a URI is a non-<code>https</code> URI, such as a private-use scheme or an <code>http</code> loopback redirection URI (Sections 7.1 and 7.3 of <span>[<a href="#RFC8252" class="cite xref">RFC8252</a>]</span>), or an <code>https</code> URI whose host is a loopback address or <code>localhost</code>. The application that claims such a URI receives the code, so neither the reviewed redirection URIs nor a key shipped in every copy of the software can bind the presenter.<a href="#section-5.6.3-2.1.1" class="pilcrow">¶</a></p>
+              <p id="section-5.6.3-2.1.1">Every presentation and pulled statement for a reviewed document that carries any redirection URI another application on the same device could claim, whatever authentication method the document declares. Such a URI is a non-<code>https</code> URI, such as a private-use scheme or an <code>http</code> loopback redirection URI (Sections 7.1 and 7.3 of <span>[<a href="#RFC8252" class="cite xref">RFC8252</a>]</span>), or an <code>https</code> URI whose host is a loopback address, <code>localhost</code>, or a name ending in <code>.localhost</code> (Section 6.3 of <span>[<a href="#RFC6761" class="cite xref">RFC6761</a>]</span>), ignoring case and a trailing dot. The application that claims such a URI receives the code, so neither the reviewed redirection URIs nor a key shipped in every copy of the software can bind the presenter.<a href="#section-5.6.3-2.1.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-5.6.3-2.2">
               <p id="section-5.6.3-2.2.1">A pulled statement that <a href="#pull-binding" class="auto internal xref">Section 5.5.2</a> makes review-only.<a href="#section-5.6.3-2.2.1" class="pilcrow">¶</a></p>
@@ -1958,13 +1959,16 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
             <p id="section-5.7-5.1.1"><span class="bcp14">MUST</span> have a <code>client_id</code> parameter exactly equal to the establishment's <code>sub</code>, even if the client authenticates.<a href="#section-5.7-5.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-5.7-5.2">
-            <p id="section-5.7-5.2.1"><span class="bcp14">MUST</span> demonstrate possession of the establishment's proven key under the same sender-constraint mechanism or, for a confidential client whose statement was pulled at the authorization endpoint (<a href="#pull-binding" class="auto internal xref">Section 5.5.2</a>), authenticate with the key that becomes the proven key.<a href="#section-5.7-5.2.1" class="pilcrow">¶</a></p>
+            <p id="section-5.7-5.2.1"><span class="bcp14">MUST</span> be made in the tenant the establishment records, if the authorization server hosts more than one tenant (<a href="#validation" class="auto internal xref">Section 3.2</a>).<a href="#section-5.7-5.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-5.7-5.3">
-            <p id="section-5.7-5.3.1"><span class="bcp14">MUST NOT</span> carry the <code>software_statement</code> parameter.<a href="#section-5.7-5.3.1" class="pilcrow">¶</a></p>
+            <p id="section-5.7-5.3.1"><span class="bcp14">MUST</span> demonstrate possession of the establishment's proven key under the same sender-constraint mechanism or, for a confidential client whose statement was pulled at the authorization endpoint (<a href="#pull-binding" class="auto internal xref">Section 5.5.2</a>), authenticate with the key that becomes the proven key.<a href="#section-5.7-5.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-5.7-5.4">
+            <p id="section-5.7-5.4.1"><span class="bcp14">MUST NOT</span> carry the <code>software_statement</code> parameter.<a href="#section-5.7-5.4.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-5.7-6">A redemption that carries a statement, has a wrong client identifier, or fails the key binding is rejected.<a href="#section-5.7-6" class="pilcrow">¶</a></p>
+<p id="section-5.7-6">A redemption that carries a statement, has a wrong client identifier, is made in another tenant, or fails the key binding is rejected.<a href="#section-5.7-6" class="pilcrow">¶</a></p>
 <div id="refresh">
 <section id="section-5.7.1">
           <h4 id="name-refresh">
@@ -1973,13 +1977,16 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <p id="section-5.7.1-1">On refresh-token use under an establishment, the authorization server:<a href="#section-5.7.1-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-5.7.1-2.1">
-              <p id="section-5.7.1-2.1.1"><span class="bcp14">MUST</span> verify possession of the establishment's proven key under the same sender-constraint mechanism.<a href="#section-5.7.1-2.1.1" class="pilcrow">¶</a></p>
+              <p id="section-5.7.1-2.1.1"><span class="bcp14">MUST</span> verify that the request is made in the tenant the establishment records, if it hosts more than one tenant.<a href="#section-5.7.1-2.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-5.7.1-2.2">
-              <p id="section-5.7.1-2.2.1"><span class="bcp14">MUST</span>, except for an establishment created under <a href="#public-client-presentation" class="auto internal xref">Section 5.6.2</a>, verify that the document currently served at the establishment's <code>sub</code> still carries that key, in its <code>jwks</code> or at its <code>jwks_uri</code>, within the reuse bounds of <a href="#retrieval" class="auto internal xref">Section 5.3</a>.<a href="#section-5.7.1-2.2.1" class="pilcrow">¶</a></p>
+              <p id="section-5.7.1-2.2.1"><span class="bcp14">MUST</span> verify possession of the establishment's proven key under the same sender-constraint mechanism.<a href="#section-5.7.1-2.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-5.7.1-2.3">
+              <p id="section-5.7.1-2.3.1"><span class="bcp14">MUST</span>, except for an establishment created under <a href="#public-client-presentation" class="auto internal xref">Section 5.6.2</a>, verify that the document currently served at the establishment's <code>sub</code> still carries that key, in its <code>jwks</code> or at its <code>jwks_uri</code>, within the reuse bounds of <a href="#retrieval" class="auto internal xref">Section 5.3</a>.<a href="#section-5.7.1-2.3.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
-<p id="section-5.7.1-3">If either check fails, the server rejects the refresh. The refreshed access <span class="bcp14">MUST</span> fall within the establishment's reviewed metadata.<a href="#section-5.7.1-3" class="pilcrow">¶</a></p>
+<p id="section-5.7.1-3">If any of these checks fails, the server rejects the refresh. The refreshed access <span class="bcp14">MUST</span> fall within the establishment's reviewed metadata.<a href="#section-5.7.1-3" class="pilcrow">¶</a></p>
 <p id="section-5.7.1-4">Under this specification, refresh evaluates no statement (<a href="#enforcement-bounds" class="auto internal xref">Section 13.7</a>) and never changes the establishment's proven key or reviewed metadata. A client that needs a different key or review opens a new grant by presentation. An extension can instead provide for replacing the review on refresh.<a href="#section-5.7.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -2104,7 +2111,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
           <dt id="section-6.3-2.1">
 <code>invalid_grant</code>:</dt>
           <dd style="margin-left: 1.5em" id="section-6.3-2.2">
-            <p id="section-6.3-2.2.1">The request has a wrong client identifier or fails the key binding.<a href="#section-6.3-2.2.1" class="pilcrow">¶</a></p>
+            <p id="section-6.3-2.2.1">The request has a wrong client identifier, is made in another tenant, or fails the key binding.<a href="#section-6.3-2.2.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 <dt id="section-6.3-2.3">
@@ -2953,6 +2960,10 @@ client-assertion-type%3Ajwt-bearer
 <dt id="RFC6749">[RFC6749]</dt>
         <dd>
 <span class="refAuthor">Hardt, D., Ed.</span>, <span class="refTitle">"The OAuth 2.0 Authorization Framework"</span>, <span class="seriesInfo">RFC 6749</span>, <span class="seriesInfo">DOI 10.17487/RFC6749</span>, <time datetime="2012-10" class="refDate">October 2012</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6749">https://www.rfc-editor.org/rfc/rfc6749</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC6761">[RFC6761]</dt>
+        <dd>
+<span class="refAuthor">Cheshire, S.</span> and <span class="refAuthor">M. Krochmal</span>, <span class="refTitle">"Special-Use Domain Names"</span>, <span class="seriesInfo">RFC 6761</span>, <span class="seriesInfo">DOI 10.17487/RFC6761</span>, <time datetime="2013-02" class="refDate">February 2013</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6761">https://www.rfc-editor.org/rfc/rfc6761</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC6838">[RFC6838]</dt>
         <dd>

@@ -1361,7 +1361,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
           <tbody>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">Restricted to a tenant</td>
-              <td class="text-left" rowspan="1" colspan="1">Confined to that tenant, or not confined</td>
+              <td class="text-left" rowspan="1" colspan="1">Confined to that tenant, or not confined and valid in that tenant (Section 3.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>)</td>
               <td class="text-left" rowspan="1" colspan="1">Restricted to that tenant</td>
             </tr>
             <tr>
@@ -1742,6 +1742,7 @@ client-assertion-type%3Ajwt-bearer
       </h2>
 <p id="section-10-1">This section gives guidance to operators. It adds no requirement.<a href="#section-10-1" class="pilcrow">¶</a></p>
 <p id="section-10-2">An issuer outage longer than a statement-governed registration's remaining lifetime makes the registration cease to be valid (<a href="#registration-validity" class="auto internal xref">Section 4</a>) until the client delivers a replacement (<a href="#revalidation" class="auto internal xref">Section 6</a>). The lifetimes an issuer chooses set the renewal cadence (Section 12.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). A deployment ought to have clients renew well before effective expiry, and ought to weigh that cadence against how quickly a narrowed or withdrawn review needs to take effect.<a href="#section-10-2" class="pilcrow">¶</a></p>
+<p id="section-10-3">A client that delivers a replacement at the token or pushed authorization request endpoint authenticates against the retained registration (step 2 of <a href="#registration-requests" class="auto internal xref">Section 5</a>). If it rotates a key carried inline in its document's <code>jwks</code>, it authenticates such a request with the outgoing key until a replacement over the new document has been applied, and with the new key afterward. It retires the outgoing key only after that renewal succeeds. An <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span> update request authenticates with the registration access token instead (Section 2 of <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span>).<a href="#section-10-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="security-considerations">

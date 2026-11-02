@@ -417,7 +417,8 @@ Table of Contents
       tenant (Section 4).
 
    *  If the server's trust configuration confines the statement's
-      issuer to a tenant, the request belongs to that tenant.
+      issuer to a tenant, the statement carries an aud claim with
+      exactly one value, and the request belongs to that tenant.
 
    *  The use being made of the statement is one its statement_uses
       claim permits (Section 3).
@@ -501,6 +502,14 @@ Table of Contents
    state a server keeps per iss value, stay separate.
 
 5.  Runtime Presentation
+
+   An authorization server that admits clients at request time under
+   this specification MUST support statements presented in requests
+   (Section 5.4).  Support for pulled statements (Section 5.5) is
+   optional, and a server advertises it with the
+   software_statement_pull_supported metadata value (Section 8).  A
+   server that consumes statements only to create or renew registrations
+   ([REGISTRATION]) need not support runtime presentation.
 
 5.1.  Admission
 
@@ -845,10 +854,12 @@ Table of Contents
        device could claim, whatever authentication method the document
        declares.  Such a URI is a non-https URI, such as a private-use
        scheme or an http loopback redirection URI (Sections 7.1 and 7.3
-       of [RFC8252]), or an https URI whose host is a loopback address
-       or localhost.  The application that claims such a URI receives
-       the code, so neither the reviewed redirection URIs nor a key
-       shipped in every copy of the software can bind the presenter.
+       of [RFC8252]), or an https URI whose host is a loopback address,
+       localhost, or a name ending in .localhost (Section 6.3 of
+       [RFC6761]), ignoring case and a trailing dot.  The application
+       that claims such a URI receives the code, so neither the reviewed
+       redirection URIs nor a key shipped in every copy of the software
+       can bind the presenter.
 
    2.  A pulled statement that Section 5.5.2 makes review-only.
 
@@ -890,6 +901,9 @@ Table of Contents
    *  MUST have a client_id parameter exactly equal to the
       establishment's sub, even if the client authenticates.
 
+   *  MUST be made in the tenant the establishment records, if the
+      authorization server hosts more than one tenant (Section 3.2).
+
    *  MUST demonstrate possession of the establishment's proven key
       under the same sender-constraint mechanism or, for a confidential
       client whose statement was pulled at the authorization endpoint
@@ -899,12 +913,15 @@ Table of Contents
    *  MUST NOT carry the software_statement parameter.
 
    A redemption that carries a statement, has a wrong client identifier,
-   or fails the key binding is rejected.
+   is made in another tenant, or fails the key binding is rejected.
 
 5.7.1.  Refresh
 
    On refresh-token use under an establishment, the authorization
    server:
+
+   *  MUST verify that the request is made in the tenant the
+      establishment records, if it hosts more than one tenant.
 
    *  MUST verify possession of the establishment's proven key under the
       same sender-constraint mechanism.
@@ -914,8 +931,9 @@ Table of Contents
       sub still carries that key, in its jwks or at its jwks_uri, within
       the reuse bounds of Section 5.3.
 
-   If either check fails, the server rejects the refresh.  The refreshed
-   access MUST fall within the establishment's reviewed metadata.
+   If any of these checks fails, the server rejects the refresh.  The
+   refreshed access MUST fall within the establishment's reviewed
+   metadata.
 
    Under this specification, refresh evaluates no statement
    (Section 13.7) and never changes the establishment's proven key or
@@ -1019,8 +1037,8 @@ Table of Contents
    Under an establishment, code redemption (Section 5.7) is rejected
    with the following error codes:
 
-   invalid_grant:  The request has a wrong client identifier or fails
-      the key binding.
+   invalid_grant:  The request has a wrong client identifier, is made in
+      another tenant, or fails the key binding.
 
    invalid_client:  The bound on establishments is reached
       (Section 11.3).
@@ -1786,6 +1804,10 @@ Table of Contents
    [RFC6749]  Hardt, D., Ed., "The OAuth 2.0 Authorization Framework",
               RFC 6749, DOI 10.17487/RFC6749, October 2012,
               <https://www.rfc-editor.org/rfc/rfc6749>.
+
+   [RFC6761]  Cheshire, S. and M. Krochmal, "Special-Use Domain Names",
+              RFC 6761, DOI 10.17487/RFC6761, February 2013,
+              <https://www.rfc-editor.org/rfc/rfc6761>.
 
    [RFC6838]  Freed, N., Klensin, J., and T. Hansen, "Media Type
               Specifications and Registration Procedures", BCP 13,
