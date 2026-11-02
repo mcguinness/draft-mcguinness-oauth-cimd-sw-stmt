@@ -38,7 +38,7 @@ normative:
     title: "Client ID Metadata Document Software Statement"
     author:
       - fullname: Karl McGuinness
-    date: 2026-10
+    date: 2026-11
     seriesinfo:
       Internet-Draft: draft-mcguinness-oauth-cimd-sw-stmt-00
   CIMD: I-D.ietf-oauth-client-id-metadata-document

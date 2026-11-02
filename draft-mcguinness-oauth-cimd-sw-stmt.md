@@ -61,7 +61,7 @@ informative:
     title: "Client ID Metadata Document Software Statement Registration"
     author:
       - fullname: Karl McGuinness
-    date: 2026-10
+    date: 2026-11
     seriesinfo:
       Internet-Draft: draft-mcguinness-oauth-cimd-sw-stmt-registration-00
   ABCA: I-D.ietf-oauth-attestation-based-client-auth
