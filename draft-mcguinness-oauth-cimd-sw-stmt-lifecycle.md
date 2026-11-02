@@ -379,7 +379,7 @@ The following is a non-normative example of the payload of a SET carrying this e
 {
   "iss": "https://issuer.example",
   "jti": "4d3559ec67504aaba65d40b0363faad8",
-  "iat": 1767225600,
+  "iat": 1792022400,
   "aud": "https://as.example",
   "sub_id": {
     "format": "uri",
@@ -388,7 +388,7 @@ The following is a non-normative example of the payload of a SET carrying this e
   "events": {
 "urn:ietf:params:oauth:event-type:software-statement-status-changed":
     {
-      "event_timestamp": 1767225590,
+      "event_timestamp": 1792022390,
       "software_statement_jti": "c2a907b34d28"
     }
   }
