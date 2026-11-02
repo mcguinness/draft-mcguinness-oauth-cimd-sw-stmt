@@ -18,9 +18,8 @@ New to the drafts? The [FAQ](https://github.com/mcguinness/draft-mcguinness-oaut
 
 The statement draft is the core. The other drafts build on it, and it depends on none of them.
 
-The statement and registration drafts are planned for submission; their Datatracker pages will be available after first submission:
-[statement](https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt/),
-[registration](https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration/).
+The statement draft is published as [draft-mcguinness-oauth-cimd-sw-stmt-00](https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt/).
+The registration draft is planned for submission; its [Datatracker page](https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration/) will be available after first submission.
 The issuance, lifecycle, and attested-keys drafts are working drafts kept here for discussion and are not planned for submission yet.
 
 ## MCP Profile
