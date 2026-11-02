@@ -45,12 +45,7 @@ normative:
   CIMD: I-D.ietf-oauth-client-id-metadata-document
   ABCA: I-D.ietf-oauth-attestation-based-client-auth
   STATEMENT: I-D.mcguinness-oauth-cimd-sw-stmt
-  LIFECYCLE:
-    target: https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle.html
-    title: "Client ID Metadata Document Software Statement Lifecycle"
-    author:
-      - fullname: Karl McGuinness
-    date: 2026-10
+  LIFECYCLE: I-D.mcguinness-oauth-cimd-sw-stmt-lifecycle
 
 informative:
   REGISTRATION: I-D.mcguinness-oauth-cimd-sw-stmt-registration

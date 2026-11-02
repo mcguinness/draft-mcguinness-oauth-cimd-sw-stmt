@@ -64,12 +64,7 @@ informative:
   RFC9864:
   REGISTRATION: I-D.mcguinness-oauth-cimd-sw-stmt-registration
 
-  LIFECYCLE:
-    target: https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle.html
-    title: "Client ID Metadata Document Software Statement Lifecycle"
-    author:
-      - fullname: Karl McGuinness
-    date: 2026-10
+  LIFECYCLE: I-D.mcguinness-oauth-cimd-sw-stmt-lifecycle
   ATTESTERS: I-D.mcguinness-oauth-client-attesters
   APPROVAL-DCR: I-D.dellaert-oauth-approval-based-dcr
   AU-CDR:
