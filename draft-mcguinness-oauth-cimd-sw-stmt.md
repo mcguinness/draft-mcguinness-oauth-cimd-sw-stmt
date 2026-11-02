@@ -737,7 +737,7 @@ The retrievals of {{retrieval}} happen before any client is registered or any us
 
 ## Expiry and Open Grants {#enforcement-bounds}
 
-Under this specification, expiry limits new admissions and ends nothing already opened: a grant lasts for the life of its refresh tokens, whatever the statement's lifetime, unless the server finds the proven key gone from the client's document ({{refresh}}). An older statement that has not expired remains admissible after a newer one narrows the review. A deployment that needs withdrawal, supersession, or grants that follow later reviews implements an extension providing them ({{extensions}}). Removing an issuer from trust configuration, or narrowing what it can attest, does not by itself end a grant already admitted on one of its statements. A server ends such grants by its own means, such as revoking refresh tokens.
+Under this specification, expiry limits new admissions and ends nothing already opened: a grant lasts for the life of its refresh tokens, whatever the statement's lifetime, unless the server finds the proven key gone from the client's document ({{refresh}}). An older statement that has not expired remains admissible after a newer one narrows the review. A deployment that needs withdrawal, supersession, or grants that follow later reviews implements an extension providing them ({{extensions}}). Removing an issuer from trust configuration, or narrowing what it can attest, does not by itself end a grant already admitted on one of its statements. Nor does configuring a required issuer ({{issuer-trust}}) end a grant already admitted. A server ends such grants by its own means, such as revoking refresh tokens.
 
 ## Observable State {#oracle-considerations}
 
