@@ -1092,9 +1092,9 @@ Table of Contents
    statement_required:  In any other case, subject to the order of
       Section 6, the authorization server MUST return this code.
 
-   An authorization request from a client admitted on a statement pulled
-   at the authorization endpoint that exceeds the reviewed document's
-   response types or scope (step 6 of Section 5.1) is rejected with
+   An authorization request evaluated against a statement pulled at the
+   authorization endpoint that exceeds the reviewed document's response
+   types or scope (step 6 of Section 5.1) is rejected with
    unauthorized_client or invalid_scope, as for a presentation
    (Section 6.2).
 

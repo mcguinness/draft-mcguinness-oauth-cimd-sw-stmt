@@ -2163,7 +2163,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 </dd>
         <dd class="break"></dd>
 </dl>
-<p id="section-6.4-3">An authorization request from a client admitted on a statement pulled at the authorization endpoint that exceeds the reviewed document's response types or scope (step 6 of <a href="#processing" class="auto internal xref">Section 5.1</a>) is rejected with <code>unauthorized_client</code> or <code>invalid_scope</code>, as for a presentation (<a href="#presentation-errors" class="auto internal xref">Section 6.2</a>).<a href="#section-6.4-3" class="pilcrow">¶</a></p>
+<p id="section-6.4-3">An authorization request evaluated against a statement pulled at the authorization endpoint that exceeds the reviewed document's response types or scope (step 6 of <a href="#processing" class="auto internal xref">Section 5.1</a>) is rejected with <code>unauthorized_client</code> or <code>invalid_scope</code>, as for a presentation (<a href="#presentation-errors" class="auto internal xref">Section 6.2</a>).<a href="#section-6.4-3" class="pilcrow">¶</a></p>
 <p id="section-6.4-4">Before redirecting with an error, the authorization server validates the <code>redirect_uri</code> against the client's CIMD, which it resolves first, or, for a registered client, against its registered redirection URIs (Section 4.1.2.1 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>). If it cannot resolve a CIMD client's document, it <span class="bcp14">MUST NOT</span> redirect.<a href="#section-6.4-4" class="pilcrow">¶</a></p>
 </section>
 </div>
