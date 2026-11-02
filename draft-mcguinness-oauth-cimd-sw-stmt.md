@@ -882,13 +882,13 @@ Change Controller:
 Specification Document(s):
 : This specification, {{errors}}
 
-This specification also requests that IANA update the existing `temporarily_unavailable` entry, adding the token error response to its usage locations and this specification as a reference:
+This specification also requests that IANA update the existing `temporarily_unavailable` entry, adding the token error response and the pushed authorization request error response to its usage locations and this specification as a reference:
 
 Error Name:
 : `temporarily_unavailable`
 
 Error Usage Location:
-: token error response, in addition to the locations already registered
+: token error response, pushed authorization request error response, in addition to the locations already registered
 
 Related Protocol Extension:
 : OAuth 2.0 Authorization Framework
