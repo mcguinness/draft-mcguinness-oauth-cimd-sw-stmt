@@ -144,9 +144,10 @@ Table of Contents
 
    2.  The authorization server admits a client on the statement, or
        registers one under [REGISTRATION], and records the statement.
-       If the statement's iat is later than the server's iat floor for
-       its iss and sub, kept per tenant on a multi-tenant server, the
-       floor advances to it (Section 4).
+       The iat floor for the statement's iss and sub, kept for each use
+       the statement permits, advances to its iat if that is later.  A
+       multi-tenant server keeps such floors per tenant for statements
+       confined to a tenant, and server-wide for others (Section 4).
 
    3.  The issuer issues a later statement about the same software, for
        example over a changed document.  Once the authorization server
@@ -256,8 +257,11 @@ Table of Contents
       take the recorded statement's place (Section 5.2).
 
    iat Floor:  For a trusting authorization server, the greatest iat
-      claim value among the statements it has accepted for a given iss
-      and sub, per tenant on a multi-tenant server (Section 4).
+      claim value among the statements it has accepted for a given iss,
+      sub, and use (presentation or registration).  A multi-tenant
+      server keeps one for each tenant, for statements confined to that
+      tenant, and one server-wide, for statements confined to none
+      (Section 4).
 
    This specification also extends the following term of [STATEMENT].
 
@@ -286,9 +290,9 @@ Table of Contents
    refusal record.  A server that uses a withdrawal mechanism for a
    statement's issuer SHOULD consult it, within the caching and
    freshness rules that mechanism defines, before accepting the
-   statement for a new admission, a registration, or a replacement on
-   refresh or registration renewal, at each refresh of a grant that
-   records it, and at each token request under a registration the
+   statement for a new admission, a registration, a refresh replacement,
+   or a replacement at registration renewal, at each refresh of a grant
+   that records it, and at each token request under a registration the
    statement governs ([REGISTRATION]).  Registration renewal includes
    replacements delivered at the token, pushed authorization request, or
    client configuration endpoint, and replacements in repeated public-
@@ -301,6 +305,19 @@ Table of Contents
    way.  A failure to consult the mechanism, or cached evidence that has
    lapsed, neither replaces nor expires a refusal.
 
+   A refusal record that a withdrawal mechanism yields applies in every
+   tenant of the server.  One that the server's operator enters applies
+   in the tenants the operator scopes it to.  A server MUST keep a
+   refusal record that a withdrawal mechanism yields until the
+   statement's effective expiry has passed and no grant or registration
+   it holds records the statement, unless the mechanism replaces or
+   expires the refusal first.  One that the operator entered lasts as
+   long as the operator keeps it (Section 11.1).  When a refusal ends, a
+   grant that records the statement can again be refreshed without a
+   replacement (Section 5.1), but a registration whose validity the
+   refusal ended stays invalid until a replacement restores it
+   (Section 4 of [REGISTRATION]).
+
    A withdrawal constrains and never relaxes.  A statement for which no
    withdrawal mechanism reports a withdrawal, or for which the server
    cannot consult the mechanism it uses (Section 11.1), is bounded by
@@ -308,12 +325,20 @@ Table of Contents
    treat any withdrawal mechanism as grounds to accept a statement past
    its effective expiry.
 
+   A server consults a withdrawal mechanism while validating a
+   statement, which at admission is step 2 of Section 5.1 of
+   [STATEMENT].  A server whose policy rejects a request because it
+   cannot consult the mechanism uses the temporarily_unavailable error
+   code, as for a retrieval that did not complete (Section 6 of
+   [STATEMENT]).
+
    An issuer that uses a withdrawal mechanism and issues a later
    statement narrower than the one it replaces SHOULD withdraw the
    earlier statement (Section 12.2).  A later statement is narrower if
    the document it names no longer carries a key, redirection URI, or
    scope the earlier document carried, if its aud, aud_tenant, or
-   statement_uses is narrower, or if its remaining lifetime is shorter.
+   statement_uses is narrower, or if its effective expiry is earlier
+   than that of the statement it replaces.
 
    Rejections under this section use the error responses of Section 8.
 
@@ -322,28 +347,53 @@ Table of Contents
    Because an issuer's iat values for a given iss and sub increase
    strictly (Section 3 of [STATEMENT]), a later iat marks a later
    review, and a statement whose iat is earlier than the server's iat
-   floor is superseded.
+   floor for the use being made is superseded.
 
-   A trusting authorization server MUST retain each iat floor for at
-   least the maximum statement lifetime it honors for the issuer after
-   the floor's value.  A statement is accepted for the floor once the
-   server admits a client on it, applies it as a replacement
-   (Section 5.2), or registers a client or renews a registration with it
-   ([REGISTRATION]).  The server MUST reject a statement whose iat claim
-   is earlier than the retained iat floor, whether it arrives as a
-   replacement on refresh, a new registration or a replacement delivered
-   under [REGISTRATION], or a runtime presentation.  A repeated
-   registration request that Section 3.3 of [REGISTRATION] answers with
-   the existing registration is not a new registration.  A client
-   holding a superseded, broader statement therefore cannot defer a
-   narrowing by opening a fresh registration or establishment with it.
+   A trusting authorization server MUST retain each iat floor until at
+   least the floor's value plus the maximum statement lifetime it honors
+   for the issuer.  A statement is accepted for the floor when the
+   server creates an establishment on it (step 7 of Section 5.1 of
+   [STATEMENT]), applies it as a refresh replacement (Section 5.2), or
+   registers a client or renews a registration with it ([REGISTRATION]).
+   Accepting a statement advances the floor for each use its
+   statement_uses claim permits (Section 3 of [STATEMENT]), so one
+   permitting both uses advances both floors.  The server MUST reject a
+   statement whose iat claim is earlier than the retained iat floor for
+   the use being made: presentation for a runtime presentation or a
+   replacement on refresh, and registration for a new registration or a
+   replacement delivered under [REGISTRATION].  A client holding a
+   superseded, broader statement therefore cannot defer a narrowing by
+   opening a fresh registration or establishment with it.  Keeping a
+   floor per use lets an issuer publish a presentation statement for
+   servers to pull while presenting a separate registration statement
+   (Section 11.1 of [REGISTRATION]), without either superseding the
+   other.
 
-   The floor needs one iat value for each iss and sub and, on a multi-
-   tenant server, each tenant, not the statements themselves.  Every
-   statement the floor refuses has an earlier iat, so its effective
-   expiry passes within the maximum statement lifetime the server honors
-   for the issuer, counted from the floor's value.  Once that period and
-   any clock-skew allowance have passed, the floor refuses nothing that
+   On a multi-tenant server, a statement whose decision is confined to a
+   tenant (Section 3 of [STATEMENT]) advances that tenant's floors, and
+   one confined to no tenant advances the server-wide floors.  A
+   statement is checked against the greater of the server-wide floor and
+   the request tenant's floor for the use being made.  A statement
+   confined to no tenant that creates or renews a registration with no
+   tenant restriction (Section 3.1 of [REGISTRATION]) is instead checked
+   against the greatest registration floor of the server and of every
+   tenant, since that registration can be used in every tenant.
+
+   A repeated registration request that Section 3.3 of [REGISTRATION]
+   answers with the existing registration is not a new registration.
+   The server classifies a repeated registration request under that
+   section before it applies the floor, so a request that resends the
+   governing statement receives the existing registration even if that
+   statement has since been superseded, as Section 1.1 provides for a
+   superseded governing statement.
+
+   The floor needs one iat value for each iss, sub, and use and, on a
+   multi-tenant server, each tenant to which statements are confined
+   plus one server-wide, not the statements themselves.  Every statement
+   the floor refuses has an earlier iat, so its effective expiry passes
+   within the maximum statement lifetime the server honors for the
+   issuer, counted from the floor's value.  Once that period and any
+   clock-skew allowance have passed, the floor refuses nothing that
    expiry would not refuse.  A server that raises the lifetime it honors
    for an issuer extends that period for the floors it already holds.  A
    floor lost before then leaves the statements it superseded acceptable
@@ -408,14 +458,92 @@ Table of Contents
    proceeds as follows.  A refresh rejected at any step leaves the
    grant's state unchanged.
 
+   1.  Decide whether Section 5.1 requires a replacement or rejects the
+       refresh, having consulted any withdrawal mechanism as Section 3
+       recommends.
+
+   2.  Obtain a replacement.  A client can offer one on any refresh in
+       the software_statement parameter.  If no replacement is needed,
+       an offered statement that fails the client_id rule below or a
+       requirement of step 3, or that the server cannot evaluate because
+       a retrieval needed only for that statement did not complete, is
+       ignored, and the refresh proceeds as one offering none, as at a
+       server that does not implement this specification.  A request
+       carrying a replacement MUST meet the client_id rule that
+       Section 5.4 of [STATEMENT] sets for a request making a runtime
+       presentation.  A statement with the recorded iss and jti is not a
+       replacement, and a request carrying it is processed as one
+       offering none.  When a replacement is needed and the request
+       carries none, a server that supports pulled statements pulls,
+       however the establishment was created, and takes as the
+       replacement the most recently issued statement with the recorded
+       iss and sub among those it considers under Section 5.5.1 of
+       [STATEMENT], Section 3, and Section 4.  A refresh that needs a
+       replacement and obtains none is rejected: a reviewed grant never
+       continues under the policy for clients the server has not
+       reviewed.
+
+       The pull uses the retrieval and selection rules of Sections 5.3
+       and 5.5.1 of [STATEMENT].  The continuation rules here apply
+       instead of those sections' rules for opening a new grant, so a
+       refresh whose pull does not complete is rejected.
+
+   3.  Validate the replacement.  If a replacement is needed, a refresh
+       whose replacement fails any of the following requirements is
+       rejected.  The replacement:
+
+       *  MUST validate under Section 3.2 of [STATEMENT], Section 3, and
+          Section 4.
+
+       *  MUST have the recorded statement's iss and sub.
+
+       *  MUST have an iat later than the recorded statement's.
+
+       *  MUST name in cimd_digest the document currently served at that
+          sub, which the server confirms by retrieval or by revalidating
+          octets it holds.
+
+       *  MUST name a document that carries the establishment's proven
+          key, in its jwks or at its jwks_uri (Section 5.6.1 of
+          [STATEMENT]), or, for an establishment created under
+          Section 5.6.2 of [STATEMENT], a document that still satisfies
+          that section.
+
+       *  MUST name a document that declares the same
+          token_endpoint_auth_method as the establishment's reviewed
+          document and that does not make the statement review-only
+          (Section 5.6.3 of [STATEMENT]).  Refresh keeps the sender-
+          constraint mechanism (Section 5.7.1 of [STATEMENT]), so a
+          replacement cannot change it.
+
+       A replacement that meets these requirements is accepted.
+
+   4.  Bound access and update.  The refreshed access MUST fall within
+       the metadata of the document an accepted replacement names or,
+       without one, the establishment's reviewed metadata.  If a
+       replacement is accepted, the refreshed grant's statement identity
+       (iss and jti), iat, effective expiry, any claim an extension uses
+       to locate the statement, reviewed metadata and the digest it
+       matched, and issuer trust decision become the replacement's, in
+       one atomic update.  Concurrent replacements resolve to the most
+       recently issued statement.
+
+   A replacement accepted on refresh MUST apply only to the grant
+   refreshed.
+
+   If the server bounds establishments (Section 11.3 of [STATEMENT]), a
+   count persists across replacements: a replacement accepted on refresh
+   does not add to it.
+
    Figure 1 shows the order of these steps, and Table 2 the error each
    rejection returns.  Section 8 lists every code.  Two rules of
    [STATEMENT] take precedence over the table.  At any step, a request
    that needs a retrieval that did not complete is rejected with
-   temporarily_unavailable (Section 6 of [STATEMENT]).  A proof that its
-   mechanism does not accept is rejected with that mechanism's own
-   error, such as invalid_dpop_proof, or answered with its challenge,
-   such as use_dpop_nonce (Section 6.5 of [STATEMENT]).
+   temporarily_unavailable (Section 6 of [STATEMENT]), except a
+   retrieval needed only to evaluate a statement that step 2 ignores.  A
+   proof that its mechanism does not accept is rejected with that
+   mechanism's own error, such as invalid_dpop_proof, or answered with
+   its challenge, such as use_dpop_nonce (Section 6.5 of [STATEMENT]).
 
            refresh-token request
                      |
@@ -456,16 +584,18 @@ Table of Contents
       |        | the recorded statement   |                         |
       |        | is from another issuer   |                         |
       +--------+--------------------------+-------------------------+
-      | 2      | A replacement is offered | invalid_request         |
-      |        | without client_id        |                         |
+      | 2      | A replacement is needed, | invalid_request         |
+      |        | and the one offered      |                         |
+      |        | comes without client_id  |                         |
       +--------+--------------------------+-------------------------+
       | 2      | The client_id is not the | invalid_grant           |
       |        | client the refresh token |                         |
       |        | was issued to            |                         |
       +--------+--------------------------+-------------------------+
-      | 2      | The replacement names a  | statement_required      |
-      |        | sub other than the       |                         |
-      |        | client_id                |                         |
+      | 2      | A replacement is needed, | statement_required      |
+      |        | and the one offered      |                         |
+      |        | names a sub other than   |                         |
+      |        | the client_id            |                         |
       +--------+--------------------------+-------------------------+
       | 2      | The pull did not         | temporarily_unavailable |
       |        | complete                 |                         |
@@ -473,8 +603,10 @@ Table of Contents
       | 2      | A replacement is needed  | statement_required      |
       |        | and none is obtained     |                         |
       +--------+--------------------------+-------------------------+
-      | 3      | The replacement fails a  | statement_required      |
-      |        | requirement of step 3    |                         |
+      | 3      | A replacement is needed, | statement_required      |
+      |        | and the one obtained     |                         |
+      |        | fails a requirement of   |                         |
+      |        | step 3                   |                         |
       +--------+--------------------------+-------------------------+
       | 4      | The refreshed access     | unauthorized_client or  |
       |        | exceeds the metadata     | invalid_scope           |
@@ -482,75 +614,17 @@ Table of Contents
 
                         Table 2: Refresh Rejections
 
-   1.  Decide whether Section 5.1 requires a replacement or rejects the
-       refresh, having consulted any withdrawal mechanism as Section 3
-       recommends.
-
-   2.  Obtain a replacement.  A client can offer one on any refresh in
-       the software_statement parameter.  A request carrying a
-       replacement MUST meet the client_id rule that Section 5.4 of
-       [STATEMENT] sets for a request making a runtime presentation.  A
-       statement with the recorded iss and jti is not a replacement, and
-       a request carrying it is processed as one offering none.  When a
-       replacement is needed and the request carries none, a server that
-       supports pulled statements pulls, however the establishment was
-       created, and takes as the replacement the most recently issued
-       statement with the recorded iss and sub among those it considers
-       under Section 5.5.1 of [STATEMENT], Section 3, and Section 4.  A
-       refresh that needs a replacement and obtains none is rejected: a
-       reviewed grant never continues under the policy for clients the
-       server has not reviewed.
-
-       The pull uses the retrieval and selection rules of Sections 5.3
-       and 5.5.1 of [STATEMENT].  The continuation rules here apply
-       instead of those sections' rules for opening a new grant, so a
-       refresh whose pull does not complete is rejected.
-
-   3.  Validate the replacement.  A refresh whose replacement fails any
-       of the following requirements is rejected, even when no
-       replacement was needed.  The replacement:
-
-       *  MUST validate under Section 3.2 of [STATEMENT], Section 3, and
-          Section 4.
-
-       *  MUST have the recorded statement's iss and sub.
-
-       *  MUST have an iat later than the recorded statement's.
-
-       *  MUST name in cimd_digest the document currently served at that
-          sub, which the server confirms by retrieval or by revalidating
-          octets it holds.
-
-       *  MUST name a document that carries the establishment's proven
-          key, in its jwks or at its jwks_uri (Section 5.6.1 of
-          [STATEMENT]), or, for an establishment created under
-          Section 5.6.2 of [STATEMENT], a document that still satisfies
-          that section.
-
-       A replacement that meets these requirements is accepted.
-
-   4.  Bound access and update.  The refreshed access MUST fall within
-       the metadata of the document an accepted replacement names or,
-       without one, the establishment's reviewed metadata.  If a
-       replacement is accepted, the refreshed grant's statement identity
-       (iss and jti), iat, effective expiry, any claim an extension uses
-       to locate the statement, reviewed metadata and the digest it
-       matched, and issuer trust decision become the replacement's, in
-       one atomic update.  Concurrent replacements resolve to the most
-       recently issued statement.
-
-   A replacement accepted on refresh MUST apply only to the grant
-   refreshed.
-
-   If the server bounds establishments (Section 11.3 of [STATEMENT]), a
-   count persists across replacements: a replacement accepted on refresh
-   does not add to it.
-
 6.  Token Status List
 
    This section defines the withdrawal mechanism (Section 3) of this
    specification, a profile of Token Status List [STATUSLIST] through
    which an issuer publishes the authoritative status of its statements.
+
+   Every retrieval this specification causes, of a status list, of
+   transmitter configuration metadata (Section 7), or of a key set
+   either names, has the server-side request forgery protections that
+   Section 5.3 of [STATEMENT] requires for the retrievals that
+   specification causes.
 
 6.1.  Issuer Key Sets
 
@@ -598,9 +672,9 @@ Table of Contents
 
    *  MUST publish status, and carry the status claim, for every
       statement it issues under a given iss from the point it begins
-      publishing.  Once statements issued before that point have
-      expired, a trusting authorization server can read an absent claim
-      as meaning the issuer publishes no status.
+      publishing.  A trusting authorization server treats a statement
+      without the claim as one it cannot check for withdrawal, which its
+      effective expiry bounds (Section 3).
 
    *  MUST NOT assign the same combination of status list URI and index
       to more than one statement, including across successive Status
@@ -639,10 +713,15 @@ Table of Contents
    (Section 13.7 of [STATUSLIST]), rather than once per request
    (Section 11.2, Section 13).
 
-   A server MUST NOT replace a Status List Token it holds with one whose
-   iat claim is earlier, and MUST treat one whose iat claim is equal but
-   whose contents differ as a resolution failure.  A host serving an
-   older token then cannot restore a status the issuer has withdrawn.
+   A server MUST NOT accept a Status List Token whose iat claim is
+   earlier than that of the latest token it has accepted from that
+   status list URI, and MUST treat one whose iat claim is equal but
+   whose contents differ as a resolution failure.  It keeps that latest
+   iat, with a SHA-256 digest of the token it accepted at that iat, for
+   each status list URI while it records any statement that references
+   the list, even after it discards the token, so that it can recognize
+   a different token with the same iat.  A host serving an older token
+   then cannot restore a status the issuer has withdrawn.
 
    A server MUST verify a Status List Token only with keys from the
    issuer's Status List key set (Section 6.1), never with keys from the
@@ -758,7 +837,7 @@ Table of Contents
    {
      "iss": "https://issuer.example",
      "jti": "4d3559ec67504aaba65d40b0363faad8",
-     "iat": 1767225600,
+     "iat": 1792022400,
      "aud": "https://as.example",
      "sub_id": {
        "format": "uri",
@@ -767,7 +846,7 @@ Table of Contents
      "events": {
    "urn:ietf:params:oauth:event-type:software-statement-status-changed":
        {
-         "event_timestamp": 1767225590,
+         "event_timestamp": 1792022390,
          "software_statement_jti": "c2a907b34d28"
        }
      }
@@ -864,16 +943,16 @@ Table of Contents
 
    A refresh-token request that Section 5.1 rejects, or whose
    replacement is rejected (Section 5.2), uses statement_required,
-   subject to the order of Section 6 of [STATEMENT].  A request that
-   carries a replacement but omits client_id (Section 5.2) is rejected
-   with invalid_request.  One whose client_id is not the client the
+   subject to the order of Section 6 of [STATEMENT].  When a replacement
+   is needed, a request that carries one but omits client_id
+   (Section 5.2) is rejected with invalid_request, and one whose
+   replacement names a sub other than the client_id is rejected with
+   statement_required.  A request whose client_id is not the client the
    refresh token was issued to fails the grant binding and is rejected
-   with invalid_grant (Section 5.2 of [RFC6749]), and one whose
-   replacement names a sub other than that client_id is rejected with
-   statement_required.  A refresh whose access exceeds the metadata of
-   the document an accepted replacement names is rejected with
-   unauthorized_client or invalid_scope, as Section 6.3 of [STATEMENT]
-   provides for the reviewed metadata.
+   with invalid_grant (Section 5.2 of [RFC6749]).  A refresh whose
+   access exceeds the metadata of the document an accepted replacement
+   names is rejected with unauthorized_client or invalid_scope, as
+   Section 6.3 of [STATEMENT] provides for the reviewed metadata.
 
 9.  Authorization Server Metadata
 
@@ -909,14 +988,15 @@ Table of Contents
    *  a refusal record for each statement it has learned is withdrawn,
       or that its operator refused (Section 3);
 
-   *  an iat floor for each iss and sub, per tenant on a multi-tenant
-      server (Section 4);
+   *  an iat floor for each iss, sub, and use, per tenant for statements
+      confined to a tenant and server-wide for others (Section 4);
 
    *  for each establishment, its recorded statement and what step 4 of
       Section 5.2 records with it;
 
-   *  with Token Status List, the Status List Tokens it holds
-      (Section 6.3); and
+   *  with Token Status List, the Status List Tokens it holds and, for
+      each status list URI, the latest iat it has accepted and a digest
+      of that token (Section 6.3); and
 
    *  with status change events, its streams and the SET jti values it
       has applied on each (Section 7.4).
@@ -1019,8 +1099,9 @@ Table of Contents
 
    Because a receiver resolves status independently (Section 7.4), an
    attacker who suppresses events delays a withdrawal at most until the
-   receiver's next scheduled resolution and, for new admissions, never
-   beyond the affected statements' effective expiry (Section 11.2).
+   receiver's next scheduled resolution that completes and, for new
+   admissions, never beyond the affected statements' effective expiry
+   (Section 11.2).
 
    The absence of events looks the same on a healthy stream and a
    suppressed one.  Periodic stream verification (Section 7.1) makes the
@@ -1031,13 +1112,16 @@ Table of Contents
    The privacy considerations of Section 14 of [STATEMENT],
    [STATUSLIST], [SSF], and [RFC8417] apply.
 
-   Because [STATUSLIST] aggregates many statements into one list, a
-   retrieval tells the issuer only that some trusting authorization
-   server is checking.  Retrieving the list on its own schedule
-   (Section 6.3) keeps the server's request timing from disclosing the
-   client population it serves.  A retrieval that an event prompts shows
-   the issuer that the receiver holds a statement or a cached status for
-   the event's subject.
+   When a list aggregates many statements, a retrieval tells the issuer
+   only that some trusting authorization server is checking, and
+   retrieving the list on its own schedule (Section 6.3) keeps the
+   server's request timing from disclosing the client population it
+   serves.  An issuer that gives a statement its own list, or a list few
+   statements share, learns from each retrieval which server checks that
+   software and when, so an issuer ought to place many statements in
+   each list.  A retrieval that an event prompts shows the issuer that
+   the receiver holds a statement or a cached status for the event's
+   subject.
 
    Subject identifiers in these events name reviewed software and, in
    aggregate, describe an organization's approved software estate.  For
@@ -1098,9 +1182,12 @@ Table of Contents
 
 15.1.  Normative References
 
-   [CAEP]     Cappalli, T. and A. Tulshibagwale, "OpenID Continuous
-              Access Evaluation Profile 1.0", 29 August 2025,
-              <https://openid.net/specs/openid-caep-1_0.html>.
+   [REGISTRATION]
+              McGuinness, K., "Client ID Metadata Document Software
+              Statement Registration", Work in Progress, Internet-Draft,
+              draft-mcguinness-oauth-cimd-sw-stmt-registration-00,
+              October 2026, <https://datatracker.ietf.org/doc/draft-
+              mcguinness-oauth-cimd-sw-stmt-registration>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -1162,18 +1249,15 @@ Table of Contents
 
 15.2.  Informative References
 
+   [CAEP]     Cappalli, T. and A. Tulshibagwale, "OpenID Continuous
+              Access Evaluation Profile 1.0", 29 August 2025,
+              <https://openid.net/specs/openid-caep-1_0.html>.
+
    [CIMD]     Parecki, A. and E. Smith, "OAuth Client ID Metadata
               Document", Work in Progress, Internet-Draft, draft-ietf-
               oauth-client-id-metadata-document-02, 6 July 2026,
               <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
               client-id-metadata-document-02>.
-
-   [REGISTRATION]
-              McGuinness, K., "Client ID Metadata Document Software
-              Statement Registration", Work in Progress, Internet-Draft,
-              draft-mcguinness-oauth-cimd-sw-stmt-registration-00,
-              October 2026, <https://datatracker.ietf.org/doc/draft-
-              mcguinness-oauth-cimd-sw-stmt-registration>.
 
    [RFC6755]  Campbell, B. and H. Tschofenig, "An IETF URN Sub-Namespace
               for OAuth", RFC 6755, DOI 10.17487/RFC6755, October 2012,
