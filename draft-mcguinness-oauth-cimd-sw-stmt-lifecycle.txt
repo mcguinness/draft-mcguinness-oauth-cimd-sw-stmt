@@ -257,8 +257,9 @@ Table of Contents
 
    An issuer can withdraw a statement before its exp.  Unlike OAuth
    token revocation ([RFC7009]), a withdrawal revokes no issued token: a
-   server holding a refusal record refuses new admissions and refresh
-   under the statement (Section 5.1, Section 12.1).
+   server holding a refusal record refuses new admissions, registration
+   or renewal, and refresh under the statement (Section 5.1,
+   Section 12.1, [REGISTRATION]).
 
    How a trusting authorization server learns of a withdrawal is a
    withdrawal mechanism.  This specification requires no withdrawal
@@ -271,9 +272,13 @@ Table of Contents
    refusal record.  A server that uses a withdrawal mechanism for a
    statement's issuer SHOULD consult it, within the caching and
    freshness rules that mechanism defines, before accepting the
-   statement for a new admission, at each refresh of a grant that
+   statement for a new admission, a registration, or a replacement on
+   refresh or registration renewal, at each refresh of a grant that
    records it, and at each token request under a registration the
-   statement governs ([REGISTRATION]).
+   statement governs ([REGISTRATION]).  Registration renewal includes
+   replacements delivered at the token, pushed authorization request, or
+   client configuration endpoint, and replacements in repeated public-
+   client registration requests (Sections 3.3 and 6 of [REGISTRATION]).
 
    A refusal derived from a withdrawal mechanism lasts until a later
    authoritative result from that mechanism replaces it, or until an
@@ -333,6 +338,13 @@ Table of Contents
    At admission, the server verifies the iat floor in step 3 of
    Section 5.1 of [STATEMENT], along with the client_id rule, before it
    resolves the reviewed document.
+
+   For a new registration or a replacement under [REGISTRATION], the
+   server verifies the floor as part of statement validation in
+   Section 3 or Section 6 of that specification, before resolving the
+   reviewed document.  This includes a replacement evaluated on a
+   repeated public-client registration request (Section 3.3 of
+   [REGISTRATION]).
 
    In selecting a pulled statement (Section 5.5.1 of [STATEMENT]), the
    server also ignores any statement that a refusal record covers
@@ -475,7 +487,9 @@ Table of Contents
        reviewed grant never continues under the policy for clients the
        server has not reviewed.
 
-       The pull follows Sections 5.3 and 5.5 of [STATEMENT], and a
+       The pull uses the retrieval and selection rules of Sections 5.3
+       and 5.5.1 of [STATEMENT].  The continuation rules here apply
+       instead of those sections' rules for opening a new grant, so a
        refresh whose pull does not complete is rejected.
 
    3.  Validate the replacement.  A refresh whose replacement fails any
