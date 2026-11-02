@@ -4,7 +4,7 @@ title: Reviewed Client Software
 
 <Info>**Status**: Draft</Info>
 
-<Note>This extension depends on draft-mcguinness-oauth-cimd-sw-stmt-00 and uses draft-mcguinness-oauth-cimd-sw-stmt-lifecycle, cited here by its editor's copy, for withdrawal. Its references are pinned to the core's -00 revision and to draft-ietf-oauth-client-id-metadata-document-02, and it will be proposed through the MCP SEP process.</Note>
+<Note>This extension depends on draft-mcguinness-oauth-cimd-sw-stmt-00 and uses draft-mcguinness-oauth-cimd-sw-stmt-lifecycle-00 for withdrawal. Its references are pinned to those -00 revisions and to draft-ietf-oauth-client-id-metadata-document-02, and it will be proposed through the MCP SEP process.</Note>
 
 ## 1. Introduction
 
@@ -109,7 +109,7 @@ A statement that passes validation, names the document the server fetched, and i
 
 The MCP Authorization Server **MUST NOT** require an MCP Client it admits under this profile to register. Where no statement remains after retrieval, or retrieval does not complete, the server applies the policy it applies to any Client ID Metadata Document client it has not reviewed. A retrieval failure is never treated as a withdrawal.
 
-Where the server learns of a withdrawal, through a withdrawal mechanism such as a status list or from its operator, the withdrawn statement ends refresh for the grants that record it unless a later statement from the same issuer replaces it, as [CIMD Software Statement Lifecycle](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle.html) provides. A server implementing CIMD Software Statement Lifecycle rejects a presented statement for which it holds a refusal record and ignores such a pulled statement.
+Where the server learns of a withdrawal, through a withdrawal mechanism such as a status list or from its operator, the withdrawn statement ends refresh for the grants that record it unless a later statement from the same issuer replaces it, as [CIMD Software Statement Lifecycle](https://www.ietf.org/archive/id/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle-00.html) provides. A server implementing CIMD Software Statement Lifecycle rejects a presented statement for which it holds a refusal record and ignores such a pulled statement.
 
 MCP requires access tokens in the `Authorization: Bearer` header. Where a public client binds a DPoP key at redemption, the MCP Authorization Server **MUST** issue the access token with a `token_type` of `Bearer` and bind only the refresh token to that key, as [Section 5 of RFC9449](https://datatracker.ietf.org/doc/html/rfc9449#section-5) permits, unless it knows the MCP Server accepts DPoP-bound access tokens.
 
