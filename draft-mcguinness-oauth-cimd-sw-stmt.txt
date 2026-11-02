@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         1 November 2026
-Expires: 5 May 2027
+Intended status: Standards Track                         2 November 2026
+Expires: 6 May 2027
 
 
              Client ID Metadata Document Software Statement
@@ -21,9 +21,10 @@ Abstract
    registration.  The client presents the statement in a token or pushed
    authorization request, or publishes it where the reviewed document
    points.  Possession of the statement alone does not complete a grant:
-   the presenter is also bound to the reviewed document.  Because the
-   document remains the metadata, one review is portable across the
-   authorization servers that trust its issuer.  A companion
+   the presenter is also bound to the reviewed document, though for a
+   public client not against a party that controls the user agent.
+   Because the document remains the metadata, one review is portable
+   across the authorization servers that trust its issuer.  A companion
    specification covers RFC 7591 registration.  Withdrawal,
    supersession, and keeping grants in step with later reviews are left
    to extensions.
@@ -43,7 +44,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 5 May 2027.
+   This Internet-Draft will expire on 6 May 2027.
 
 Copyright Notice
 
@@ -649,10 +650,11 @@ Table of Contents
    software_statements_uri:  OPTIONAL.  URL, in a CIMD, at which the
       client publishes software statements about itself.  The member has
       no meaning in a registration request.  The URL MUST use the https
-      scheme.  A request to it returns a JSON object whose
-      software_statements member is an array of statements (Section 3),
-      each a string in JWS compact serialization.  The metadata digest
-      covers this member (Section 3.1).
+      scheme.  A request to it returns, with a JSON media type such as
+      application/json, a JSON object whose software_statements member
+      is an array of statements (Section 3), each a string in JWS
+      compact serialization.  The metadata digest covers this member
+      (Section 3.1).
 
    An authorization server advertises support through
    software_statement_pull_supported (Section 8).
@@ -937,8 +939,9 @@ Table of Contents
    statement_required:  A current software statement is required and
       none was presented or pulled, or the one presented or pulled is
       expired and otherwise valid.  An extension can assign it to
-      further cases.  The client recovers by obtaining a statement
-      issued more recently.
+      further cases.  The client recovers by obtaining a current
+      statement, from the required issuer if the tenant has one
+      (Section 4).
 
 6.2.  Presentation Requests
 
@@ -1120,7 +1123,9 @@ Table of Contents
 
    The following is an example of the JOSE header and payload of a
    statement over the document in the previous example, served exactly
-   as shown there and ending in a single newline:
+   as shown there, with two-space indentation, LF line endings, and a
+   single final newline, and without any indentation added for display
+   (274 octets):
 
    {
      "typ": "software-statement+jwt",
@@ -1417,10 +1422,12 @@ Table of Contents
 13.2.  Statement Theft and Replay
 
    A copied statement admits nothing without the sender constraint
-   (Section 5.6).  Except under Section 5.6.2 (Section 13.4), admitting
-   only keys the reviewed document carries also prevents a downgrade to
-   a key the issuer did not review.  An extension admitting attested
-   keys (Section 9) has to address downgrade itself.
+   (Section 5.6), which for a public client does not hold against a
+   party that controls the user agent (Section 13.4).  Except under
+   Section 5.6.2 (Section 13.4), admitting only keys the reviewed
+   document carries also prevents a downgrade to a key the issuer did
+   not review.  An extension admitting attested keys (Section 9) has to
+   address downgrade itself.
 
    Attesting a jwks_uri attests the location, not its contents: a
    compromised key host can add keys that satisfy the proof without a

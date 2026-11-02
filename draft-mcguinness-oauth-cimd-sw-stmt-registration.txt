@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         1 November 2026
-Expires: 5 May 2027
+Intended status: Standards Track                         2 November 2026
+Expires: 6 May 2027
 
 
       Client ID Metadata Document Software Statement Registration
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 5 May 2027.
+   This Internet-Draft will expire on 6 May 2027.
 
 Copyright Notice
 
@@ -286,7 +286,12 @@ Table of Contents
 
    The tenant rules of steps 1 and 4 of Section 5 also apply to any
    other request under the registration, including [RFC7592] read and
-   delete requests.
+   delete requests.  To an [RFC7592] read, update, or delete request
+   that these rules treat as from a client it has not registered, the
+   authorization server MUST respond with HTTP 403 Forbidden (Sections
+   2.1 through 2.3 of [RFC7592]) and MUST NOT revoke the registration
+   access token, since the registration remains valid where these rules
+   do not apply.
 
 3.2.  Public Clients
 
@@ -655,7 +660,8 @@ Table of Contents
    (Section 4.1.2.1 of [RFC6749]).
 
    Rejections of a registration management request for other reasons use
-   the responses [RFC7592] specifies.
+   the responses [RFC7592] specifies, such as the HTTP 403 Forbidden
+   response that Section 3.1 requires.
 
 8.  Example
 
