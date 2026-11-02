@@ -122,6 +122,12 @@ Establishment:
 Proven Key:
 : The key an establishment is bound to: the key whose possession the presenter proves during runtime presentation ({{sender-constraint}}), the key it binds under {{public-client-presentation}}, or, for a statement pulled at the authorization endpoint, the key proved at code redemption ({{pull-binding}}).
 
+Permitted Method:
+: A token endpoint authentication method that a CIMD lists in its `token_endpoint_auth_methods_supported` member or, if the document has no such member, declares in its `token_endpoint_auth_method` member. A document with neither member permits only `none` (Section 5 of {{CIMD}}).
+
+Selected Method:
+: The permitted method an establishment records ({{grant-lifecycle}}): the method with which a confidential client's presenter authenticates, at code redemption for a statement pulled at the authorization endpoint ({{pull-binding}}), or `none` for a public client.
+
 Effective Expiry:
 : The earlier of a statement's `exp` and its `iat` plus the maximum statement lifetime the trusting authorization server honors for its issuer ({{issuer-trust}}). A statement is expired once its effective expiry has passed.
 
