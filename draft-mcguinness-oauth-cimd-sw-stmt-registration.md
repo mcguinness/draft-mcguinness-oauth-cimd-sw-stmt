@@ -412,3 +412,19 @@ Change Controller:
 
 Specification Document(s):
 : {{RFC6749}}, this specification ({{errors}})
+
+--- back
+
+# Document History
+{:numbered="false"}
+
+[[ To be removed from the final specification ]]
+
+-01
+
+* Aligned authentication methods with draft -03 of {{CIMD}}. The registered `token_endpoint_auth_method` is a method the reviewed document permits, and a replacement keeps it ({{revalidation}}).
+* A document that declares no authentication method permits only `none` and is no longer rejected.
+
+-00
+
+* Initial version.

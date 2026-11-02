@@ -963,3 +963,20 @@ Specification Document(s):
 {:numbered="false"}
 
 This mechanism began as the consumption part of a draft on software statement issuance and was split out so that consumption can evolve separately from issuance. It draws on working-group discussion of CIMDs and attestation-based client authentication.
+
+# Document History
+{:numbered="false"}
+
+[[ To be removed from the final specification ]]
+
+-01
+
+* Updated references for draft -03 of {{CIMD}}, including its section numbers and the `Accept` header field it specifies.
+* Defined Permitted Method and Selected Method. The client model follows the methods the reviewed document permits, and components that differ in client type use separate documents ({{sender-constraint}}).
+* A document that declares no authentication method permits only `none` and is no longer rejected.
+* Aligned retrieval failures with Section 6.1 of {{CIMD}}, including HTTP status code 503 for `temporarily_unavailable` and `invalid_client` on refresh when the document cannot be used.
+* Updated the pull example for `token_endpoint_auth_methods_supported`.
+
+-00
+
+* Initial version.

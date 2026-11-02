@@ -550,3 +550,17 @@ Specification Document(s):
 : This specification, {{authorization-server-metadata}}
 
 --- back
+
+# Document History
+{:numbered="false"}
+
+[[ To be removed from the final specification ]]
+
+-01
+
+* Aligned with draft -03 of {{CIMD}}. A refresh replacement's document must permit the establishment's Selected Method ({{refresh-replacement}}).
+* A refresh whose currently served document cannot be obtained or fails validation is rejected with `invalid_client` ({{lifecycle-errors}}).
+
+-00
+
+* Initial version.
