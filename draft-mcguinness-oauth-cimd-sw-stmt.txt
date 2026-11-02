@@ -152,13 +152,15 @@ Table of Contents
    trust and for which clients and tenants (Section 4).  A portable
    review does not imply universal acceptance.
 
-   For example, a marketplace or registry can vouch for software at
-   authorization servers it does not operate, and an enterprise can
-   approve a hosted client for use at services run by other operators.
-   Allowlisting its CIMD URL identifies the client but does not record
-   which metadata was reviewed.  The document can change while the URL
-   stays the same.  The statement carries that review across operators.
-   This also serves server-hosted software, such as an agent using
+   This specification serves deployments in which a party other than the
+   client decides which software can connect.  For example, a
+   marketplace or registry can vouch for software at authorization
+   servers it does not operate, and an enterprise can approve a hosted
+   client for use at services run by other operators.  Allowlisting its
+   CIMD URL identifies the client but does not record which metadata was
+   reviewed.  The document can change while the URL stays the same.  The
+   statement carries that review across operators.  This specification
+   also serves server-hosted software, such as an agent using
    client_credentials.  Admission grants no access to resources: the
    authorization server's policy, and the resource owner's authorization
    where a grant involves one, still govern what it issues.
@@ -169,9 +171,9 @@ Table of Contents
    the presenter to the reviewed document (Section 5.6), although for a
    public client that binding does not hold against a party that
    controls the user agent (Section 13.4).  A statement for a native
-   application whose redirection URIs another application on the same
-   device could claim is review-only: the authorization server treats
-   the client as if it had presented no statement (Section 5.6.3).
+   application with a redirection URI another application on the same
+   device could claim is review-only: it counts for nothing in admission
+   (Section 5.6.3).
 
    Under this specification, an authorization server checks a statement
    only when a grant is opened.  A statement's expiry ends no grant
@@ -212,8 +214,9 @@ Table of Contents
        rejected, except in the cases Section 5.6.3 defines, such as a
        document with a redirection URI another application on the same
        device could claim.  A review-only statement admits nothing on
-       the strength of the review: the request proceeds as one
-       presenting no statement, and no establishment is created.
+       the strength of the review: unless Section 5.6 rejects the
+       presentation, the request proceeds as one presenting no
+       statement, and no establishment is created.
 
    5.  When the binding succeeds, the request proceeds under the
        reviewed document's metadata, without a registration.  The
@@ -1042,8 +1045,8 @@ Table of Contents
 
       *  The document carries metadata this server's policy refuses.
 
-      *  The client is review-only where policy or a required issuer
-         requires reviewed software (Section 5.6.3).
+      *  The client's statement is review-only where policy or a
+         required issuer requires reviewed software (Section 5.6.3).
 
       *  The request is for software a required issuer excludes from the
          tenant (Section 4).
@@ -1085,16 +1088,17 @@ Table of Contents
    authorization error response (Section 4.1.2.1 of [RFC6749]) with the
    following error codes:
 
-   unauthorized_client:  The client is review-only (Section 5.6.3), or a
-      required issuer excludes the software from the tenant (Section 4).
+   unauthorized_client:  The client's statement is review-only
+      (Section 5.6.3), or a required issuer excludes the software from
+      the tenant (Section 4).
 
    statement_required:  In any other case, subject to the order of
       Section 6, the authorization server MUST return this code.
 
-   An authorization request evaluated against a statement pulled at the
-   authorization endpoint that exceeds the reviewed document's response
-   types or scope (step 6 of Section 5.1) is rejected with
-   unauthorized_client or invalid_scope, as for a presentation
+   When an authorization request is evaluated against a statement pulled
+   at the authorization endpoint (step 6 of Section 5.1), one that
+   exceeds the reviewed document's response types or scope is rejected
+   with unauthorized_client or invalid_scope, as for a presentation
    (Section 6.2).
 
    Before redirecting with an error, the authorization server validates
@@ -1385,7 +1389,7 @@ Table of Contents
 12.1.  Configuring Issuer Trust
 
    Trust configuration ought to constrain each issuer to the client
-   identifier namespaces it is expected to attest (Section 3.2), for
+   identifier namespaces it is expected to attest (Section 4), for
    example URLs under the domains of the software publishers it serves.
    Without such a scope, a compromised or over-broad issuer can mint
    acceptable statements about any client software.
@@ -1671,10 +1675,10 @@ Table of Contents
 
    Published specification:  This specification
 
-   Applications that use this media type:  Authorization servers and
-      clients that issue, request, or accept software statements under
-      this specification; other profiles are distinguished by their own
-      typ values
+   Applications that use this media type:  Issuers, authorization
+      servers, and clients that issue, request, or accept software
+      statements under this specification; other profiles are
+      distinguished by their own typ values
 
    Fragment identifier considerations:  n/a
 
@@ -1931,7 +1935,7 @@ Table of Contents
               McGuinness, K., "Client ID Metadata Document Software
               Statement Registration", Work in Progress, Internet-Draft,
               draft-mcguinness-oauth-cimd-sw-stmt-registration-00,
-              October 2026, <https://datatracker.ietf.org/doc/draft-
+              November 2026, <https://datatracker.ietf.org/doc/draft-
               mcguinness-oauth-cimd-sw-stmt-registration>.
 
    [RFC7522]  Campbell, B., Mortimore, C., and M. Jones, "Security

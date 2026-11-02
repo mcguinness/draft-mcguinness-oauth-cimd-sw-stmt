@@ -13,8 +13,8 @@ Expires: 6 May 2027
 
 Abstract
 
-   This specification defines how a software statement for a Client ID
-   Metadata Document (CIMD), as defined in a companion specification, is
+   This specification defines how a Client ID Metadata Document (CIMD)
+   software statement, as defined in a companion specification, is
    withdrawn, superseded, and replaced after an authorization server has
    admitted or registered a client on it.  That specification evaluates
    a statement when a grant is opened, not when it is refreshed.  Under
@@ -179,11 +179,11 @@ Table of Contents
    to open something new, such as an admission, a registration, or a
    refresh replacement.  A refusal record (Section 3), and expiry where
    the server requires a current statement (Section 5.1), also limit the
-   continuation of a grant or registration the statement governs.
-   Table 1 shows what a statement's standing at one authorization server
-   allows.  Each row describes one condition on its own.  A statement
-   can meet more than one, such as being both superseded and covered by
-   a refusal record, and then the limits of every row it meets apply.
+   continuation of a grant that records the statement.  Table 1 shows
+   what a statement's standing at one authorization server allows.  Each
+   row describes one condition on its own.  A statement can meet more
+   than one, such as being both superseded and covered by a refusal
+   record, and then the limits of every row it meets apply.
 
    +==========+==============+============+=============+=============+
    |Standing  | New          | Pulled     | Refresh of  | Use as a    |
@@ -228,8 +228,9 @@ Table of Contents
 
    This specification uses the terms transmitter, receiver, stream, and
    transmitter configuration metadata from [SSF], Security Event Token
-   (SET) from [RFC8417], Status List Token from [STATUSLIST], and the
-   terms defined in Section 2 of [STATEMENT].
+   (SET) from [RFC8417], Status List Token from [STATUSLIST], Governing
+   Statement from Section 2 of [REGISTRATION], and the terms defined in
+   Section 2 of [STATEMENT].
 
    This specification defines the following terms.
 
@@ -358,11 +359,11 @@ Table of Contents
    statement whose iat claim is earlier than the retained iat floor for
    the use being made: presentation for a runtime presentation or a
    replacement on refresh, and registration for a new registration or a
-   replacement delivered under [REGISTRATION].  A client holding a
-   superseded, broader statement therefore cannot defer a narrowing by
-   opening a fresh registration or establishment with it.  Keeping a
-   floor per use lets an issuer publish a presentation statement for
-   servers to pull while presenting a separate registration statement
+   replacement under [REGISTRATION].  A client holding a superseded,
+   broader statement therefore cannot defer a narrowing by opening a
+   fresh registration or establishment with it.  Keeping a floor per use
+   lets a client publish a presentation statement for servers to pull
+   while registering with a separate registration statement
    (Section 11.1 of [REGISTRATION]), without either superseding the
    other.
 
@@ -381,8 +382,9 @@ Table of Contents
    The server classifies a repeated registration request under that
    section before it applies the floor, so a request that resends the
    governing statement receives the existing registration even if that
-   statement has since been superseded, as Section 1.1 provides for a
-   superseded governing statement.
+   statement has since been superseded.  Supersession does not end a
+   statement's currency, so the registration stays valid (Section 4 of
+   [REGISTRATION]).
 
    The floor needs one iat value for each iss, sub, and use and, on a
    multi-tenant server, each tenant to which statements are confined
@@ -618,10 +620,10 @@ Table of Contents
    which an issuer publishes the authoritative status of its statements.
 
    Every retrieval this specification causes, of a status list, of
-   transmitter configuration metadata (Section 7), or of a key set
-   either names, has the server-side request forgery protections that
-   Section 5.3 of [STATEMENT] requires for the retrievals that
-   specification causes.
+   transmitter configuration metadata (Section 7), or of a key set of
+   Section 6.1 or the metadata that locates it, has the server-side
+   request forgery protections that Section 5.3 of [STATEMENT] requires
+   for the retrievals that specification causes.
 
 6.1.  Issuer Key Sets
 
@@ -664,8 +666,8 @@ Table of Contents
    the issuer's Status List Token through the status claim, whose
    status_list member gives the status list URI and index (Section 6.2
    of [STATUSLIST]).  It is the claim by which this specification
-   locates a statement, which an establishment records (Section 5.7 of
-   [STATEMENT]).  An issuer that publishes status:
+   locates a statement, and an establishment records that claim
+   (Section 5.7 of [STATEMENT]).  An issuer that publishes status:
 
    *  MUST publish status, and carry the status claim, for every
       statement it issues under a given iss from the point it begins
@@ -1090,7 +1092,7 @@ Table of Contents
    issuer's SET signing key, or a misbehaving transmitter, can trigger
    resolutions (Section 10.2) and nothing more, because the key set that
    verifies SETs shares no location or key with the statement key set or
-   the Status List key set (Section 6).
+   the Status List key set (Section 6.1).
 
 12.4.  Event Suppression
 
@@ -1183,7 +1185,7 @@ Table of Contents
               McGuinness, K., "Client ID Metadata Document Software
               Statement Registration", Work in Progress, Internet-Draft,
               draft-mcguinness-oauth-cimd-sw-stmt-registration-00,
-              October 2026, <https://datatracker.ietf.org/doc/draft-
+              November 2026, <https://datatracker.ietf.org/doc/draft-
               mcguinness-oauth-cimd-sw-stmt-registration>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
@@ -1233,7 +1235,7 @@ Table of Contents
    [STATEMENT]
               McGuinness, K., "Client ID Metadata Document Software
               Statement", Work in Progress, Internet-Draft, draft-
-              mcguinness-oauth-cimd-sw-stmt-00, October 2026,
+              mcguinness-oauth-cimd-sw-stmt-00, November 2026,
               <https://datatracker.ietf.org/doc/draft-mcguinness-oauth-
               cimd-sw-stmt>.
 
