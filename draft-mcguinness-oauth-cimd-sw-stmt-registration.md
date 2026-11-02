@@ -95,21 +95,22 @@ The reviewed document takes the role that {{RFC7591}} gives a statement's own va
 
 * MUST obtain the CIMD at the statement's `sub` claim and compare its digest with the `cimd_digest` claim as Section 5.2 of {{STATEMENT}} requires, rejecting the request if the digests differ, and MUST derive the registered metadata from the octets whose digest matched.
 * MUST validate the document as {{CIMD}} requires, including that its `client_id` member matches the statement's `sub` claim.
-* MUST take every client metadata value from that document, except values the authorization server issues, such as `client_id` and `client_id_issued_at`, and the document's `software_statements_uri` member, which is not meaningful in a registration (Section 5.5 of {{STATEMENT}}).
+* MUST take every client metadata value from that document, except the values the authorization server issues (such as `client_id` and `client_id_issued_at`), the `token_endpoint_auth_method` member, which the next item determines, and the document's `software_statements_uri` member, which is not meaningful in a registration (Section 5.5 of {{STATEMENT}}).
+* At registration, MUST register as `token_endpoint_auth_method` a method that the document permits (Section 2 of {{STATEMENT}}) and that the server supports and its policy allows, and MUST NOT register `none` if the document permits another such method. A replacement keeps the registered method ({{revalidation}}).
 * MUST NOT take any client metadata value from the request, or from any {{RFC7592}} update request for the registration, whether or not the document carries the corresponding member.
 
-Client metadata in a registration or update request does not contribute to the registration. The registration's `software_statement` is its governing statement ({{revalidation}}). The registered `client_id` is assigned as {{RFC7591}} provides, and the document's own `client_id` member is the URL recorded as the governing statement's `sub`. The authorization server MUST NOT assign that URL as the registered `client_id`, which would make a request carrying it ambiguous between the registration and the CIMD client the URL identifies ({{CIMD}}). A member the document omits, other than `token_endpoint_auth_method` (rejected below), takes its {{RFC7591}} default. The registration's metadata changes only when a replacement is applied ({{revalidation}}).
+Client metadata in a registration or update request does not contribute to the registration. The registration's `software_statement` is its governing statement ({{revalidation}}). The registered `client_id` is assigned as {{RFC7591}} provides, and the document's own `client_id` member is the URL recorded as the governing statement's `sub`. The authorization server MUST NOT assign that URL as the registered `client_id`, which would make a request carrying it ambiguous between the registration and the CIMD client the URL identifies ({{CIMD}}). A member the document omits takes its {{RFC7591}} default, except `token_endpoint_auth_method`, which is registered as above. The registration's metadata changes only when a replacement is applied ({{revalidation}}).
 
 The authorization server MUST reject the registration, or a replacement ({{revalidation}}), if any of the following holds:
 
-* The document omits the `token_endpoint_auth_method` member.
-* The document declares a `token_endpoint_auth_method` based on a shared symmetric secret, such as `client_secret_basic`, which Section 4.1 of {{CIMD}} forbids.
-* The document declares `token_endpoint_auth_method` of `none`, unless the authorization server registers the client under {{public-client-registration}}.
-* Any of the document's redirection URIs could be claimed by another application on the same device (Section 5.6.3 of {{STATEMENT}}), whatever authentication method the document declares.
+* The document permits a method based on a shared symmetric secret, such as `client_secret_basic`, which Section 4.1 of {{CIMD}} forbids.
+* The document permits no method that the server supports and its policy allows.
+* The method the server would register is `none`, unless the authorization server registers the client under {{public-client-registration}}.
+* Any of the document's redirection URIs could be claimed by another application on the same device (Section 5.6.3 of {{STATEMENT}}), whatever methods the document permits.
 
 Unlike runtime presentation (Section 5 of {{STATEMENT}}), registration has no review-only form: the rejections above cover the document conditions that make a presentation review-only.
 
-Software whose document declares `token_endpoint_auth_method` of `none` and that the server does not register under {{public-client-registration}} can instead use runtime presentation if it meets the public-client binding requirements of Section 5.6.2 of {{STATEMENT}}.
+Software that the server would register with `none` but does not register under {{public-client-registration}} can instead use runtime presentation if it meets the public-client binding requirements of Section 5.6.2 of {{STATEMENT}}.
 
 ## Tenant Restriction {#tenant-restriction}
 
@@ -127,7 +128,7 @@ The tenant rules of steps 1 and 4 of {{registration-requests}} also apply to any
 
 ## Public Clients {#public-client-registration}
 
-An authorization server MAY register a client whose reviewed document declares `token_endpoint_auth_method` of `none`, creating a public-client registration. Such a registration has no client credential and is shared among installations of the software. A server that registers such a client:
+An authorization server MAY register a client with `token_endpoint_auth_method` of `none` ({{dcr-presentation}}), creating a public-client registration. Such a registration has no client credential and is shared among installations of the software. A server that registers such a client:
 
 * MUST reject the registration if the document lists no redirection URI.
 * MUST issue tokens under the registration only through the authorization code grant and the refresh of grants it opens.
@@ -212,7 +213,7 @@ The replacement MUST satisfy the following:
 * It validates under Section 3.2 of {{STATEMENT}}.
 * The `iss` and `sub` claims equal those of the governing statement.
 * The `iat` claim is later than that of the governing statement.
-* Its document declares `token_endpoint_auth_method` of `none` if and only if the governing statement's document does.
+* Its document permits the registration's `token_endpoint_auth_method` (Section 2 of {{STATEMENT}}).
 * For a public-client registration that carries no tenant restriction, its decision is not confined to a tenant ({{tenant-restriction}}).
 * Its document, from which the registration's metadata is derived, satisfies the rules of {{dcr-presentation}}.
 
@@ -236,7 +237,7 @@ A rejection this specification defines, at a client registration endpoint or at 
   * The statement is malformed, fails signature or claim validation for a reason `unapproved_software_statement` does not cover, is expired or otherwise not current (Section 2 of {{STATEMENT}}), or is superseded under an extension the server implements.
   * The document's digest does not equal the statement's `cimd_digest` claim ({{dcr-presentation}}).
   * An {{RFC7592}} update request is rejected under {{registration-validity}}.
-  * A statement delivered at the client configuration endpoint, or the statement of a repeated public-client registration request evaluated as a replacement ({{repeated-registration}}), fails the replacement rules of {{revalidation}} where this section assigns no other code, such as a change in whether the document declares `token_endpoint_auth_method` of `none`.
+  * A statement delivered at the client configuration endpoint, or the statement of a repeated public-client registration request evaluated as a replacement ({{repeated-registration}}), fails the replacement rules of {{revalidation}} where this section assigns no other code, such as a document that does not permit the registration's `token_endpoint_auth_method`.
   * The statement of a repeated public-client registration request is not the governing statement and has an `iat` no later than the governing statement's ({{repeated-registration}}).
 
 `unapproved_software_statement`:
@@ -249,12 +250,12 @@ A rejection this specification defines, at a client registration endpoint or at 
   * It fails validation as {{CIMD}} requires ({{dcr-presentation}}).
   * It carries metadata this server's policy refuses.
   * It cannot be obtained, including over the server's size bound, for a reason other than a retrieval that did not complete (Section 5.3 of {{STATEMENT}}).
-  * It omits `token_endpoint_auth_method` ({{dcr-presentation}}).
-  * It declares a `token_endpoint_auth_method` based on a shared symmetric secret ({{dcr-presentation}}).
-  * It declares `token_endpoint_auth_method` of `none` and the server registers no public clients under {{public-client-registration}}.
+  * It permits a method based on a shared symmetric secret ({{dcr-presentation}}).
+  * It permits no method that the server supports and its policy allows ({{dcr-presentation}}).
+  * The server would register the client with `none` ({{dcr-presentation}}) and does not register it under {{public-client-registration}}.
 
 `invalid_redirect_uri`:
-: The reviewed document carries a redirection URI another application could claim ({{dcr-presentation}}), or declares `token_endpoint_auth_method` of `none` and lists no redirection URI ({{public-client-registration}}).
+: The reviewed document carries a redirection URI another application could claim ({{dcr-presentation}}), or the server would register the client with `none` and the document lists no redirection URI ({{public-client-registration}}).
 
 `temporarily_unavailable`:
 : A retrieval the request needs did not complete (Section 5.3 of {{STATEMENT}}).
@@ -311,9 +312,9 @@ The security considerations of Section 13 of {{STATEMENT}} and Section 5 of {{RF
 
 A statement consumed at registration is a reusable bearer artifact until it expires. Its audience, lifetime, and `statement_uses` claim (Section 3 of {{STATEMENT}}) and the registration policy of {{repeated-registration}} limit what a copied statement can create. A statement a client publishes at its `software_statements_uri` (Section 5.5 of {{STATEMENT}}) can be read by anyone, so an issuer ought not to permit registration in such a statement.
 
-Taking every value from the document prevents metadata substitution. A request-supplied value for a member the document omits, such as a `jwks` member beside a document naming only `jwks_uri`, would give any holder of a copy a registration with reviewed branding and the holder's own key. Registering a document that omits `token_endpoint_auth_method` under the {{RFC7591}} default would register a shared-secret method, which {{CIMD}} forbids (Section 4.1 of {{CIMD}}) and the issuer never reviewed. An issuer that omits `aud` from a statement permitting registration accepts that any server trusting the issuer can register the software on the strength of a copy.
+Taking every value from the document prevents metadata substitution. A request-supplied value for a member the document omits, such as a `jwks` member beside a document naming only `jwks_uri`, would give any holder of a copy a registration with reviewed branding and the holder's own key. A document that declares no authentication method permits only `none` (Section 5 of {{CIMD}}). Registering it under the {{RFC7591}} default would register a shared-secret method, which {{CIMD}} forbids (Section 4.1 of {{CIMD}}) and the issuer never reviewed. An issuer that omits `aud` from a statement permitting registration accepts that any server trusting the issuer can register the software on the strength of a copy.
 
-Under the one-registration default ({{repeated-registration}}), whoever first registers with a copy of a statement holds that registration and its registration access token, and can keep the software's publisher from registering there. Such a holder cannot authenticate as the client if the reviewed document's authentication method requires a key the document carries.
+Under the one-registration default ({{repeated-registration}}), whoever first registers with a copy of a statement holds that registration and its registration access token, and can keep the software's publisher from registering there. Such a holder cannot authenticate as the client if the registered `token_endpoint_auth_method` requires a key the document carries.
 
 If the publisher's statement permits presentation and the server supports it, the publisher's software can still be admitted through runtime presentation (Section 5 of {{STATEMENT}}). Otherwise, recovery requires intervention by the server's operator or a registration policy other than the one-registration default. This specification defines no way to displace such a registration.
 
