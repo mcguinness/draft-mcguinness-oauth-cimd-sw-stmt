@@ -345,8 +345,6 @@ Unless the reviewed document's redirection URIs make it review-only ({{review-on
 | Pushed authorization request endpoint | The request's client authentication | PKCE with `S256` and a key bound through a DPoP proof or `dpop_jkt`, as {{public-client-presentation}} requires. Otherwise review-only |
 | Authorization endpoint | Client authentication at code redemption, before any token is issued | PKCE with `S256` and a key bound through `dpop_jkt`, as {{public-client-presentation}} requires, which redemption then proves. Otherwise review-only |
 
-A statement pulled for a document that omits `token_endpoint_auth_method` is review-only wherever it is pulled.
-
 At code redemption, a confidential client whose statement was pulled at the authorization endpoint authenticates with a key the reviewed document carries, in its `jwks` or at its `jwks_uri` within the reuse bounds of {{retrieval}}, not one that only a later retrieval of the document carries, and that key becomes the establishment's proven key. The method with which the client authenticates becomes the establishment's Selected Method.
 
 ## Sender Constraint {#sender-constraint}
@@ -357,8 +355,6 @@ A runtime presentation that is not review-only ({{review-only}}) MUST be sender-
 * Public client: by an installation key the presenter binds ({{public-client-presentation}}), while its reviewed redirection URIs, with PKCE `S256`, bind the presentation itself ({{public-client-security}}).
 
 The authorization server determines the model from the reviewed document's permitted methods that it supports and its policy allows, not from the request. It MUST apply the confidential-client model if those methods include one other than `none`, and otherwise applies the public-client model if they include `none`. If they include neither, Section 5 of {{CIMD}} applies.
-
-The authorization server MUST reject a presentation made in a request ({{runtime-presentation}}) under a reviewed document that omits the `token_endpoint_auth_method` member, even if the presentation is review-only. {{pull-binding}} covers a pulled statement.
 
 For a presentation that is not review-only, under either model:
 
@@ -456,7 +452,7 @@ A presentation at the token or pushed authorization request endpoint is rejected
 
   * The statement is malformed or fails validation ({{validation}}) for a reason other than expiry.
   * The request's `client_id` differs from the statement's `sub` ({{runtime-presentation}}).
-  * The request fails the sender constraint ({{sender-constraint}}), including a presentation made in a request under a document that omits `token_endpoint_auth_method`, and one opening a new grant at the token endpoint for a public client ({{public-client-presentation}}).
+  * The request fails the sender constraint ({{sender-constraint}}), including a presentation opening a new grant at the token endpoint for a public client ({{public-client-presentation}}).
   * The reviewed document cannot be obtained, including over the size bound, fails validation as {{CIMD}} requires, contains duplicate member names ({{effective-metadata}}), or does not match and the server does not proceed without the statement ({{effective-metadata}}).
   * The bound on establishments is reached ({{establishment-bounds}}).
 
