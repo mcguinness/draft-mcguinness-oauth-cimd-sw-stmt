@@ -560,7 +560,7 @@ An authorization server receiving an ordinary authorization request with this `c
 
 ## Statement Header and Payload
 
-The following is an example of the JOSE header and payload of a statement over the document in the previous example, served exactly as shown there and ending in a single newline:
+The following is an example of the JOSE header and payload of a statement over the document in the previous example, served exactly as shown there, with two-space indentation, LF line endings, and a single final newline, and without any indentation added for display (274 octets):
 
 ~~~ json
 {
