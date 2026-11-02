@@ -48,7 +48,7 @@ informative:
 
 --- abstract
 
-A companion specification defines a software statement for a Client ID Metadata Document (CIMD). The statement carries no client metadata: it binds an issuer's review to the exact octets of the client's own document. This specification defines how an authorization server consumes such a statement in an RFC 7591 registration request, taking every metadata value from the reviewed document rather than from the request. It also defines how the statement's expiry bounds the resulting registration, which RFC 7591 leaves unbounded, and how a client renews the registration by delivering a replacement statement, which also updates the registration's metadata.
+This specification defines how an authorization server registers a client through OAuth 2.0 Dynamic Client Registration (RFC 7591) on a software statement for a Client ID Metadata Document (CIMD), as defined in a companion specification. Such a statement carries no client metadata of its own. It vouches for the exact octets of the client's document, and the authorization server takes every registered metadata value from that document rather than from the registration request. This specification also bounds the registration's validity by the statement's expiry, which RFC 7591 leaves unbounded, and defines how a client renews the registration by delivering a later statement, which also updates the registered metadata.
 
 --- middle
 
