@@ -330,7 +330,7 @@ Renewal proves possession of the registration's credential and the currency of a
 
 A narrower review takes effect at a registration when the client delivers it or when the governing statement ceases to be current. Withdrawal before then requires an extension (Section 9 of {{STATEMENT}}).
 
-Deployments ought to pair statement-governed registrations with credential rotation, sender-constrained client authentication, and the bounds that Sections 11.2 and 11.3 of {{STATEMENT}} and {{repeated-registration}} describe, and ought to treat a credential compromise as requiring re-registration rather than renewal. Runtime presentation binds every presenter to the reviewed document (Sections 5.6 and 13.4 of {{STATEMENT}}) and so does not have this limitation.
+Deployments ought to pair statement-governed registrations with credential rotation, sender-constrained client authentication, and the bounds that Sections 11.2 and 11.3 of {{STATEMENT}} and {{repeated-registration}} describe, and ought to treat a credential compromise as requiring re-registration rather than renewal. At runtime, a confidential client's key must appear in the reviewed document and, on refresh, in the document currently served (Sections 5.6.1 and 5.7.1 of {{STATEMENT}}), so removing a compromised key from the document ends its use there.
 
 ## Registration Fraud and Impersonation {#registration-fraud}
 
