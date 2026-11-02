@@ -124,14 +124,6 @@ The `iat` floor ({{supersession}}) limits only the acceptance of a statement to 
 
 A registration ({{REGISTRATION}}) advances the `iat` floor and follows the same pattern: a refusal record covering its governing statement ends its validity at the server holding the record, and a superseded governing statement leaves it valid until that statement expires.
 
-A server implementing this specification keeps the following state:
-
-* a refusal record for each statement it has learned is withdrawn, or that its operator refused ({{withdrawal}});
-* an `iat` floor for each `iss` and `sub`, per tenant on a multi-tenant server ({{supersession}});
-* for each establishment, its recorded statement and what step 4 of {{refresh-replacement}} records with it;
-* with Token Status List, the Status List Tokens it holds ({{status-resolution}}); and
-* with status change events, its streams and the SET `jti` values it has applied on each ({{processing}}).
-
 # Conventions and Definitions
 
 {::boilerplate bcp14-tagged}
@@ -449,6 +441,16 @@ On refresh-token use under an establishment, a server that does not apply refres
 # Implementation Considerations {#implementation-considerations}
 
 This section gives guidance to implementers. It adds no requirement.
+
+## Server State {#server-state}
+
+A server implementing this specification keeps the following state:
+
+* a refusal record for each statement it has learned is withdrawn, or that its operator refused ({{withdrawal}});
+* an `iat` floor for each `iss` and `sub`, per tenant on a multi-tenant server ({{supersession}});
+* for each establishment, its recorded statement and what step 4 of {{refresh-replacement}} records with it;
+* with Token Status List, the Status List Tokens it holds ({{status-resolution}}); and
+* with status change events, its streams and the SET `jti` values it has applied on each ({{processing}}).
 
 ## Resolution in Response to Events {#event-resolution}
 
