@@ -87,7 +87,7 @@ How the MCP Authorization Server binds a request to the reviewed document depend
 
 ### 3.4 Presenting Statements in a Request
 
-An MCP Client **MAY** also present a statement in a token request or pushed authorization request, at the endpoints, on the grants, and to the audience CIMD Software Statement permits; no discovery is needed, since an MCP Authorization Server that does not accept presented statements ignores the parameter (Section 4.1). This profile does not require presentation, and an MCP Client that only publishes is fully conformant.
+An MCP Client **MAY** also present a statement in a token request or pushed authorization request, at the endpoints, on the grants, and to the audience CIMD Software Statement permits; no discovery is needed, since an MCP Authorization Server implementing this profile accepts presented statements (Section 4.1) and a server that does not implement CIMD Software Statement ignores the parameter. This profile does not require presentation, and an MCP Client that only publishes is fully conformant.
 
 ## 4. MCP Authorization Server Requirements
 
@@ -95,7 +95,7 @@ An MCP Client **MAY** also present a statement in a token request or pushed auth
 
 An MCP Authorization Server implementing this profile **MUST** support pulled statements and advertise `software_statement_pull_supported` as `true` in its authorization server metadata. It retrieves a client's `software_statements_uri` when the client opens a new grant without presenting a statement, at the authorization, pushed authorization request, or token endpoint, and processes what it finds as Pulled Statements specifies: it considers only statements naming the document's URL, from issuers it trusts, that validate, that permit presentation, and whose digest matches the document it fetched.
 
-It **MAY** also accept presented statements. One that does not ignores the `software_statement` parameter only on a request that opens a new grant where Presentation Request in CIMD Software Statement permits a presentation, and processes that request as one presenting no statement. It still rejects the parameter in any role that section does not permit, such as code redemption, and a server implementing CIMD Software Statement Lifecycle processes a replacement offered on refresh as that specification requires.
+It **MUST** also accept presented statements, at the endpoints and on the grants Presentation Request in CIMD Software Statement permits, as that specification requires of a server implementing it. It rejects the parameter in any role that section does not permit, such as code redemption, and a server implementing CIMD Software Statement Lifecycle processes a replacement offered on refresh as that specification requires.
 
 ### 4.2 Issuer Trust
 
@@ -152,7 +152,7 @@ On a `jwt-bearer` request a confidential MCP Client is bound by authenticating w
 
 ## 6. Discovery
 
-An MCP Client needs no discovery to participate: publishing `software_statements_uri` is enough. An MCP Authorization Server indicates support for this profile by advertising `software_statement_pull_supported` as `true`. A client that wants to present statements in a request needs no discovery either (Section 3.4): a server that does not accept presented statements ignores the parameter (Section 4.1), and one that requires a statement responds with `statement_required`.
+An MCP Client needs no discovery to participate: publishing `software_statements_uri` is enough. An MCP Authorization Server indicates support for this profile by advertising `software_statement_pull_supported` as `true`. A client that wants to present statements in a request needs no discovery either (Section 3.4): an MCP Authorization Server implementing this profile accepts them (Section 4.1), a server that does not implement CIMD Software Statement ignores the parameter, and one that requires a statement responds with `statement_required`.
 
 ## 7. Examples
 
