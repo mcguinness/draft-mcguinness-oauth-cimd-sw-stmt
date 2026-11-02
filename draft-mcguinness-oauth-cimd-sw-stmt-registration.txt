@@ -84,6 +84,7 @@ Table of Contents
      13.3.  OAuth Authorization Server Metadata Registry
      13.4.  OAuth Extensions Error Registry
    14. Normative References
+   Document History
    Author's Address
 
 1.  Introduction
@@ -1005,6 +1006,23 @@ Table of Contents
               mcguinness-oauth-cimd-sw-stmt-00, 2 November 2026,
               <https://datatracker.ietf.org/doc/html/draft-mcguinness-
               oauth-cimd-sw-stmt-00>.
+
+Document History
+
+   [[ To be removed from the final specification ]]
+
+   -01
+
+   *  Aligned authentication methods with draft -03 of [CIMD].  The
+      registered token_endpoint_auth_method is a method the reviewed
+      document permits, and a replacement keeps it (Section 6).
+
+   *  A document that declares no authentication method permits only
+      none and is no longer rejected.
+
+   -00
+
+   *  Initial version.
 
 Author's Address
 

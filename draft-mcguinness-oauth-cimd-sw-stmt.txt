@@ -132,6 +132,7 @@ Table of Contents
      16.1.  Normative References
      16.2.  Informative References
    Acknowledgments
+   Document History
    Author's Address
 
 1.  Introduction
@@ -2006,6 +2007,33 @@ Acknowledgments
    statement issuance and was split out so that consumption can evolve
    separately from issuance.  It draws on working-group discussion of
    CIMDs and attestation-based client authentication.
+
+Document History
+
+   [[ To be removed from the final specification ]]
+
+   -01
+
+   *  Updated references for draft -03 of [CIMD], including its section
+      numbers and the Accept header field it specifies.
+
+   *  Defined Permitted Method and Selected Method.  The client model
+      follows the methods the reviewed document permits, and components
+      that differ in client type use separate documents (Section 5.6).
+
+   *  A document that declares no authentication method permits only
+      none and is no longer rejected.
+
+   *  Aligned retrieval failures with Section 6.1 of [CIMD], including
+      HTTP status code 503 for temporarily_unavailable and
+      invalid_client on refresh when the document cannot be used.
+
+   *  Updated the pull example for
+      token_endpoint_auth_methods_supported.
+
+   -00
+
+   *  Initial version.
 
 Author's Address
 

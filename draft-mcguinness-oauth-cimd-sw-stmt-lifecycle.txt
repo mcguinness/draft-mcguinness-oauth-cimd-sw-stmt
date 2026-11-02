@@ -100,6 +100,7 @@ Table of Contents
    15. References
      15.1.  Normative References
      15.2.  Informative References
+   Document History
    Author's Address
 
 1.  Introduction
@@ -1271,6 +1272,23 @@ Table of Contents
    [RFC7009]  Lodderstedt, T., Ed., Dronia, S., and M. Scurtescu, "OAuth
               2.0 Token Revocation", RFC 7009, DOI 10.17487/RFC7009,
               August 2013, <https://www.rfc-editor.org/rfc/rfc7009>.
+
+Document History
+
+   [[ To be removed from the final specification ]]
+
+   -01
+
+   *  Aligned with draft -03 of [CIMD].  A refresh replacement's
+      document must permit the establishment's Selected Method
+      (Section 5.2).
+
+   *  A refresh whose currently served document cannot be obtained or
+      fails validation is rejected with invalid_client (Section 8).
+
+   -00
+
+   *  Initial version.
 
 Author's Address
 
