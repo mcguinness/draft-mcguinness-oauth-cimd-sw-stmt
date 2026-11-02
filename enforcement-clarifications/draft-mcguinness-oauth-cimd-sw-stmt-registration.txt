@@ -826,8 +826,9 @@ Table of Contents
    registration rather than renewal.  At runtime, a confidential
    client's key must appear in the reviewed document and, on refresh, in
    the document currently served (Sections 5.6.1 and 5.7.1 of
-   [STATEMENT]), so removing a compromised key from the document ends
-   its use there.
+   [STATEMENT]).  Once the server observes that the document no longer
+   carries a compromised key, which can take up to the reuse bounds of
+   Section 5.3 of [STATEMENT], refresh requests made with that key fail.
 
 11.3.  Registration Fraud and Impersonation
 
