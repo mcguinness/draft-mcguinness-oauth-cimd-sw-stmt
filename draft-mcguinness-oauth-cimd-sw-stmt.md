@@ -215,7 +215,7 @@ Before accepting a statement, a trusting authorization server MUST ensure the fo
 * Any claim the server does not recognize, and any client metadata claim ({{profiles}}), is ignored.
 * The JWT validation guidance in {{RFC8725}} has been applied.
 
-A trusting authorization server that hosts more than one tenant MUST evaluate every tenant-specific check, such as an `aud` value that identifies one of its tenants, the `aud_tenant` claim, and a required issuer ({{issuer-trust}}), against the request's tenant. The request's tenant is the tenant that scopes what the server issues on the statement. The server MUST determine it before evaluating the statement, by its own means or from a signed assertion it has validated, and never from a value the client chooses.
+A trusting authorization server that hosts more than one tenant MUST evaluate every tenant-specific check, such as an `aud` value that identifies one of its tenants, the `aud_tenant` claim, and a required issuer ({{issuer-trust}}), against the request's tenant. The request's tenant is the tenant that scopes what the server issues on the statement. The server MUST determine it before evaluating the statement, by its own means or from a signed assertion it has validated, and otherwise never from a request parameter, statement claim, or document member the client supplies.
 
 Rejections outside a registration endpoint use {{errors}}.
 
@@ -735,7 +735,7 @@ A party that controls the user agent receives the code: an application embedding
 
 ## Tenant Confusion at a Multi-Tenant Authorization Server {#tenant-confusion}
 
-A multi-tenant server that derives the tenant one way to check a decision and another way to scope a token lets a client reach one tenant's resources on another tenant's decision. {{validation}} requires one tenant for both, selected by no value the client chooses.
+A multi-tenant server that derives the tenant one way to check a decision and another way to scope a token lets a client reach one tenant's resources on another tenant's decision. {{validation}} requires one tenant for both, which the client cannot select through a request parameter, statement claim, or document member.
 
 This specification defines no tenant parameter, and a CIMD URL is the same `client_id` in every tenant, so neither a client nor an issuer can verify that a server honored the tenant rule of {{validation}}.
 
