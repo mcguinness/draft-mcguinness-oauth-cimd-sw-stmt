@@ -173,7 +173,7 @@ A statement asserts that its issuer evaluated the CIMD whose content the digest 
 : REQUIRED. A NumericDate value, which MUST be an integer, giving the time the statement was issued. An issuer MUST ensure that the `iat` claim values of its statements for a given `iss` and `sub` increase strictly, which the selection of a pulled statement ({{pull-selection}}) and extensions rely on.
 
 `exp`:
-: REQUIRED. A NumericDate value giving the expiration time.
+: REQUIRED. A NumericDate value, which MUST be an integer, giving the expiration time.
 
 `jti`:
 : REQUIRED. A unique identifier for the statement within the issuer's namespace.
@@ -205,6 +205,7 @@ Before accepting a statement, a trusting authorization server MUST ensure the fo
 * The signature verifies under a key trusted for the exact `iss` value, obtained as {{issuer-trust}} requires.
 * Every required claim of {{profiles}} is present and of the correct type.
 * The statement is not expired, and its `iat` is not unreasonably far in the future according to the server's clock-skew policy.
+* If the statement carries `nbf`, the current time is not before it, according to the same clock-skew policy (Section 4.1.5 of {{RFC7519}}).
 * If the statement carries `aud`, a value in it exactly matches one of the server's audience identifiers that its trust configuration permits the statement's issuer to name ({{issuer-trust}}).
 * If the statement carries `aud_tenant`, `aud` carries exactly one value and `aud_tenant` identifies the request's tenant.
 * If the server requires a tenant-scoped decision for the request, the statement carries `aud_tenant`, or the server's trust configuration confines the statement's issuer to the request's tenant ({{issuer-trust}}).
