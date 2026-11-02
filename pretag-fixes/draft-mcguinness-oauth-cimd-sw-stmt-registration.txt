@@ -660,7 +660,8 @@ Table of Contents
    (Section 4.1.2.1 of [RFC6749]).
 
    Rejections of a registration management request for other reasons use
-   the responses [RFC7592] specifies.
+   the responses [RFC7592] specifies, such as the HTTP 403 Forbidden
+   response that Section 3.1 requires.
 
 8.  Example
 
