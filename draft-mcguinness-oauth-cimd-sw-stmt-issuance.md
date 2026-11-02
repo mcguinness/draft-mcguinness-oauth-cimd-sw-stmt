@@ -421,7 +421,7 @@ The client redeems a software statement code by sending an HTTP `POST` request t
 : REQUIRED. The PKCE verifier corresponding to the `code_challenge` in the authorization request.
 
 `completion_mode`:
-: REQUIRED at a deferring issuer, with a value that MUST include `deferred`. A deferring issuer rejects a request without it with `invalid_request`.
+: REQUIRED at a deferring issuer, with a value that MUST include `deferred`. A deferring issuer rejects a request whose `completion_mode` is absent or omits `deferred` with `invalid_request`.
 
 The prohibitions of {{prohibited-parameters}} apply. The request MUST NOT contain the `audience` parameter, which was bound at the authorization endpoint. A request containing it is rejected with `invalid_request`.
 
