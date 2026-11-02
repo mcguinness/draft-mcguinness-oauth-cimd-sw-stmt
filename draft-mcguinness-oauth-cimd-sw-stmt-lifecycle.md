@@ -306,7 +306,7 @@ Whether a server resolves statuses for an issuer, and which statuses other than 
 
 Resolution follows {{STATUSLIST}}. A statement whose status index lies outside the list is rejected, as {{STATUSLIST}} requires. A server SHOULD retrieve the list on the list's own schedule, within the expiration and caching bounds its `exp` and `ttl` claims set (Section 13.7 of {{STATUSLIST}}), rather than once per request ({{schedule-practice}}, {{privacy-considerations}}).
 
-A server MUST NOT accept a Status List Token whose `iat` claim is earlier than that of the latest token it has accepted from that status list URI, and MUST treat one whose `iat` claim is equal but whose contents differ as a resolution failure. It keeps that latest `iat` for each status list URI while it records any statement that references the list, even after it discards the token. A host serving an older token then cannot restore a status the issuer has withdrawn.
+A server MUST NOT accept a Status List Token whose `iat` claim is earlier than that of the latest token it has accepted from that status list URI, and MUST treat one whose `iat` claim is equal but whose contents differ as a resolution failure. It keeps that latest `iat`, with a SHA-256 digest of the token it accepted at that `iat`, for each status list URI while it records any statement that references the list, even after it discards the token, so that it can recognize a different token with the same `iat`. A host serving an older token then cannot restore a status the issuer has withdrawn.
 
 A server MUST verify a Status List Token only with keys from the issuer's Status List key set ({{key-sets}}), never with keys from the token itself. It reuses a retrieved key set only as Section 5.3 of {{STATEMENT}} permits for a statement key set.
 
@@ -460,7 +460,7 @@ A server implementing this specification keeps the following state:
 * a refusal record for each statement it has learned is withdrawn, or that its operator refused ({{withdrawal}});
 * an `iat` floor for each `iss`, `sub`, and use, per tenant for statements confined to a tenant and server-wide for others ({{supersession}});
 * for each establishment, its recorded statement and what step 4 of {{refresh-replacement}} records with it;
-* with Token Status List, the Status List Tokens it holds ({{status-resolution}}); and
+* with Token Status List, the Status List Tokens it holds and, for each status list URI, the latest `iat` it has accepted and a digest of that token ({{status-resolution}}); and
 * with status change events, its streams and the SET `jti` values it has applied on each ({{processing}}).
 
 ## Resolution in Response to Events {#event-resolution}
