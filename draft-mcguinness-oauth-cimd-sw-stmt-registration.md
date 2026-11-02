@@ -54,7 +54,7 @@ This specification defines how an authorization server registers a client throug
 
 {{STATEMENT}} defines a software statement binding an issuer's review to the exact octets of a Client ID Metadata Document (CIMD) {{CIMD}}, and admission on that review without registration. This specification serves deployments retaining {{RFC7591}} registration, for example to assign their own client identifiers or manage registrations under {{RFC7592}}.
 
-{{RFC7591}} already supports software statements whose metadata takes precedence over the registration request (Sections 2.3 and 3.1.1). A statement under {{STATEMENT}}, however, carries a document digest instead of metadata. Verifying it under {{RFC7591}} alone would leave the request's unreviewed redirection URIs and keys as the registered metadata. {{RFC7591}} also defines no registration expiry or renewal tied to the statement.
+{{RFC7591}} already supports software statements whose metadata takes precedence over the registration request (Sections 2.3 and 3.1.1 of {{RFC7591}}). A statement under {{STATEMENT}}, however, carries a document digest instead of metadata. Verifying it under {{RFC7591}} alone would leave the request's unreviewed redirection URIs and keys as the registered metadata. {{RFC7591}} also defines no registration expiry or renewal tied to the statement.
 
 This specification defines how servers derive registrations from the reviewed document ({{dcr-presentation}}), bound their validity by the statement ({{registration-validity}}), and renew them with later statements that also update their metadata ({{revalidation}}). The same review can therefore govern both registered clients and runtime admission. It extends {{STATEMENT}}, which does not depend on it.
 
