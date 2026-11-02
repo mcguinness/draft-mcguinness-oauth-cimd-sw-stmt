@@ -112,6 +112,7 @@ Client metadata in a registration or update request does not contribute to the r
 The authorization server MUST reject the registration, or a replacement ({{revalidation}}), if any of the following holds:
 
 * The document omits the `token_endpoint_auth_method` member.
+* The document declares a `token_endpoint_auth_method` based on a shared symmetric secret, such as `client_secret_basic`, which Section 4.1 of {{CIMD}} forbids.
 * The document declares `token_endpoint_auth_method` of `none`, unless the authorization server registers the client under {{public-client-registration}}.
 * Any of the document's redirection URIs could be claimed by another application on the same device (Section 5.6.3 of {{STATEMENT}}), whatever authentication method the document declares.
 
@@ -258,6 +259,7 @@ A rejection this specification defines, at a client registration endpoint or at 
   * It carries metadata this server's policy refuses.
   * It cannot be obtained, including over the server's size bound, for a reason other than a retrieval that did not complete (Section 5.3 of {{STATEMENT}}).
   * It omits `token_endpoint_auth_method` ({{dcr-presentation}}).
+  * It declares a `token_endpoint_auth_method` based on a shared symmetric secret ({{dcr-presentation}}).
   * It declares `token_endpoint_auth_method` of `none` and the server registers no public clients under {{public-client-registration}}.
 
 `invalid_redirect_uri`:
