@@ -42,8 +42,6 @@ normative:
     seriesinfo:
       Internet-Draft: draft-mcguinness-oauth-cimd-sw-stmt-00
   CIMD: I-D.ietf-oauth-client-id-metadata-document
-
-informative:
   RFC7592:
 
 --- abstract
