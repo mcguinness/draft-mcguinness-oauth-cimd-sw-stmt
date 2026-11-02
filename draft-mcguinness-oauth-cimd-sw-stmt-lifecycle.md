@@ -246,7 +246,7 @@ On refresh-token use under an establishment, the authorization server first comp
 
 2. Obtain a replacement. A client can offer one on any refresh in the `software_statement` parameter. A request carrying a replacement MUST meet the `client_id` rule that Section 5.4 of {{STATEMENT}} sets for a request making a runtime presentation. A statement with the recorded `iss` and `jti` is not a replacement, and a request carrying it is processed as one offering none. When a replacement is needed and the request carries none, a server that supports pulled statements pulls, however the establishment was created, and takes as the replacement the most recently issued statement with the recorded `iss` and `sub` among those it considers under Section 5.5.1 of {{STATEMENT}}, {{withdrawal}}, and {{supersession}}. A refresh that needs a replacement and obtains none is rejected: a reviewed grant never continues under the policy for clients the server has not reviewed.
 
-   The pull uses the retrieval and selection rules of Sections 5.3 and 5.5.1 of {{STATEMENT}}. The continuation rules here apply instead of those sections' rules for opening a new grant: a refresh whose pull does not complete is rejected, and one that needs a replacement and obtains none is rejected.
+   The pull uses the retrieval and selection rules of Sections 5.3 and 5.5.1 of {{STATEMENT}}. The continuation rules here apply instead of those sections' rules for opening a new grant, so a refresh whose pull does not complete is rejected.
 
 3. Validate the replacement. A refresh whose replacement fails any of the following requirements is rejected, even when no replacement was needed. The replacement:
 
