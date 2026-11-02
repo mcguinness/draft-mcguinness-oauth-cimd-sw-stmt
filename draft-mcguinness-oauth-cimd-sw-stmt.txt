@@ -260,6 +260,18 @@ Table of Contents
       statement pulled at the authorization endpoint, the key proved at
       code redemption (Section 5.5.2).
 
+   Permitted Method:  A token endpoint authentication method that a CIMD
+      lists in its token_endpoint_auth_methods_supported member or, if
+      the document has no such member, declares in its
+      token_endpoint_auth_method member.  A document with neither member
+      permits only none (Section 5 of [CIMD]).
+
+   Selected Method:  The permitted method an establishment records
+      (Section 5.7): the method with which a confidential client's
+      presenter authenticates, at code redemption for a statement pulled
+      at the authorization endpoint (Section 5.5.2), or none for a
+      public client.
+
    Effective Expiry:  The earlier of a statement's exp and its iat plus
       the maximum statement lifetime the trusting authorization server
       honors for its issuer (Section 4).  A statement is expired once
@@ -616,7 +628,9 @@ Table of Contents
    authorization server MUST treat as a failure rather than digesting
    what it read.  After a final failure, a document is treated as
    failing validation, a key set as carrying no acceptable key, and a
-   statements location as publishing no statement.
+   statements location as publishing no statement.  For the document, a
+   retrieval that does not complete is a transient failure and a final
+   failure is a terminal failure (Section 6.1 of [CIMD]).
 
    A trusting authorization server MAY reuse document octets it holds
    for digest comparison (Section 5.2), a key set retrieved from a
@@ -781,33 +795,35 @@ Table of Contents
 
                                   Table 1
 
-   A statement pulled for a document that omits
-   token_endpoint_auth_method is review-only wherever it is pulled.
-
    At code redemption, a confidential client whose statement was pulled
    at the authorization endpoint authenticates with a key the reviewed
    document carries, in its jwks or at its jwks_uri within the reuse
    bounds of Section 5.3, not one that only a later retrieval of the
    document carries, and that key becomes the establishment's proven
-   key.
+   key.  The method with which the client authenticates becomes the
+   establishment's Selected Method.
 
 5.6.  Sender Constraint
 
    A runtime presentation that is not review-only (Section 5.6.3) MUST
-   be sender-constrained under one of two models, set by the
-   token_endpoint_auth_method its reviewed document declares:
+   be sender-constrained under one of two models:
 
-   *  Confidential client (a method other than none): by a key the
-      reviewed document carries (Section 5.6.1).
+   *  Confidential client: by a key the reviewed document carries
+      (Section 5.6.1).
 
-   *  Public client (none): by an installation key the presenter binds
+   *  Public client: by an installation key the presenter binds
       (Section 5.6.2), while its reviewed redirection URIs, with PKCE
       S256, bind the presentation itself (Section 13.4).
 
-   The authorization server MUST reject a presentation made in a request
-   (Section 5.4) under a reviewed document that omits the
-   token_endpoint_auth_method member, even if the presentation is
-   review-only.  Section 5.5.2 covers a pulled statement.
+   The authorization server determines the model from the reviewed
+   document's permitted methods that it supports and its policy allows,
+   not from the request.  It MUST apply the confidential-client model if
+   those methods include one other than none, and otherwise applies the
+   public-client model if they include none.  If they include neither,
+   Section 5 of [CIMD] applies.  A document sets one model at a server.
+   Components of one piece of software that differ in client type, such
+   as a backend that holds a key and a desktop application that does
+   not, therefore each use their own CIMD (Section 2.1 of [RFC6749]).
 
    For a presentation that is not review-only, under either model:
 
@@ -815,14 +831,17 @@ Table of Contents
       through the applicable client authentication method or a DPoP
       proof [RFC9449].  A public client that binds its key through
       dpop_jkt proves possession at code redemption (Section 5.7).  If a
-      request carries both client authentication and a DPoP proof, the
-      key its client authentication proves is the proven key.
+      confidential client's request carries both client authentication
+      and a DPoP proof, the key its client authentication proves is the
+      proven key.
 
    *  The proof MUST be bound to the current request and validated with
       the replay protections of that mechanism.
 
-   *  The presenter MUST use the client authentication method its
-      reviewed document declares in token_endpoint_auth_method ([CIMD]).
+   *  A confidential client's presenter MUST authenticate with a
+      permitted method other than none that the server supports and its
+      policy allows, and that method is the establishment's Selected
+      Method.  A public client's Selected Method is none.
 
    *  The authorization server MUST reject a presentation without such a
       proof or, for a confidential client, whose proven key the reviewed
@@ -847,8 +866,8 @@ Table of Contents
 
    Software distributed to end users cannot hold a key its reviewed
    document carries: a key shipped in every copy identifies the
-   software, not the installation.  Such a document declares
-   token_endpoint_auth_method of none and carries no key material.
+   software, not the installation.  Such a document permits none and
+   carries no key material.
 
    An authorization server MUST reject a presentation made in a request,
    even a review-only one, that opens a new grant at the token endpoint
@@ -875,15 +894,14 @@ Table of Contents
 
    1.  Every presentation and pulled statement for a reviewed document
        that carries any redirection URI another application on the same
-       device could claim, whatever authentication method the document
-       declares.  Such a URI is a non-https URI, such as a private-use
-       scheme or an http loopback redirection URI (Sections 7.1 and 7.3
-       of [RFC8252]), or an https URI whose host is a loopback address,
-       localhost, or a name ending in .localhost (Section 6.3 of
-       [RFC6761]), ignoring case and a trailing dot.  The application
-       that claims such a URI receives the code, so neither the reviewed
-       redirection URIs nor a key shipped in every copy of the software
-       can bind the presenter.
+       device could claim, whatever methods the document permits.  Such
+       a URI is a non-https URI, such as a private-use scheme or an http
+       loopback redirection URI (Sections 7.1 and 7.3 of [RFC8252]), or
+       an https URI whose host is a loopback address, localhost, or a
+       name ending in .localhost (Section 6.3 of [RFC6761]), ignoring
+       case and a trailing dot.  The application that claims such a URI
+       receives the code, so neither the reviewed redirection URIs nor a
+       key shipped in every copy of the software can bind the presenter.
 
    2.  A pulled statement that Section 5.5.2 makes review-only.
 
@@ -912,7 +930,8 @@ Table of Contents
 
    *  The issuer trust decision.
 
-   *  The sender-constraint mechanism and proven key.
+   *  The Selected Method, the sender-constraint mechanism, and the
+      proven key.
 
    The authorization server MUST bind the resulting request_uri,
    authorization code, refresh token, and other grant continuation state
@@ -986,8 +1005,10 @@ Table of Contents
    3.  The code that Section 6.2, Section 6.3, or Section 6.4 assigns.
 
    At the token and pushed authorization request endpoints, an
-   authorization server SHOULD respond with HTTP status code 503 to a
-   request it rejects with the temporarily_unavailable error code.
+   authorization server MUST respond with HTTP status code 503 to a
+   request it rejects with the temporarily_unavailable error code, as
+   Section 6.1 of [CIMD] requires for a transient failure to retrieve
+   the document.
 
    A rejection for another reason, such as an assertion grant whose
    assertion is invalid (Section 3.1 of [RFC7523]) or an expired or
@@ -1019,10 +1040,8 @@ Table of Contents
          (Section 5.4).
 
       *  The request fails the sender constraint (Section 5.6),
-         including a presentation made in a request under a document
-         that omits token_endpoint_auth_method, and one opening a new
-         grant at the token endpoint for a public client
-         (Section 5.6.2).
+         including a presentation opening a new grant at the token
+         endpoint for a public client (Section 5.6.2).
 
       *  The reviewed document cannot be obtained, including over the
          size bound, fails validation as [CIMD] requires, contains
@@ -1070,7 +1089,11 @@ Table of Contents
    Under an establishment, a refresh-token request is rejected with the
    following error codes:
 
-   invalid_grant:  A check of Section 5.7.1 fails.
+   invalid_client:  The document currently served at the establishment's
+      sub cannot be obtained or fails validation (Section 5.3), as
+      Section 6.1 of [CIMD] requires.
+
+   invalid_grant:  Any other check of Section 5.7.1 fails.
 
    unauthorized_client or invalid_scope:  The refreshed access exceeds
       the reviewed metadata or this server's policy, as for a
@@ -1103,8 +1126,9 @@ Table of Contents
    Before redirecting with an error, the authorization server validates
    the redirect_uri against the client's CIMD, which it resolves first,
    or, for a registered client, against its registered redirection URIs
-   (Section 4.1.2.1 of [RFC6749]).  If it cannot resolve a CIMD client's
-   document, it MUST NOT redirect.
+   (Section 4.1.2.1 of [RFC6749]).  If it cannot obtain a CIMD client's
+   document, or the document fails validation, it MUST NOT redirect
+   (Section 6.1 of [CIMD]).
 
 6.5.  Proof Mechanism Errors
 
@@ -1168,7 +1192,7 @@ Table of Contents
    {
      "client_id": "https://client.example/app",
      "redirect_uris": ["https://client.example/cb"],
-     "token_endpoint_auth_method": "private_key_jwt",
+     "token_endpoint_auth_methods_supported": ["private_key_jwt"],
      "jwks_uri": "https://client.example/jwks.json",
      "software_statements_uri":
        "https://client.example/statements.json"
@@ -1195,7 +1219,7 @@ Table of Contents
    statement over the document in the previous example, served exactly
    as shown there, with two-space indentation, LF line endings, and a
    single final newline, and without any indentation added for display
-   (274 octets):
+   (287 octets):
 
    {
      "typ": "software-statement+jwt",
@@ -1211,7 +1235,7 @@ Table of Contents
      "iat": 1790812800,
      "exp": 1793404800,
      "jti": "c2a907b34d28",
-     "cimd_digest": "vBIuTBeHfYmEC8CPwbfa2a9XciuKfGTEGf-qGij4N_Q"
+     "cimd_digest": "DHPektjuDKWb2ZSp3nQs-hSrZ_tJE5nOv5-H_J83zn0"
    }
 
    The statement names one audience and permits only runtime
@@ -1522,6 +1546,13 @@ Table of Contents
    this specification.
 
 13.4.  Copied Statements and Public Clients
+
+   A statement for a document that permits none can be presented under
+   the public-client model by anyone holding a copy, at any server that
+   supports none of the document's other methods or whose policy refuses
+   them (Section 5.6).  An issuer that intends software to be admitted
+   only as a confidential client reviews only documents that do not
+   permit none.
 
    A party holding a copied statement for a public client can open a
    pushed authorization request in the reviewed software's name.  It

@@ -220,10 +220,17 @@ Table of Contents
       client_id member matches the statement's sub claim.
 
    *  MUST take every client metadata value from that document, except
-      values the authorization server issues, such as client_id and
-      client_id_issued_at, and the document's software_statements_uri
-      member, which is not meaningful in a registration (Section 5.5 of
-      [STATEMENT]).
+      the values the authorization server issues (such as client_id and
+      client_id_issued_at), the token_endpoint_auth_method member, which
+      the next item determines, and the document's
+      software_statements_uri member, which is not meaningful in a
+      registration (Section 5.5 of [STATEMENT]).
+
+   *  At registration, MUST register as token_endpoint_auth_method a
+      method that the document permits (Section 2 of [STATEMENT]) and
+      that the server supports and its policy allows, and MUST NOT
+      register none if the document permits another such method.  A
+      replacement keeps the registered method (Section 6).
 
    *  MUST NOT take any client metadata value from the request, or from
       any [RFC7592] update request for the registration, whether or not
@@ -237,35 +244,35 @@ Table of Contents
    statement's sub.  The authorization server MUST NOT assign that URL
    as the registered client_id, which would make a request carrying it
    ambiguous between the registration and the CIMD client the URL
-   identifies ([CIMD]).  A member the document omits, other than
-   token_endpoint_auth_method (rejected below), takes its [RFC7591]
-   default.  The registration's metadata changes only when a replacement
+   identifies ([CIMD]).  A member the document omits takes its [RFC7591]
+   default, except token_endpoint_auth_method, which is registered as
+   above.  The registration's metadata changes only when a replacement
    is applied (Section 6).
 
    The authorization server MUST reject the registration, or a
    replacement (Section 6), if any of the following holds:
 
-   *  The document omits the token_endpoint_auth_method member.
+   *  The document permits a method based on a shared symmetric secret,
+      such as client_secret_basic, which Section 4.1 of [CIMD] forbids.
 
-   *  The document declares a token_endpoint_auth_method based on a
-      shared symmetric secret, such as client_secret_basic, which
-      Section 4.1 of [CIMD] forbids.
+   *  The document permits no method that the server supports and its
+      policy allows.
 
-   *  The document declares token_endpoint_auth_method of none, unless
-      the authorization server registers the client under Section 3.2.
+   *  The method the server would register is none, unless the
+      authorization server registers the client under Section 3.2.
 
    *  Any of the document's redirection URIs could be claimed by another
       application on the same device (Section 5.6.3 of [STATEMENT]),
-      whatever authentication method the document declares.
+      whatever methods the document permits.
 
    Unlike runtime presentation (Section 5 of [STATEMENT]), registration
    has no review-only form: the rejections above cover the document
    conditions that make a presentation review-only.
 
-   Software whose document declares token_endpoint_auth_method of none
-   and that the server does not register under Section 3.2 can instead
-   use runtime presentation if it meets the public-client binding
-   requirements of Section 5.6.2 of [STATEMENT].
+   Software that the server would register with none but does not
+   register under Section 3.2 can instead use runtime presentation if it
+   meets the public-client binding requirements of Section 5.6.2 of
+   [STATEMENT].
 
 3.1.  Tenant Restriction
 
@@ -317,11 +324,11 @@ Table of Contents
 
 3.2.  Public Clients
 
-   An authorization server MAY register a client whose reviewed document
-   declares token_endpoint_auth_method of none, creating a public-client
-   registration.  Such a registration has no client credential and is
-   shared among installations of the software.  A server that registers
-   such a client:
+   An authorization server MAY register a client with
+   token_endpoint_auth_method of none (Section 3), creating a public-
+   client registration.  Such a registration has no client credential
+   and is shared among installations of the software.  A server that
+   registers such a client:
 
    *  MUST reject the registration if the document lists no redirection
       URI.
@@ -556,8 +563,8 @@ Table of Contents
 
    *  The iat claim is later than that of the governing statement.
 
-   *  Its document declares token_endpoint_auth_method of none if and
-      only if the governing statement's document does.
+   *  Its document permits the registration's token_endpoint_auth_method
+      (Section 2 of [STATEMENT]).
 
    *  For a public-client registration that carries no tenant
       restriction, its decision is not confined to a tenant
@@ -620,8 +627,8 @@ Table of Contents
          the statement of a repeated public-client registration request
          evaluated as a replacement (Section 3.3), fails the replacement
          rules of Section 6 where this section assigns no other code,
-         such as a change in whether the document declares
-         token_endpoint_auth_method of none.
+         such as a document that does not permit the registration's
+         token_endpoint_auth_method.
 
       *  The statement of a repeated public-client registration request
          is not the governing statement and has an iat no later than the
@@ -653,18 +660,19 @@ Table of Contents
          for a reason other than a retrieval that did not complete
          (Section 5.3 of [STATEMENT]).
 
-      *  It omits token_endpoint_auth_method (Section 3).
+      *  It permits a method based on a shared symmetric secret
+         (Section 3).
 
-      *  It declares a token_endpoint_auth_method based on a shared
-         symmetric secret (Section 3).
+      *  It permits no method that the server supports and its policy
+         allows (Section 3).
 
-      *  It declares token_endpoint_auth_method of none and the server
-         registers no public clients under Section 3.2.
+      *  The server would register the client with none (Section 3) and
+         does not register it under Section 3.2.
 
    invalid_redirect_uri:  The reviewed document carries a redirection
-      URI another application could claim (Section 3), or declares
-      token_endpoint_auth_method of none and lists no redirection URI
-      (Section 3.2).
+      URI another application could claim (Section 3), or the server
+      would register the client with none and the document lists no
+      redirection URI (Section 3.2).
 
    temporarily_unavailable:  A retrieval the request needs did not
       complete (Section 5.3 of [STATEMENT]).
@@ -771,18 +779,19 @@ Table of Contents
    A request-supplied value for a member the document omits, such as a
    jwks member beside a document naming only jwks_uri, would give any
    holder of a copy a registration with reviewed branding and the
-   holder's own key.  Registering a document that omits
-   token_endpoint_auth_method under the [RFC7591] default would register
-   a shared-secret method, which [CIMD] forbids (Section 4.1 of [CIMD])
-   and the issuer never reviewed.  An issuer that omits aud from a
-   statement permitting registration accepts that any server trusting
-   the issuer can register the software on the strength of a copy.
+   holder's own key.  A document that declares no authentication method
+   permits only none (Section 5 of [CIMD]).  Registering it under the
+   [RFC7591] default would register a shared-secret method, which [CIMD]
+   forbids (Section 4.1 of [CIMD]) and the issuer never reviewed.  An
+   issuer that omits aud from a statement permitting registration
+   accepts that any server trusting the issuer can register the software
+   on the strength of a copy.
 
    Under the one-registration default (Section 3.3), whoever first
    registers with a copy of a statement holds that registration and its
    registration access token, and can keep the software's publisher from
    registering there.  Such a holder cannot authenticate as the client
-   if the reviewed document's authentication method requires a key the
+   if the registered token_endpoint_auth_method requires a key the
    document carries.
 
    If the publisher's statement permits presentation and the server

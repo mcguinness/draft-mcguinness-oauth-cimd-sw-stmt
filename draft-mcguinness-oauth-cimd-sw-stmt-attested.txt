@@ -290,7 +290,7 @@ Table of Contents
    A document selecting this profile MUST meet all of the following
    requirements:
 
-   *  Its token_endpoint_auth_method is the single string
+   *  It permits exactly one method (Section 2 of [STATEMENT]),
       attest_jwt_client_auth_dpop (Section 6.2).
 
    *  Its grant_types member explicitly contains authorization_code and
@@ -694,8 +694,8 @@ Table of Contents
    applicable statement, which is the recorded statement or, if one is
    needed, the replacement.  If the document fails Section 4, for
    example by omitting the software_statement_instance_binding member or
-   naming another authentication method, the refresh is rejected with
-   invalid_grant without seeking a replacement.
+   permitting another authentication method, the refresh is rejected
+   with invalid_grant without seeking a replacement.
 
    A replacement (Section 5.2 of [LIFECYCLE]) is needed when the
    recorded statement is expired, refused, or no longer matches the
@@ -925,7 +925,8 @@ Table of Contents
      "client_id": "https://cli.example/client.json",
      "client_name": "Example CLI",
      "software_statement_instance_binding": true,
-     "token_endpoint_auth_method": "attest_jwt_client_auth_dpop",
+     "token_endpoint_auth_methods_supported":
+       ["attest_jwt_client_auth_dpop"],
      "grant_types": ["authorization_code", "refresh_token"],
      "response_types": ["code"],
      "redirect_uris": ["http://127.0.0.1/callback"],
@@ -953,7 +954,7 @@ Table of Contents
      "sub": "https://cli.example/client.json",
      "iat": 1792886400,
      "exp": 1792886700,
-     "cimd_digest": "SvGs0Mf5jHoShvhZQdHsFxivqUgzylxKr5ppf4Kt-W0",
+     "cimd_digest": "mtuYmVWj5NVxDRR1_f5ZodjUm0BNfvis4CbVGtqhzTo",
      "cimd_instance_policy": "https://attester.example/policy/cli/v1",
      "cnf": {
        "jwk": {

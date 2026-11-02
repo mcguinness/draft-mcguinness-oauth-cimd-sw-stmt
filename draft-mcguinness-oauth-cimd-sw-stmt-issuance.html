@@ -1427,24 +1427,13 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
       </h2>
 <p id="section-3-1">The <code>client_id</code> parameter in every request defined by this specification <span class="bcp14">MUST</span> be a client identifier URL conforming to <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>. The authorization server <span class="bcp14">MUST</span> obtain and validate the document at that URL according to <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>.<a href="#section-3-1" class="pilcrow">¶</a></p>
 <p id="section-3-2">In the redirect flow, a client identifier whose CIMD cannot be retrieved or validated, including one whose CIMD is rejected for duplicate member names (<a href="#metadata-snapshot" class="auto internal xref">Section 3.1</a>), is invalid for the purposes of Section 4.1.2.1 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>.<a href="#section-3-2" class="pilcrow">¶</a></p>
-<p id="section-3-3">The client authenticates to the token endpoint using the <code>token_endpoint_auth_method</code> and related key metadata in its CIMD. The authorization server classifies the client from that member:<a href="#section-3-3" class="pilcrow">¶</a></p>
+<p id="section-3-3">The client authenticates to the token endpoint with a method its CIMD permits (Section 2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), using the related key metadata in that document. The authorization server determines whether the client is a public or a confidential client from the methods the document permits and from its own policy, as Section 5.6 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> determines the model for a reviewed document:<a href="#section-3-3" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-3-4.1">
-          <p id="section-3-4.1.1"><code>none</code> (explicit) establishes a public client.<a href="#section-3-4.1.1" class="pilcrow">¶</a></p>
+          <p id="section-3-4.1.1">A confidential client <span class="bcp14">MUST</span> authenticate with a permitted method other than <code>none</code> that the authorization server supports and its policy allows.<a href="#section-3-4.1.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-3-4.2">
-          <p id="section-3-4.2.1">Any other value establishes a confidential client:<a href="#section-3-4.2.1" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-3-4.2.2.1">
-              <p id="section-3-4.2.2.1.1">The authorization server <span class="bcp14">MUST</span> require exactly that method.<a href="#section-3-4.2.2.1.1" class="pilcrow">¶</a></p>
-</li>
-            <li class="normal" id="section-3-4.2.2.2">
-              <p id="section-3-4.2.2.2.1">If the authorization server does not support the declared method, it <span class="bcp14">MUST</span> reject the request rather than treat the client as public, with the <code>unauthorized_client</code> error code at the authorization endpoint and with the <code>invalid_client</code> error code (Section 5.2 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>) at the token endpoint.<a href="#section-3-4.2.2.2.1" class="pilcrow">¶</a></p>
-</li>
-          </ul>
-</li>
-        <li class="normal" id="section-3-4.3">
-          <p id="section-3-4.3.1">An omitted value establishes neither, and any request identifying such a client <span class="bcp14">MUST</span> be rejected, with the <code>invalid_request</code> error code at the authorization endpoint, returned to the redirection URI validated against the document, and with the <code>invalid_client</code> error code (Section 5.2 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>) at the token endpoint.<a href="#section-3-4.3.1" class="pilcrow">¶</a></p>
+          <p id="section-3-4.2.1">If the document permits no method that the authorization server supports and its policy allows, the authorization server rejects the request as Section 5 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> requires.<a href="#section-3-4.2.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 <p id="section-3-5">A public client binds its requests with Demonstrating Proof of Possession (DPoP) <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>: in the redirect flow through the <code>dpop_jkt</code> parameter (<a href="#authorization-request" class="auto internal xref">Section 6</a>), and in the token exchange profile (<a href="#token-exchange-profile" class="auto internal xref">Section 5</a>) by a DPoP proof, which a public client <span class="bcp14">MUST</span> include on the exchange request. A confidential client <span class="bcp14">MAY</span> use DPoP in addition to its client authentication method.<a href="#section-3-5" class="pilcrow">¶</a></p>
@@ -1633,7 +1622,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <dt id="section-6-2.5">
 <code>redirect_uri</code>:</dt>
         <dd style="margin-left: 1.5em" id="section-6-2.6">
-          <p id="section-6-2.6.1"><span class="bcp14">REQUIRED</span>. The value <span class="bcp14">MUST</span> exactly match one of the redirection URIs in the CIMD, subject to the redirection URI rules in Section 4.2 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>. Whatever authentication method the document declares, the value <span class="bcp14">MUST NOT</span> be a redirection URI that another application on the same device could claim, as Section 5.6.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> defines (<a href="#authorization-response-security" class="auto internal xref">Section 15.1</a>).<a href="#section-6-2.6.1" class="pilcrow">¶</a></p>
+          <p id="section-6-2.6.1"><span class="bcp14">REQUIRED</span>. The value <span class="bcp14">MUST</span> exactly match one of the redirection URIs in the CIMD, subject to the redirection URI rules in Section 4.2 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>. Whatever methods the document permits, the value <span class="bcp14">MUST NOT</span> be a redirection URI that another application on the same device could claim, as Section 5.6.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> defines (<a href="#authorization-response-security" class="auto internal xref">Section 15.1</a>).<a href="#section-6-2.6.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 <dt id="section-6-2.7">

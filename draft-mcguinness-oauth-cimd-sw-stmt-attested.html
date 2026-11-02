@@ -1452,7 +1452,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <p id="section-4-3">A document selecting this profile <span class="bcp14">MUST</span> meet all of the following requirements:<a href="#section-4-3" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-4-4.1">
-          <p id="section-4-4.1.1">Its <code>token_endpoint_auth_method</code> is the single string <code>attest_jwt_client_auth_dpop</code> (<a href="#proof" class="auto internal xref">Section 6.2</a>).<a href="#section-4-4.1.1" class="pilcrow">¶</a></p>
+          <p id="section-4-4.1.1">It permits exactly one method (Section 2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), <code>attest_jwt_client_auth_dpop</code> (<a href="#proof" class="auto internal xref">Section 6.2</a>).<a href="#section-4-4.1.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-4-4.2">
           <p id="section-4-4.2.1">Its <code>grant_types</code> member explicitly contains <code>authorization_code</code> and <span class="bcp14">MAY</span> also contain <code>refresh_token</code>. It contains no other grant type.<a href="#section-4-4.2.1" class="pilcrow">¶</a></p>
@@ -1721,7 +1721,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <a href="#section-8" class="section-number selfRef">8. </a><a href="#name-refresh" class="section-name selfRef">Refresh</a>
       </h2>
 <p id="section-8-1">Every refresh request <span class="bcp14">MUST</span> carry the original <code>client_id</code> and authenticate under <a href="#proof" class="auto internal xref">Section 6.2</a> with a current instance attestation and a fresh proof under the establishment's proven key. In place of the document-key check of Section 5.7.1 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, the server <span class="bcp14">MUST</span> complete the checks of <a href="#attestation-validation" class="auto internal xref">Section 6.1</a> other than the digest comparison, verify the refresh-token binding, and enforce the fixed values of <a href="#establishment" class="auto internal xref">Section 7.2</a> before it considers any replacement.<a href="#section-8-1" class="pilcrow">¶</a></p>
-<p id="section-8-2">On every refresh, the server <span class="bcp14">MUST</span> require a current software statement and re-evaluate its issuer trust decision. It <span class="bcp14">MUST</span> also verify that the currently served document meets <a href="#client-metadata" class="auto internal xref">Section 4</a> and that its digest equals the <code>cimd_digest</code> of the attestation and of the applicable statement, which is the recorded statement or, if one is needed, the replacement. If the document fails <a href="#client-metadata" class="auto internal xref">Section 4</a>, for example by omitting the <code>software_statement_instance_binding</code> member or naming another authentication method, the refresh is rejected with <code>invalid_grant</code> without seeking a replacement.<a href="#section-8-2" class="pilcrow">¶</a></p>
+<p id="section-8-2">On every refresh, the server <span class="bcp14">MUST</span> require a current software statement and re-evaluate its issuer trust decision. It <span class="bcp14">MUST</span> also verify that the currently served document meets <a href="#client-metadata" class="auto internal xref">Section 4</a> and that its digest equals the <code>cimd_digest</code> of the attestation and of the applicable statement, which is the recorded statement or, if one is needed, the replacement. If the document fails <a href="#client-metadata" class="auto internal xref">Section 4</a>, for example by omitting the <code>software_statement_instance_binding</code> member or permitting another authentication method, the refresh is rejected with <code>invalid_grant</code> without seeking a replacement.<a href="#section-8-2" class="pilcrow">¶</a></p>
 <p id="section-8-3">A replacement (Section 5.2 of <span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span>) is needed when the recorded statement is expired, refused, or no longer matches the served document. In place of the key bullet of step 3 of Section 5.2 of <span>[<a href="#LIFECYCLE" class="cite xref">LIFECYCLE</a>]</span>, a current attestation of the proven key, from the recorded attester under the recorded policy, <span class="bcp14">MUST</span> name the replacement's metadata digest. A rejected refresh <span class="bcp14">MUST NOT</span> replace the recorded binding or rotate a refresh token.<a href="#section-8-3" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1929,7 +1929,8 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
   "client_id": "https://cli.example/client.json",
   "client_name": "Example CLI",
   "software_statement_instance_binding": true,
-  "token_endpoint_auth_method": "attest_jwt_client_auth_dpop",
+  "token_endpoint_auth_methods_supported":
+    ["attest_jwt_client_auth_dpop"],
   "grant_types": ["authorization_code", "refresh_token"],
   "response_types": ["code"],
   "redirect_uris": ["http://127.0.0.1/callback"],
@@ -1963,7 +1964,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
   "sub": "https://cli.example/client.json",
   "iat": 1792886400,
   "exp": 1792886700,
-  "cimd_digest": "SvGs0Mf5jHoShvhZQdHsFxivqUgzylxKr5ppf4Kt-W0",
+  "cimd_digest": "mtuYmVWj5NVxDRR1_f5ZodjUm0BNfvis4CbVGtqhzTo",
   "cimd_instance_policy": "https://attester.example/policy/cli/v1",
   "cnf": {
     "jwk": {
