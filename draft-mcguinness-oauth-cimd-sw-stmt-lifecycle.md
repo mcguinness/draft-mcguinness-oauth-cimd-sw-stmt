@@ -164,7 +164,7 @@ A refusal derived from a withdrawal mechanism lasts until a later authoritative 
 
 A withdrawal constrains and never relaxes. A statement for which no withdrawal mechanism reports a withdrawal, or for which the server cannot consult the mechanism it uses ({{withdrawal-practice}}), is bounded by its effective expiry as it would be otherwise, and a server MUST NOT treat any withdrawal mechanism as grounds to accept a statement past its effective expiry.
 
-An issuer that uses a withdrawal mechanism and issues a later statement narrower than the one it replaces SHOULD withdraw the earlier statement ({{replacement-security}}). A later statement is narrower if the document it names no longer carries a key, redirection URI, or scope the earlier document carried, if its `aud`, `aud_tenant`, or `statement_uses` is narrower, or if its remaining lifetime is shorter.
+An issuer that uses a withdrawal mechanism and issues a later statement narrower than the one it replaces SHOULD withdraw the earlier statement ({{replacement-security}}). A later statement is narrower if the document it names no longer carries a key, redirection URI, or scope the earlier document carried, if its `aud`, `aud_tenant`, or `statement_uses` is narrower, or if its effective expiry is earlier than that of the statement it replaces.
 
 Rejections under this section use the error responses of {{lifecycle-errors}}.
 
