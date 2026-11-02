@@ -381,12 +381,11 @@ Table of Contents
    trailing newline is included.
 
    Retrieval for digest purposes follows [CIMD] and MUST NOT use content
-   negotiation: the retrieving party sends the Accept header field that
-   [CIMD] specifies for retrieving the document, or Accept: application/
-   json if it specifies none, and no other variant selection.  Equal
-   digests show that the issuer and the trusting authorization server
-   obtained the same octets, so any condition that makes retrieval
-   depend on who is asking defeats the comparison.
+   negotiation: the retrieving party sends Accept: application/json
+   (Section 6 of [CIMD]) and no other variant selection.  Equal digests
+   show that the issuer and the trusting authorization server obtained
+   the same octets, so any condition that makes retrieval depend on who
+   is asking defeats the comparison.
 
    A 304 Not Modified response shows that stored octets, and their
    digest, are still current only if it carries a strong entity tag that
@@ -593,7 +592,7 @@ Table of Contents
 5.3.  Retrieval
 
    Every retrieval this specification causes inherits the server-side
-   request forgery protections in Section 8.6 of [CIMD], whether of the
+   request forgery protections in Section 10.7 of [CIMD], whether of the
    CIMD, a jwks_uri it names, the statements its software_statements_uri
    names, or a statement key set or the issuer metadata that locates one
    (Section 4).  A trusted signature does not make a URL safe: the
@@ -613,7 +612,7 @@ Table of Contents
    of [RFC6585]) or a 5xx status code.  Any other failure to obtain an
    acceptable representation is final, such as another 4xx status code,
    a body that is not a JSON object, or a response exceeding the
-   server's configured size bound (Section 8.7 of [CIMD]), which the
+   server's configured size bound (Section 10.11 of [CIMD]), which the
    authorization server MUST treat as a failure rather than digesting
    what it read.  After a final failure, a document is treated as
    failing validation, a key set as carrying no acceptable key, and a
@@ -840,7 +839,7 @@ Table of Contents
    as the client authentication method requires.  The same comparison
    applies wherever this specification asks whether a document carries a
    key.  Methods that prove possession of a key the document carries,
-   such as private_key_jwt (Section 8.2 of [CIMD]) and
+   such as private_key_jwt (Section 5 of [CIMD]) and
    self_signed_tls_client_auth (Section 2.2 of [RFC8705]), satisfy this
    directly.
 
@@ -1308,7 +1307,7 @@ Table of Contents
 
    A response from a software_statements_uri ought to be cached no
    longer than the document is.  Because [CIMD] forbids caching an error
-   response (Section 5.2 of [CIMD]), a failed retrieval (Section 5.3) is
+   response (Section 6.2 of [CIMD]), a failed retrieval (Section 5.3) is
    followed by back-off.
 
 11.2.  Retrieval and Processing Bounds
@@ -1337,7 +1336,7 @@ Table of Contents
       verifying any signature.
 
    A response size bound also decides which reviewed documents a server
-   can admit.  Section 8.7 of [CIMD] recommends that a server read at
+   can admit.  Section 10.11 of [CIMD] recommends that a server read at
    most 5 kilobytes, so an issuer ought not to issue a statement over a
    larger document.
 
@@ -1813,9 +1812,9 @@ Table of Contents
 
    [CIMD]     Parecki, A. and E. Smith, "OAuth Client ID Metadata
               Document", Work in Progress, Internet-Draft, draft-ietf-
-              oauth-client-id-metadata-document-02, 6 July 2026,
+              oauth-client-id-metadata-document-03, 2 November 2026,
               <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
-              client-id-metadata-document-02>.
+              client-id-metadata-document-03>.
 
    [IDJAG]    Parecki, A., McGuinness, K., and B. Campbell, "Identity
               Assertion JWT Authorization Grant", Work in Progress,
