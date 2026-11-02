@@ -368,7 +368,7 @@ For a presentation that is not review-only, under either model:
 
 ### Confidential Clients {#confidential-client-presentation}
 
-For a confidential client's presentation that is not review-only, the proven key MUST appear in the `jwks` or at the `jwks_uri` of the reviewed document ({{effective-metadata}}). A key appears there if the document's `jwks`, or the JWK Set at its `jwks_uri`, contains a key with the same JWK Thumbprint ({{RFC7638}}). The same comparison applies wherever this specification asks whether a document carries a key. Methods that prove possession of a key the document carries, such as `private_key_jwt` (Section 8.2 of {{CIMD}}) and `self_signed_tls_client_auth` (Section 2.2 of {{RFC8705}}), satisfy this directly.
+For a confidential client's presentation that is not review-only, the proven key MUST appear in the `jwks` or at the `jwks_uri` of the reviewed document ({{effective-metadata}}). A key appears there if the document's `jwks`, or the JWK Set at its `jwks_uri`, contains a key with the same JWK Thumbprint ({{RFC7638}}), computed with SHA-256. The comparison covers key material only: the key's algorithm and intended use are checked as the client authentication method requires. The same comparison applies wherever this specification asks whether a document carries a key. Methods that prove possession of a key the document carries, such as `private_key_jwt` (Section 8.2 of {{CIMD}}) and `self_signed_tls_client_auth` (Section 2.2 of {{RFC8705}}), satisfy this directly.
 
 ### Public Clients {#public-client-presentation}
 
