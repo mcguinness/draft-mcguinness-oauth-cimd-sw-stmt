@@ -506,6 +506,8 @@ If the authorization server's policy or a required issuer ({{issuer-trust}}) req
 `statement_required`:
 : In any other case, subject to the order of {{errors}}, the authorization server MUST return this code.
 
+An authorization request from a client admitted on a statement pulled at the authorization endpoint that exceeds the reviewed document's response types or scope (step 6 of {{processing}}) is rejected with `unauthorized_client` or `invalid_scope`, as for a presentation ({{presentation-errors}}).
+
 Before redirecting with an error, the authorization server validates the `redirect_uri` against the client's CIMD, which it resolves first, or, for a registered client, against its registered redirection URIs (Section 4.1.2.1 of {{RFC6749}}). If it cannot resolve a CIMD client's document, it MUST NOT redirect.
 
 ## Proof Mechanism Errors {#proof-errors}
