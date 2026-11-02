@@ -95,10 +95,11 @@ Under this specification, an authorization server checks a statement only when a
 
 The following non-normative sequence summarizes runtime admission ({{processing}}):
 
-1. Using its CIMD URL as `client_id`, the client presents its statement in a token request or, for a redirect flow, a pushed authorization request, or publishes it at the `software_statements_uri` its document names ({{runtime-presentation}}, {{pulled-statements}}).
-2. The authorization server validates the statement ({{validation}}), resolves the reviewed document ({{effective-metadata}}), and verifies the sender constraint against it ({{sender-constraint}}).
-3. The request proceeds under that document's metadata, without a registration.
-4. The state on which the rest of the grant depends persists as an establishment ({{grant-lifecycle}}).
+1. An issuer reviews a client's CIMD and issues a statement whose `sub` claim is the document's URL and whose `cimd_digest` claim is the digest of the document's exact octets ({{profiles}}).
+2. Using its CIMD URL as `client_id`, the client presents the statement in a token request or, for a redirect flow, a pushed authorization request ({{runtime-presentation}}). A client can instead publish its statements at the `software_statements_uri` its document names, for an authorization server that supports pulled statements to retrieve ({{pulled-statements}}).
+3. The authorization server verifies the statement's signature and claims against its trust configuration for the issuer ({{validation}}, {{issuer-trust}}), retrieves the document, and compares the document's digest with the statement's ({{effective-metadata}}).
+4. The authorization server binds the presenter to the reviewed document, in the request or at code redemption. A confidential client authenticates with a key the document carries, and a public client uses PKCE and binds a key in the request ({{sender-constraint}}). Where no binding is possible, the statement is review-only ({{review-only}}).
+5. The request proceeds under the reviewed document's metadata, without a registration. The authorization server records the state the grant depends on, including the proven key, as an establishment, and checks that key again on refresh ({{grant-lifecycle}}).
 
 # Conventions and Definitions
 
