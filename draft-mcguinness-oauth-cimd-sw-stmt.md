@@ -239,6 +239,8 @@ If an issuer reviews software for several customers whose decisions are each tru
 
 # Runtime Presentation {#cimd-presentation}
 
+An authorization server that admits clients at request time under this specification MUST support statements presented in requests ({{runtime-presentation}}). Support for pulled statements ({{pulled-statements}}) is optional, and a server advertises it with the `software_statement_pull_supported` metadata value ({{authorization-server-metadata}}). A server that consumes statements only in registration requests ({{REGISTRATION}}) need not support runtime presentation.
+
 ## Admission {#processing}
 
 For a runtime presentation, the authorization server proceeds as follows, rejecting at the first failure ({{errors}}):
