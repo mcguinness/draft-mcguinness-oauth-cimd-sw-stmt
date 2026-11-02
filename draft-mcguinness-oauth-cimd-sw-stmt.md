@@ -347,22 +347,24 @@ Unless the reviewed document's redirection URIs make it review-only ({{review-on
 
 A statement pulled for a document that omits `token_endpoint_auth_method` is review-only wherever it is pulled.
 
-At code redemption, a confidential client whose statement was pulled at the authorization endpoint authenticates with a key the reviewed document carries, in its `jwks` or at its `jwks_uri` within the reuse bounds of {{retrieval}}, not one that only a later retrieval of the document carries, and that key becomes the establishment's proven key.
+At code redemption, a confidential client whose statement was pulled at the authorization endpoint authenticates with a key the reviewed document carries, in its `jwks` or at its `jwks_uri` within the reuse bounds of {{retrieval}}, not one that only a later retrieval of the document carries, and that key becomes the establishment's proven key. The method with which the client authenticates becomes the establishment's Selected Method.
 
 ## Sender Constraint {#sender-constraint}
 
-A runtime presentation that is not review-only ({{review-only}}) MUST be sender-constrained under one of two models, set by the `token_endpoint_auth_method` its reviewed document declares:
+A runtime presentation that is not review-only ({{review-only}}) MUST be sender-constrained under one of two models:
 
-* Confidential client (a method other than `none`): by a key the reviewed document carries ({{confidential-client-presentation}}).
-* Public client (`none`): by an installation key the presenter binds ({{public-client-presentation}}), while its reviewed redirection URIs, with PKCE `S256`, bind the presentation itself ({{public-client-security}}).
+* Confidential client: by a key the reviewed document carries ({{confidential-client-presentation}}).
+* Public client: by an installation key the presenter binds ({{public-client-presentation}}), while its reviewed redirection URIs, with PKCE `S256`, bind the presentation itself ({{public-client-security}}).
+
+The authorization server determines the model from the reviewed document's permitted methods that it supports and its policy allows, not from the request. It MUST apply the confidential-client model if those methods include one other than `none`, and otherwise applies the public-client model if they include `none`. If they include neither, Section 5 of {{CIMD}} applies.
 
 The authorization server MUST reject a presentation made in a request ({{runtime-presentation}}) under a reviewed document that omits the `token_endpoint_auth_method` member, even if the presentation is review-only. {{pull-binding}} covers a pulled statement.
 
 For a presentation that is not review-only, under either model:
 
-* The presenter proves possession of the key its model requires through the applicable client authentication method or a DPoP proof {{RFC9449}}. A public client that binds its key through `dpop_jkt` proves possession at code redemption ({{grant-lifecycle}}). If a request carries both client authentication and a DPoP proof, the key its client authentication proves is the proven key.
+* The presenter proves possession of the key its model requires through the applicable client authentication method or a DPoP proof {{RFC9449}}. A public client that binds its key through `dpop_jkt` proves possession at code redemption ({{grant-lifecycle}}). If a confidential client's request carries both client authentication and a DPoP proof, the key its client authentication proves is the proven key.
 * The proof MUST be bound to the current request and validated with the replay protections of that mechanism.
-* The presenter MUST use the client authentication method its reviewed document declares in `token_endpoint_auth_method` ({{CIMD}}).
+* A confidential client's presenter MUST authenticate with a permitted method other than `none` that the server supports and its policy allows, and that method is the establishment's Selected Method. A public client's Selected Method is `none`.
 * The authorization server MUST reject a presentation without such a proof or, for a confidential client, whose proven key the reviewed document does not carry.
 
 ### Confidential Clients {#confidential-client-presentation}
@@ -371,7 +373,7 @@ For a confidential client's presentation that is not review-only, the proven key
 
 ### Public Clients {#public-client-presentation}
 
-Software distributed to end users cannot hold a key its reviewed document carries: a key shipped in every copy identifies the software, not the installation. Such a document declares `token_endpoint_auth_method` of `none` and carries no key material.
+Software distributed to end users cannot hold a key its reviewed document carries: a key shipped in every copy identifies the software, not the installation. Such a document permits `none` and carries no key material.
 
 An authorization server MUST reject a presentation made in a request, even a review-only one, that opens a new grant at the token endpoint ({{token-requests}}) from a public client. Such a presentation opens no redirect and has nothing to bind it. {{pull-binding}} covers a pulled statement.
 
@@ -385,7 +387,7 @@ For a public client's presentation that is not review-only, made or pulled at th
 
 The following are review-only:
 
-1. Every presentation and pulled statement for a reviewed document that carries any redirection URI another application on the same device could claim, whatever authentication method the document declares. Such a URI is a non-`https` URI, such as a private-use scheme or an `http` loopback redirection URI (Sections 7.1 and 7.3 of {{RFC8252}}), or an `https` URI whose host is a loopback address, `localhost`, or a name ending in `.localhost` (Section 6.3 of {{RFC6761}}), ignoring case and a trailing dot. The application that claims such a URI receives the code, so neither the reviewed redirection URIs nor a key shipped in every copy of the software can bind the presenter.
+1. Every presentation and pulled statement for a reviewed document that carries any redirection URI another application on the same device could claim, whatever methods the document permits. Such a URI is a non-`https` URI, such as a private-use scheme or an `http` loopback redirection URI (Sections 7.1 and 7.3 of {{RFC8252}}), or an `https` URI whose host is a loopback address, `localhost`, or a name ending in `.localhost` (Section 6.3 of {{RFC6761}}), ignoring case and a trailing dot. The application that claims such a URI receives the code, so neither the reviewed redirection URIs nor a key shipped in every copy of the software can bind the presenter.
 2. A pulled statement that {{pull-binding}} makes review-only.
 
 A review-only presentation or pulled statement creates no establishment, and its statement MUST NOT satisfy a policy requiring reviewed software: the authorization server proceeds as it would for the same CIMD client presenting no statement, though it can record the statement's issuer for audit ({{ui-audit}}).
@@ -399,7 +401,7 @@ A successful presentation creates an establishment: the state against which the 
 * The authorization server's own tenant the grant was opened for, if it hosts more than one.
 * The reviewed metadata and the digest it matched ({{effective-metadata}}).
 * The issuer trust decision.
-* The sender-constraint mechanism and proven key.
+* The Selected Method, the sender-constraint mechanism, and the proven key.
 
 The authorization server MUST bind the resulting `request_uri`, authorization code, refresh token, and other grant continuation state to the establishment, as applicable. An establishment ends once no continuation state bound to it remains usable.
 
