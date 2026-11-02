@@ -157,7 +157,7 @@ This specification defines the following member of a CIMD:
 
 A document selecting this profile MUST meet all of the following requirements:
 
-* Its `token_endpoint_auth_method` is the single string `attest_jwt_client_auth_dpop` ({{proof}}).
+* It permits exactly one method (Section 2 of {{STATEMENT}}), `attest_jwt_client_auth_dpop` ({{proof}}).
 * Its `grant_types` member explicitly contains `authorization_code` and MAY also contain `refresh_token`. It contains no other grant type.
 * Its `response_types` explicitly contains only `code`.
 * Its `redirect_uris` is a nonempty array, every member of which meets {{loopback}}.
@@ -309,7 +309,7 @@ The server MUST issue access tokens, at redemption and on refresh ({{refresh}}),
 
 Every refresh request MUST carry the original `client_id` and authenticate under {{proof}} with a current instance attestation and a fresh proof under the establishment's proven key. In place of the document-key check of Section 5.7.1 of {{STATEMENT}}, the server MUST complete the checks of {{attestation-validation}} other than the digest comparison, verify the refresh-token binding, and enforce the fixed values of {{establishment}} before it considers any replacement.
 
-On every refresh, the server MUST require a current software statement and re-evaluate its issuer trust decision. It MUST also verify that the currently served document meets {{client-metadata}} and that its digest equals the `cimd_digest` of the attestation and of the applicable statement, which is the recorded statement or, if one is needed, the replacement. If the document fails {{client-metadata}}, for example by omitting the `software_statement_instance_binding` member or naming another authentication method, the refresh is rejected with `invalid_grant` without seeking a replacement.
+On every refresh, the server MUST require a current software statement and re-evaluate its issuer trust decision. It MUST also verify that the currently served document meets {{client-metadata}} and that its digest equals the `cimd_digest` of the attestation and of the applicable statement, which is the recorded statement or, if one is needed, the replacement. If the document fails {{client-metadata}}, for example by omitting the `software_statement_instance_binding` member or permitting another authentication method, the refresh is rejected with `invalid_grant` without seeking a replacement.
 
 A replacement (Section 5.2 of {{LIFECYCLE}}) is needed when the recorded statement is expired, refused, or no longer matches the served document. In place of the key bullet of step 3 of Section 5.2 of {{LIFECYCLE}}, a current attestation of the proven key, from the recorded attester under the recorded policy, MUST name the replacement's metadata digest. A rejected refresh MUST NOT replace the recorded binding or rotate a refresh token.
 
@@ -392,7 +392,8 @@ The following is an example of a CIMD that selects this profile:
   "client_id": "https://cli.example/client.json",
   "client_name": "Example CLI",
   "software_statement_instance_binding": true,
-  "token_endpoint_auth_method": "attest_jwt_client_auth_dpop",
+  "token_endpoint_auth_methods_supported":
+    ["attest_jwt_client_auth_dpop"],
   "grant_types": ["authorization_code", "refresh_token"],
   "response_types": ["code"],
   "redirect_uris": ["http://127.0.0.1/callback"],
@@ -421,7 +422,7 @@ The following is an example of the decoded header and payload of an instance att
   "sub": "https://cli.example/client.json",
   "iat": 1792886400,
   "exp": 1792886700,
-  "cimd_digest": "SvGs0Mf5jHoShvhZQdHsFxivqUgzylxKr5ppf4Kt-W0",
+  "cimd_digest": "mtuYmVWj5NVxDRR1_f5ZodjUm0BNfvis4CbVGtqhzTo",
   "cimd_instance_policy": "https://attester.example/policy/cli/v1",
   "cnf": {
     "jwk": {
