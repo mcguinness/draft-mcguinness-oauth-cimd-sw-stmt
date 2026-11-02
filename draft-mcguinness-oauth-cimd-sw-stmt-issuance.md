@@ -213,7 +213,7 @@ A public client binds its requests with Demonstrating Proof of Possession (DPoP)
 
 CIMDs can change while a request is pending. For each request, the authorization server retrieves and validates the document ({{client-identity}}) and computes the metadata digest of the exact octets it retrieved, as Section 3.1 of {{STATEMENT}} requires. These octets and their digest are the request's metadata snapshot. A deferral created at redemption is bound to the code's snapshot and audience. The authorization server MUST bind the snapshot and the requested audience to each software statement code and deferral it creates, and issues the statement over that snapshot.
 
-The authorization server MAY retrieve the document again before issuing the software statement. If it does so and the digest differs, it MUST either re-evaluate the request under the new document, binding the new document as the snapshot, or reject the request. This applies even if the change touches no member its policy examines. A statement over a superseded snapshot fails the digest comparison (Section 5.2 of {{STATEMENT}}).
+The authorization server MAY retrieve the document again before issuing the software statement. If it does so and the digest differs, it MUST either re-evaluate the request under the new document, binding the new document as the snapshot, or reject the request. This applies even if the change touches no member its policy examines. A statement over a superseded snapshot fails the digest comparison (Section 5.2 of {{STATEMENT}}). Replacing the snapshot is the authorization server's own action and changes no parameter of the request, such as the requested audience.
 
 The authorization server MUST NOT combine values from different document versions.
 
