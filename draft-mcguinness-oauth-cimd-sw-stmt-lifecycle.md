@@ -105,7 +105,7 @@ This specification extends {{STATEMENT}}, which does not depend on it, and also 
 The following non-normative sequence summarizes a statement's lifecycle at one authorization server:
 
 1. An issuer issues a statement as {{STATEMENT}} defines, optionally with a reference to its entry in a Token Status List ({{status-publication}}).
-2. The authorization server admits a client on the statement, or registers one under {{REGISTRATION}}, and records the statement. If the statement's `iat` is later than the server's `iat` floor for its `iss` and `sub`, kept per tenant on a multi-tenant server, the floor advances to it ({{supersession}}).
+2. The authorization server admits a client on the statement, or registers one under {{REGISTRATION}}, and records the statement. The `iat` floor for the statement's `iss` and `sub`, kept for each use the statement permits and per tenant on a multi-tenant server, advances to its `iat` if that is later ({{supersession}}).
 3. The issuer issues a later statement about the same software, for example over a changed document. Once the authorization server accepts it, the earlier statement is superseded for new grants and registrations, and grants already opened on the earlier statement continue. An issuer that uses a withdrawal mechanism and narrows its review also withdraws the earlier statement, as {{withdrawal}} recommends.
 4. To withdraw a statement, the issuer changes its status ({{status-publication}}) and can send a status change event ({{shared-signals}}) that prompts servers to check it. The authorization server learns of the withdrawal when it next resolves the status, and keeps a refusal record for the statement ({{withdrawal}}).
 5. When the client refreshes a grant that needs a replacement, such as one whose recorded statement is covered by a refusal record or has expired where the server requires a current statement ({{currency}}), the client can offer a later statement, and a server that supports pulled statements can pull one ({{refresh-replacement}}). The grant continues under that statement if the server accepts it. Otherwise the refresh is rejected ({{lifecycle-errors}}).
@@ -145,7 +145,7 @@ Refresh Replacement:
 : A later statement from the recorded statement's issuer about the same software, offered or pulled on refresh to take the recorded statement's place ({{refresh-replacement}}).
 
 `iat` Floor:
-: For a trusting authorization server, the greatest `iat` claim value among the statements it has accepted for a given `iss` and `sub`, per tenant on a multi-tenant server ({{supersession}}).
+: For a trusting authorization server, the greatest `iat` claim value among the statements it has accepted for a given `iss`, `sub`, and use (`presentation` or `registration`), per tenant on a multi-tenant server ({{supersession}}).
 
 This specification also extends the following term of {{STATEMENT}}.
 
@@ -170,11 +170,11 @@ Rejections under this section use the error responses of {{lifecycle-errors}}.
 
 # Supersession {#supersession}
 
-Because an issuer's `iat` values for a given `iss` and `sub` increase strictly (Section 3 of {{STATEMENT}}), a later `iat` marks a later review, and a statement whose `iat` is earlier than the server's `iat` floor is superseded.
+Because an issuer's `iat` values for a given `iss` and `sub` increase strictly (Section 3 of {{STATEMENT}}), a later `iat` marks a later review, and a statement whose `iat` is earlier than the server's `iat` floor for the use being made is superseded.
 
-A trusting authorization server MUST retain each `iat` floor for at least the maximum statement lifetime it honors for the issuer after the floor's value. A statement is accepted for the floor once the server admits a client on it, applies it as a replacement ({{refresh-replacement}}), or registers a client or renews a registration with it ({{REGISTRATION}}). The server MUST reject a statement whose `iat` claim is earlier than the retained `iat` floor, whether it arrives as a replacement on refresh, a new registration or a replacement delivered under {{REGISTRATION}}, or a runtime presentation. A repeated registration request that Section 3.3 of {{REGISTRATION}} answers with the existing registration is not a new registration. A client holding a superseded, broader statement therefore cannot defer a narrowing by opening a fresh registration or establishment with it.
+A trusting authorization server MUST retain each `iat` floor for at least the maximum statement lifetime it honors for the issuer after the floor's value. A statement is accepted for the floor once the server admits a client on it, applies it as a replacement ({{refresh-replacement}}), or registers a client or renews a registration with it ({{REGISTRATION}}). Accepting a statement advances the floor for each use its `statement_uses` claim permits (Section 3 of {{STATEMENT}}), so one permitting both uses advances both floors. The server MUST reject a statement whose `iat` claim is earlier than the retained `iat` floor for the use being made: `presentation` for a runtime presentation or a replacement on refresh, and `registration` for a new registration or a replacement delivered under {{REGISTRATION}}. A repeated registration request that Section 3.3 of {{REGISTRATION}} answers with the existing registration is not a new registration. A client holding a superseded, broader statement therefore cannot defer a narrowing by opening a fresh registration or establishment with it. Keeping a floor per use lets an issuer publish a `presentation` statement for servers to pull while presenting a separate `registration` statement (Section 11.1 of {{REGISTRATION}}), without either superseding the other.
 
-The floor needs one `iat` value for each `iss` and `sub` and, on a multi-tenant server, each tenant, not the statements themselves. Every statement the floor refuses has an earlier `iat`, so its effective expiry passes within the maximum statement lifetime the server honors for the issuer, counted from the floor's value. Once that period and any clock-skew allowance have passed, the floor refuses nothing that expiry would not refuse. A server that raises the lifetime it honors for an issuer extends that period for the floors it already holds. A floor lost before then leaves the statements it superseded acceptable until they expire.
+The floor needs one `iat` value for each `iss`, `sub`, and use and, on a multi-tenant server, each tenant, not the statements themselves. Every statement the floor refuses has an earlier `iat`, so its effective expiry passes within the maximum statement lifetime the server honors for the issuer, counted from the floor's value. Once that period and any clock-skew allowance have passed, the floor refuses nothing that expiry would not refuse. A server that raises the lifetime it honors for an issuer extends that period for the floors it already holds. A floor lost before then leaves the statements it superseded acceptable until they expire.
 
 At admission, the server verifies the `iat` floor in step 3 of Section 5.1 of {{STATEMENT}}, along with the `client_id` rule, before it resolves the reviewed document.
 
@@ -447,7 +447,7 @@ This section gives guidance to implementers. It adds no requirement.
 A server implementing this specification keeps the following state:
 
 * a refusal record for each statement it has learned is withdrawn, or that its operator refused ({{withdrawal}});
-* an `iat` floor for each `iss` and `sub`, per tenant on a multi-tenant server ({{supersession}});
+* an `iat` floor for each `iss`, `sub`, and use, per tenant on a multi-tenant server ({{supersession}});
 * for each establishment, its recorded statement and what step 4 of {{refresh-replacement}} records with it;
 * with Token Status List, the Status List Tokens it holds ({{status-resolution}}); and
 * with status change events, its streams and the SET `jti` values it has applied on each ({{processing}}).
