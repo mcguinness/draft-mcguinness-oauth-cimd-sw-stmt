@@ -277,7 +277,7 @@ If the server bounds establishments (Section 11.3 of {{STATEMENT}}), a count per
 
 This section defines the withdrawal mechanism ({{withdrawal}}) of this specification, a profile of Token Status List {{STATUSLIST}} through which an issuer publishes the authoritative status of its statements.
 
-Every retrieval this specification causes, of a status list, of transmitter configuration metadata ({{shared-signals}}), or of a key set either names, has the server-side request forgery protections that Section 5.3 of {{STATEMENT}} requires for the retrievals that specification causes.
+Every retrieval this specification causes, of a status list, of transmitter configuration metadata ({{shared-signals}}), or of a key set of {{key-sets}} or the metadata that locates it, has the server-side request forgery protections that Section 5.3 of {{STATEMENT}} requires for the retrievals that specification causes.
 
 ## Issuer Key Sets {#key-sets}
 
