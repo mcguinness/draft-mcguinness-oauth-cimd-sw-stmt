@@ -682,7 +682,7 @@ This section gives guidance to operators and issuers. It adds no requirement.
 
 ## Configuring Issuer Trust {#trust-configuration}
 
-Trust configuration ought to constrain each issuer to the client identifier namespaces it is expected to attest ({{validation}}), for example URLs under the domains of the software publishers it serves. Without such a scope, a compromised or over-broad issuer can mint acceptable statements about any client software.
+Trust configuration ought to constrain each issuer to the client identifier namespaces it is expected to attest ({{issuer-trust}}), for example URLs under the domains of the software publishers it serves. Without such a scope, a compromised or over-broad issuer can mint acceptable statements about any client software.
 
 When a trusting authorization server configures an issuer whose decisions are confined to one of its tenants, as a customer's own issuer is, it ought to record with that configuration the client identifier namespaces for which the issuer's decision is required in that tenant ({{issuer-trust}}).
 
@@ -812,7 +812,7 @@ Published specification:
 : This specification
 
 Applications that use this media type:
-: Authorization servers and clients that issue, request, or accept software statements under this specification; other profiles are distinguished by their own `typ` values
+: Issuers, authorization servers, and clients that issue, request, or accept software statements under this specification; other profiles are distinguished by their own `typ` values
 
 Fragment identifier considerations:
 : n/a
