@@ -162,6 +162,8 @@ In addition to the checks of Section 3.2 of {{STATEMENT}}, a trusting authorizat
 
 A refusal derived from a withdrawal mechanism lasts until a later authoritative result from that mechanism replaces it, or until an expiry the mechanism itself defines for the withdrawal. A server MUST NOT retain such a refusal once it is replaced or expired in that way. A failure to consult the mechanism, or cached evidence that has lapsed, neither replaces nor expires a refusal.
 
+A refusal record that a withdrawal mechanism yields applies in every tenant of the server. One that the server's operator enters applies in the tenants the operator scopes it to. Unless the mechanism replaces or expires the refusal first, a server MUST keep a refusal record until the statement's effective expiry has passed and no grant or registration it holds records the statement.
+
 A withdrawal constrains and never relaxes. A statement for which no withdrawal mechanism reports a withdrawal, or for which the server cannot consult the mechanism it uses ({{withdrawal-practice}}), is bounded by its effective expiry as it would be otherwise, and a server MUST NOT treat any withdrawal mechanism as grounds to accept a statement past its effective expiry.
 
 An issuer that uses a withdrawal mechanism and issues a later statement narrower than the one it replaces SHOULD withdraw the earlier statement ({{replacement-security}}). A later statement is narrower if the document it names no longer carries a key, redirection URI, or scope the earlier document carried, if its `aud`, `aud_tenant`, or `statement_uses` is narrower, or if its effective expiry is earlier than that of the statement it replaces.
