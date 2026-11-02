@@ -509,7 +509,7 @@ The remaining exposure is resource cost: an attacker holding the issuer's SET si
 
 ## Event Suppression
 
-Because a receiver resolves status independently ({{processing}}), an attacker who suppresses events delays a withdrawal at most until the receiver's next scheduled resolution and, for new admissions, never beyond the affected statements' effective expiry ({{schedule-practice}}).
+Because a receiver resolves status independently ({{processing}}), an attacker who suppresses events delays a withdrawal at most until the receiver's next scheduled resolution that completes and, for new admissions, never beyond the affected statements' effective expiry ({{schedule-practice}}).
 
 The absence of events looks the same on a healthy stream and a suppressed one. Periodic stream verification ({{configuration}}) makes the difference observable ({{stream-practice}}).
 
