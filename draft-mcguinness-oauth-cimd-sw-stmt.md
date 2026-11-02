@@ -136,7 +136,7 @@ Required Issuer:
 : An issuer whose current statement a trusting authorization server requires in one of its tenants for software in configured client identifier namespaces ({{issuer-trust}}).
 
 Current Statement:
-: A statement whose effective expiry has not passed and that no extension the server implements has ended.
+: A statement whose effective expiry has not passed and that no extension the server implements has ended. A current statement need not be the most recently issued one: an earlier statement for the same software remains current after a later one is issued ({{enforcement-bounds}}).
 
 Review-Only:
 : Describes a presentation, or a pulled statement, that the authorization server evaluates but whose statement counts for nothing in admission ({{review-only}}).
