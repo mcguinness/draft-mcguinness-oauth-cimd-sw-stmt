@@ -354,7 +354,7 @@ A runtime presentation that is not review-only ({{review-only}}) MUST be sender-
 * Confidential client: by a key the reviewed document carries ({{confidential-client-presentation}}).
 * Public client: by an installation key the presenter binds ({{public-client-presentation}}), while its reviewed redirection URIs, with PKCE `S256`, bind the presentation itself ({{public-client-security}}).
 
-The authorization server determines the model from the reviewed document's permitted methods that it supports and its policy allows, not from the request. It MUST apply the confidential-client model if those methods include one other than `none`, and otherwise applies the public-client model if they include `none`. If they include neither, Section 5 of {{CIMD}} applies.
+The authorization server determines the model from the reviewed document's permitted methods that it supports and its policy allows, not from the request. It MUST apply the confidential-client model if those methods include one other than `none`, and otherwise applies the public-client model if they include `none`. If they include neither, Section 5 of {{CIMD}} applies. A document sets one model at a server. Components of one piece of software that differ in client type, such as a backend that holds a key and a desktop application that does not, therefore each use their own CIMD (Section 2.1 of {{RFC6749}}).
 
 For a presentation that is not review-only, under either model:
 
