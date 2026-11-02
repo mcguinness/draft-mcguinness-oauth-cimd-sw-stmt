@@ -212,9 +212,9 @@ Table of Contents
        (Section 5.6).  A request whose presenter cannot be bound is
        rejected, except in the cases Section 5.6.3 defines, such as a
        document with a redirection URI another application on the same
-       device could claim.  A review-only statement admits nothing: the
-       request proceeds as one presenting no statement, and no
-       establishment is created.
+       device could claim.  A review-only statement admits nothing on
+       the strength of the review: the request proceeds as one
+       presenting no statement, and no establishment is created.
 
    5.  When the binding succeeds, the request proceeds under the
        reviewed document's metadata, without a registration.  The
@@ -268,7 +268,10 @@ Table of Contents
       in configured client identifier namespaces (Section 4).
 
    Current Statement:  A statement whose effective expiry has not passed
-      and that no extension the server implements has ended.
+      and that no extension the server implements has ended.  A current
+      statement need not be the most recently issued one: an earlier
+      statement for the same software remains current after a later one
+      is issued (Section 13.7).
 
    Review-Only:  Describes a presentation, or a pulled statement, that
       the authorization server evaluates but whose statement counts for
@@ -830,10 +833,12 @@ Table of Contents
    proven key MUST appear in the jwks or at the jwks_uri of the reviewed
    document (Section 5.2).  A key appears there if the document's jwks,
    or the JWK Set at its jwks_uri, contains a key with the same JWK
-   Thumbprint ([RFC7638]).  The same comparison applies wherever this
-   specification asks whether a document carries a key.  Methods that
-   prove possession of a key the document carries, such as
-   private_key_jwt (Section 8.2 of [CIMD]) and
+   Thumbprint ([RFC7638]), computed with SHA-256.  The comparison covers
+   key material only: the key's algorithm and intended use are checked
+   as the client authentication method requires.  The same comparison
+   applies wherever this specification asks whether a document carries a
+   key.  Methods that prove possession of a key the document carries,
+   such as private_key_jwt (Section 8.2 of [CIMD]) and
    self_signed_tls_client_auth (Section 2.2 of [RFC8705]), satisfy this
    directly.
 
@@ -1086,6 +1091,12 @@ Table of Contents
 
    statement_required:  In any other case, subject to the order of
       Section 6, the authorization server MUST return this code.
+
+   An authorization request from a client admitted on a statement pulled
+   at the authorization endpoint that exceeds the reviewed document's
+   response types or scope (step 6 of Section 5.1) is rejected with
+   unauthorized_client or invalid_scope, as for a presentation
+   (Section 6.2).
 
    Before redirecting with an error, the authorization server validates
    the redirect_uri against the client's CIMD, which it resolves first,
@@ -1583,9 +1594,13 @@ Table of Contents
    (Section 6.4) travels through the user agent, so anyone who can see
    the redirection learns that this client has no established standing
    at this server.  The disclosure is accepted because a client that
-   cannot learn why it was refused cannot act.  The disclosure carries
-   no detail of the server's issuer trust configuration, which
-   Section 6.6 keeps from unauthenticated requesters.
+   cannot learn why it was refused cannot act.  Outcomes still reveal
+   some policy.  By probing with public client identifier URLs, anyone
+   can learn whether a request is admitted and, from statement_required
+   versus unauthorized_client, whether a required issuer covers a client
+   identifier in a tenant.  Section 6.6 keeps further detail of the
+   issuer trust configuration out of error_description for
+   unauthenticated requesters.
 
 14.  Privacy Considerations
 
@@ -1721,13 +1736,15 @@ Table of Contents
    Specification Document(s):  This specification, Section 6
 
    This specification also requests that IANA update the existing
-   temporarily_unavailable entry, adding the token error response to its
-   usage locations and this specification as a reference:
+   temporarily_unavailable entry, adding the token error response and
+   the pushed authorization request error response to its usage
+   locations and this specification as a reference:
 
    Error Name:  temporarily_unavailable
 
-   Error Usage Location:  token error response, in addition to the
-      locations already registered
+   Error Usage Location:  token error response, pushed authorization
+      request error response, in addition to the locations already
+      registered
 
    Related Protocol Extension:  OAuth 2.0 Authorization Framework
 

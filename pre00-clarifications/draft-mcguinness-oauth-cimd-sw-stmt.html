@@ -1410,7 +1410,7 @@ svg {
             <p id="section-1.1-2.3.1">The authorization server verifies the statement's signature and claims against its trust configuration for the issuer (<a href="#validation" class="auto internal xref">Section 3.2</a>, <a href="#issuer-trust" class="auto internal xref">Section 4</a>), retrieves the document, and compares the document's digest with the statement's (<a href="#effective-metadata" class="auto internal xref">Section 5.2</a>).<a href="#section-1.1-2.3.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-1.1-2.4">
-            <p id="section-1.1-2.4.1">The authorization server binds the presenter to the reviewed document, in the request or at code redemption. A confidential client authenticates with a key the document carries, and a public client uses PKCE and binds a key in the request (<a href="#sender-constraint" class="auto internal xref">Section 5.6</a>). A request whose presenter cannot be bound is rejected, except in the cases <a href="#review-only" class="auto internal xref">Section 5.6.3</a> defines, such as a document with a redirection URI another application on the same device could claim. A review-only statement admits nothing: the request proceeds as one presenting no statement, and no establishment is created.<a href="#section-1.1-2.4.1" class="pilcrow">¶</a></p>
+            <p id="section-1.1-2.4.1">The authorization server binds the presenter to the reviewed document, in the request or at code redemption. A confidential client authenticates with a key the document carries, and a public client uses PKCE and binds a key in the request (<a href="#sender-constraint" class="auto internal xref">Section 5.6</a>). A request whose presenter cannot be bound is rejected, except in the cases <a href="#review-only" class="auto internal xref">Section 5.6.3</a> defines, such as a document with a redirection URI another application on the same device could claim. A review-only statement admits nothing on the strength of the review: the request proceeds as one presenting no statement, and no establishment is created.<a href="#section-1.1-2.4.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-1.1-2.5">
             <p id="section-1.1-2.5.1">When the binding succeeds, the request proceeds under the reviewed document's metadata, without a registration. The authorization server records the state the grant depends on, including the proven key, as an establishment, and checks that key again on refresh (<a href="#grant-lifecycle" class="auto internal xref">Section 5.7</a>).<a href="#section-1.1-2.5.1" class="pilcrow">¶</a></p>
@@ -1469,7 +1469,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         <dd class="break"></dd>
 <dt id="section-2-4.15">Current Statement:</dt>
         <dd style="margin-left: 1.5em" id="section-2-4.16">
-          <p id="section-2-4.16.1">A statement whose effective expiry has not passed and that no extension the server implements has ended.<a href="#section-2-4.16.1" class="pilcrow">¶</a></p>
+          <p id="section-2-4.16.1">A statement whose effective expiry has not passed and that no extension the server implements has ended. A current statement need not be the most recently issued one: an earlier statement for the same software remains current after a later one is issued (<a href="#enforcement-bounds" class="auto internal xref">Section 13.7</a>).<a href="#section-2-4.16.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 <dt id="section-2-4.17">Review-Only:</dt>
@@ -1887,7 +1887,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
           <h4 id="name-confidential-clients">
 <a href="#section-5.6.1" class="section-number selfRef">5.6.1. </a><a href="#name-confidential-clients" class="section-name selfRef">Confidential Clients</a>
           </h4>
-<p id="section-5.6.1-1">For a confidential client's presentation that is not review-only, the proven key <span class="bcp14">MUST</span> appear in the <code>jwks</code> or at the <code>jwks_uri</code> of the reviewed document (<a href="#effective-metadata" class="auto internal xref">Section 5.2</a>). A key appears there if the document's <code>jwks</code>, or the JWK Set at its <code>jwks_uri</code>, contains a key with the same JWK Thumbprint (<span>[<a href="#RFC7638" class="cite xref">RFC7638</a>]</span>). The same comparison applies wherever this specification asks whether a document carries a key. Methods that prove possession of a key the document carries, such as <code>private_key_jwt</code> (Section 8.2 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>) and <code>self_signed_tls_client_auth</code> (Section 2.2 of <span>[<a href="#RFC8705" class="cite xref">RFC8705</a>]</span>), satisfy this directly.<a href="#section-5.6.1-1" class="pilcrow">¶</a></p>
+<p id="section-5.6.1-1">For a confidential client's presentation that is not review-only, the proven key <span class="bcp14">MUST</span> appear in the <code>jwks</code> or at the <code>jwks_uri</code> of the reviewed document (<a href="#effective-metadata" class="auto internal xref">Section 5.2</a>). A key appears there if the document's <code>jwks</code>, or the JWK Set at its <code>jwks_uri</code>, contains a key with the same JWK Thumbprint (<span>[<a href="#RFC7638" class="cite xref">RFC7638</a>]</span>), computed with SHA-256. The comparison covers key material only: the key's algorithm and intended use are checked as the client authentication method requires. The same comparison applies wherever this specification asks whether a document carries a key. Methods that prove possession of a key the document carries, such as <code>private_key_jwt</code> (Section 8.2 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>) and <code>self_signed_tls_client_auth</code> (Section 2.2 of <span>[<a href="#RFC8705" class="cite xref">RFC8705</a>]</span>), satisfy this directly.<a href="#section-5.6.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="public-client-presentation">
@@ -2163,7 +2163,8 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 </dd>
         <dd class="break"></dd>
 </dl>
-<p id="section-6.4-3">Before redirecting with an error, the authorization server validates the <code>redirect_uri</code> against the client's CIMD, which it resolves first, or, for a registered client, against its registered redirection URIs (Section 4.1.2.1 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>). If it cannot resolve a CIMD client's document, it <span class="bcp14">MUST NOT</span> redirect.<a href="#section-6.4-3" class="pilcrow">¶</a></p>
+<p id="section-6.4-3">An authorization request from a client admitted on a statement pulled at the authorization endpoint that exceeds the reviewed document's response types or scope (step 6 of <a href="#processing" class="auto internal xref">Section 5.1</a>) is rejected with <code>unauthorized_client</code> or <code>invalid_scope</code>, as for a presentation (<a href="#presentation-errors" class="auto internal xref">Section 6.2</a>).<a href="#section-6.4-3" class="pilcrow">¶</a></p>
+<p id="section-6.4-4">Before redirecting with an error, the authorization server validates the <code>redirect_uri</code> against the client's CIMD, which it resolves first, or, for a registered client, against its registered redirection URIs (Section 4.1.2.1 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>). If it cannot resolve a CIMD client's document, it <span class="bcp14">MUST NOT</span> redirect.<a href="#section-6.4-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="proof-errors">
@@ -2574,7 +2575,7 @@ client-assertion-type%3Ajwt-bearer
         <h3 id="name-observable-state">
 <a href="#section-13.8" class="section-number selfRef">13.8. </a><a href="#name-observable-state" class="section-name selfRef">Observable State</a>
         </h3>
-<p id="section-13.8-1">A <code>statement_required</code> refusal at the authorization endpoint (<a href="#authorization-errors" class="auto internal xref">Section 6.4</a>) travels through the user agent, so anyone who can see the redirection learns that this client has no established standing at this server. The disclosure is accepted because a client that cannot learn why it was refused cannot act. The disclosure carries no detail of the server's issuer trust configuration, which <a href="#error-descriptions" class="auto internal xref">Section 6.6</a> keeps from unauthenticated requesters.<a href="#section-13.8-1" class="pilcrow">¶</a></p>
+<p id="section-13.8-1">A <code>statement_required</code> refusal at the authorization endpoint (<a href="#authorization-errors" class="auto internal xref">Section 6.4</a>) travels through the user agent, so anyone who can see the redirection learns that this client has no established standing at this server. The disclosure is accepted because a client that cannot learn why it was refused cannot act. Outcomes still reveal some policy. By probing with public client identifier URLs, anyone can learn whether a request is admitted and, from <code>statement_required</code> versus <code>unauthorized_client</code>, whether a required issuer covers a client identifier in a tenant. <a href="#error-descriptions" class="auto internal xref">Section 6.6</a> keeps further detail of the issuer trust configuration out of <code>error_description</code> for unauthenticated requesters.<a href="#section-13.8-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2798,7 +2799,7 @@ client-assertion-type%3Ajwt-bearer
 </dd>
         <dd class="break"></dd>
 </dl>
-<p id="section-15.4-3">This specification also requests that IANA update the existing <code>temporarily_unavailable</code> entry, adding the token error response to its usage locations and this specification as a reference:<a href="#section-15.4-3" class="pilcrow">¶</a></p>
+<p id="section-15.4-3">This specification also requests that IANA update the existing <code>temporarily_unavailable</code> entry, adding the token error response and the pushed authorization request error response to its usage locations and this specification as a reference:<a href="#section-15.4-3" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-15.4-4">
           <dt id="section-15.4-4.1">Error Name:</dt>
           <dd style="margin-left: 1.5em" id="section-15.4-4.2">
@@ -2807,7 +2808,7 @@ client-assertion-type%3Ajwt-bearer
           <dd class="break"></dd>
 <dt id="section-15.4-4.3">Error Usage Location:</dt>
           <dd style="margin-left: 1.5em" id="section-15.4-4.4">
-            <p id="section-15.4-4.4.1">token error response, in addition to the locations already registered<a href="#section-15.4-4.4.1" class="pilcrow">¶</a></p>
+            <p id="section-15.4-4.4.1">token error response, pushed authorization request error response, in addition to the locations already registered<a href="#section-15.4-4.4.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 <dt id="section-15.4-4.5">Related Protocol Extension:</dt>
