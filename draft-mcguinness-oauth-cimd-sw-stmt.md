@@ -56,14 +56,7 @@ informative:
   RFC8705:
   RFC8628:
   RFC8693:
-  REGISTRATION:
-    target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration
-    title: "Client ID Metadata Document Software Statement Registration"
-    author:
-      - fullname: Karl McGuinness
-    date: 2026-11
-    seriesinfo:
-      Internet-Draft: draft-mcguinness-oauth-cimd-sw-stmt-registration-00
+  REGISTRATION: I-D.mcguinness-oauth-cimd-sw-stmt-registration
   ABCA: I-D.ietf-oauth-attestation-based-client-auth
   OPENID-FED:
     target: https://openid.net/specs/openid-federation-1_0.html

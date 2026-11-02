@@ -62,14 +62,7 @@ normative:
     date: 2015-04-27
 informative:
   RFC9864:
-  REGISTRATION:
-    target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration
-    title: "Client ID Metadata Document Software Statement Registration"
-    author:
-      - fullname: Karl McGuinness
-    date: 2026-10
-    seriesinfo:
-      Internet-Draft: draft-mcguinness-oauth-cimd-sw-stmt-registration-00
+  REGISTRATION: I-D.mcguinness-oauth-cimd-sw-stmt-registration
 
   LIFECYCLE:
     target: https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle.html

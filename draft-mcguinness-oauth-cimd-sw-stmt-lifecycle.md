@@ -35,14 +35,7 @@ normative:
   RFC8414:
   RFC8417:
   RFC9493:
-  REGISTRATION:
-    target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration
-    title: "Client ID Metadata Document Software Statement Registration"
-    author:
-      - fullname: Karl McGuinness
-    date: 2026-11
-    seriesinfo:
-      Internet-Draft: draft-mcguinness-oauth-cimd-sw-stmt-registration-00
+  REGISTRATION: I-D.mcguinness-oauth-cimd-sw-stmt-registration
   STATEMENT: I-D.mcguinness-oauth-cimd-sw-stmt
   STATUSLIST: I-D.ietf-oauth-status-list
   SSF:
