@@ -202,6 +202,29 @@ A replacement is a `presentation` use of its statement (Section 3 of {{STATEMENT
 
 On refresh-token use under an establishment, the authorization server first completes the checks of Section 5.7.1 of {{STATEMENT}} on the establishment's proven key, unchanged, before it considers any replacement. A server that implements this specification then proceeds as follows. A refresh rejected at any step leaves the grant's state unchanged.
 
+1. Decide whether {{currency}} requires a replacement or rejects the refresh, having consulted any withdrawal mechanism as {{withdrawal}} recommends.
+
+2. Obtain a replacement. A client can offer one on any refresh in the `software_statement` parameter. If no replacement is needed, an offered statement that fails the `client_id` rule below or a requirement of step 3 is ignored, and the refresh proceeds as one offering none, as at a server that does not implement this specification. A request carrying a replacement MUST meet the `client_id` rule that Section 5.4 of {{STATEMENT}} sets for a request making a runtime presentation. A statement with the recorded `iss` and `jti` is not a replacement, and a request carrying it is processed as one offering none. When a replacement is needed and the request carries none, a server that supports pulled statements pulls, however the establishment was created, and takes as the replacement the most recently issued statement with the recorded `iss` and `sub` among those it considers under Section 5.5.1 of {{STATEMENT}}, {{withdrawal}}, and {{supersession}}. A refresh that needs a replacement and obtains none is rejected: a reviewed grant never continues under the policy for clients the server has not reviewed.
+
+   The pull uses the retrieval and selection rules of Sections 5.3 and 5.5.1 of {{STATEMENT}}. The continuation rules here apply instead of those sections' rules for opening a new grant, so a refresh whose pull does not complete is rejected.
+
+3. Validate the replacement. If a replacement is needed, a refresh whose replacement fails any of the following requirements is rejected. The replacement:
+
+   * MUST validate under Section 3.2 of {{STATEMENT}}, {{withdrawal}}, and {{supersession}}.
+   * MUST have the recorded statement's `iss` and `sub`.
+   * MUST have an `iat` later than the recorded statement's.
+   * MUST name in `cimd_digest` the document currently served at that `sub`, which the server confirms by retrieval or by revalidating octets it holds.
+   * MUST name a document that carries the establishment's proven key, in its `jwks` or at its `jwks_uri` (Section 5.6.1 of {{STATEMENT}}), or, for an establishment created under Section 5.6.2 of {{STATEMENT}}, a document that still satisfies that section.
+   * MUST name a document that declares the same `token_endpoint_auth_method` as the establishment's reviewed document and that does not make the statement review-only (Section 5.6.3 of {{STATEMENT}}). Refresh keeps the sender-constraint mechanism (Section 5.7.1 of {{STATEMENT}}), so a replacement cannot change it.
+
+   A replacement that meets these requirements is accepted.
+
+4. Bound access and update. The refreshed access MUST fall within the metadata of the document an accepted replacement names or, without one, the establishment's reviewed metadata. If a replacement is accepted, the refreshed grant's statement identity (`iss` and `jti`), `iat`, effective expiry, any claim an extension uses to locate the statement, reviewed metadata and the digest it matched, and issuer trust decision become the replacement's, in one atomic update. Concurrent replacements resolve to the most recently issued statement.
+
+A replacement accepted on refresh MUST apply only to the grant refreshed.
+
+If the server bounds establishments (Section 11.3 of {{STATEMENT}}), a count persists across replacements: a replacement accepted on refresh does not add to it.
+
 {{fig-refresh}} shows the order of these steps, and {{tab-refresh-errors}} the error each rejection returns. {{lifecycle-errors}} lists every code. Two rules of {{STATEMENT}} take precedence over the table. At any step, a request that needs a retrieval that did not complete is rejected with `temporarily_unavailable` (Section 6 of {{STATEMENT}}). A proof that its mechanism does not accept is rejected with that mechanism's own error, such as `invalid_dpop_proof`, or answered with its challenge, such as `use_dpop_nonce` (Section 6.5 of {{STATEMENT}}).
 
 ~~~ ascii-art
@@ -245,29 +268,6 @@ On refresh-token use under an establishment, the authorization server first comp
 | 3 | A replacement is needed, and the one obtained fails a requirement of step 3 | `statement_required` |
 | 4 | The refreshed access exceeds the metadata | `unauthorized_client` or `invalid_scope` |
 {: #tab-refresh-errors title="Refresh Rejections"}
-
-1. Decide whether {{currency}} requires a replacement or rejects the refresh, having consulted any withdrawal mechanism as {{withdrawal}} recommends.
-
-2. Obtain a replacement. A client can offer one on any refresh in the `software_statement` parameter. If no replacement is needed, an offered statement that fails the `client_id` rule below or a requirement of step 3 is ignored, and the refresh proceeds as one offering none, as at a server that does not implement this specification. A request carrying a replacement MUST meet the `client_id` rule that Section 5.4 of {{STATEMENT}} sets for a request making a runtime presentation. A statement with the recorded `iss` and `jti` is not a replacement, and a request carrying it is processed as one offering none. When a replacement is needed and the request carries none, a server that supports pulled statements pulls, however the establishment was created, and takes as the replacement the most recently issued statement with the recorded `iss` and `sub` among those it considers under Section 5.5.1 of {{STATEMENT}}, {{withdrawal}}, and {{supersession}}. A refresh that needs a replacement and obtains none is rejected: a reviewed grant never continues under the policy for clients the server has not reviewed.
-
-   The pull uses the retrieval and selection rules of Sections 5.3 and 5.5.1 of {{STATEMENT}}. The continuation rules here apply instead of those sections' rules for opening a new grant, so a refresh whose pull does not complete is rejected.
-
-3. Validate the replacement. If a replacement is needed, a refresh whose replacement fails any of the following requirements is rejected. The replacement:
-
-   * MUST validate under Section 3.2 of {{STATEMENT}}, {{withdrawal}}, and {{supersession}}.
-   * MUST have the recorded statement's `iss` and `sub`.
-   * MUST have an `iat` later than the recorded statement's.
-   * MUST name in `cimd_digest` the document currently served at that `sub`, which the server confirms by retrieval or by revalidating octets it holds.
-   * MUST name a document that carries the establishment's proven key, in its `jwks` or at its `jwks_uri` (Section 5.6.1 of {{STATEMENT}}), or, for an establishment created under Section 5.6.2 of {{STATEMENT}}, a document that still satisfies that section.
-   * MUST name a document that declares the same `token_endpoint_auth_method` as the establishment's reviewed document and that does not make the statement review-only (Section 5.6.3 of {{STATEMENT}}). Refresh keeps the sender-constraint mechanism (Section 5.7.1 of {{STATEMENT}}), so a replacement cannot change it.
-
-   A replacement that meets these requirements is accepted.
-
-4. Bound access and update. The refreshed access MUST fall within the metadata of the document an accepted replacement names or, without one, the establishment's reviewed metadata. If a replacement is accepted, the refreshed grant's statement identity (`iss` and `jti`), `iat`, effective expiry, any claim an extension uses to locate the statement, reviewed metadata and the digest it matched, and issuer trust decision become the replacement's, in one atomic update. Concurrent replacements resolve to the most recently issued statement.
-
-A replacement accepted on refresh MUST apply only to the grant refreshed.
-
-If the server bounds establishments (Section 11.3 of {{STATEMENT}}), a count persists across replacements: a replacement accepted on refresh does not add to it.
 
 # Token Status List {#token-status-list}
 
