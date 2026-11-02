@@ -263,11 +263,11 @@ The request is evaluated against the reviewed metadata as against any client's r
 
 ## Retrieval {#retrieval}
 
-Every retrieval this specification causes inherits the server-side request forgery protections in Section 8.6 of {{CIMD}}, whether of the CIMD, a `jwks_uri` it names, the statements its `software_statements_uri` names, or a statement key set or the issuer metadata that locates one ({{issuer-trust}}). A trusted signature does not make a URL safe: the authorization server MUST apply its URL, redirect, address-range, transport, and content-type policy independently to every referenced location.
+Every retrieval this specification causes inherits the server-side request forgery protections in Section 10.7 of {{CIMD}}, whether of the CIMD, a `jwks_uri` it names, the statements its `software_statements_uri` names, or a statement key set or the issuer metadata that locates one ({{issuer-trust}}). A trusted signature does not make a URL safe: the authorization server MUST apply its URL, redirect, address-range, transport, and content-type policy independently to every referenced location.
 
 If a retrieval fails, the authorization server MUST reject the request and MUST NOT fall back to a weaker proof. The exception is a failed pull of statements, or a failed retrieval of a statement key set ({{issuer-trust}}) needed to verify a pulled statement, for a request opening a new grant: that failure does not by itself reject the request, which proceeds as {{pull-selection}} describes.
 
-A retrieval does not complete if it times out, its connection fails, or the response has a 429 (Too Many Requests) status code (Section 4 of {{RFC6585}}) or a 5xx status code. Any other failure to obtain an acceptable representation is final, such as another 4xx status code, a body that is not a JSON object, or a response exceeding the server's configured size bound (Section 8.7 of {{CIMD}}), which the authorization server MUST treat as a failure rather than digesting what it read. After a final failure, a document is treated as failing validation, a key set as carrying no acceptable key, and a statements location as publishing no statement.
+A retrieval does not complete if it times out, its connection fails, or the response has a 429 (Too Many Requests) status code (Section 4 of {{RFC6585}}) or a 5xx status code. Any other failure to obtain an acceptable representation is final, such as another 4xx status code, a body that is not a JSON object, or a response exceeding the server's configured size bound (Section 10.11 of {{CIMD}}), which the authorization server MUST treat as a failure rather than digesting what it read. After a final failure, a document is treated as failing validation, a key set as carrying no acceptable key, and a statements location as publishing no statement.
 
 A trusting authorization server MAY reuse document octets it holds for digest comparison ({{effective-metadata}}), a key set retrieved from a document's `jwks_uri`, and a statement key set from either source ({{issuer-trust}}), only within ordinary HTTP caching bounds and a maximum reuse period of its own choosing. It MUST NOT let the publisher's cache directives alone (the client's for the document and its key set, the issuer's for a statement key set) determine how long held octets continue to match a statement or a removed key continues to verify ({{statement-validation}}). Without this rule, a key the document carries inline would continue to verify after the publisher removes it.
 
@@ -361,7 +361,7 @@ For a presentation that is not review-only, under either model:
 
 ### Confidential Clients {#confidential-client-presentation}
 
-For a confidential client's presentation that is not review-only, the proven key MUST appear in the `jwks` or at the `jwks_uri` of the reviewed document ({{effective-metadata}}). A key appears there if the document's `jwks`, or the JWK Set at its `jwks_uri`, contains a key with the same JWK Thumbprint ({{RFC7638}}), computed with SHA-256. The comparison covers key material only: the key's algorithm and intended use are checked as the client authentication method requires. The same comparison applies wherever this specification asks whether a document carries a key. Methods that prove possession of a key the document carries, such as `private_key_jwt` (Section 8.2 of {{CIMD}}) and `self_signed_tls_client_auth` (Section 2.2 of {{RFC8705}}), satisfy this directly.
+For a confidential client's presentation that is not review-only, the proven key MUST appear in the `jwks` or at the `jwks_uri` of the reviewed document ({{effective-metadata}}). A key appears there if the document's `jwks`, or the JWK Set at its `jwks_uri`, contains a key with the same JWK Thumbprint ({{RFC7638}}), computed with SHA-256. The comparison covers key material only: the key's algorithm and intended use are checked as the client authentication method requires. The same comparison applies wherever this specification asks whether a document carries a key. Methods that prove possession of a key the document carries, such as `private_key_jwt` (Section 5 of {{CIMD}}) and `self_signed_tls_client_auth` (Section 2.2 of {{RFC8705}}), satisfy this directly.
 
 ### Public Clients {#public-client-presentation}
 
@@ -639,7 +639,7 @@ This section gives guidance to implementers. It adds no requirement.
 
 ## Caching and Reuse of Retrieved Content {#caching}
 
-A response from a `software_statements_uri` ought to be cached no longer than the document is. Because {{CIMD}} forbids caching an error response (Section 5.2 of {{CIMD}}), a failed retrieval ({{retrieval}}) is followed by back-off.
+A response from a `software_statements_uri` ought to be cached no longer than the document is. Because {{CIMD}} forbids caching an error response (Section 6.2 of {{CIMD}}), a failed retrieval ({{retrieval}}) is followed by back-off.
 
 ## Retrieval and Processing Bounds {#processing-bounds}
 
@@ -651,7 +651,7 @@ An authorization server can bound the retrieval and processing work of {{externa
 * Bound the size of a `software_statements_uri` response and the number of statements examined separately from the document's. Several issuers' statements outgrow a document-sized bound, and a host can pad the array.
 * Discard pulled statements from unconfigured issuers before verifying any signature.
 
-A response size bound also decides which reviewed documents a server can admit. Section 8.7 of {{CIMD}} recommends that a server read at most 5 kilobytes, so an issuer ought not to issue a statement over a larger document.
+A response size bound also decides which reviewed documents a server can admit. Section 10.11 of {{CIMD}} recommends that a server read at most 5 kilobytes, so an issuer ought not to issue a statement over a larger document.
 
 ## Bounding Establishments {#establishment-bounds}
 
