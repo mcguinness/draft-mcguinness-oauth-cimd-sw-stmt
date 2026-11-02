@@ -1184,9 +1184,9 @@ Table of Contents
    [REGISTRATION]
               McGuinness, K., "Client ID Metadata Document Software
               Statement Registration", Work in Progress, Internet-Draft,
-              draft-mcguinness-oauth-cimd-sw-stmt-registration-00,
-              November 2026, <https://datatracker.ietf.org/doc/draft-
-              mcguinness-oauth-cimd-sw-stmt-registration>.
+              draft-mcguinness-oauth-cimd-sw-stmt-registration-00, 2
+              November 2026, <https://datatracker.ietf.org/doc/html/
+              draft-mcguinness-oauth-cimd-sw-stmt-registration-00>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
