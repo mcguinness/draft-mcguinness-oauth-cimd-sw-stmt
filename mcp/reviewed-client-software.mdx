@@ -16,7 +16,7 @@ MCP recommends identifying clients by [Client ID Metadata Document](https://www.
 
 A review answers a question about software: who vouched for this client, and against which bytes. It does not answer whether a particular user or organization may use the client right now. Where an enterprise identity provider mediates access, [Enterprise-Managed Authorization](https://github.com/modelcontextprotocol/ext-auth/blob/main/specification/stable/enterprise-managed-authorization.mdx) answers that second question, and this profile composes with it (Section 5).
 
-The initial deployment illustrated here is a hosted client using a published review and `private_key_jwt` (Section 7). This binds admission to the reviewed configuration and its key; it does not establish which executable is running. Ordinary loopback clients remain review-only (Section 4.4).
+The initial deployment illustrated here is a hosted client using a published review and `private_key_jwt` (Section 7). Its binding ties admission to the reviewed document and its key, not to the executable that is running (Section 8.1). Clients with a loopback or other claimable redirection URI remain review-only (Section 4.4).
 
 The benefits:
 
