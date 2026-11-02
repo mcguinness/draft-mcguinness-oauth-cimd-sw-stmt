@@ -44,6 +44,7 @@ normative:
   RFC9110:
   RFC8252:
   RFC6761:
+  RFC3986:
   CIMD: I-D.ietf-oauth-client-id-metadata-document
   IDJAG: I-D.ietf-oauth-identity-assertion-authz-grant
 
@@ -228,6 +229,8 @@ For each trusted issuer, the configuration records at least the following:
 * The audience identifiers the issuer can name.
 * Any tenant to which the server confines the issuer's decisions.
 * The maximum statement lifetime the server honors, which sets each statement's effective expiry.
+
+A client identifier namespace is an `https` URL with no query or fragment whose path ends in `/`, such as `https://client.example/` or `https://client.example/apps/`. A client identifier URL falls within a namespace if the namespace is a prefix of it under simple string comparison (Section 6.2.1 of {{RFC3986}}).
 
 The issuer's statement key set is the JWK Set at the `software_statement_jwks_uri` in its authorization server metadata ({{authorization-server-metadata}}), discovered from the configured `iss` ({{RFC8414}}). For an issuer that is not an authorization server, it is the JWK Set at a statement key set URL in the configuration. It is never the JWK Set at a `jwks_uri` metadata value. Its URL MUST use the `https` scheme, and a trusting authorization server MUST validate the certificate of the host serving it. The issuer MUST NOT publish a key of its statement key set in any other JWK Set, or sign anything other than statements under this specification with those keys. A trusting authorization server reuses a retrieved statement key set only as {{retrieval}} permits.
 
