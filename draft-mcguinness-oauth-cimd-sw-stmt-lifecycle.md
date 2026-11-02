@@ -35,6 +35,14 @@ normative:
   RFC8414:
   RFC8417:
   RFC9493:
+  REGISTRATION:
+    target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration
+    title: "Client ID Metadata Document Software Statement Registration"
+    author:
+      - fullname: Karl McGuinness
+    date: 2026-10
+    seriesinfo:
+      Internet-Draft: draft-mcguinness-oauth-cimd-sw-stmt-registration-00
   STATEMENT:
     target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt
     title: "Client ID Metadata Document Software Statement"
@@ -61,6 +69,8 @@ normative:
       - ins: S. Miel
         org: Cisco
     date: 2025-08-29
+
+informative:
   CAEP:
     target: https://openid.net/specs/openid-caep-1_0.html
     title: "OpenID Continuous Access Evaluation Profile 1.0"
@@ -70,19 +80,9 @@ normative:
       - ins: A. Tulshibagwale
         org: SGNL
     date: 2025-08-29
-
-informative:
   CIMD: I-D.ietf-oauth-client-id-metadata-document
   RFC6755:
   RFC7009:
-  REGISTRATION:
-    target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration
-    title: "Client ID Metadata Document Software Statement Registration"
-    author:
-      - fullname: Karl McGuinness
-    date: 2026-10
-    seriesinfo:
-      Internet-Draft: draft-mcguinness-oauth-cimd-sw-stmt-registration-00
 
 --- abstract
 
