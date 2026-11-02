@@ -206,7 +206,7 @@ Before accepting a statement, a trusting authorization server MUST ensure the fo
 * If the statement carries `aud`, a value in it exactly matches one of the server's audience identifiers that its trust configuration permits the statement's issuer to name ({{issuer-trust}}).
 * If the statement carries `aud_tenant`, `aud` carries exactly one value and `aud_tenant` identifies the request's tenant.
 * If the server requires a tenant-scoped decision for the request, the statement carries `aud_tenant`, or the server's trust configuration confines the statement's issuer to the request's tenant ({{issuer-trust}}).
-* If the server's trust configuration confines the statement's issuer to a tenant, the request belongs to that tenant.
+* If the server's trust configuration confines the statement's issuer to a tenant, the statement carries an `aud` claim with exactly one value, and the request belongs to that tenant.
 * The use being made of the statement is one its `statement_uses` claim permits ({{profiles}}).
 * The `sub` claim is a client identifier URL conforming to {{CIMD}} and falls within the client identifier namespaces for which this server accepts the issuer ({{issuer-trust}}).
 * Any claim the server does not recognize, and any client metadata claim ({{profiles}}), is ignored.
