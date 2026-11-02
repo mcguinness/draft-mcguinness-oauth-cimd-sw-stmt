@@ -310,6 +310,8 @@ This section gives guidance to operators. It adds no requirement.
 
 An issuer outage longer than a statement-governed registration's remaining lifetime makes the registration cease to be valid ({{registration-validity}}) until the client delivers a replacement ({{revalidation}}). The lifetimes an issuer chooses set the renewal cadence (Section 12.3 of {{STATEMENT}}). A deployment ought to have clients renew well before effective expiry, and ought to weigh that cadence against how quickly a narrowed or withdrawn review needs to take effect.
 
+The authorization server authenticates a delivery against the retained registration (step 2 of {{registration-requests}}). A client that rotates a key carried inline in its document's `jwks` therefore authenticates with the outgoing key until a replacement over the new document has been applied, and with the new key afterward. It retires the outgoing key only after that renewal succeeds.
+
 # Security Considerations {#security-considerations}
 
 The security considerations of Section 13 of {{STATEMENT}} and Section 5 of {{RFC7591}} apply.
