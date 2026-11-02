@@ -467,7 +467,7 @@ A presentation at the token or pushed authorization request endpoint is rejected
 
   * The request exceeds the reviewed document's grant types or response types ({{effective-metadata}}).
   * The document carries metadata this server's policy refuses.
-  * The client is review-only where policy or a required issuer requires reviewed software ({{review-only}}).
+  * The client's statement is review-only where policy or a required issuer requires reviewed software ({{review-only}}).
   * The request is for software a required issuer excludes from the tenant ({{issuer-trust}}).
 
 `invalid_scope`:
@@ -501,7 +501,7 @@ None of these rejections indicates refresh-token replay ({{RFC9700}}), whose det
 If the authorization server's policy or a required issuer ({{issuer-trust}}) requires reviewed software, an authorization request from a client the server has not admitted on a statement is rejected in the authorization error response (Section 4.1.2.1 of {{RFC6749}}) with the following error codes:
 
 `unauthorized_client`:
-: The client is review-only ({{review-only}}), or a required issuer excludes the software from the tenant ({{issuer-trust}}).
+: The client's statement is review-only ({{review-only}}), or a required issuer excludes the software from the tenant ({{issuer-trust}}).
 
 `statement_required`:
 : In any other case, subject to the order of {{errors}}, the authorization server MUST return this code.
