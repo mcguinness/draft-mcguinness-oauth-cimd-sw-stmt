@@ -1235,9 +1235,9 @@ Table of Contents
    [STATEMENT]
               McGuinness, K., "Client ID Metadata Document Software
               Statement", Work in Progress, Internet-Draft, draft-
-              mcguinness-oauth-cimd-sw-stmt-00, November 2026,
-              <https://datatracker.ietf.org/doc/draft-mcguinness-oauth-
-              cimd-sw-stmt>.
+              mcguinness-oauth-cimd-sw-stmt-00, 2 November 2026,
+              <https://datatracker.ietf.org/doc/html/draft-mcguinness-
+              oauth-cimd-sw-stmt-00>.
 
    [STATUSLIST]
               Looker, T., Bastian, P., and C. Bormann, "Token Status
