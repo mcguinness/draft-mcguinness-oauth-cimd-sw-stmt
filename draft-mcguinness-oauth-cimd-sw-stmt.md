@@ -167,7 +167,7 @@ A statement asserts that its issuer evaluated the CIMD whose content the digest 
   The absence of `aud_tenant` does not mean that the statement applies in every tenant ({{audience-practice}}).
 
 `statement_uses`:
-: OPTIONAL. A JSON array identifying the permitted uses of the statement: `registration` ({{REGISTRATION}}) and `presentation` ({{cimd-presentation}}). If the claim is absent, only `presentation` is permitted. A pulled statement ({{pulled-statements}}) is a `presentation` use.
+: OPTIONAL. A JSON array identifying the permitted uses of the statement: `registration` ({{REGISTRATION}}) and `presentation` ({{cimd-presentation}}). If the claim is absent, only `presentation` is permitted. A server ignores a value it does not recognize, and an empty array permits no use. A pulled statement ({{pulled-statements}}) is a `presentation` use.
 
 `iat`:
 : REQUIRED. A NumericDate value, which MUST be an integer, giving the time the statement was issued. An issuer MUST ensure that the `iat` claim values of its statements for a given `iss` and `sub` increase strictly, which the selection of a pulled statement ({{pull-selection}}) and extensions rely on.
