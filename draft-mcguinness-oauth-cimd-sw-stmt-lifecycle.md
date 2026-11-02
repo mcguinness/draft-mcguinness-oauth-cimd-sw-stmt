@@ -233,22 +233,22 @@ On refresh-token use under an establishment, the authorization server first comp
 | --- | --- | --- |
 | Key checks | A check of Section 5.7.1 of {{STATEMENT}} fails | `invalid_grant` |
 | 1 | A required issuer covers the `sub` and tenant, and the recorded statement is from another issuer | `statement_required` |
-| 2 | A replacement is offered without `client_id` | `invalid_request` |
+| 2 | A replacement is needed, and the one offered comes without `client_id` | `invalid_request` |
 | 2 | The `client_id` is not the client the refresh token was issued to | `invalid_grant` |
-| 2 | The replacement names a `sub` other than the `client_id` | `statement_required` |
+| 2 | A replacement is needed, and the one offered names a `sub` other than the `client_id` | `statement_required` |
 | 2 | The pull did not complete | `temporarily_unavailable` |
 | 2 | A replacement is needed and none is obtained | `statement_required` |
-| 3 | The replacement fails a requirement of step 3 | `statement_required` |
+| 3 | A replacement is needed, and the one obtained fails a requirement of step 3 | `statement_required` |
 | 4 | The refreshed access exceeds the metadata | `unauthorized_client` or `invalid_scope` |
 {: #tab-refresh-errors title="Refresh Rejections"}
 
 1. Decide whether {{currency}} requires a replacement or rejects the refresh, having consulted any withdrawal mechanism as {{withdrawal}} recommends.
 
-2. Obtain a replacement. A client can offer one on any refresh in the `software_statement` parameter. A request carrying a replacement MUST meet the `client_id` rule that Section 5.4 of {{STATEMENT}} sets for a request making a runtime presentation. A statement with the recorded `iss` and `jti` is not a replacement, and a request carrying it is processed as one offering none. When a replacement is needed and the request carries none, a server that supports pulled statements pulls, however the establishment was created, and takes as the replacement the most recently issued statement with the recorded `iss` and `sub` among those it considers under Section 5.5.1 of {{STATEMENT}}, {{withdrawal}}, and {{supersession}}. A refresh that needs a replacement and obtains none is rejected: a reviewed grant never continues under the policy for clients the server has not reviewed.
+2. Obtain a replacement. A client can offer one on any refresh in the `software_statement` parameter. If no replacement is needed, an offered statement that fails the `client_id` rule below or a requirement of step 3 is ignored, and the refresh proceeds as one offering none, as at a server that does not implement this specification. A request carrying a replacement MUST meet the `client_id` rule that Section 5.4 of {{STATEMENT}} sets for a request making a runtime presentation. A statement with the recorded `iss` and `jti` is not a replacement, and a request carrying it is processed as one offering none. When a replacement is needed and the request carries none, a server that supports pulled statements pulls, however the establishment was created, and takes as the replacement the most recently issued statement with the recorded `iss` and `sub` among those it considers under Section 5.5.1 of {{STATEMENT}}, {{withdrawal}}, and {{supersession}}. A refresh that needs a replacement and obtains none is rejected: a reviewed grant never continues under the policy for clients the server has not reviewed.
 
    The pull uses the retrieval and selection rules of Sections 5.3 and 5.5.1 of {{STATEMENT}}. The continuation rules here apply instead of those sections' rules for opening a new grant, so a refresh whose pull does not complete is rejected.
 
-3. Validate the replacement. A refresh whose replacement fails any of the following requirements is rejected, even when no replacement was needed. The replacement:
+3. Validate the replacement. If a replacement is needed, a refresh whose replacement fails any of the following requirements is rejected. The replacement:
 
    * MUST validate under Section 3.2 of {{STATEMENT}}, {{withdrawal}}, and {{supersession}}.
    * MUST have the recorded statement's `iss` and `sub`.
@@ -425,7 +425,7 @@ This section extends Section 6 of {{STATEMENT}}, whose error responses and HTTP 
 
 A presentation is rejected with `statement_required`, in place of the `invalid_client` that Section 6.2 of {{STATEMENT}} assigns, if a refusal record covers its statement ({{withdrawal}}), the statement's status index lies outside the list ({{status-resolution}}), or the `iat` floor supersedes the statement ({{supersession}}).
 
-A refresh-token request that {{currency}} rejects, or whose replacement is rejected ({{refresh-replacement}}), uses `statement_required`, subject to the order of Section 6 of {{STATEMENT}}. A request that carries a replacement but omits `client_id` ({{refresh-replacement}}) is rejected with `invalid_request`. One whose `client_id` is not the client the refresh token was issued to fails the grant binding and is rejected with `invalid_grant` (Section 5.2 of {{RFC6749}}), and one whose replacement names a `sub` other than that `client_id` is rejected with `statement_required`. A refresh whose access exceeds the metadata of the document an accepted replacement names is rejected with `unauthorized_client` or `invalid_scope`, as Section 6.3 of {{STATEMENT}} provides for the reviewed metadata.
+A refresh-token request that {{currency}} rejects, or whose replacement is rejected ({{refresh-replacement}}), uses `statement_required`, subject to the order of Section 6 of {{STATEMENT}}. When a replacement is needed, a request that carries one but omits `client_id` ({{refresh-replacement}}) is rejected with `invalid_request`, and one whose replacement names a `sub` other than the `client_id` is rejected with `statement_required`. A request whose `client_id` is not the client the refresh token was issued to fails the grant binding and is rejected with `invalid_grant` (Section 5.2 of {{RFC6749}}). A refresh whose access exceeds the metadata of the document an accepted replacement names is rejected with `unauthorized_client` or `invalid_scope`, as Section 6.3 of {{STATEMENT}} provides for the reviewed metadata.
 
 # Authorization Server Metadata {#authorization-server-metadata}
 
