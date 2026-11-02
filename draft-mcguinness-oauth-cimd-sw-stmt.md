@@ -399,19 +399,21 @@ The authorization server MUST bind the resulting `request_uri`, authorization co
 A token request that redeems an authorization code bound to an establishment:
 
 * MUST have a `client_id` parameter exactly equal to the establishment's `sub`, even if the client authenticates.
+* MUST be made in the tenant the establishment records, if the authorization server hosts more than one tenant ({{validation}}).
 * MUST demonstrate possession of the establishment's proven key under the same sender-constraint mechanism or, for a confidential client whose statement was pulled at the authorization endpoint ({{pull-binding}}), authenticate with the key that becomes the proven key.
 * MUST NOT carry the `software_statement` parameter.
 
-A redemption that carries a statement, has a wrong client identifier, or fails the key binding is rejected.
+A redemption that carries a statement, has a wrong client identifier, is made in another tenant, or fails the key binding is rejected.
 
 ### Refresh {#refresh}
 
 On refresh-token use under an establishment, the authorization server:
 
+* MUST verify that the request is made in the tenant the establishment records, if it hosts more than one tenant.
 * MUST verify possession of the establishment's proven key under the same sender-constraint mechanism.
 * MUST, except for an establishment created under {{public-client-presentation}}, verify that the document currently served at the establishment's `sub` still carries that key, in its `jwks` or at its `jwks_uri`, within the reuse bounds of {{retrieval}}.
 
-If either check fails, the server rejects the refresh. The refreshed access MUST fall within the establishment's reviewed metadata.
+If any of these checks fails, the server rejects the refresh. The refreshed access MUST fall within the establishment's reviewed metadata.
 
 Under this specification, refresh evaluates no statement ({{enforcement-bounds}}) and never changes the establishment's proven key or reviewed metadata. A client that needs a different key or review opens a new grant by presentation. An extension can instead provide for replacing the review on refresh.
 
@@ -471,7 +473,7 @@ A presentation at the token or pushed authorization request endpoint is rejected
 Under an establishment, code redemption ({{grant-lifecycle}}) is rejected with the following error codes:
 
 `invalid_grant`:
-: The request has a wrong client identifier or fails the key binding.
+: The request has a wrong client identifier, is made in another tenant, or fails the key binding.
 
 `invalid_client`:
 : The bound on establishments is reached ({{establishment-bounds}}).
