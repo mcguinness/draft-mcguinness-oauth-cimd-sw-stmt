@@ -433,7 +433,7 @@ A rejection for another reason, such as an assertion grant whose assertion is in
 This specification defines the following error code:
 
 `statement_required`:
-: A current software statement is required and none was presented or pulled, or the one presented or pulled is expired and otherwise valid. An extension can assign it to further cases. The client recovers by obtaining a statement issued more recently.
+: A current software statement is required and none was presented or pulled, or the one presented or pulled is expired and otherwise valid. An extension can assign it to further cases. The client recovers by obtaining a current statement, from the required issuer if the tenant has one ({{issuer-trust}}).
 
 ## Presentation Requests {#presentation-errors}
 
