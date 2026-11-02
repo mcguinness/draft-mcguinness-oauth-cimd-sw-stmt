@@ -481,8 +481,11 @@ Under an establishment, code redemption ({{grant-lifecycle}}) is rejected with t
 
 Under an establishment, a refresh-token request is rejected with the following error codes:
 
+`invalid_client`:
+: The document currently served at the establishment's `sub` cannot be obtained or fails validation ({{retrieval}}), as Section 6.1 of {{CIMD}} requires.
+
 `invalid_grant`:
-: A check of {{refresh}} fails.
+: Any other check of {{refresh}} fails.
 
 `unauthorized_client` or `invalid_scope`:
 : The refreshed access exceeds the reviewed metadata or this server's policy, as for a presentation.
