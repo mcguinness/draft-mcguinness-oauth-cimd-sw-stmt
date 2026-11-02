@@ -474,7 +474,7 @@ Host: server.example.com
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Adeferred
-&deferral_code=8xLOxBtZp8
+&deferral_code=AHqLTuZEcmNEj5X9F72rfwgfE1kcGf0lA8Abf4gFTTo
 &client_id=https%3A%2F%2Fclient.example.org%2Fmetadata.json
 &client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3A
 client-assertion-type%3Ajwt-bearer
