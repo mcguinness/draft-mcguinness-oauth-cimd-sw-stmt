@@ -120,7 +120,7 @@ A statement is review-only in the cases defined by [Pulled Statement Binding](ht
 - The document carries any redirection URI another application on the same device could claim, such as a loopback or private-use-scheme URI, whatever authentication method it declares.
 - The statement is pulled for a document that omits `token_endpoint_auth_method`.
 - A public client's statement is pulled at the token endpoint for a request opening a new grant.
-- A public client's statement is pulled at the authorization or pushed authorization request endpoint unless the request uses PKCE with `S256` and binds a key. The authorization endpoint binds that key through `dpop_jkt`; the pushed authorization request endpoint also permits a DPoP proof.
+- A public client's statement is pulled at the authorization or pushed authorization request endpoint unless the request uses PKCE with `S256` and binds a key. The authorization endpoint binds that key through `dpop_jkt`. The pushed authorization request endpoint also permits a DPoP proof.
 
 These rules do not turn an invalid presented statement into a review-only one. A public client's statement presented at the token endpoint for a request opening a new grant is rejected (Public Clients in CIMD Software Statement). Code redemption and refresh continue a grant whose binding was established at the authorization or pushed authorization request endpoint, and keep it. For a review-only statement, the MCP Authorization Server:
 
