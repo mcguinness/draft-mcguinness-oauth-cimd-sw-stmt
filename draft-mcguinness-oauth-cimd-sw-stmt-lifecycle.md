@@ -154,11 +154,11 @@ Current Statement:
 
 # Withdrawal and Refusal Records {#withdrawal}
 
-An issuer can withdraw a statement before its `exp`. Unlike OAuth token revocation ({{RFC7009}}), a withdrawal revokes no issued token: a server holding a refusal record refuses new admissions and refresh under the statement ({{currency}}, {{open-grants}}).
+An issuer can withdraw a statement before its `exp`. Unlike OAuth token revocation ({{RFC7009}}), a withdrawal revokes no issued token: a server holding a refusal record refuses new admissions, registration or renewal, and refresh under the statement ({{currency}}, {{open-grants}}, {{REGISTRATION}}).
 
 How a trusting authorization server learns of a withdrawal is a withdrawal mechanism. This specification requires no withdrawal mechanism. It defines one, the Token Status List profile of {{token-status-list}}, and other specifications can define how another mechanism applies to these statements.
 
-In addition to the checks of Section 3.2 of {{STATEMENT}}, a trusting authorization server MUST reject a statement for which it holds a refusal record. A server that uses a withdrawal mechanism for a statement's issuer SHOULD consult it, within the caching and freshness rules that mechanism defines, before accepting the statement for a new admission, at each refresh of a grant that records it, and at each token request under a registration the statement governs ({{REGISTRATION}}).
+In addition to the checks of Section 3.2 of {{STATEMENT}}, a trusting authorization server MUST reject a statement for which it holds a refusal record. A server that uses a withdrawal mechanism for a statement's issuer SHOULD consult it, within the caching and freshness rules that mechanism defines, before accepting the statement for a new admission, a registration, or a replacement on refresh or registration renewal, at each refresh of a grant that records it, and at each token request under a registration the statement governs ({{REGISTRATION}}). Registration renewal includes replacements delivered at the token, pushed authorization request, or client configuration endpoint, and replacements in repeated public-client registration requests (Sections 3.3 and 6 of {{REGISTRATION}}).
 
 A refusal derived from a withdrawal mechanism lasts until a later authoritative result from that mechanism replaces it, or until an expiry the mechanism itself defines for the withdrawal. A server MUST NOT retain such a refusal once it is replaced or expired in that way. A failure to consult the mechanism, or cached evidence that has lapsed, neither replaces nor expires a refusal.
 
@@ -177,6 +177,8 @@ A trusting authorization server MUST retain each `iat` floor for at least the ma
 The floor needs one `iat` value for each `iss` and `sub` and, on a multi-tenant server, each tenant, not the statements themselves. Every statement the floor refuses has an earlier `iat`, so its effective expiry passes within the maximum statement lifetime the server honors for the issuer, counted from the floor's value. Once that period and any clock-skew allowance have passed, the floor refuses nothing that expiry would not refuse. A server that raises the lifetime it honors for an issuer extends that period for the floors it already holds. A floor lost before then leaves the statements it superseded acceptable until they expire.
 
 At admission, the server verifies the `iat` floor in step 3 of Section 5.1 of {{STATEMENT}}, along with the `client_id` rule, before it resolves the reviewed document.
+
+For a new registration or a replacement under {{REGISTRATION}}, the server verifies the floor as part of statement validation in Section 3 or Section 6 of that specification, before resolving the reviewed document. This includes a replacement evaluated on a repeated public-client registration request (Section 3.3 of {{REGISTRATION}}).
 
 In selecting a pulled statement (Section 5.5.1 of {{STATEMENT}}), the server also ignores any statement that a refusal record covers ({{withdrawal}}) or that the `iat` floor supersedes. A pulled statement the server does not apply does not advance the `iat` floor. Nor does a review-only presentation or pulled statement (Section 5.6.3 of {{STATEMENT}}).
 
@@ -244,7 +246,7 @@ On refresh-token use under an establishment, the authorization server first comp
 
 2. Obtain a replacement. A client can offer one on any refresh in the `software_statement` parameter. A request carrying a replacement MUST meet the `client_id` rule that Section 5.4 of {{STATEMENT}} sets for a request making a runtime presentation. A statement with the recorded `iss` and `jti` is not a replacement, and a request carrying it is processed as one offering none. When a replacement is needed and the request carries none, a server that supports pulled statements pulls, however the establishment was created, and takes as the replacement the most recently issued statement with the recorded `iss` and `sub` among those it considers under Section 5.5.1 of {{STATEMENT}}, {{withdrawal}}, and {{supersession}}. A refresh that needs a replacement and obtains none is rejected: a reviewed grant never continues under the policy for clients the server has not reviewed.
 
-   The pull follows Sections 5.3 and 5.5 of {{STATEMENT}}, and a refresh whose pull does not complete is rejected.
+   The pull uses the retrieval and selection rules of Sections 5.3 and 5.5.1 of {{STATEMENT}}. The continuation rules here apply instead of those sections' rules for opening a new grant: a refresh whose pull does not complete is rejected, and one that needs a replacement and obtains none is rejected.
 
 3. Validate the replacement. A refresh whose replacement fails any of the following requirements is rejected, even when no replacement was needed. The replacement:
 

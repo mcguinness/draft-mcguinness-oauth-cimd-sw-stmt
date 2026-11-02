@@ -16,6 +16,8 @@ MCP recommends identifying clients by [Client ID Metadata Document](https://www.
 
 A review answers a question about software: who vouched for this client, and against which bytes. It does not answer whether a particular user or organization may use the client right now. Where an enterprise identity provider mediates access, [Enterprise-Managed Authorization](https://github.com/modelcontextprotocol/ext-auth/blob/main/specification/stable/enterprise-managed-authorization.mdx) answers that second question, and this profile composes with it (Section 5).
 
+The initial deployment illustrated here is a hosted client using a published review and `private_key_jwt` (Section 7). This binds admission to the reviewed configuration and its key; it does not establish which executable is running. Ordinary loopback clients remain review-only (Section 4.4).
+
 The benefits:
 
 - For MCP server operators, a client a trusted party has reviewed can be admitted without per-client onboarding, and a change to its document after review is detected rather than silently accepted.
@@ -103,7 +105,7 @@ The MCP Authorization Server **MUST** accept statements only from Statement Issu
 
 ### 4.3 Admission
 
-A statement that passes validation, names the document the server fetched, and is bound to the presenter (Section 3.3) admits the client as reviewed for that grant. The server applies the reviewed document's metadata to the request: its redirection URIs and grant types limit the request, and its `scope`, where present, is a ceiling on what may be requested. MCP Servers announce the scopes each resource needs in `WWW-Authenticate` challenges, so an MCP Client's document **SHOULD** omit `scope`; an omitted `scope` sets no ceiling beyond the server's own policy. At the authorization endpoint the binding completes only at code redemption, so the server **MAY** show the reviewer on its consent screen only where no redirection URI in the document can be claimed by another application and that binding can complete: the document declares `private_key_jwt`, or the request carries `dpop_jkt`. No token is issued unless redemption proves the key.
+A statement that passes validation, names the document the server fetched, and is bound to the presenter (Section 3.3) admits the client as reviewed for that grant. The server applies the reviewed document's metadata to the request: its redirection URIs and grant types limit the request, and its `scope`, where present, is a ceiling on what may be requested. MCP Servers announce the scopes each resource needs in `WWW-Authenticate` challenges, so an MCP Client's document **SHOULD** omit `scope`; an omitted `scope` sets no ceiling beyond the server's own policy. At the authorization endpoint the binding completes only at code redemption, so the server **MAY** show the reviewer on its consent screen only where no redirection URI in the document can be claimed by another application and that binding can complete: the document declares `private_key_jwt`, or it declares `none` and the request uses PKCE with `S256` and carries `dpop_jkt`. No token is issued unless redemption proves the key.
 
 The MCP Authorization Server **MUST NOT** require an MCP Client it admits under this profile to register. Where no statement remains after retrieval, or retrieval does not complete, the server applies the policy it applies to any Client ID Metadata Document client it has not reviewed. A retrieval failure is never treated as a withdrawal.
 
@@ -113,7 +115,14 @@ MCP requires access tokens in the `Authorization: Bearer` header. Where a public
 
 ### 4.4 Review-Only Clients
 
-For a client whose document carries any redirection URI another application on the same device could claim, such as a loopback or private-use-scheme URI, whatever authentication method it declares, and for a public client's statement pulled at the token endpoint for a request opening a new grant, a statement is review-only. A public client's statement presented at the token endpoint for such a request is rejected (Public Clients in CIMD Software Statement). Code redemption and refresh continue a grant whose binding was established at the authorization endpoint, and keep it. The MCP Authorization Server:
+A statement is review-only in the cases defined by [Pulled Statement Binding](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt.html#pull-binding) and [Review-Only Presentations](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt.html#review-only) in CIMD Software Statement:
+
+- The document carries any redirection URI another application on the same device could claim, such as a loopback or private-use-scheme URI, whatever authentication method it declares.
+- The statement is pulled for a document that omits `token_endpoint_auth_method`.
+- A public client's statement is pulled at the token endpoint for a request opening a new grant.
+- A public client's statement is pulled at the authorization or pushed authorization request endpoint unless the request uses PKCE with `S256` and binds a key. The authorization endpoint binds that key through `dpop_jkt`; the pushed authorization request endpoint also permits a DPoP proof.
+
+These rules do not turn an invalid presented statement into a review-only one. A public client's statement presented at the token endpoint for a request opening a new grant is rejected (Public Clients in CIMD Software Statement). Code redemption and refresh continue a grant whose binding was established at the authorization or pushed authorization request endpoint, and keep it. For a review-only statement, the MCP Authorization Server:
 
 - **MUST** treat the client exactly as an unreviewed Client ID Metadata Document client, and **MUST NOT** let the statement satisfy a policy that requires reviewed software;
 - **MUST NOT** present the review to the user as an assurance about the application requesting access;
@@ -121,7 +130,7 @@ For a client whose document carries any redirection URI another application on t
 
 ### 4.5 Tenants
 
-A multi-tenant MCP Authorization Server **MUST** resolve which tenant a request belongs to by its own means, such as a per-tenant endpoint or issuer identifier, or from a signed assertion it has validated, before evaluating any statement, and **MUST NOT** take the tenant from a value the client chooses. It rejects a statement whose `aud_tenant` names a different tenant. Where it configures a customer's own Statement Issuer for a tenant, it records the client identifier namespaces for which that issuer's decision is required there. It then admits no client in those namespaces in that tenant without a current statement from that issuer, whatever its policy for clients it has not reviewed (Issuer Trust in CIMD Software Statement), so a client that withholds that statement can fall back neither on a broader listing nor on unreviewed access. A published statement carrying `aud_tenant` would disclose which customer approved the client, so such a statement is presented rather than published.
+A multi-tenant MCP Authorization Server **MUST** resolve which tenant a request belongs to by its own means, such as a per-tenant endpoint or issuer identifier, or from a signed assertion it has validated, before evaluating any statement, and **MUST NOT** take the tenant from a value the client chooses. It ignores a pulled statement whose `aud_tenant` names a different tenant during selection, and rejects a presented statement with that mismatch. Where it configures a customer's own Statement Issuer for a tenant, it records the client identifier namespaces for which that issuer's decision is required there. It then admits no client in those namespaces in that tenant without a current statement from that issuer, whatever its policy for clients it has not reviewed (Issuer Trust in CIMD Software Statement), so a client that withholds that statement can fall back neither on a broader listing nor on unreviewed access. A published statement carrying `aud_tenant` would disclose which customer approved the client, so such a statement is presented rather than published.
 
 A statement says nothing about which of a client's own customers a request is for. An MCP Client that acts for many organizations under one metadata document presents the same review for all of them.
 
@@ -208,6 +217,21 @@ The decoded payload of that statement. It names no `aud`, so any server that tru
 ```
 
 ### 7.3 Authorization Request
+
+The hosted client in Section 7.1 starts authorization using its document URL (line breaks for display only):
+
+```
+GET /authorize?response_type=code
+  &client_id=https%3A%2F%2Fagent.example.com%2Foauth%2Fclient.json
+  &redirect_uri=https%3A%2F%2Fagent.example.com%2Foauth%2Fcallback
+  &code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM
+  &code_challenge_method=S256
+  &resource=https%3A%2F%2Fmcp.example.com%2F
+  &state=af0ifjsldkj HTTP/1.1
+Host: as.example.com
+```
+
+The server pulls the published statement and validates it against the document. At code redemption, the client supplies the PKCE verifier and authenticates with `private_key_jwt` using a key from the reviewed document's `jwks_uri`. Successful redemption completes the binding and admits the client as reviewed for the grant. The client sends no `software_statement` parameter.
 
 A public client with an `https` redirection URI, binding a DPoP key (line breaks for display only):
 
