@@ -302,7 +302,7 @@ Whether a server resolves statuses for an issuer, and which statuses other than 
 
 Resolution follows {{STATUSLIST}}. A statement whose status index lies outside the list is rejected, as {{STATUSLIST}} requires. A server SHOULD retrieve the list on the list's own schedule, within the expiration and caching bounds its `exp` and `ttl` claims set (Section 13.7 of {{STATUSLIST}}), rather than once per request ({{schedule-practice}}, {{privacy-considerations}}).
 
-A server MUST NOT replace a Status List Token it holds with one whose `iat` claim is earlier, and MUST treat one whose `iat` claim is equal but whose contents differ as a resolution failure. A host serving an older token then cannot restore a status the issuer has withdrawn.
+A server MUST NOT accept a Status List Token whose `iat` claim is earlier than that of the latest token it has accepted from that status list URI, and MUST treat one whose `iat` claim is equal but whose contents differ as a resolution failure. It keeps that latest `iat` for each status list URI while it records any statement that references the list, even after it discards the token. A host serving an older token then cannot restore a status the issuer has withdrawn.
 
 A server MUST verify a Status List Token only with keys from the issuer's Status List key set ({{key-sets}}), never with keys from the token itself. It reuses a retrieved key set only as Section 5.3 of {{STATEMENT}} permits for a statement key set.
 
