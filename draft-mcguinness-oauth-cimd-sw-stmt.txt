@@ -13,21 +13,21 @@ Expires: 6 May 2027
 
 Abstract
 
-   A Client ID Metadata Document (CIMD) carries a client's own claims,
-   which can change at any time.  This specification defines a software
-   statement in which a trusted party records its review of the exact
-   octets of such a document, and how an authorization server enforces
+   This specification defines a software statement in which a trusted
+   party records its review of the exact octets of a client's Client ID
+   Metadata Document (CIMD), and how an authorization server enforces
    that review when it admits the client at request time, without a
-   registration.  The client presents the statement in a token or pushed
-   authorization request, or publishes it where the reviewed document
-   points.  Possession of the statement alone does not complete a grant:
-   the presenter is also bound to the reviewed document, though for a
-   public client not against a party that controls the user agent.
-   Because the document remains the metadata, one review is portable
-   across the authorization servers that trust its issuer.  A companion
-   specification covers RFC 7591 registration.  Withdrawal,
-   supersession, and keeping grants in step with later reviews are left
-   to extensions.
+   registration.  A CIMD carries the client's own metadata, which can
+   change at any time, and a statement binds the review to one version
+   of the document by its digest.  The client presents the statement in
+   a token or pushed authorization request, or publishes it where its
+   document points.  The authorization server accepts a statement only
+   from an issuer it trusts, and also binds the presenter to the
+   reviewed document, although for a public client that binding does not
+   hold against a party that controls the user agent.  Because the
+   document itself remains the client's metadata, one review applies at
+   every authorization server in the statement's audience that trusts
+   its issuer.
 
 Status of This Memo
 
@@ -166,42 +166,61 @@ Table of Contents
 
    A statement records approval of a client configuration, not of the
    software's code or behavior (Section 13.1).  Possession of a
-   statement alone admits nothing: the presenter is bound to the
-   reviewed document (Section 5.6), though for a public client that
-   binding does not hold against a party that controls the user agent
-   (Section 13.4).  Presentations by a native application whose
-   redirection URIs another application on the device could claim are
-   review-only (Section 5.6.3).  A statement's expiry limits new
-   admissions but ends no open grant, and an older statement that has
-   not expired remains admissible after a newer one is issued
-   (Section 13.7).  Withdrawal, supersession, and grants that follow
-   later reviews are left to extensions (Section 9).
+   statement admits nothing by itself.  The authorization server binds
+   the presenter to the reviewed document (Section 5.6), although for a
+   public client that binding does not hold against a party that
+   controls the user agent (Section 13.4).  A statement for a native
+   application whose redirection URIs another application on the same
+   device could claim is review-only: the authorization server treats
+   the client as if it had presented no statement (Section 5.6.3).
 
-   This specification does not define how a client obtains a statement,
-   or how an authorization server consumes one in an [RFC7591]
-   registration request.  Section 10 relates this specification to other
-   work.
+   Under this specification, an authorization server checks a statement
+   only when a grant is opened.  A statement's expiry ends no grant
+   already opened, and an earlier statement that has not expired remains
+   acceptable after a later one is issued (Section 13.7).  Withdrawal
+   and supersession of statements, and refresh rules that follow later
+   reviews, are left to extensions (Section 9).  This specification does
+   not define how a client obtains a statement, or how an authorization
+   server consumes one in an [RFC7591] registration request.  Section 10
+   relates this specification to other work.
 
 1.1.  Protocol Overview
 
    The following non-normative sequence summarizes runtime admission
    (Section 5.1):
 
-   1.  Using its CIMD URL as client_id, the client presents its
+   1.  An issuer reviews a client's CIMD and issues a statement whose
+       sub claim is the document's URL and whose cimd_digest claim is
+       the digest of the document's exact octets (Section 3).
+
+   2.  Using its CIMD URL as client_id, the client presents the
        statement in a token request or, for a redirect flow, a pushed
-       authorization request, or publishes it at the
-       software_statements_uri its document names (Section 5.4,
-       Section 5.5).
+       authorization request (Section 5.4).  A client can instead
+       publish its statements at the software_statements_uri its
+       document names, for an authorization server that supports pulled
+       statements to retrieve (Section 5.5).
 
-   2.  The authorization server validates the statement (Section 3.2),
-       resolves the reviewed document (Section 5.2), and verifies the
-       sender constraint against it (Section 5.6).
+   3.  The authorization server verifies the statement's signature and
+       claims against its trust configuration for the issuer
+       (Section 3.2, Section 4), retrieves the document, and compares
+       the document's digest with the statement's (Section 5.2).
 
-   3.  The request proceeds under that document's metadata, without a
-       registration.
+   4.  The authorization server binds the presenter to the reviewed
+       document, in the request or at code redemption.  A confidential
+       client authenticates with a key the document carries, and a
+       public client uses PKCE and binds a key in the request
+       (Section 5.6).  A request whose presenter cannot be bound is
+       rejected, except in the cases Section 5.6.3 defines, such as a
+       document with a redirection URI another application on the same
+       device could claim.  A review-only statement admits nothing: the
+       request proceeds as one presenting no statement, and no
+       establishment is created.
 
-   4.  The state on which the rest of the grant depends persists as an
-       establishment (Section 5.7).
+   5.  When the binding succeeds, the request proceeds under the
+       reviewed document's metadata, without a registration.  The
+       authorization server records the state the grant depends on,
+       including the proven key, as an establishment, and checks that
+       key again on refresh (Section 5.7).
 
 2.  Conventions and Definitions
 
