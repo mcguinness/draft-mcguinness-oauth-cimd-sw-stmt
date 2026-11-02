@@ -211,7 +211,7 @@ Before accepting a statement, a trusting authorization server MUST ensure the fo
 * Any claim the server does not recognize, and any client metadata claim ({{profiles}}), is ignored.
 * The JWT validation guidance in {{RFC8725}} has been applied.
 
-A trusting authorization server that hosts more than one tenant MUST evaluate every tenant-specific check, such as the `aud_tenant` claim and a required issuer ({{issuer-trust}}), against the request's tenant. The request's tenant is the tenant that scopes what the server issues on the statement. The server MUST determine it before evaluating the statement, by its own means or from a signed assertion it has validated, and never from a value the client chooses.
+A trusting authorization server that hosts more than one tenant MUST evaluate every tenant-specific check, such as an `aud` value that identifies one of its tenants, the `aud_tenant` claim, and a required issuer ({{issuer-trust}}), against the request's tenant. The request's tenant is the tenant that scopes what the server issues on the statement. The server MUST determine it before evaluating the statement, by its own means or from a signed assertion it has validated, and never from a value the client chooses.
 
 Rejections outside a registration endpoint use {{errors}}.
 
