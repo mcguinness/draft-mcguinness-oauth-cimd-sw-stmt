@@ -8,18 +8,17 @@ New to the drafts? The [FAQ](https://github.com/mcguinness/draft-mcguinness-oaut
 
 ## The Drafts
 
-| Draft | What it defines | Editor's copy |
-| --- | --- | --- |
-| **CIMD Software Statement** | The statement and its digest binding, validation, issuer trust, and runtime admission by a statement presented in a request or pulled from where the client's document points | [HTML](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt.html), [TXT](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt.txt) |
-| CIMD Software Statement Registration | Consuming a statement in an RFC 7591 registration: metadata taken from the reviewed document, validity bounded by the statement, and renewal by a replacement statement | [HTML](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-registration.html), [TXT](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-registration.txt) |
-| CIMD Software Statement Issuance | How a client obtains a statement: token exchange, a redirect flow returning a `software_statement_code`, and asynchronous review under Deferred Token Response | [HTML](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-issuance.html), [TXT](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-issuance.txt) |
-| CIMD Software Statement Lifecycle | Withdrawal and refusal records, supersession, requiring a current statement on refresh, refresh replacement, and status mechanisms (Token Status List, Shared Signals) | [HTML](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle.html), [TXT](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle.txt) |
-| CIMD Software Statement Attested Instance Keys | An extension in which an attester the authorization server trusts attests an installation's key for the reviewed document, so a native application, typically on a managed device, can use loopback redirects through PAR, with the same binding enforced at code redemption and refresh | [HTML](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-attested.html), [TXT](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-attested.txt) |
+| Draft | What it defines | Status | Editor's copy |
+| --- | --- | --- | --- |
+| **CIMD Software Statement** | The statement and its digest binding, validation, issuer trust, and runtime admission by a statement presented in a request or pulled from where the client's document points | [-00](https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt/) | [HTML](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt.html), [TXT](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt.txt) |
+| CIMD Software Statement Registration | Consuming a statement in an RFC 7591 registration: metadata taken from the reviewed document, validity bounded by the statement, and renewal by a replacement statement | [-00](https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration/) | [HTML](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-registration.html), [TXT](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-registration.txt) |
+| CIMD Software Statement Issuance | How a client obtains a statement: token exchange, a redirect flow returning a `software_statement_code`, and asynchronous review under Deferred Token Response | Working draft | [HTML](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-issuance.html), [TXT](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-issuance.txt) |
+| CIMD Software Statement Lifecycle | Withdrawal and refusal records, supersession, requiring a current statement on refresh, refresh replacement, and status mechanisms (Token Status List, Shared Signals) | [-00](https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle/) | [HTML](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle.html), [TXT](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle.txt) |
+| CIMD Software Statement Attested Instance Keys | An extension in which an attester the authorization server trusts attests an installation's key for the reviewed document, so a native application, typically on a managed device, can use loopback redirects through PAR, with the same binding enforced at code redemption and refresh | Working draft | [HTML](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-attested.html), [TXT](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-attested.txt) |
 
 The statement draft is the core. The other drafts build on it, and it depends on none of them.
 
-The statement, registration, and lifecycle drafts are published as [draft-mcguinness-oauth-cimd-sw-stmt-00](https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt/), [draft-mcguinness-oauth-cimd-sw-stmt-registration-00](https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-registration/), and [draft-mcguinness-oauth-cimd-sw-stmt-lifecycle-00](https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle/).
-The issuance and attested-keys drafts are working drafts kept here for discussion and are not planned for submission yet.
+The statement, registration, and lifecycle drafts were submitted as individual Internet-Drafts on 2 November 2026; the Status column links their Datatracker pages. The editor's copies are rebuilt from this repository on every change, so they can be ahead of the submitted revisions. The issuance and attested-keys drafts are working drafts kept here for discussion and are not planned for submission yet.
 
 ## MCP Profile
 
@@ -60,7 +59,7 @@ Related work:
 
 ## Contributing
 
-See the [guidelines for contributions](CONTRIBUTING.md).
+Comments on the submitted drafts are welcome on the IETF OAuth working group mailing list, [oauth@ietf.org](mailto:oauth@ietf.org) ([archive](https://mailarchive.ietf.org/arch/browse/oauth/)), or as issues in this repository. See the [guidelines for contributions](CONTRIBUTING.md).
 
 Contributions can be made by creating pull requests. The GitHub interface supports creating pull requests using the Edit (✏) button.
 
