@@ -4,13 +4,13 @@ title: Reviewed Client Software
 
 <Info>**Status**: Draft</Info>
 
-<Note>This extension depends on draft-mcguinness-oauth-cimd-sw-stmt, cited here by its editor's copy until -00 is submitted, and uses draft-mcguinness-oauth-cimd-sw-stmt-lifecycle for withdrawal. Its references will be pinned to the core's -00 revision and to draft-ietf-oauth-client-id-metadata-document-02, and it will be proposed through the MCP SEP process.</Note>
+<Note>This extension depends on draft-mcguinness-oauth-cimd-sw-stmt-00 and uses draft-mcguinness-oauth-cimd-sw-stmt-lifecycle, cited here by its editor's copy, for withdrawal. Its references are pinned to the core's -00 revision and to draft-ietf-oauth-client-id-metadata-document-02, and it will be proposed through the MCP SEP process.</Note>
 
 ## 1. Introduction
 
 ### 1.1 Purpose and Scope
 
-This document defines an application of "[CIMD Software Statement](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt.html)" for the Model Context Protocol (MCP). It lets an MCP authorization server admit an MCP client on the strength of a review by a party the server trusts, bound to the exact Client ID Metadata Document that party reviewed, without the client registering and, in the common case, without the client sending anything new.
+This document defines an application of "[CIMD Software Statement](https://www.ietf.org/archive/id/draft-mcguinness-oauth-cimd-sw-stmt-00.html)" for the Model Context Protocol (MCP). It lets an MCP authorization server admit an MCP client on the strength of a review by a party the server trusts, bound to the exact Client ID Metadata Document that party reviewed, without the client registering and, in the common case, without the client sending anything new.
 
 MCP recommends identifying clients by [Client ID Metadata Document](https://www.ietf.org/archive/id/draft-ietf-oauth-client-id-metadata-document-02.html) and has deprecated Dynamic Client Registration. A metadata document says what a client claims about itself. This profile adds who reviewed those claims, and lets a server tell whether the document it fetched today is the one that was reviewed.
 
@@ -73,7 +73,7 @@ The MCP Client **MUST** use its Client ID Metadata Document URL as its `client_i
 
 ### 3.2 Publishing Statements
 
-A Client Publisher that wants its client admitted as reviewed **MUST** include the `software_statements_uri` member in the client's metadata document and serve the client's current statements there, as [Pulled Statements](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt.html#pulled-statements) defines: an `https` URL returning a JSON object whose `software_statements` member is an array of statements.
+A Client Publisher that wants its client admitted as reviewed **MUST** include the `software_statements_uri` member in the client's metadata document and serve the client's current statements there, as [Pulled Statements](https://www.ietf.org/archive/id/draft-mcguinness-oauth-cimd-sw-stmt-00.html#pulled-statements) defines: an `https` URL returning a JSON object whose `software_statements` member is an array of statements.
 
 The Client Publisher **SHOULD** replace each statement before it expires, by renewal or reissuance from its Statement Issuer, and **SHOULD** remove statements that have expired or been withdrawn. Statements for MCP use need no `statement_uses`: without it a statement is usable only by presentation, so a published copy cannot be used to register the software. MCP has deprecated Dynamic Client Registration, and a server admitting a client under this profile does not register it.
 
@@ -101,7 +101,7 @@ It **MUST** also accept presented statements, at the endpoints and on the grants
 
 ### 4.2 Issuer Trust
 
-The MCP Authorization Server **MUST** accept statements only from Statement Issuers it has configured, as [Issuer Trust](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt.html#issuer-trust) requires, and **SHOULD** limit each issuer to the client identifier namespaces it is expected to vouch for. It obtains each issuer's statement signing keys from the issuer's `software_statement_jwks_uri`, or, for an issuer that is not an authorization server, from a statement key set URL recorded in its trust configuration, and never from a statement or the client's document.
+The MCP Authorization Server **MUST** accept statements only from Statement Issuers it has configured, as [Issuer Trust](https://www.ietf.org/archive/id/draft-mcguinness-oauth-cimd-sw-stmt-00.html#issuer-trust) requires, and **SHOULD** limit each issuer to the client identifier namespaces it is expected to vouch for. It obtains each issuer's statement signing keys from the issuer's `software_statement_jwks_uri`, or, for an issuer that is not an authorization server, from a statement key set URL recorded in its trust configuration, and never from a statement or the client's document.
 
 ### 4.3 Admission
 
@@ -115,7 +115,7 @@ MCP requires access tokens in the `Authorization: Bearer` header. Where a public
 
 ### 4.4 Review-Only Clients
 
-A statement is review-only in the cases defined by [Pulled Statement Binding](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt.html#pull-binding) and [Review-Only Presentations](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt.html#review-only) in CIMD Software Statement:
+A statement is review-only in the cases defined by [Pulled Statement Binding](https://www.ietf.org/archive/id/draft-mcguinness-oauth-cimd-sw-stmt-00.html#pull-binding) and [Review-Only Presentations](https://www.ietf.org/archive/id/draft-mcguinness-oauth-cimd-sw-stmt-00.html#review-only) in CIMD Software Statement:
 
 - The document carries any redirection URI another application on the same device could claim, such as a loopback or private-use-scheme URI, whatever authentication method it declares.
 - The statement is pulled for a document that omits `token_endpoint_auth_method`.
