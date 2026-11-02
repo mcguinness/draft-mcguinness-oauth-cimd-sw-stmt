@@ -80,17 +80,17 @@ informative:
 
 --- abstract
 
-This specification defines a software statement in which a trusted party records its review of the exact octets of a client's Client ID Metadata Document (CIMD), and how an authorization server enforces that review when it admits the client at request time, without a registration. A CIMD carries the client's own metadata, which can change at any time, and a statement binds the review to one version of the document by its digest. The client presents the statement in a token or pushed authorization request, or publishes it where its document points. The authorization server accepts a statement only from an issuer it trusts, and also binds the presenter to the reviewed document, although for a public client that binding does not hold against a party that controls the user agent. Because the document itself remains the client's metadata, one review applies at every authorization server in the statement's audience that trusts its issuer.
+This specification defines a software statement in which a trusted party records its review of the exact octets of a client's Client ID Metadata Document (CIMD), and how an authorization server enforces that review when it admits the client at request time, without a registration. A CIMD carries the client's own metadata, which can change at any time, and a statement binds the review to one version of the document by its digest. The client presents the statement in a token or pushed authorization request, or publishes it where its document points. The authorization server accepts a statement only from an issuer it trusts, and also binds the presenter to the reviewed document, although for a public client that binding does not hold against a party that controls the user agent. Independently operated authorization servers can consume the same review, each under its own trust configuration and admission policy.
 
 --- middle
 
 # Introduction
 
-A Client ID Metadata Document (CIMD) {{CIMD}} identifies a client by a URL and supplies its metadata from a document the client controls. That metadata is the client's own claim and can change at any time. An organization that reviews client software has no interoperable way to record its review of a particular version of the document, or to have authorization servers that trust the organization, but have no relationship with the client, enforce that review.
+A Client ID Metadata Document (CIMD) {{CIMD}} lets a client publish its metadata and identify itself by the document's URL without prior registration. Section 4.3 of {{CIMD}} permits software statements as an independent signal, but defines no profile binding a review to a particular document version or specifying how that review governs admission.
 
-This specification profiles the software statement (Section 2.3 of {{RFC7591}}) for that purpose. A statement names the client by its document URL and binds the review to the document's exact octets by a digest ({{metadata-digest}}). An authorization server that trusts the statement's issuer ({{issuer-trust}}) admits the client at request time on the reviewed document, and no other, without creating a registration ({{cimd-presentation}}), so one review is portable across every authorization server in the statement's audience.
+This specification supplies that profile using the software statement of Section 2.3 of {{RFC7591}}. A statement names the client by its document URL and binds the review to the document's exact octets by a digest ({{metadata-digest}}). Independently operated authorization servers can enforce the same review at request time without creating registrations ({{cimd-presentation}}). Each server chooses which issuers to trust and for which clients and tenants ({{issuer-trust}}); a portable review does not imply universal acceptance.
 
-This specification serves deployments in which a party other than the client decides which software can connect, such as a marketplace or registry that vouches for software to authorization servers it does not operate, or an enterprise that approves software for its users at a service run by someone else. It also serves server-hosted software, such as an agent, that uses the `client_credentials` grant. Admission grants no access to resources: the authorization server's policy, and the resource owner's authorization where a grant involves one, still govern what it issues.
+For example, an enterprise can approve a hosted client for use at services run by other operators. Allowlisting its CIMD URL identifies the client but does not record which metadata was reviewed; the document can change while the URL stays the same. The statement carries that review across operators. This also serves server-hosted software, such as an agent using `client_credentials`. Admission grants no access to resources: the authorization server's policy, and the resource owner's authorization where a grant involves one, still govern what it issues.
 
 A statement records approval of a client configuration, not of the software's code or behavior ({{what-statement-attests}}). Possession of a statement admits nothing by itself. The authorization server binds the presenter to the reviewed document ({{sender-constraint}}), although for a public client that binding does not hold against a party that controls the user agent ({{public-client-security}}). A statement for a native application whose redirection URIs another application on the same device could claim is review-only: the authorization server treats the client as if it had presented no statement ({{review-only}}).
 
@@ -628,7 +628,7 @@ This section is non-normative.
 
 ## Client Attestation {#relationship-attestation}
 
-A software statement and a client attestation {{ABCA}} are both signed third-party assertions. A statement attests client software and the metadata its issuer evaluated. A client attestation attests a running instance and the key it holds, and is presented with a proof bound to the request.
+A software statement and a client attestation {{ABCA}} are both signed third-party assertions. A statement records a review of client configuration. A client attestation attests a running instance and the key it holds, and is presented with a proof bound to the request.
 
 Neither assertion grants access nor substitutes for the other.
 
@@ -638,7 +638,7 @@ A statement records that a named party reviewed software, not that a particular 
 
 ## OpenID Federation {#relationship-federation}
 
-A trust mark {{OPENID-FED}} is also a signed third-party assertion about an entity, but it is resolved through a federation in which both parties enroll. A statement needs no federation: a trusting authorization server configures its issuer directly ({{issuer-trust}}), and the statement binds the exact octets of the client's own document rather than metadata the federation resolves.
+A trust mark {{OPENID-FED}} is also a signed third-party assertion about an entity. Section 17.5 of {{OPENID-FED}} permits trust marks whose accreditation authority is established out of band. This specification binds a review to exact CIMD octets and defines its use at admission, with directly configured issuers ({{issuer-trust}}) and no dependency on federation metadata resolution.
 
 # Implementation Considerations {#implementation-considerations}
 
