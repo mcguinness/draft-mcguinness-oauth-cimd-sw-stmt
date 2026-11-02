@@ -180,13 +180,10 @@ The `client_id` parameter in every request defined by this specification MUST be
 
 In the redirect flow, a client identifier whose CIMD cannot be retrieved or validated, including one whose CIMD is rejected for duplicate member names ({{metadata-snapshot}}), is invalid for the purposes of Section 4.1.2.1 of {{RFC6749}}.
 
-The client authenticates to the token endpoint using the `token_endpoint_auth_method` and related key metadata in its CIMD. The authorization server classifies the client from that member:
+The client authenticates to the token endpoint with a method its CIMD permits (Section 2 of {{STATEMENT}}), using the related key metadata in that document. The authorization server determines whether the client is a public or a confidential client from the methods the document permits and from its own policy, as Section 5.6 of {{STATEMENT}} determines the model for a reviewed document:
 
-* `none` (explicit) establishes a public client.
-* Any other value establishes a confidential client:
-  * The authorization server MUST require exactly that method.
-  * If the authorization server does not support the declared method, it MUST reject the request rather than treat the client as public, with the `unauthorized_client` error code at the authorization endpoint and with the `invalid_client` error code (Section 5.2 of {{RFC6749}}) at the token endpoint.
-* An omitted value establishes neither, and any request identifying such a client MUST be rejected, with the `invalid_request` error code at the authorization endpoint, returned to the redirection URI validated against the document, and with the `invalid_client` error code (Section 5.2 of {{RFC6749}}) at the token endpoint.
+* A confidential client MUST authenticate with a permitted method other than `none` that the authorization server supports and its policy allows.
+* If the document permits no method that the authorization server supports and its policy allows, the authorization server rejects the request as Section 5 of {{CIMD}} requires.
 
 A public client binds its requests with Demonstrating Proof of Possession (DPoP) {{RFC9449}}: in the redirect flow through the `dpop_jkt` parameter ({{authorization-request}}), and in the token exchange profile ({{token-exchange-profile}}) by a DPoP proof, which a public client MUST include on the exchange request. A confidential client MAY use DPoP in addition to its client authentication method.
 
@@ -308,7 +305,7 @@ The client sends an authorization request as described in Section 4.1.1 of {{RFC
 : REQUIRED. The client identifier URL described in {{client-identity}}.
 
 `redirect_uri`:
-: REQUIRED. The value MUST exactly match one of the redirection URIs in the CIMD, subject to the redirection URI rules in Section 4.2 of {{CIMD}}. Whatever authentication method the document declares, the value MUST NOT be a redirection URI that another application on the same device could claim, as Section 5.6.3 of {{STATEMENT}} defines ({{authorization-response-security}}).
+: REQUIRED. The value MUST exactly match one of the redirection URIs in the CIMD, subject to the redirection URI rules in Section 4.2 of {{CIMD}}. Whatever methods the document permits, the value MUST NOT be a redirection URI that another application on the same device could claim, as Section 5.6.3 of {{STATEMENT}} defines ({{authorization-response-security}}).
 
 `state`:
 : OPTIONAL. Because the authorization server requires PKCE, a client can rely on PKCE for CSRF protection (Section 2.1 of {{RFC9700}}).
