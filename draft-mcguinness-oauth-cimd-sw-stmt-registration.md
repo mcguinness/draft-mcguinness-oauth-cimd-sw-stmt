@@ -33,14 +33,7 @@ normative:
   RFC8414:
   RFC9126:
   RFC9700:
-  STATEMENT:
-    target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt
-    title: "Client ID Metadata Document Software Statement"
-    author:
-      - fullname: Karl McGuinness
-    date: 2026-11
-    seriesinfo:
-      Internet-Draft: draft-mcguinness-oauth-cimd-sw-stmt-00
+  STATEMENT: I-D.mcguinness-oauth-cimd-sw-stmt
   CIMD: I-D.ietf-oauth-client-id-metadata-document
   RFC7592:
 

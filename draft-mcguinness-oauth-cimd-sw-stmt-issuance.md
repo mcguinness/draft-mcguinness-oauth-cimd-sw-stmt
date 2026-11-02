@@ -27,14 +27,7 @@ author:
     email: public@karlmcguinness.com
 
 normative:
-  STATEMENT:
-    target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt
-    title: "Client ID Metadata Document Software Statement"
-    author:
-      - fullname: Karl McGuinness
-    date: 2026-10
-    seriesinfo:
-      Internet-Draft: draft-mcguinness-oauth-cimd-sw-stmt-00
+  STATEMENT: I-D.mcguinness-oauth-cimd-sw-stmt
   RFC6749:
   RFC7591:
   RFC7636:

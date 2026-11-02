@@ -44,14 +44,7 @@ normative:
   RFC9700:
   CIMD: I-D.ietf-oauth-client-id-metadata-document
   ABCA: I-D.ietf-oauth-attestation-based-client-auth
-  STATEMENT:
-    target: https://datatracker.ietf.org/doc/draft-mcguinness-oauth-cimd-sw-stmt
-    title: "Client ID Metadata Document Software Statement"
-    author:
-      - fullname: Karl McGuinness
-    date: 2026-10
-    seriesinfo:
-      Internet-Draft: draft-mcguinness-oauth-cimd-sw-stmt-00
+  STATEMENT: I-D.mcguinness-oauth-cimd-sw-stmt
   LIFECYCLE:
     target: https://mcguinness.github.io/draft-mcguinness-oauth-cimd-sw-stmt/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle.html
     title: "Client ID Metadata Document Software Statement Lifecycle"
