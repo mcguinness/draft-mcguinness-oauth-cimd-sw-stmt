@@ -489,9 +489,8 @@ Table of Contents
 
        The pull uses the retrieval and selection rules of Sections 5.3
        and 5.5.1 of [STATEMENT].  The continuation rules here apply
-       instead of those sections' rules for opening a new grant: a
-       refresh whose pull does not complete is rejected, and one that
-       needs a replacement and obtains none is rejected.
+       instead of those sections' rules for opening a new grant, so a
+       refresh whose pull does not complete is rejected.
 
    3.  Validate the replacement.  A refresh whose replacement fails any
        of the following requirements is rejected, even when no
