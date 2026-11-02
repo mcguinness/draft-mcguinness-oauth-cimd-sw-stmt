@@ -166,6 +166,8 @@ A refusal record that a withdrawal mechanism yields applies in every tenant of t
 
 A withdrawal constrains and never relaxes. A statement for which no withdrawal mechanism reports a withdrawal, or for which the server cannot consult the mechanism it uses ({{withdrawal-practice}}), is bounded by its effective expiry as it would be otherwise, and a server MUST NOT treat any withdrawal mechanism as grounds to accept a statement past its effective expiry.
 
+A server consults a withdrawal mechanism while validating a statement, which at admission is step 2 of Section 5.1 of {{STATEMENT}}. A server whose policy rejects a request because it cannot consult the mechanism uses the `temporarily_unavailable` error code, as for a retrieval that did not complete (Section 6 of {{STATEMENT}}).
+
 An issuer that uses a withdrawal mechanism and issues a later statement narrower than the one it replaces SHOULD withdraw the earlier statement ({{replacement-security}}). A later statement is narrower if the document it names no longer carries a key, redirection URI, or scope the earlier document carried, if its `aud`, `aud_tenant`, or `statement_uses` is narrower, or if its effective expiry is earlier than that of the statement it replaces.
 
 Rejections under this section use the error responses of {{lifecycle-errors}}.
