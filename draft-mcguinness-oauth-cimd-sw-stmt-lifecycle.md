@@ -290,7 +290,7 @@ An issuer's Status List key set is the JWK Set at the `jwks_uri` of its authoriz
 
 An issuer that uses Token Status List publishes the status of its statements as {{STATUSLIST}} defines. A statement locates its entry in the issuer's Status List Token through the `status` claim, whose `status_list` member gives the status list URI and index (Section 6.2 of {{STATUSLIST}}). It is the claim by which this specification locates a statement, which an establishment records (Section 5.7 of {{STATEMENT}}). An issuer that publishes status:
 
-* MUST publish status, and carry the `status` claim, for every statement it issues under a given `iss` from the point it begins publishing. Once statements issued before that point have expired, a trusting authorization server can read an absent claim as meaning the issuer publishes no status.
+* MUST publish status, and carry the `status` claim, for every statement it issues under a given `iss` from the point it begins publishing. A trusting authorization server treats a statement without the claim as one it cannot check for withdrawal, which its effective expiry bounds ({{withdrawal}}).
 * MUST NOT assign the same combination of status list URI and index to more than one statement, including across successive Status List Tokens published at that URI. Withdrawing a statement then affects no other.
 * MUST sign each Status List Token with a key in its Status List key set ({{key-sets}}).
 * MUST include the `exp` claim in every Status List Token it publishes. An older token then cannot stand in for a newer one indefinitely.
