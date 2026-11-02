@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         28 October 2026
-Expires: 1 May 2027
+Intended status: Standards Track                         2 November 2026
+Expires: 6 May 2027
 
 
       Client ID Metadata Document Software Statement Registration
@@ -14,15 +14,16 @@ Expires: 1 May 2027
 Abstract
 
    A companion specification defines a software statement for a Client
-   ID Metadata Document.  The statement carries no client metadata: it
-   binds an issuer's review to the exact bytes of the client's own
-   document.  This specification defines how an authorization server
-   consumes such a statement in an RFC 7591 registration request, taking
-   every metadata value from the reviewed document rather than from the
-   request.  It also defines how the statement's expiry bounds the
-   resulting registration, which RFC 7591 leaves unbounded, and how a
-   client renews the registration by delivering a replacement statement,
-   which also updates the registration's metadata.
+   ID Metadata Document (CIMD).  The statement carries no client
+   metadata: it binds an issuer's review to the exact octets of the
+   client's own document.  This specification defines how an
+   authorization server consumes such a statement in an RFC 7591
+   registration request, taking every metadata value from the reviewed
+   document rather than from the request.  It also defines how the
+   statement's expiry bounds the resulting registration, which RFC 7591
+   leaves unbounded, and how a client renews the registration by
+   delivering a replacement statement, which also updates the
+   registration's metadata.
 
 Status of This Memo
 
@@ -39,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 1 May 2027.
+   This Internet-Draft will expire on 6 May 2027.
 
 Copyright Notice
 
@@ -61,24 +62,19 @@ Table of Contents
      1.1.  Protocol Overview
    2.  Conventions and Definitions
    3.  Consumption at Registration
-     3.1.  Public Clients
-     3.2.  Registration Validity
-     3.3.  Renewal
-   4.  Statements from a Registered or Admitted Client
-   5.  Repeated Registration
-   6.  Error Responses
-   7.  Example
-     7.1.  Renewing a Statement-Governed Registration
-   8.  Authorization Server Metadata
-   9.  Implementation Considerations
-     9.1.  Registration State
+     3.1.  Tenant Restriction
+     3.2.  Public Clients
+     3.3.  Repeated Registration
+   4.  Registration Validity
+   5.  Requests Under a Registration
+   6.  Renewal
+   7.  Error Responses
+   8.  Example
+   9.  Authorization Server Metadata
    10. Deployment Considerations
-     10.1.  Repeated Registration Policy
-     10.2.  Credentials for Statement-Governed Registrations
-     10.3.  Renewal Cadence
    11. Security Considerations
      11.1.  Statements at Registration
-     11.2.  Renewal Authenticates the Credential
+     11.2.  Credential Theft and Renewal
      11.3.  Registration Fraud and Impersonation
      11.4.  Observable State
    12. Privacy Considerations
@@ -90,7 +86,6 @@ Table of Contents
    14. References
      14.1.  Normative References
      14.2.  Informative References
-   Acknowledgments
    Author's Address
 
 1.  Introduction
@@ -98,44 +93,28 @@ Table of Contents
    A software statement (Section 2.3 of [RFC7591]) carries a third
    party's approval of client software into a dynamic client
    registration request.  In [RFC7591], values in the statement take
-   precedence over those in the request.  A statement under [STATEMENT]
-   carries no client metadata: it names a Client ID Metadata Document by
-   its URL and binds the review to that document's exact octets.  An
-   [RFC7591] server that verified such a statement without implementing
-   this specification would take every metadata value from the request,
-   attaching the issuer's approval to redirection URIs and keys nobody
-   reviewed.
+   precedence over those in the request.  A statement under Section 3 of
+   [STATEMENT] carries no client metadata: it names a Client ID Metadata
+   Document (CIMD) by its URL and binds the review to that document's
+   exact octets.  An [RFC7591] server that verified such a statement
+   without implementing this specification would take every metadata
+   value from the request, attaching the issuer's approval to
+   redirection URIs and keys nobody reviewed.
 
    [RFC7591] also defines no expiry or renewal for a registration.  A
-   registration based on a statement can outlive it, and nothing keeps
-   the registration's validity or metadata in line with the issuer's
-   decision once the issuer narrows, withdraws, or stops renewing it.
+   registration based on a statement can outlive the statement, and
+   nothing keeps the registration's validity or metadata in line with
+   the issuer's decision once the issuer narrows or withdraws its review
+   or stops renewing the statement.
 
    [STATEMENT] admits a client at request time without registering it.
    This specification is for deployments that register clients through
    [RFC7591] instead, for example to assign their own client identifiers
-   or to manage registrations under [RFC7592].  It defines the
-   following:
-
-   *  Consumption: the registration takes every metadata value from the
-      reviewed document, never from the request (Section 3).
-
-   *  Validity: a registration is valid only while a current statement
-      governs it (Section 3.2).
-
-   *  Renewal: the client renews the registration by delivering a
-      replacement statement, which also brings the registration's
-      metadata up to date with the new review (Section 3.3).
-
-   Under this specification, an authorization server never registers
-   software whose document lists a redirection URI that another
-   application could claim (Section 3).  Such a document is presented
-   review-only under [STATEMENT] and cannot satisfy a policy requiring
-   reviewed software.  A server can register a public client, whose
-   document declares token_endpoint_auth_method of none, only under
-   rules that bind it as [STATEMENT] binds a public client at runtime
-   (Section 3.1).  This specification depends on [STATEMENT], which does
-   not depend on it.
+   or to manage registrations under [RFC7592].  It defines consumption
+   of the statement at registration (Section 3), the registration's
+   validity (Section 4), and its renewal by a replacement statement
+   (Section 6).  This specification extends [STATEMENT], which does not
+   depend on it.
 
 1.1.  Protocol Overview
 
@@ -147,16 +126,18 @@ Table of Contents
 
    2.  The authorization server derives the registration's metadata from
        the reviewed document and records the statement's identity.  The
-       registration is valid until the statement's effective expiry
-       (Section 3.2).
+       registration is valid until the statement ceases to be current,
+       at the latest its effective expiry (Section 4).
 
    3.  The client delivers a replacement statement in a token or pushed
        authorization request under the registration or, if supported, an
-       [RFC7592] update request, which sets the registration's validity
-       to the replacement's effective expiry.
+       [RFC7592] update request.  A valid replacement replaces the
+       registration's metadata with metadata derived from the document
+       it reviews, and sets the registration's validity to its effective
+       expiry.
 
-   4.  If no replacement arrives, the registration expires and requests
-       under it fail.
+   4.  If no replacement arrives, the registration ceases to be valid
+       and requests under it are rejected.
 
 2.  Conventions and Definitions
 
@@ -168,315 +149,383 @@ Table of Contents
 
    This specification uses terminology from [RFC6749] (OAuth), [RFC7591]
    (client metadata and software statements), and [CIMD] (Client ID
-   Metadata Documents), and the terms Issuer, Runtime Presentation,
-   Effective Expiry, Refusal Record, Current Statement, Required Issuer,
-   Review-Only, and iat Floor from [STATEMENT].
+   Metadata Documents), and the terms defined in Section 2 of
+   [STATEMENT].
 
    This specification defines the following terms.
 
    Delivery:  Carrying a statement in a request under a statement-
-      governed registration, in one of the locations Section 3.3 lists,
-      so that it can renew the registration.  A delivery is not a
-      runtime presentation.
+      governed registration, in one of the locations Section 6 lists, so
+      that it can renew the registration.  A delivery is not a runtime
+      presentation.
 
    Governing Statement:  The statement that bounds a statement-governed
       registration: the one consumed at registration or, after a
       renewal, the replacement that renewed it most recently
-      (Section 3.3).
+      (Section 6).  The authorization server identifies it by its iss
+      and jti claims.
+
+   Replacement:  A statement with the governing statement's iss and sub
+      claims and a later iat, delivered under the registration
+      (Section 6) or carried in a repeated public-client registration
+      request (Section 3.3).
 
    Statement-Governed Registration:  An [RFC7591] client registration
-      created from a statement under this specification: its validity is
-      bound to its governing statement's effective expiry, and
-      replacement statements renew it (Section 3.2).
+      created from a statement under this specification (Section 3).
 
 3.  Consumption at Registration
 
    The statement is consumed in the software_statement member of an
    [RFC7591] registration request.  The authorization server validates
-   it under the validation rules of [STATEMENT] and registers the client
-   under its ordinary registration policy.
+   it under Section 3.2 of [STATEMENT] and registers the client under
+   its ordinary registration policy.  If a required issuer covers the
+   statement's sub in the request's tenant (Section 4 of [STATEMENT]),
+   the authorization server MUST NOT create a registration on a
+   statement from another issuer.
 
-   In [RFC7591], values in a software statement take precedence over
-   those in the request.  A statement under [STATEMENT] carries no
-   client metadata, so the reviewed document takes that role.  An
-   authorization server consuming a statement under this specification:
+   A required issuer constrains only registrations made on statements,
+   because a registration made without a statement names no client
+   identifier URL for a required issuer to cover.  A deployment that
+   needs every registration in a tenant reviewed requires a statement
+   for every registration there and rejects a request that carries none
+   with unapproved_software_statement (Section 7).
 
-   *  MUST resolve the Client ID Metadata Document at the statement's
-      sub claim, rejecting the registration if retrieval does not
-      complete.
+   The retrieval requirements of Sections 3.1 and 5.3 of [STATEMENT]
+   apply to retrieving the document as they apply to a runtime
+   presentation, and a server can apply the bounds of Section 11.2 of
+   [STATEMENT].  Following the order of Section 5.1 of [STATEMENT], the
+   authorization server completes every check that needs no client-
+   controlled retrieval before resolving the document.
+
+   The reviewed document takes the role that [RFC7591] gives a
+   statement's own values.  In deriving a registration's metadata, at
+   registration or for a replacement (Section 6), the authorization
+   server:
+
+   *  MUST obtain the CIMD at the statement's sub claim and compare its
+      digest with the cimd_digest claim as Section 5.2 of [STATEMENT]
+      requires, rejecting the request if the digests differ, and MUST
+      derive the registered metadata from the octets whose digest
+      matched.
 
    *  MUST validate the document as [CIMD] requires, including that its
-      client_id member matches the statement's sub claim, the client
-      identifier URL at which the document was resolved.
+      client_id member matches the statement's sub claim.
 
-   *  MUST verify that the digest of the retrieved representation equals
-      the statement's cimd_digest claim, rejecting the registration if
-      it does not, and MUST derive the registered metadata by parsing
-      the same octets it digested, not a second retrieval or a cached
-      copy it has not digested.
+   *  MUST take every client metadata value from that document, except
+      values the authorization server issues, such as client_id and
+      client_id_issued_at.
 
-   *  MUST take every client metadata value from that document, and MUST
-      NOT take any client metadata value from the registration request,
-      or from any [RFC7592] update request for the registration it
-      creates, whether or not the document carries the corresponding
-      member:
+   *  MUST NOT take any client metadata value from the request, or from
+      any [RFC7592] update request for the registration, whether or not
+      the document carries the corresponding member.
 
-      -  The registration's metadata changes only by re-derivation from
-         the document a replacement statement reviews (Section 3.3).
+   Client metadata in a registration or update request does not
+   contribute to the registration.  The registered client_id is assigned
+   as [RFC7591] provides, and the document's own client_id member is the
+   URL recorded as the governing statement's sub.  The authorization
+   server MUST NOT assign that URL as the registered client_id, which
+   would make a request carrying it ambiguous between the registration
+   and the CIMD client the URL identifies ([CIMD]).  A member the
+   document omits, other than token_endpoint_auth_method (rejected
+   below), takes its [RFC7591] default.  The registration's metadata
+   changes only when a replacement is applied (Section 6).
 
-      -  A request MAY carry metadata, as [RFC7591] clients do, but it
-         does not contribute to the registration.
+   The authorization server MUST reject the registration, or a
+   replacement (Section 6), if any of the following holds:
 
-      -  The registered client_id is assigned as [RFC7591] provides, and
-         the document's own client_id member is the URL recorded as sub.
+   *  The document omits the token_endpoint_auth_method member.
 
-   *  MUST reject the registration with the invalid_client_metadata
-      error code if the document omits the token_endpoint_auth_method
-      member, which [STATEMENT] requires a reviewed document to declare.
-      Registering under the [RFC7591] default, a shared-secret method
-      that [CIMD] forbids, would issue a client secret to any holder of
-      a copy of the statement.
+   *  The document declares token_endpoint_auth_method of none, unless
+      the authorization server registers the client under Section 3.2.
 
-   *  MUST reject the registration with the invalid_client_metadata
-      error code if the document declares token_endpoint_auth_method of
-      none, unless the authorization server registers the client under
-      Section 3.1.  Such software can instead use runtime presentation
-      if it meets the public-client binding requirements of [STATEMENT].
+   *  Any of the document's redirection URIs could be claimed by another
+      application on the same device (Section 5.6.3 of [STATEMENT]),
+      whatever authentication method the document declares.
 
-   *  MUST reject the registration with the invalid_client_metadata
-      error code if any of the document's redirection URIs could be
-      claimed by another application on the same device (see the public-
-      client presentation rules of [STATEMENT]), whatever authentication
-      method the document declares.
+   Unlike runtime presentation (Section 5 of [STATEMENT]), registration
+   has no review-only form: the rejections above cover the document
+   conditions that make a presentation review-only.
+
+   Software whose document declares token_endpoint_auth_method of none
+   and that the server does not register under Section 3.2 can instead
+   use runtime presentation if it meets the public-client binding
+   requirements of Section 5.6.2 of [STATEMENT].
+
+3.1.  Tenant Restriction
 
    If the statement's decision is confined to one of the authorization
    server's tenants, by its aud_tenant claim or by the server's trust
-   configuration for its issuer ([STATEMENT]), the authorization server
-   MUST record that tenant with the registration, and MUST treat a
-   request under the registration in any other tenant, including a
-   delivery (Section 3.3), as a request from a client it has not
-   registered.  The restriction persists across renewals, and a renewal
-   by a replacement whose decision is confined to a tenant restricts the
-   registration to that tenant, except for a public-client registration
-   that carries no tenant restriction, which such a statement does not
-   renew (Section 3.1).  A registration created from a statement whose
-   decision is not confined to a tenant carries no tenant restriction
-   under this specification until such a renewal.
+   configuration for its issuer (Section 4 of [STATEMENT]), the
+   registration is restricted to that tenant.  Otherwise it carries no
+   tenant restriction under this specification.  A replacement
+   (Section 6) determines the restriction as follows:
 
-   Unlike runtime presentation ([STATEMENT]), registration has no
-   review-only form: the registration is the admission.
+     +=================+=========================+==================+
+     | Registration    | Replacement's decision  | After            |
+     | before          |                         |                  |
+     +=================+=========================+==================+
+     | Restricted to a | Confined to that        | Restricted to    |
+     | tenant          | tenant, or not confined | that tenant      |
+     +-----------------+-------------------------+------------------+
+     | Restricted to a | Confined to another     | Fails validation |
+     | tenant          | tenant                  | (Section 3.2 of  |
+     |                 |                         | [STATEMENT])     |
+     +-----------------+-------------------------+------------------+
+     | No restriction, | Confined to a tenant    | Restricted to    |
+     | confidential    |                         | that tenant      |
+     | client          |                         |                  |
+     +-----------------+-------------------------+------------------+
+     | No restriction, | Confined to a tenant    | Not a valid      |
+     | public client   |                         | replacement      |
+     +-----------------+-------------------------+------------------+
+     | No restriction  | Not confined to a       | No restriction   |
+     |                 | tenant                  |                  |
+     +-----------------+-------------------------+------------------+
 
-   Taking every value from the document prevents metadata substitution.
-   At registration a statement is a bearer artifact, so a request-
-   supplied value for a member the document omits, such as a jwks member
-   beside a document naming only jwks_uri, would give any holder of a
-   copy a registration with reviewed branding and the holder's own key.
+                                 Table 1
 
-   The retrieval requirements of [STATEMENT] apply to retrieving the
-   document as they apply to a runtime presentation, and a server can
-   apply the bounds that specification describes.  The authorization
-   server completes every check of [STATEMENT] that needs no client-
-   controlled retrieval before resolving the document.
+   The tenant rules of steps 1 and 4 of Section 5 also apply to any
+   other request under the registration, including [RFC7592] read and
+   delete requests.  To an [RFC7592] read, update, or delete request
+   that these rules treat as from a client it has not registered, the
+   authorization server MUST respond with HTTP 403 Forbidden (Sections
+   2.1 through 2.3 of [RFC7592]) and MUST NOT revoke the registration
+   access token, since the registration remains valid where these rules
+   do not apply.
 
-3.1.  Public Clients
+3.2.  Public Clients
 
    An authorization server MAY register a client whose reviewed document
-   declares token_endpoint_auth_method of none.  Such a registration has
-   no client credential.  Every installation of the software registers
-   and receives the same registration and client_id, as can any holder
-   of a copy of the statement.  The registration is bound instead as
-   [STATEMENT] binds a public client at runtime: authorization codes
-   reach only the reviewed redirection URIs, and each grant is bound to
-   a key the installation holds.  A server that registers such a client:
+   declares token_endpoint_auth_method of none, creating a public-client
+   registration.  Such a registration has no client credential and is
+   shared among installations of the software.  A server that registers
+   such a client:
 
-   *  MUST reject the registration with the invalid_client_metadata
-      error code if the document lists no redirection URI.  Section 3
-      already rejects a document listing one that another application
-      could claim.
+   *  MUST reject the registration if the document lists no redirection
+      URI.
 
    *  MUST issue tokens under the registration only through the
-      authorization code grant and refresh of the grants it opens.
+      authorization code grant and the refresh of grants it opens.
 
-   *  MUST require PKCE [RFC7636] with the S256 method on every
-      authorization request under the registration.
-
-   *  MUST require every authorization request under the registration to
-      bind a key the client holds, through the dpop_jkt parameter or, at
-      the pushed authorization request endpoint, a DPoP proof
-      (Section 10.1 of [RFC9449]), and MUST require code redemption and
-      every refresh of the resulting grant to prove that key.
+   *  MUST apply Section 5.6.2 of [STATEMENT] to every authorization
+      request under the registration, and MUST require code redemption
+      and every refresh of the resulting grant to prove the key bound
+      there.
 
    *  MUST NOT issue a registration access token [RFC7592] for the
       registration.
 
-   *  MUST answer a later registration request with the existing
-      registration if the request is in a tenant where the registration
-      can be used and the request's statement has the same iss and sub
-      claims as the governing statement, validates, is not superseded
-      under the iat floor of [STATEMENT], and is confined to no tenant
-      other than one the registration is already restricted to.  If that
-      statement's iat is later than the governing statement's, the
-      server evaluates it as Section 3.3 provides for a delivery,
-      renewing the registration with it or rejecting the request with
-      the codes of Section 6.
+3.3.  Repeated Registration
 
-   Such a registration has no [RFC7592] management, and the deliveries
-   that Section 3.3 lists at the token and pushed authorization request
-   endpoints need no client authentication under the registration, since
-   the registration has none.  A delivery renews it only with a valid
-   replacement, so an unauthenticated delivery can apply only a
-   statement the issuer signed.  A statement whose decision is confined
-   to a tenant is not a replacement for such a registration if the
-   registration carries no tenant restriction.  Without a registration
-   access token, the registration ends only at its effective expiry, on
-   withdrawal (Section 3.2), or by the server's own policy.
+   A registration request is repeated if its statement has the iss and
+   sub claims of the governing statement of an existing statement-
+   governed registration, valid or not, that:
 
-3.2.  Registration Validity
+   *  is not restricted to another tenant (Section 3.1), and
 
-   An authorization server MUST apply the following validity model to
-   every registration it creates from a statement validated under
-   [STATEMENT], whichever issuer signed it:
+   *  is restricted to the request's tenant, if that tenant requires a
+      tenant-scoped decision (Section 3.2 of [STATEMENT]).
 
-   *  The authorization server MUST bind the registration to its
-      governing statement, identified by the statement's iss and jti
-      claims (Section 9.1).  The registration's effective expiry is the
-      governing statement's effective expiry ([STATEMENT]), which a
-      renewal replaces and registration_expires_at reports.
+   One current statement can be consumed more than once, subject to the
+   bounds of Sections 11.2 and 11.3 of [STATEMENT] and the server's
+   registration policy.  A server can count registrations toward the
+   bound on establishments of Section 11.3 of [STATEMENT], but the bound
+   stays effective only if a registration under which no access token
+   has been issued does not count toward it, since a holder of a copy of
+   the statement can create one.
 
-   *  The registration is valid until that effective expiry.
+   If the registration a request repeats is a confidential-client
+   registration, local policy can reject the request, treat it as
+   idempotent, or create another registration.  An idempotent response
+   MUST NOT return the existing registration's credentials, such as its
+   registration_access_token member.  A common default is one
+   registration per iss and sub, per tenant on a multi-tenant server, at
+   the cost Section 11.1 describes.
 
-   *  Once the effective expiry passes without a replacement
-      (Section 3.3), the authorization server MUST reject authorization,
-      token, and pushed authorization requests and [RFC7592] update
-      requests under the registration, other than a request carrying a
-      replacement, which Section 3.3 evaluates before this rejection:
+   If the registration a request repeats is a public-client registration
+   (Section 3.2), the authorization server MUST NOT create another
+   registration and handles the request by its statement, once the
+   statement validates:
 
-      -  They are rejected with statement_required ([STATEMENT]), except
-         that an [RFC7592] update request is rejected with
-         invalid_software_statement, since the governing statement is
-         expired or refused.
+    +=======================+=========================================+
+    | Statement in the      | Outcome                                 |
+    | repeated request      |                                         |
+    +=======================+=========================================+
+    | The governing         | The existing registration is returned   |
+    | statement, identified |                                         |
+    | by its iss and jti    |                                         |
+    +-----------------------+-----------------------------------------+
+    | A statement with a    | Evaluated as a replacement (Section 6); |
+    | later iat than the    | the renewed registration is returned or |
+    | governing statement's | the request is rejected (Section 7)     |
+    +-----------------------+-----------------------------------------+
+    | Any other statement   | The request is rejected                 |
+    | with an iat no later  |                                         |
+    | than the governing    |                                         |
+    | statement's           |                                         |
+    +-----------------------+-----------------------------------------+
 
-      -  An authorization request carrying the software_statement
-         parameter is rejected with invalid_request instead, as
-         [STATEMENT] provides.
+                                  Table 2
 
-      -  [RFC7592] read and delete requests remain available for a
-         client to learn its registration's state and end it.
+4.  Registration Validity
 
-      -  At the token and pushed authorization request endpoints, the
-         client is first authenticated against the retained
-         registration, and a request that fails that authentication is
-         rejected with invalid_client, as for an unknown client.
+   The following validity model applies to every statement-governed
+   registration:
 
-   *  The authorization server SHOULD retain the expired registration
-      for a later authenticated renewal (Section 11.4).  A valid
-      replacement restores the registration (Section 3.3), so no grace
-      period is needed.
+   *  The registration's effective expiry (Section 2 of [STATEMENT]) is
+      that of its governing statement.
 
-   At the authorization endpoint, the rejection is returned in the
-   authorization error response (Section 4.1.2.1 of [RFC6749]).  The
-   authorization server redirects with it only after validating the
-   request's redirect_uri against the retained registration.  If it
-   cannot do so, it MUST NOT redirect and reports the error to the
-   resource owner instead.  The client then delivers a replacement as
-   Section 3.3 provides.
+   *  The registration is valid until its governing statement ceases to
+      be current (Section 2 of [STATEMENT]), and so at most until that
+      effective expiry.
 
-   If the server holds a refusal record for the governing statement
-   ([STATEMENT]), the registration ceases to be valid as it does at its
-   effective expiry, and Section 3.3 is the recovery path.  The client
-   learns of the withdrawal only from the rejection.  The disposition of
-   outstanding grants is local policy.
+   *  Once the registration has ceased to be valid, the authorization
+      server MUST reject, at step 4 of Section 5, authorization, token,
+      and pushed authorization requests and [RFC7592] update requests
+      under it, unless a replacement the request delivers has restored
+      it at step 3.
 
-   A server that uses a withdrawal mechanism for the governing
-   statement's issuer SHOULD consult it for that statement at each token
-   request under the registration, as [STATEMENT] provides for refresh.
+   *  The authorization server SHOULD retain a registration that has
+      ceased to be valid, so that a replacement can restore it.
 
-   If an authorization server creates a confidential-client registration
-   that permits no grant obtaining tokens without an authorization
-   request or refresh token, such as the client credentials grant or an
-   assertion grant, and for which it does not support [RFC7592] update
-   requests, it MUST publish the pushed_authorization_request_endpoint
-   metadata value.  That registration's client could otherwise renew
-   only while it holds a refresh token (Section 3.3).  A public-client
-   registration can also renew through a repeated registration request
-   (Section 3.1).
+   *  Ceasing to be valid does not expire the registration's
+      credentials, including its registration access token, and does not
+      by itself revoke access tokens already issued under the
+      registration.
 
-   The authorization server MUST return a registration_expires_at member
-   in the [RFC7591] registration response and in the response to any
-   request that renews the registration or carries its governing
-   statement (Section 3.3), and SHOULD return it in any [RFC7592] read
-   or update response it supports.  The registration_expires_at member
-   is a NumericDate (Section 2 of [RFC7519]) giving the latest time the
-   registration remains valid.  For a registration that has ceased to be
-   valid, the value is the time it ceased.  The server can cap the
-   lifetime it honors for the issuer ([STATEMENT]), so a client cannot
-   compute this boundary from the statement alone.
+   *  Removing the governing statement's issuer from trust
+      configuration, or narrowing what it can attest, does not by itself
+      end the registration.  A server ends it by its own means, such as
+      deleting it.
 
-   A server that records a required issuer for a tenant ([STATEMENT])
-   MUST reject an authorization, token, or pushed authorization request,
-   or an [RFC7592] update request, in that tenant under any registration
-   for software in a covered namespace unless, once any replacement the
-   request delivers has been evaluated (Section 3.3), a current
-   statement from the required issuer governs the registration.  This
-   rule applies whatever tenant the registration was created in and
-   whenever the requirement was configured.  The server rejects such a
-   request as this section rejects one under an expired registration:
-   with statement_required ([STATEMENT]), or with
-   invalid_software_statement for an [RFC7592] update request.  Without
-   this rule, withholding the required issuer's statement would keep
-   such a registration in use after the issuer withdrew or stopped
-   renewing its decision.  A registration governed by another issuer's
-   statement cannot satisfy the requirement, since a replacement keeps
-   the governing statement's iss.
+   If a request that carries no replacement is rejected because the
+   registration has ceased to be valid, the rejection MUST NOT by itself
+   cause the authorization server to revoke refresh tokens as it does on
+   detecting refresh-token replay (Section 4.14.2 of [RFC9700]).
 
-3.3.  Renewal
+   If the authorization server records a required issuer for a tenant
+   (Section 4 of [STATEMENT]), it MUST reject an authorization, token,
+   or pushed authorization request, or an [RFC7592] update request, in
+   that tenant under any statement-governed registration whose governing
+   statement's sub falls within a covered namespace, unless a current
+   statement from the required issuer governs the registration as step 3
+   of Section 5 leaves it.  This rule applies whatever tenant the
+   registration was created in and whenever the requirement was
+   configured.  Without this rule, withholding the required issuer's
+   statement would keep such a registration in use after the issuer
+   withdrew or stopped renewing its decision.
+
+   Neither the validity model nor the required-issuer rule rejects
+   [RFC7592] read and delete requests.
+
+   The registration_expires_at member is a NumericDate (Section 2 of
+   [RFC7519]) giving the latest time the registration remains valid or,
+   for a registration that has ceased to be valid, the time it ceased.
+   The authorization server:
+
+   *  MUST return registration_expires_at in the [RFC7591] registration
+      response and in the successful response to any request that renews
+      the registration or carries its governing statement (Section 6).
+
+   *  SHOULD return it in any other [RFC7592] read or update response it
+      supports.
+
+5.  Requests Under a Registration
+
+   The authorization server MUST process an authorization, token, or
+   pushed authorization request, or an [RFC7592] update request, under a
+   statement-governed registration in the following order, stopping at
+   the first step that rejects the request or treats it as from a client
+   the server has not registered:
+
+   1.  If the registration is restricted to a tenant (Section 3.1) and
+       the request, including one that delivers a statement, is made in
+       another tenant, it MUST treat the request as from a client it has
+       not registered.
+
+   2.  It authenticates a token or pushed authorization request under
+       the registration's own client authentication method, and an
+       [RFC7592] update request as [RFC7592] requires, against the
+       retained registration even if the registration has ceased to be
+       valid.  A token or pushed authorization request under a public-
+       client registration has no client credential to authenticate
+       (Section 3.2).
+
+   3.  It classifies any statement the request delivers by its claims,
+       before validating it, and evaluates a replacement (Section 6).  A
+       replacement applied at this step stands even if a later step, or
+       the request's grant, rejects the request.
+
+   4.  It applies the rejections of Section 4 to the registration as
+       step 3 leaves it.  If the request is made in a tenant where the
+       authorization server requires a tenant-scoped decision
+       (Section 3.2 of [STATEMENT]) and the registration, as step 3
+       leaves it, carries no tenant restriction, it MUST treat the
+       request as from a client it has not registered.
+
+   5.  It evaluates the request against the registration's metadata.
+
+6.  Renewal
 
    A client renews a statement-governed registration by delivering a
-   replacement statement in one of the following:
+   replacement statement in one of the following, authenticated as step
+   2 of Section 5 provides:
 
    *  The software_statement parameter of a token request under the
-      registration, authenticated as the registered client under the
-      registration's own method.
+      registration.
 
-   *  The software_statement parameter of an authenticated pushed
-      authorization request [RFC9126] under the registration.
+   *  The software_statement parameter of a pushed authorization request
+      [RFC9126] under the registration.
 
-   *  The software_statement member of an authenticated [RFC7592] update
-      request, if the deployment offers registration management.
+   *  The software_statement member of an [RFC7592] update request, if
+      the deployment offers registration management.
 
-   A statement with the governing statement's iss and sub and an iat no
-   later than the governing statement's iat is not a replacement.  The
-   authorization server leaves the registration unchanged and treats a
-   request as carrying no replacement in either of the following cases,
-   so that the request proceeds while the registration is valid and is
-   rejected as Section 3.2 provides once it is not:
+   A delivery is a registration use of the statement (Section 3 of
+   [STATEMENT]).  A registration request is not a delivery, and renews
+   an existing registration only as Section 3.3 provides for a public-
+   client registration.  A statement neither renews nor alters a
+   registration that is not statement-governed, and runtime presentation
+   (Section 5 of [STATEMENT]) alters no registration's metadata.
 
-   *  The request carries the governing statement itself, identified by
-      its iss and jti.  A client sends it, for example, after losing the
-      response to the request that renewed the registration, or by
-      attaching its current statement to later requests.
+   The authorization server treats a delivered statement as the first
+   matching row of the following table provides:
 
-   *  The request is an [RFC7592] update request carrying such a
-      statement.  An update request repeats, unmodified, the statement
-      that a registration, read, or update response returned
-      (Section 3.2.1 of [RFC7591]; Section 2.2 of [RFC7592]).  After a
-      token or pushed authorization request has renewed the
-      registration, that statement can be older than the governing
-      statement.
+      +=======================================+=====================+
+      | Statement delivered                   | Treatment           |
+      +=======================================+=====================+
+      | The governing statement itself,       | No replacement      |
+      | identified by its iss and jti         |                     |
+      +---------------------------------------+---------------------+
+      | In an [RFC7592] update request, any   | No replacement      |
+      | statement with the governing          |                     |
+      | statement's iss and sub and an iat no |                     |
+      | later than the governing statement's  |                     |
+      +---------------------------------------+---------------------+
+      | At the token or pushed authorization  | Earlier than the    |
+      | request endpoint, any other statement | governing           |
+      | with the governing statement's iss    | statement.  The     |
+      | and sub and an earlier iat            | request is rejected |
+      +---------------------------------------+---------------------+
+      | A statement with the governing        | A replacement,      |
+      | statement's iss and sub and a later   | evaluated below     |
+      | iat                                   |                     |
+      +---------------------------------------+---------------------+
+      | Any other statement, such as one with | Fails the           |
+      | another iss or sub                    | replacement rules   |
+      |                                       | below               |
+      +---------------------------------------+---------------------+
 
-   Any other statement older than the governing statement is superseded
-   under the iat floor of [STATEMENT], and a request carrying it at the
-   token or pushed authorization request endpoint is rejected with
-   statement_required.
+                                  Table 3
 
-   An [RFC7592] read or update response returns the governing statement
-   as its software_statement member.
+   An [RFC7592] update request repeats the statement a previous response
+   returned (Section 3.2.1 of [RFC7591]; Section 2.2 of [RFC7592]),
+   which can be older than the governing statement.  An [RFC7592] read
+   or update response returns the governing statement as its
+   software_statement member.
 
    The replacement MUST satisfy the following:
 
-   *  It validates under the validation rules of [STATEMENT], including
-      its audience if it carries one, and is not superseded under the
-      iat floor of [STATEMENT].
+   *  It validates under Section 3.2 of [STATEMENT].
 
    *  The iss and sub claims equal those of the governing statement.
 
@@ -485,164 +534,135 @@ Table of Contents
    *  Its document declares token_endpoint_auth_method of none if and
       only if the governing statement's document does.
 
-   For a replacement, the authorization server MUST do the following:
+   *  For a public-client registration that carries no tenant
+      restriction, its decision is not confined to a tenant
+      (Section 3.1).
 
-   *  Obtain the Client ID Metadata Document at the replacement's sub as
-      Section 3 requires.
-
-   *  Verify that the digest of the retrieved octets equals the
-      replacement's cimd_digest.
-
-   *  Re-derive the registration's metadata from those same octets,
-      under the rules of Section 3.
+   *  Its document, from which the registration's metadata is derived,
+      satisfies the rules of Section 3.
 
    Renewing on the statement alone would leave in the registration a
    key, redirection URI, or scope that the new review removed.
 
-   On success, the replacement becomes the governing statement: the
-   authorization server MUST replace the recorded identity, iat,
-   effective expiry, and derived metadata with the replacement's, and
-   apply any tenant restriction it adds (Section 3), in a single atomic
-   update, and concurrent deliveries resolve to the most recently issued
-   statement.
+   A request whose replacement fails the rules above is rejected
+   (Section 7) whether or not the registration has ceased to be valid.
+   A rejected delivery leaves the governing statement unchanged.
+
+   When a replacement satisfies these rules, the authorization server
+   MUST, in a single atomic update, make it the governing statement and
+   give the registration the replacement's effective expiry, the
+   metadata derived from its document (Section 3), and any tenant
+   restriction it adds (Section 3.1).  Concurrent deliveries resolve to
+   the most recently issued statement.  A valid replacement restores a
+   registration that has ceased to be valid.
 
    Access issued under the registration after that update, including on
    refresh of a grant issued before it, MUST fall within the re-derived
-   metadata, as [STATEMENT] requires of a refreshed grant.
+   metadata.
 
-   When a request under an expired registration contains a replacement,
-   the authorization server MUST authenticate the client against the
-   retained registration and evaluate the replacement before applying
-   the expiry rejection.  A valid replacement therefore restores the
-   registration.  An omitted or invalid replacement does not.
+   If every grant a confidential-client registration permits needs an
+   authorization request or a refresh token, and the authorization
+   server does not support [RFC7592] update requests for the
+   registration, the server MUST support pushed authorization requests
+   [RFC9126] for the registration.  Otherwise such a client, if it holds
+   no refresh token, could not restore a registration that has ceased to
+   be valid.  A public-client registration also renews through a
+   repeated registration request (Section 3.3).
 
-   When a request under an expired registration carries no replacement,
-   its rejection (Section 3.2) MUST NOT by itself cause the
-   authorization server to revoke refresh tokens as it does on detecting
-   refresh-token replay (Section 4.14.2 of [RFC9700]).  The client
-   recovers by delivering a valid replacement.
-
-   A request whose replacement fails the rules above is rejected whether
-   or not the registration has expired.  The client then learns of the
-   failure at once and can tell a bad replacement from a missing one.
-   At the token and pushed authorization request endpoints, such a
-   request is rejected with statement_required, or with
-   temporarily_unavailable if a retrieval needed to check the
-   replacement did not complete for a reason other than the size bound
-   of [STATEMENT].  At the client configuration endpoint, it is rejected
-   with the codes of Section 6.  A rejected delivery leaves the
-   governing statement unchanged.
-
-   A registration request is not a delivery: it never renews an existing
-   registration, except a public-client registration (Section 3.1).
-
-4.  Statements from a Registered or Admitted Client
-
-   A client registered through [RFC7591], or admitted under its Client
-   ID Metadata Document URL as its client_id, can still carry a
-   statement.  Runtime presentation ([STATEMENT]) does not alter a
-   registration's metadata.  At the token and pushed authorization
-   request endpoints, a statement carried under a registration is
-   rejected with invalid_request ([STATEMENT]) if carrying it is neither
-   a runtime presentation nor a delivery (Section 3.3).  At the client
-   configuration endpoint, a statement from an issuer the server does
-   not accept for the client is rejected with
-   unapproved_software_statement (Section 6).
-
-   For a statement-governed registration, a statement carried in a
-   location Section 3.3 lists is a delivery: one from the governing
-   statement's issuer can renew the registration, and one from another
-   issuer fails the replacement rules of Section 3.3.  While the
-   registration is valid, its governing statement is current, even after
-   a later statement has raised the iat floor of [STATEMENT], and
-   satisfies any requirement the server has for a current statement on
-   refresh.
-
-   A registration created without a statement is not statement-governed:
-   a statement neither renews nor alters it and is not a delivery.  For
-   such a registration, the server applies a reviewed change, if at all,
-   through its own registration policy, deriving metadata only from a
-   reviewed document (Section 3).
-
-5.  Repeated Registration
-
-   One unexpired statement can be consumed more than once, subject to
-   the bounds [STATEMENT] describes and the server's registration policy
-   (Section 10.1).  A repeated public-client registration is answered
-   with the existing registration as Section 3.1 provides.  An
-   idempotent response MUST NOT return the existing registration's
-   credentials, such as its registration_access_token member.
-
-6.  Error Responses
+7.  Error Responses
 
    A rejection this specification defines, at a client registration
    endpoint or at the client configuration endpoint of [RFC7592], uses
    the error response of Section 3.2.2 of [RFC7591], with the HTTP
-   status code that section specifies.  An authorization server SHOULD
-   respond with HTTP status code 503 to a request it rejects with the
-   temporarily_unavailable error code.
+   status code that section specifies, except that an authorization
+   server SHOULD respond with HTTP status code 503 to a request it
+   rejects with the temporarily_unavailable error code.  Such a
+   rejection uses the following error codes:
 
-   Rejections of a registration management request for other reasons use
-   the responses [RFC7592] specifies.  Rejections at other endpoints use
-   the error responses of [STATEMENT], and registration expiry is
-   reported as Section 3.2 defines.
+   invalid_software_statement:  Any of the following:
 
-   An authorization server rejecting a registration request, or a
-   registration management request carrying a failing replacement, uses
-   the following error codes:
+      *  The statement is malformed, fails signature or claim validation
+         for a reason unapproved_software_statement does not cover, is
+         expired or otherwise not current (Section 2 of [STATEMENT]), or
+         is superseded under an extension the server implements.
 
-   invalid_software_statement:  The statement is malformed, fails
-      signature or claim validation for a reason
-      unapproved_software_statement does not cover, or is expired,
-      refused by a refusal record, or superseded under the iat floor of
-      [STATEMENT].  The code also applies when the digest of the
-      retrieved document does not match the statement's cimd_digest
-      claim, and when a replacement delivered at the client
-      configuration endpoint, or a statement in a repeated public-client
-      registration request evaluated as one (Section 3.1), fails a
-      replacement-specific rule of Section 3.3 that this section assigns
-      no other code, such as a sub claim that differs from the governing
-      statement's or a change in whether the document declares
-      token_endpoint_auth_method of none.
+      *  The document's digest does not equal the statement's
+         cimd_digest claim (Section 3).
 
-   unapproved_software_statement:  The statement is valid but not
+      *  An [RFC7592] update request is rejected under Section 4.
+
+      *  A statement delivered at the client configuration endpoint, or
+         the statement of a repeated public-client registration request
+         evaluated as a replacement (Section 3.3), fails the replacement
+         rules of Section 6 where this section assigns no other code,
+         such as a change in whether the document declares
+         token_endpoint_auth_method of none.
+
+      *  The statement of a repeated public-client registration request
+         is not the governing statement and has an iat no later than the
+         governing statement's (Section 3.3).
+
+   unapproved_software_statement:  The statement is well formed but not
       acceptable here: its issuer is not configured, its aud excludes
-      this server, its sub is outside the issuer's scope, its aud_tenant
-      is not this request's tenant or is absent when required, its
-      issuer is confined to another tenant, or its statement_uses
-      excludes this use.  This code is also used if a statement this
-      server requires is absent from a registration request.
+      this server, its sub is outside the client identifier namespaces
+      the issuer can attest, its aud_tenant is not this request's tenant
+      or is absent when required, its issuer is confined to another
+      tenant, or its statement_uses excludes this use.  This code is
+      also used if a statement this server requires is absent from a
+      registration request, if Section 3 forbids creating the
+      registration because a required issuer covers the statement's sub
+      and the statement is from another issuer, or if the server's
+      policy refuses a repeated registration request (Section 3.3).
 
    invalid_client_metadata:  Any of the following holds for the reviewed
       document:
 
-      *  It contains duplicate member names ([STATEMENT]).
+      *  It contains duplicate member names (Section 5.2 of
+         [STATEMENT]).
 
-      *  It fails validation as [CIMD] requires, including a client_id
-         member that does not match the statement's sub (Section 3).
+      *  It fails validation as [CIMD] requires (Section 3).
 
       *  It carries metadata this server's policy refuses.
 
-      *  It exceeds the server's size bound ([STATEMENT]).  Retrying
-         cannot succeed.
+      *  It cannot be obtained, including over the server's size bound,
+         for a reason other than a retrieval that did not complete
+         (Section 5.3 of [STATEMENT]).
 
       *  It omits token_endpoint_auth_method (Section 3).
 
       *  It declares token_endpoint_auth_method of none and the server
-         does not register it under Section 3.1.
+         registers no public clients under Section 3.2.
 
-      *  It declares token_endpoint_auth_method of none and lists no
-         redirection URI (Section 3.1).
-
-      *  It carries a redirection URI another application could claim
-         (Section 3).
+   invalid_redirect_uri:  The reviewed document carries a redirection
+      URI another application could claim (Section 3), or declares
+      token_endpoint_auth_method of none and lists no redirection URI
+      (Section 3.2).
 
    temporarily_unavailable:  A retrieval the request needs did not
-      complete, for a reason other than the size bound of [STATEMENT].
+      complete (Section 5.3 of [STATEMENT]).
 
-7.  Example
+   Rejections at other endpoints use the error responses of Section 6 of
+   [STATEMENT].  At the token and pushed authorization request
+   endpoints, a request that fails the authentication of step 2 of
+   Section 5 is rejected with invalid_client.  Subject to the order of
+   Section 6 of [STATEMENT], a token, pushed authorization, or
+   authorization request is rejected with statement_required
+   (Section 6.1 of [STATEMENT]) if:
 
-7.1.  Renewing a Statement-Governed Registration
+   *  its registration has ceased to be valid, or the required-issuer
+      rule rejects it (Section 4), or
+
+   *  its delivered statement is earlier than the governing statement or
+      fails the replacement rules (Section 6).
+
+   At the authorization endpoint, the redirect_uri is validated against
+   the registration's redirection URIs before an error is redirected
+   (Section 4.1.2.1 of [RFC6749]).
+
+   Rejections of a registration management request for other reasons use
+   the responses [RFC7592] specifies.
+
+8.  Example
 
    The following is a non-normative example of a registered client,
    whose client_id is s6BhdRkqt3, renewing its registration by
@@ -663,174 +683,152 @@ Table of Contents
    &software_statement=eyJ0eXAiOiJzb2Z0d2FyZS1zdGF0ZW1l...
 
    The authorization server validates the replacement and re-derives the
-   registration's metadata (Section 3.3), returning the new validity
-   boundary in the registration_expires_at member of the token response.
-   After expiry, the same request without a replacement would fail with
-   statement_required (Section 3.2).
+   registration's metadata (Section 6), returning the registration's new
+   expiry in the registration_expires_at member of the token response.
+   Once the registration has ceased to be valid, the same request
+   without a replacement is rejected with statement_required
+   (Section 7).
 
-8.  Authorization Server Metadata
+9.  Authorization Server Metadata
 
    This specification defines the following authorization server
    metadata [RFC8414] value:
 
-   software_statement_registration_validity_supported:  OPTIONAL.
-      Boolean value indicating whether the authorization server supports
-      this specification, under which every registration it creates from
-      a statement validated under [STATEMENT] is governed by the
-      validity and renewal rules of Section 3.2 and Section 3.3.  If
-      omitted, the default value is false.  A value of true does not
-      imply support for runtime presentation.
-
-9.  Implementation Considerations
-
-   This section gives guidance to implementers.  It adds no requirement.
-
-9.1.  Registration State
-
-   To apply the validity model (Section 3.2), an authorization server
-   stores with each statement-governed registration the governing
-   statement's iss, jti, sub, and iat claims, any claim by which a
-   withdrawal mechanism locates that statement, such as status, the
-   registration's effective expiry, and any tenant the registration is
-   restricted to.  Renewal compares a delivered statement against these
-   (Section 3.3).
+   software_statement_registration_supported:  OPTIONAL.  Boolean value
+      indicating whether the authorization server supports this
+      specification.  If omitted, the default value is false.  A value
+      of true means every registration the server creates from a
+      statement of the profile in Section 3 of [STATEMENT] is statement-
+      governed, and does not imply support for runtime presentation.
 
 10.  Deployment Considerations
 
    This section gives guidance to operators.  It adds no requirement.
 
-10.1.  Repeated Registration Policy
-
-   The safe default is one registration per (iss, sub) at one
-   authorization server.  On repeated consumption, except for a public-
-   client registration (Section 3.1), local policy can reject the
-   request, treat it as idempotent, or create another registration.  A
-   repeated request can come from any holder of a copy of the statement.
-
-10.2.  Credentials for Statement-Governed Registrations
-
-   Deployments ought to pair statement-governed registrations with
-   credential rotation, sender-constrained client authentication, and
-   the bounds that [STATEMENT] and Section 10.1 describe, and ought to
-   treat a credential compromise as requiring re-registration rather
-   than renewal (Section 11.2).
-
-10.3.  Renewal Cadence
-
-   A statement-governed registration lapses when its governing
-   statement's effective expiry passes (Section 3.2).  A client that has
-   not delivered a replacement by then is refused at that server until
-   it does, so an issuer outage longer than the remaining lifetime takes
-   such registrations out of service.  The lifetimes an issuer chooses
-   set the renewal cadence ([STATEMENT]).  A deployment ought to have
-   clients renew well before effective expiry, and ought to weigh that
-   cadence against how quickly a narrowed or withdrawn review needs to
-   take effect.
+   An issuer outage longer than a statement-governed registration's
+   remaining lifetime makes the registration cease to be valid
+   (Section 4) until the client delivers a replacement (Section 6).  The
+   lifetimes an issuer chooses set the renewal cadence (Section 12.3 of
+   [STATEMENT]).  A deployment ought to have clients renew well before
+   effective expiry, and ought to weigh that cadence against how quickly
+   a narrowed or withdrawn review needs to take effect.
 
 11.  Security Considerations
 
-   The security considerations of [STATEMENT] and Section 5 of [RFC7591]
-   apply.
+   The security considerations of Section 13 of [STATEMENT] and
+   Section 5 of [RFC7591] apply.
 
 11.1.  Statements at Registration
 
    A statement consumed at registration is a reusable bearer artifact
    until it expires.  Its audience, lifetime, and statement_uses claim
-   ([STATEMENT]) and the registration policy of Section 10.1 limit what
-   a stolen statement can create.
+   (Section 3 of [STATEMENT]) and the registration policy of Section 3.3
+   limit what a copied statement can create.  A statement a client
+   publishes at its software_statements_uri (Section 5.5 of [STATEMENT])
+   can be read by anyone, so an issuer ought not to permit registration
+   in such a statement.
 
-   Under the one-registration default (Section 10.1), whoever first
+   Taking every value from the document prevents metadata substitution.
+   A request-supplied value for a member the document omits, such as a
+   jwks member beside a document naming only jwks_uri, would give any
+   holder of a copy a registration with reviewed branding and the
+   holder's own key.  Registering a document that omits
+   token_endpoint_auth_method under the [RFC7591] default would register
+   a shared-secret method, which [CIMD] forbids (Section 4.1 of [CIMD])
+   and the issuer never reviewed.  An issuer that omits aud from a
+   statement permitting registration accepts that any server trusting
+   the issuer can register the software on the strength of a copy.
+
+   Under the one-registration default (Section 3.3), whoever first
    registers with a copy of a statement holds that registration and its
    registration access token, and can keep the software's publisher from
-   registering at that server.  Such a holder cannot authenticate as the
-   client if the reviewed document's authentication method requires a
-   key the document carries.
+   registering there.  Such a holder cannot authenticate as the client
+   if the reviewed document's authentication method requires a key the
+   document carries.
 
    If the publisher's statement permits presentation and the server
    supports it, the publisher's software can still be admitted through
-   runtime presentation ([STATEMENT]).  Otherwise, recovery requires
-   intervention by the server's operator or a registration policy other
-   than the one-registration default.  This specification defines no way
-   to displace such a registration.
+   runtime presentation (Section 5 of [STATEMENT]).  Otherwise, recovery
+   requires intervention by the server's operator or a registration
+   policy other than the one-registration default.  This specification
+   defines no way to displace such a registration.
 
-   A public-client registration (Section 3.1) has no credential to take
-   and is answered idempotently, so its first registrant gains nothing
-   over later ones.  Any holder of a copy can use it, as any party can
-   use a public client's identifier.  Authorization codes under it reach
-   only the reviewed redirection URIs, and its grants are bound to keys
-   that installations hold.  A holder of a copy therefore gains what it
-   would gain at runtime, including the exposure the copied-statement
-   considerations of [STATEMENT] describe for a holder that controls the
-   user agent.
+   A public-client registration (Section 3.2) has no credential to take,
+   and a repeated request is answered with it (Section 3.3), so its
+   first registrant gains nothing over later ones.  Any holder of a copy
+   can use it.  Authorization codes under it reach only the reviewed
+   redirection URIs, and its grants are bound to keys that installations
+   hold.  A holder of a copy therefore gains what it would gain at
+   runtime, including the exposure Section 13.4 of [STATEMENT] describes
+   for a holder that controls the user agent.
 
-11.2.  Renewal Authenticates the Credential
+11.2.  Credential Theft and Renewal
 
    Renewal proves possession of the registration's credential and the
    currency of a statement sharing the governing statement's iss and
    sub, not that the renewing party is the reviewed software.  An
    attacker holding a stolen client credential can renew indefinitely
-   with any current statement for that software.  Such statements are
-   distributed to every deployment of the software.  A public-client
-   registration has no credential, so its renewal proves only that the
-   replacement is current.  No protection is lost, since any party can
-   already use that registration.
+   with the newer statements distributed to every deployment of the
+   software.  A public-client registration's renewal proves only that
+   the replacement is current.  No protection is lost, since any party
+   can already use that registration.
 
-   Section 10.2 describes deployment practice that limits this exposure.
-   Runtime presentation ([STATEMENT]) binds every presenter to the
-   reviewed document, through a key it carries or its reviewed
-   redirection URIs, and so does not have this limitation, though the
-   redirection binding does not hold against a party that controls the
-   user agent.
+   A narrower review takes effect at a registration when the client
+   delivers it or when the governing statement ceases to be current.
+   Withdrawal before then requires an extension (Section 9 of
+   [STATEMENT]).
+
+   Deployments ought to pair statement-governed registrations with
+   credential rotation, sender-constrained client authentication, and
+   the bounds that Sections 11.2 and 11.3 of [STATEMENT] and Section 3.3
+   describe, and ought to treat a credential compromise as requiring re-
+   registration rather than renewal.  Runtime presentation binds every
+   presenter to the reviewed document (Sections 5.6 and 13.4 of
+   [STATEMENT]) and so does not have this limitation.
 
 11.3.  Registration Fraud and Impersonation
 
    Open registration permits client_name, logo_uri, and client_uri
    values that imitate trusted software on consent screens (Section 5 of
    [RFC7591]).  Requiring a statement replaces self-asserted branding
-   with issuer-reviewed values.  Servers that render such values on
+   with issuer-reviewed values, though content served at a URL the
+   document carries, such as a logo, can change after review
+   (Section 13.1 of [STATEMENT]).  Servers that render such values on
    consent screens ought to prefer those from a reviewed document and to
    apply heightened scrutiny to registrations that claim user-visible
    branding without a statement.
 
-   Requiring a statement also means each new client identity needs
-   another issuer decision, so a removed client cannot register again
-   under a new identity without one.  A statement does not make metadata
-   true: a client that misleads the issuer's review can obtain a genuine
-   statement for fraudulent metadata, so a statement is only as reliable
-   as the issuer's verification.
+   Requiring a statement also means a removed client cannot register
+   again under a new client identifier URL without another issuer
+   decision.
 
 11.4.  Observable State
 
-   A retained expired registration is distinguishable from an unknown
-   client (Section 3.2).  At the token and pushed authorization request
-   endpoints, only a requester that authenticates as the registration's
-   client can observe this, and what it learns is the state it must act
-   on.  A public-client registration has no credential, so anyone can
-   observe its state there, as anyone can at the authorization endpoint.
+   A retained registration that has ceased to be valid is
+   distinguishable from an unknown client (Section 5, Section 7).  At
+   the token and pushed authorization request endpoints, only a
+   requester that authenticates as the registration's client can observe
+   this, except for a public-client registration.  At the authorization
+   endpoint, anyone who sends an authorization request naming the client
+   and one of its registered redirection URIs learns from the
+   statement_required redirection that the registration has ceased to be
+   valid.  If an observer knows the governing statement's exp, a lapse
+   before that time shows that an extension ended the statement or that
+   the server caps the lifetime it honors for the issuer.
 
-   At the authorization endpoint, anyone who can send an authorization
-   request naming the client and one of its registered redirection URIs
-   receives the statement_required redirection (Section 3.2), and so
-   learns that the registration has lapsed.  If an observer knows the
-   governing statement's exp, a lapse before it shows that the server
-   either holds a refusal record for the statement or caps the lifetime
-   it honors for the issuer.
-
-   The disclosures above are accepted for the reason [STATEMENT] gives
-   for its own statement_required refusal: a client that cannot learn
-   why it was refused cannot act.  Servers publishing
-   software_statement_registration_validity_supported also disclose that
-   statement-governed registrations expire there, which a client needs
-   to know before registering.  Beyond a lapse and its timing, these
-   disclosures reveal nothing of the server's issuer trust
-   configuration, which [STATEMENT] keeps from unauthenticated
-   requesters.
+   As at runtime (Section 13.8 of [STATEMENT]), these disclosures are
+   accepted, and they reveal nothing of the server's issuer trust
+   configuration beyond the fact and time that the registration ceased
+   to be valid (Section 6.6 of [STATEMENT]).  Publishing
+   software_statement_registration_supported discloses that statement-
+   governed registrations expire there, which a client needs to know
+   before registering.
 
 12.  Privacy Considerations
 
-   The privacy considerations of [STATEMENT] and Section 6 of [RFC7591]
-   apply.  A registration request reveals to the authorization server
-   the same information as a runtime presentation.
+   The privacy considerations of Section 14 of [STATEMENT] and Section 6
+   of [RFC7591] apply.  A registration request reveals to the
+   authorization server the same information as a runtime presentation.
 
 13.  IANA Considerations
 
@@ -844,15 +842,11 @@ Table of Contents
    Client Metadata Name:  registration_expires_at
 
    Client Metadata Description:  Latest time at which a statement-
-      governed registration remains valid, as a NumericDate.  A
-      withdrawal can end it earlier.  Returned in a client registration
-      response, in a registration management response, and in the token
-      or pushed authorization request response to a request that renews
-      the registration or carries its governing statement.
+      governed registration remains valid, as a NumericDate.
 
    Change Controller:  IETF
 
-   Specification Document(s):  This specification, Section 3.2
+   Specification Document(s):  This specification, Section 4
 
 13.2.  OAuth Parameters Registry
 
@@ -868,7 +862,7 @@ Table of Contents
 
    Change Controller:  IETF
 
-   Specification Document(s):  This specification, Section 3.2
+   Specification Document(s):  This specification, Section 4
 
 13.3.  OAuth Authorization Server Metadata Registry
 
@@ -876,17 +870,15 @@ Table of Contents
    the IANA "OAuth Authorization Server Metadata" registry established
    by [RFC8414]:
 
-   Metadata Name:  software_statement_registration_validity_supported
+   Metadata Name:  software_statement_registration_supported
 
    Metadata Description:  Boolean value indicating whether the
-      authorization server supports this specification, under which
-      every registration it creates from a Client ID Metadata Document
-      software statement is governed by this specification's validity
-      and renewal rules.
+      authorization server supports Client ID Metadata Document software
+      statement registration.
 
    Change Controller:  IETF
 
-   Specification Document(s):  This specification, Section 8
+   Specification Document(s):  This specification, Section 9
 
 13.4.  OAuth Extensions Error Registry
 
@@ -905,7 +897,7 @@ Table of Contents
 
    Change Controller:  IETF
 
-   Specification Document(s):  [RFC6749], this specification (Section 6)
+   Specification Document(s):  [RFC6749], this specification (Section 7)
 
 14.  References
 
@@ -935,11 +927,6 @@ Table of Contents
               RFC 7591, DOI 10.17487/RFC7591, July 2015,
               <https://www.rfc-editor.org/rfc/rfc7591>.
 
-   [RFC7636]  Sakimura, N., Ed., Bradley, J., and N. Agarwal, "Proof Key
-              for Code Exchange by OAuth Public Clients", RFC 7636,
-              DOI 10.17487/RFC7636, September 2015,
-              <https://www.rfc-editor.org/rfc/rfc7636>.
-
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
               May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
@@ -953,11 +940,6 @@ Table of Contents
               and F. Skokan, "OAuth 2.0 Pushed Authorization Requests",
               RFC 9126, DOI 10.17487/RFC9126, September 2021,
               <https://www.rfc-editor.org/rfc/rfc9126>.
-
-   [RFC9449]  Fett, D., Campbell, B., Bradley, J., Lodderstedt, T.,
-              Jones, M., and D. Waite, "OAuth 2.0 Demonstrating Proof of
-              Possession (DPoP)", RFC 9449, DOI 10.17487/RFC9449,
-              September 2023, <https://www.rfc-editor.org/rfc/rfc9449>.
 
    [RFC9700]  Lodderstedt, T., Bradley, J., Labunets, A., and D. Fett,
               "Best Current Practice for OAuth 2.0 Security", BCP 240,
@@ -977,12 +959,6 @@ Table of Contents
               "OAuth 2.0 Dynamic Client Registration Management
               Protocol", RFC 7592, DOI 10.17487/RFC7592, July 2015,
               <https://www.rfc-editor.org/rfc/rfc7592>.
-
-Acknowledgments
-
-   This specification was separated from [STATEMENT], where registration
-   consumption was first defined, so that runtime admission could be
-   implemented without it.
 
 Author's Address
 
