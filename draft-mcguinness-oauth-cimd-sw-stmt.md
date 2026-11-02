@@ -552,7 +552,7 @@ The following is an example of a CIMD that names where its statements are publis
 {
   "client_id": "https://client.example/app",
   "redirect_uris": ["https://client.example/cb"],
-  "token_endpoint_auth_method": "private_key_jwt",
+  "token_endpoint_auth_methods_supported": ["private_key_jwt"],
   "jwks_uri": "https://client.example/jwks.json",
   "software_statements_uri":
     "https://client.example/statements.json"
@@ -573,7 +573,7 @@ An authorization server receiving an ordinary authorization request with this `c
 
 ## Statement Header and Payload
 
-The following is an example of the JOSE header and payload of a statement over the document in the previous example, served exactly as shown there, with two-space indentation, LF line endings, and a single final newline, and without any indentation added for display (274 octets):
+The following is an example of the JOSE header and payload of a statement over the document in the previous example, served exactly as shown there, with two-space indentation, LF line endings, and a single final newline, and without any indentation added for display (287 octets):
 
 ~~~ json
 {
@@ -592,7 +592,7 @@ The following is an example of the JOSE header and payload of a statement over t
   "iat": 1790812800,
   "exp": 1793404800,
   "jti": "c2a907b34d28",
-  "cimd_digest": "vBIuTBeHfYmEC8CPwbfa2a9XciuKfGTEGf-qGij4N_Q"
+  "cimd_digest": "DHPektjuDKWb2ZSp3nQs-hSrZ_tJE5nOv5-H_J83zn0"
 }
 ~~~
 
