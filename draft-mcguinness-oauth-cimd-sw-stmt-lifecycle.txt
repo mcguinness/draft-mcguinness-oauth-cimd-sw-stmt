@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         2 November 2026
-Expires: 6 May 2027
+Intended status: Standards Track                         4 November 2026
+Expires: 8 May 2027
 
 
         Client ID Metadata Document Software Statement Lifecycle
@@ -44,7 +44,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 6 May 2027.
+   This Internet-Draft will expire on 8 May 2027.
 
 Copyright Notice
 
@@ -1191,9 +1191,9 @@ Table of Contents
    [REGISTRATION]
               McGuinness, K., "Client ID Metadata Document Software
               Statement Registration", Work in Progress, Internet-Draft,
-              draft-mcguinness-oauth-cimd-sw-stmt-registration-00, 2
+              draft-mcguinness-oauth-cimd-sw-stmt-registration-01, 2
               November 2026, <https://datatracker.ietf.org/doc/html/
-              draft-mcguinness-oauth-cimd-sw-stmt-registration-00>.
+              draft-mcguinness-oauth-cimd-sw-stmt-registration-01>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -1242,9 +1242,9 @@ Table of Contents
    [STATEMENT]
               McGuinness, K., "Client ID Metadata Document Software
               Statement", Work in Progress, Internet-Draft, draft-
-              mcguinness-oauth-cimd-sw-stmt-00, 2 November 2026,
+              mcguinness-oauth-cimd-sw-stmt-01, 2 November 2026,
               <https://datatracker.ietf.org/doc/html/draft-mcguinness-
-              oauth-cimd-sw-stmt-00>.
+              oauth-cimd-sw-stmt-01>.
 
    [STATUSLIST]
               Looker, T., Bastian, P., and C. Bormann, "Token Status
