@@ -255,7 +255,7 @@ Designating an issuer delegates to it a decision about client software, beyond t
 
 ## Changed and Split Documents
 
-The digest comparison detects a document that changed between the two servers' retrievals. It also detects a document served differently to the two, which Section 4.5 of {{CIMD}} forbids. A changed document fails the comparison until the IdP Authorization Server issues an ID-JAG over the current one.
+The digest comparison detects a document that changed between the two servers' retrievals. It also detects a document served differently to the two, which Section 4.5 of {{CIMD}} forbids. A changed document fails the comparison until the IdP Authorization Server issues an ID-JAG over the current one. The comparison covers exact octets by design, as for a statement (Sections 3.1 and 13.1 of {{STATEMENT}}): reformatting the document, or changing a member such as `logo_uri`, fails it as surely as a new key does. A client whose ID-JAG is rejected with `invalid_grant` after it changed its document requests a new one (Sections 4.4.3 and 4.4.4 of {{IDJAG}}).
 
 If the IdP Authorization Server keeps digesting octets it held before the change, its ID-JAGs keep failing at every server that designates it and does not permit ordinary admission after a mismatch. The client requests one new ID-JAG and then stops (Section 4.4.4 of {{IDJAG}}), so the failure lasts as long as the IdP Authorization Server reuses the earlier octets ({{claim}}).
 
