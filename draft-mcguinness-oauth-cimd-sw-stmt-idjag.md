@@ -113,7 +113,7 @@ Vouched admission applies to a CIMD client the server holds no registration for.
 
 ## Processing Rules {#processing}
 
-A Resource Authorization Server that relies on the claim processes a token request redeeming an ID-JAG, for a CIMD client it holds no registration for, as follows, rejecting at the first failure ({{errors}}):
+A Resource Authorization Server that relies on the claim processes a token request redeeming an ID-JAG, for a CIMD client it holds no registration for, as follows, rejecting at the first failure ({{errors}}). Step 1 validates the ID-JAG, steps 2 to 4 decide whether the server admits the client on the claim, and steps 5 and 6 limit what it issues. Admitting the client does not authorize access, which the ID-JAG and the server's policy decide (Section 4.4.1 of {{IDJAG}}).
 
 1. Validate the ID-JAG as Section 4.4 of {{IDJAG}} requires, including the verification of any `cnf` claim, except for the checks that depend on client authentication: the client continuity check of Section 4.4.1 of {{IDJAG}}, and the rejection in Section 4.4 of {{IDJAG}} of a request that has neither client authentication nor a sender-constrained ID-JAG. The server completes these deferred checks before it issues an access token on any path.
 2. Determine whether the ID-JAG carries the claim and its issuer is a designated issuer for the client in the tenant ({{trust-configuration}}). If not, use ordinary admission.
