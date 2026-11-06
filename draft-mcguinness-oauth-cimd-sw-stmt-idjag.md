@@ -131,25 +131,20 @@ The server MUST NOT issue a refresh token in response to a request it admits on 
 
 A rejection uses the error response of Section 5.2 of {{RFC6749}}. A failure of the validation that Section 4.4 or Section 9.11 of {{IDJAG}} requires uses the error code that {{IDJAG}} assigns.
 
-For a rejection this specification defines, the server uses `temporarily_unavailable` if a retrieval of the document, or of the key set at its `jwks_uri`, did not complete (Section 5.3 of {{STATEMENT}}), and responds with HTTP status code 503, as Section 6 of {{STATEMENT}} requires. Otherwise, it uses the following error codes:
+For a rejection this specification defines, the server uses `temporarily_unavailable` if a retrieval of the document, or of the key set at its `jwks_uri`, did not complete (Section 5.3 of {{STATEMENT}}), and responds with HTTP status code 503, as Section 6 of {{STATEMENT}} requires. Otherwise, it uses the error code that the following table assigns to the step of {{processing}} at which the request fails or leaves the vouched path, whether the server rejects it at that step or under ordinary admission. The "Vouching required" column applies when the server's policy requires a vouched admission, and the "Not required" column applies otherwise. "Ordinary" means that the server uses ordinary admission, for which this specification assigns no error code.
 
-`invalid_client`:
-: Any of the following:
+| Failure | Vouching required | Not required |
+| --- | --- | --- |
+| Step 2: no claim, from an issuer designated for the client in the tenant | `invalid_grant` | Ordinary |
+| Step 2: issuer not designated for the client in the tenant | `access_denied` | Ordinary |
+| Step 3: document not obtained or invalid (Section 6.1 of {{CIMD}}), or with duplicate member names (Section 5.2 of {{STATEMENT}}) | `invalid_client` | `invalid_client` |
+| Step 3: digest mismatch | `invalid_grant` | `invalid_grant`, or ordinary where policy permits |
+| Step 4: vouched document permits no method that step 4 allows | `access_denied` | Ordinary |
+| Step 4: client does not authenticate as step 4 requires | `invalid_client` | `invalid_client` |
+| Step 5: grant type not in `grant_types` | `unauthorized_client` | `unauthorized_client` |
+| Step 6: narrowing leaves nothing to grant | `invalid_scope` | `invalid_scope` |
 
-  * The document cannot be obtained or fails validation as {{CIMD}} requires (Section 6.1 of {{CIMD}}), or contains duplicate member names ({{processing}}).
-  * The client does not authenticate as step 4 of {{processing}} requires.
-
-`invalid_grant`:
-: The ID-JAG's issuer is a designated issuer for the client in the tenant, and either the server's policy requires a vouched admission and the ID-JAG carries no claim, or the server rejects the request at step 3 of {{processing}} because the claim's digest does not match the document. A re-issued ID-JAG may resolve the error (Section 4.4.3 of {{IDJAG}}), because the IdP Authorization Server can include the claim, or compute it over the document it then holds.
-
-`access_denied`:
-: The server's policy requires a vouched admission, and either the ID-JAG's issuer is not a designated issuer for the client in the tenant ({{trust-configuration}}) or the vouched document permits no method that step 4 of {{processing}} allows. A re-issued ID-JAG will not resolve the error.
-
-`unauthorized_client`:
-: The request's grant type is not in the vouched document's `grant_types` member.
-
-`invalid_scope`:
-: The server would otherwise grant some scope, narrowing under step 6 of {{processing}} removes all of it, and no authorization details remain to grant.
+A re-issued ID-JAG may resolve an `invalid_grant` error that the table assigns (Section 4.4.3 of {{IDJAG}}), because the IdP Authorization Server can include the claim, or compute it over the document it then holds. A re-issued ID-JAG will not resolve an `access_denied` error that the table assigns.
 
 # Examples {#example}
 
