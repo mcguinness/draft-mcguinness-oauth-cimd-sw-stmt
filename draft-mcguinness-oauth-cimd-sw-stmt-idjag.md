@@ -36,6 +36,7 @@ normative:
   STATEMENT: I-D.mcguinness-oauth-cimd-sw-stmt
 
 informative:
+  I-D.parecki-oauth-jwt-dpop-grant:
   RFC7523:
 
 --- abstract
@@ -96,6 +97,7 @@ An IdP Authorization Server MUST NOT include the claim unless all of the followi
 * The ID-JAG's `client_id` claim is a client identifier URL (Section 3 of {{CIMD}}) and is the client identifier under which the client authenticated in the Token Exchange request (Section 4.3.3 of {{IDJAG}}), not one mapped from it (Section 5.1 of {{IDJAG}}).
 * In that request, the client authenticated with a method that proves possession of a key the document carries (Section 5.6.1 of {{STATEMENT}}), such as `private_key_jwt`.
 * The claim's value is the metadata digest of the octets of the document that carries that key, in its `jwks` member or at its `jwks_uri`, as the IdP Authorization Server obtained them for that authentication, not of octets from another retrieval.
+* If the IdP Authorization Server binds the ID-JAG to a DPoP key (Section 9.11.1 of {{IDJAG}}), the document's `grant_types` member includes `urn:ietf:params:oauth:grant-type:jwt-dpop` ({{I-D.parecki-oauth-jwt-dpop-grant}}), which Section 4.4 of {{IDJAG}} requires for redeeming such an ID-JAG.
 
 The client therefore uses its client identifier URL at the IdP Authorization Server as well, including for the identity assertion or refresh token it exchanges (Section 4.3.3 of {{IDJAG}}).
 
@@ -150,7 +152,7 @@ For a rejection this specification defines, the server uses the first of the fol
 
 Where the server would otherwise grant only authorization details, step 6 uses `invalid_authorization_details` (Section 6 of {{RFC9396}}) in place of `invalid_scope`.
 
-A re-issued ID-JAG may resolve an `invalid_grant` error that the table assigns (Section 4.4.3 of {{IDJAG}}), because the IdP Authorization Server can include the claim, or compute it over the document it then holds. A re-issued ID-JAG will not resolve an `access_denied` error that the table assigns.
+A re-issued ID-JAG may resolve an `invalid_grant` error that the table assigns (Section 4.4.3 of {{IDJAG}}), because the IdP Authorization Server can include the claim, or compute it over the document it then holds, unless {{claim}} requires it to omit the claim. A re-issued ID-JAG will not resolve an `access_denied` error that the table assigns.
 
 # Examples {#example}
 
