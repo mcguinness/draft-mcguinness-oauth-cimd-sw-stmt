@@ -125,7 +125,7 @@ A Resource Authorization Server that relies on the claim processes a token reque
 
 For ordinary admission, the server obtains the document if it has not already done so and MUST apply its policy for CIMD clients it holds no registration for as if the ID-JAG carried no claim: nothing from the claim, the designation, or a failed comparison counts toward admitting the client. The remaining steps and the refresh-token rule below then do not apply, but the deferred checks of step 1 still do. If that policy requires a vouched admission, the server rejects the request ({{errors}}).
 
-The server MUST NOT issue a refresh token in response to a request it admits on the claim, even if the request also presents a statement ({{relationship}}). A vouched admission does not admit a later request, even if the server keeps a record of the admission, such as for audit. A later request, including a re-submission of the same ID-JAG (Section 4.4.4 of {{IDJAG}}), repeats this processing, and can use document octets the server holds within the bounds of Section 5.3 of {{STATEMENT}}.
+The server MUST NOT issue a refresh token in response to a request it admits on the claim, even if the request also presents a statement ({{relationship}}). A vouched admission does not admit a later request, even if the server keeps a record of the admission, such as for audit. Each request, including a re-submission of the same ID-JAG (Section 4.4.4 of {{IDJAG}}), repeats this processing.
 
 # Error Responses {#errors}
 
