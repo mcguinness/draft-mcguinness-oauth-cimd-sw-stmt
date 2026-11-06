@@ -230,7 +230,7 @@ A Resource Authorization Server MAY require both. A token request that redeems a
 
 # Security Considerations
 
-The security considerations of {{IDJAG}}, {{CIMD}}, and {{STATEMENT}} apply.
+The security considerations of {{IDJAG}}, {{CIMD}}, and {{STATEMENT}} apply, and every retrieval this specification causes inherits the protections of Section 5.3 of {{STATEMENT}}.
 
 ## Assurance Provided by a Vouched Admission
 
@@ -240,7 +240,7 @@ The following table states what a vouched admission does and does not establish:
 | --- | --- |
 | A designated issuer decided to issue the ID-JAG for this client with this document | Yes |
 | The document the server retrieved is the one that decision covered, octet for octet | Yes |
-| The presenter controls a key the document carries | Yes, before any token is issued, though not necessarily the key used at the IdP Authorization Server. A `jwks_uri` attests only the keys' location ({{key-locations}}) |
+| The presenter controls a key the document carries | Yes, before any token is issued, though not necessarily the key used at the IdP Authorization Server ({{client-authentication}}, {{key-locations}}) |
 | The issuer reviewed the configuration beyond deciding to issue the grant | Only as the designation agreement provides ({{issuer-designation}}) |
 | The running software is the software the issuer evaluated | No |
 | The client may access a particular resource | No; the ID-JAG's authorization and the server's policy decide |
@@ -248,7 +248,7 @@ The following table states what a vouched admission does and does not establish:
 
 ## Client Authentication at Both Servers {#client-authentication}
 
-Possession of the key bound to a sender-constrained ID-JAG shows that the presenter holds the key the IdP Authorization Server bound to the ID-JAG for the client (Section 9.1 of {{IDJAG}}), and that key need not appear in the client's document. A vouched admission takes the client's metadata from the vouched document, so it requires the presenter to prove a key that same document carries ({{processing}}). The Resource Authorization Server thereby verifies for itself that the presenter controls the client the document describes, rather than relying on the IdP Authorization Server's earlier authentication. The two authentications show control of keys the same document authorizes, not necessarily of the same key: the document can carry several keys, and the key set at a `jwks_uri` can change between them ({{key-locations}}). For `private_key_jwt`, Section 5 of {{CIMD}} already requires this check of a server that supports the method when a document declares it. For other methods, such as `self_signed_tls_client_auth`, this specification adds it.
+Possession of the key bound to a sender-constrained ID-JAG shows that the presenter holds the key the IdP Authorization Server bound to the ID-JAG for the client (Section 9.1 of {{IDJAG}}), and that key need not appear in the client's document. Because a vouched admission takes the client's metadata from the vouched document, the Resource Authorization Server requires proof of a key that document carries ({{processing}}), and so verifies for itself, not through the IdP Authorization Server's earlier authentication, that the presenter controls the client the document describes. Both authentications prove a key the document carries, but not necessarily the same key: the document can carry several keys, and the key set at a `jwks_uri` can change between the two authentications ({{key-locations}}). For `private_key_jwt`, Section 5 of {{CIMD}} already requires this check of a server that supports the method when a document declares it. For other methods, such as `self_signed_tls_client_auth`, this specification adds it.
 
 ## Issuer Designation {#issuer-designation}
 
@@ -268,11 +268,7 @@ Neither expiry nor the end of vouching invalidates an access token already issue
 
 ## Key Locations {#key-locations}
 
-A document's `jwks_uri` member is attested as a location, not as contents (Section 13.2 of {{STATEMENT}}). The IdP Authorization Server and the Resource Authorization Server can obtain different key sets from that location, and an update to the key set can change which keys the Resource Authorization Server accepts, without any change to the digest. Requiring both servers to take keys from the vouched document does not prevent this. A deployment that needs the vouched document to fix the keys themselves uses a document that carries them inline in `jwks`, as in {{example}}.
-
-## Retrieval
-
-Every retrieval this specification causes inherits the protections of Section 5.3 of {{STATEMENT}}.
+The IdP Authorization Server and the Resource Authorization Server can obtain different key sets from a document's `jwks_uri`, which the digest attests only as a location (Section 13.2 of {{STATEMENT}}), and an update to the key set can change which keys the Resource Authorization Server accepts, without any change to the digest. Requiring both servers to take keys from the vouched document does not prevent this. A deployment that needs the vouched document to fix the keys themselves uses a document that carries them inline in `jwks`, as in {{example}}.
 
 # Privacy Considerations
 
