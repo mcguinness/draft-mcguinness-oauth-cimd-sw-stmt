@@ -131,13 +131,16 @@ The server MUST NOT issue a refresh token in response to a request it admits on 
 
 A rejection uses the error response of Section 5.2 of {{RFC6749}}. A failure of the validation that Section 4.4 or Section 9.11 of {{IDJAG}} requires uses the error code that {{IDJAG}} assigns.
 
-For a rejection this specification defines, the server uses `temporarily_unavailable` if a retrieval of the document, or of the key set at its `jwks_uri`, did not complete (Section 5.3 of {{STATEMENT}}), and responds with HTTP status code 503, as Section 6 of {{STATEMENT}} requires. Otherwise, it uses the error code that the following table assigns to the step of {{processing}} at which the request fails or leaves the vouched path, whether the server rejects it at that step or under ordinary admission. The "Vouching required" column applies when the server's policy requires a vouched admission, and the "Not required" column applies otherwise. "Ordinary" means that the server uses ordinary admission, for which this specification assigns no error code.
+For a rejection this specification defines, the server uses the first of the following that applies:
+
+1. `temporarily_unavailable`, if a retrieval of the document, or of the key set at its `jwks_uri`, did not complete (Section 5.3 of {{STATEMENT}}). The server responds with HTTP status code 503, as Section 6 of {{STATEMENT}} requires.
+2. `invalid_client`, if the document cannot be obtained, fails validation as {{CIMD}} requires (Section 6.1 of {{CIMD}}), or contains duplicate member names (Section 5.2 of {{STATEMENT}}), whether at step 3 of {{processing}} or under ordinary admission.
+3. The code that the following table assigns to the step of {{processing}} at which the request fails or leaves the vouched path. The "Vouching required" column applies when the server's policy requires a vouched admission, and the "Not required" column applies otherwise. For a step that leaves the vouched path, a "Vouching required" cell applies only when ordinary admission then rejects the request because the policy requires a vouched admission. "Ordinary" means that the server uses ordinary admission, for which this specification assigns no error code.
 
 | Failure | Vouching required | Not required |
 | --- | --- | --- |
 | Step 2: no claim, from an issuer designated for the client in the tenant | `invalid_grant` | Ordinary |
 | Step 2: issuer not designated for the client in the tenant | `access_denied` | Ordinary |
-| Step 3: document not obtained or invalid (Section 6.1 of {{CIMD}}), or with duplicate member names (Section 5.2 of {{STATEMENT}}) | `invalid_client` | `invalid_client` |
 | Step 3: digest mismatch | `invalid_grant` | `invalid_grant`, or ordinary where policy permits |
 | Step 4: vouched document permits no method that step 4 allows | `access_denied` | Ordinary |
 | Step 4: client does not authenticate as step 4 requires | `invalid_client` | `invalid_client` |
