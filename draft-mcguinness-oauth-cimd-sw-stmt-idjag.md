@@ -47,11 +47,13 @@ This specification defines how an identity provider that issues an Identity Asse
 
 An Identity Assertion JWT Authorization Grant {{IDJAG}} lets a client obtain, from an identity provider that two trust domains share, an assertion of a user's identity and a delegation to a resource authorization server. The grant names the client in its `client_id` claim. A client identified by a Client ID Metadata Document (CIMD) {{CIMD}} uses its client identifier URL at both servers, so no mapping between them is needed (Section 5.1 of {{IDJAG}}).
 
-The grant tells the Resource Authorization Server that the identity provider issued it for that client. It does not say which client metadata that decision covered. The Resource Authorization Server retrieves the client's document itself, and that document can differ from the one the identity provider relied on. A Resource Authorization Server that admits CIMD clients only when a party it trusts has evaluated them has no such party in the request.
+The grant tells the Resource Authorization Server that the identity provider issued it for that client, but not which client metadata that decision covered. The Resource Authorization Server retrieves the client's document itself, and that document can differ from the one the identity provider relied on. A Resource Authorization Server that requires a trusted party's evaluation before admitting a CIMD client has no such party in the request.
 
 {{STATEMENT}} defines a software statement that binds an issuer's review to the octets of a CIMD through the `cimd_digest` claim. A statement serves when the reviewer is not in the request path (Section 10.2 of {{STATEMENT}}). When the identity provider that issues the grant is the party that decides about the client, it can carry the same claim in the grant it already signs.
 
-This specification defines the claim's meaning in an ID-JAG and when an identity provider includes it ({{claim}}), and how a Resource Authorization Server admits a client on it ({{admission}}). At a minimum, the claim shows that the identity provider issued the grant with these octets as the client's metadata. The claim does not by itself show that the identity provider reviewed the configuration, and it admits the client only at a Resource Authorization Server that has delegated client admission to the identity provider ({{trust-configuration}}), under that server's policy. Any further evaluation is part of the agreement under which the server designates the identity provider ({{issuer-designation}}). An ordinary ID-JAG redemption can rely on a sender-constrained ID-JAG instead of client authentication (Section 4.4 of {{IDJAG}}), but a vouched admission requires the client to authenticate at the Resource Authorization Server with a key its document carries, as at the identity provider, though not necessarily the same key ({{client-authentication}}).
+This specification defines the claim's meaning in an ID-JAG and when an identity provider includes it ({{claim}}), and how a Resource Authorization Server admits a client on it ({{admission}}). At a minimum, the claim shows that the identity provider issued the grant with these octets as the client's metadata, but not by itself that the identity provider reviewed the configuration. Any further evaluation is part of the agreement under which a Resource Authorization Server designates the identity provider ({{issuer-designation}}), and only a server that has delegated client admission to the identity provider in this way admits a client on the claim, under its own policy ({{trust-configuration}}).
+
+A redemption of an ID-JAG can rely on a sender-constrained ID-JAG in place of client authentication (Section 4.4 of {{IDJAG}}), but a vouched admission requires the client to authenticate at the Resource Authorization Server with a key its document carries ({{client-authentication}}).
 
 This specification extends {{STATEMENT}} and {{IDJAG}} and changes neither. A server that does not implement it ignores the claim (Section 4 of {{RFC7519}}).
 
@@ -69,7 +71,7 @@ The following non-normative sequence summarizes a vouched admission:
 
 {::boilerplate bcp14-tagged}
 
-This specification uses terminology from {{RFC6749}} (OAuth), {{CIMD}} (Client ID Metadata Documents), and {{IDJAG}} (IdP Authorization Server, Resource Authorization Server, and ID-JAG), and the term Permitted Method defined in Section 2 of {{STATEMENT}}.
+This specification uses terminology from {{RFC6749}} (OAuth), {{CIMD}} (Client ID Metadata Documents), {{IDJAG}} (IdP Authorization Server, Resource Authorization Server, and ID-JAG), and Section 2 of {{STATEMENT}} (Permitted Method and Required Issuer).
 
 This specification defines the following terms.
 
