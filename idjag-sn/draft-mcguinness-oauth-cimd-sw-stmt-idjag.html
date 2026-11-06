@@ -1374,7 +1374,18 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <a href="#section-5" class="section-number selfRef">5. </a><a href="#name-error-responses" class="section-name selfRef">Error Responses</a>
       </h2>
 <p id="section-5-1">A rejection uses the error response of Section 5.2 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>. A failure of the validation that Section 4.4 or Section 9.11 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span> requires uses the error code that <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span> assigns.<a href="#section-5-1" class="pilcrow">¶</a></p>
-<p id="section-5-2">For a rejection this specification defines, the server uses <code>temporarily_unavailable</code> if a retrieval of the document, or of the key set at its <code>jwks_uri</code>, did not complete (Section 5.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), and responds with HTTP status code 503, as Section 6 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> requires. Otherwise, it uses the error code that the following table assigns to the step of <a href="#processing" class="auto internal xref">Section 4.2</a> at which the request fails or leaves the vouched path, whether the server rejects it at that step or under ordinary admission. The "Vouching required" column applies when the server's policy requires a vouched admission, and the "Not required" column applies otherwise. "Ordinary" means that the server uses ordinary admission, for which this specification assigns no error code.<a href="#section-5-2" class="pilcrow">¶</a></p>
+<p id="section-5-2">For a rejection this specification defines, the server uses the first of the following that applies:<a href="#section-5-2" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-5-3">
+<li id="section-5-3.1">
+          <p id="section-5-3.1.1"><code>temporarily_unavailable</code>, if a retrieval of the document, or of the key set at its <code>jwks_uri</code>, did not complete (Section 5.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). The server responds with HTTP status code 503, as Section 6 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> requires.<a href="#section-5-3.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li id="section-5-3.2">
+          <p id="section-5-3.2.1"><code>invalid_client</code>, if the document cannot be obtained, fails validation as <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> requires (Section 6.1 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>), or contains duplicate member names (Section 5.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), whether at step 3 of <a href="#processing" class="auto internal xref">Section 4.2</a> or under ordinary admission.<a href="#section-5-3.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li id="section-5-3.3">
+          <p id="section-5-3.3.1">The code that the following table assigns to the step of <a href="#processing" class="auto internal xref">Section 4.2</a> at which the request fails or leaves the vouched path. The "Vouching required" column applies when the server's policy requires a vouched admission, and the "Not required" column applies otherwise. For a step that leaves the vouched path, a "Vouching required" cell applies only when ordinary admission then rejects the request because the policy requires a vouched admission. "Ordinary" means that the server uses ordinary admission, for which this specification assigns no error code.<a href="#section-5-3.3.1" class="pilcrow">¶</a></p>
+</li>
+      </ol>
 <table class="center" id="table-1">
         <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
 <thead>
@@ -1398,15 +1409,6 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
               <code>access_denied</code>
 </td>
             <td class="text-left" rowspan="1" colspan="1">Ordinary</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Step 3: document not obtained or invalid (Section 6.1 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>), or with duplicate member names (Section 5.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>)</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_client</code>
-</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_client</code>
-</td>
           </tr>
           <tr>
             <td class="text-left" rowspan="1" colspan="1">Step 3: digest mismatch</td>
@@ -1453,7 +1455,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
           </tr>
         </tbody>
       </table>
-<p id="section-5-4">A re-issued ID-JAG may resolve an <code>invalid_grant</code> error that the table assigns (Section 4.4.3 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span>), because the IdP Authorization Server can include the claim, or compute it over the document it then holds. A re-issued ID-JAG will not resolve an <code>access_denied</code> error that the table assigns.<a href="#section-5-4" class="pilcrow">¶</a></p>
+<p id="section-5-5">A re-issued ID-JAG may resolve an <code>invalid_grant</code> error that the table assigns (Section 4.4.3 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span>), because the IdP Authorization Server can include the claim, or compute it over the document it then holds. A re-issued ID-JAG will not resolve an <code>access_denied</code> error that the table assigns.<a href="#section-5-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="example">
