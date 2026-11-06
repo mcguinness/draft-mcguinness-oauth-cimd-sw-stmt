@@ -4,12 +4,11 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         5 November 2026
-Expires: 9 May 2027
+Intended status: Standards Track                         6 November 2026
+Expires: 10 May 2027
 
 
-     Client ID Metadata Document Digests in Identity Assertion JWT
-                          Authorization Grants
+   Client ID Metadata Document Vouching in Identity Assertion Grants
             draft-mcguinness-oauth-cimd-sw-stmt-idjag-latest
 
 Abstract
@@ -41,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 9 May 2027.
+   This Internet-Draft will expire on 10 May 2027.
 
 Copyright Notice
 
