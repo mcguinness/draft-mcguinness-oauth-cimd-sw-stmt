@@ -1,5 +1,5 @@
 ---
-title: "Client ID Metadata Document Digests in Identity Assertion JWT Authorization Grants"
+title: "Client ID Metadata Document Vouching in Identity Assertion Grants"
 abbrev: oauth-cimd-sw-stmt-idjag
 docname: draft-mcguinness-oauth-cimd-sw-stmt-idjag-latest
 category: std
