@@ -331,10 +331,11 @@ Table of Contents
        document has an authorization_details_types member (Section 10 of
        [RFC9396]), the server MUST NOT issue authorization details of a
        type the member does not list, and it narrows the authorization
-       details it would otherwise grant to meet this rule.  If the
-       server would otherwise grant some scope or authorization details
-       and narrowing removes all of them, the server MUST reject the
-       request.
+       details it would otherwise grant to meet this rule, removing any
+       scope it derives only from authorization details that narrowing
+       removes (Section 4.4.1 of [IDJAG]).  If the server would
+       otherwise grant some scope or authorization details and narrowing
+       removes all of them, the server MUST reject the request.
 
    For ordinary admission, the server obtains the document if it has not
    already done so and MUST apply its policy for CIMD clients it holds
