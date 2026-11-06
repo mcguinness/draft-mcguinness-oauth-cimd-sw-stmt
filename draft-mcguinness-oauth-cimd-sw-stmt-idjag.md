@@ -30,6 +30,7 @@ normative:
   RFC6749:
   RFC7519:
   RFC7591:
+  RFC9396:
   CIMD: I-D.ietf-oauth-client-id-metadata-document
   IDJAG: I-D.ietf-oauth-identity-assertion-authz-grant
   STATEMENT: I-D.mcguinness-oauth-cimd-sw-stmt
@@ -121,7 +122,7 @@ A Resource Authorization Server that relies on the claim processes a token reque
 3. Obtain the document at the URL in the `client_id` claim, by retrieval or from octets the server holds within the bounds of Section 5.3 of {{STATEMENT}}, and validate it as {{CIMD}} requires. The server MUST reject a document containing duplicate member names (Section 5.2 of {{STATEMENT}}). Then compare its digest with the claim, as Section 5.2 of {{STATEMENT}} requires for a statement's `sub` and `cimd_digest` claims. If held octets do not match, the server retrieves the document once more and applies this step to the retrieved document. If the digests do not match, the server SHOULD reject the request ({{errors}}), even if its policy does not require a vouched admission ({{changed-documents}}). A server whose policy permits ordinary admission after a mismatch uses it instead.
 4. If the vouched document permits no method other than `none` that the server supports and its policy allows, use ordinary admission. Otherwise, the server MUST require the client to authenticate with such a method, proving possession of a key the vouched document carries (Section 5.6.1 of {{STATEMENT}}; {{client-authentication}}), and then completes the deferred checks.
 5. The server MUST reject the request unless its grant type appears in the vouched document's `grant_types` member, including the grant type that Section 4.4 of {{IDJAG}} requires for an ID-JAG bound to a DPoP key. A document that omits the member permits only `authorization_code` (Section 2 of {{RFC7591}}), so it permits no redemption of an ID-JAG.
-6. If the vouched document has a `scope` member, the server MUST NOT issue an access token whose scope falls outside it. The server narrows the scope it would otherwise grant (Section 4.4.1 of {{IDJAG}}) to meet this rule and removes any authorization details it derives from a scope that narrowing removes. Other authorization details the ID-JAG carries are granted as Section 4.4.1 of {{IDJAG}} and the server's policy decide, so a grant expressed only through authorization details is unaffected. If the server would otherwise grant some scope, narrowing removes all of it, and no authorization details remain to grant, the server MUST reject the request.
+6. If the vouched document has a `scope` member, the server MUST NOT issue an access token whose scope falls outside it. The server narrows the scope it would otherwise grant (Section 4.4.1 of {{IDJAG}}) to meet this rule and removes any authorization details it derives from a scope that narrowing removes. If the vouched document has an `authorization_details_types` member (Section 10 of {{RFC9396}}), the server MUST NOT issue authorization details of a type the member does not list, and it narrows the authorization details it would otherwise grant to meet this rule. If the server would otherwise grant some scope or authorization details and narrowing removes all of them, the server MUST reject the request.
 
 For ordinary admission, the server obtains the document if it has not already done so and MUST apply its policy for CIMD clients it holds no registration for as if the ID-JAG carried no claim: nothing from the claim, the designation, or a failed comparison counts toward admitting the client. The remaining steps and the refresh-token rule below then do not apply, but the deferred checks of step 1 still do. If that policy requires a vouched admission, the server rejects the request ({{errors}}).
 
@@ -146,6 +147,8 @@ For a rejection this specification defines, the server uses the first of the fol
 | Step 4: client does not authenticate as step 4 requires | `invalid_client` | `invalid_client` |
 | Step 5: grant type not in `grant_types` | `unauthorized_client` | `unauthorized_client` |
 | Step 6: narrowing leaves nothing to grant | `invalid_scope` | `invalid_scope` |
+
+Where the server would otherwise grant only authorization details, step 6 uses `invalid_authorization_details` (Section 6 of {{RFC9396}}) in place of `invalid_scope`.
 
 A re-issued ID-JAG may resolve an `invalid_grant` error that the table assigns (Section 4.4.3 of {{IDJAG}}), because the IdP Authorization Server can include the claim, or compute it over the document it then holds. A re-issued ID-JAG will not resolve an `access_denied` error that the table assigns.
 
