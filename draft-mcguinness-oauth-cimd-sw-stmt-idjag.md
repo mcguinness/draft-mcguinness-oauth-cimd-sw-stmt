@@ -111,7 +111,7 @@ A Resource Authorization Server MUST NOT rely on the claim unless its trust conf
 
 A designation can confine the issuer to client identifier namespaces, as defined in Section 4 of {{STATEMENT}}. The server then MUST NOT rely on the claim for a client identifier URL outside them. An issuer is a designated issuer for a client in a tenant when a designation of it covers that tenant and, if the designation lists namespaces, the client identifier URL falls within one of them.
 
-Vouched admission applies to a CIMD client the server holds no registration for, and the server's policy can require it for such a client ({{errors}}). For a registered client, the registration governs and the server ignores the claim.
+Vouched admission applies to a CIMD client the server holds no registration for. The server's policy can require it for such clients in a tenant, or for those within particular client identifier namespaces in a tenant ({{errors}}). For a registered client, the registration governs and the server ignores the claim. A record the server keeps of a vouched admission, or document octets it caches from a retrieval, is not by itself a registration.
 
 ## Processing Rules {#processing}
 
@@ -138,7 +138,7 @@ For a rejection this specification defines, the server uses the first of the fol
 
 1. `temporarily_unavailable`, if a retrieval of the document, or of the key set at its `jwks_uri`, did not complete (Section 5.3 of {{STATEMENT}}). The server responds with HTTP status code 503, as Section 6 of {{STATEMENT}} requires.
 2. `invalid_client`, if the document cannot be obtained, fails validation as {{CIMD}} requires (Section 6 of {{CIMD}}), contains duplicate member names (Section 5.2 of {{STATEMENT}}), or permits no token endpoint authentication method that the server supports and its policy allows (Section 5 of {{CIMD}}), whether at step 3 or 4 of {{processing}} or under ordinary admission. Validation includes the check that the document's `grant_types` member shares a value with the grant types the server supports.
-3. The code that the following table assigns to the step of {{processing}} at which the request fails or leaves the vouched path. The "Vouching required" column applies when the server's policy requires a vouched admission, and the "Not required" column applies otherwise. For a step that leaves the vouched path, a "Vouching required" cell applies only when ordinary admission then rejects the request because the policy requires a vouched admission. "Ordinary" means that the server uses ordinary admission, for which this specification assigns no error code.
+3. The code that the following table assigns to the step of {{processing}} at which the request fails or leaves the vouched path. The "Vouching required" column applies when the server's policy requires a vouched admission for the client, and the "Not required" column applies otherwise. For a step that leaves the vouched path, a "Vouching required" cell applies only when ordinary admission then rejects the request because the policy requires a vouched admission. "Ordinary" means that the server uses ordinary admission, for which this specification assigns no error code.
 
 | Failure | Vouching required | Not required |
 | --- | --- | --- |
