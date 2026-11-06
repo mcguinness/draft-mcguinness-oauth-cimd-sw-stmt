@@ -4,15 +4,15 @@ title: Reviewed Client Software
 
 <Info>**Status**: Draft</Info>
 
-<Note>This extension depends on draft-mcguinness-oauth-cimd-sw-stmt-00 and uses draft-mcguinness-oauth-cimd-sw-stmt-lifecycle-00 for withdrawal. Its references are pinned to those -00 revisions and to draft-ietf-oauth-client-id-metadata-document-02, and it will be proposed through the MCP SEP process.</Note>
+<Note>This extension depends on draft-mcguinness-oauth-cimd-sw-stmt-01 and uses draft-mcguinness-oauth-cimd-sw-stmt-lifecycle-01 for withdrawal. Its references are pinned to those -01 revisions and to draft-ietf-oauth-client-id-metadata-document-03, and it will be proposed through the MCP SEP process.</Note>
 
 ## 1. Introduction
 
 ### 1.1 Purpose and Scope
 
-This document defines an application of "[CIMD Software Statement](https://www.ietf.org/archive/id/draft-mcguinness-oauth-cimd-sw-stmt-00.html)" for the Model Context Protocol (MCP). It lets an MCP authorization server admit an MCP client on the strength of a review by a party the server trusts, bound to the exact Client ID Metadata Document that party reviewed, without the client registering and, in the common case, without the client sending anything new.
+This document defines an application of "[CIMD Software Statement](https://www.ietf.org/archive/id/draft-mcguinness-oauth-cimd-sw-stmt-01.html)" for the Model Context Protocol (MCP). It lets an MCP authorization server admit an MCP client on the strength of a review by a party the server trusts, bound to the exact Client ID Metadata Document that party reviewed, without the client registering and, in the common case, without the client sending anything new.
 
-MCP recommends identifying clients by [Client ID Metadata Document](https://www.ietf.org/archive/id/draft-ietf-oauth-client-id-metadata-document-02.html) and has deprecated Dynamic Client Registration. A metadata document says what a client claims about itself. This profile adds who reviewed those claims, and lets a server tell whether the document it fetched today is the one that was reviewed.
+MCP recommends identifying clients by [Client ID Metadata Document](https://www.ietf.org/archive/id/draft-ietf-oauth-client-id-metadata-document-03.html) and has deprecated Dynamic Client Registration. A metadata document says what a client claims about itself. This profile adds who reviewed those claims, and lets a server tell whether the document it fetched today is the one that was reviewed.
 
 A review answers a question about software: who vouched for this client, and against which bytes. It does not answer whether a particular user or organization may use the client right now. Where an enterprise identity provider mediates access, [Enterprise-Managed Authorization](https://github.com/modelcontextprotocol/ext-auth/blob/main/specification/stable/enterprise-managed-authorization.mdx) answers that second question, and this profile composes with it (Section 5).
 
@@ -73,7 +73,7 @@ The MCP Client **MUST** use its Client ID Metadata Document URL as its `client_i
 
 ### 3.2 Publishing Statements
 
-A Client Publisher that wants its client admitted as reviewed **MUST** include the `software_statements_uri` member in the client's metadata document and serve the client's current statements there, as [Pulled Statements](https://www.ietf.org/archive/id/draft-mcguinness-oauth-cimd-sw-stmt-00.html#pulled-statements) defines: an `https` URL returning a JSON object whose `software_statements` member is an array of statements.
+A Client Publisher that wants its client admitted as reviewed **MUST** include the `software_statements_uri` member in the client's metadata document and serve the client's current statements there, as [Pulled Statements](https://www.ietf.org/archive/id/draft-mcguinness-oauth-cimd-sw-stmt-01.html#pulled-statements) defines: an `https` URL returning a JSON object whose `software_statements` member is an array of statements.
 
 The Client Publisher **SHOULD** replace each statement before it expires, by renewal or reissuance from its Statement Issuer, and **SHOULD** remove statements that have expired or been withdrawn. Statements for MCP use need no `statement_uses`: without it a statement is usable only by presentation, so a published copy cannot be used to register the software. MCP has deprecated Dynamic Client Registration, and a server admitting a client under this profile does not register it.
 
@@ -81,11 +81,11 @@ The URL is part of the metadata document, and so part of what a statement's dige
 
 ### 3.3 Client Authentication and Binding
 
-How the MCP Authorization Server binds a request to the reviewed document depends on the client:
+How the MCP Authorization Server binds a request to the reviewed document depends on the client. The server classifies the client from the methods its document permits, as [Sender Constraint](https://www.ietf.org/archive/id/draft-mcguinness-oauth-cimd-sw-stmt-01.html#sender-constraint) in CIMD Software Statement does. Under this profile, the server treats the client as confidential when its document permits `private_key_jwt`, and otherwise as public when the document permits `none`, as a document that declares no method does.
 
-- A **confidential client** **MUST** authenticate at the token endpoint with `private_key_jwt` ([RFC7523](https://datatracker.ietf.org/doc/html/rfc7523)), using a key its metadata document carries in `jwks` or at `jwks_uri`, and its redirection URIs **MUST** all use `https` with a host that is not a loopback address or `localhost`. A document declaring `private_key_jwt` beside a loopback redirect ships its key in every copy, and its statements are review-only (Section 4.4).
-- A **public client whose redirection URIs all use `https` with a host that is not a loopback address or `localhost`** **MUST** use PKCE with `S256`, **MUST** send `dpop_jkt` in its authorization request, and **MUST** prove that key with DPoP ([RFC9449](https://datatracker.ietf.org/doc/html/rfc9449)) when redeeming the code.
-- A **client with any redirection URI another application on the same device could claim**, such as the loopback redirects desktop MCP clients commonly have or a private-use URI scheme, whatever authentication method its document declares, cannot be bound to the reviewed document, because another application can claim the redirect. Such a client needs nothing beyond MCP's existing requirements. Its statements are treated as review-only (Section 4.4).
+- A **confidential client** **MUST** authenticate at the token endpoint with `private_key_jwt` ([RFC7523](https://datatracker.ietf.org/doc/html/rfc7523)), using a key its metadata document carries in `jwks` or at `jwks_uri`, and its redirection URIs **MUST** all use `https` with a host that is not a loopback address, `localhost`, or a name ending in `.localhost`. A document permitting `private_key_jwt` beside a loopback redirect ships its key in every copy, and its statements are review-only (Section 4.4).
+- A **public client whose redirection URIs all use `https` with a host that is not a loopback address, `localhost`, or a name ending in `.localhost`** **MUST** use PKCE with `S256`, **MUST** send `dpop_jkt` in its authorization request, and **MUST** prove that key with DPoP ([RFC9449](https://datatracker.ietf.org/doc/html/rfc9449)) when redeeming the code.
+- A **client with any redirection URI another application on the same device could claim**, such as the loopback redirects desktop MCP clients commonly have or a private-use URI scheme, whatever authentication methods its document permits, cannot be bound to the reviewed document, because another application can claim the redirect. Such a client needs nothing beyond MCP's existing requirements. Its statements are treated as review-only (Section 4.4).
 
 ### 3.4 Presenting Statements in a Request
 
@@ -101,24 +101,23 @@ It **MUST** also accept presented statements, at the endpoints and on the grants
 
 ### 4.2 Issuer Trust
 
-The MCP Authorization Server **MUST** accept statements only from Statement Issuers it has configured, as [Issuer Trust](https://www.ietf.org/archive/id/draft-mcguinness-oauth-cimd-sw-stmt-00.html#issuer-trust) requires, and **SHOULD** limit each issuer to the client identifier namespaces it is expected to vouch for. It obtains each issuer's statement signing keys from the issuer's `software_statement_jwks_uri`, or, for an issuer that is not an authorization server, from a statement key set URL recorded in its trust configuration, and never from a statement or the client's document.
+The MCP Authorization Server **MUST** accept statements only from Statement Issuers it has configured, as [Issuer Trust](https://www.ietf.org/archive/id/draft-mcguinness-oauth-cimd-sw-stmt-01.html#issuer-trust) requires, and **SHOULD** limit each issuer to the client identifier namespaces it is expected to vouch for. It obtains each issuer's statement signing keys from the issuer's `software_statement_jwks_uri`, or, for an issuer that is not an authorization server, from a statement key set URL recorded in its trust configuration, and never from a statement or the client's document.
 
 ### 4.3 Admission
 
-A statement that passes validation, names the document the server fetched, and is bound to the presenter (Section 3.3) admits the client as reviewed for that grant. The server applies the reviewed document's metadata to the request: its redirection URIs and grant types limit the request, and its `scope`, where present, is a ceiling on what may be requested. MCP Servers announce the scopes each resource needs in `WWW-Authenticate` challenges, so an MCP Client's document **SHOULD** omit `scope`; an omitted `scope` sets no ceiling beyond the server's own policy. At the authorization endpoint the binding completes only at code redemption, so the server **MAY** show the reviewer on its consent screen only where no redirection URI in the document can be claimed by another application and that binding can complete: the document declares `private_key_jwt`, or it declares `none` and the request uses PKCE with `S256` and carries `dpop_jkt`. No token is issued unless redemption proves the key.
+A statement that passes validation, names the document the server fetched, and is bound to the presenter (Section 3.3) admits the client as reviewed for that grant. The server applies the reviewed document's metadata to the request: its redirection URIs and grant types limit the request, and its `scope`, where present, is a ceiling on what may be requested. MCP Servers announce the scopes each resource needs in `WWW-Authenticate` challenges, so an MCP Client's document **SHOULD** omit `scope`; an omitted `scope` sets no ceiling beyond the server's own policy. At the authorization endpoint the binding completes only at code redemption, so the server **MAY** show the reviewer on its consent screen only where no redirection URI in the document can be claimed by another application and that binding can complete: the client is confidential (Section 3.3), or it is public and the request uses PKCE with `S256` and carries `dpop_jkt`. No token is issued unless redemption proves the key.
 
 The MCP Authorization Server **MUST NOT** require an MCP Client it admits under this profile to register. Where no statement remains after retrieval, or retrieval does not complete, the server applies the policy it applies to any Client ID Metadata Document client it has not reviewed. A retrieval failure is never treated as a withdrawal.
 
-Where the server learns of a withdrawal, through a withdrawal mechanism such as a status list or from its operator, the withdrawn statement ends refresh for the grants that record it unless a later statement from the same issuer replaces it, as [CIMD Software Statement Lifecycle](https://www.ietf.org/archive/id/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle-00.html) provides. A server implementing CIMD Software Statement Lifecycle rejects a presented statement for which it holds a refusal record and ignores such a pulled statement.
+Where the server learns of a withdrawal, through a withdrawal mechanism such as a status list or from its operator, the withdrawn statement ends refresh for the grants that record it unless a later statement from the same issuer replaces it, as [CIMD Software Statement Lifecycle](https://www.ietf.org/archive/id/draft-mcguinness-oauth-cimd-sw-stmt-lifecycle-01.html) provides. A server implementing CIMD Software Statement Lifecycle rejects a presented statement for which it holds a refusal record and ignores such a pulled statement.
 
 MCP requires access tokens in the `Authorization: Bearer` header. Where a public client binds a DPoP key at redemption, the MCP Authorization Server **MUST** issue the access token with a `token_type` of `Bearer` and bind only the refresh token to that key, as [Section 5 of RFC9449](https://datatracker.ietf.org/doc/html/rfc9449#section-5) permits, unless it knows the MCP Server accepts DPoP-bound access tokens.
 
 ### 4.4 Review-Only Clients
 
-A statement is review-only in the cases defined by [Pulled Statement Binding](https://www.ietf.org/archive/id/draft-mcguinness-oauth-cimd-sw-stmt-00.html#pull-binding) and [Review-Only Presentations](https://www.ietf.org/archive/id/draft-mcguinness-oauth-cimd-sw-stmt-00.html#review-only) in CIMD Software Statement:
+A statement is review-only in the cases defined by [Pulled Statement Binding](https://www.ietf.org/archive/id/draft-mcguinness-oauth-cimd-sw-stmt-01.html#pull-binding) and [Review-Only Presentations](https://www.ietf.org/archive/id/draft-mcguinness-oauth-cimd-sw-stmt-01.html#review-only) in CIMD Software Statement:
 
-- The document carries any redirection URI another application on the same device could claim, such as a loopback or private-use-scheme URI, whatever authentication method it declares.
-- The statement is pulled for a document that omits `token_endpoint_auth_method`.
+- The document carries any redirection URI another application on the same device could claim, such as a loopback or private-use-scheme URI, whatever authentication methods it permits.
 - A public client's statement is pulled at the token endpoint for a request opening a new grant.
 - A public client's statement is pulled at the authorization or pushed authorization request endpoint unless the request uses PKCE with `S256` and binds a key. The authorization endpoint binds that key through `dpop_jkt`. The pushed authorization request endpoint also permits a DPoP proof.
 
@@ -178,7 +177,7 @@ A hosted agent, a confidential client, publishing its statements:
   "redirect_uris": ["https://agent.example.com/oauth/callback"],
   "grant_types": ["authorization_code", "refresh_token"],
   "response_types": ["code"],
-  "token_endpoint_auth_method": "private_key_jwt",
+  "token_endpoint_auth_methods_supported": ["private_key_jwt"],
   "jwks_uri": "https://agent.example.com/oauth/jwks.json",
   "scope": "tools.read tools.write",
   "software_statements_uri": "https://agent.example.com/oauth/statements.json"
