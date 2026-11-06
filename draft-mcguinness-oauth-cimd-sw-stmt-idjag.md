@@ -101,7 +101,7 @@ An IdP Authorization Server MUST NOT include the claim unless all of the followi
 
 The client therefore uses its client identifier URL at the IdP Authorization Server as well, including for the identity assertion or refresh token it exchanges (Section 4.3.3 of {{IDJAG}}).
 
-By default, a Resource Authorization Server that designates the issuer rejects a digest that does not match the document it obtains under step 3 of {{processing}}, so a digest of an earlier document fails once that server's copy reflects the change. When an IdP Authorization Server authenticates a client for an ID-JAG that will carry the claim, it SHOULD therefore use the document as currently served, revalidating any octets it holds (Section 3.1 of {{STATEMENT}}), including octets held from pre-registering the client identifier URL (Section 9.2 of {{CIMD}}).
+By default, a Resource Authorization Server that designates the issuer rejects a digest that does not match the document it obtains under step 3 of {{processing}}, so a digest of an earlier document fails once that server's copy reflects the change. When an IdP Authorization Server authenticates a client for an ID-JAG that will carry the claim, it SHOULD therefore use the document as currently served, revalidating any octets it holds (Section 3.1 of {{STATEMENT}}), including octets held from pre-registering the client identifier URL (Section 9.2 of {{CIMD}}). Revalidation keeps the digest current, but the claim still asserts the IdP Authorization Server's decision. An IdP Authorization Server that pins its approval to octets it reviewed omits the claim, or refuses the request, when the served document differs from them.
 
 # Vouched Admission {#admission}
 
