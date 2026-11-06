@@ -78,7 +78,7 @@ Vouched Document:
 : The CIMD whose metadata digest (Section 3.1 of {{STATEMENT}}) an ID-JAG carries in its `cimd_digest` claim.
 
 Designated Issuer:
-: An IdP Authorization Server, and for a multi-tenant issuer one of its tenants, to which a Resource Authorization Server's trust configuration delegates the decision to admit CIMD clients in one of the server's tenants, optionally confined to client identifier namespaces ({{trust-configuration}}).
+: An IdP Authorization Server to which a Resource Authorization Server's trust configuration delegates the decision to admit CIMD clients ({{trust-configuration}}).
 
 Vouched Admission:
 : A Resource Authorization Server's acceptance of a client for a token request on the `cimd_digest` claim of an ID-JAG from a designated issuer ({{admission}}).
