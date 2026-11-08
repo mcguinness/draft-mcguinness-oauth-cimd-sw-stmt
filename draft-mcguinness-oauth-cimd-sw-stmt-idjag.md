@@ -90,7 +90,7 @@ Ordinary Admission:
 
 # Metadata Digest Claim {#claim}
 
-An ID-JAG MAY contain the `cimd_digest` claim (Section 3 of {{STATEMENT}}), whose value is the metadata digest of the client's CIMD. The claim asserts that the IdP Authorization Server's decision to issue the ID-JAG for the client covered the document with those octets. This specification does not define how the IdP Authorization Server reaches that decision ({{issuer-designation}}).
+An ID-JAG can contain the `cimd_digest` claim (Section 3 of {{STATEMENT}}), whose value is the metadata digest of the client's CIMD. The claim asserts that the IdP Authorization Server's decision to issue the ID-JAG for the client covered the document with those octets. This specification does not define how the IdP Authorization Server reaches that decision ({{issuer-designation}}).
 
 An IdP Authorization Server MUST NOT include the claim unless all of the following hold:
 
@@ -100,6 +100,8 @@ An IdP Authorization Server MUST NOT include the claim unless all of the followi
 * If the IdP Authorization Server binds the ID-JAG to a DPoP key (Section 9.11.1 of {{IDJAG}}), the document's `grant_types` member includes `urn:ietf:params:oauth:grant-type:jwt-dpop` ({{I-D.parecki-oauth-jwt-dpop-grant}}), which Section 4.4 of {{IDJAG}} requires for redeeming such an ID-JAG.
 
 The client therefore uses its client identifier URL at the IdP Authorization Server as well, including for the identity assertion or refresh token it exchanges (Section 4.3.3 of {{IDJAG}}).
+
+When all four conditions hold, the IdP Authorization Server SHOULD include the claim, unless its decision does not cover the document as served, as when it pinned its approval to octets that differ from the served document. This specification defines no way for a client to request the claim, so a Resource Authorization Server whose policy requires a vouched admission depends on this default.
 
 By default, a Resource Authorization Server that designates the issuer rejects a digest that does not match the document it obtains under step 3 of {{processing}}, so a digest of an earlier document fails once that server's copy reflects the change. When an IdP Authorization Server authenticates a client for an ID-JAG that will carry the claim, it SHOULD therefore use the document as currently served, revalidating any octets it holds (Section 3.1 of {{STATEMENT}}), including octets held from pre-registering the client identifier URL (Section 9.2 of {{CIMD}}). Revalidation keeps the digest current, but the claim still asserts the IdP Authorization Server's decision. An IdP Authorization Server that pins its approval to octets it reviewed omits the claim, or refuses the request, when the served document differs from them.
 
