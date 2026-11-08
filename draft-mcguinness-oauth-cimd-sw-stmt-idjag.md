@@ -137,7 +137,7 @@ A rejection uses the error response of Section 5.2 of {{RFC6749}}. A failure of 
 For a rejection this specification defines, the server uses the first of the following that applies:
 
 1. `temporarily_unavailable`, if a retrieval of the document, or of the key set at its `jwks_uri`, did not complete (Section 5.3 of {{STATEMENT}}). The server responds with HTTP status code 503, as Section 6 of {{STATEMENT}} requires.
-2. `invalid_client`, if the document cannot be obtained, fails validation as {{CIMD}} requires (Section 6 of {{CIMD}}), contains duplicate member names (Section 5.2 of {{STATEMENT}}), or permits no token endpoint authentication method that the server supports and its policy allows (Section 5 of {{CIMD}}), whether at step 3 or 4 of {{processing}} or under ordinary admission. Validation includes the check that the document's `grant_types` member shares a value with the grant types the server supports.
+2. `invalid_client`, if the document cannot be obtained, fails validation as {{CIMD}} requires (Section 6 of {{CIMD}}), contains duplicate member names (Section 5.2 of {{STATEMENT}}), or permits no token endpoint authentication method that the server supports and its policy allows (Section 5 of {{CIMD}}), whether at step 3 or 4 of {{processing}} or under ordinary admission. Validation includes the checks that the document's `grant_types` member shares a value with the grant types the server supports, and its `response_types` member with the response types the server supports. A server that supports no response type, such as one without an authorization endpoint, therefore rejects every document, including one that omits `response_types`, which means only `code` (Section 2 of {{RFC7591}}). This specification does not change the rule of Section 6 of {{CIMD}}.
 3. The code that the following table assigns to the step of {{processing}} at which the request fails or leaves the vouched path. The "Vouching required" column applies when the server's policy requires a vouched admission for the client, and the "Not required" column applies otherwise. For a step that leaves the vouched path, a "Vouching required" cell applies only when ordinary admission then rejects the request because the policy requires a vouched admission. "Ordinary" means that the server uses ordinary admission, for which the table assigns no error code. Rules 1 and 2 still apply to ordinary admission.
 
 | Failure | Vouching required | Not required |
@@ -208,7 +208,7 @@ The following is an example of the payload of an ID-JAG that the IdP Authorizati
 
 ## Token Request
 
-The following is an example of the client redeeming that ID-JAG with the JWT bearer grant (Section 2.1 of {{RFC7523}}) at a Resource Authorization Server that holds no registration for the client (line breaks for display purposes only):
+The following is an example of the client redeeming that ID-JAG with the JWT bearer grant (Section 2.1 of {{RFC7523}}) at a Resource Authorization Server that supports the `code` response type and holds no registration for the client (line breaks for display purposes only):
 
 ~~~ http
 POST /oauth2/token HTTP/1.1
