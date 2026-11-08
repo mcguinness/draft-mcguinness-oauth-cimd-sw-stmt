@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         6 November 2026
-Expires: 10 May 2027
+Intended status: Standards Track                         8 November 2026
+Expires: 12 May 2027
 
 
              Client ID Metadata Document Software Statement
@@ -43,7 +43,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 10 May 2027.
+   This Internet-Draft will expire on 12 May 2027.
 
 Copyright Notice
 
@@ -1735,8 +1735,9 @@ Table of Contents
    Claim Name:  cimd_digest
 
    Claim Description:  Unpadded base64url-encoded SHA-256 digest of the
-      retrieved octets of the Client ID Metadata Document evaluated
-      during software statement issuance
+      retrieved octets of a Client ID Metadata Document; the JWT profile
+      that carries the claim defines what its issuer asserts about that
+      document
 
    Change Controller:  IETF
 
@@ -2011,6 +2012,12 @@ Acknowledgments
 Document History
 
    [[ To be removed from the final specification ]]
+
+   -02
+
+   *  Made the IANA description of the cimd_digest claim neutral about
+      what the JWT's issuer asserts, so that other JWT profiles can
+      carry the claim.
 
    -01
 
