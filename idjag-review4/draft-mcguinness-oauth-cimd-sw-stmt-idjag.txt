@@ -1,0 +1,812 @@
+
+
+
+
+Web Authorization Protocol                                 K. McGuinness
+Internet-Draft                                               Independent
+Intended status: Standards Track                         8 November 2026
+Expires: 12 May 2027
+
+
+   Client ID Metadata Document Vouching in Identity Assertion Grants
+            draft-mcguinness-oauth-cimd-sw-stmt-idjag-latest
+
+Abstract
+
+   This specification defines how an identity provider that issues an
+   Identity Assertion JWT Authorization Grant (ID-JAG) binds the grant
+   to the exact octets of the client's Client ID Metadata Document
+   (CIMD), using the cimd_digest claim that a companion software
+   statement specification defines.  A resource authorization server
+   that has delegated client admission to the identity provider can then
+   admit a client it holds no registration for, on the identity
+   provider's decision, with the client's metadata taken from the
+   document whose digest matches.  The admission covers only the token
+   request that redeems the grant, and it creates no registration and no
+   refresh token.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on 12 May 2027.
+
+Copyright Notice
+
+   Copyright (c) 2026 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.  Code Components
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
+
+Table of Contents
+
+   1.  Introduction
+     1.1.  Protocol Overview
+   2.  Conventions and Definitions
+   3.  Metadata Digest Claim
+   4.  Vouched Admission
+     4.1.  Trust Configuration
+     4.2.  Processing Rules
+   5.  Error Responses
+   6.  Examples
+     6.1.  Vouched Document
+     6.2.  ID-JAG Payload
+     6.3.  Token Request
+   7.  Relationship to Software Statements
+   8.  Security Considerations
+     8.1.  Assurance Provided by a Vouched Admission
+     8.2.  Client Authentication at Both Servers
+     8.3.  Issuer Designation
+     8.4.  Changed and Split Documents
+     8.5.  Grant and Access Token Lifetimes
+     8.6.  Key Locations
+   9.  Privacy Considerations
+   10. IANA Considerations
+   11. References
+     11.1.  Normative References
+     11.2.  Informative References
+   Acknowledgments
+   Document History
+   Author's Address
+
+1.  Introduction
+
+   An Identity Assertion JWT Authorization Grant [IDJAG] lets a client
+   obtain, from an identity provider that two trust domains share, an
+   assertion of a user's identity and a delegation to a resource
+   authorization server.  The grant names the client in its client_id
+   claim.  A client identified by a Client ID Metadata Document (CIMD)
+   [CIMD] uses its client identifier URL at both servers, so no mapping
+   between them is needed (Section 5.1 of [IDJAG]).
+
+   The grant tells the Resource Authorization Server that the identity
+   provider issued it for that client, but not which client metadata
+   that decision covered.  The Resource Authorization Server retrieves
+   the client's document itself, and that document can differ from the
+   one the identity provider relied on.  A Resource Authorization Server
+   that admits a CIMD client only on a trusted party's decision about
+   the client's metadata has no such decision in the grant.
+
+   [STATEMENT] defines a software statement that binds an issuer's
+   review to the octets of a CIMD through the cimd_digest claim.  A
+   statement serves when the reviewer is not in the request path
+   (Section 10.2 of [STATEMENT]).  When the identity provider that
+   issues the grant is the party that decides about the client, it can
+   carry the same claim in the grant it already signs.
+
+   This specification defines the claim's meaning in an ID-JAG and when
+   an identity provider includes it (Section 3), and how a Resource
+   Authorization Server admits a client on the claim (Section 4).  Only
+   a server that has delegated client admission to the identity provider
+   does so, under its own policy (Section 4.1).  At a minimum, the claim
+   shows that the identity provider issued the grant with these octets
+   as the client's metadata, but not by itself that the identity
+   provider reviewed the configuration (Section 8.3).
+
+   A redemption of an ID-JAG can rely on a sender-constrained ID-JAG in
+   place of client authentication (Section 4.4 of [IDJAG]), but a
+   vouched admission requires the client to authenticate at the Resource
+   Authorization Server with a key its document carries (Section 8.2),
+   so a public client cannot use it.
+
+   This specification extends [STATEMENT] and [IDJAG] and changes
+   neither.  Beyond what this specification defines, the claim changes
+   no processing of an ID-JAG at either server.  A server that does not
+   implement this specification ignores the claim (Section 4 of
+   [RFC7519]).
+
+1.1.  Protocol Overview
+
+   The following non-normative sequence summarizes a vouched admission:
+
+   1.  The client authenticates to the IdP Authorization Server in a
+       Token Exchange request (Section 4.3 of [IDJAG]), using its client
+       identifier URL and a key its document carries.
+
+   2.  If its policy permits issuing an ID-JAG for the client, the IdP
+       Authorization Server includes the cimd_digest claim, computed
+       over the document from which it took that key (Section 3).
+
+   3.  The client presents the ID-JAG at the Resource Authorization
+       Server's token endpoint (Section 4.4 of [IDJAG]), authenticating
+       with a key the document carries.
+
+   4.  The Resource Authorization Server validates the ID-JAG, retrieves
+       the document at the URL in the client_id claim, and compares its
+       digest with the claim.  If the digests match and its trust
+       configuration designates the issuer, it admits the client, for
+       that request only, with metadata taken from that document
+       (Section 4).  A re-submission of the ID-JAG repeats this step.
+
+2.  Conventions and Definitions
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in
+   BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
+
+   This specification uses terminology from [RFC6749] (OAuth), [CIMD]
+   (Client ID Metadata Documents), [IDJAG] (IdP Authorization Server,
+   Resource Authorization Server, and ID-JAG), and Section 2 of
+   [STATEMENT] (Permitted Method and Required Issuer).
+
+   This specification defines the following terms.
+
+   Vouched Document:  The CIMD whose metadata digest (Section 3.1 of
+      [STATEMENT]) an ID-JAG carries in its cimd_digest claim.
+
+   Designated Issuer:  An IdP Authorization Server to which a Resource
+      Authorization Server's trust configuration delegates the decision
+      to admit CIMD clients (Section 4.1).
+
+   Vouched Admission:  A Resource Authorization Server's acceptance of a
+      client for a token request on the cimd_digest claim of an ID-JAG
+      from a designated issuer (Section 4).
+
+   Ordinary Admission:  A Resource Authorization Server's decision on a
+      CIMD client it holds no registration for, under its policy for
+      such clients and without the claim (Section 4.2).
+
+3.  Metadata Digest Claim
+
+   An ID-JAG can contain the cimd_digest claim (Section 3 of
+   [STATEMENT]), whose value is the metadata digest of the client's
+   CIMD.  The claim asserts that the IdP Authorization Server's decision
+   to issue the ID-JAG for the client covered the document with those
+   octets.  This specification does not define how the IdP Authorization
+   Server reaches that decision (Section 8.3).
+
+   An IdP Authorization Server MUST NOT include the claim unless all of
+   the following hold:
+
+   *  The ID-JAG's client_id claim is a client identifier URL (Section 3
+      of [CIMD]) and is the client identifier under which the client
+      authenticated in the Token Exchange request (Section 4.3.3 of
+      [IDJAG]), not one mapped from it (Section 5.1 of [IDJAG]).
+
+   *  In that request, the client authenticated with a method that
+      proves possession of a key the document carries (Section 5.6.1 of
+      [STATEMENT]), such as private_key_jwt.
+
+   *  The claim's value is the metadata digest of the octets of the
+      document that carries that key, in its jwks member or at its
+      jwks_uri, as the IdP Authorization Server obtained them for that
+      authentication, not of octets from another retrieval.
+
+   *  If the IdP Authorization Server binds the ID-JAG to a DPoP key
+      (Section 9.11.1 of [IDJAG]), the document's grant_types member
+      includes urn:ietf:params:oauth:grant-type:jwt-dpop
+      ([I-D.parecki-oauth-jwt-dpop-grant]), which Section 4.4 of [IDJAG]
+      requires for redeeming such an ID-JAG.
+
+   The client therefore uses its client identifier URL at the IdP
+   Authorization Server as well, including for the identity assertion or
+   refresh token it exchanges (Section 4.3.3 of [IDJAG]).
+
+   When all four conditions hold, the IdP Authorization Server SHOULD
+   include the claim, unless its decision does not cover the document as
+   served, as when it pinned its approval to octets that differ from the
+   served document.  This specification defines no way for a client to
+   request the claim, so a Resource Authorization Server whose policy
+   requires a vouched admission depends on this default.
+
+   A Resource Authorization Server that designates the issuer rejects a
+   digest that does not match the document it obtains under step 3 of
+   Section 4.2, so a digest of an earlier document fails once that
+   server's copy reflects the change.  When an IdP Authorization Server
+   authenticates a client for an ID-JAG that will carry the claim, it
+   SHOULD therefore use the document as currently served, revalidating
+   any octets it holds (Section 3.1 of [STATEMENT]), including octets
+   held from pre-registering the client identifier URL (Section 9.2 of
+   [CIMD]).  Revalidation keeps the digest current, but the claim still
+   asserts the IdP Authorization Server's decision.  An IdP
+   Authorization Server that pins its approval to octets it reviewed
+   omits the claim, or refuses the request, when the served document
+   differs from them.
+
+4.  Vouched Admission
+
+4.1.  Trust Configuration
+
+   A Resource Authorization Server MUST NOT rely on the claim unless its
+   trust configuration, established out of band, designates the ID-JAG's
+   issuer for vouched admission in the tenant in which the server
+   accepts the ID-JAG (Section 4.4.1 of [IDJAG]).  That tenant is the
+   recipient tenant, which aud, aud_tenant when present, or the server's
+   trust relationship with the issuer identifies (Section 4.4.1 of
+   [IDJAG]).  For a multi-tenant issuer, the designation also names the
+   tenant at the issuer, which the tenant claim identifies (Section 6.1
+   of [IDJAG]).  The server MUST NOT derive the designation from the ID-
+   JAG or from the client's document.  A designation delegates the
+   decision to admit a client.  Trusting an issuer to assert users'
+   identities in ID-JAGs, or to authenticate clients, does not by itself
+   designate it.
+
+   A designation can confine the issuer to client identifier namespaces,
+   as defined in Section 4 of [STATEMENT].  The server then MUST NOT
+   rely on the claim for a client identifier URL outside them.  An
+   issuer is a designated issuer for a client in a tenant when a
+   designation of it covers that tenant and, if the designation lists
+   namespaces, the client identifier URL falls within one of them.
+
+   Vouched admission applies to a CIMD client the server holds no
+   registration for.  The server's policy can require it for such
+   clients in a tenant, or for those within particular client identifier
+   namespaces in a tenant (Section 5).  For a registered client, the
+   registration governs and the server ignores the claim.  A record the
+   server keeps of a vouched admission, or document octets it caches
+   from a retrieval, is not by itself a registration.
+
+4.2.  Processing Rules
+
+   The steps below validate the ID-JAG (step 1), decide whether the
+   server admits the client on the claim (steps 2 to 4), and limit what
+   it issues (steps 5 and 6).  Admitting the client does not authorize
+   access, which the ID-JAG and the server's policy decide
+   (Section 4.4.1 of [IDJAG]).
+
+   A Resource Authorization Server that relies on the claim processes a
+   token request redeeming an ID-JAG, for a CIMD client it holds no
+   registration for, as follows, rejecting at the first failure
+   (Section 5):
+
+   1.  Validate the ID-JAG as Section 4.4 of [IDJAG] requires, including
+       the verification of any cnf claim, but defer the checks that
+       depend on client authentication.  These are the client continuity
+       check of Section 4.4.1 of [IDJAG], and the rejection in
+       Section 4.4 of [IDJAG] of a request that has neither client
+       authentication nor a sender-constrained ID-JAG.  The server
+       completes these deferred checks before it issues an access token
+       on any path.
+
+   2.  Determine whether the ID-JAG carries the claim and its issuer is
+       a designated issuer for the client in the tenant (Section 4.1).
+       If not, use ordinary admission.
+
+   3.  Obtain the document at the URL in the client_id claim, by
+       retrieval or from octets the server holds within the bounds of
+       Section 5.3 of [STATEMENT], and validate it as [CIMD] requires.
+       The server MUST reject a document containing duplicate member
+       names (Section 5.2 of [STATEMENT]).  Then compare its digest with
+       the claim, as Section 5.2 of [STATEMENT] requires for a
+       statement's sub and cimd_digest claims.  If held octets do not
+       match, the server retrieves the document once more and applies
+       this step to the retrieved document.  If the digest of retrieved
+       octets does not match the claim, the server MUST reject the
+       request (Section 5), even if its policy does not require a
+       vouched admission (Section 8.4).
+
+   4.  Consider the vouched document's permitted methods that the server
+       supports and its policy allows for token endpoint authentication,
+       apart from any requirement for a vouched admission.  If they
+       include a method other than none, the server MUST require the
+       client to authenticate with such a method, proving possession of
+       a key the vouched document carries (Section 5.6.1 of [STATEMENT];
+       Section 8.2), and then completes the deferred checks.  Otherwise,
+       if they include the none method, use ordinary admission.  If they
+       include no method at all, Section 5 of [CIMD] applies.
+
+   5.  The server MUST reject the request unless its grant type appears
+       in the vouched document's grant_types member, including the grant
+       type that Section 4.4 of [IDJAG] requires for an ID-JAG bound to
+       a DPoP key.  A document that omits the member permits only
+       authorization_code (Section 2 of [RFC7591]), so it permits no
+       redemption of an ID-JAG.
+
+   6.  If the vouched document has a scope member, the server MUST NOT
+       issue an access token whose scope falls outside it.  The server
+       narrows the scope it would otherwise grant (Section 4.4.1 of
+       [IDJAG]) to meet this rule and removes any authorization details
+       it derives from a scope that narrowing removes.  If the vouched
+       document has an authorization_details_types member (Section 10 of
+       [RFC9396]), the server MUST NOT issue authorization details of a
+       type the member does not list, and it narrows the authorization
+       details it would otherwise grant to meet this rule, removing any
+       scope it derives only from authorization details that narrowing
+       removes (Section 4.4.1 of [IDJAG]).  If the server would
+       otherwise grant some scope or authorization details and narrowing
+       removes all of them, the server MUST reject the request.
+
+   For ordinary admission, the server obtains the document if it has not
+   already done so and MUST apply its policy for CIMD clients it holds
+   no registration for as if the ID-JAG carried no claim: nothing from
+   the claim or the designation counts toward admitting the client.  The
+   remaining steps and the refresh-token rule below then do not apply,
+   but the deferred checks of step 1 still do.  If that policy requires
+   a vouched admission, the server rejects the request (Section 5).
+
+   The server MUST NOT issue a refresh token in response to a request it
+   admits on the claim, even if the request also presents a statement
+   (Section 7).  A vouched admission does not admit a later request,
+   even if the server keeps a record of the admission, such as for
+   audit.  Each request, including a re-submission of the same ID-JAG
+   (Section 4.4.4 of [IDJAG]), repeats this processing.
+
+5.  Error Responses
+
+   A rejection uses the error response of Section 5.2 of [RFC6749].  A
+   failure of the validation that Section 4.4 or Section 9.11 of [IDJAG]
+   requires uses the error code that [IDJAG] assigns.
+
+   For a rejection this specification defines, the server uses the first
+   of the following that applies:
+
+   1.  temporarily_unavailable, if a retrieval of the document, or of
+       the key set at its jwks_uri, did not complete (Section 5.3 of
+       [STATEMENT]).  The server responds with HTTP status code 503, as
+       Section 6 of [STATEMENT] requires.
+
+   2.  invalid_client, if the document cannot be obtained, fails
+       validation as [CIMD] requires (Section 6 of [CIMD]), contains
+       duplicate member names (Section 5.2 of [STATEMENT]), or permits
+       no token endpoint authentication method that the server supports
+       and its policy allows (Section 5 of [CIMD]), whether at step 3 or
+       4 of Section 4.2 or under ordinary admission.  Validation
+       includes the checks that the document's grant_types member shares
+       a value with the grant types the server supports, and its
+       response_types member with the response types the server
+       supports.  A server that supports no response type, such as one
+       without an authorization endpoint, therefore rejects every
+       document, including one that omits response_types, which means
+       only code (Section 2 of [RFC7591]).  This specification does not
+       change the rule of Section 6 of [CIMD].
+
+   3.  The code that the following table assigns to the step of
+       Section 4.2 at which the request fails or leaves the vouched
+       path.  The "Vouching required" column applies when the server's
+       policy requires a vouched admission for the client, and the "Not
+       required" column applies otherwise.  For a step that leaves the
+       vouched path, a "Vouching required" cell applies only when
+       ordinary admission then rejects the request because the policy
+       requires a vouched admission.  "Ordinary" means that the server
+       uses ordinary admission, for which the table assigns no error
+       code.  Rules 1 and 2 still apply to ordinary admission.
+
+   +======================+=====================+=====================+
+   | Failure              | Vouching required   | Not required        |
+   +======================+=====================+=====================+
+   | Step 2: no claim,    | invalid_grant       | Ordinary            |
+   | from an issuer       |                     |                     |
+   | designated for the   |                     |                     |
+   | client in the tenant |                     |                     |
+   +----------------------+---------------------+---------------------+
+   | Step 2: issuer not   | access_denied       | Ordinary            |
+   | designated for the   |                     |                     |
+   | client in the tenant |                     |                     |
+   +----------------------+---------------------+---------------------+
+   | Step 3: digest       | invalid_grant       | invalid_grant       |
+   | mismatch             |                     |                     |
+   +----------------------+---------------------+---------------------+
+   | Step 4: of the       | access_denied       | Ordinary            |
+   | document's permitted |                     |                     |
+   | methods, the server  |                     |                     |
+   | supports and allows  |                     |                     |
+   | only the none method |                     |                     |
+   +----------------------+---------------------+---------------------+
+   | Step 4: client does  | invalid_client      | invalid_client      |
+   | not authenticate as  |                     |                     |
+   | step 4 requires      |                     |                     |
+   +----------------------+---------------------+---------------------+
+   | Step 5: grant type   | unauthorized_client | unauthorized_client |
+   | not in grant_types   |                     |                     |
+   +----------------------+---------------------+---------------------+
+   | Step 6: narrowing    | invalid_scope       | invalid_scope       |
+   | leaves nothing to    |                     |                     |
+   | grant                |                     |                     |
+   +----------------------+---------------------+---------------------+
+
+                                 Table 1
+
+   Where the server would otherwise grant only authorization details,
+   step 6 uses invalid_authorization_details (Section 6 of [RFC9396]) in
+   place of invalid_scope.
+
+   A re-issued ID-JAG may resolve an invalid_grant error that the table
+   assigns (Section 4.4.3 of [IDJAG]), because the IdP Authorization
+   Server can include the claim, or compute it over the document it then
+   holds, unless Section 3 requires it to omit the claim.  A re-issued
+   ID-JAG will not resolve an access_denied error that the table
+   assigns.
+
+6.  Examples
+
+6.1.  Vouched Document
+
+   The following is an example of a client's document, served at
+   https://agent.example/client exactly as shown, with two-space
+   indentation, LF line endings, and a single final newline, and without
+   any indentation added for display (657 octets):
+
+   {
+     "client_id": "https://agent.example/client",
+     "client_name": "Example Agent",
+     "grant_types": [
+       "urn:ietf:params:oauth:grant-type:token-exchange",
+       "urn:ietf:params:oauth:grant-type:jwt-bearer"
+     ],
+     "token_endpoint_auth_methods_supported": ["private_key_jwt"],
+     "authorization_grant_profiles_supported": [
+       "urn:ietf:params:oauth:grant-profile:id-jag"
+     ],
+     "scope": "chat.read chat.history",
+     "jwks": {
+       "keys": [
+         {
+           "kty": "EC",
+           "crv": "P-256",
+           "kid": "2026-11",
+           "x": "MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4",
+           "y": "4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM"
+         }
+       ]
+     }
+   }
+
+6.2.  ID-JAG Payload
+
+   The following is an example of the payload of an ID-JAG that the IdP
+   Authorization Server issues after the client authenticates with
+   private_key_jwt, using the key in the document's jwks member.  The
+   cimd_digest claim is the metadata digest of the document in the
+   previous example.
+
+   {
+     "jti": "9e43f81b64a33f20116179",
+     "iss": "https://acme.idp.example/",
+     "sub": "U019488227",
+     "aud": "https://acme.chat.example/",
+     "client_id": "https://agent.example/client",
+     "exp": 1793404800,
+     "iat": 1793404500,
+     "resource": "https://api.chat.example/",
+     "scope": "chat.read chat.history",
+     "cimd_digest": "hoLujUutrork06uug7i0WF3pAiM9IHIUwepB_X_TOMQ"
+   }
+
+6.3.  Token Request
+
+   The following is an example of the client redeeming that ID-JAG with
+   the JWT bearer grant (Section 2.1 of [RFC7523]) at a Resource
+   Authorization Server that supports the code response type and holds
+   no registration for the client (line breaks for display purposes
+   only):
+
+   POST /oauth2/token HTTP/1.1
+   Host: acme.chat.example
+   Content-Type: application/x-www-form-urlencoded
+
+   grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer
+   &assertion=eyJ0eXAiOiJvYXV0aC1pZC1qYWcrand0IiwiYWxnIjoiRVMyNTYi...
+   &client_id=https%3A%2F%2Fagent.example%2Fclient
+   &client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3A
+   client-assertion-type%3Ajwt-bearer
+   &client_assertion=eyJ0eXAiOiJjbGllbnQtYXV0aGVudGljYXRpb24rand0Ii...
+
+   The Resource Authorization Server validates the ID-JAG, retrieves the
+   document, and finds that its digest matches the claim.  It verifies
+   the client assertion against the key in the document's jwks member,
+   checks that the document's grant types include the JWT bearer grant,
+   and issues an access token whose scope falls within the document's
+   scope.  It issues no refresh token and keeps no registration.
+
+7.  Relationship to Software Statements
+
+   A software statement [STATEMENT] and the claim this specification
+   defines both bind a decision to the octets of a client's document.  A
+   statement is issued once for software and presented or pulled at many
+   servers, so it serves a reviewer outside the request path, such as a
+   client catalog.  The claim is carried in a grant that the IdP
+   Authorization Server issues per user and request, so it serves when
+   the identity provider that issues the grant is the party that decides
+   about the client.  Such an identity provider could instead issue
+   statements confined to a tenant with aud_tenant, but the claim needs
+   no second artifact and no separate issuance step.  A multi-tenant
+   identity provider whose customers' decisions are each trusted
+   independently would also have to issue statements under a distinct
+   iss value for each customer (Section 4.1 of [STATEMENT]), while its
+   ID-JAGs already carry the tenant claim (Section 6.1 of [IDJAG]).  The
+   two share the digest, not an assurance: a statement records its
+   issuer's review (Section 13.1 of [STATEMENT]), and the claim records
+   at least the issuer's decision to issue the grant (Section 8.3).
+
+   A Resource Authorization Server MAY require both.  A token request
+   that redeems an ID-JAG can also present a statement (Section 5.4.1 of
+   [STATEMENT]).  Each is then processed under its own specification,
+   neither substitutes for the other, and the refresh-token rule of
+   Section 4.2 still applies.  A vouched admission does not satisfy a
+   required issuer (Section 4 of [STATEMENT]), because it is not a
+   statement.
+
+8.  Security Considerations
+
+   The security considerations of [IDJAG], [CIMD], and [STATEMENT]
+   apply, and every retrieval this specification causes inherits the
+   protections of Section 5.3 of [STATEMENT].
+
+8.1.  Assurance Provided by a Vouched Admission
+
+   The following table states what a vouched admission does and does not
+   establish:
+
+   +==============================+===================================+
+   | Property                     | Established                       |
+   +==============================+===================================+
+   | A designated issuer decided  | Yes                               |
+   | to issue the ID-JAG for this |                                   |
+   | client with this document    |                                   |
+   +------------------------------+-----------------------------------+
+   | The document the server      | Yes                               |
+   | retrieved is the one that    |                                   |
+   | decision covered, octet for  |                                   |
+   | octet                        |                                   |
+   +------------------------------+-----------------------------------+
+   | The presenter controls a key | Yes, before any token is issued,  |
+   | the document carries         | though not necessarily the key    |
+   |                              | used at the IdP Authorization     |
+   |                              | Server (Section 8.2, Section 8.6) |
+   +------------------------------+-----------------------------------+
+   | The issuer reviewed the      | Only as the designation agreement |
+   | configuration beyond         | provides (Section 8.3)            |
+   | deciding to issue the grant  |                                   |
+   +------------------------------+-----------------------------------+
+   | The running software is the  | No                                |
+   | software the issuer          |                                   |
+   | evaluated                    |                                   |
+   +------------------------------+-----------------------------------+
+   | The client may access a      | No; the ID-JAG's authorization    |
+   | particular resource          | and the server's policy decide    |
+   +------------------------------+-----------------------------------+
+   | The document's redirection   | No; a vouched admission covers    |
+   | URIs are approved for        | only the token request that       |
+   | authorization requests       | redeems the ID-JAG                |
+   +------------------------------+-----------------------------------+
+
+                                 Table 2
+
+8.2.  Client Authentication at Both Servers
+
+   Possession of the key bound to a sender-constrained ID-JAG shows that
+   the presenter holds the key the IdP Authorization Server bound to the
+   ID-JAG for the client (Section 9.1 of [IDJAG]), and that key need not
+   appear in the client's document.  Because a vouched admission takes
+   the client's metadata from the vouched document, the Resource
+   Authorization Server requires proof of a key that document carries
+   (Section 4.2), and so verifies for itself, not through the IdP
+   Authorization Server's earlier authentication, that the presenter
+   controls the client the document describes.  Both authentications
+   prove a key the document carries, but not necessarily the same key:
+   the document can carry several keys, and the key set at a jwks_uri
+   can change between the two authentications (Section 8.6).  For
+   private_key_jwt, Section 5 of [CIMD] already requires this check of a
+   server that supports the method when a document declares it.  For
+   other methods, such as self_signed_tls_client_auth, this
+   specification adds it.
+
+   Client authentication at the Resource Authorization Server
+   establishes the client, not the instance of it that obtained the ID-
+   JAG.  A bearer ID-JAG taken from one instance can be redeemed by any
+   holder of a key the document carries, such as another instance of the
+   same software deployed for a different customer.  Only a sender-
+   constrained ID-JAG ties redemption to a holder of the key the IdP
+   Authorization Server bound to the ID-JAG (Section 9.1 of [IDJAG]).
+   Neither client authentication nor sender-constraining identifies a
+   software instance.  A Resource Authorization Server can require a
+   sender-constrained ID-JAG for this reason.
+
+8.3.  Issuer Designation
+
+   At a minimum, the claim shows that the IdP Authorization Server's
+   policy let this client, with this document as its metadata, receive
+   this grant.  An IdP Authorization Server that approves clients by
+   identifier and digests whatever document is served at the time gives
+   less assurance than one that pins its approval to a document it
+   reviewed.  A Resource Authorization Server learns which applies from
+   the agreement under which it designates the issuer, as the assurance
+   of a statement rests on its issuer's review process (Section 13.1 of
+   [STATEMENT]).  Unless the designation lists client identifier
+   namespaces (Section 4.1), the server can admit, on a designated
+   issuer's claim, any CIMD client in the tenant that it holds no
+   registration for.  Such a designation delegates to the issuer the
+   admission of every such client, so a designation meant for particular
+   clients lists their namespaces.
+
+   Where a server requires a vouched admission, the choice between
+   invalid_grant and access_denied (Section 5) tells the presenter
+   whether the server designates the ID-JAG's issuer.  By accepting the
+   ID-JAG at step 1, the server has already shown that it trusts the
+   issuer (Section 4.4.1 of [IDJAG]), so this reveals little.
+
+8.4.  Changed and Split Documents
+
+   The digest comparison detects a document that changed between the two
+   servers' retrievals, such as one that now carries a new key, and a
+   document served differently to the two, which Section 4.5 of [CIMD]
+   forbids.  Either way, the document differs from the one the issuer's
+   decision covered, so a Resource Authorization Server that designates
+   the issuer rejects the request on a mismatch, even where its policy
+   would admit the client without the claim (Section 4.2).  The digest
+   is defined over exact octets (Sections 3.1 and 13.1 of [STATEMENT]),
+   so reformatting the document, or changing a member such as logo_uri,
+   fails the comparison as a new key does.  A changed document fails it
+   until the IdP Authorization Server issues an ID-JAG over the current
+   one, and a client whose ID-JAG is rejected with invalid_grant
+   requests a new one (Sections 4.4.3 and 4.4.4 of [IDJAG]).
+
+   If the IdP Authorization Server keeps digesting octets it held before
+   the change, its ID-JAGs keep failing at every server that designates
+   it.  The client requests only one new ID-JAG (Section 4.4.4 of
+   [IDJAG]), so the failure lasts as long as the IdP Authorization
+   Server reuses the earlier octets (Section 3).
+
+8.5.  Grant and Access Token Lifetimes
+
+   An ID-JAG's lifetime bounds how long it can admit the client, and a
+   Resource Authorization Server can shorten that bound by rejecting an
+   ID-JAG whose exp is later than its policy allows (Section 4.4.4 of
+   [IDJAG]).  An IdP Authorization Server ends its vouching for a
+   document by issuing no further ID-JAG with that document's digest,
+   and an ID-JAG already issued remains usable until it expires or the
+   Resource Authorization Server refuses its re-submission.
+
+   Neither expiry nor the end of vouching invalidates an access token
+   already issued, which remains usable for its own lifetime.  The
+   prohibition of refresh tokens does not change that.  A server that
+   needs access to end when the ID-JAG expires limits the lifetime of
+   the access tokens it issues on the claim.
+
+8.6.  Key Locations
+
+   The IdP Authorization Server and the Resource Authorization Server
+   can obtain different key sets from a document's jwks_uri, which the
+   digest attests only as a location (Section 13.2 of [STATEMENT]), and
+   an update to the key set can change which keys the Resource
+   Authorization Server accepts, without any change to the digest.
+   Requiring both servers to take keys from the vouched document does
+   not prevent this.  A deployment that needs the vouched document to
+   fix the keys themselves uses a document that carries them inline in
+   jwks, as in Section 6.
+
+9.  Privacy Considerations
+
+   The claim is the digest of a document that is already public.  It
+   tells the Resource Authorization Server nothing about the user, and
+   nothing about the client beyond the document the server can retrieve
+   itself.  The server's retrieval of the document is the same as for
+   any CIMD client and has the same side channel (Section 11.1 of
+   [CIMD]).
+
+10.  IANA Considerations
+
+   This specification requests that IANA add this specification to the
+   Specification Document(s) of the cimd_digest entry that [STATEMENT]
+   registers in the "JSON Web Token Claims" registry established by
+   [RFC7519].
+
+   Claim Name:  cimd_digest
+
+   Specification Document(s):  Section 3 of [STATEMENT], and Section 3
+      of this specification
+
+11.  References
+
+11.1.  Normative References
+
+   [CIMD]     Parecki, A. and E. Smith, "OAuth Client ID Metadata
+              Document", Work in Progress, Internet-Draft, draft-ietf-
+              oauth-client-id-metadata-document-03, 2 November 2026,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
+              client-id-metadata-document-03>.
+
+   [IDJAG]    Parecki, A., McGuinness, K., and B. Campbell, "Identity
+              Assertion JWT Authorization Grant", Work in Progress,
+              Internet-Draft, draft-ietf-oauth-identity-assertion-authz-
+              grant-06, 30 October 2026,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
+              identity-assertion-authz-grant-06>.
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/rfc/rfc2119>.
+
+   [RFC6749]  Hardt, D., Ed., "The OAuth 2.0 Authorization Framework",
+              RFC 6749, DOI 10.17487/RFC6749, October 2012,
+              <https://www.rfc-editor.org/rfc/rfc6749>.
+
+   [RFC7519]  Jones, M., Bradley, J., and N. Sakimura, "JSON Web Token
+              (JWT)", RFC 7519, DOI 10.17487/RFC7519, May 2015,
+              <https://www.rfc-editor.org/rfc/rfc7519>.
+
+   [RFC7591]  Richer, J., Ed., Jones, M., Bradley, J., Machulak, M., and
+              P. Hunt, "OAuth 2.0 Dynamic Client Registration Protocol",
+              RFC 7591, DOI 10.17487/RFC7591, July 2015,
+              <https://www.rfc-editor.org/rfc/rfc7591>.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
+
+   [RFC9396]  Lodderstedt, T., Richer, J., and B. Campbell, "OAuth 2.0
+              Rich Authorization Requests", RFC 9396,
+              DOI 10.17487/RFC9396, May 2023,
+              <https://www.rfc-editor.org/rfc/rfc9396>.
+
+   [STATEMENT]
+              McGuinness, K., "Client ID Metadata Document Software
+              Statement", Work in Progress, Internet-Draft, draft-
+              mcguinness-oauth-cimd-sw-stmt-01, 2 November 2026,
+              <https://datatracker.ietf.org/doc/html/draft-mcguinness-
+              oauth-cimd-sw-stmt-01>.
+
+11.2.  Informative References
+
+   [I-D.parecki-oauth-jwt-dpop-grant]
+              Parecki, A., "OAuth 2.0 JWT Authorization Grant with DPoP
+              Binding", Work in Progress, Internet-Draft, draft-parecki-
+              oauth-jwt-dpop-grant-02, 30 October 2026,
+              <https://datatracker.ietf.org/doc/html/draft-parecki-
+              oauth-jwt-dpop-grant-02>.
+
+   [RFC7523]  Jones, M., Campbell, B., and C. Mortimore, "JSON Web Token
+              (JWT) Profile for OAuth 2.0 Client Authentication and
+              Authorization Grants", RFC 7523, DOI 10.17487/RFC7523, May
+              2015, <https://www.rfc-editor.org/rfc/rfc7523>.
+
+Acknowledgments
+
+   This specification follows working-group discussion of how an
+   identity provider issuing an ID-JAG could vouch for a client's
+   metadata.
+
+Document History
+
+   [[ To be removed from the final specification ]]
+
+   -00
+
+   *  Initial version.
+
+Author's Address
+
+   Karl McGuinness
+   Independent
+   Email: public@karlmcguinness.com
