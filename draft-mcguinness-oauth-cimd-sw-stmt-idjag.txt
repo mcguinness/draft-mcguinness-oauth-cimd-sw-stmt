@@ -154,7 +154,8 @@ Table of Contents
        digest with the claim.  If the digests match and its trust
        configuration designates the issuer, it admits the client, for
        that request only, with metadata taken from that document
-       (Section 4).  A re-submission of the ID-JAG repeats this step.
+       (Section 4).  The server processes a re-submission of the ID-JAG
+       the same way.
 
 2.  Conventions and Definitions
 
@@ -222,44 +223,44 @@ Table of Contents
    Authorization Server as well, including for the identity assertion or
    refresh token it exchanges (Section 4.3.3 of [IDJAG]).
 
-   When all four conditions hold, the IdP Authorization Server SHOULD
-   include the claim, unless its decision does not cover the document as
-   served, as when it pinned its approval to octets that differ from the
-   served document.  This specification defines no way for a client to
-   request the claim, so a Resource Authorization Server whose policy
+   When all of these conditions hold, the IdP Authorization Server
+   SHOULD include the claim, unless its decision does not cover the
+   document as served.  This specification defines no way for a client
+   to request the claim, so a Resource Authorization Server whose policy
    requires a vouched admission depends on this default.
 
    A Resource Authorization Server that designates the issuer rejects a
-   digest that does not match the document it obtains under step 3 of
-   Section 4.2, so a digest of an earlier document fails once that
-   server's copy reflects the change.  When an IdP Authorization Server
-   authenticates a client for an ID-JAG that will carry the claim, it
-   SHOULD therefore use the document as currently served, revalidating
-   any octets it holds (Section 3.1 of [STATEMENT]), including octets
-   held from pre-registering the client identifier URL (Section 9.2 of
-   [CIMD]).  Revalidation keeps the digest current, but the claim still
-   asserts the IdP Authorization Server's decision.  An IdP
-   Authorization Server that pins its approval to octets it reviewed
-   omits the claim, or refuses the request, when the served document
-   differs from them.
+   digest that does not match the document it obtains (Section 4.2), so
+   a digest of an earlier document fails once that server's copy
+   reflects the change.  When an IdP Authorization Server authenticates
+   a client for an ID-JAG that will carry the claim, it SHOULD therefore
+   use the document as currently served, revalidating any octets it
+   holds (Section 3.1 of [STATEMENT]), including octets held from pre-
+   registering the client identifier URL (Section 9.2 of [CIMD]).
+   Revalidation keeps the digest current, but the claim still asserts
+   the IdP Authorization Server's decision.  An IdP Authorization Server
+   that pins its approval to octets it reviewed omits the claim, or
+   refuses the request, when the served document differs from them.
 
 4.  Vouched Admission
+
+   This section defines the trust configuration under which a Resource
+   Authorization Server relies on the claim (Section 4.1) and how it
+   then processes a token request that redeems an ID-JAG (Section 4.2).
 
 4.1.  Trust Configuration
 
    A Resource Authorization Server MUST NOT rely on the claim unless its
    trust configuration, established out of band, designates the ID-JAG's
-   issuer for vouched admission in the tenant in which the server
-   accepts the ID-JAG (Section 4.4.1 of [IDJAG]).  That tenant is the
-   recipient tenant, which aud, aud_tenant when present, or the server's
-   trust relationship with the issuer identifies (Section 4.4.1 of
-   [IDJAG]).  For a multi-tenant issuer, the designation also names the
-   tenant at the issuer, which the tenant claim identifies (Section 6.1
-   of [IDJAG]).  The server MUST NOT derive the designation from the ID-
-   JAG or from the client's document.  A designation delegates the
-   decision to admit a client.  Trusting an issuer to assert users'
-   identities in ID-JAGs, or to authenticate clients, does not by itself
-   designate it.
+   issuer for vouched admission in the recipient tenant, which is
+   identified by aud, by aud_tenant when present, or by the server's
+   trust relationship with the issuer (Section 4.4.1 of [IDJAG]).  For a
+   multi-tenant issuer, the designation also names the tenant at the
+   issuer, which the tenant claim identifies (Section 6.1 of [IDJAG]).
+   The server MUST NOT derive the designation from the ID-JAG or from
+   the client's document.  A designation delegates the decision to admit
+   a client.  Trusting an issuer to assert users' identities in ID-JAGs,
+   or to authenticate clients, does not by itself designate it.
 
    A designation can confine the issuer to client identifier namespaces,
    as defined in Section 4 of [STATEMENT].  The server then MUST NOT
@@ -271,181 +272,155 @@ Table of Contents
    Vouched admission applies to a CIMD client the server holds no
    registration for.  The server's policy can require it for such
    clients in a tenant, or for those within particular client identifier
-   namespaces in a tenant (Section 5).  For a registered client, the
+   namespaces in a tenant (Section 4.2).  For a registered client, the
    registration governs and the server ignores the claim.  A record the
    server keeps of a vouched admission, or document octets it caches
    from a retrieval, is not by itself a registration.
 
 4.2.  Processing Rules
 
-   The steps below validate the ID-JAG (step 1), decide whether the
-   server admits the client on the claim (steps 2 to 4), and limit what
-   it issues (steps 5 and 6).  Admitting the client does not authorize
-   access, which the ID-JAG and the server's policy decide
+   A Resource Authorization Server that relies on the claim applies the
+   following rules to a token request that redeems an ID-JAG for a CIMD
+   client it holds no registration for.  Admitting the client does not
+   authorize access, which the ID-JAG and the server's policy decide
    (Section 4.4.1 of [IDJAG]).
 
-   A Resource Authorization Server that relies on the claim processes a
-   token request redeeming an ID-JAG, for a CIMD client it holds no
-   registration for, as follows, rejecting at the first failure
-   (Section 5):
+   The server first validates the ID-JAG as Section 4.4 of [IDJAG]
+   requires, including the verification of any cnf claim, except for the
+   checks that depend on client authentication: the client continuity
+   check of Section 4.4.1 of [IDJAG], and the rejection in Section 4.4
+   of [IDJAG] of a request that has neither client authentication nor a
+   sender-constrained ID-JAG.  The server performs those checks after
+   any client authentication and, on every path, before it issues an
+   access token.
 
-   1.  Validate the ID-JAG as Section 4.4 of [IDJAG] requires, including
-       the verification of any cnf claim, but defer the checks that
-       depend on client authentication.  These are the client continuity
-       check of Section 4.4.1 of [IDJAG], and the rejection in
-       Section 4.4 of [IDJAG] of a request that has neither client
-       authentication nor a sender-constrained ID-JAG.  The server
-       completes these deferred checks before it issues an access token
-       on any path.
+   If the ID-JAG carries the claim and its issuer is a designated issuer
+   for the client in the tenant (Section 4.1), the server checks the
+   client's document against the claim:
 
-   2.  Determine whether the ID-JAG carries the claim and its issuer is
-       a designated issuer for the client in the tenant (Section 4.1).
-       If not, use ordinary admission.
+   *  The server obtains the document at the URL in the client_id claim,
+      by retrieval or from octets it holds within the bounds of
+      Section 5.3 of [STATEMENT], and validates it as [CIMD] requires.
+      The server MUST reject a document containing duplicate member
+      names (Section 5.2 of [STATEMENT]).  Section 5 gives the error
+      codes for a document that cannot be obtained or is invalid.
 
-   3.  Obtain the document at the URL in the client_id claim, by
-       retrieval or from octets the server holds within the bounds of
-       Section 5.3 of [STATEMENT], and validate it as [CIMD] requires.
-       The server MUST reject a document containing duplicate member
-       names (Section 5.2 of [STATEMENT]).  Then compare its digest with
-       the claim, as Section 5.2 of [STATEMENT] requires for a
-       statement's sub and cimd_digest claims.  If held octets do not
-       match, the server retrieves the document once more and applies
-       this step to the retrieved document.  If the digest of retrieved
-       octets does not match the claim, the server MUST reject the
-       request (Section 5), even if its policy does not require a
-       vouched admission (Section 8.4).
+   *  The server compares the document's metadata digest with the claim,
+      as Section 5.2 of [STATEMENT] requires for a statement's sub and
+      cimd_digest claims.  If held octets do not match, the server
+      retrieves the document once more and repeats these checks on the
+      retrieved document.  If the digest of retrieved octets does not
+      match the claim, the server MUST reject the request with the
+      invalid_grant error code, even if its policy does not require a
+      vouched admission (Section 8.4).
 
-   4.  Consider the vouched document's permitted methods that the server
-       supports and its policy allows for token endpoint authentication,
-       apart from any requirement for a vouched admission.  If they
-       include a method other than none, the server MUST require the
-       client to authenticate with such a method, proving possession of
-       a key the vouched document carries (Section 5.6.1 of [STATEMENT];
-       Section 8.2), and then completes the deferred checks.  Otherwise,
-       if they include the none method, use ordinary admission.  If they
-       include no method at all, Section 5 of [CIMD] applies.
+   If the digests match, the server determines which of the vouched
+   document's permitted methods it supports and its policy allows for
+   token endpoint authentication, apart from any requirement for a
+   vouched admission.  If there is no such method, Section 5 of [CIMD]
+   applies.  If the none method is the only such method, the server uses
+   ordinary admission.  Otherwise, the server applies the following
+   rules, and admits the client on the claim unless one of them rejects
+   the request:
 
-   5.  The server MUST reject the request unless its grant type appears
-       in the vouched document's grant_types member, including the grant
-       type that Section 4.4 of [IDJAG] requires for an ID-JAG bound to
-       a DPoP key.  A document that omits the member permits only
-       authorization_code (Section 2 of [RFC7591]), so it permits no
-       redemption of an ID-JAG.
+   *  The server MUST require the client to authenticate with one of the
+      methods determined above other than the none method, proving
+      possession of a key the vouched document carries (Section 5.6.1 of
+      [STATEMENT]; Section 8.2).  If the client does not, the server
+      rejects the request with the invalid_client error code.  After the
+      client authenticates, the server performs the checks of
+      Section 4.4 of [IDJAG] that depend on client authentication.
 
-   6.  If the vouched document has a scope member, the server MUST NOT
-       issue an access token whose scope falls outside it.  The server
-       narrows the scope it would otherwise grant (Section 4.4.1 of
-       [IDJAG]) to meet this rule and removes any authorization details
-       it derives from a scope that narrowing removes.  If the vouched
-       document has an authorization_details_types member (Section 10 of
-       [RFC9396]), the server MUST NOT issue authorization details of a
-       type the member does not list, and it narrows the authorization
-       details it would otherwise grant to meet this rule, removing any
-       scope it derives only from authorization details that narrowing
-       removes (Section 4.4.1 of [IDJAG]).  If the server would
-       otherwise grant some scope or authorization details and narrowing
-       removes all of them, the server MUST reject the request.
+   *  The server MUST reject the request with the unauthorized_client
+      error code unless the request's grant type appears in the vouched
+      document's grant_types member, including the grant type that
+      Section 4.4 of [IDJAG] requires for an ID-JAG bound to a DPoP key.
+      A document that omits the member permits only authorization_code
+      (Section 2 of [RFC7591]), so it permits no redemption of an ID-
+      JAG.
 
-   For ordinary admission, the server obtains the document if it has not
-   already done so and MUST apply its policy for CIMD clients it holds
-   no registration for as if the ID-JAG carried no claim: nothing from
-   the claim or the designation counts toward admitting the client.  The
-   remaining steps and the refresh-token rule below then do not apply,
-   but the deferred checks of step 1 still do.  If that policy requires
-   a vouched admission, the server rejects the request (Section 5).
+   *  If the vouched document has a scope member, the server MUST NOT
+      issue an access token whose scope falls outside it.  The server
+      narrows the scope it would otherwise grant (Section 4.4.1 of
+      [IDJAG]) to meet this rule and removes any authorization details
+      it derives from a scope that narrowing removes.
 
-   The server MUST NOT issue a refresh token in response to a request it
-   admits on the claim, even if the request also presents a statement
-   (Section 7).  A vouched admission does not admit a later request,
-   even if the server keeps a record of the admission, such as for
-   audit.  Each request, including a re-submission of the same ID-JAG
-   (Section 4.4.4 of [IDJAG]), repeats this processing.
+   *  If the vouched document has an authorization_details_types member
+      (Section 10 of [RFC9396]), the server MUST NOT issue authorization
+      details of a type the member does not list.  The server narrows
+      the authorization details it would otherwise grant to meet this
+      rule and removes any scope it derives only from authorization
+      details that narrowing removes (Section 4.4.1 of [IDJAG]).
+
+   *  If the server would otherwise grant some scope or authorization
+      details and narrowing removes all of them, the server MUST reject
+      the request with the invalid_scope error code, or with the
+      invalid_authorization_details error code (Section 6 of [RFC9396])
+      if it would otherwise grant only authorization details.
+
+   *  The server MUST NOT issue a refresh token in response to the
+      request, even if the request also presents a statement
+      (Section 7).
+
+   The server uses ordinary admission when the ID-JAG carries no claim,
+   when its issuer is not a designated issuer for the client in the
+   tenant, or when the none method is the only method determined above.
+   Under ordinary admission, the server obtains the document if it has
+   not already done so and MUST process the request under its policy for
+   CIMD clients it holds no registration for as if the ID-JAG carried no
+   claim.  Nothing from the claim or the designation counts toward
+   admitting the client.  If that policy requires a vouched admission,
+   the server rejects the request.  It uses the invalid_grant error code
+   if the ID-JAG carries no claim and its issuer is a designated issuer
+   for the client in the tenant, and the access_denied error code
+   otherwise.
+
+   A vouched admission does not admit a later request, even if the
+   server keeps a record of the admission, such as for audit.  Each
+   request, including a re-submission of the same ID-JAG (Section 4.4.4
+   of [IDJAG]), repeats this processing.
 
 5.  Error Responses
 
    A rejection uses the error response of Section 5.2 of [RFC6749].  A
    failure of the validation that Section 4.4 or Section 9.11 of [IDJAG]
-   requires uses the error code that [IDJAG] assigns.
+   requires uses the error code that [IDJAG] assigns.  Any other
+   rejection uses the error code that Section 4.2 names, except that the
+   following apply whether or not the server admits the client on the
+   claim:
 
-   For a rejection this specification defines, the server uses the first
-   of the following that applies:
+   *  If a retrieval of the document, or of the key set at its jwks_uri,
+      does not complete (Section 5.3 of [STATEMENT]), the server
+      responds with HTTP status code 503 and the temporarily_unavailable
+      error code, as Section 6 of [STATEMENT] requires.
 
-   1.  temporarily_unavailable, if a retrieval of the document, or of
-       the key set at its jwks_uri, did not complete (Section 5.3 of
-       [STATEMENT]).  The server responds with HTTP status code 503, as
-       Section 6 of [STATEMENT] requires.
+   *  If the document cannot be obtained, fails validation as [CIMD]
+      requires (Section 6 of [CIMD]), contains duplicate member names
+      (Section 5.2 of [STATEMENT]), or permits no token endpoint
+      authentication method that the server supports and its policy
+      allows (Section 5 of [CIMD]), the server uses the invalid_client
+      error code.
 
-   2.  invalid_client, if the document cannot be obtained, fails
-       validation as [CIMD] requires (Section 6 of [CIMD]), contains
-       duplicate member names (Section 5.2 of [STATEMENT]), or permits
-       no token endpoint authentication method that the server supports
-       and its policy allows (Section 5 of [CIMD]), whether at step 3 or
-       4 of Section 4.2 or under ordinary admission.  Validation
-       includes the checks that the document's grant_types member shares
-       a value with the grant types the server supports, and its
-       response_types member with the response types the server
-       supports.  A server that supports no response type, such as one
-       without an authorization endpoint, therefore rejects every
-       document, including one that omits response_types, which means
-       only code (Section 2 of [RFC7591]).  This specification does not
-       change the rule of Section 6 of [CIMD].
+   Validation as [CIMD] requires includes the checks that the document's
+   grant_types member shares a value with the grant types the server
+   supports, and its response_types member with the response types the
+   server supports.  A server that supports no response type, such as
+   one without an authorization endpoint, therefore rejects every
+   document, including one that omits response_types, which means only
+   code (Section 2 of [RFC7591]).  This specification does not change
+   the rule of Section 6 of [CIMD].
 
-   3.  The code that the following table assigns to the step of
-       Section 4.2 at which the request fails or leaves the vouched
-       path.  The "Vouching required" column applies when the server's
-       policy requires a vouched admission for the client, and the "Not
-       required" column applies otherwise.  For a step that leaves the
-       vouched path, a "Vouching required" cell applies only when
-       ordinary admission then rejects the request because the policy
-       requires a vouched admission.  "Ordinary" means that the server
-       uses ordinary admission, for which the table assigns no error
-       code.  Rules 1 and 2 still apply to ordinary admission.
+   The server rejects a request at its first failure, in the order that
+   Section 4.2 presents its rules.  Among the rejections that this
+   specification defines, however, temporarily_unavailable takes
+   precedence, then invalid_client for a document error listed above.
 
-   +======================+=====================+=====================+
-   | Failure              | Vouching required   | Not required        |
-   +======================+=====================+=====================+
-   | Step 2: no claim,    | invalid_grant       | Ordinary            |
-   | from an issuer       |                     |                     |
-   | designated for the   |                     |                     |
-   | client in the tenant |                     |                     |
-   +----------------------+---------------------+---------------------+
-   | Step 2: issuer not   | access_denied       | Ordinary            |
-   | designated for the   |                     |                     |
-   | client in the tenant |                     |                     |
-   +----------------------+---------------------+---------------------+
-   | Step 3: digest       | invalid_grant       | invalid_grant       |
-   | mismatch             |                     |                     |
-   +----------------------+---------------------+---------------------+
-   | Step 4: of the       | access_denied       | Ordinary            |
-   | document's permitted |                     |                     |
-   | methods, the server  |                     |                     |
-   | supports and allows  |                     |                     |
-   | only the none method |                     |                     |
-   +----------------------+---------------------+---------------------+
-   | Step 4: client does  | invalid_client      | invalid_client      |
-   | not authenticate as  |                     |                     |
-   | step 4 requires      |                     |                     |
-   +----------------------+---------------------+---------------------+
-   | Step 5: grant type   | unauthorized_client | unauthorized_client |
-   | not in grant_types   |                     |                     |
-   +----------------------+---------------------+---------------------+
-   | Step 6: narrowing    | invalid_scope       | invalid_scope       |
-   | leaves nothing to    |                     |                     |
-   | grant                |                     |                     |
-   +----------------------+---------------------+---------------------+
-
-                                 Table 1
-
-   Where the server would otherwise grant only authorization details,
-   step 6 uses invalid_authorization_details (Section 6 of [RFC9396]) in
-   place of invalid_scope.
-
-   A re-issued ID-JAG may resolve an invalid_grant error that the table
-   assigns (Section 4.4.3 of [IDJAG]), because the IdP Authorization
-   Server can include the claim, or compute it over the document it then
-   holds, unless Section 3 requires it to omit the claim.  A re-issued
-   ID-JAG will not resolve an access_denied error that the table
-   assigns.
+   A re-issued ID-JAG may resolve an invalid_grant error that
+   Section 4.2 names (Section 4.4.3 of [IDJAG]), because the IdP
+   Authorization Server can include the claim, or compute it over the
+   document it then holds, unless Section 3 requires it to omit the
+   claim.  A re-issued ID-JAG will not resolve an access_denied error
+   that Section 4.2 names.
 
 6.  Examples
 
@@ -600,7 +575,7 @@ Table of Contents
    | authorization requests       | redeems the ID-JAG                |
    +------------------------------+-----------------------------------+
 
-                                 Table 2
+                                 Table 1
 
 8.2.  Client Authentication at Both Servers
 
@@ -650,10 +625,10 @@ Table of Contents
    clients lists their namespaces.
 
    Where a server requires a vouched admission, the choice between
-   invalid_grant and access_denied (Section 5) tells the presenter
-   whether the server designates the ID-JAG's issuer.  By accepting the
-   ID-JAG at step 1, the server has already shown that it trusts the
-   issuer (Section 4.4.1 of [IDJAG]), so this reveals little.
+   invalid_grant and access_denied (Section 4.2) tells the presenter
+   whether the server designates the ID-JAG's issuer.  The server has
+   already validated the ID-JAG, which shows that it trusts the issuer
+   (Section 4.4.1 of [IDJAG]), so this reveals little.
 
 8.4.  Changed and Split Documents
 

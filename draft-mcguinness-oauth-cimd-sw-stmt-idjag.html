@@ -1256,7 +1256,7 @@ svg {
             <p id="section-1.1-2.3.1">The client presents the ID-JAG at the Resource Authorization Server's token endpoint (Section 4.4 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span>), authenticating with a key the document carries.<a href="#section-1.1-2.3.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-1.1-2.4">
-            <p id="section-1.1-2.4.1">The Resource Authorization Server validates the ID-JAG, retrieves the document at the URL in the <code>client_id</code> claim, and compares its digest with the claim. If the digests match and its trust configuration designates the issuer, it admits the client, for that request only, with metadata taken from that document (<a href="#admission" class="auto internal xref">Section 4</a>). A re-submission of the ID-JAG repeats this step.<a href="#section-1.1-2.4.1" class="pilcrow">¶</a></p>
+            <p id="section-1.1-2.4.1">The Resource Authorization Server validates the ID-JAG, retrieves the document at the URL in the <code>client_id</code> claim, and compares its digest with the claim. If the digests match and its trust configuration designates the issuer, it admits the client, for that request only, with metadata taken from that document (<a href="#admission" class="auto internal xref">Section 4</a>). The server processes a re-submission of the ID-JAG the same way.<a href="#section-1.1-2.4.1" class="pilcrow">¶</a></p>
 </li>
         </ol>
 </section>
@@ -1320,8 +1320,8 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 </li>
       </ul>
 <p id="section-3-4">The client therefore uses its client identifier URL at the IdP Authorization Server as well, including for the identity assertion or refresh token it exchanges (Section 4.3.3 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span>).<a href="#section-3-4" class="pilcrow">¶</a></p>
-<p id="section-3-5">When all four conditions hold, the IdP Authorization Server <span class="bcp14">SHOULD</span> include the claim, unless its decision does not cover the document as served, as when it pinned its approval to octets that differ from the served document. This specification defines no way for a client to request the claim, so a Resource Authorization Server whose policy requires a vouched admission depends on this default.<a href="#section-3-5" class="pilcrow">¶</a></p>
-<p id="section-3-6">A Resource Authorization Server that designates the issuer rejects a digest that does not match the document it obtains under step 3 of <a href="#processing" class="auto internal xref">Section 4.2</a>, so a digest of an earlier document fails once that server's copy reflects the change. When an IdP Authorization Server authenticates a client for an ID-JAG that will carry the claim, it <span class="bcp14">SHOULD</span> therefore use the document as currently served, revalidating any octets it holds (Section 3.1 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), including octets held from pre-registering the client identifier URL (Section 9.2 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>). Revalidation keeps the digest current, but the claim still asserts the IdP Authorization Server's decision. An IdP Authorization Server that pins its approval to octets it reviewed omits the claim, or refuses the request, when the served document differs from them.<a href="#section-3-6" class="pilcrow">¶</a></p>
+<p id="section-3-5">When all of these conditions hold, the IdP Authorization Server <span class="bcp14">SHOULD</span> include the claim, unless its decision does not cover the document as served. This specification defines no way for a client to request the claim, so a Resource Authorization Server whose policy requires a vouched admission depends on this default.<a href="#section-3-5" class="pilcrow">¶</a></p>
+<p id="section-3-6">A Resource Authorization Server that designates the issuer rejects a digest that does not match the document it obtains (<a href="#processing" class="auto internal xref">Section 4.2</a>), so a digest of an earlier document fails once that server's copy reflects the change. When an IdP Authorization Server authenticates a client for an ID-JAG that will carry the claim, it <span class="bcp14">SHOULD</span> therefore use the document as currently served, revalidating any octets it holds (Section 3.1 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), including octets held from pre-registering the client identifier URL (Section 9.2 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>). Revalidation keeps the digest current, but the claim still asserts the IdP Authorization Server's decision. An IdP Authorization Server that pins its approval to octets it reviewed omits the claim, or refuses the request, when the served document differs from them.<a href="#section-3-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="admission">
@@ -1329,14 +1329,15 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
       <h2 id="name-vouched-admission">
 <a href="#section-4" class="section-number selfRef">4. </a><a href="#name-vouched-admission" class="section-name selfRef">Vouched Admission</a>
       </h2>
+<p id="section-4-1">This section defines the trust configuration under which a Resource Authorization Server relies on the claim (<a href="#trust-configuration" class="auto internal xref">Section 4.1</a>) and how it then processes a token request that redeems an ID-JAG (<a href="#processing" class="auto internal xref">Section 4.2</a>).<a href="#section-4-1" class="pilcrow">¶</a></p>
 <div id="trust-configuration">
 <section id="section-4.1">
         <h3 id="name-trust-configuration">
 <a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-trust-configuration" class="section-name selfRef">Trust Configuration</a>
         </h3>
-<p id="section-4.1-1">A Resource Authorization Server <span class="bcp14">MUST NOT</span> rely on the claim unless its trust configuration, established out of band, designates the ID-JAG's issuer for vouched admission in the tenant in which the server accepts the ID-JAG (Section 4.4.1 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span>). That tenant is the recipient tenant, which <code>aud</code>, <code>aud_tenant</code> when present, or the server's trust relationship with the issuer identifies (Section 4.4.1 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span>). For a multi-tenant issuer, the designation also names the tenant at the issuer, which the <code>tenant</code> claim identifies (Section 6.1 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span>). The server <span class="bcp14">MUST NOT</span> derive the designation from the ID-JAG or from the client's document. A designation delegates the decision to admit a client. Trusting an issuer to assert users' identities in ID-JAGs, or to authenticate clients, does not by itself designate it.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+<p id="section-4.1-1">A Resource Authorization Server <span class="bcp14">MUST NOT</span> rely on the claim unless its trust configuration, established out of band, designates the ID-JAG's issuer for vouched admission in the recipient tenant, which is identified by <code>aud</code>, by <code>aud_tenant</code> when present, or by the server's trust relationship with the issuer (Section 4.4.1 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span>). For a multi-tenant issuer, the designation also names the tenant at the issuer, which the <code>tenant</code> claim identifies (Section 6.1 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span>). The server <span class="bcp14">MUST NOT</span> derive the designation from the ID-JAG or from the client's document. A designation delegates the decision to admit a client. Trusting an issuer to assert users' identities in ID-JAGs, or to authenticate clients, does not by itself designate it.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
 <p id="section-4.1-2">A designation can confine the issuer to client identifier namespaces, as defined in Section 4 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>. The server then <span class="bcp14">MUST NOT</span> rely on the claim for a client identifier URL outside them. An issuer is a designated issuer for a client in a tenant when a designation of it covers that tenant and, if the designation lists namespaces, the client identifier URL falls within one of them.<a href="#section-4.1-2" class="pilcrow">¶</a></p>
-<p id="section-4.1-3">Vouched admission applies to a CIMD client the server holds no registration for. The server's policy can require it for such clients in a tenant, or for those within particular client identifier namespaces in a tenant (<a href="#errors" class="auto internal xref">Section 5</a>). For a registered client, the registration governs and the server ignores the claim. A record the server keeps of a vouched admission, or document octets it caches from a retrieval, is not by itself a registration.<a href="#section-4.1-3" class="pilcrow">¶</a></p>
+<p id="section-4.1-3">Vouched admission applies to a CIMD client the server holds no registration for. The server's policy can require it for such clients in a tenant, or for those within particular client identifier namespaces in a tenant (<a href="#processing" class="auto internal xref">Section 4.2</a>). For a registered client, the registration governs and the server ignores the claim. A record the server keeps of a vouched admission, or document octets it caches from a retrieval, is not by itself a registration.<a href="#section-4.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="processing">
@@ -1344,30 +1345,40 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         <h3 id="name-processing-rules">
 <a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-processing-rules" class="section-name selfRef">Processing Rules</a>
         </h3>
-<p id="section-4.2-1">The steps below validate the ID-JAG (step 1), decide whether the server admits the client on the claim (steps 2 to 4), and limit what it issues (steps 5 and 6). Admitting the client does not authorize access, which the ID-JAG and the server's policy decide (Section 4.4.1 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span>).<a href="#section-4.2-1" class="pilcrow">¶</a></p>
-<p id="section-4.2-2">A Resource Authorization Server that relies on the claim processes a token request redeeming an ID-JAG, for a CIMD client it holds no registration for, as follows, rejecting at the first failure (<a href="#errors" class="auto internal xref">Section 5</a>):<a href="#section-4.2-2" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-4.2-3">
-<li id="section-4.2-3.1">
-            <p id="section-4.2-3.1.1">Validate the ID-JAG as Section 4.4 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span> requires, including the verification of any <code>cnf</code> claim, but defer the checks that depend on client authentication. These are the client continuity check of Section 4.4.1 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span>, and the rejection in Section 4.4 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span> of a request that has neither client authentication nor a sender-constrained ID-JAG. The server completes these deferred checks before it issues an access token on any path.<a href="#section-4.2-3.1.1" class="pilcrow">¶</a></p>
+<p id="section-4.2-1">A Resource Authorization Server that relies on the claim applies the following rules to a token request that redeems an ID-JAG for a CIMD client it holds no registration for. Admitting the client does not authorize access, which the ID-JAG and the server's policy decide (Section 4.4.1 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span>).<a href="#section-4.2-1" class="pilcrow">¶</a></p>
+<p id="section-4.2-2">The server first validates the ID-JAG as Section 4.4 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span> requires, including the verification of any <code>cnf</code> claim, except for the checks that depend on client authentication: the client continuity check of Section 4.4.1 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span>, and the rejection in Section 4.4 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span> of a request that has neither client authentication nor a sender-constrained ID-JAG. The server performs those checks after any client authentication and, on every path, before it issues an access token.<a href="#section-4.2-2" class="pilcrow">¶</a></p>
+<p id="section-4.2-3">If the ID-JAG carries the claim and its issuer is a designated issuer for the client in the tenant (<a href="#trust-configuration" class="auto internal xref">Section 4.1</a>), the server checks the client's document against the claim:<a href="#section-4.2-3" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.2-4.1">
+            <p id="section-4.2-4.1.1">The server obtains the document at the URL in the <code>client_id</code> claim, by retrieval or from octets it holds within the bounds of Section 5.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, and validates it as <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> requires. The server <span class="bcp14">MUST</span> reject a document containing duplicate member names (Section 5.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). <a href="#errors" class="auto internal xref">Section 5</a> gives the error codes for a document that cannot be obtained or is invalid.<a href="#section-4.2-4.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li id="section-4.2-3.2">
-            <p id="section-4.2-3.2.1">Determine whether the ID-JAG carries the claim and its issuer is a designated issuer for the client in the tenant (<a href="#trust-configuration" class="auto internal xref">Section 4.1</a>). If not, use ordinary admission.<a href="#section-4.2-3.2.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-4.2-4.2">
+            <p id="section-4.2-4.2.1">The server compares the document's metadata digest with the claim, as Section 5.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> requires for a statement's <code>sub</code> and <code>cimd_digest</code> claims. If held octets do not match, the server retrieves the document once more and repeats these checks on the retrieved document. If the digest of retrieved octets does not match the claim, the server <span class="bcp14">MUST</span> reject the request with the <code>invalid_grant</code> error code, even if its policy does not require a vouched admission (<a href="#changed-documents" class="auto internal xref">Section 8.4</a>).<a href="#section-4.2-4.2.1" class="pilcrow">¶</a></p>
 </li>
-          <li id="section-4.2-3.3">
-            <p id="section-4.2-3.3.1">Obtain the document at the URL in the <code>client_id</code> claim, by retrieval or from octets the server holds within the bounds of Section 5.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>, and validate it as <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> requires. The server <span class="bcp14">MUST</span> reject a document containing duplicate member names (Section 5.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). Then compare its digest with the claim, as Section 5.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> requires for a statement's <code>sub</code> and <code>cimd_digest</code> claims. If held octets do not match, the server retrieves the document once more and applies this step to the retrieved document. If the digest of retrieved octets does not match the claim, the server <span class="bcp14">MUST</span> reject the request (<a href="#errors" class="auto internal xref">Section 5</a>), even if its policy does not require a vouched admission (<a href="#changed-documents" class="auto internal xref">Section 8.4</a>).<a href="#section-4.2-3.3.1" class="pilcrow">¶</a></p>
+        </ul>
+<p id="section-4.2-5">If the digests match, the server determines which of the vouched document's permitted methods it supports and its policy allows for token endpoint authentication, apart from any requirement for a vouched admission. If there is no such method, Section 5 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> applies. If the <code>none</code> method is the only such method, the server uses ordinary admission. Otherwise, the server applies the following rules, and admits the client on the claim unless one of them rejects the request:<a href="#section-4.2-5" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.2-6.1">
+            <p id="section-4.2-6.1.1">The server <span class="bcp14">MUST</span> require the client to authenticate with one of the methods determined above other than the <code>none</code> method, proving possession of a key the vouched document carries (Section 5.6.1 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>; <a href="#client-authentication" class="auto internal xref">Section 8.2</a>). If the client does not, the server rejects the request with the <code>invalid_client</code> error code. After the client authenticates, the server performs the checks of Section 4.4 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span> that depend on client authentication.<a href="#section-4.2-6.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li id="section-4.2-3.4">
-            <p id="section-4.2-3.4.1">Consider the vouched document's permitted methods that the server supports and its policy allows for token endpoint authentication, apart from any requirement for a vouched admission. If they include a method other than <code>none</code>, the server <span class="bcp14">MUST</span> require the client to authenticate with such a method, proving possession of a key the vouched document carries (Section 5.6.1 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>; <a href="#client-authentication" class="auto internal xref">Section 8.2</a>), and then completes the deferred checks. Otherwise, if they include the <code>none</code> method, use ordinary admission. If they include no method at all, Section 5 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> applies.<a href="#section-4.2-3.4.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-4.2-6.2">
+            <p id="section-4.2-6.2.1">The server <span class="bcp14">MUST</span> reject the request with the <code>unauthorized_client</code> error code unless the request's grant type appears in the vouched document's <code>grant_types</code> member, including the grant type that Section 4.4 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span> requires for an ID-JAG bound to a DPoP key. A document that omits the member permits only <code>authorization_code</code> (Section 2 of <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>), so it permits no redemption of an ID-JAG.<a href="#section-4.2-6.2.1" class="pilcrow">¶</a></p>
 </li>
-          <li id="section-4.2-3.5">
-            <p id="section-4.2-3.5.1">The server <span class="bcp14">MUST</span> reject the request unless its grant type appears in the vouched document's <code>grant_types</code> member, including the grant type that Section 4.4 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span> requires for an ID-JAG bound to a DPoP key. A document that omits the member permits only <code>authorization_code</code> (Section 2 of <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>), so it permits no redemption of an ID-JAG.<a href="#section-4.2-3.5.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-4.2-6.3">
+            <p id="section-4.2-6.3.1">If the vouched document has a <code>scope</code> member, the server <span class="bcp14">MUST NOT</span> issue an access token whose scope falls outside it. The server narrows the scope it would otherwise grant (Section 4.4.1 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span>) to meet this rule and removes any authorization details it derives from a scope that narrowing removes.<a href="#section-4.2-6.3.1" class="pilcrow">¶</a></p>
 </li>
-          <li id="section-4.2-3.6">
-            <p id="section-4.2-3.6.1">If the vouched document has a <code>scope</code> member, the server <span class="bcp14">MUST NOT</span> issue an access token whose scope falls outside it. The server narrows the scope it would otherwise grant (Section 4.4.1 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span>) to meet this rule and removes any authorization details it derives from a scope that narrowing removes. If the vouched document has an <code>authorization_details_types</code> member (Section 10 of <span>[<a href="#RFC9396" class="cite xref">RFC9396</a>]</span>), the server <span class="bcp14">MUST NOT</span> issue authorization details of a type the member does not list, and it narrows the authorization details it would otherwise grant to meet this rule, removing any scope it derives only from authorization details that narrowing removes (Section 4.4.1 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span>). If the server would otherwise grant some scope or authorization details and narrowing removes all of them, the server <span class="bcp14">MUST</span> reject the request.<a href="#section-4.2-3.6.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-4.2-6.4">
+            <p id="section-4.2-6.4.1">If the vouched document has an <code>authorization_details_types</code> member (Section 10 of <span>[<a href="#RFC9396" class="cite xref">RFC9396</a>]</span>), the server <span class="bcp14">MUST NOT</span> issue authorization details of a type the member does not list. The server narrows the authorization details it would otherwise grant to meet this rule and removes any scope it derives only from authorization details that narrowing removes (Section 4.4.1 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span>).<a href="#section-4.2-6.4.1" class="pilcrow">¶</a></p>
 </li>
-        </ol>
-<p id="section-4.2-4">For ordinary admission, the server obtains the document if it has not already done so and <span class="bcp14">MUST</span> apply its policy for CIMD clients it holds no registration for as if the ID-JAG carried no claim: nothing from the claim or the designation counts toward admitting the client. The remaining steps and the refresh-token rule below then do not apply, but the deferred checks of step 1 still do. If that policy requires a vouched admission, the server rejects the request (<a href="#errors" class="auto internal xref">Section 5</a>).<a href="#section-4.2-4" class="pilcrow">¶</a></p>
-<p id="section-4.2-5">The server <span class="bcp14">MUST NOT</span> issue a refresh token in response to a request it admits on the claim, even if the request also presents a statement (<a href="#relationship" class="auto internal xref">Section 7</a>). A vouched admission does not admit a later request, even if the server keeps a record of the admission, such as for audit. Each request, including a re-submission of the same ID-JAG (Section 4.4.4 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span>), repeats this processing.<a href="#section-4.2-5" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-4.2-6.5">
+            <p id="section-4.2-6.5.1">If the server would otherwise grant some scope or authorization details and narrowing removes all of them, the server <span class="bcp14">MUST</span> reject the request with the <code>invalid_scope</code> error code, or with the <code>invalid_authorization_details</code> error code (Section 6 of <span>[<a href="#RFC9396" class="cite xref">RFC9396</a>]</span>) if it would otherwise grant only authorization details.<a href="#section-4.2-6.5.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.2-6.6">
+            <p id="section-4.2-6.6.1">The server <span class="bcp14">MUST NOT</span> issue a refresh token in response to the request, even if the request also presents a statement (<a href="#relationship" class="auto internal xref">Section 7</a>).<a href="#section-4.2-6.6.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-4.2-7">The server uses ordinary admission when the ID-JAG carries no claim, when its issuer is not a designated issuer for the client in the tenant, or when the <code>none</code> method is the only method determined above. Under ordinary admission, the server obtains the document if it has not already done so and <span class="bcp14">MUST</span> process the request under its policy for CIMD clients it holds no registration for as if the ID-JAG carried no claim. Nothing from the claim or the designation counts toward admitting the client. If that policy requires a vouched admission, the server rejects the request. It uses the <code>invalid_grant</code> error code if the ID-JAG carries no claim and its issuer is a designated issuer for the client in the tenant, and the <code>access_denied</code> error code otherwise.<a href="#section-4.2-7" class="pilcrow">¶</a></p>
+<p id="section-4.2-8">A vouched admission does not admit a later request, even if the server keeps a record of the admission, such as for audit. Each request, including a re-submission of the same ID-JAG (Section 4.4.4 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span>), repeats this processing.<a href="#section-4.2-8" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1377,91 +1388,18 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
       <h2 id="name-error-responses">
 <a href="#section-5" class="section-number selfRef">5. </a><a href="#name-error-responses" class="section-name selfRef">Error Responses</a>
       </h2>
-<p id="section-5-1">A rejection uses the error response of Section 5.2 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>. A failure of the validation that Section 4.4 or Section 9.11 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span> requires uses the error code that <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span> assigns.<a href="#section-5-1" class="pilcrow">¶</a></p>
-<p id="section-5-2">For a rejection this specification defines, the server uses the first of the following that applies:<a href="#section-5-2" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-5-3">
-<li id="section-5-3.1">
-          <p id="section-5-3.1.1"><code>temporarily_unavailable</code>, if a retrieval of the document, or of the key set at its <code>jwks_uri</code>, did not complete (Section 5.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). The server responds with HTTP status code 503, as Section 6 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> requires.<a href="#section-5-3.1.1" class="pilcrow">¶</a></p>
+<p id="section-5-1">A rejection uses the error response of Section 5.2 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>. A failure of the validation that Section 4.4 or Section 9.11 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span> requires uses the error code that <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span> assigns. Any other rejection uses the error code that <a href="#processing" class="auto internal xref">Section 4.2</a> names, except that the following apply whether or not the server admits the client on the claim:<a href="#section-5-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-5-2.1">
+          <p id="section-5-2.1.1">If a retrieval of the document, or of the key set at its <code>jwks_uri</code>, does not complete (Section 5.3 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), the server responds with HTTP status code 503 and the <code>temporarily_unavailable</code> error code, as Section 6 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span> requires.<a href="#section-5-2.1.1" class="pilcrow">¶</a></p>
 </li>
-        <li id="section-5-3.2">
-          <p id="section-5-3.2.1"><code>invalid_client</code>, if the document cannot be obtained, fails validation as <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> requires (Section 6 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>), contains duplicate member names (Section 5.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), or permits no token endpoint authentication method that the server supports and its policy allows (Section 5 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>), whether at step 3 or 4 of <a href="#processing" class="auto internal xref">Section 4.2</a> or under ordinary admission. Validation includes the checks that the document's <code>grant_types</code> member shares a value with the grant types the server supports, and its <code>response_types</code> member with the response types the server supports. A server that supports no response type, such as one without an authorization endpoint, therefore rejects every document, including one that omits <code>response_types</code>, which means only <code>code</code> (Section 2 of <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>). This specification does not change the rule of Section 6 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>.<a href="#section-5-3.2.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="section-5-2.2">
+          <p id="section-5-2.2.1">If the document cannot be obtained, fails validation as <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> requires (Section 6 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>), contains duplicate member names (Section 5.2 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>), or permits no token endpoint authentication method that the server supports and its policy allows (Section 5 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>), the server uses the <code>invalid_client</code> error code.<a href="#section-5-2.2.1" class="pilcrow">¶</a></p>
 </li>
-        <li id="section-5-3.3">
-          <p id="section-5-3.3.1">The code that the following table assigns to the step of <a href="#processing" class="auto internal xref">Section 4.2</a> at which the request fails or leaves the vouched path. The "Vouching required" column applies when the server's policy requires a vouched admission for the client, and the "Not required" column applies otherwise. For a step that leaves the vouched path, a "Vouching required" cell applies only when ordinary admission then rejects the request because the policy requires a vouched admission. "Ordinary" means that the server uses ordinary admission, for which the table assigns no error code. Rules 1 and 2 still apply to ordinary admission.<a href="#section-5-3.3.1" class="pilcrow">¶</a></p>
-</li>
-      </ol>
-<table class="center" id="table-1">
-        <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
-<thead>
-          <tr>
-            <th class="text-left" rowspan="1" colspan="1">Failure</th>
-            <th class="text-left" rowspan="1" colspan="1">Vouching required</th>
-            <th class="text-left" rowspan="1" colspan="1">Not required</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Step 2: no claim, from an issuer designated for the client in the tenant</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_grant</code>
-</td>
-            <td class="text-left" rowspan="1" colspan="1">Ordinary</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Step 2: issuer not designated for the client in the tenant</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>access_denied</code>
-</td>
-            <td class="text-left" rowspan="1" colspan="1">Ordinary</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Step 3: digest mismatch</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_grant</code>
-</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_grant</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Step 4: of the document's permitted methods, the server supports and allows only the <code>none</code> method</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>access_denied</code>
-</td>
-            <td class="text-left" rowspan="1" colspan="1">Ordinary</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Step 4: client does not authenticate as step 4 requires</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_client</code>
-</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_client</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Step 5: grant type not in <code>grant_types</code>
-</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>unauthorized_client</code>
-</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>unauthorized_client</code>
-</td>
-          </tr>
-          <tr>
-            <td class="text-left" rowspan="1" colspan="1">Step 6: narrowing leaves nothing to grant</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_scope</code>
-</td>
-            <td class="text-left" rowspan="1" colspan="1">
-              <code>invalid_scope</code>
-</td>
-          </tr>
-        </tbody>
-      </table>
-<p id="section-5-5">Where the server would otherwise grant only authorization details, step 6 uses <code>invalid_authorization_details</code> (Section 6 of <span>[<a href="#RFC9396" class="cite xref">RFC9396</a>]</span>) in place of <code>invalid_scope</code>.<a href="#section-5-5" class="pilcrow">¶</a></p>
-<p id="section-5-6">A re-issued ID-JAG may resolve an <code>invalid_grant</code> error that the table assigns (Section 4.4.3 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span>), because the IdP Authorization Server can include the claim, or compute it over the document it then holds, unless <a href="#claim" class="auto internal xref">Section 3</a> requires it to omit the claim. A re-issued ID-JAG will not resolve an <code>access_denied</code> error that the table assigns.<a href="#section-5-6" class="pilcrow">¶</a></p>
+      </ul>
+<p id="section-5-3">Validation as <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> requires includes the checks that the document's <code>grant_types</code> member shares a value with the grant types the server supports, and its <code>response_types</code> member with the response types the server supports. A server that supports no response type, such as one without an authorization endpoint, therefore rejects every document, including one that omits <code>response_types</code>, which means only <code>code</code> (Section 2 of <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>). This specification does not change the rule of Section 6 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>.<a href="#section-5-3" class="pilcrow">¶</a></p>
+<p id="section-5-4">The server rejects a request at its first failure, in the order that <a href="#processing" class="auto internal xref">Section 4.2</a> presents its rules. Among the rejections that this specification defines, however, <code>temporarily_unavailable</code> takes precedence, then <code>invalid_client</code> for a document error listed above.<a href="#section-5-4" class="pilcrow">¶</a></p>
+<p id="section-5-5">A re-issued ID-JAG may resolve an <code>invalid_grant</code> error that <a href="#processing" class="auto internal xref">Section 4.2</a> names (Section 4.4.3 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span>), because the IdP Authorization Server can include the claim, or compute it over the document it then holds, unless <a href="#claim" class="auto internal xref">Section 3</a> requires it to omit the claim. A re-issued ID-JAG will not resolve an <code>access_denied</code> error that <a href="#processing" class="auto internal xref">Section 4.2</a> names.<a href="#section-5-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="example">
@@ -1575,8 +1513,8 @@ client-assertion-type%3Ajwt-bearer
 <a href="#section-8.1" class="section-number selfRef">8.1. </a><a href="#name-assurance-provided-by-a-vou" class="section-name selfRef">Assurance Provided by a Vouched Admission</a>
         </h3>
 <p id="section-8.1-1">The following table states what a vouched admission does and does not establish:<a href="#section-8.1-1" class="pilcrow">¶</a></p>
-<table class="center" id="table-2">
-          <caption><a href="#table-2" class="selfRef">Table 2</a></caption>
+<table class="center" id="table-1">
+          <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
 <thead>
             <tr>
               <th class="text-left" rowspan="1" colspan="1">Property</th>
@@ -1631,7 +1569,7 @@ client-assertion-type%3Ajwt-bearer
 <a href="#section-8.3" class="section-number selfRef">8.3. </a><a href="#name-issuer-designation" class="section-name selfRef">Issuer Designation</a>
         </h3>
 <p id="section-8.3-1">At a minimum, the claim shows that the IdP Authorization Server's policy let this client, with this document as its metadata, receive this grant. An IdP Authorization Server that approves clients by identifier and digests whatever document is served at the time gives less assurance than one that pins its approval to a document it reviewed. A Resource Authorization Server learns which applies from the agreement under which it designates the issuer, as the assurance of a statement rests on its issuer's review process (Section 13.1 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). Unless the designation lists client identifier namespaces (<a href="#trust-configuration" class="auto internal xref">Section 4.1</a>), the server can admit, on a designated issuer's claim, any CIMD client in the tenant that it holds no registration for. Such a designation delegates to the issuer the admission of every such client, so a designation meant for particular clients lists their namespaces.<a href="#section-8.3-1" class="pilcrow">¶</a></p>
-<p id="section-8.3-2">Where a server requires a vouched admission, the choice between <code>invalid_grant</code> and <code>access_denied</code> (<a href="#errors" class="auto internal xref">Section 5</a>) tells the presenter whether the server designates the ID-JAG's issuer. By accepting the ID-JAG at step 1, the server has already shown that it trusts the issuer (Section 4.4.1 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span>), so this reveals little.<a href="#section-8.3-2" class="pilcrow">¶</a></p>
+<p id="section-8.3-2">Where a server requires a vouched admission, the choice between <code>invalid_grant</code> and <code>access_denied</code> (<a href="#processing" class="auto internal xref">Section 4.2</a>) tells the presenter whether the server designates the ID-JAG's issuer. The server has already validated the ID-JAG, which shows that it trusts the issuer (Section 4.4.1 of <span>[<a href="#IDJAG" class="cite xref">IDJAG</a>]</span>), so this reveals little.<a href="#section-8.3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="changed-documents">
