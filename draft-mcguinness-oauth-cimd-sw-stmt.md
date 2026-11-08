@@ -845,7 +845,7 @@ Claim Name:
 : `cimd_digest`
 
 Claim Description:
-: Unpadded base64url-encoded SHA-256 digest of the retrieved octets of the Client ID Metadata Document evaluated during software statement issuance
+: Unpadded base64url-encoded SHA-256 digest of the retrieved octets of a Client ID Metadata Document; the JWT profile that carries the claim defines what its issuer asserts about that document
 
 Change Controller:
 : IETF
@@ -968,6 +968,10 @@ This mechanism began as the consumption part of a draft on software statement is
 {:numbered="false"}
 
 [[ To be removed from the final specification ]]
+
+-02
+
+* Made the IANA description of the `cimd_digest` claim neutral about what the JWT's issuer asserts, so that other JWT profiles can carry the claim.
 
 -01
 

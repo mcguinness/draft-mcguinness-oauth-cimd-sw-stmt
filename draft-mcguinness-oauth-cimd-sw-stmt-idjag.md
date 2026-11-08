@@ -285,16 +285,10 @@ The claim is the digest of a document that is already public. It tells the Resou
 
 # IANA Considerations
 
-This specification requests that IANA update the `cimd_digest` entry that {{STATEMENT}} registers in the "JSON Web Token Claims" registry established by {{RFC7519}}, so that its description covers a digest carried in a JWT other than a software statement. The digest algorithm and encoding are unchanged.
+This specification requests that IANA add this specification to the Specification Document(s) of the `cimd_digest` entry that {{STATEMENT}} registers in the "JSON Web Token Claims" registry established by {{RFC7519}}.
 
 Claim Name:
 : `cimd_digest`
-
-Claim Description:
-: Unpadded base64url-encoded SHA-256 digest of the retrieved octets of a Client ID Metadata Document that the JWT's issuer vouches for
-
-Change Controller:
-: IETF
 
 Specification Document(s):
 : Section 3 of {{STATEMENT}}, and {{claim}} of this specification
