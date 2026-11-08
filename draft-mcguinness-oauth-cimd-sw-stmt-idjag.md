@@ -66,7 +66,7 @@ The following non-normative sequence summarizes a vouched admission:
 1. The client authenticates to the IdP Authorization Server in a Token Exchange request (Section 4.3 of {{IDJAG}}), using its client identifier URL and a key its document carries.
 2. If its policy permits issuing an ID-JAG for the client, the IdP Authorization Server includes the `cimd_digest` claim, computed over the document from which it took that key ({{claim}}).
 3. The client presents the ID-JAG at the Resource Authorization Server's token endpoint (Section 4.4 of {{IDJAG}}), authenticating with a key the document carries.
-4. The Resource Authorization Server validates the ID-JAG, retrieves the document at the URL in the `client_id` claim, and compares its digest with the claim. If the digests match and its trust configuration designates the issuer, it admits the client, for that request only, with metadata taken from that document ({{admission}}). A re-submission of the ID-JAG repeats this step.
+4. The Resource Authorization Server validates the ID-JAG, retrieves the document at the URL in the `client_id` claim, and compares its digest with the claim. If the digests match and its trust configuration designates the issuer, it admits the client, for that request only, with metadata taken from that document ({{admission}}). The server processes a re-submission of the ID-JAG the same way.
 
 # Conventions and Definitions
 
@@ -103,7 +103,7 @@ The client therefore uses its client identifier URL at the IdP Authorization Ser
 
 When all four conditions hold, the IdP Authorization Server SHOULD include the claim, unless its decision does not cover the document as served, as when it pinned its approval to octets that differ from the served document. This specification defines no way for a client to request the claim, so a Resource Authorization Server whose policy requires a vouched admission depends on this default.
 
-A Resource Authorization Server that designates the issuer rejects a digest that does not match the document it obtains under step 3 of {{processing}}, so a digest of an earlier document fails once that server's copy reflects the change. When an IdP Authorization Server authenticates a client for an ID-JAG that will carry the claim, it SHOULD therefore use the document as currently served, revalidating any octets it holds (Section 3.1 of {{STATEMENT}}), including octets held from pre-registering the client identifier URL (Section 9.2 of {{CIMD}}). Revalidation keeps the digest current, but the claim still asserts the IdP Authorization Server's decision. An IdP Authorization Server that pins its approval to octets it reviewed omits the claim, or refuses the request, when the served document differs from them.
+A Resource Authorization Server that designates the issuer rejects a digest that does not match the document it obtains ({{processing}}), so a digest of an earlier document fails once that server's copy reflects the change. When an IdP Authorization Server authenticates a client for an ID-JAG that will carry the claim, it SHOULD therefore use the document as currently served, revalidating any octets it holds (Section 3.1 of {{STATEMENT}}), including octets held from pre-registering the client identifier URL (Section 9.2 of {{CIMD}}). Revalidation keeps the digest current, but the claim still asserts the IdP Authorization Server's decision. An IdP Authorization Server that pins its approval to octets it reviewed omits the claim, or refuses the request, when the served document differs from them.
 
 # Vouched Admission {#admission}
 
@@ -259,7 +259,7 @@ Client authentication at the Resource Authorization Server establishes the clien
 
 At a minimum, the claim shows that the IdP Authorization Server's policy let this client, with this document as its metadata, receive this grant. An IdP Authorization Server that approves clients by identifier and digests whatever document is served at the time gives less assurance than one that pins its approval to a document it reviewed. A Resource Authorization Server learns which applies from the agreement under which it designates the issuer, as the assurance of a statement rests on its issuer's review process (Section 13.1 of {{STATEMENT}}). Unless the designation lists client identifier namespaces ({{trust-configuration}}), the server can admit, on a designated issuer's claim, any CIMD client in the tenant that it holds no registration for. Such a designation delegates to the issuer the admission of every such client, so a designation meant for particular clients lists their namespaces.
 
-Where a server requires a vouched admission, the choice between `invalid_grant` and `access_denied` ({{processing}}) tells the presenter whether the server designates the ID-JAG's issuer. By accepting the ID-JAG at step 1, the server has already shown that it trusts the issuer (Section 4.4.1 of {{IDJAG}}), so this reveals little.
+Where a server requires a vouched admission, the choice between `invalid_grant` and `access_denied` ({{processing}}) tells the presenter whether the server designates the ID-JAG's issuer. The server has already validated the ID-JAG, which shows that it trusts the issuer (Section 4.4.1 of {{IDJAG}}), so this reveals little.
 
 ## Changed and Split Documents {#changed-documents}
 
