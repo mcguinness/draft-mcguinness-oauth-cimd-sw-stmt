@@ -55,7 +55,7 @@ The grant tells the Resource Authorization Server that the identity provider iss
 
 This specification defines the claim's meaning in an ID-JAG and when an identity provider includes it ({{claim}}), and how a Resource Authorization Server admits a client on the claim ({{admission}}). Only a server that has delegated client admission to the identity provider does so, under its own policy ({{trust-configuration}}). At a minimum, the claim shows that the identity provider issued the grant with these octets as the client's metadata, but not by itself that the identity provider reviewed the configuration ({{issuer-designation}}).
 
-A redemption of an ID-JAG can rely on a sender-constrained ID-JAG in place of client authentication (Section 4.4 of {{IDJAG}}), but a vouched admission requires the client to authenticate at the Resource Authorization Server with a key its document carries ({{client-authentication}}), so a public client cannot use it.
+A redemption of an ID-JAG can rely on a sender-constrained ID-JAG in place of client authentication at the Resource Authorization Server (Section 4.4 of {{IDJAG}}), but a vouched admission requires the client to authenticate there with a key its document carries ({{client-authentication}}).
 
 This specification extends {{STATEMENT}} and {{IDJAG}} and changes neither. Beyond what this specification defines, the claim changes no processing of an ID-JAG at either server. A server that does not implement this specification ignores the claim (Section 4 of {{RFC7519}}).
 
