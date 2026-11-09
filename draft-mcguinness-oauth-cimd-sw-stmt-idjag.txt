@@ -274,7 +274,10 @@ Table of Contents
    namespaces in a tenant (Section 4.2).  For a registered client, the
    registration governs and the server ignores the claim.  A record the
    server keeps of a vouched admission, or document octets it caches
-   from a retrieval, is not by itself a registration.
+   from a retrieval, is not by itself a registration.  A server can
+   still register a CIMD client under its own policy, including after a
+   vouched admission.  The registration then governs later requests, and
+   this specification no longer applies to them.
 
 4.2.  Processing Rules
 
