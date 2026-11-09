@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         8 November 2026
-Expires: 12 May 2027
+Intended status: Standards Track                         9 November 2026
+Expires: 13 May 2027
 
 
    Client ID Metadata Document Vouching in Identity Assertion Grants
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 12 May 2027.
+   This Internet-Draft will expire on 13 May 2027.
 
 Copyright Notice
 
@@ -122,10 +122,9 @@ Table of Contents
    provider reviewed the configuration (Section 8.3).
 
    A redemption of an ID-JAG can rely on a sender-constrained ID-JAG in
-   place of client authentication (Section 4.4 of [IDJAG]), but a
-   vouched admission requires the client to authenticate at the Resource
-   Authorization Server with a key its document carries (Section 8.2),
-   so a public client cannot use it.
+   place of client authentication at the Resource Authorization Server
+   (Section 4.4 of [IDJAG]), but a vouched admission requires the client
+   to authenticate there with a key its document carries (Section 8.2).
 
    This specification extends [STATEMENT] and [IDJAG] and changes
    neither.  Beyond what this specification defines, the claim changes
