@@ -115,7 +115,7 @@ A Resource Authorization Server MUST NOT rely on the claim unless its trust conf
 
 A designation can confine the issuer to client identifier namespaces, as defined in Section 4 of {{STATEMENT}}. The server then MUST NOT rely on the claim for a client identifier URL outside them. An issuer is a designated issuer for a client in a tenant when a designation of it covers that tenant and, if the designation lists namespaces, the client identifier URL falls within one of them.
 
-Vouched admission applies to a CIMD client the server holds no registration for. The server's policy can require it for such clients in a tenant, or for those within particular client identifier namespaces in a tenant ({{processing}}). For a registered client, the registration governs and the server ignores the claim. A record the server keeps of a vouched admission, or document octets it caches from a retrieval, is not by itself a registration.
+Vouched admission applies to a CIMD client the server holds no registration for. The server's policy can require it for such clients in a tenant, or for those within particular client identifier namespaces in a tenant ({{processing}}). For a registered client, the registration governs and the server ignores the claim. A record the server keeps of a vouched admission, or document octets it caches from a retrieval, is not by itself a registration. A server can still register a CIMD client under its own policy, including after a vouched admission. The registration then governs later requests, and this specification no longer applies to them.
 
 ## Processing Rules {#processing}
 
