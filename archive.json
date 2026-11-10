@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-11-08T04:43:23.763470+00:00",
+  "timestamp": "2026-11-10T06:07:58.007363+00:00",
   "repo": "mcguinness/draft-mcguinness-oauth-cimd-sw-stmt",
   "labels": [
     {
@@ -958,17 +958,17 @@
       "id": "I_kwDOTdw2S88AAAABb-Yjsw",
       "title": "Align authentication-method selection across the software-statement family with CIMD -03",
       "url": "https://github.com/mcguinness/draft-mcguinness-oauth-cimd-sw-stmt/issues/165",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "mcguinness",
       "authorAssociation": "OWNER",
       "assignees": [],
       "labels": [
         "-02"
       ],
-      "body": "**Normative change for -01.** It changes core, registration, and lifecycle, and the attested, issuance, and MCP profile drafts follow.\n\n### What CIMD -03 changed\n\nSection 5 of CIMD -03 (posted 2 November 2026) says:\n- Clients SHOULD declare `token_endpoint_auth_methods_supported`, a list of methods. The single `token_endpoint_auth_method` is NOT RECOMMENDED, and a server reads it only when the list is absent.\n- A document that declares neither member means `none`. The server MUST NOT apply the RFC 7591 default.\n- The server SHOULD select one listed method that it supports. A document listing `[\"none\", \"private_key_jwt\"]` can therefore be a public client at one server and a confidential client at another.\n\nThe -00 drafts key every authentication-method rule on the single member. A document that follows CIMD's recommendation is therefore review-only when pulled (core Section 5.5.2), rejected when presented in a request (core Section 5.6), and rejected at registration (registration Section 3).\n\n### Principle\n\nThe issuer reviews the whole document, so every method the document permits is a method the issuer accepted. A document that permits `none` authorizes public use at servers that select `none`. A holder of a copy cannot choose the public model at a server that selects a confidential method. Under the public model, the holder must still satisfy the public-client binding rules (core Section 5.6.2).\n\n### Proposal\n\n1. **Two terms in core Section 2.**\n   - A document *permits* a method if any of these holds:\n     - it lists the method in `token_endpoint_auth_methods_supported`;\n     - it declares the method in `token_endpoint_auth_method`, and the list is absent;\n     - the method is `none`, and the document declares neither member.\n   - The *Selected Method* is the method the server selects from those the reviewed document permits (Section 5 of CIMD).\n2. **When and how the server selects.**\n   - The server selects the method when it creates an establishment or a registration.\n   - It selects from the reviewed document and its own policy, not from what the request carries.\n   - It records the method and keeps it through continuation and replacement.\n   - Each establishment or registration has its own selection. Nothing makes the choice permanent or shares it across grants or servers.\n   - The model must be fixed before sender constraint runs. At the authorization endpoint, a public client binds a key through `dpop_jkt` in the authorization request, but a confidential client binds at code redemption (core Section 5.5.2).\n3. **Preference for a key-based method (decision needed).**\n   - **Option A, MUST (recommended).** The server MUST select a supported, policy-permitted method other than `none` whenever the document permits one. A client that permits `[\"none\", \"private_key_jwt\"]` can then predict the model from the server's `token_endpoint_auth_methods_supported` metadata. Section 5.1 of CIMD leans this way.\n   - **Option B, SHOULD.** This leaves exceptions that clients cannot predict from server metadata alone.\n4. **A document that declares neither member is `none`.** Drop the rejections. They existed because under CIMD -02 omission meant the RFC 7591 default, a shared secret, which CIMD forbids. Dropping them removes requirements, so it is a normative change.\n5. **Replacements keep the method.** A replacement's document MUST permit the recorded Selected Method, and the establishment or registration keeps that method. For registration, this resolves the second item of #131 (a replacement that changes the authentication method).\n6. **Security and deployment text.**\n   - At a server that selects `none`, anyone holding a copy of a document that permits `none` can present it under the public model.\n   - An issuer that wants software admitted only as a confidential client reviews only documents that do not permit `none`.\n\n### Checklist\n\n**Core**\n- [ ] Section 2: define *permits* and *Selected Method*.\n- [ ] Section 5.6:\n  - The two models follow the Selected Method.\n  - The presenter uses the Selected Method.\n  - Add the selection rule, with Option A or B.\n- [ ] Remove three rules for documents that omit `token_endpoint_auth_method`:\n  - the rejection of a presentation under such a document (Section 5.6);\n  - the review-only rule for such a pulled statement (Section 5.5.2);\n  - the matching clause in Section 6.2.\n- [ ] Section 5.6.2: a public client's Selected Method is `none`. This replaces \"declares `token_endpoint_auth_method` of `none`\".\n- [ ] Section 5.7: the establishment records the Selected Method.\n- [ ] Section 12 and Section 13.4: add the deployment and security text of item 6.\n- [ ] Section 7.2: the example uses `token_endpoint_auth_methods_supported`.\n\n**Registration**\n- [ ] Section 3:\n  - The registered `token_endpoint_auth_method` is the Selected Method.\n  - Remove the rejection on omission.\n  - The shared-secret rejection covers every permitted method.\n- [ ] Section 3.2: a public-client registration is one whose Selected Method is `none`.\n- [ ] Section 6: a replacement's document permits the registered method. This replaces the test that the replacement declares `none` if and only if the governing statement's document does.\n- [ ] Section 7: remove the omission entry, and reword the `none` entries.\n- [ ] Section 11.1: the RFC 7591 default MUST NOT apply (Section 5 of CIMD), so omission means `none`.\n\n**Lifecycle**\n- [ ] Section 5.2: a refresh replacement's document permits the establishment's Selected Method.\n\n**Attested**\n- [ ] Section 4: the document permits exactly `attest_jwt_client_auth_dpop`.\n- [ ] Section 11: the example uses the list form.\n\n**Issuance**\n- [ ] Section 3: classify the client from the Selected Method.\n\n**MCP profile**\n- [x] Section 4.4 (review-only on omission) and the example in Section 7.1 (#178). The profile stays pinned to CIMD -02 until it moves to core -01.\n\nThe retrieval-failure alignment with Section 6.1 of CIMD -03 is tracked separately in #164.\n\n",
+      "body": "**Normative change for -01.** It changes core, registration, and lifecycle, and the attested, issuance, and MCP profile drafts follow.\n\n### What CIMD -03 changed\n\nSection 5 of CIMD -03 (posted 2 November 2026) says:\n- Clients SHOULD declare `token_endpoint_auth_methods_supported`, a list of methods. The single `token_endpoint_auth_method` is NOT RECOMMENDED, and a server reads it only when the list is absent.\n- A document that declares neither member means `none`. The server MUST NOT apply the RFC 7591 default.\n- The server SHOULD select one listed method that it supports. A document listing `[\"none\", \"private_key_jwt\"]` can therefore be a public client at one server and a confidential client at another.\n\nThe -00 drafts key every authentication-method rule on the single member. A document that follows CIMD's recommendation is therefore review-only when pulled (core Section 5.5.2), rejected when presented in a request (core Section 5.6), and rejected at registration (registration Section 3).\n\n### Principle\n\nThe issuer reviews the whole document, so every method the document permits is a method the issuer accepted. A document that permits `none` authorizes public use at servers that select `none`. A holder of a copy cannot choose the public model at a server that selects a confidential method. Under the public model, the holder must still satisfy the public-client binding rules (core Section 5.6.2).\n\n### Proposal\n\n1. **Two terms in core Section 2.**\n   - A document *permits* a method if any of these holds:\n     - it lists the method in `token_endpoint_auth_methods_supported`;\n     - it declares the method in `token_endpoint_auth_method`, and the list is absent;\n     - the method is `none`, and the document declares neither member.\n   - The *Selected Method* is the method the server selects from those the reviewed document permits (Section 5 of CIMD).\n2. **When and how the server selects.**\n   - The server selects the method when it creates an establishment or a registration.\n   - It selects from the reviewed document and its own policy, not from what the request carries.\n   - It records the method and keeps it through continuation and replacement.\n   - Each establishment or registration has its own selection. Nothing makes the choice permanent or shares it across grants or servers.\n   - The model must be fixed before sender constraint runs. At the authorization endpoint, a public client binds a key through `dpop_jkt` in the authorization request, but a confidential client binds at code redemption (core Section 5.5.2).\n3. **Preference for a key-based method (decision needed).**\n   - **Option A, MUST (recommended).** The server MUST select a supported, policy-permitted method other than `none` whenever the document permits one. A client that permits `[\"none\", \"private_key_jwt\"]` can then predict the model from the server's `token_endpoint_auth_methods_supported` metadata. Section 5.1 of CIMD leans this way.\n   - **Option B, SHOULD.** This leaves exceptions that clients cannot predict from server metadata alone.\n4. **A document that declares neither member is `none`.** Drop the rejections. They existed because under CIMD -02 omission meant the RFC 7591 default, a shared secret, which CIMD forbids. Dropping them removes requirements, so it is a normative change.\n5. **Replacements keep the method.** A replacement's document MUST permit the recorded Selected Method, and the establishment or registration keeps that method. For registration, this resolves the second item of #131 (a replacement that changes the authentication method).\n6. **Security and deployment text.**\n   - At a server that selects `none`, anyone holding a copy of a document that permits `none` can present it under the public model.\n   - An issuer that wants software admitted only as a confidential client reviews only documents that do not permit `none`.\n\n### Checklist\n\n**Core**\n- [x] Section 2: define *permits* and *Selected Method*.\n- [x] Section 5.6:\n  - The two models follow the Selected Method.\n  - The presenter uses the Selected Method.\n  - Add the selection rule, with Option A or B.\n- [x] Remove three rules for documents that omit `token_endpoint_auth_method`:\n  - the rejection of a presentation under such a document (Section 5.6);\n  - the review-only rule for such a pulled statement (Section 5.5.2);\n  - the matching clause in Section 6.2.\n- [x] Section 5.6.2: a public client's Selected Method is `none`. This replaces \"declares `token_endpoint_auth_method` of `none`\".\n- [x] Section 5.7: the establishment records the Selected Method.\n- [x] Section 12 and Section 13.4: add the deployment and security text of item 6.\n- [x] Section 7.2: the example uses `token_endpoint_auth_methods_supported`.\n\n**Registration**\n- [x] Section 3:\n  - The registered `token_endpoint_auth_method` is the Selected Method.\n  - Remove the rejection on omission.\n  - The shared-secret rejection covers every permitted method.\n- [x] Section 3.2: a public-client registration is one whose Selected Method is `none`.\n- [x] Section 6: a replacement's document permits the registered method. This replaces the test that the replacement declares `none` if and only if the governing statement's document does.\n- [x] Section 7: remove the omission entry, and reword the `none` entries.\n- [x] Section 11.1: the RFC 7591 default MUST NOT apply (Section 5 of CIMD), so omission means `none`.\n\n**Lifecycle**\n- [x] Section 5.2: a refresh replacement's document permits the establishment's Selected Method.\n\n**Attested**\n- [x] Section 4: the document permits exactly `attest_jwt_client_auth_dpop`.\n- [x] Section 11: the example uses the list form.\n\n**Issuance**\n- [x] Section 3: classify the client from the Selected Method.\n\n**MCP profile**\n- [x] Section 4.4 (review-only on omission) and the example in Section 7.1 (#178). The profile stays pinned to CIMD -02 until it moves to core -01.\n\nThe retrieval-failure alignment with Section 6.1 of CIMD -03 is tracked separately in #164.\n\n\n",
       "createdAt": "2026-11-02T22:38:00Z",
-      "updatedAt": "2026-11-06T18:12:45Z",
-      "closedAt": null,
+      "updatedAt": "2026-11-09T22:55:50Z",
+      "closedAt": "2026-11-09T22:55:50Z",
       "comments": [
         {
           "author": "mcguinness",
@@ -1009,9 +1009,9 @@
       "labels": [
         "-02"
       ],
-      "body": "PR #170 adds a companion that carries `cimd_digest` in an ID-JAG. Three changes to core follow from it.\n\n- [ ] **IANA description of `cimd_digest` (Section 15.3).** Core registers:\n\n  > Unpadded base64url-encoded SHA-256 digest of the retrieved octets of the Client ID Metadata Document evaluated during software statement issuance\n\n  An ID-JAG is not issued during software statement issuance, so PR #170's IANA section asks to change the description to:\n\n  > Unpadded base64url-encoded SHA-256 digest of the retrieved octets of a Client ID Metadata Document that the JWT's issuer vouches for\n\n  Options:\n  - **A:** Core registers the broader description. The companion's IANA section then only adds itself to Specification Document(s). Neither draft is registered yet, so nothing has to be changed later.\n  - **B:** Core keeps its description, and the companion asks for the change, as PR #170 does now. Two drafts then ask IANA for different text, and the outcome depends on which is published first.\n\n  A needs a matching edit to the companion's IANA section.\n\n- [ ] **Extension Points (Section 9).** Add a bullet for carrying the metadata digest in an identity assertion. Under it, a resource authorization server can admit a client on the identity provider's decision without a statement. Core can describe the extension without citing the companion, or cite it informatively, as it does for the registration draft.\n\n- [ ] **Identity Assertions (Section 10.2).** The section says that an identity provider mediating a grant \"issues assertions per grant only for clients the customer permits\", and that \"A statement serves when the issuer is not in the request path\". One sentence could add that the identity provider can also vouch for the client's metadata document in the assertion itself, with a pointer to the companion.\n\nThe MCP profile's matching sentences are tracked in #172.\n",
+      "body": "PR #170 adds a companion that carries `cimd_digest` in an ID-JAG. Three changes to core follow from it.\n\n- [x] **IANA description of `cimd_digest` (Section 15.3).** Core registers:\n\n  > Unpadded base64url-encoded SHA-256 digest of the retrieved octets of the Client ID Metadata Document evaluated during software statement issuance\n\n  An ID-JAG is not issued during software statement issuance, so PR #170's IANA section asks to change the description to:\n\n  > Unpadded base64url-encoded SHA-256 digest of the retrieved octets of a Client ID Metadata Document that the JWT's issuer vouches for\n\n  Options:\n  - **A:** Core registers the broader description. The companion's IANA section then only adds itself to Specification Document(s). Neither draft is registered yet, so nothing has to be changed later.\n  - **B:** Core keeps its description, and the companion asks for the change, as PR #170 does now. Two drafts then ask IANA for different text, and the outcome depends on which is published first.\n\n  A needs a matching edit to the companion's IANA section.\n\n- [ ] **Extension Points (Section 9).** Add a bullet for carrying the metadata digest in an identity assertion. Under it, a resource authorization server can admit a client on the identity provider's decision without a statement. Core can describe the extension without citing the companion, or cite it informatively, as it does for the registration draft.\n\n- [ ] **Identity Assertions (Section 10.2).** The section says that an identity provider mediating a grant \"issues assertions per grant only for clients the customer permits\", and that \"A statement serves when the issuer is not in the request path\". One sentence could add that the identity provider can also vouch for the client's metadata document in the assertion itself, with a pointer to the companion.\n\nThe MCP profile's matching sentences are tracked in #172.\n\n",
       "createdAt": "2026-11-05T19:12:58Z",
-      "updatedAt": "2026-11-05T19:13:13Z",
+      "updatedAt": "2026-11-09T22:52:52Z",
       "closedAt": null,
       "comments": []
     },
@@ -1030,6 +1030,22 @@
       "body": "PR #170 adds a companion that carries `cimd_digest` in an ID-JAG. Two sentences in the MCP profile's Section 5 (Composition with Enterprise-Managed Authorization) need another look. The profile is pinned to core -00 and CIMD -02, so these can wait until it moves to core -01, along with its #165 item.\n\n- [ ] **\"a statement adds nothing it needs\".** The full sentence:\n\n  > Where the identity provider mediates every grant and an organization only wants to allow or block clients, it can do so in identity provider policy, and a statement adds nothing it needs.\n\n  With the companion, the identity provider can also vouch for the client's metadata document in the ID-JAG. An MCP Authorization Server could then admit an MCP Client it holds no registration for, without a statement. Options:\n  - **A:** Add one sentence pointing to the companion as the alternative when the identity provider mediates the grant.\n  - **B:** Leave Section 5 as is until the companion is adopted or has implementations.\n\n- [ ] **\"nothing to bind the review to\".** The sentence:\n\n  > A public client on that request has nothing to bind the review to, so its pulled statement is review-only (Section 4.4) and a presented one is rejected.\n\n  Sections 4.4 and 9.1 of ID-JAG -06 now let a client redeem a sender-constrained ID-JAG without client authentication. The sentence stays true, because a review binds to a key the document carries (core Section 5.6.1), and the `cnf` key need not be one. A reader may still take the `cnf` path as a binding. The companion also requires the client to authenticate with a document key, so a public client cannot use it either. Options:\n  - **A:** Add a clause saying the ID-JAG's `cnf` key does not bind the review unless the document carries it.\n  - **B:** Leave the sentence as is.\n",
       "createdAt": "2026-11-05T19:13:00Z",
       "updatedAt": "2026-11-05T19:13:00Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 183,
+      "id": "I_kwDOTdw2S88AAAABdzmuHw",
+      "title": "ID-JAG companion: advertising `cimd_digest` support in authorization server metadata",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-cimd-sw-stmt/issues/183",
+      "state": "OPEN",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "In [oauth-identity-assertion-authz-grant#121](https://github.com/oauth-wg/oauth-identity-assertion-authz-grant/issues/121), @meghnadubey suggested that the IdP and the RAS publish their support for `cimd_digest` in server metadata. The companion's -00 defines no metadata.\n\nOptions:\n\n1. **No metadata.** A RAS relies on the claim only under a designation configured out of band, so it learns whether an IdP supports the claim while setting up that trust. An IdP's support shows in the ID-JAGs it issues.\n2. **IdP metadata.** A boolean in the IdP Authorization Server's metadata saying it includes `cimd_digest` when the claim's conditions hold. This helps a RAS operator or tooling decide whether a designation is worth configuring. It doesn't establish trust.\n3. **RAS metadata.** A boolean in the Resource Authorization Server's metadata saying it supports vouched admission. This tells clients and IdPs that the claim can matter there. It runs into the same question as #129 about what an advertised flag commits a server to.\n\nOptions 2 and 3 can be combined. Either needs a registration in the OAuth Authorization Server Metadata registry.\n",
+      "createdAt": "2026-11-09T21:38:14Z",
+      "updatedAt": "2026-11-09T21:38:14Z",
       "closedAt": null,
       "comments": []
     }
@@ -4945,6 +4961,118 @@
       "mergedBy": "mcguinness",
       "mergeCommit": {
         "oid": "f2f6f55ddf8e606314ccab1daaa7ee67e12cc824"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 179,
+      "id": "PR_kwDOTdw2S88AAAABNnuTtA",
+      "title": "ID-JAG vouching: review 4 (claim by default, reject mismatches, response_types, IANA)",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-cimd-sw-stmt/pull/179",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Applies an external review of the ID-JAG vouching draft (editor's copy of November 6), in six commits, one per finding. Commit 6 also edits core. Every quoted dependency sentence was checked against ID-JAG -06, CIMD -03 and the current editor's copy, RFC 7591, RFC 8414 and core -01. A cold verifier then read the branch; its eight wording fixes are folded into the commits.\n\n**Normative changes**\n1. **The IdP includes the claim by default** (commit 2).\n   - It was a MAY, a client cannot request it, and a re-issued ID-JAG could omit it again. A Resource Authorization Server whose policy requires a vouched admission had no predictable issuer behavior.\n   - Now, when all four conditions hold, the IdP Authorization Server SHOULD include the claim. The exception is an IdP whose approval is pinned to octets that differ from the served document.\n2. **A mismatching claim is rejected** (commit 3).\n   - Step 3 was \"SHOULD reject\", and a server whose policy permitted ordinary admission after a mismatch used it instead.\n   - Now a claim from a designated issuer that fails the digest comparison MUST be rejected with `invalid_grant`. An ID-JAG without the claim still gets ordinary admission. This separates absent evidence from failed evidence and removes a two-outcome table cell.\n   - The fallback text is gone from Section 3, the ordinary-admission paragraph, the error table, and Changed and Split Documents.\n   - Cost: with change 1, a designating server rejects during a document change until the IdP re-digests. The server's one re-fetch and one re-issued ID-JAG cover the normal case.\n\n**Clarifications**\n3. **Error rule 2 names CIMD's `response_types` check** (commit 1).\n   - It named only the `grant_types` intersection. Section 6 of CIMD also requires a shared `response_types` value, so a server that supports no response type rejects every document.\n   - The draft states the consequence and does not change CIMD's rule. The worked example's server now supports `code`, since the example document omits the member.\n   - Filed upstream as oauth-wg/draft-ietf-oauth-client-id-metadata-document#131.\n4. **Client, presenter, and instance** (commit 4). Client authentication at the Resource Authorization Server establishes the client, not the instance that obtained the ID-JAG.\n   - A bearer ID-JAG taken from one instance can be redeemed by any holder of a key the document carries.\n   - Only a sender-constrained ID-JAG ties redemption to a holder of the key the IdP bound to it (Section 9.1 of ID-JAG).\n   - This is not a reason to require DPoP everywhere.\n5. **Designation breadth and tenants** (commit 5).\n   - A designation without namespaces delegates admission of every such client in the tenant. A designation meant for particular clients lists their namespaces. This is descriptive, because a designation is local configuration.\n   - The tenant is the recipient tenant, identified by `aud`, `aud_tenant` when present, or the trust relationship (Section 4.4.1 of ID-JAG). For a multi-tenant issuer, the designation also names the tenant at the issuer (Section 6.1 of ID-JAG).\n\n**IANA**\n6. **Neutral `cimd_digest` description in core** (commit 6). This resolves the IANA item of #171 with option A.\n   - Core now registers \"...digest of the retrieved octets of a Client ID Metadata Document; the JWT profile that carries the claim defines what its issuer asserts about that document\". Core gets a -02 history entry.\n   - The companion now only adds itself to Specification Document(s).\n   - **Sequencing:** post core -02 before or together with the companion's -00. The posted core -01 still registers the issuance-specific description.\n\n**Checks**\n- **BCP 14 keywords:** 16 to 16.\n  - Removed: \"An ID-JAG MAY contain the `cimd_digest` claim\", and step 3's \"SHOULD reject\".\n  - Added: the conditioned SHOULD include, and step 3's MUST reject, which applies when the digest of retrieved octets does not match the claim.\n  - Core: no keyword sentence changed.\n- **Examples:** the JSON and the digest are unchanged. Only the sentence introducing the token request changed.\n- **Build and idnits:**\n  - Companion 18 pages, core 43 pages.\n  - No citation is unresolved or uncited.\n  - idnits shows the same three POSSIBLE_DOWNREF as before.\n\n**Not changed (preserved, as the review asked)**\n- No refresh token.\n- No identical-key requirement.\n- Separation from software statements.\n- Exact-octet binding.\n- Scope and `authorization_details_types` narrowing.\n",
+      "createdAt": "2026-11-08T05:48:07Z",
+      "updatedAt": "2026-11-08T05:51:51Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-cimd-sw-stmt",
+      "baseRefName": "main",
+      "baseRefOid": "f2f6f55ddf8e606314ccab1daaa7ee67e12cc824",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-cimd-sw-stmt",
+      "headRefName": "idjag-review4",
+      "headRefOid": "42a45579f1f68ce1db7fa534d6dff20dd89265c8",
+      "closedAt": "2026-11-08T05:51:51Z",
+      "mergedAt": "2026-11-08T05:51:51Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "9bd5631ebb86e661053e52712acf3814c45ed33e"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 180,
+      "id": "PR_kwDOTdw2S88AAAABNtpvzA",
+      "title": "Rewrite ID-JAG vouching processing rules without step numbers",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-cimd-sw-stmt/pull/180",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Editorial pass on the ID-JAG vouching draft. Its processing rules referred to numbered steps that were hard to follow, so this rewrites them in the idiom of published OAuth RFCs. No requirement changes. Four commits, one per change.\n\n**1. Processing Rules and Error Responses**\n- Processing Rules follows the shape of Section 4.4.1 of ID-JAG.\n  - It no longer uses a numbered procedure.\n  - Each rule names the actor, the keyword, and the error code in one sentence.\n- The section reads in this order:\n  1. ID-JAG validation, with the checks that wait for client authentication named.\n  2. Checks of the document against the claim.\n  3. Choice of the authentication method.\n  4. The rules for a vouched admission.\n  5. One paragraph on ordinary admission.\n- Ordinary admission lists exactly three cases: the ID-JAG has no claim, its issuer is not designated, or `none` is the only usable method. A digest mismatch is still always rejected with `invalid_grant`.\n- Error Responses is now about half its former length. The table keyed by step number is gone. What remains:\n  - the errors that apply on every path (`temporarily_unavailable` with HTTP 503, and `invalid_client` for document problems);\n  - one precedence sentence;\n  - the `response_types` note;\n  - the note on when a re-issued ID-JAG helps.\n- Vouched Admission gains a lead sentence.\n- Two citations of the removed table now point to Processing Rules.\n\n**2. Remaining step references**\n- Removed from the overview, the claim section, and Issuer Designation.\n\n**3. Pinning exception**\n- Stated once, in the paragraph that says what a pinning IdP Authorization Server does.\n\n**4. Recipient tenant**\n- Trust Configuration names it once, in ID-JAG's wording, instead of in two sentences that each cite Section 4.4.1 of ID-JAG.\n\n**Checks**\n- **BCP 14 keyword sentences:** 16 before and 16 after.\n  - Every removed keyword sentence has a reworded counterpart, and each keeps its condition and scope.\n  - Error codes that were table cells now sit inline next to their checks.\n- **Equivalence review:** a cold reviewer mapped every requirement, every precedence rule, and every cell of the old table onto the new text, over two rounds.\n  - The first round found three changes in meaning; all are fixed:\n    - ordinary admission had lost \"obtains the document\";\n    - the re-retrieval wording could skip validation;\n    - the deferred ID-JAG checks had lost their place in the order.\n  - The second round found one wording that could read as rejecting, rather than narrowing, a scope outside the document's `scope`. It is fixed.\n  - The final state has nothing changed or missing against main.\n- **Build:** 17 pages (was 18). idnits shows the same three POSSIBLE_DOWNREF. No unresolved or uncited references.\n\n**Open questions for the author**\n- **The precedence sentence** came from the review merged in #176. Published OAuth RFCs usually leave error precedence out, so it could be dropped.\n- **Core and lifecycle** still refer to numbered steps (for example, Sections 5.5.1 and 6.4 of core). This PR does not touch them.\n",
+      "createdAt": "2026-11-08T21:22:54Z",
+      "updatedAt": "2026-11-08T21:26:08Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-cimd-sw-stmt",
+      "baseRefName": "main",
+      "baseRefOid": "9bd5631ebb86e661053e52712acf3814c45ed33e",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-cimd-sw-stmt",
+      "headRefName": "idjag-editorial",
+      "headRefOid": "99474e4f81d97f29baa04eb04a6dcca8dbe671d6",
+      "closedAt": "2026-11-08T21:26:08Z",
+      "mergedAt": "2026-11-08T21:26:08Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "919e98c49f5a61bcff3b2bdcbe3ce6c9e875e5d4"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 181,
+      "id": "PR_kwDOTdw2S88AAAABN8-d0w",
+      "title": "Say where a vouched admission requires client authentication",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-cimd-sw-stmt/pull/181",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "One-sentence fix to the Introduction of the ID-JAG vouching draft.\n\n**Before:** \"\u2026but a vouched admission requires the client to authenticate at the Resource Authorization Server with a key its document carries, so a public client cannot use it.\"\n\n**After:** \"A redemption of an ID-JAG can rely on a sender-constrained ID-JAG in place of client authentication at the Resource Authorization Server (Section 4.4 of ID-JAG), but a vouched admission requires the client to authenticate there with a key its document carries.\"\n\n**Why**\n- \"Public client\" pointed at the wrong constraint. Section 9.1 of ID-JAG -06 says \"The IdP Authorization Server always authenticates the Client\". A sender-constrained ID-JAG replaces client authentication only at the Resource Authorization Server.\n- A client whose document lists only `none` can't meet the claim's conditions at the IdP. It never receives the claim and gets ordinary admission.\n- The real constraint is that a vouched admission requires client authentication at the Resource Authorization Server with a document key. Section 8.2 explains why the bound key doesn't substitute: it need not appear in the document.\n\n**Checks**\n- No BCP 14 keyword sentence changed; 16 keywords before and after.\n- Builds at 17 pages. idnits shows the same three POSSIBLE_DOWNREF.\n",
+      "createdAt": "2026-11-09T21:15:59Z",
+      "updatedAt": "2026-11-09T21:17:53Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-cimd-sw-stmt",
+      "baseRefName": "main",
+      "baseRefOid": "919e98c49f5a61bcff3b2bdcbe3ce6c9e875e5d4",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-cimd-sw-stmt",
+      "headRefName": "idjag-intro-auth",
+      "headRefOid": "de51e61af4b288c5fa4b5b1bc9d4f2f61a3c4081",
+      "closedAt": "2026-11-09T21:17:53Z",
+      "mergedAt": "2026-11-09T21:17:53Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "1e0480ae261b84d0821cd2d153f0385b98d44c18"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 182,
+      "id": "PR_kwDOTdw2S88AAAABN9E3gQ",
+      "title": "State that local registration remains possible and ends the profile's bounds",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-cimd-sw-stmt/pull/182",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Adds two sentences to Trust Configuration (Section 4.1) of the ID-JAG vouching draft.\n\n**Added**\n> A server can still register a CIMD client under its own policy, including after a vouched admission. The registration then governs later requests, and this specification no longer applies to them.\n\n**Why**\n- The draft said a vouched admission \"creates no registration\" and that a record of one \"is not by itself a registration\". It didn't say whether local policy may still register the client, for example just in time. A reader could take \"creates no registration\" as a prohibition.\n- Nothing forbids it. The consequence follows from the existing rule that for a registered client \"the registration governs and the server ignores the claim\".\n  - The admitting request stays under this draft: scope ceilings, no refresh token.\n  - Later requests fall under the registration. The per-request digest check and the ceilings stop applying, and the IdP can no longer end the admission by ceasing to vouch.\n- No keyword, by design. Whether a server registers a client is local policy, and no other party could check a MUST on it.\n\n**Checks**\n- BCP 14 keywords: 16 before and 16 after.\n- Builds at 17 pages. idnits shows the same three POSSIBLE_DOWNREF.\n",
+      "createdAt": "2026-11-09T21:23:40Z",
+      "updatedAt": "2026-11-09T21:28:10Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-cimd-sw-stmt",
+      "baseRefName": "main",
+      "baseRefOid": "1e0480ae261b84d0821cd2d153f0385b98d44c18",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-cimd-sw-stmt",
+      "headRefName": "idjag-local-registration",
+      "headRefOid": "df4050868917894b6db5375237ba1b1b550dbb76",
+      "closedAt": "2026-11-09T21:28:10Z",
+      "mergedAt": "2026-11-09T21:28:10Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "d9671b3ea287b0d8c53d76a92c42c2c4173e82cf"
       },
       "comments": [],
       "reviews": []
