@@ -141,7 +141,7 @@ Current Statement:
 : A statement whose effective expiry has not passed and that no extension the server implements has ended. A current statement need not be the most recently issued one: an earlier statement for the same software remains current after a later one is issued ({{enforcement-bounds}}).
 
 Review-Only:
-: Describes a presentation, or a pulled statement, that the authorization server evaluates but whose statement counts for nothing in admission ({{review-only}}).
+: Describes a runtime presentation, whether its statement was presented or pulled, that the authorization server evaluates but whose statement counts for nothing in admission ({{review-only}}).
 
 Tenant:
 : A partition of an authorization server's configuration and issued tokens, such as one customer's. {{validation}} says how the authorization server determines a request's tenant.
@@ -240,7 +240,7 @@ A client identifier namespace is an `https` URL with no query or fragment whose 
 
 The issuer's statement key set comes from exactly one source that the configuration records: the `software_statement_jwks_uri` in the authorization server metadata ({{authorization-server-metadata}}) discovered from the configured `iss` ({{RFC8414}}), or a statement key set URL in the configuration, which is the only source for an issuer that is not an authorization server. A trusting authorization server MUST NOT combine the two sources, or fall back from one to the other after a retrieval or validation failure. The statement key set is never the JWK Set at a `jwks_uri` metadata value. Its URL MUST use the `https` scheme, and a trusting authorization server MUST validate the certificate of the host serving it. The issuer MUST NOT publish a key of its statement key set in any other JWK Set, or sign anything other than statements under this specification with those keys. A trusting authorization server reuses a retrieved statement key set only as {{retrieval}} permits.
 
-The configuration can also make an issuer a required issuer for client identifier namespaces in one of the server's tenants ({{trust-configuration}}). The server then MUST NOT admit, in that tenant, software to which the requirement applies except on a current statement from the required issuer ({{processing}}), whatever its policy for CIMD clients it has not reviewed. Without this rule, a holder could evade the required issuer's review by withholding that issuer's statement or by presenting or publishing only a broader one, such as a marketplace listing. A required issuer configured for software whose document carries a redirection URI that another application on the same device could claim, which makes every presentation review-only ({{review-only}}), excludes that software from the tenant, and the server rejects a request for such software there.
+The configuration can also make an issuer a required issuer for client identifier namespaces in one of the server's tenants ({{trust-configuration}}). The server then MUST NOT admit, in that tenant, software to which the requirement applies except on a current statement from the required issuer ({{processing}}), whatever its policy for CIMD clients it has not reviewed. Without this rule, a holder could evade the required issuer's review by withholding that issuer's statement or by presenting or publishing only a broader one, such as a marketplace listing. A required issuer configured for software whose document carries a redirection URI that another application on the same device could claim, which makes every runtime presentation review-only ({{review-only}}), excludes that software from the tenant, and the server rejects a request for such software there.
 
 A trusting authorization server's trust configuration MUST make at most one issuer required for a client identifier in a tenant. If the namespaces of two required issuers in a tenant overlap, the configuration names the one that is required for each client identifier both cover, and a configuration that requires both is in error. Alternative required issuers, and requirements for more than one statement, are left to extensions ({{extensions}}).
 
@@ -394,10 +394,10 @@ If the server pulls a statement for a public client's request that lacks PKCE wi
 
 The following are review-only:
 
-1. Every presentation and pulled statement for a reviewed document that carries any redirection URI another application on the same device could claim, whatever methods the document permits. Such a URI is a non-`https` URI, such as a private-use scheme or an `http` loopback redirection URI (Sections 7.1 and 7.3 of {{RFC8252}}), or an `https` URI whose host is a loopback address, `localhost`, or a name ending in `.localhost` (Section 6.3 of {{RFC6761}}), ignoring case and a trailing dot. The application that claims such a URI receives the code, so neither the reviewed redirection URIs nor a key shipped in every copy of the software can bind the presenter.
+1. Every runtime presentation, whether its statement was presented or pulled, for a reviewed document that carries any redirection URI another application on the same device could claim, whatever methods the document permits. Such a URI is a non-`https` URI, such as a private-use scheme or an `http` loopback redirection URI (Sections 7.1 and 7.3 of {{RFC8252}}), or an `https` URI whose host is a loopback address, `localhost`, or a name ending in `.localhost` (Section 6.3 of {{RFC6761}}), ignoring case and a trailing dot. The application that claims such a URI receives the code, so neither the reviewed redirection URIs nor a key shipped in every copy of the software can bind the presenter.
 2. A pulled statement that {{pull-binding}} makes review-only.
 
-A review-only presentation or pulled statement creates no establishment, and its statement MUST NOT satisfy a policy requiring reviewed software: except as {{public-client-presentation}} requires, the authorization server proceeds as it would for the same CIMD client presenting no statement, though it can record the statement's issuer for audit ({{ui-audit}}).
+A review-only runtime presentation creates no establishment, and its statement MUST NOT satisfy a policy requiring reviewed software: except as {{public-client-presentation}} requires, the authorization server proceeds as it would for the same CIMD client presenting no statement, though it can record the statement's issuer for audit ({{ui-audit}}).
 
 ## Grant Binding {#grant-lifecycle}
 
@@ -723,7 +723,7 @@ A client that presents a statement needs to keep that copy current and over the 
 
 Some properties of a document limit what a statement over it can do:
 
-* A redirection URI that another application on the same device could claim makes every presentation and pulled statement review-only ({{review-only}}). A statement over such a document cannot satisfy a policy or a required issuer that requires reviewed software, and a required issuer configured for such software excludes it from the tenant ({{issuer-trust}}).
+* A redirection URI that another application on the same device could claim makes every runtime presentation review-only, whether its statement was presented or pulled ({{review-only}}). A statement over such a document cannot satisfy a policy or a required issuer that requires reviewed software, and a required issuer configured for such software excludes it from the tenant ({{issuer-trust}}).
 * Duplicate member names make every trusting authorization server reject the document ({{effective-metadata}}), so an issuer ought not to issue a statement over it.
 * Section 8.1 of {{RFC8259}} forbids adding a byte order mark to JSON sent over a network, and a parser can treat one as an error rather than ignore it. Its bytes are part of the digest ({{metadata-digest}}), so removing it after review changes the digest. A publisher ought to remove it before review.
 
