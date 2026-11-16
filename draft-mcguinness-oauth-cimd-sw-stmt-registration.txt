@@ -187,10 +187,11 @@ Table of Contents
    The statement is consumed in the software_statement member of an
    [RFC7591] registration request.  The authorization server validates
    it under Section 3.2 of [STATEMENT] and registers the client under
-   its ordinary registration policy.  If a required issuer covers the
-   statement's sub in the request's tenant (Section 4 of [STATEMENT]),
-   the authorization server MUST NOT create a registration on a
-   statement from another issuer.
+   its ordinary registration policy.  If an issuer is required for the
+   statement's sub in the request's tenant, after the trust
+   configuration resolves any overlapping namespaces (Section 4 of
+   [STATEMENT]), the authorization server MUST NOT create a registration
+   on a statement from another issuer.
 
    A required issuer constrains only registrations made on statements,
    because a registration made without a statement names no client
@@ -354,7 +355,7 @@ Table of Contents
    *  is not restricted to another tenant (Section 3.1), and
 
    *  is restricted to the request's tenant, if that tenant requires a
-      tenant-scoped decision (Section 3.2 of [STATEMENT]).
+      tenant-scoped review (Section 3.2 of [STATEMENT]).
 
    One current statement can be consumed more than once, subject to the
    bounds of Sections 11.2 and 11.3 of [STATEMENT] and the server's
@@ -433,20 +434,21 @@ Table of Contents
    cause the authorization server to revoke refresh tokens as it does on
    detecting refresh-token replay (Section 4.14.2 of [RFC9700]).
 
-   If the authorization server records a required issuer for a tenant
-   (Section 4 of [STATEMENT]), it MUST reject an authorization, token,
-   or pushed authorization request, or an [RFC7592] update request, in
-   that tenant under any statement-governed registration whose governing
-   statement's sub falls within a covered namespace, unless a current
-   statement from the required issuer governs the registration as step 3
-   of Section 5 leaves it.  This rule applies whatever tenant the
-   registration was created in and whenever the requirement was
-   configured.  Without this rule, withholding the required issuer's
-   statement would keep such a registration in use after the issuer
-   withdrew or stopped renewing its decision.  A registration whose
-   governing statement is from another issuer cannot meet this rule,
-   since a replacement keeps the governing statement's iss (Section 6).
-   Its client registers again with a statement from the required issuer.
+   If the authorization server's trust configuration makes an issuer
+   required for a client identifier in a tenant (Section 4 of
+   [STATEMENT]), it MUST reject an authorization, token, or pushed
+   authorization request, or an [RFC7592] update request, in that tenant
+   under any statement-governed registration whose governing statement's
+   sub is that client identifier, unless a current statement from that
+   issuer governs the registration as step 3 of Section 5 leaves it.
+   This rule applies whatever tenant the registration was created in and
+   whenever the requirement was configured.  Without this rule,
+   withholding the required issuer's statement would keep such a
+   registration in use after the issuer withdrew or stopped renewing its
+   review.  A registration whose governing statement is from another
+   issuer cannot meet this rule, since a replacement keeps the governing
+   statement's iss (Section 6).  Its client registers again with a
+   statement from the required issuer.
 
    Neither the validity model nor the required-issuer rule rejects
    [RFC7592] read and delete requests.
@@ -491,10 +493,10 @@ Table of Contents
 
    4.  It applies the rejections of Section 4 to the registration as
        step 3 leaves it.  If the request is made in a tenant where the
-       authorization server requires a tenant-scoped decision
-       (Section 3.2 of [STATEMENT]) and the registration, as step 3
-       leaves it, carries no tenant restriction, it MUST treat the
-       request as from a client it has not registered.
+       authorization server requires a tenant-scoped review (Section 3.2
+       of [STATEMENT]) and the registration, as step 3 leaves it,
+       carries no tenant restriction, it MUST treat the request as from
+       a client it has not registered.
 
    5.  It evaluates the request against the registration's metadata.
 
@@ -643,9 +645,9 @@ Table of Contents
       tenant, or its statement_uses excludes this use.  This code is
       also used if a statement this server requires is absent from a
       registration request, if Section 3 forbids creating the
-      registration because a required issuer covers the statement's sub
-      and the statement is from another issuer, or if the server's
-      policy refuses a repeated registration request (Section 3.3).
+      registration because another issuer is required for the
+      statement's sub, or if the server's policy refuses a repeated
+      registration request (Section 3.3).
 
    invalid_client_metadata:  Any of the following holds for the reviewed
       document:
@@ -1010,6 +1012,16 @@ Table of Contents
 Document History
 
    [[ To be removed from the final specification ]]
+
+   -02
+
+   *  Followed [STATEMENT] in calling a tenant-scoped decision a tenant-
+      scoped review.
+
+   *  Applied a required issuer to the client identifiers it is required
+      for in a tenant, after the trust configuration resolves
+      overlapping namespaces (Section 4 of [STATEMENT]), rather than to
+      every client identifier in its namespaces.
 
    -01
 
