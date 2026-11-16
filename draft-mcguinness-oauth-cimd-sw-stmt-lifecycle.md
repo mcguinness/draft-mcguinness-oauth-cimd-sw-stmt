@@ -184,7 +184,7 @@ Under {{STATEMENT}}, refresh evaluates no statement: it checks the establishment
 
 ## Requiring a Current Statement {#currency}
 
-When the establishment's recorded statement has expired, the authorization server SHOULD require a current statement on refresh-token use ({{open-grants}}). A refresh under an establishment needs a replacement ({{refresh-replacement}}) if a refusal record covers the recorded statement, or if the recorded statement has expired and either the server requires a current statement or a required issuer (Section 4 of {{STATEMENT}}) covers the establishment's `sub` in the establishment's tenant. The server MUST reject a refresh that needs a replacement unless it accepts one, even if it does not otherwise require a current statement. If a required issuer covers that `sub` and tenant and the recorded statement is from another issuer, the server MUST reject the refresh, and the client opens a new grant by runtime presentation. A raised `iat` floor ({{supersession}}) does not by itself require a replacement.
+When the establishment's recorded statement has expired, the authorization server SHOULD require a current statement on refresh-token use ({{open-grants}}). A refresh under an establishment needs a replacement ({{refresh-replacement}}) if a refusal record covers the recorded statement, or if the recorded statement has expired and either the server requires a current statement or an issuer is required for the establishment's `sub` in the establishment's tenant (Section 4 of {{STATEMENT}}). The server MUST reject a refresh that needs a replacement unless it accepts one, even if it does not otherwise require a current statement. If an issuer is required for that `sub` in that tenant and the recorded statement is from another issuer, the server MUST reject the refresh, and the client opens a new grant by runtime presentation. A raised `iat` floor ({{supersession}}) does not by itself require a replacement.
 
 ## Refresh Replacement {#refresh-replacement}
 
@@ -249,7 +249,7 @@ If the server bounds establishments (Section 11.3 of {{STATEMENT}}), a count per
 | Step | Rejected when | Error |
 | --- | --- | --- |
 | Key checks | A check of Section 5.7.1 of {{STATEMENT}} fails | `invalid_grant` |
-| 1 | A required issuer covers the `sub` and tenant, and the recorded statement is from another issuer | `statement_required` |
+| 1 | An issuer is required for the `sub` in the tenant, and the recorded statement is from another issuer | `statement_required` |
 | 2 | A replacement is needed, and the one offered comes without `client_id` | `invalid_request` |
 | 2 | The `client_id` is not the client the refresh token was issued to | `invalid_grant` |
 | 2 | A replacement is needed, and the one offered names a `sub` other than the `client_id` | `statement_required` |
@@ -555,6 +555,10 @@ Specification Document(s):
 {:numbered="false"}
 
 [[ To be removed from the final specification ]]
+
+-02
+
+* Applied a required issuer to the client identifiers it is required for in a tenant, after the trust configuration resolves overlapping namespaces (Section 4 of {{STATEMENT}}).
 
 -01
 

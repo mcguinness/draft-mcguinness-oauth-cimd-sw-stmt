@@ -85,7 +85,7 @@ Statement-Governed Registration:
 
 # Consumption at Registration {#dcr-presentation}
 
-The statement is consumed in the `software_statement` member of an {{RFC7591}} registration request. The authorization server validates it under Section 3.2 of {{STATEMENT}} and registers the client under its ordinary registration policy. If a required issuer covers the statement's `sub` in the request's tenant (Section 4 of {{STATEMENT}}), the authorization server MUST NOT create a registration on a statement from another issuer.
+The statement is consumed in the `software_statement` member of an {{RFC7591}} registration request. The authorization server validates it under Section 3.2 of {{STATEMENT}} and registers the client under its ordinary registration policy. If an issuer is required for the statement's `sub` in the request's tenant, after the trust configuration resolves any overlapping namespaces (Section 4 of {{STATEMENT}}), the authorization server MUST NOT create a registration on a statement from another issuer.
 
 A required issuer constrains only registrations made on statements, because a registration made without a statement names no client identifier URL for a required issuer to cover. A deployment that needs every registration in a tenant reviewed requires a statement for every registration there and rejects a request that carries none with `unapproved_software_statement` ({{errors}}).
 
@@ -167,7 +167,7 @@ The following validity model applies to every statement-governed registration:
 
 If a request that carries no replacement is rejected because the registration has ceased to be valid, the rejection MUST NOT by itself cause the authorization server to revoke refresh tokens as it does on detecting refresh-token replay (Section 4.14.2 of {{RFC9700}}).
 
-If the authorization server records a required issuer for a tenant (Section 4 of {{STATEMENT}}), it MUST reject an authorization, token, or pushed authorization request, or an {{RFC7592}} update request, in that tenant under any statement-governed registration whose governing statement's `sub` falls within a covered namespace, unless a current statement from the required issuer governs the registration as step 3 of {{registration-requests}} leaves it. This rule applies whatever tenant the registration was created in and whenever the requirement was configured. Without this rule, withholding the required issuer's statement would keep such a registration in use after the issuer withdrew or stopped renewing its decision. A registration whose governing statement is from another issuer cannot meet this rule, since a replacement keeps the governing statement's `iss` ({{revalidation}}). Its client registers again with a statement from the required issuer.
+If the authorization server's trust configuration makes an issuer required for a client identifier in a tenant (Section 4 of {{STATEMENT}}), it MUST reject an authorization, token, or pushed authorization request, or an {{RFC7592}} update request, in that tenant under any statement-governed registration whose governing statement's `sub` is that client identifier, unless a current statement from that issuer governs the registration as step 3 of {{registration-requests}} leaves it. This rule applies whatever tenant the registration was created in and whenever the requirement was configured. Without this rule, withholding the required issuer's statement would keep such a registration in use after the issuer withdrew or stopped renewing its review. A registration whose governing statement is from another issuer cannot meet this rule, since a replacement keeps the governing statement's `iss` ({{revalidation}}). Its client registers again with a statement from the required issuer.
 
 Neither the validity model nor the required-issuer rule rejects {{RFC7592}} read and delete requests.
 
@@ -241,7 +241,7 @@ A rejection this specification defines, at a client registration endpoint or at 
   * The statement of a repeated public-client registration request is not the governing statement and has an `iat` no later than the governing statement's ({{repeated-registration}}).
 
 `unapproved_software_statement`:
-: The statement is well formed but not acceptable here: its issuer is not configured, its `aud` excludes this server, its `sub` is outside the client identifier namespaces the issuer can attest, its `aud_tenant` is not this request's tenant or is absent when required, its issuer is confined to another tenant, or its `statement_uses` excludes this use. This code is also used if a statement this server requires is absent from a registration request, if {{dcr-presentation}} forbids creating the registration because a required issuer covers the statement's `sub` and the statement is from another issuer, or if the server's policy refuses a repeated registration request ({{repeated-registration}}).
+: The statement is well formed but not acceptable here: its issuer is not configured, its `aud` excludes this server, its `sub` is outside the client identifier namespaces the issuer can attest, its `aud_tenant` is not this request's tenant or is absent when required, its issuer is confined to another tenant, or its `statement_uses` excludes this use. This code is also used if a statement this server requires is absent from a registration request, if {{dcr-presentation}} forbids creating the registration because another issuer is required for the statement's `sub`, or if the server's policy refuses a repeated registration request ({{repeated-registration}}).
 
 `invalid_client_metadata`:
 : Any of the following holds for the reviewed document:
@@ -423,6 +423,7 @@ Specification Document(s):
 -02
 
 * Followed {{STATEMENT}} in calling a tenant-scoped decision a tenant-scoped review.
+* Applied a required issuer to the client identifiers it is required for in a tenant, after the trust configuration resolves overlapping namespaces (Section 4 of {{STATEMENT}}), rather than to every client identifier in its namespaces.
 
 -01
 
