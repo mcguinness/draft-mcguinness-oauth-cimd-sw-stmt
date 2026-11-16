@@ -335,7 +335,7 @@ If the server resolved the document from octets it held, no statement remains, a
 
 Having selected a statement, the server continues admission ({{processing}}) from the sender constraint ({{sender-constraint}}), with the document already resolved. The selection's `sub` condition satisfies the `client_id` rule of {{runtime-presentation}}.
 
-If retrieving the statements does not complete or no statement remains, the server applies its policy for CIMD clients it has not reviewed, subject to any required issuer ({{issuer-trust}}), and rejects the request if that policy or a required issuer requires reviewed software.
+If retrieving the statements does not complete or no statement remains, the server applies its policy for CIMD clients it has not reviewed, subject to any required issuer ({{issuer-trust}}). It rejects the request if that policy or a required issuer requires reviewed software, with the `temporarily_unavailable` error code if a retrieval of the statements, of a statement key set needed to verify one, or of the document once more did not complete ({{errors}}).
 
 ### Binding {#pull-binding}
 
@@ -978,6 +978,7 @@ This mechanism began as the consumption part of a draft on software statement is
 * Made a server that pulls statements retrieve a held document once more before concluding that no statement matches it.
 * Listed vouching for a client's document in an identity assertion as an extension point.
 * Replaced references to numbered steps and items with the checks they name.
+* Named the `temporarily_unavailable` error code where a pull of statements does not complete and reviewed software is required.
 
 -01
 
