@@ -3161,31 +3161,19 @@ client-assertion-type%3Ajwt-bearer
 <p id="appendix-B-2">-02<a href="#appendix-B-2" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="appendix-B-3.1">
-          <p id="appendix-B-3.1.1">Normative clarification: the trust configuration makes at most one issuer required for a client identifier in a tenant. Overlapping namespaces resolve to one issuer through configuration, and alternative or multiple required issuers are left to extensions.<a href="#appendix-B-3.1.1" class="pilcrow">¶</a></p>
+          <p id="appendix-B-3.1.1">Normative clarifications: the trust configuration makes at most one issuer required for a client identifier in a tenant, with overlapping namespaces resolved by configuration, and records exactly one source for each issuer's statement key set, which a server neither combines with another nor falls back from.<a href="#appendix-B-3.1.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-B-3.2">
-          <p id="appendix-B-3.2.1">Normative clarification: the trust configuration records exactly one source for an issuer's statement key set, and a server neither combines the sources nor falls back between them.<a href="#appendix-B-3.2.1" class="pilcrow">¶</a></p>
+          <p id="appendix-B-3.2.1">Validation and pulled statements: added a check that <code>alg</code> is one the trust configuration accepts from the issuer. A server that pulls statements retrieves a held document once more before concluding that none matches, and a public client's pulled statement without PKCE or a bound key is review-only rather than rejected.<a href="#appendix-B-3.2.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-B-3.3">
-          <p id="appendix-B-3.3.1">Added a check that a statement's <code>alg</code> is one the trust configuration accepts from its issuer.<a href="#appendix-B-3.3.1" class="pilcrow">¶</a></p>
+          <p id="appendix-B-3.3.1">Error codes: the presentation codes apply to pulled statements, a pull that does not complete gets <code>temporarily_unavailable</code> when reviewed software is required, and a presented statement failing validation for a reason other than expiry gets <code>invalid_client</code> even when a required statement is absent.<a href="#appendix-B-3.3.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-B-3.4">
-          <p id="appendix-B-3.4.1">For pulled statements, a server retrieves a held document once more before concluding that no statement matches it, and a public client's statement without PKCE or a bound key is review-only rather than rejected.<a href="#appendix-B-3.4.1" class="pilcrow">¶</a></p>
+          <p id="appendix-B-3.4.1">Terminology and guidance: defined the trust configuration and a tenant-scoped review (a tenant-scoped decision in -01), replaced "role", "standing", unqualified uses of "decision", and step numbers, and clarified digest mismatches, document changes, and establishment counting. Added guidance for issuers and for clients that both present and publish statements.<a href="#appendix-B-3.4.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-B-3.5">
-          <p id="appendix-B-3.5.1">Stated that the presentation error codes apply to pulled statements, that a pull that does not complete gets <code>temporarily_unavailable</code> when reviewed software is required, and that a presented statement failing validation for a reason other than expiry gets <code>invalid_client</code> even when a required statement is absent. A valid statement from another issuer does not satisfy a required issuer.<a href="#appendix-B-3.5.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-B-3.6">
-          <p id="appendix-B-3.6.1">Defined the trust configuration and a tenant-scoped review, which -01 called a tenant-scoped decision. Replaced the undefined "role" and "standing", named the act each use of "decision" meant, and named checks in place of numbered steps.<a href="#appendix-B-3.6.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-B-3.7">
-          <p id="appendix-B-3.7.1">Clarified what a server does on a digest mismatch, the effect of a document change on admission, and how a server can count establishments toward a bound. Gave the token endpoint example a client of its own.<a href="#appendix-B-3.7.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-B-3.8">
-          <p id="appendix-B-3.8.1">Added guidance for issuers on documents whose statements are review-only or rejected, and noted that a newer published statement provides no fallback for a presented one.<a href="#appendix-B-3.8.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-B-3.9">
-          <p id="appendix-B-3.9.1">Made the IANA description of the <code>cimd_digest</code> claim neutral about what the JWT's issuer asserts, so that other JWT profiles can carry the claim, and listed vouching for a client's document in an identity assertion as an extension point.<a href="#appendix-B-3.9.1" class="pilcrow">¶</a></p>
+          <p id="appendix-B-3.5.1">Made the IANA description of the <code>cimd_digest</code> claim neutral about what the JWT's issuer asserts, and listed vouching in an identity assertion as an extension point.<a href="#appendix-B-3.5.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 <p id="appendix-B-4">-01<a href="#appendix-B-4" class="pilcrow">¶</a></p>
