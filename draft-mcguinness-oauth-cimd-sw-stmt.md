@@ -449,7 +449,7 @@ A rejection for another reason, such as an assertion grant whose assertion is in
 This specification defines the following error code:
 
 `statement_required`:
-: A current software statement is required and none was presented or pulled, or the one presented or pulled is expired and otherwise valid. An extension can assign it to further cases. The client recovers by obtaining a current statement, from the required issuer if the tenant has one ({{issuer-trust}}).
+: A current software statement is required and none was presented or pulled, none was from the required issuer for the client identifier in the request's tenant ({{issuer-trust}}), or the one presented or pulled is expired and otherwise valid. An extension can assign it to further cases. The client recovers by obtaining a current statement, from the required issuer if one applies.
 
 ## Presentation Requests {#presentation-errors}
 
@@ -465,7 +465,7 @@ A runtime presentation at the token or pushed authorization request endpoint, wh
   * The bound on establishments is reached ({{establishment-bounds}}).
 
 `statement_required`:
-: Expiry is the statement's only validation failure ({{statement-required}}), or a required statement is absent, including one from an issuer required for the tenant ({{issuer-trust}}).
+: Expiry is the statement's only validation failure ({{statement-required}}), or a required statement is absent, including one from the required issuer for the client identifier in the request's tenant ({{issuer-trust}}).
 
 `unauthorized_client`:
 : Any of the following, in place of `statement_required` if both apply at the step of {{processing}} where the server rejects the request:
@@ -481,7 +481,7 @@ A runtime presentation at the token or pushed authorization request endpoint, wh
 `invalid_request`:
 : The request omits `client_id` ({{runtime-presentation}}).
 
-A pulled statement that fails a selection condition is ignored rather than rejected ({{pull-selection}}).
+A presented statement that fails validation for a reason other than expiry is rejected with `invalid_client` even if a required statement is also absent, so that a requirement does not hide the failure. A valid statement from an issuer other than the required issuer for the client identifier in the request's tenant does not satisfy that requirement. A pulled statement that fails a selection condition is ignored rather than rejected ({{pull-selection}}), and the server then evaluates whether a required statement remains.
 
 ## Code Redemption and Refresh {#continuation-errors}
 
@@ -999,6 +999,7 @@ This mechanism began as the consumption part of a draft on software statement is
 * Defined a tenant-scoped decision.
 * Normative clarification: the trust configuration makes at most one issuer required for a client identifier in a tenant. Overlapping namespaces resolve to one issuer through configuration, and alternative or multiple required issuers are left to extensions.
 * Normative clarification: the trust configuration records exactly one source for an issuer's statement key set, and a server neither combines the sources nor falls back between them.
+* Stated that a presented statement failing validation for a reason other than expiry gets `invalid_client` even when a required statement is absent, and that a valid statement from another issuer does not satisfy a required issuer.
 
 -01
 
