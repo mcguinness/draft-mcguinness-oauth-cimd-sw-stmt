@@ -201,6 +201,7 @@ A `304 Not Modified` response shows that stored octets, and their digest, are st
 Before accepting a statement, a trusting authorization server MUST ensure the following:
 
 * The `typ` JOSE header parameter has the value `software-statement+jwt`, and the `kid` header parameter is present.
+* The `alg` header parameter identifies a signing algorithm that the trust configuration accepts from the statement's issuer ({{issuer-trust}}).
 * The signature verifies under a key trusted for the exact `iss` value, obtained as {{issuer-trust}} requires.
 * Every required claim of {{profiles}} is present and of the correct type.
 * The statement is not expired, and its `iat` is not unreasonably far in the future according to the server's clock-skew policy.
@@ -985,6 +986,7 @@ This mechanism began as the consumption part of a draft on software statement is
 * Named the `temporarily_unavailable` error code where a pull of statements does not complete and reviewed software is required.
 * Stated that a public client's pulled statement without PKCE or a bound key is review-only rather than rejected.
 * Stated that the error codes for presentation requests apply to pulled statements.
+* Added a check that a statement's `alg` is one the trust configuration accepts from its issuer.
 
 -01
 
