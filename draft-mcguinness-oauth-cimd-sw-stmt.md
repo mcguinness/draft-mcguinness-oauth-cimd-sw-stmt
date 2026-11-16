@@ -235,7 +235,7 @@ A client identifier namespace is an `https` URL with no query or fragment whose 
 
 The issuer's statement key set is the JWK Set at the `software_statement_jwks_uri` in its authorization server metadata ({{authorization-server-metadata}}), discovered from the configured `iss` ({{RFC8414}}). For an issuer that is not an authorization server, it is the JWK Set at a statement key set URL in the configuration. It is never the JWK Set at a `jwks_uri` metadata value. Its URL MUST use the `https` scheme, and a trusting authorization server MUST validate the certificate of the host serving it. The issuer MUST NOT publish a key of its statement key set in any other JWK Set, or sign anything other than statements under this specification with those keys. A trusting authorization server reuses a retrieved statement key set only as {{retrieval}} permits.
 
-The configuration can also make an issuer a required issuer for client identifier namespaces in one of the server's tenants ({{trust-configuration}}). The server then MUST NOT admit software in a covered namespace in that tenant without a current statement from the required issuer, whatever its policy for CIMD clients it has not reviewed. Without this rule, a holder could evade the required issuer's decision by withholding that issuer's statement or by presenting or publishing only a broader one, such as a marketplace listing. A required issuer configured for software whose document makes every presentation review-only (item 1 of {{review-only}}) excludes that software from the tenant, and the server rejects a request for such software there.
+The configuration can also make an issuer a required issuer for client identifier namespaces in one of the server's tenants ({{trust-configuration}}). The server then MUST NOT admit software in a covered namespace in that tenant without a current statement from the required issuer, whatever its policy for CIMD clients it has not reviewed. Without this rule, a holder could evade the required issuer's decision by withholding that issuer's statement or by presenting or publishing only a broader one, such as a marketplace listing. A required issuer configured for software whose document carries a redirection URI that another application on the same device could claim, which makes every presentation review-only ({{review-only}}) excludes that software from the tenant, and the server rejects a request for such software there.
 
 ## Multi-Tenant Issuers {#multi-tenant-issuers}
 
@@ -321,7 +321,7 @@ In retrieving the `software_statements_uri`, the authorization server:
 * MUST NOT automatically follow redirects.
 * MUST accept a new representation only from a `200` response with a JSON media type, and can instead reuse a stored representation that a `304 Not Modified` response revalidates (Section 15.4.5 of {{RFC9110}}).
 
-The document and this URL are necessarily retrieved before any statement is validated, so the ordering of step 2 of {{processing}} applies only to the retrievals that follow.
+The document and this URL are necessarily retrieved before any statement is validated, so the validation order of {{processing}}, which completes every check that needs no client-controlled retrieval first, applies only to the retrievals that follow.
 
 The server considers only statements that meet all of the following conditions, and ignores the rest:
 
@@ -333,7 +333,7 @@ If the server's trust configuration requires an issuer for this client ({{issuer
 
 If the server resolved the document from octets it held, no statement remains, and a statement that meets every other condition, including any required issuer, carries a different `cimd_digest` claim, the server retrieves the document once more and repeats the selection against it over the statements already pulled, as {{effective-metadata}} requires before a mismatch is treated as a change.
 
-Having selected a statement, the server continues from step 5 of {{processing}}, with the document already resolved. The selection satisfies the `client_id` rule of step 3.
+Having selected a statement, the server continues admission ({{processing}}) from the sender constraint ({{sender-constraint}}), with the document already resolved. The selection's `sub` condition satisfies the `client_id` rule of {{runtime-presentation}}.
 
 If retrieving the statements does not complete or no statement remains, the server applies its policy for CIMD clients it has not reviewed, subject to any required issuer ({{issuer-trust}}), and rejects the request if that policy or a required issuer requires reviewed software.
 
@@ -508,7 +508,7 @@ If the authorization server's policy or a required issuer ({{issuer-trust}}) req
 `statement_required`:
 : In any other case, subject to the order of {{errors}}, the authorization server MUST return this code.
 
-When an authorization request is evaluated against a statement pulled at the authorization endpoint (step 6 of {{processing}}), one that exceeds the reviewed document's response types or scope is rejected with `unauthorized_client` or `invalid_scope`, as for a presentation ({{presentation-errors}}).
+When a statement is pulled at the authorization endpoint, an authorization request that exceeds the reviewed document's response types or scope ({{effective-metadata}}) is rejected with `unauthorized_client` or `invalid_scope`, as for a presentation ({{presentation-errors}}).
 
 Before redirecting with an error, the authorization server validates the `redirect_uri` against the client's CIMD, which it resolves first, or, for a registered client, against its registered redirection URIs (Section 4.1.2.1 of {{RFC6749}}). If it cannot obtain a CIMD client's document, or the document fails validation, it MUST NOT redirect (Section 6.1 of {{CIMD}}).
 
@@ -977,6 +977,7 @@ This mechanism began as the consumption part of a draft on software statement is
 * Made the IANA description of the `cimd_digest` claim neutral about what the JWT's issuer asserts, so that other JWT profiles can carry the claim.
 * Made a server that pulls statements retrieve a held document once more before concluding that no statement matches it.
 * Listed vouching for a client's document in an identity assertion as an extension point.
+* Replaced references to numbered steps and items with the checks they name.
 
 -01
 
