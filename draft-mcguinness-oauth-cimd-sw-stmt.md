@@ -440,7 +440,7 @@ A rejection uses the error response and HTTP status codes of its endpoint: Secti
 A rejection for a reason this specification defines uses the first of the following error codes that applies:
 
 1. `invalid_request`, if the request carries the `software_statement` parameter where {{runtime-presentation}} does not permit it.
-2. `temporarily_unavailable`, if a retrieval the request needs did not complete ({{retrieval}}), including a pull of statements ({{pulled-statements}}) or the retrieval of a statement key set needed to verify a pulled statement.
+2. `temporarily_unavailable`, if a retrieval the request needs did not complete ({{retrieval}}), including a pull of statements ({{pulled-statements}}), the retrieval of a statement key set needed to verify a pulled statement, or the retrieval of the document once more during selection ({{pull-selection}}).
 3. The code that {{presentation-errors}}, {{continuation-errors}}, or {{authorization-errors}} assigns.
 
 At the token and pushed authorization request endpoints, an authorization server MUST respond with HTTP status code 503 to a request it rejects with the `temporarily_unavailable` error code, as Section 6.1 of {{CIMD}} requires for a transient failure to retrieve the document.
