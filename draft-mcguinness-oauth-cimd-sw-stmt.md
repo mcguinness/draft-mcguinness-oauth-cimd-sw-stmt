@@ -449,14 +449,14 @@ This specification defines the following error code:
 
 ## Presentation Requests {#presentation-errors}
 
-A presentation at the token or pushed authorization request endpoint is rejected with the following error codes:
+A runtime presentation at the token or pushed authorization request endpoint, whether its statement was presented or pulled, is rejected with the following error codes:
 
 `invalid_client`:
 : Any of the following:
 
   * The statement is malformed or fails validation ({{validation}}) for a reason other than expiry.
   * The request's `client_id` differs from the statement's `sub` ({{runtime-presentation}}).
-  * The request fails the sender constraint ({{sender-constraint}}), including a presentation opening a new grant at the token endpoint for a public client ({{public-client-presentation}}).
+  * The request fails the sender constraint ({{sender-constraint}}), including a statement presented in a request that opens a new grant at the token endpoint for a public client ({{public-client-presentation}}).
   * The reviewed document cannot be obtained, including over the size bound, fails validation as {{CIMD}} requires, contains duplicate member names ({{effective-metadata}}), or does not match and the server does not proceed without the statement ({{effective-metadata}}).
   * The bound on establishments is reached ({{establishment-bounds}}).
 
@@ -476,6 +476,8 @@ A presentation at the token or pushed authorization request endpoint is rejected
 
 `invalid_request`:
 : The request omits `client_id` ({{runtime-presentation}}).
+
+A pulled statement that fails a selection condition is ignored rather than rejected ({{pull-selection}}).
 
 ## Code Redemption and Refresh {#continuation-errors}
 
@@ -982,6 +984,7 @@ This mechanism began as the consumption part of a draft on software statement is
 * Replaced references to numbered steps and items with the checks they name.
 * Named the `temporarily_unavailable` error code where a pull of statements does not complete and reviewed software is required.
 * Stated that a public client's pulled statement without PKCE or a bound key is review-only rather than rejected.
+* Stated that the error codes for presentation requests apply to pulled statements.
 
 -01
 
