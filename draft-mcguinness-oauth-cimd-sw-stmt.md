@@ -271,7 +271,7 @@ The request is evaluated against the reviewed metadata as against any client's r
 
 Every retrieval this specification causes inherits the server-side request forgery protections in Section 10.7 of {{CIMD}}, whether of the CIMD, a `jwks_uri` it names, the statements its `software_statements_uri` names, or a statement key set or the issuer metadata that locates one ({{issuer-trust}}). A trusted signature does not make a URL safe: the authorization server MUST apply its URL, redirect, address-range, transport, and content-type policy independently to every referenced location.
 
-If a retrieval fails, the authorization server MUST reject the request and MUST NOT fall back to a weaker proof. The exception is a failed pull of statements, or a failed retrieval of a statement key set ({{issuer-trust}}) needed to verify a pulled statement, for a request opening a new grant: that failure does not by itself reject the request, which proceeds as {{pull-selection}} describes.
+If a retrieval fails, the authorization server MUST reject the request and MUST NOT fall back to a weaker proof. The exception is a failed pull of statements, a failed retrieval of a statement key set ({{issuer-trust}}) needed to verify a pulled statement, or a retrieval of the document once more under {{pull-selection}} that does not complete, for a request opening a new grant: that failure does not by itself reject the request, which proceeds as {{pull-selection}} describes.
 
 A retrieval does not complete if it times out, its connection fails, or the response has a 429 (Too Many Requests) status code (Section 4 of {{RFC6585}}) or a 5xx status code. Any other failure to obtain an acceptable representation is final, such as another 4xx status code, a body that is not a JSON object, or a response exceeding the server's configured size bound (Section 10.11 of {{CIMD}}), which the authorization server MUST treat as a failure rather than digesting what it read. After a final failure, a document is treated as failing validation, a key set as carrying no acceptable key, and a statements location as publishing no statement. For the document, a retrieval that does not complete is a transient failure and a final failure is a terminal failure (Section 6.1 of {{CIMD}}).
 
@@ -330,6 +330,8 @@ The server considers only statements that meet all of the following conditions, 
 * The `cimd_digest` claim equals the digest of the document the server resolved.
 
 If the server's trust configuration requires an issuer for this client ({{issuer-trust}}), the server also ignores statements from any other issuer. If more than one statement remains, it applies the most recently issued statement from an issuer of its choice.
+
+If the server resolved the document from octets it held, no statement remains, and a statement that meets every other condition, including any required issuer, carries a different `cimd_digest` claim, the server retrieves the document once more and repeats the selection against it over the statements already pulled, as {{effective-metadata}} requires before a mismatch is treated as a change.
 
 Having selected a statement, the server continues from step 5 of {{processing}}, with the document already resolved. The selection satisfies the `client_id` rule of step 3.
 
@@ -972,6 +974,7 @@ This mechanism began as the consumption part of a draft on software statement is
 -02
 
 * Made the IANA description of the `cimd_digest` claim neutral about what the JWT's issuer asserts, so that other JWT profiles can carry the claim.
+* Made a server that pulls statements retrieve a held document once more before concluding that no statement matches it.
 
 -01
 
