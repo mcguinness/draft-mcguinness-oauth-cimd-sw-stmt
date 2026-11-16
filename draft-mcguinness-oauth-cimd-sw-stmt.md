@@ -208,7 +208,7 @@ Before accepting a statement, a trusting authorization server MUST ensure the fo
 * If the statement carries `nbf`, the current time is not before it, according to the same clock-skew policy (Section 4.1.5 of {{RFC7519}}).
 * If the statement carries `aud`, a value in it exactly matches one of the server's issuer identifiers that its trust configuration permits the statement's issuer to name ({{issuer-trust}}).
 * If the statement carries `aud_tenant`, `aud` carries exactly one value and `aud_tenant` identifies the request's tenant.
-* If the server requires a tenant-scoped decision for the request, the statement carries `aud_tenant`, or the server's trust configuration confines the statement's issuer to the request's tenant ({{issuer-trust}}).
+* If the server requires a tenant-scoped decision (one confined to the request's tenant) for the request, the statement carries `aud_tenant`, or the server's trust configuration confines the statement's issuer to the request's tenant ({{issuer-trust}}).
 * If the server's trust configuration confines the statement's issuer to a tenant, the statement carries an `aud` claim with exactly one value, and the request belongs to that tenant.
 * The use being made of the statement is one its `statement_uses` claim permits ({{profiles}}).
 * The `sub` claim is a client identifier URL conforming to {{CIMD}} and falls within the client identifier namespaces for which this server accepts the issuer ({{issuer-trust}}).
@@ -642,7 +642,7 @@ Neither assertion grants access nor substitutes for the other.
 
 ## Identity Assertions {#identity-assertions}
 
-A statement records that a named party reviewed software, not that a particular customer currently permits that software to act in its tenant. A tenant-scoped decision (`aud_tenant`) authorizes no particular user or transaction. When a customer's identity provider mediates a grant, as with a cross-domain identity assertion {{IDJAG}}, it issues assertions per grant only for clients the customer permits. It can also vouch for the client's document in the assertion itself, by carrying the document's metadata digest ({{extensions}}). A statement serves when the issuer is not in the request path, or when a customer wants a portable record of what its review covered.
+A statement records that a named party reviewed software, not that a particular customer currently permits that software to act in its tenant. A tenant-scoped decision ({{validation}}) authorizes no particular user or transaction. When a customer's identity provider mediates a grant, as with a cross-domain identity assertion {{IDJAG}}, it issues assertions per grant only for clients the customer permits. It can also vouch for the client's document in the assertion itself, by carrying the document's metadata digest ({{extensions}}). A statement serves when the issuer is not in the request path, or when a customer wants a portable record of what its review covered.
 
 ## OpenID Federation {#relationship-federation}
 
@@ -990,6 +990,7 @@ This mechanism began as the consumption part of a draft on software statement is
 * Clarified what a server does on a digest mismatch, and the effect of a document change on admission.
 * Gave the token endpoint example a client of its own.
 * Stated how a server can count establishments toward a bound.
+* Defined a tenant-scoped decision.
 
 -01
 
