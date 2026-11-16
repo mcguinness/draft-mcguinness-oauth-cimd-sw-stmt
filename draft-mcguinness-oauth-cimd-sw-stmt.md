@@ -533,7 +533,7 @@ The examples in this section are non-normative.
 
 ## Presenting at the Token Endpoint
 
-The following is an example of a client presenting a statement at the token endpoint of a server holding no record for the client (line breaks for display purposes only). The reviewed document, which is not shown, names a `jwks_uri`, the `private_key_jwt` authentication method, the `client_credentials` grant type, and a `scope` that includes `tools.read`, so the client authenticates with a key that document carries. The `client_id` is the statement's `sub`.
+The following is an example of a client presenting a statement at the token endpoint of a server holding no record for the client (line breaks for display purposes only). The reviewed document, which is not shown and is not the one in the following examples, names a `jwks_uri`, the `private_key_jwt` authentication method, the `client_credentials` grant type, and a `scope` that includes `tools.read`, so the client authenticates with a key that document carries. The `client_id` is the statement's `sub`.
 
 ~~~ http
 POST /token HTTP/1.1
@@ -542,7 +542,7 @@ Content-Type: application/x-www-form-urlencoded
 
 grant_type=client_credentials
 &scope=tools.read
-&client_id=https%3A%2F%2Fclient.example%2Fapp
+&client_id=https%3A%2F%2Fclient.example%2Fagent
 &client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3A
 client-assertion-type%3Ajwt-bearer
 &client_assertion=eyJhbGciOiJFUzI1NiIsImtpZCI6IjIwMjYtMDgifQ...
@@ -988,6 +988,7 @@ This mechanism began as the consumption part of a draft on software statement is
 * Stated that the error codes for presentation requests apply to pulled statements.
 * Added a check that a statement's `alg` is one the trust configuration accepts from its issuer.
 * Clarified what a server does on a digest mismatch, and the effect of a document change on admission.
+* Gave the token endpoint example a client of its own.
 
 -01
 
