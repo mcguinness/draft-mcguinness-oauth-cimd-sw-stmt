@@ -132,7 +132,7 @@ Effective Expiry:
 : The earlier of a statement's `exp` and its `iat` plus the maximum statement lifetime the trusting authorization server honors for its issuer ({{issuer-trust}}). A statement is expired once its effective expiry has passed.
 
 Required Issuer:
-: An issuer whose current statement a trusting authorization server requires in one of its tenants for software in configured client identifier namespaces ({{issuer-trust}}).
+: An issuer whose current statement a trusting authorization server requires in one of its tenants for the client identifiers to which its configuration applies the requirement ({{issuer-trust}}).
 
 Current Statement:
 : A statement whose effective expiry has not passed and that no extension the server implements has ended. A current statement need not be the most recently issued one: an earlier statement for the same software remains current after a later one is issued ({{enforcement-bounds}}).
@@ -236,7 +236,9 @@ A client identifier namespace is an `https` URL with no query or fragment whose 
 
 The issuer's statement key set is the JWK Set at the `software_statement_jwks_uri` in its authorization server metadata ({{authorization-server-metadata}}), discovered from the configured `iss` ({{RFC8414}}). For an issuer that is not an authorization server, it is the JWK Set at a statement key set URL in the configuration. It is never the JWK Set at a `jwks_uri` metadata value. Its URL MUST use the `https` scheme, and a trusting authorization server MUST validate the certificate of the host serving it. The issuer MUST NOT publish a key of its statement key set in any other JWK Set, or sign anything other than statements under this specification with those keys. A trusting authorization server reuses a retrieved statement key set only as {{retrieval}} permits.
 
-The configuration can also make an issuer a required issuer for client identifier namespaces in one of the server's tenants ({{trust-configuration}}). The server then MUST NOT admit software in a covered namespace in that tenant without a current statement from the required issuer, whatever its policy for CIMD clients it has not reviewed. Without this rule, a holder could evade the required issuer's decision by withholding that issuer's statement or by presenting or publishing only a broader one, such as a marketplace listing. A required issuer configured for software whose document carries a redirection URI that another application on the same device could claim, which makes every presentation review-only ({{review-only}}) excludes that software from the tenant, and the server rejects a request for such software there.
+The configuration can also make an issuer a required issuer for client identifier namespaces in one of the server's tenants ({{trust-configuration}}). The server then MUST NOT admit, in that tenant, software to which the requirement applies without a current statement from the required issuer, whatever its policy for CIMD clients it has not reviewed. Without this rule, a holder could evade the required issuer's decision by withholding that issuer's statement or by presenting or publishing only a broader one, such as a marketplace listing. A required issuer configured for software whose document carries a redirection URI that another application on the same device could claim, which makes every presentation review-only ({{review-only}}), excludes that software from the tenant, and the server rejects a request for such software there.
+
+A trusting authorization server's trust configuration MUST make at most one issuer required for a client identifier in a tenant. If the namespaces of two required issuers in a tenant overlap, the configuration names the one that is required for each client identifier both cover, and a configuration that requires both is in error. Alternative required issuers, and requirements for more than one statement, are left to extensions ({{extensions}}).
 
 ## Multi-Tenant Issuers {#multi-tenant-issuers}
 
@@ -628,6 +630,7 @@ The following extensions are left to separate specifications:
 * Vouching in an identity assertion: an identity provider carries a client's metadata digest in an assertion it issues for a grant, such as a cross-domain identity assertion {{IDJAG}}, so that an authorization server receiving the assertion can admit the client on the identity provider's decision without a statement.
 * Runtime presentation in the request that begins a grant at an endpoint this specification does not cover, such as the device authorization endpoint of {{RFC8628}}.
 * Partial review, by which an issuer vouches for particular members rather than a whole document ({{metadata-digest}}).
+* Required issuer sets: alternative required issuers for one client identifier in a tenant, or more than one required statement ({{issuer-trust}}).
 * Statement lifecycle: withdrawal, supersession, requiring a current statement on refresh, and refresh replacement.
 
 # Relationship to Other Work {#relationship}
@@ -693,6 +696,8 @@ This section gives guidance to operators and issuers. It adds no requirement.
 Trust configuration ought to constrain each issuer to the client identifier namespaces it is expected to attest ({{issuer-trust}}), for example URLs under the domains of the software publishers it serves. Without such a scope, a compromised or over-broad issuer can mint acceptable statements about any client software.
 
 When a trusting authorization server configures an issuer whose decisions are confined to one of its tenants, as a customer's own issuer is, it ought to record with that configuration the client identifier namespaces for which the issuer's decision is required in that tenant ({{issuer-trust}}).
+
+Namespaces of required issuers can overlap, as when a marketplace and a customer's own issuer both cover a publisher's client identifier URLs. The configuration then names the one issuer that is required for the client identifiers both cover ({{issuer-trust}}).
 
 ## Audience and Tenant Claims {#audience-practice}
 
@@ -991,6 +996,7 @@ This mechanism began as the consumption part of a draft on software statement is
 * Gave the token endpoint example a client of its own.
 * Stated how a server can count establishments toward a bound.
 * Defined a tenant-scoped decision.
+* Normative clarification: the trust configuration makes at most one issuer required for a client identifier in a tenant. Overlapping namespaces resolve to one issuer through configuration, and alternative or multiple required issuers are left to extensions.
 
 -01
 
