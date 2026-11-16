@@ -517,7 +517,7 @@ If the authorization server's policy or a required issuer ({{issuer-trust}}) req
 : The client's statement is review-only ({{review-only}}), or a required issuer excludes the software from the tenant ({{issuer-trust}}).
 
 `statement_required`:
-: In any other case, subject to the order of {{errors}}, the authorization server MUST return this code.
+: In any other case to which this section assigns no other code, subject to the order of {{errors}}, the authorization server MUST return this code.
 
 When a statement is pulled at the authorization endpoint, an authorization request that exceeds the reviewed document's response types or scope ({{effective-metadata}}) is rejected with `unauthorized_client` or `invalid_scope`, as for a presentation ({{presentation-errors}}).
 
