@@ -1015,13 +1015,11 @@ Document History
 
    -02
 
-   *  Followed [STATEMENT] in calling a tenant-scoped decision a tenant-
-      scoped review.
-
-   *  Applied a required issuer to the client identifiers it is required
-      for in a tenant, after the trust configuration resolves
-      overlapping namespaces (Section 4 of [STATEMENT]), rather than to
-      every client identifier in its namespaces.
+   *  Followed draft -02 of [STATEMENT]: a required issuer applies to
+      the client identifiers it is required for in a tenant, after the
+      trust configuration resolves overlapping namespaces, rather than
+      to every client identifier in its namespaces, and a tenant-scoped
+      decision is now a tenant-scoped review.
 
    -01
 
