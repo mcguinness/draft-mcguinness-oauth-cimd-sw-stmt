@@ -381,6 +381,8 @@ For a public client's presentation that is not review-only, made or pulled at th
 * MUST require the presenter to bind a key it holds, through the `dpop_jkt` parameter or, at the pushed authorization request endpoint, a DPoP proof (Section 10.1 of {{RFC9449}}), and records that key as the proven key of the establishment ({{grant-lifecycle}}).
 * MUST NOT require that key to appear in the reviewed document.
 
+If the server pulls a statement for a public client's request that lacks PKCE with the `S256` method or a bound key, the statement is review-only ({{pull-binding}}), and the server does not reject the request under these requirements or those of {{sender-constraint}}.
+
 ### Review-Only Presentations {#review-only}
 
 The following are review-only:
@@ -979,6 +981,7 @@ This mechanism began as the consumption part of a draft on software statement is
 * Listed vouching for a client's document in an identity assertion as an extension point.
 * Replaced references to numbered steps and items with the checks they name.
 * Named the `temporarily_unavailable` error code where a pull of statements does not complete and reviewed software is required.
+* Stated that a public client's pulled statement without PKCE or a bound key is review-only rather than rejected.
 
 -01
 
