@@ -289,7 +289,7 @@ A trusting authorization server MAY reuse document octets it holds for digest co
 A client presents a software statement by including the following parameter in a token request or a pushed authorization request:
 
 `software_statement`:
-: REQUIRED for a presentation made in a request. The software statement ({{profiles}}). It is consumed as a runtime presentation or in a role defined by an extension the server implements. On refresh-token use under an establishment, a server ignores the parameter unless an extension it implements defines its role there. A request carrying the parameter in any other role is rejected.
+: REQUIRED for a presentation made in a request. The software statement ({{profiles}}). It is consumed in a runtime presentation, or in an operation defined by an extension the server implements, such as delivery of a statement to renew a registration ({{REGISTRATION}}) or refresh replacement ({{extensions}}). On refresh-token use under an establishment, a server ignores the parameter unless an extension it implements defines an operation for it there, such as refresh replacement. Any other request carrying the parameter is rejected.
 
 A request making a runtime presentation MUST include the `client_id` parameter, even if the client authenticates, and its value, the client's CIMD URL, MUST exactly equal the statement's `sub` claim. The authorization server MUST reject a request that omits the parameter or carries another value. The effective `client_id` is the statement's `sub`, and the authorization server assigns none.
 
@@ -439,7 +439,7 @@ A rejection uses the error response and HTTP status codes of its endpoint: Secti
 
 A rejection for a reason this specification defines uses the first of the following error codes that applies:
 
-1. `invalid_request`, if the request carries the `software_statement` parameter in a role {{runtime-presentation}} does not permit.
+1. `invalid_request`, if the request carries the `software_statement` parameter where {{runtime-presentation}} does not permit it.
 2. `temporarily_unavailable`, if a retrieval the request needs did not complete ({{retrieval}}), including a pull of statements ({{pulled-statements}}) or the retrieval of a statement key set needed to verify a pulled statement.
 3. The code that {{presentation-errors}}, {{continuation-errors}}, or {{authorization-errors}} assigns.
 
@@ -1004,6 +1004,7 @@ This mechanism began as the consumption part of a draft on software statement is
 * Normative clarification: the trust configuration records exactly one source for an issuer's statement key set, and a server neither combines the sources nor falls back between them.
 * Stated that a presented statement failing validation for a reason other than expiry gets `invalid_client` even when a required statement is absent, and that a valid statement from another issuer does not satisfy a required issuer.
 * Defined the trust configuration.
+* Named the operations that consume the `software_statement` parameter in place of an undefined "role".
 
 -01
 
