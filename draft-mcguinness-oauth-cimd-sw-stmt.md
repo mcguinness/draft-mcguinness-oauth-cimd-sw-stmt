@@ -672,7 +672,7 @@ A response size bound also decides which reviewed documents a server can admit. 
 
 A statement attests client software, identified by `sub`, not its runtime instances, and this specification defines no instance identifier. One unexpired statement can therefore open establishments at each trusting authorization server in its audience, and more than one at each.
 
-A trusting authorization server can bound the number of establishments derived from one issuer's statements about one piece of software, identified by `iss` and `sub` claims. How it counts toward a bound is local policy, and a multi-tenant server keeps any bound per tenant. A bound stays effective only if what anyone holding a copy of a statement can create does not count toward it: a pushed authorization request and its unredeemed code, which a holder of a copy of a public client's statement can approve with its own account. Otherwise a holder of a copy could exhaust the bound for the software's other instances.
+A trusting authorization server can bound the number of establishments derived from one issuer's statements about one piece of software, identified by `iss` and `sub` claims. How it counts toward a bound is local policy, and a multi-tenant server keeps any bound per tenant. A bound stays effective only if what anyone holding a copy of a statement can create does not count toward it: a pushed authorization request and its unredeemed code, which a holder of a copy of a public client's statement can approve with its own account. Otherwise a holder of a copy could exhaust the bound for the software's other instances. Counting an establishment once a token is issued under it, such as at code redemption, keeps pushed authorization requests and unredeemed codes out of the count. A holder of a copy can still redeem a code it approves, which a bound per resource owner limits. A confidential client's establishment can count from its creation if the request that creates it authenticates the client, as at the token or pushed authorization request endpoint.
 
 For software admitted under {{public-client-presentation}}, a server can also bound establishments per resource owner, so that one user cannot exhaust a bound the software's other users share.
 
@@ -989,6 +989,7 @@ This mechanism began as the consumption part of a draft on software statement is
 * Added a check that a statement's `alg` is one the trust configuration accepts from its issuer.
 * Clarified what a server does on a digest mismatch, and the effect of a document change on admission.
 * Gave the token endpoint example a client of its own.
+* Stated how a server can count establishments toward a bound.
 
 -01
 
