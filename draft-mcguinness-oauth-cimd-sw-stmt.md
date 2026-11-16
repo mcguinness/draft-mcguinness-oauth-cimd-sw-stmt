@@ -110,6 +110,9 @@ This specification defines the following terms.
 Trusting Authorization Server:
 : An authorization server that consumes a software statement of this profile.
 
+Trust Configuration:
+: A trusting authorization server's configuration, established out of band, identifying the issuers it trusts and the conditions under which it accepts their statements ({{issuer-trust}}).
+
 Runtime Presentation:
 : The consumption of a validated software statement presented in a token request or pushed authorization request, or pulled from where the client's document points ({{pulled-statements}}), without creating a client registration.
 
@@ -1000,6 +1003,7 @@ This mechanism began as the consumption part of a draft on software statement is
 * Normative clarification: the trust configuration makes at most one issuer required for a client identifier in a tenant. Overlapping namespaces resolve to one issuer through configuration, and alternative or multiple required issuers are left to extensions.
 * Normative clarification: the trust configuration records exactly one source for an issuer's statement key set, and a server neither combines the sources nor falls back between them.
 * Stated that a presented statement failing validation for a reason other than expiry gets `invalid_client` even when a required statement is absent, and that a valid statement from another issuer does not satisfy a required issuer.
+* Defined the trust configuration.
 
 -01
 
