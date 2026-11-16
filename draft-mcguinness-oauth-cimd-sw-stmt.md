@@ -525,7 +525,7 @@ Before redirecting with an error, the authorization server validates the `redire
 
 ## Proof Mechanism Errors {#proof-errors}
 
-If the proof mechanism defines an error of its own for a proof that is missing or that it does not accept, such as `invalid_request` for a request without a PKCE code challenge or with a `code_challenge_method` other than `S256` (Section 4.4.1 of {{RFC7636}}), `invalid_dpop_proof` for a DPoP proof that fails the checks of Section 4.3 of {{RFC9449}} or `use_dpop_nonce` for a nonce challenge (Section 8 of {{RFC9449}}), the request is rejected with that error in place of the code this specification assigns to a failed sender constraint.
+If the proof mechanism defines an error of its own for a proof that is missing or that it does not accept, such as `invalid_request` for a request without a PKCE code challenge or with a `code_challenge_method` other than `S256` (Section 4.4.1 of {{RFC7636}}), `invalid_dpop_proof` for a DPoP proof that fails the checks of Section 4.3 of {{RFC9449}} or `use_dpop_nonce` for a nonce challenge (Section 8 of {{RFC9449}}), the request is rejected with that error in place of the code that {{presentation-errors}} or {{continuation-errors}} assigns to a failed sender constraint.
 
 A proof that its mechanism accepts but that proves a key other than the one this specification requires, such as a key the reviewed document does not carry or one other than the establishment's proven key, is not an invalid proof but a failed sender constraint.
 
