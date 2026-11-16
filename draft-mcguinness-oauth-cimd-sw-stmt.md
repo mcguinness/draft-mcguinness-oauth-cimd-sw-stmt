@@ -782,7 +782,7 @@ Under this specification, expiry limits new admissions and ends nothing already 
 
 ## Observable State {#oracle-considerations}
 
-A `statement_required` refusal at the authorization endpoint ({{authorization-errors}}) travels through the user agent, so anyone who can see the redirection learns that the request lacks the current statement required for admission. The disclosure is accepted because a client that cannot learn why it was refused cannot act. Outcomes still reveal some policy. By probing with public client identifier URLs, anyone can learn whether a request is admitted and, from `statement_required` versus `unauthorized_client`, whether a required issuer covers a client identifier in a tenant. {{error-descriptions}} keeps further detail of the issuer trust configuration out of `error_description` for unauthenticated requesters.
+A `statement_required` refusal at the authorization endpoint ({{authorization-errors}}) travels through the user agent, so anyone who can see the redirection learns that the request lacks the current statement required for admission. The disclosure is accepted because a client that cannot learn why it was refused cannot act. Outcomes still reveal some policy. By probing with public client identifier URLs, anyone can learn whether a request is admitted and, from `statement_required` versus `unauthorized_client`, whether an issuer is required for a client identifier in a tenant. {{error-descriptions}} keeps further detail of the issuer trust configuration out of `error_description` for unauthenticated requesters.
 
 # Privacy Considerations
 
