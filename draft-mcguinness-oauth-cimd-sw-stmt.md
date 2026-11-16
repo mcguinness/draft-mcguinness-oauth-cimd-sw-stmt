@@ -456,7 +456,7 @@ This specification defines the following error code:
 
 ## Presentation Requests {#presentation-errors}
 
-A runtime presentation at the token or pushed authorization request endpoint, whether its statement was presented or pulled, is rejected with the following error codes:
+A request at the token or pushed authorization request endpoint that makes a runtime presentation, whether its statement was presented or pulled, or that lacks a statement the server requires, is rejected with the following error codes:
 
 `invalid_client`:
 : Any of the following:
@@ -471,7 +471,7 @@ A runtime presentation at the token or pushed authorization request endpoint, wh
 : Expiry is the statement's only validation failure ({{statement-required}}), or a required statement is absent, including one from the required issuer for the client identifier in the request's tenant ({{issuer-trust}}).
 
 `unauthorized_client`:
-: Any of the following, in place of `statement_required` if both apply at the step of {{processing}} where the server rejects the request:
+: Any of the following, in place of `statement_required` if both apply at the step of {{processing}} where the server rejects the request, or if the request makes no runtime presentation:
 
   * The request exceeds the reviewed document's grant types or response types ({{effective-metadata}}).
   * The document carries metadata this server's policy refuses.
