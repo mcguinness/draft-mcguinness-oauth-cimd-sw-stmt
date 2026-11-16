@@ -693,7 +693,7 @@ Authorization servers ought to avoid logging software statements, which are sens
 
 # Deployment Considerations {#deployment-considerations}
 
-This section gives guidance to operators and issuers. It adds no requirement.
+This section gives guidance to operators, issuers, and client publishers. It adds no requirement.
 
 ## Configuring Issuer Trust {#trust-configuration}
 
@@ -718,6 +718,14 @@ Once a server has retrieved a changed document, presentations under an earlier s
 Instances need the most recently issued statement from a shared source rather than a copy fixed at build or install time, because the document can change ({{effective-metadata}}).
 
 A client that presents a statement needs to keep that copy current and over the document it serves. Publishing a newer statement provides no fallback when the presented one fails, because a server pulls statements only when the client presents none ({{pulled-statements}}).
+
+## Reviewing a Document {#review-practice}
+
+Some properties of a document limit what a statement over it can do:
+
+* A redirection URI that another application on the same device could claim makes every presentation and pulled statement review-only ({{review-only}}). A statement over such a document cannot satisfy a policy or a required issuer that requires reviewed software, and a required issuer configured for such software excludes it from the tenant ({{issuer-trust}}).
+* Duplicate member names make every trusting authorization server reject the document ({{effective-metadata}}), so an issuer ought not to issue a statement over it.
+* Section 8.1 of {{RFC8259}} forbids adding a byte order mark to JSON sent over a network, and a parser can treat one as an error rather than ignore it. Its bytes are part of the digest ({{metadata-digest}}), so removing it after review changes the digest. A publisher ought to remove it before review.
 
 # Security Considerations {#security-considerations}
 
@@ -1010,6 +1018,7 @@ This mechanism began as the consumption part of a draft on software statement is
 * Replaced "standing" in Observable State with what a `statement_required` refusal reveals.
 * Named the act each use of "decision" meant, such as an issuer's review or a server's acceptance of an issuer.
 * Noted that a newer published statement provides no fallback when a presented one fails.
+* Added guidance for issuers on documents whose statements are review-only or rejected.
 
 -01
 
