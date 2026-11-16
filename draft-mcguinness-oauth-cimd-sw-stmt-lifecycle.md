@@ -558,7 +558,7 @@ Specification Document(s):
 
 -02
 
-* Applied a required issuer to the client identifiers it is required for in a tenant, after the trust configuration resolves overlapping namespaces (Section 4 of {{STATEMENT}}).
+* Followed draft -02 of {{STATEMENT}} in applying a required issuer to the client identifiers it is required for in a tenant, after the trust configuration resolves overlapping namespaces.
 
 -01
 
