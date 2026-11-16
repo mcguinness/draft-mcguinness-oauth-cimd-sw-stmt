@@ -140,7 +140,7 @@ An authorization server MAY register a client with `token_endpoint_auth_method` 
 A registration request is repeated if its statement has the `iss` and `sub` claims of the governing statement of an existing statement-governed registration, valid or not, that:
 
 * is not restricted to another tenant ({{tenant-restriction}}), and
-* is restricted to the request's tenant, if that tenant requires a tenant-scoped decision (Section 3.2 of {{STATEMENT}}).
+* is restricted to the request's tenant, if that tenant requires a tenant-scoped review (Section 3.2 of {{STATEMENT}}).
 
 One current statement can be consumed more than once, subject to the bounds of Sections 11.2 and 11.3 of {{STATEMENT}} and the server's registration policy. A server can count registrations toward the bound on establishments of Section 11.3 of {{STATEMENT}}, but the bound stays effective only if a registration under which no access token has been issued does not count toward it, since a holder of a copy of the statement can create one.
 
@@ -183,7 +183,7 @@ The authorization server MUST process an authorization, token, or pushed authori
 1. If the registration is restricted to a tenant ({{tenant-restriction}}) and the request, including one that delivers a statement, is made in another tenant, it MUST treat the request as from a client it has not registered.
 2. It authenticates a token or pushed authorization request under the registration's own client authentication method, and an {{RFC7592}} update request as {{RFC7592}} requires, against the retained registration even if the registration has ceased to be valid. A token or pushed authorization request under a public-client registration has no client credential to authenticate ({{public-client-registration}}).
 3. It classifies any statement the request delivers by its claims, before validating it, and evaluates a replacement ({{revalidation}}). A replacement applied at this step stands even if a later step, or the request's grant, rejects the request.
-4. It applies the rejections of {{registration-validity}} to the registration as step 3 leaves it. If the request is made in a tenant where the authorization server requires a tenant-scoped decision (Section 3.2 of {{STATEMENT}}) and the registration, as step 3 leaves it, carries no tenant restriction, it MUST treat the request as from a client it has not registered.
+4. It applies the rejections of {{registration-validity}} to the registration as step 3 leaves it. If the request is made in a tenant where the authorization server requires a tenant-scoped review (Section 3.2 of {{STATEMENT}}) and the registration, as step 3 leaves it, carries no tenant restriction, it MUST treat the request as from a client it has not registered.
 5. It evaluates the request against the registration's metadata.
 
 # Renewal {#revalidation}
@@ -419,6 +419,10 @@ Specification Document(s):
 {:numbered="false"}
 
 [[ To be removed from the final specification ]]
+
+-02
+
+* Followed {{STATEMENT}} in calling a tenant-scoped decision a tenant-scoped review.
 
 -01
 

@@ -164,7 +164,7 @@ A statement asserts that its issuer evaluated the CIMD whose content the digest 
 : OPTIONAL. One or more authorization server issuer identifiers ({{RFC8414}}) restricting which authorization servers can accept the statement. If the claim is absent, any authorization server that trusts the issuer for the subject can accept it ({{issuer-trust}}).
 
 `aud_tenant`:
-: OPTIONAL. A tenant identifier at a trusting authorization server, as {{IDJAG}} defines the claim, naming the tenant in which the statement's decision applies. A statement whose decision is confined to one of a server's tenants MUST carry an `aud` claim naming exactly one authorization server. It MUST also carry an `aud_tenant` claim naming the tenant, unless the issuer and that server have agreed that the server's trust configuration confines the issuer to the tenant ({{issuer-trust}}).
+: OPTIONAL. A tenant identifier at a trusting authorization server, as {{IDJAG}} defines the claim, naming the tenant in which the issuer's review applies. A statement whose review is confined to one of a server's tenants MUST carry an `aud` claim naming exactly one authorization server. It MUST also carry an `aud_tenant` claim naming the tenant, unless the issuer and that server have agreed that the server's trust configuration confines the issuer to the tenant ({{issuer-trust}}).
 
   The absence of `aud_tenant` does not mean that the statement applies in every tenant ({{audience-practice}}).
 
@@ -211,7 +211,7 @@ Before accepting a statement, a trusting authorization server MUST ensure the fo
 * If the statement carries `nbf`, the current time is not before it, according to the same clock-skew policy (Section 4.1.5 of {{RFC7519}}).
 * If the statement carries `aud`, a value in it exactly matches one of the server's issuer identifiers that its trust configuration permits the statement's issuer to name ({{issuer-trust}}).
 * If the statement carries `aud_tenant`, `aud` carries exactly one value and `aud_tenant` identifies the request's tenant.
-* If the server requires a tenant-scoped decision (one confined to the request's tenant) for the request, the statement carries `aud_tenant`, or the server's trust configuration confines the statement's issuer to the request's tenant ({{issuer-trust}}).
+* If the server requires a tenant-scoped review (an issuer's review confined to the request's tenant) for the request, the statement carries `aud_tenant`, or the server's trust configuration confines the statement's issuer to the request's tenant ({{issuer-trust}}).
 * If the server's trust configuration confines the statement's issuer to a tenant, the statement carries an `aud` claim with exactly one value, and the request belongs to that tenant.
 * The use being made of the statement is one its `statement_uses` claim permits ({{profiles}}).
 * The `sub` claim is a client identifier URL conforming to {{CIMD}} and falls within the client identifier namespaces for which this server accepts the issuer ({{issuer-trust}}).
@@ -224,7 +224,7 @@ Rejections outside a registration endpoint use {{errors}}.
 
 # Issuer Trust {#issuer-trust}
 
-A trusting authorization server MUST derive issuer trust from its trust configuration, which is established out of band, and MUST NOT derive it from an `iss`, `jku`, `x5u`, or other key-location value carried in a statement. This specification defines no in-band issuer discovery or trust decision.
+A trusting authorization server MUST derive issuer trust from its trust configuration, which is established out of band, and MUST NOT derive it from an `iss`, `jku`, `x5u`, or other key-location value carried in a statement. This specification defines no in-band means of discovering or accepting an issuer.
 
 For each trusted issuer, the configuration records at least the following:
 
@@ -232,7 +232,7 @@ For each trusted issuer, the configuration records at least the following:
 * The signing algorithms it accepts from the issuer.
 * The client identifier namespaces the issuer can attest through `sub`.
 * The authorization server issuer identifiers the issuer can name in `aud`.
-* Any tenant to which the server confines the issuer's decisions.
+* Any tenant to which the server confines the issuer's reviews.
 * The maximum statement lifetime the server honors, which sets each statement's effective expiry.
 * The source of the issuer's statement key set, as described below.
 
@@ -240,13 +240,13 @@ A client identifier namespace is an `https` URL with no query or fragment whose 
 
 The issuer's statement key set comes from exactly one source that the configuration records: the `software_statement_jwks_uri` in the authorization server metadata ({{authorization-server-metadata}}) discovered from the configured `iss` ({{RFC8414}}), or a statement key set URL in the configuration, which is the only source for an issuer that is not an authorization server. A trusting authorization server MUST NOT combine the two sources, or fall back from one to the other after a retrieval or validation failure. The statement key set is never the JWK Set at a `jwks_uri` metadata value. Its URL MUST use the `https` scheme, and a trusting authorization server MUST validate the certificate of the host serving it. The issuer MUST NOT publish a key of its statement key set in any other JWK Set, or sign anything other than statements under this specification with those keys. A trusting authorization server reuses a retrieved statement key set only as {{retrieval}} permits.
 
-The configuration can also make an issuer a required issuer for client identifier namespaces in one of the server's tenants ({{trust-configuration}}). The server then MUST NOT admit, in that tenant, software to which the requirement applies without a current statement from the required issuer, whatever its policy for CIMD clients it has not reviewed. Without this rule, a holder could evade the required issuer's decision by withholding that issuer's statement or by presenting or publishing only a broader one, such as a marketplace listing. A required issuer configured for software whose document carries a redirection URI that another application on the same device could claim, which makes every presentation review-only ({{review-only}}), excludes that software from the tenant, and the server rejects a request for such software there.
+The configuration can also make an issuer a required issuer for client identifier namespaces in one of the server's tenants ({{trust-configuration}}). The server then MUST NOT admit, in that tenant, software to which the requirement applies without a current statement from the required issuer, whatever its policy for CIMD clients it has not reviewed. Without this rule, a holder could evade the required issuer's review by withholding that issuer's statement or by presenting or publishing only a broader one, such as a marketplace listing. A required issuer configured for software whose document carries a redirection URI that another application on the same device could claim, which makes every presentation review-only ({{review-only}}), excludes that software from the tenant, and the server rejects a request for such software there.
 
 A trusting authorization server's trust configuration MUST make at most one issuer required for a client identifier in a tenant. If the namespaces of two required issuers in a tenant overlap, the configuration names the one that is required for each client identifier both cover, and a configuration that requires both is in error. Alternative required issuers, and requirements for more than one statement, are left to extensions ({{extensions}}).
 
 ## Multi-Tenant Issuers {#multi-tenant-issuers}
 
-If an issuer reviews software for several customers whose decisions are each trusted independently, it MUST issue under a distinct `iss` value for each customer, so that each customer's decisions, and any state a server keeps per `iss` value, stay separate.
+If an issuer reviews software for several customers whose reviews are each trusted independently, it MUST issue under a distinct `iss` value for each customer, so that each customer's reviews, and any state a server keeps per `iss` value, stay separate.
 
 # Runtime Presentation {#cimd-presentation}
 
@@ -407,7 +407,7 @@ A successful presentation creates an establishment: the state against which the 
 * The statement identity (its `iss` and `jti`), its `iat` and effective expiry, and any claim an extension uses to locate the statement.
 * The authorization server's own tenant the grant was opened for, if it hosts more than one.
 * The reviewed metadata and the digest it matched ({{effective-metadata}}).
-* The issuer trust decision.
+* The server's acceptance of the statement's issuer ({{issuer-trust}}).
 * The Selected Method, the sender-constraint mechanism, and the proven key.
 
 The authorization server MUST bind the resulting `request_uri`, authorization code, refresh token, and other grant continuation state to the establishment, as applicable. An establishment ends once no continuation state bound to it remains usable.
@@ -631,7 +631,7 @@ The following extensions are left to separate specifications:
 * Consumption at registration ({{REGISTRATION}}): a statement in an {{RFC7591}} registration request, with the registered metadata taken from the reviewed document.
 * Attested keys: a client attestation {{ABCA}} vouching for a key the reviewed document does not carry. Without one, software whose instances authenticate with keys of their own cannot prove those keys ({{sender-constraint}}).
 * Statement conveyance within a client attestation, rather than as a request parameter.
-* Vouching in an identity assertion: an identity provider carries a client's metadata digest in an assertion it issues for a grant, such as a cross-domain identity assertion {{IDJAG}}, so that an authorization server receiving the assertion can admit the client on the identity provider's decision without a statement.
+* Vouching in an identity assertion: an identity provider carries a client's metadata digest in an assertion it issues for a grant, such as a cross-domain identity assertion {{IDJAG}}, so that an authorization server receiving the assertion can admit the client on the identity provider's decision to issue the assertion for that client, without a statement.
 * Runtime presentation in the request that begins a grant at an endpoint this specification does not cover, such as the device authorization endpoint of {{RFC8628}}.
 * Partial review, by which an issuer vouches for particular members rather than a whole document ({{metadata-digest}}).
 * Required issuer sets: alternative required issuers for one client identifier in a tenant, or more than one required statement ({{issuer-trust}}).
@@ -649,7 +649,7 @@ Neither assertion grants access nor substitutes for the other.
 
 ## Identity Assertions {#identity-assertions}
 
-A statement records that a named party reviewed software, not that a particular customer currently permits that software to act in its tenant. A tenant-scoped decision ({{validation}}) authorizes no particular user or transaction. When a customer's identity provider mediates a grant, as with a cross-domain identity assertion {{IDJAG}}, it issues assertions per grant only for clients the customer permits. It can also vouch for the client's document in the assertion itself, by carrying the document's metadata digest ({{extensions}}). A statement serves when the issuer is not in the request path, or when a customer wants a portable record of what its review covered.
+A statement records that a named party reviewed software, not that a particular customer currently permits that software to act in its tenant. A tenant-scoped review ({{validation}}) authorizes no particular user or transaction. When a customer's identity provider mediates a grant, as with a cross-domain identity assertion {{IDJAG}}, it issues assertions per grant only for clients the customer permits. It can also vouch for the client's document in the assertion itself, by carrying the document's metadata digest ({{extensions}}). A statement serves when the issuer is not in the request path, or when a customer wants a portable record of what its review covered.
 
 ## OpenID Federation {#relationship-federation}
 
@@ -699,7 +699,7 @@ This section gives guidance to operators and issuers. It adds no requirement.
 
 Trust configuration ought to constrain each issuer to the client identifier namespaces it is expected to attest ({{issuer-trust}}), for example URLs under the domains of the software publishers it serves. Without such a scope, a compromised or over-broad issuer can mint acceptable statements about any client software.
 
-When a trusting authorization server configures an issuer whose decisions are confined to one of its tenants, as a customer's own issuer is, it ought to record with that configuration the client identifier namespaces for which the issuer's decision is required in that tenant ({{issuer-trust}}).
+When a trusting authorization server configures an issuer whose reviews are confined to one of its tenants, as a customer's own issuer is, it ought to record with that configuration the client identifier namespaces for which the issuer's review is required in that tenant ({{issuer-trust}}).
 
 Namespaces of required issuers can overlap, as when a marketplace and a customer's own issuer both cover a publisher's client identifier URLs. The configuration then names the one issuer that is required for the client identifiers both cover ({{issuer-trust}}).
 
@@ -756,7 +756,7 @@ A party that controls the user agent receives the code: an application embedding
 
 ## Tenant Confusion at a Multi-Tenant Authorization Server {#tenant-confusion}
 
-A multi-tenant server that derives the tenant one way to check a decision and another way to scope a token lets a client reach one tenant's resources on another tenant's decision. {{validation}} requires one tenant for both, which the client cannot select through a request parameter, statement claim, or document member.
+A multi-tenant server that derives the tenant one way to check a statement and another way to scope a token lets a client reach one tenant's resources on a review that applies in another tenant. {{validation}} requires one tenant for both, which the client cannot select through a request parameter, statement claim, or document member.
 
 This specification defines no tenant parameter, and a CIMD URL is the same `client_id` in every tenant, so neither a client nor an issuer can verify that a server honored the tenant rule of {{validation}}.
 
@@ -999,13 +999,14 @@ This mechanism began as the consumption part of a draft on software statement is
 * Clarified what a server does on a digest mismatch, and the effect of a document change on admission.
 * Gave the token endpoint example a client of its own.
 * Stated how a server can count establishments toward a bound.
-* Defined a tenant-scoped decision.
+* Defined a tenant-scoped review, called a tenant-scoped decision in -01.
 * Normative clarification: the trust configuration makes at most one issuer required for a client identifier in a tenant. Overlapping namespaces resolve to one issuer through configuration, and alternative or multiple required issuers are left to extensions.
 * Normative clarification: the trust configuration records exactly one source for an issuer's statement key set, and a server neither combines the sources nor falls back between them.
 * Stated that a presented statement failing validation for a reason other than expiry gets `invalid_client` even when a required statement is absent, and that a valid statement from another issuer does not satisfy a required issuer.
 * Defined the trust configuration.
 * Named the operations that consume the `software_statement` parameter in place of an undefined "role".
 * Replaced "standing" in Observable State with what a `statement_required` refusal reveals.
+* Named the act each use of "decision" meant, such as an issuer's review or a server's acceptance of an issuer.
 
 -01
 
