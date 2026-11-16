@@ -998,27 +998,15 @@ This mechanism began as the consumption part of a draft on software statement is
 
 -02
 
-* Made the IANA description of the `cimd_digest` claim neutral about what the JWT's issuer asserts, so that other JWT profiles can carry the claim.
-* Made a server that pulls statements retrieve a held document once more before concluding that no statement matches it.
-* Listed vouching for a client's document in an identity assertion as an extension point.
-* Replaced references to numbered steps and items with the checks they name.
-* Named the `temporarily_unavailable` error code where a pull of statements does not complete and reviewed software is required.
-* Stated that a public client's pulled statement without PKCE or a bound key is review-only rather than rejected.
-* Stated that the error codes for presentation requests apply to pulled statements.
-* Added a check that a statement's `alg` is one the trust configuration accepts from its issuer.
-* Clarified what a server does on a digest mismatch, and the effect of a document change on admission.
-* Gave the token endpoint example a client of its own.
-* Stated how a server can count establishments toward a bound.
-* Defined a tenant-scoped review, called a tenant-scoped decision in -01.
 * Normative clarification: the trust configuration makes at most one issuer required for a client identifier in a tenant. Overlapping namespaces resolve to one issuer through configuration, and alternative or multiple required issuers are left to extensions.
 * Normative clarification: the trust configuration records exactly one source for an issuer's statement key set, and a server neither combines the sources nor falls back between them.
-* Stated that a presented statement failing validation for a reason other than expiry gets `invalid_client` even when a required statement is absent, and that a valid statement from another issuer does not satisfy a required issuer.
-* Defined the trust configuration.
-* Named the operations that consume the `software_statement` parameter in place of an undefined "role".
-* Replaced "standing" in Observable State with what a `statement_required` refusal reveals.
-* Named the act each use of "decision" meant, such as an issuer's review or a server's acceptance of an issuer.
-* Noted that a newer published statement provides no fallback when a presented one fails.
-* Added guidance for issuers on documents whose statements are review-only or rejected.
+* Added a check that a statement's `alg` is one the trust configuration accepts from its issuer.
+* For pulled statements, a server retrieves a held document once more before concluding that no statement matches it, and a public client's statement without PKCE or a bound key is review-only rather than rejected.
+* Stated that the presentation error codes apply to pulled statements, that a pull that does not complete gets `temporarily_unavailable` when reviewed software is required, and that a presented statement failing validation for a reason other than expiry gets `invalid_client` even when a required statement is absent. A valid statement from another issuer does not satisfy a required issuer.
+* Defined the trust configuration and a tenant-scoped review, which -01 called a tenant-scoped decision. Replaced the undefined "role" and "standing", named the act each use of "decision" meant, and named checks in place of numbered steps.
+* Clarified what a server does on a digest mismatch, the effect of a document change on admission, and how a server can count establishments toward a bound. Gave the token endpoint example a client of its own.
+* Added guidance for issuers on documents whose statements are review-only or rejected, and noted that a newer published statement provides no fallback for a presented one.
+* Made the IANA description of the `cimd_digest` claim neutral about what the JWT's issuer asserts, so that other JWT profiles can carry the claim, and listed vouching for a client's document in an identity assertion as an extension point.
 
 -01
 
