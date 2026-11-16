@@ -1739,8 +1739,8 @@ Table of Contents
    that cannot learn why it was refused cannot act.  Outcomes still
    reveal some policy.  By probing with public client identifier URLs,
    anyone can learn whether a request is admitted and, from
-   statement_required versus unauthorized_client, whether a required
-   issuer covers a client identifier in a tenant.  Section 6.6 keeps
+   statement_required versus unauthorized_client, whether an issuer is
+   required for a client identifier in a tenant.  Section 6.6 keeps
    further detail of the issuer trust configuration out of
    error_description for unauthenticated requesters.
 

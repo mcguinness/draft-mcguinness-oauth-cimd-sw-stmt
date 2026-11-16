@@ -436,15 +436,15 @@ Table of Contents
    token use (Section 12.1).  A refresh under an establishment needs a
    replacement (Section 5.2) if a refusal record covers the recorded
    statement, or if the recorded statement has expired and either the
-   server requires a current statement or a required issuer (Section 4
-   of [STATEMENT]) covers the establishment's sub in the establishment's
-   tenant.  The server MUST reject a refresh that needs a replacement
-   unless it accepts one, even if it does not otherwise require a
-   current statement.  If a required issuer covers that sub and tenant
-   and the recorded statement is from another issuer, the server MUST
-   reject the refresh, and the client opens a new grant by runtime
-   presentation.  A raised iat floor (Section 4) does not by itself
-   require a replacement.
+   server requires a current statement or an issuer is required for the
+   establishment's sub in the establishment's tenant (Section 4 of
+   [STATEMENT]).  The server MUST reject a refresh that needs a
+   replacement unless it accepts one, even if it does not otherwise
+   require a current statement.  If an issuer is required for that sub
+   in that tenant and the recorded statement is from another issuer, the
+   server MUST reject the refresh, and the client opens a new grant by
+   runtime presentation.  A raised iat floor (Section 4) does not by
+   itself require a replacement.
 
 5.2.  Refresh Replacement
 
@@ -576,44 +576,42 @@ Table of Contents
 
                         Figure 1: Refresh Processing
 
-      +========+==========================+=========================+
-      | Step   | Rejected when            | Error                   |
-      +========+==========================+=========================+
-      | Key    | A check of Section 5.7.1 | invalid_grant           |
-      | checks | of [STATEMENT] fails     |                         |
-      +--------+--------------------------+-------------------------+
-      | 1      | A required issuer covers | statement_required      |
-      |        | the sub and tenant, and  |                         |
-      |        | the recorded statement   |                         |
-      |        | is from another issuer   |                         |
-      +--------+--------------------------+-------------------------+
-      | 2      | A replacement is needed, | invalid_request         |
-      |        | and the one offered      |                         |
-      |        | comes without client_id  |                         |
-      +--------+--------------------------+-------------------------+
-      | 2      | The client_id is not the | invalid_grant           |
-      |        | client the refresh token |                         |
-      |        | was issued to            |                         |
-      +--------+--------------------------+-------------------------+
-      | 2      | A replacement is needed, | statement_required      |
-      |        | and the one offered      |                         |
-      |        | names a sub other than   |                         |
-      |        | the client_id            |                         |
-      +--------+--------------------------+-------------------------+
-      | 2      | The pull did not         | temporarily_unavailable |
-      |        | complete                 |                         |
-      +--------+--------------------------+-------------------------+
-      | 2      | A replacement is needed  | statement_required      |
-      |        | and none is obtained     |                         |
-      +--------+--------------------------+-------------------------+
-      | 3      | A replacement is needed, | statement_required      |
-      |        | and the one obtained     |                         |
-      |        | fails a requirement of   |                         |
-      |        | step 3                   |                         |
-      +--------+--------------------------+-------------------------+
-      | 4      | The refreshed access     | unauthorized_client or  |
-      |        | exceeds the metadata     | invalid_scope           |
-      +--------+--------------------------+-------------------------+
+     +========+============================+=========================+
+     | Step   | Rejected when              | Error                   |
+     +========+============================+=========================+
+     | Key    | A check of Section 5.7.1   | invalid_grant           |
+     | checks | of [STATEMENT] fails       |                         |
+     +--------+----------------------------+-------------------------+
+     | 1      | An issuer is required for  | statement_required      |
+     |        | the sub in the tenant, and |                         |
+     |        | the recorded statement is  |                         |
+     |        | from another issuer        |                         |
+     +--------+----------------------------+-------------------------+
+     | 2      | A replacement is needed,   | invalid_request         |
+     |        | and the one offered comes  |                         |
+     |        | without client_id          |                         |
+     +--------+----------------------------+-------------------------+
+     | 2      | The client_id is not the   | invalid_grant           |
+     |        | client the refresh token   |                         |
+     |        | was issued to              |                         |
+     +--------+----------------------------+-------------------------+
+     | 2      | A replacement is needed,   | statement_required      |
+     |        | and the one offered names  |                         |
+     |        | a sub other than the       |                         |
+     |        | client_id                  |                         |
+     +--------+----------------------------+-------------------------+
+     | 2      | The pull did not complete  | temporarily_unavailable |
+     +--------+----------------------------+-------------------------+
+     | 2      | A replacement is needed    | statement_required      |
+     |        | and none is obtained       |                         |
+     +--------+----------------------------+-------------------------+
+     | 3      | A replacement is needed,   | statement_required      |
+     |        | and the one obtained fails |                         |
+     |        | a requirement of step 3    |                         |
+     +--------+----------------------------+-------------------------+
+     | 4      | The refreshed access       | unauthorized_client or  |
+     |        | exceeds the metadata       | invalid_scope           |
+     +--------+----------------------------+-------------------------+
 
                         Table 2: Refresh Rejections
 
@@ -1276,6 +1274,12 @@ Table of Contents
 Document History
 
    [[ To be removed from the final specification ]]
+
+   -02
+
+   *  Applied a required issuer to the client identifiers it is required
+      for in a tenant, after the trust configuration resolves
+      overlapping namespaces (Section 4 of [STATEMENT]).
 
    -01
 

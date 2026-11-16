@@ -1453,7 +1453,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         <h3 id="name-requiring-a-current-stateme">
 <a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-requiring-a-current-stateme" class="section-name selfRef">Requiring a Current Statement</a>
         </h3>
-<p id="section-5.1-1">When the establishment's recorded statement has expired, the authorization server <span class="bcp14">SHOULD</span> require a current statement on refresh-token use (<a href="#open-grants" class="auto internal xref">Section 12.1</a>). A refresh under an establishment needs a replacement (<a href="#refresh-replacement" class="auto internal xref">Section 5.2</a>) if a refusal record covers the recorded statement, or if the recorded statement has expired and either the server requires a current statement or a required issuer (Section 4 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>) covers the establishment's <code>sub</code> in the establishment's tenant. The server <span class="bcp14">MUST</span> reject a refresh that needs a replacement unless it accepts one, even if it does not otherwise require a current statement. If a required issuer covers that <code>sub</code> and tenant and the recorded statement is from another issuer, the server <span class="bcp14">MUST</span> reject the refresh, and the client opens a new grant by runtime presentation. A raised <code>iat</code> floor (<a href="#supersession" class="auto internal xref">Section 4</a>) does not by itself require a replacement.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+<p id="section-5.1-1">When the establishment's recorded statement has expired, the authorization server <span class="bcp14">SHOULD</span> require a current statement on refresh-token use (<a href="#open-grants" class="auto internal xref">Section 12.1</a>). A refresh under an establishment needs a replacement (<a href="#refresh-replacement" class="auto internal xref">Section 5.2</a>) if a refusal record covers the recorded statement, or if the recorded statement has expired and either the server requires a current statement or an issuer is required for the establishment's <code>sub</code> in the establishment's tenant (Section 4 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>). The server <span class="bcp14">MUST</span> reject a refresh that needs a replacement unless it accepts one, even if it does not otherwise require a current statement. If an issuer is required for that <code>sub</code> in that tenant and the recorded statement is from another issuer, the server <span class="bcp14">MUST</span> reject the refresh, and the client opens a new grant by runtime presentation. A raised <code>iat</code> floor (<a href="#supersession" class="auto internal xref">Section 4</a>) does not by itself require a replacement.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="refresh-replacement">
@@ -1562,7 +1562,7 @@ A replacement that meets these requirements is accepted.<a href="#section-5.2-3.
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">1</td>
-              <td class="text-left" rowspan="1" colspan="1">A required issuer covers the <code>sub</code> and tenant, and the recorded statement is from another issuer</td>
+              <td class="text-left" rowspan="1" colspan="1">An issuer is required for the <code>sub</code> in the tenant, and the recorded statement is from another issuer</td>
               <td class="text-left" rowspan="1" colspan="1">
                 <code>statement_required</code>
 </td>
@@ -2188,19 +2188,25 @@ A replacement that meets these requirements is accepted.<a href="#section-5.2-3.
 <a href="#name-document-history" class="section-name selfRef">Document History</a>
       </h2>
 <p id="appendix-A-1">[[ To be removed from the final specification ]]<a href="#appendix-A-1" class="pilcrow">¶</a></p>
-<p id="appendix-A-2">-01<a href="#appendix-A-2" class="pilcrow">¶</a></p>
+<p id="appendix-A-2">-02<a href="#appendix-A-2" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="appendix-A-3.1">
-          <p id="appendix-A-3.1.1">Aligned with draft -03 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>. A refresh replacement's document must permit the establishment's Selected Method (<a href="#refresh-replacement" class="auto internal xref">Section 5.2</a>).<a href="#appendix-A-3.1.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-A-3.2">
-          <p id="appendix-A-3.2.1">A refresh whose currently served document cannot be obtained or fails validation is rejected with <code>invalid_client</code> (<a href="#lifecycle-errors" class="auto internal xref">Section 8</a>).<a href="#appendix-A-3.2.1" class="pilcrow">¶</a></p>
+          <p id="appendix-A-3.1.1">Applied a required issuer to the client identifiers it is required for in a tenant, after the trust configuration resolves overlapping namespaces (Section 4 of <span>[<a href="#STATEMENT" class="cite xref">STATEMENT</a>]</span>).<a href="#appendix-A-3.1.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
-<p id="appendix-A-4">-00<a href="#appendix-A-4" class="pilcrow">¶</a></p>
+<p id="appendix-A-4">-01<a href="#appendix-A-4" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="appendix-A-5.1">
-          <p id="appendix-A-5.1.1">Initial version.<a href="#appendix-A-5.1.1" class="pilcrow">¶</a></p>
+          <p id="appendix-A-5.1.1">Aligned with draft -03 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>. A refresh replacement's document must permit the establishment's Selected Method (<a href="#refresh-replacement" class="auto internal xref">Section 5.2</a>).<a href="#appendix-A-5.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-A-5.2">
+          <p id="appendix-A-5.2.1">A refresh whose currently served document cannot be obtained or fails validation is rejected with <code>invalid_client</code> (<a href="#lifecycle-errors" class="auto internal xref">Section 8</a>).<a href="#appendix-A-5.2.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="appendix-A-6">-00<a href="#appendix-A-6" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="appendix-A-7.1">
+          <p id="appendix-A-7.1.1">Initial version.<a href="#appendix-A-7.1.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 </section>
