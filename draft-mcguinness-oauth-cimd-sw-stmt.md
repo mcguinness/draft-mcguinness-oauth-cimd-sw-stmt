@@ -620,6 +620,7 @@ The following extensions are left to separate specifications:
 * Consumption at registration ({{REGISTRATION}}): a statement in an {{RFC7591}} registration request, with the registered metadata taken from the reviewed document.
 * Attested keys: a client attestation {{ABCA}} vouching for a key the reviewed document does not carry. Without one, software whose instances authenticate with keys of their own cannot prove those keys ({{sender-constraint}}).
 * Statement conveyance within a client attestation, rather than as a request parameter.
+* Vouching in an identity assertion: an identity provider carries a client's metadata digest in an assertion it issues for a grant, such as a cross-domain identity assertion {{IDJAG}}, so that an authorization server receiving the assertion can admit the client on the identity provider's decision without a statement.
 * Runtime presentation in the request that begins a grant at an endpoint this specification does not cover, such as the device authorization endpoint of {{RFC8628}}.
 * Partial review, by which an issuer vouches for particular members rather than a whole document ({{metadata-digest}}).
 * Statement lifecycle: withdrawal, supersession, requiring a current statement on refresh, and refresh replacement.
@@ -636,7 +637,7 @@ Neither assertion grants access nor substitutes for the other.
 
 ## Identity Assertions {#identity-assertions}
 
-A statement records that a named party reviewed software, not that a particular customer currently permits that software to act in its tenant. A tenant-scoped decision (`aud_tenant`) authorizes no particular user or transaction. When a customer's identity provider mediates a grant, as with a cross-domain identity assertion {{IDJAG}}, it issues assertions per grant only for clients the customer permits. A statement serves when the issuer is not in the request path, or when a customer wants a portable record of what its review covered.
+A statement records that a named party reviewed software, not that a particular customer currently permits that software to act in its tenant. A tenant-scoped decision (`aud_tenant`) authorizes no particular user or transaction. When a customer's identity provider mediates a grant, as with a cross-domain identity assertion {{IDJAG}}, it issues assertions per grant only for clients the customer permits. It can also vouch for the client's document in the assertion itself, by carrying the document's metadata digest ({{extensions}}). A statement serves when the issuer is not in the request path, or when a customer wants a portable record of what its review covered.
 
 ## OpenID Federation {#relationship-federation}
 
@@ -975,6 +976,7 @@ This mechanism began as the consumption part of a draft on software statement is
 
 * Made the IANA description of the `cimd_digest` claim neutral about what the JWT's issuer asserts, so that other JWT profiles can carry the claim.
 * Made a server that pulls statements retrieve a held document once more before concluding that no statement matches it.
+* Listed vouching for a client's document in an identity assertion as an extension point.
 
 -01
 
