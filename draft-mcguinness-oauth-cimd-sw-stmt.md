@@ -253,7 +253,7 @@ For a runtime presentation, the authorization server proceeds as follows, reject
 1. Obtain the statement, presented in the request ({{runtime-presentation}}) or pulled ({{pulled-statements}}).
 2. Validate the statement ({{validation}}), completing every check that needs no client-controlled retrieval before any such retrieval ({{retrieval}}).
 3. Verify the `client_id` rule of {{runtime-presentation}}.
-4. Resolve the reviewed document and compare its digest ({{effective-metadata}}). A server that proceeds without the statement on a mismatch ends admission on the statement here.
+4. Resolve the reviewed document and compare its digest ({{effective-metadata}}). On a mismatch, the server rejects the request or, by local policy, proceeds without the statement as {{effective-metadata}} describes, and the remaining steps do not apply.
 5. Apply {{sender-constraint}} to that document, verifying the sender constraint unless the statement is review-only ({{review-only}}). If {{sender-constraint}} or {{pull-binding}} defers the proof to code redemption, the server verifies it there.
 6. Evaluate the request against the reviewed metadata ({{effective-metadata}}).
 7. Create the establishment ({{grant-lifecycle}}), unless the statement is review-only ({{review-only}}).
@@ -704,7 +704,7 @@ An issuer ought to omit the `aud_tenant` claim from a statement whose review app
 
 Short lifetimes tighten an issuer's control and increase renewal traffic. A fleet of statements issued together expires together, so issuers ought to stagger expiries or renew ahead of the boundary.
 
-A changed document is always served before a statement over it exists, so presentations under an earlier statement fail the digest comparison ({{effective-metadata}}), and the client cannot be admitted on a statement until one over the changed document is issued. A statement's lifetime bounds how long a review stands without being renewed.
+Once a server has retrieved a changed document, presentations under an earlier statement fail the digest comparison there ({{effective-metadata}}), even if the change alters no metadata value ({{what-statement-attests}}), and the client cannot be admitted on a statement until one over the changed document is issued. A statement's lifetime bounds how long a review stands without being renewed.
 
 Instances need the most recently issued statement from a shared source rather than a copy fixed at build or install time, because the document can change ({{effective-metadata}}).
 
@@ -987,6 +987,7 @@ This mechanism began as the consumption part of a draft on software statement is
 * Stated that a public client's pulled statement without PKCE or a bound key is review-only rather than rejected.
 * Stated that the error codes for presentation requests apply to pulled statements.
 * Added a check that a statement's `alg` is one the trust configuration accepts from its issuer.
+* Clarified what a server does on a digest mismatch, and the effect of a document change on admission.
 
 -01
 
