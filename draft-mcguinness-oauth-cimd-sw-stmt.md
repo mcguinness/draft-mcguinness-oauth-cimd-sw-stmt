@@ -338,7 +338,7 @@ The server considers only statements that meet all of the following conditions, 
 
 If the server's trust configuration requires an issuer for this client in the request's tenant ({{issuer-trust}}), the server also ignores statements from any other issuer. If more than one statement remains, it applies the most recently issued statement from an issuer of its choice.
 
-If the server resolved the document from octets it held, no statement remains, and a statement that meets every other condition, including any required issuer, carries a different `cimd_digest` claim, the server retrieves the document once more and repeats the selection against it over the statements already pulled, as {{effective-metadata}} requires before a mismatch is treated as a change.
+If the server resolved the document from octets it held, and no statement remains only because an otherwise acceptable statement, from the required issuer if one applies, carries a different `cimd_digest` claim, the server retrieves the document once more and repeats the selection over the statements already pulled, as {{effective-metadata}} requires before a mismatch is treated as a change.
 
 Having selected a statement, the server continues admission ({{processing}}) from the sender constraint ({{sender-constraint}}), with the document already resolved. The selection's `sub` condition satisfies the `client_id` rule of {{runtime-presentation}}.
 
