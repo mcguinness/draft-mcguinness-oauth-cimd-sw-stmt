@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         9 November 2026
-Expires: 13 May 2027
+Intended status: Standards Track                        16 November 2026
+Expires: 20 May 2027
 
 
              Client ID Metadata Document Software Statement
@@ -43,7 +43,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 13 May 2027.
+   This Internet-Draft will expire on 20 May 2027.
 
 Copyright Notice
 
@@ -414,6 +414,10 @@ Table of Contents
    *  The typ JOSE header parameter has the value software-
       statement+jwt, and the kid header parameter is present.
 
+   *  The alg header parameter identifies a signing algorithm that the
+      trust configuration accepts from the statement's issuer
+      (Section 4).
+
    *  The signature verifies under a key trusted for the exact iss
       value, obtained as Section 4 requires.
 
@@ -434,10 +438,10 @@ Table of Contents
    *  If the statement carries aud_tenant, aud carries exactly one value
       and aud_tenant identifies the request's tenant.
 
-   *  If the server requires a tenant-scoped decision for the request,
-      the statement carries aud_tenant, or the server's trust
-      configuration confines the statement's issuer to the request's
-      tenant (Section 4).
+   *  If the server requires a tenant-scoped decision (one confined to
+      the request's tenant) for the request, the statement carries
+      aud_tenant, or the server's trust configuration confines the
+      statement's issuer to the request's tenant (Section 4).
 
    *  If the server's trust configuration confines the statement's
       issuer to a tenant, the statement carries an aud claim with
@@ -521,9 +525,10 @@ Table of Contents
    issuer's decision by withholding that issuer's statement or by
    presenting or publishing only a broader one, such as a marketplace
    listing.  A required issuer configured for software whose document
-   makes every presentation review-only (item 1 of Section 5.6.3)
-   excludes that software from the tenant, and the server rejects a
-   request for such software there.
+   carries a redirection URI that another application on the same device
+   could claim, which makes every presentation review-only
+   (Section 5.6.3) excludes that software from the tenant, and the
+   server rejects a request for such software there.
 
 4.1.  Multi-Tenant Issuers
 
@@ -557,8 +562,9 @@ Table of Contents
    3.  Verify the client_id rule of Section 5.4.
 
    4.  Resolve the reviewed document and compare its digest
-       (Section 5.2).  A server that proceeds without the statement on a
-       mismatch ends admission on the statement here.
+       (Section 5.2).  On a mismatch, the server rejects the request or,
+       by local policy, proceeds without the statement as Section 5.2
+       describes, and the remaining steps do not apply.
 
    5.  Apply Section 5.6 to that document, verifying the sender
        constraint unless the statement is review-only (Section 5.6.3).
@@ -615,10 +621,11 @@ Table of Contents
 
    If a retrieval fails, the authorization server MUST reject the
    request and MUST NOT fall back to a weaker proof.  The exception is a
-   failed pull of statements, or a failed retrieval of a statement key
-   set (Section 4) needed to verify a pulled statement, for a request
-   opening a new grant: that failure does not by itself reject the
-   request, which proceeds as Section 5.5.1 describes.
+   failed pull of statements, a failed retrieval of a statement key set
+   (Section 4) needed to verify a pulled statement, or a retrieval of
+   the document once more under Section 5.5.1 that does not complete,
+   for a request opening a new grant: that failure does not by itself
+   reject the request, which proceeds as Section 5.5.1 describes.
 
    A retrieval does not complete if it times out, its connection fails,
    or the response has a 429 (Too Many Requests) status code (Section 4
@@ -735,8 +742,9 @@ Table of Contents
       [RFC9110]).
 
    The document and this URL are necessarily retrieved before any
-   statement is validated, so the ordering of step 2 of Section 5.1
-   applies only to the retrievals that follow.
+   statement is validated, so the validation order of Section 5.1, which
+   completes every check that needs no client-controlled retrieval
+   first, applies only to the retrievals that follow.
 
    The server considers only statements that meet all of the following
    conditions, and ignores the rest:
@@ -753,15 +761,25 @@ Table of Contents
    issuer.  If more than one statement remains, it applies the most
    recently issued statement from an issuer of its choice.
 
-   Having selected a statement, the server continues from step 5 of
-   Section 5.1, with the document already resolved.  The selection
-   satisfies the client_id rule of step 3.
+   If the server resolved the document from octets it held, no statement
+   remains, and a statement that meets every other condition, including
+   any required issuer, carries a different cimd_digest claim, the
+   server retrieves the document once more and repeats the selection
+   against it over the statements already pulled, as Section 5.2
+   requires before a mismatch is treated as a change.
+
+   Having selected a statement, the server continues admission
+   (Section 5.1) from the sender constraint (Section 5.6), with the
+   document already resolved.  The selection's sub condition satisfies
+   the client_id rule of Section 5.4.
 
    If retrieving the statements does not complete or no statement
    remains, the server applies its policy for CIMD clients it has not
-   reviewed, subject to any required issuer (Section 4), and rejects the
+   reviewed, subject to any required issuer (Section 4).  It rejects the
    request if that policy or a required issuer requires reviewed
-   software.
+   software, with the temporarily_unavailable error code if a retrieval
+   of the statements, of a statement key set needed to verify one, or of
+   the document once more did not complete (Section 6).
 
 5.5.2.  Binding
 
@@ -888,6 +906,11 @@ Table of Contents
       that key as the proven key of the establishment (Section 5.7).
 
    *  MUST NOT require that key to appear in the reviewed document.
+
+   If the server pulls a statement for a public client's request that
+   lacks PKCE with the S256 method or a bound key, the statement is
+   review-only (Section 5.5.2), and the server does not reject the
+   request under these requirements or those of Section 5.6.
 
 5.6.3.  Review-Only Presentations
 
@@ -1029,8 +1052,9 @@ Table of Contents
 
 6.2.  Presentation Requests
 
-   A presentation at the token or pushed authorization request endpoint
-   is rejected with the following error codes:
+   A runtime presentation at the token or pushed authorization request
+   endpoint, whether its statement was presented or pulled, is rejected
+   with the following error codes:
 
    invalid_client:  Any of the following:
 
@@ -1041,8 +1065,9 @@ Table of Contents
          (Section 5.4).
 
       *  The request fails the sender constraint (Section 5.6),
-         including a presentation opening a new grant at the token
-         endpoint for a public client (Section 5.6.2).
+         including a statement presented in a request that opens a new
+         grant at the token endpoint for a public client
+         (Section 5.6.2).
 
       *  The reviewed document cannot be obtained, including over the
          size bound, fails validation as [CIMD] requires, contains
@@ -1075,6 +1100,9 @@ Table of Contents
       policy refuses.
 
    invalid_request:  The request omits client_id (Section 5.4).
+
+   A pulled statement that fails a selection condition is ignored rather
+   than rejected (Section 5.5.1).
 
 6.3.  Code Redemption and Refresh
 
@@ -1118,11 +1146,10 @@ Table of Contents
    statement_required:  In any other case, subject to the order of
       Section 6, the authorization server MUST return this code.
 
-   When an authorization request is evaluated against a statement pulled
-   at the authorization endpoint (step 6 of Section 5.1), one that
-   exceeds the reviewed document's response types or scope is rejected
-   with unauthorized_client or invalid_scope, as for a presentation
-   (Section 6.2).
+   When a statement is pulled at the authorization endpoint, an
+   authorization request that exceeds the reviewed document's response
+   types or scope (Section 5.2) is rejected with unauthorized_client or
+   invalid_scope, as for a presentation (Section 6.2).
 
    Before redirecting with an error, the authorization server validates
    the redirect_uri against the client's CIMD, which it resolves first,
@@ -1162,10 +1189,11 @@ Table of Contents
    The following is an example of a client presenting a statement at the
    token endpoint of a server holding no record for the client (line
    breaks for display purposes only).  The reviewed document, which is
-   not shown, names a jwks_uri, the private_key_jwt authentication
-   method, the client_credentials grant type, and a scope that includes
-   tools.read, so the client authenticates with a key that document
-   carries.  The client_id is the statement's sub.
+   not shown and is not the one in the following examples, names a
+   jwks_uri, the private_key_jwt authentication method, the
+   client_credentials grant type, and a scope that includes tools.read,
+   so the client authenticates with a key that document carries.  The
+   client_id is the statement's sub.
 
    POST /token HTTP/1.1
    Host: as.example
@@ -1173,7 +1201,7 @@ Table of Contents
 
    grant_type=client_credentials
    &scope=tools.read
-   &client_id=https%3A%2F%2Fclient.example%2Fapp
+   &client_id=https%3A%2F%2Fclient.example%2Fagent
    &client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3A
    client-assertion-type%3Ajwt-bearer
    &client_assertion=eyJhbGciOiJFUzI1NiIsImtpZCI6IjIwMjYtMDgifQ...
@@ -1281,6 +1309,12 @@ Table of Contents
    *  Statement conveyance within a client attestation, rather than as a
       request parameter.
 
+   *  Vouching in an identity assertion: an identity provider carries a
+      client's metadata digest in an assertion it issues for a grant,
+      such as a cross-domain identity assertion [IDJAG], so that an
+      authorization server receiving the assertion can admit the client
+      on the identity provider's decision without a statement.
+
    *  Runtime presentation in the request that begins a grant at an
       endpoint this specification does not cover, such as the device
       authorization endpoint of [RFC8628].
@@ -1308,12 +1342,14 @@ Table of Contents
 
    A statement records that a named party reviewed software, not that a
    particular customer currently permits that software to act in its
-   tenant.  A tenant-scoped decision (aud_tenant) authorizes no
+   tenant.  A tenant-scoped decision (Section 3.2) authorizes no
    particular user or transaction.  When a customer's identity provider
    mediates a grant, as with a cross-domain identity assertion [IDJAG],
    it issues assertions per grant only for clients the customer permits.
-   A statement serves when the issuer is not in the request path, or
-   when a customer wants a portable record of what its review covered.
+   It can also vouch for the client's document in the assertion itself,
+   by carrying the document's metadata digest (Section 9).  A statement
+   serves when the issuer is not in the request path, or when a customer
+   wants a portable record of what its review covered.
 
 10.3.  OpenID Federation
 
@@ -1382,7 +1418,13 @@ Table of Contents
    authorization request and its unredeemed code, which a holder of a
    copy of a public client's statement can approve with its own account.
    Otherwise a holder of a copy could exhaust the bound for the
-   software's other instances.
+   software's other instances.  Counting an establishment once a token
+   is issued under it, such as at code redemption, keeps pushed
+   authorization requests and unredeemed codes out of the count.  A
+   holder of a copy can still redeem a code it approves, which a bound
+   per resource owner limits.  A confidential client's establishment can
+   count from its creation if the request that creates it authenticates
+   the client, as at the token or pushed authorization request endpoint.
 
    For software admitted under Section 5.6.2, a server can also bound
    establishments per resource owner, so that one user cannot exhaust a
@@ -1441,12 +1483,12 @@ Table of Contents
    traffic.  A fleet of statements issued together expires together, so
    issuers ought to stagger expiries or renew ahead of the boundary.
 
-   A changed document is always served before a statement over it
-   exists, so presentations under an earlier statement fail the digest
-   comparison (Section 5.2), and the client cannot be admitted on a
-   statement until one over the changed document is issued.  A
-   statement's lifetime bounds how long a review stands without being
-   renewed.
+   Once a server has retrieved a changed document, presentations under
+   an earlier statement fail the digest comparison there (Section 5.2),
+   even if the change alters no metadata value (Section 13.1), and the
+   client cannot be admitted on a statement until one over the changed
+   document is issued.  A statement's lifetime bounds how long a review
+   stands without being renewed.
 
    Instances need the most recently issued statement from a shared
    source rather than a copy fixed at build or install time, because the
@@ -2018,6 +2060,36 @@ Document History
    *  Made the IANA description of the cimd_digest claim neutral about
       what the JWT's issuer asserts, so that other JWT profiles can
       carry the claim.
+
+   *  Made a server that pulls statements retrieve a held document once
+      more before concluding that no statement matches it.
+
+   *  Listed vouching for a client's document in an identity assertion
+      as an extension point.
+
+   *  Replaced references to numbered steps and items with the checks
+      they name.
+
+   *  Named the temporarily_unavailable error code where a pull of
+      statements does not complete and reviewed software is required.
+
+   *  Stated that a public client's pulled statement without PKCE or a
+      bound key is review-only rather than rejected.
+
+   *  Stated that the error codes for presentation requests apply to
+      pulled statements.
+
+   *  Added a check that a statement's alg is one the trust
+      configuration accepts from its issuer.
+
+   *  Clarified what a server does on a digest mismatch, and the effect
+      of a document change on admission.
+
+   *  Gave the token endpoint example a client of its own.
+
+   *  Stated how a server can count establishments toward a bound.
+
+   *  Defined a tenant-scoped decision.
 
    -01
 
