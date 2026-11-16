@@ -231,10 +231,11 @@ For each trusted issuer, the configuration records at least the following:
 * The authorization server issuer identifiers the issuer can name in `aud`.
 * Any tenant to which the server confines the issuer's decisions.
 * The maximum statement lifetime the server honors, which sets each statement's effective expiry.
+* The source of the issuer's statement key set, as described below.
 
 A client identifier namespace is an `https` URL with no query or fragment whose path ends in `/`, such as `https://client.example/` or `https://client.example/apps/`. A client identifier URL falls within a namespace if the namespace is a prefix of it under simple string comparison (Section 6.2.1 of {{RFC3986}}).
 
-The issuer's statement key set is the JWK Set at the `software_statement_jwks_uri` in its authorization server metadata ({{authorization-server-metadata}}), discovered from the configured `iss` ({{RFC8414}}). For an issuer that is not an authorization server, it is the JWK Set at a statement key set URL in the configuration. It is never the JWK Set at a `jwks_uri` metadata value. Its URL MUST use the `https` scheme, and a trusting authorization server MUST validate the certificate of the host serving it. The issuer MUST NOT publish a key of its statement key set in any other JWK Set, or sign anything other than statements under this specification with those keys. A trusting authorization server reuses a retrieved statement key set only as {{retrieval}} permits.
+The issuer's statement key set comes from exactly one source that the configuration records: the `software_statement_jwks_uri` in the authorization server metadata ({{authorization-server-metadata}}) discovered from the configured `iss` ({{RFC8414}}), or a statement key set URL in the configuration, which is the only source for an issuer that is not an authorization server. A trusting authorization server MUST NOT combine the two sources, or fall back from one to the other after a retrieval or validation failure. The statement key set is never the JWK Set at a `jwks_uri` metadata value. Its URL MUST use the `https` scheme, and a trusting authorization server MUST validate the certificate of the host serving it. The issuer MUST NOT publish a key of its statement key set in any other JWK Set, or sign anything other than statements under this specification with those keys. A trusting authorization server reuses a retrieved statement key set only as {{retrieval}} permits.
 
 The configuration can also make an issuer a required issuer for client identifier namespaces in one of the server's tenants ({{trust-configuration}}). The server then MUST NOT admit, in that tenant, software to which the requirement applies without a current statement from the required issuer, whatever its policy for CIMD clients it has not reviewed. Without this rule, a holder could evade the required issuer's decision by withholding that issuer's statement or by presenting or publishing only a broader one, such as a marketplace listing. A required issuer configured for software whose document carries a redirection URI that another application on the same device could claim, which makes every presentation review-only ({{review-only}}), excludes that software from the tenant, and the server rejects a request for such software there.
 
@@ -997,6 +998,7 @@ This mechanism began as the consumption part of a draft on software statement is
 * Stated how a server can count establishments toward a bound.
 * Defined a tenant-scoped decision.
 * Normative clarification: the trust configuration makes at most one issuer required for a client identifier in a tenant. Overlapping namespaces resolve to one issuer through configuration, and alternative or multiple required issuers are left to extensions.
+* Normative clarification: the trust configuration records exactly one source for an issuer's statement key set, and a server neither combines the sources nor falls back between them.
 
 -01
 
