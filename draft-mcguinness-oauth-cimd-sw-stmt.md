@@ -717,6 +717,8 @@ Once a server has retrieved a changed document, presentations under an earlier s
 
 Instances need the most recently issued statement from a shared source rather than a copy fixed at build or install time, because the document can change ({{effective-metadata}}).
 
+A client that presents a statement needs to keep that copy current and over the document it serves. Publishing a newer statement provides no fallback when the presented one fails, because a server pulls statements only when the client presents none ({{pulled-statements}}).
+
 # Security Considerations {#security-considerations}
 
 The security considerations of {{CIMD}} and Section 5 of {{RFC7591}} apply.
@@ -1007,6 +1009,7 @@ This mechanism began as the consumption part of a draft on software statement is
 * Named the operations that consume the `software_statement` parameter in place of an undefined "role".
 * Replaced "standing" in Observable State with what a `statement_required` refusal reveals.
 * Named the act each use of "decision" meant, such as an issuer's review or a server's acceptance of an issuer.
+* Noted that a newer published statement provides no fallback when a presented one fails.
 
 -01
 
