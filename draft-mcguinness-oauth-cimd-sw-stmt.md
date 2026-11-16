@@ -336,7 +336,7 @@ The server considers only statements that meet all of the following conditions, 
 * The statement validates under {{validation}}.
 * The `cimd_digest` claim equals the digest of the document the server resolved.
 
-If the server's trust configuration requires an issuer for this client ({{issuer-trust}}), the server also ignores statements from any other issuer. If more than one statement remains, it applies the most recently issued statement from an issuer of its choice.
+If the server's trust configuration requires an issuer for this client in the request's tenant ({{issuer-trust}}), the server also ignores statements from any other issuer. If more than one statement remains, it applies the most recently issued statement from an issuer of its choice.
 
 If the server resolved the document from octets it held, no statement remains, and a statement that meets every other condition, including any required issuer, carries a different `cimd_digest` claim, the server retrieves the document once more and repeats the selection against it over the statements already pulled, as {{effective-metadata}} requires before a mismatch is treated as a change.
 
