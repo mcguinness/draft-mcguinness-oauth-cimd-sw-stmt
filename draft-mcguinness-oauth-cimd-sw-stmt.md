@@ -257,7 +257,7 @@ An authorization server that admits clients at request time under this specifica
 For a runtime presentation, the authorization server proceeds as follows, rejecting at the first failure ({{errors}}):
 
 1. Obtain the statement, presented in the request ({{runtime-presentation}}) or pulled ({{pulled-statements}}).
-2. Validate the statement ({{validation}}), completing every check that needs no client-controlled retrieval before any such retrieval ({{retrieval}}).
+2. Validate the statement ({{validation}}), completing every check that needs no client-controlled retrieval before any such retrieval ({{retrieval}}). Then verify that the statement is from the required issuer for its `sub` in the request's tenant, if one applies ({{issuer-trust}}).
 3. Verify the `client_id` rule of {{runtime-presentation}}.
 4. Resolve the reviewed document and compare its digest ({{effective-metadata}}). On a mismatch, the server rejects the request or, by local policy, proceeds without the statement as {{effective-metadata}} describes, and the remaining steps do not apply.
 5. Apply {{sender-constraint}} to that document, verifying the sender constraint unless the statement is review-only ({{review-only}}). If {{sender-constraint}} or {{pull-binding}} defers the proof to code redemption, the server verifies it there.
