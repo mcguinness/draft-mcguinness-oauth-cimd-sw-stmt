@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                        16 November 2026
-Expires: 20 May 2027
+Intended status: Standards Track                        17 November 2026
+Expires: 21 May 2027
 
 
    Client ID Metadata Document Vouching in Identity Assertion Grants
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 20 May 2027.
+   This Internet-Draft will expire on 21 May 2027.
 
 Copyright Notice
 
@@ -297,7 +297,9 @@ Table of Contents
    access token.
 
    If the ID-JAG carries the claim and its issuer is a designated issuer
-   for the client in the tenant (Section 4.1), the server checks the
+   for the client in the tenant (Section 4.1), the server rejects the
+   request with the invalid_grant error code if the claim's value is not
+   a string, without obtaining the document, and otherwise checks the
    client's document against the claim:
 
    *  The server obtains the document at the URL in the client_id claim,
@@ -316,7 +318,9 @@ Table of Contents
       invalid_grant error code, even if its policy does not require a
       vouched admission (Section 8.4).
 
-   If the digests match, the server determines which of the vouched
+   If the digests match, the client's metadata for the request comes
+   from the octets whose digest matched, as Section 5.2 of [STATEMENT]
+   requires for a statement.  The server determines which of the vouched
    document's permitted methods it supports and its policy allows for
    token endpoint authentication, apart from any requirement for a
    vouched admission.  If there is no such method, Section 5 of [CIMD]
@@ -517,7 +521,7 @@ Table of Contents
    about the client.  Such an identity provider could instead issue
    statements confined to a tenant with aud_tenant, but the claim needs
    no second artifact and no separate issuance step.  A multi-tenant
-   identity provider whose customers' decisions are each trusted
+   identity provider whose customers' reviews are each trusted
    independently would also have to issue statements under a distinct
    iss value for each customer (Section 4.1 of [STATEMENT]), while its
    ID-JAGs already carry the tenant claim (Section 6.1 of [IDJAG]).  The
